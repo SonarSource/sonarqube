@@ -72,7 +72,7 @@ public class WebhookCallerImplTest {
   }
 
   @Test
-  public void send_does_not_throw_exception_on_errors() throws Exception {
+  public void silently_catch_error_when_external_server_does_not_answer() throws Exception {
     Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
     WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
 
@@ -82,6 +82,22 @@ public class WebhookCallerImplTest {
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
     assertThat(delivery.getErrorMessage().get()).startsWith("Failed to connect");
+    assertThat(delivery.getAt()).isEqualTo(NOW);
+    assertThat(delivery.getWebhook()).isSameAs(webhook);
+    assertThat(delivery.getPayload()).isSameAs(payload);
+  }
+
+  @Test
+  public void silently_catch_error_when_url_is_incorrect() throws Exception {
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", "this_is_not_an_url");
+    WebhookPayload payload = new WebhookPayload("P1", "{the payload}");
+
+    WebhookDelivery delivery = newSender().call(webhook, payload);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getDurationInMs()).isEmpty();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage().get()).isEqualTo("unexpected url: this_is_not_an_url");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(payload);
