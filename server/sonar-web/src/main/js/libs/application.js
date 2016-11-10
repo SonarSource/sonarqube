@@ -28,7 +28,7 @@
    * @param {string} message
    */
   window.showMessage = function (id, message) {
-    jQuery('#' + id + 'msg').html(message);
+    jQuery('#' + id + 'msg').text(message);
     jQuery('#' + id).removeClass('hidden');
     jQuery('#messages-panel').removeClass('hidden');
   };
