@@ -37,6 +37,7 @@ public class WebhookProperties {
    * Maximum allowed number of webhooks per type (globally or per project).
    * That is required to not become a DoS attacker, for instance
    * if thousands of webhooks are configured.
+   * Important - note that this number is written in full in {@link #DESCRIPTION}.
    */
   public static final long MAX_WEBHOOKS_PER_TYPE = 10;
 
@@ -47,8 +48,7 @@ public class WebhookProperties {
 
   private static final String CATEGORY = "webhooks";
   private static final String DESCRIPTION = "Webhooks are used to notify external services when a project analysis is done. " +
-    "A HTTP POST request including a JSON payload is sent to each of the provided URLs. <br/>" +
-    "Maximum " + MAX_WEBHOOKS_PER_TYPE + " webhooks are allowed. <br/>" +
+    "An HTTP POST request including a JSON payload is sent to each of the first ten provided URLs. <br/>" +
     "Learn more in the <a href=\"#\">Webhooks documentation</a>.";
 
   private WebhookProperties() {
