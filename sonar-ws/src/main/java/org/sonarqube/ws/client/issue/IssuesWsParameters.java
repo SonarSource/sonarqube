@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @since 5.3
  */
-public class IssueFilterParameters {
+public class IssuesWsParameters {
 
   public static final String ISSUES = "issues";
   public static final String SEVERITIES = "severities";
@@ -110,7 +110,7 @@ public class IssueFilterParameters {
     }
   }));
 
-  private IssueFilterParameters() {
+  private IssuesWsParameters() {
     // Utility class
   }
 }

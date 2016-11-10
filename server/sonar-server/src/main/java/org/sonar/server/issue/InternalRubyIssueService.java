@@ -37,7 +37,7 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
@@ -168,8 +168,8 @@ public class InternalRubyIssueService {
   @VisibleForTesting
   static SearchOptions toSearchOptions(Map<String, Object> props) {
     SearchOptions options = new SearchOptions();
-    Integer pageIndex = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX));
-    Integer pageSize = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE));
+    Integer pageIndex = RubyUtils.toInteger(props.get(IssuesWsParameters.PAGE_INDEX));
+    Integer pageSize = RubyUtils.toInteger(props.get(IssuesWsParameters.PAGE_SIZE));
     if (pageSize != null && pageSize < 0) {
       options.setLimit(SearchOptions.MAX_LIMIT);
     } else {

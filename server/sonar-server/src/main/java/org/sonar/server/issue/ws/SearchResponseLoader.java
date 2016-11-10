@@ -40,7 +40,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueService;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
@@ -144,7 +144,7 @@ public class SearchResponseLoader {
 
   private void completeTotalEffortFromFacet(@Nullable Facets facets, SearchResponseData result) {
     if (facets != null) {
-      Map<String, Long> effortFacet = facets.get(IssueFilterParameters.FACET_MODE_EFFORT);
+      Map<String, Long> effortFacet = facets.get(IssuesWsParameters.FACET_MODE_EFFORT);
       if (effortFacet != null) {
         result.setEffortTotal(effortFacet.get(Facets.TOTAL));
       }

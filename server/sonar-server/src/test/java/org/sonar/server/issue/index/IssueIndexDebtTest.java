@@ -52,8 +52,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 
 public class IssueIndexDebtTest {
 

@@ -59,7 +59,7 @@ import org.sonar.server.component.ComponentService;
 import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssuesWsParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -74,13 +74,13 @@ import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_KEYS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_ROOTS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PERIOD;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_ROOTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.SINCE_LEAK_PERIOD;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
@@ -109,55 +109,55 @@ public class IssueQueryService {
     try {
 
       IssueQuery.Builder builder = IssueQuery.builder(userSession)
-        .issueKeys(RubyUtils.toStrings(params.get(IssueFilterParameters.ISSUES)))
-        .severities(RubyUtils.toStrings(params.get(IssueFilterParameters.SEVERITIES)))
-        .statuses(RubyUtils.toStrings(params.get(IssueFilterParameters.STATUSES)))
-        .resolutions(RubyUtils.toStrings(params.get(IssueFilterParameters.RESOLUTIONS)))
-        .resolved(RubyUtils.toBoolean(params.get(IssueFilterParameters.RESOLVED)))
-        .rules(toRules(params.get(IssueFilterParameters.RULES)))
-        .assignees(buildAssignees(RubyUtils.toStrings(params.get(IssueFilterParameters.ASSIGNEES))))
-        .languages(RubyUtils.toStrings(params.get(IssueFilterParameters.LANGUAGES)))
-        .tags(RubyUtils.toStrings(params.get(IssueFilterParameters.TAGS)))
-        .types(RubyUtils.toStrings(params.get(IssueFilterParameters.TYPES)))
-        .assigned(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASSIGNED)))
-        .hideRules(RubyUtils.toBoolean(params.get(IssueFilterParameters.HIDE_RULES)))
-        .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
+        .issueKeys(RubyUtils.toStrings(params.get(IssuesWsParameters.ISSUES)))
+        .severities(RubyUtils.toStrings(params.get(IssuesWsParameters.SEVERITIES)))
+        .statuses(RubyUtils.toStrings(params.get(IssuesWsParameters.STATUSES)))
+        .resolutions(RubyUtils.toStrings(params.get(IssuesWsParameters.RESOLUTIONS)))
+        .resolved(RubyUtils.toBoolean(params.get(IssuesWsParameters.RESOLVED)))
+        .rules(toRules(params.get(IssuesWsParameters.RULES)))
+        .assignees(buildAssignees(RubyUtils.toStrings(params.get(IssuesWsParameters.ASSIGNEES))))
+        .languages(RubyUtils.toStrings(params.get(IssuesWsParameters.LANGUAGES)))
+        .tags(RubyUtils.toStrings(params.get(IssuesWsParameters.TAGS)))
+        .types(RubyUtils.toStrings(params.get(IssuesWsParameters.TYPES)))
+        .assigned(RubyUtils.toBoolean(params.get(IssuesWsParameters.ASSIGNED)))
+        .hideRules(RubyUtils.toBoolean(params.get(IssuesWsParameters.HIDE_RULES)))
+        .createdAt(RubyUtils.toDate(params.get(IssuesWsParameters.CREATED_AT)))
         .createdAfter(buildCreatedAfterFromDates(RubyUtils.toDate(params.get(CREATED_AFTER)), (String) params.get(CREATED_IN_LAST)))
-        .createdBefore(RubyUtils.toDate(parseEndingDateOrDateTime((String) params.get(IssueFilterParameters.CREATED_BEFORE))));
+        .createdBefore(RubyUtils.toDate(parseEndingDateOrDateTime((String) params.get(IssuesWsParameters.CREATED_BEFORE))));
 
       Set<String> allComponentUuids = Sets.newHashSet();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
-        RubyUtils.toBoolean(params.get(IssueFilterParameters.ON_COMPONENT_ONLY)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_KEYS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS)),
+        RubyUtils.toBoolean(params.get(IssuesWsParameters.ON_COMPONENT_ONLY)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.COMPONENTS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.COMPONENT_UUIDS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.COMPONENT_KEYS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.COMPONENT_ROOT_UUIDS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.COMPONENT_ROOTS)),
         allComponentUuids);
 
       addComponentParameters(builder, session,
         effectiveOnComponentOnly,
         allComponentUuids,
-        RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECT_UUIDS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.PROJECT_UUIDS)),
         RubyUtils.toStrings(
           ObjectUtils.defaultIfNull(
-            params.get(IssueFilterParameters.PROJECT_KEYS),
-            params.get(IssueFilterParameters.PROJECTS))),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.DIRECTORIES)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)),
-        RubyUtils.toStrings(params.get(IssueFilterParameters.AUTHORS)));
+            params.get(IssuesWsParameters.PROJECT_KEYS),
+            params.get(IssuesWsParameters.PROJECTS))),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.MODULE_UUIDS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.DIRECTORIES)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.FILE_UUIDS)),
+        RubyUtils.toStrings(params.get(IssuesWsParameters.AUTHORS)));
 
-      String sort = (String) params.get(IssueFilterParameters.SORT);
+      String sort = (String) params.get(IssuesWsParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
-        builder.asc(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASC)));
+        builder.asc(RubyUtils.toBoolean(params.get(IssuesWsParameters.ASC)));
       }
-      String facetMode = (String) params.get(IssueFilterParameters.FACET_MODE);
+      String facetMode = (String) params.get(IssuesWsParameters.FACET_MODE);
       if (!Strings.isNullOrEmpty(facetMode)) {
         builder.facetMode(facetMode);
       } else {
-        builder.facetMode(IssueFilterParameters.FACET_MODE_COUNT);
+        builder.facetMode(IssuesWsParameters.FACET_MODE_COUNT);
       }
       return builder.build();
 

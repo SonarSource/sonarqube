@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.Resources;
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,9 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
-
-import java.util.Map;
+import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 /**
  * List issue tags matching a given query.
@@ -75,10 +74,10 @@ public class ComponentTagsAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Builder<String, Object> paramBuilder = ImmutableMap.<String, Object>builder()
-      .put(IssueFilterParameters.COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
-      .put(IssueFilterParameters.RESOLVED, false);
+      .put(IssuesWsParameters.COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
+      .put(IssuesWsParameters.RESOLVED, false);
     if (request.hasParam(PARAM_CREATED_AT)) {
-      paramBuilder.put(IssueFilterParameters.CREATED_AFTER, request.param(PARAM_CREATED_AT));
+      paramBuilder.put(IssuesWsParameters.CREATED_AFTER, request.param(PARAM_CREATED_AT));
     }
     IssueQuery query = queryService.createFromMap(paramBuilder.build());
     int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);

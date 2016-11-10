@@ -60,14 +60,14 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.issue.ws.IssuesWs.API_ENDPOINT;
 import static org.sonar.server.issue.ws.SearchAction.SEARCH_ACTION;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.HIDE_COMMENTS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.PAGE_INDEX;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.PAGE_SIZE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.HIDE_COMMENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PAGE_INDEX;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PAGE_SIZE;
 
 public class SearchActionMediumTest {
 

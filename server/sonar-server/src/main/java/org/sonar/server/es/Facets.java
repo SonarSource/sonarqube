@@ -36,7 +36,7 @@ import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 
 public class Facets {
 
