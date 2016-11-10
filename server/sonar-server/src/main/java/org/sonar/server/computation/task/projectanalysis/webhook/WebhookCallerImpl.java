@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -44,25 +43,32 @@ public class WebhookCallerImpl implements WebhookCaller {
 
   @Override
   public WebhookDelivery call(Webhook webhook, WebhookPayload payload) {
-    Request.Builder request = new Request.Builder();
-    request.url(webhook.getUrl());
-    request.header(PROJECT_KEY_HEADER, payload.getProjectKey());
-    RequestBody body = RequestBody.create(JSON, payload.toJson());
-    request.post(body);
-
     WebhookDelivery.Builder builder = new WebhookDelivery.Builder();
     long startedAt = system.now();
     builder
       .setAt(startedAt)
       .setPayload(payload)
       .setWebhook(webhook);
-    try (Response response = okHttpClient.newCall(request.build()).execute()) {
-      builder.setHttpStatus(response.code());
-      builder.setDurationInMs((int)(system.now() - startedAt));
-    } catch (IOException e) {
+
+    try {
+      Request request = buildHttpRequest(webhook, payload);
+      try (Response response = okHttpClient.newCall(request).execute()) {
+        builder.setHttpStatus(response.code());
+        builder.setDurationInMs((int) (system.now() - startedAt));
+      }
+    } catch (Exception e) {
       builder.setError(e);
     }
     return builder.build();
+  }
+
+  private static Request buildHttpRequest(Webhook webhook, WebhookPayload payload) {
+    Request.Builder request = new Request.Builder();
+    request.url(webhook.getUrl());
+    request.header(PROJECT_KEY_HEADER, payload.getProjectKey());
+    RequestBody body = RequestBody.create(JSON, payload.toJson());
+    request.post(body);
+    return request.build();
   }
 
 }
