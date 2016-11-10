@@ -1,0 +1,14 @@
+{
+  "delivery": {
+    "id": "d1",
+    "componentKey": "my-project",
+    "ceTaskId": "task-1",
+    "name": "Jenkins",
+    "url": "http://jenkins",
+    "at": "2017-07-14T04:40:00+0200",
+    "success": true,
+    "httpStatus": 200,
+    "durationMs": 10,
+    "payload": "{\"status\"=\"SUCCESS\"}"
+  }
+}

@@ -29,6 +29,11 @@ message DeliveriesWsResponse {
   repeated Delivery deliveries = 1;
 }
 
+// WS api/webhooks/delivery
+message DeliveryWsResponse {
+  optional Delivery delivery = 1;
+}
+
 message Delivery {
   optional string id = 1;
   optional string componentKey = 2;
@@ -39,4 +44,6 @@ message Delivery {
   optional bool success = 7;
   optional int32 httpStatus = 8;
   optional int32 durationMs = 9;
+  optional string payload = 10;
+  optional string errorStacktrace = 11;
 }
