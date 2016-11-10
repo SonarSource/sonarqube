@@ -33,6 +33,7 @@ import org.sonar.server.computation.task.projectanalysis.component.SettingsRepos
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static java.lang.String.format;
+import static org.sonar.core.config.WebhookProperties.MAX_WEBHOOKS_PER_TYPE;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
 
@@ -68,6 +69,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
     String[] webhookIds = settings.getStringArray(propertyKey);
     return Arrays.stream(webhookIds)
       .map(webhookId -> format("%s.%s", propertyKey, webhookId))
+      .limit(MAX_WEBHOOKS_PER_TYPE)
       .collect(Collectors.toList(webhookIds.length));
   }
 
