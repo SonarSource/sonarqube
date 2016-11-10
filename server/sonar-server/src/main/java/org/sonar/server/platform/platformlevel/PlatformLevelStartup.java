@@ -21,7 +21,6 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.es.IndexerStartupTask;
-import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.web.RegisterServletFilters;
@@ -58,7 +57,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterQualityProfiles.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
-      RegisterIssueFilters.class,
       DisplayLogOnDeprecatedProjects.class,
       ClearRulesOverloadedDebt.class,
       DeleteOldAnalysisReportsFromFs.class);

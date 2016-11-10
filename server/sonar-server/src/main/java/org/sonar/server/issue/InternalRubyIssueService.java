@@ -20,29 +20,23 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
-import org.sonar.server.util.Validation;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 /**
@@ -55,32 +49,27 @@ import org.sonarqube.ws.client.issue.IssueFilterParameters;
 @ServerSide
 public class InternalRubyIssueService {
 
-  private static final String ID_PARAM = "id";
-  private static final String NAME_PARAM = "name";
-  private static final String DESCRIPTION_PARAM = "description";
-  private static final String USER_PARAM = "user";
-
+  private final IssueIndex issueIndex;
   private final IssueService issueService;
   private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
-  private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final ActionService actionService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
-    IssueService issueService,
+    IssueIndex issueIndex, IssueService issueService,
     IssueQueryService issueQueryService,
     IssueCommentService commentService,
     IssueChangelogService changelogService,
-    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
+    IssueBulkChangeService issueBulkChangeService,
     ActionService actionService, UserSession userSession) {
+    this.issueIndex = issueIndex;
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
     this.changelogService = changelogService;
-    this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.actionService = actionService;
     this.userSession = userSession;
@@ -154,169 +143,11 @@ public class InternalRubyIssueService {
     return issueQueryService.createFromMap(Maps.<String, Object>newHashMap());
   }
 
-  @CheckForNull
-  public IssueFilterDto findIssueFilterById(Long id) {
-    return issueFilterService.findById(id);
-  }
-
-  /**
-   * Return the issue filter if the user has the right to see it
-   * Never return null
-   */
-  public IssueFilterDto findIssueFilter(Long id) {
-    return issueFilterService.find(id, userSession);
-  }
-
-  public boolean isUserAuthorized(IssueFilterDto issueFilter) {
-    try {
-      String user = issueFilterService.getLoggedLogin(userSession);
-      issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, user);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  public boolean canUserShareIssueFilter() {
-    return issueFilterService.canShareFilter(userSession);
-  }
-
-  public String serializeFilterQuery(Map<String, Object> filterQuery) {
-    return issueFilterService.serializeFilterQuery(filterQuery);
-  }
-
-  public Map<String, Object> deserializeFilterQuery(IssueFilterDto issueFilter) {
-    return issueFilterService.deserializeIssueFilterQuery(issueFilter);
-  }
-
-  public Map<String, Object> sanitizeFilterQuery(Map<String, Object> filterQuery) {
-    return Maps.filterEntries(filterQuery, MatchIssueFilterParameters.INSTANCE);
-  }
-
   /**
    * Execute issue filter from parameters
    */
-  public IssueFilterService.IssueFilterResult execute(Map<String, Object> props) {
-    return issueFilterService.execute(issueQueryService.createFromMap(props), toSearchOptions(props));
-  }
-
-  /**
-   * Execute issue filter from existing filter with optional overridable parameters
-   */
-  public IssueFilterService.IssueFilterResult execute(Long issueFilterId, Map<String, Object> overrideProps) {
-    IssueFilterDto issueFilter = issueFilterService.find(issueFilterId, userSession);
-    Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
-    overrideProps(props, overrideProps);
-    return execute(props);
-  }
-
-  private static void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
-    for (Map.Entry<String, Object> entry : overrideProps.entrySet()) {
-      props.put(entry.getKey(), entry.getValue());
-    }
-  }
-
-  /**
-   * List user issue filter
-   */
-  public List<IssueFilterDto> findIssueFiltersForCurrentUser() {
-    return issueFilterService.findByUser(userSession);
-  }
-
-  /**
-   * Create issue filter
-   */
-  public IssueFilterDto createIssueFilter(Map<String, String> parameters) {
-    IssueFilterDto result = createIssueFilterResultForNew(parameters);
-    return issueFilterService.save(result, userSession);
-  }
-
-  /**
-   * Update issue filter
-   */
-  public IssueFilterDto updateIssueFilter(Map<String, String> parameters) {
-    IssueFilterDto result = createIssueFilterResultForUpdate(parameters);
-    return issueFilterService.update(result, userSession);
-  }
-
-  /**
-   * Update issue filter data
-   */
-  public IssueFilterDto updateIssueFilterQuery(Long issueFilterId, Map<String, Object> data) {
-    return issueFilterService.updateFilterQuery(issueFilterId, data, userSession);
-  }
-
-  /**
-   * Delete issue filter
-   */
-  public void deleteIssueFilter(Long issueFilterId) {
-    issueFilterService.delete(issueFilterId, userSession);
-  }
-
-  /**
-   * Copy issue filter
-   */
-  public IssueFilterDto copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
-    IssueFilterDto result = createIssueFilterResultForCopy(parameters);
-    return issueFilterService.copy(issueFilterIdToCopy, result, userSession);
-  }
-
-  @VisibleForTesting
-  IssueFilterDto createIssueFilterResultForNew(Map<String, String> params) {
-    return createIssueFilterResult(params, false, false);
-  }
-
-  @VisibleForTesting
-  IssueFilterDto createIssueFilterResultForUpdate(Map<String, String> params) {
-    return createIssueFilterResult(params, true, true);
-  }
-
-  @VisibleForTesting
-  IssueFilterDto createIssueFilterResultForCopy(Map<String, String> params) {
-    return createIssueFilterResult(params, false, false);
-  }
-
-  @VisibleForTesting
-  IssueFilterDto createIssueFilterResult(Map<String, String> params, boolean checkId, boolean checkUser) {
-    String id = params.get(ID_PARAM);
-    String name = params.get(NAME_PARAM);
-    String description = params.get(DESCRIPTION_PARAM);
-    String data = params.get("data");
-    String user = params.get(USER_PARAM);
-    Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
-    boolean shared = sharedParam != null ? sharedParam : false;
-
-    if (checkId) {
-      Validation.checkMandatoryParameter(id, ID_PARAM);
-    }
-    if (checkUser) {
-      Validation.checkMandatoryParameter(user, USER_PARAM);
-    }
-    Validation.checkMandatorySizeParameter(name, NAME_PARAM, 100);
-    checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 4000);
-
-    IssueFilterDto issueFilterDto = new IssueFilterDto()
-      .setName(name)
-      .setDescription(description)
-      .setShared(shared)
-      .setUserLogin(user)
-      .setData(data);
-    if (!Strings.isNullOrEmpty(id)) {
-      issueFilterDto.setId(Long.valueOf(id));
-    }
-    return issueFilterDto;
-  }
-
-  public List<IssueFilterDto> findSharedFiltersForCurrentUser() {
-    return issueFilterService.findSharedFiltersWithoutUserFilters(userSession);
-  }
-
-  public List<IssueFilterDto> findFavouriteIssueFiltersForCurrentUser() {
-    return issueFilterService.findFavoriteFilters(userSession);
-  }
-
-  public boolean toggleFavouriteIssueFilter(Long issueFilterId) {
-    return issueFilterService.toggleFavouriteIssueFilter(issueFilterId, userSession);
+  public List<IssueDoc> execute(Map<String, Object> props) {
+    return issueIndex.search(issueQueryService.createFromMap(props), toSearchOptions(props)).getDocs();
   }
 
   /**
@@ -325,12 +156,6 @@ public class InternalRubyIssueService {
   public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment, boolean sendNotifications) {
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment, sendNotifications);
     return issueBulkChangeService.execute(issueBulkChangeQuery, userSession);
-  }
-
-  private static void checkOptionalSizeParameter(String value, String paramName, Integer size) {
-    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
-    }
   }
 
   /**
@@ -369,12 +194,4 @@ public class InternalRubyIssueService {
     return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
   }
 
-  private enum MatchIssueFilterParameters implements Predicate<Map.Entry<String, Object>> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull Map.Entry<String, Object> input) {
-      return IssueFilterParameters.ALL.contains(input.getKey());
-    }
-  }
 }

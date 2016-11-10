@@ -28,7 +28,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.user.User;
 import org.sonar.api.web.UserRole;
@@ -37,20 +36,17 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
-import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -61,6 +57,8 @@ public class InternalRubyIssueServiceTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  IssueIndex issueIndex = mock(IssueIndex.class);
+
   IssueService issueService;
 
   IssueQueryService issueQueryService;
@@ -70,8 +68,6 @@ public class InternalRubyIssueServiceTest {
   IssueChangelogService changelogService;
 
   ResourceDao resourceDao;
-
-  IssueFilterService issueFilterService;
 
   IssueBulkChangeService issueBulkChangeService;
 
@@ -86,15 +82,14 @@ public class InternalRubyIssueServiceTest {
     commentService = mock(IssueCommentService.class);
     changelogService = mock(IssueChangelogService.class);
     resourceDao = mock(ResourceDao.class);
-    issueFilterService = mock(IssueFilterService.class);
     issueBulkChangeService = mock(IssueBulkChangeService.class);
     actionService = mock(ActionService.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(project);
 
-    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService,
-      issueFilterService, issueBulkChangeService, actionService, userSessionRule);
+    service = new InternalRubyIssueService(issueIndex, issueService, issueQueryService, commentService, changelogService,
+      issueBulkChangeService, actionService, userSessionRule);
   }
 
   @Test
@@ -153,259 +148,6 @@ public class InternalRubyIssueServiceTest {
     IssueChangelog result = service.changelog(issue);
 
     assertThat(result).isSameAs(changelog);
-  }
-
-  @Test
-  public void create_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-
-    service.createIssueFilter(parameters);
-
-    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
-    verify(issueFilterService).save(issueFilterCaptor.capture(), any(ThreadLocalUserSession.class));
-    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.getName()).isEqualTo("Long term");
-    assertThat(issueFilter.getDescription()).isEqualTo("Long term issues");
-  }
-
-  @Test
-  public void update_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("id", "10");
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    service.updateIssueFilter(parameters);
-
-    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
-    verify(issueFilterService).update(issueFilterCaptor.capture(), any(ThreadLocalUserSession.class));
-    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.getId()).isEqualTo(10L);
-    assertThat(issueFilter.getName()).isEqualTo("Long term");
-    assertThat(issueFilter.getDescription()).isEqualTo("Long term issues");
-  }
-
-  @Test
-  public void update_data() {
-    Map<String, Object> data = newHashMap();
-    service.updateIssueFilterQuery(10L, data);
-    verify(issueFilterService).updateFilterQuery(eq(10L), eq(data), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void delete_issue_filter() {
-    service.deleteIssueFilter(1L);
-    verify(issueFilterService).delete(eq(1L), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void copy_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Copy of Long term");
-    parameters.put("description", "Copy of Long term issues");
-
-    service.copyIssueFilter(1L, parameters);
-
-    ArgumentCaptor<IssueFilterDto> issueFilterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
-    verify(issueFilterService).copy(eq(1L), issueFilterCaptor.capture(), any(ThreadLocalUserSession.class));
-    IssueFilterDto issueFilter = issueFilterCaptor.getValue();
-    assertThat(issueFilter.getName()).isEqualTo("Copy of Long term");
-    assertThat(issueFilter.getDescription()).isEqualTo("Copy of Long term issues");
-  }
-
-  @Test
-  public void get_error_on_create_issue_filter_result_when_no_name() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    try {
-      service.createIssueFilterResultForNew(parameters);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      checkBadRequestException(e, "errors.cant_be_empty", "name");
-    }
-  }
-
-  @Test
-  public void get_error_on_create_issue_filter_result_when_name_is_too_long() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", createLongString(101));
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    try {
-      service.createIssueFilterResultForNew(parameters);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      checkBadRequestException(e, "errors.is_too_long", "name", 100);
-    }
-  }
-
-  @Test
-  public void get_error_on_create_issue_filter_result_when_description_is_too_long() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", createLongString(4001));
-    parameters.put("user", "John");
-
-    try {
-      service.createIssueFilterResultForNew(parameters);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      checkBadRequestException(e, "errors.is_too_long", "description", 4000);
-    }
-  }
-
-  @Test
-  public void get_error_on_create_issue_filter_result_when_id_is_null_on_update() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("id", null);
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    try {
-      service.createIssueFilterResultForUpdate(parameters);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      checkBadRequestException(e, "errors.cant_be_empty", "id");
-    }
-  }
-
-  @Test
-  public void get_error_on_create_issue_filter_result_when_user_is_null_on_update() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("id", "10");
-    parameters.put("name", "All Open Issues");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", null);
-
-    try {
-      service.createIssueFilterResultForUpdate(parameters);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      checkBadRequestException(e, "errors.cant_be_empty", "user");
-    }
-  }
-
-  @Test
-  public void get_no_error_on_issue_filter_result_when_id_and_user_are_null_on_copy() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("id", null);
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", null);
-
-    IssueFilterDto result = service.createIssueFilterResultForCopy(parameters);
-    assertThat(result).isNotNull();
-  }
-
-  @Test
-  public void execute_issue_filter_from_issue_query() {
-    service.execute(Maps.<String, Object>newHashMap());
-    verify(issueFilterService).execute(any(IssueQuery.class), any(SearchOptions.class));
-  }
-
-  @Test
-  public void execute_issue_filter_from_existing_filter() {
-    Map<String, Object> props = newHashMap();
-    props.put("componentRoots", "struts");
-    props.put("statuses", "OPEN");
-    when(issueFilterService.deserializeIssueFilterQuery(any(IssueFilterDto.class))).thenReturn(props);
-
-    Map<String, Object> overrideProps = newHashMap();
-    overrideProps.put("statuses", "CLOSED");
-    overrideProps.put("resolved", true);
-    overrideProps.put("pageSize", 20);
-    overrideProps.put("pageIndex", 2);
-
-    IssueQuery query = IssueQuery.builder(userSessionRule).build();
-    when(issueQueryService.createFromMap(eq(overrideProps))).thenReturn(query);
-
-    service.execute(10L, overrideProps);
-
-    ArgumentCaptor<IssueQuery> issueQueryArgumentCaptor = ArgumentCaptor.forClass(IssueQuery.class);
-    ArgumentCaptor<SearchOptions> contextArgumentCaptor = ArgumentCaptor.forClass(SearchOptions.class);
-
-    verify(issueFilterService).execute(issueQueryArgumentCaptor.capture(), contextArgumentCaptor.capture());
-    verify(issueFilterService).find(eq(10L), any(ThreadLocalUserSession.class));
-
-    SearchOptions searchOptions = contextArgumentCaptor.getValue();
-    assertThat(searchOptions.getLimit()).isEqualTo(20);
-    assertThat(searchOptions.getPage()).isEqualTo(2);
-  }
-
-  @Test
-  public void serialize_filter_query() {
-    Map<String, Object> props = newHashMap();
-    props.put("componentRoots", "struts");
-    service.serializeFilterQuery(props);
-    verify(issueFilterService).serializeFilterQuery(props);
-  }
-
-  @Test
-  public void deserialize_filter_query() {
-    IssueFilterDto issueFilter = new IssueFilterDto();
-    service.deserializeFilterQuery(issueFilter);
-    verify(issueFilterService).deserializeIssueFilterQuery(issueFilter);
-  }
-
-  @Test
-  public void sanitize_filter_query() {
-    Map<String, Object> query = newHashMap();
-    query.put("statuses", "CLOSED");
-    query.put("resolved", true);
-    query.put("unknown", "john");
-    Map<String, Object> result = service.sanitizeFilterQuery(query);
-    assertThat(result.keySet()).containsOnly("statuses", "resolved");
-  }
-
-  @Test
-  public void find_user_issue_filters() {
-    service.findIssueFiltersForCurrentUser();
-    verify(issueFilterService).findByUser(any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void find_shared_issue_filters() {
-    service.findSharedFiltersForCurrentUser();
-    verify(issueFilterService).findSharedFiltersWithoutUserFilters(any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void find_favourite_issue_filters() {
-    service.findFavouriteIssueFiltersForCurrentUser();
-    verify(issueFilterService).findFavoriteFilters(any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void toggle_favourite_issue_filter() {
-    service.toggleFavouriteIssueFilter(10L);
-    verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void check_if_user_is_authorized_to_see_issue_filter() {
-    IssueFilterDto issueFilter = new IssueFilterDto();
-    service.isUserAuthorized(issueFilter);
-    verify(issueFilterService).getLoggedLogin(any(ThreadLocalUserSession.class));
-    verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), anyString());
-  }
-
-  @Test
-  public void check_if_user_can_share_issue_filter() {
-    service.canUserShareIssueFilter();
-    verify(issueFilterService).canShareFilter(any(ThreadLocalUserSession.class));
   }
 
   @Test

@@ -72,7 +72,6 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
-import org.sonar.server.issue.filter.IssueFilterWsModule;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
@@ -417,8 +416,6 @@ public class PlatformLevel4 extends PlatformLevel {
       NewIssuesNotificationFactory.class,
       EmailNotificationChannel.class,
       AlertsEmailTemplate.class,
-
-      IssueFilterWsModule.class,
 
       // issues actions
       AssignAction.class,
