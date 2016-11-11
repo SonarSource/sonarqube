@@ -198,36 +198,37 @@ public class DefaultIndex {
 
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
-    if (bucket != null) {
-      if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
-        // Ignore deprecated metrics
-        return measure;
-      }
-      org.sonar.api.batch.measure.Metric<?> metric = metricFinder.findByKey(measure.getMetricKey());
-      if (metric == null) {
-        throw new UnsupportedOperationException("Unknown metric: " + measure.getMetricKey());
-      }
-      DefaultMeasure<?> newMeasure;
-      if (Boolean.class.equals(metric.valueType())) {
-        newMeasure = new DefaultMeasure<Boolean>().forMetric((Metric<Boolean>) metric)
-          .withValue(measure.getValue() != 0.0);
-      } else if (Integer.class.equals(metric.valueType())) {
-        newMeasure = new DefaultMeasure<Integer>().forMetric((Metric<Integer>) metric)
-          .withValue(measure.getValue().intValue());
-      } else if (Double.class.equals(metric.valueType())) {
-        newMeasure = new DefaultMeasure<Double>().forMetric((Metric<Double>) metric)
-          .withValue(measure.getValue());
-      } else if (String.class.equals(metric.valueType())) {
-        newMeasure = new DefaultMeasure<String>().forMetric((Metric<String>) metric)
-          .withValue(measure.getData());
-      } else if (Long.class.equals(metric.valueType())) {
-        newMeasure = new DefaultMeasure<Long>().forMetric((Metric<Long>) metric)
-          .withValue(measure.getValue().longValue());
-      } else {
-        throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
-      }
-      sensorStorage.saveMeasure(componentCache.get(resource).inputComponent(), newMeasure);
+    if (bucket == null) {
+      return measure;
     }
+    if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
+      // Ignore deprecated metrics
+      return measure;
+    }
+    org.sonar.api.batch.measure.Metric<?> metric = metricFinder.findByKey(measure.getMetricKey());
+    if (metric == null) {
+      throw new UnsupportedOperationException("Unknown metric: " + measure.getMetricKey());
+    }
+    DefaultMeasure<?> newMeasure;
+    if (Boolean.class.equals(metric.valueType())) {
+      newMeasure = new DefaultMeasure<Boolean>().forMetric((Metric<Boolean>) metric)
+        .withValue(measure.getValue() != 0.0);
+    } else if (Integer.class.equals(metric.valueType())) {
+      newMeasure = new DefaultMeasure<Integer>().forMetric((Metric<Integer>) metric)
+        .withValue(measure.getValue().intValue());
+    } else if (Double.class.equals(metric.valueType())) {
+      newMeasure = new DefaultMeasure<Double>().forMetric((Metric<Double>) metric)
+        .withValue(measure.getValue());
+    } else if (String.class.equals(metric.valueType())) {
+      newMeasure = new DefaultMeasure<String>().forMetric((Metric<String>) metric)
+        .withValue(measure.getData());
+    } else if (Long.class.equals(metric.valueType())) {
+      newMeasure = new DefaultMeasure<Long>().forMetric((Metric<Long>) metric)
+        .withValue(measure.getValue().longValue());
+    } else {
+      throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
+    }
+    sensorStorage.saveMeasure(componentCache.get(resource).inputComponent(), newMeasure);
     return measure;
   }
 

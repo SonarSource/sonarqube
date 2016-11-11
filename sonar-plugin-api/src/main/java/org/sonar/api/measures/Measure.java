@@ -246,31 +246,30 @@ public class Measure<G extends Serializable> implements Serializable {
    * For internal use.
    */
   public G value() {
+    if (value == null) {
+      return null;
+    }
     switch (getMetric().getType()) {
       case BOOL:
-        return value == null ? null : (G) Boolean.valueOf(Double.doubleToRawLongBits(value) != 0L);
+        return (G) Boolean.valueOf(Double.doubleToRawLongBits(value) != 0L);
       case INT:
       case MILLISEC:
       case RATING:
-        return value == null ? null : (G) Integer.valueOf(value.intValue());
+        return (G) Integer.valueOf(value.intValue());
       case FLOAT:
       case PERCENT:
-        return value == null ? null : (G) value;
       case STRING:
       case LEVEL:
       case DATA:
       case DISTRIB:
-        return data == null ? null : (G) data;
+        return (G) data;
       case WORK_DUR:
-        return value == null ? null : (G) Long.valueOf(value.longValue());
+        return (G) Long.valueOf(value.longValue());
       default:
-        if (getMetric().isNumericType()) {
-          return value == null ? null : (G) value;
-        } else if (getMetric().isDataType()) {
-          return data == null ? null : (G) data;
-        } else {
-          throw new UnsupportedOperationException("Unsupported type :" + getMetric().getType());
+        if (getMetric().isNumericType() || getMetric().isDataType()) {
+          return (G) value;
         }
+        throw new UnsupportedOperationException("Unsupported type :" + getMetric().getType());
     }
   }
 

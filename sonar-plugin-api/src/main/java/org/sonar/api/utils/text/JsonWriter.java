@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.text;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
 import java.util.Map;
@@ -214,42 +215,47 @@ public class JsonWriter {
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter valueObject(@Nullable Object value) {
+
     try {
       if (value == null) {
         stream.nullValue();
-      } else {
-        if (value instanceof String) {
-          stream.value(serializeEmptyStrings ? (String) value : emptyToNull((String) value));
-        } else if (value instanceof Number) {
-          stream.value((Number) value);
-        } else if (value instanceof Boolean) {
-          stream.value((Boolean) value);
-        } else if (value instanceof Date) {
-          valueDateTime((Date) value);
-        } else if (value instanceof Enum) {
-          stream.value(((Enum) value).name());
-        } else if (value instanceof Map) {
-          stream.beginObject();
-          for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
-            stream.name(entry.getKey().toString());
-            valueObject(entry.getValue());
-          }
-          stream.endObject();
-        } else if (value instanceof Iterable) {
-          stream.beginArray();
-          for (Object o : (Iterable<Object>) value) {
-            valueObject(o);
-          }
-          stream.endArray();
-        } else {
-          throw new IllegalArgumentException(getClass() + " does not support encoding of type: " + value.getClass());
-        }
+        return this;
       }
+      valueNonNullObject(value);
       return this;
     } catch (IllegalArgumentException e) {
       throw e;
     } catch (Exception e) {
       throw rethrow(e);
+    }
+  }
+
+  private void valueNonNullObject(Object value) throws IOException {
+    if (value instanceof String) {
+      stream.value(serializeEmptyStrings ? (String) value : emptyToNull((String) value));
+    } else if (value instanceof Number) {
+      stream.value((Number) value);
+    } else if (value instanceof Boolean) {
+      stream.value((Boolean) value);
+    } else if (value instanceof Date) {
+      valueDateTime((Date) value);
+    } else if (value instanceof Enum) {
+      stream.value(((Enum) value).name());
+    } else if (value instanceof Map) {
+      stream.beginObject();
+      for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
+        stream.name(entry.getKey().toString());
+        valueObject(entry.getValue());
+      }
+      stream.endObject();
+    } else if (value instanceof Iterable) {
+      stream.beginArray();
+      for (Object o : (Iterable<Object>) value) {
+        valueObject(o);
+      }
+      stream.endArray();
+    } else {
+      throw new IllegalArgumentException(getClass() + " does not support encoding of type: " + value.getClass());
     }
   }
 
@@ -382,7 +388,7 @@ public class JsonWriter {
   }
 
   private static IllegalStateException rethrow(Exception e) {
-    throw new WriterException("Fail to write JSON",  e);
+    throw new WriterException("Fail to write JSON", e);
   }
 
   @Nullable
