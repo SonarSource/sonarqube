@@ -20,7 +20,7 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.base.Optional;
-import org.elasticsearch.common.Nullable;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;

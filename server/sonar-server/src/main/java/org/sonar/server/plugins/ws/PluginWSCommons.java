@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
@@ -269,7 +270,8 @@ public class PluginWSCommons {
     }
   }
 
-  static String categoryOrNull(Plugin plugin) {
+  @CheckForNull
+  static String categoryOrNull(@Nullable Plugin plugin) {
     return plugin != null ? plugin.getCategory() : null;
   }
 
