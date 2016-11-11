@@ -35,8 +35,10 @@ import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Link;
 import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
 import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -146,9 +148,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       if (qualityGate.isPresent()) {
         project.setQualityGate(qualityGate.get());
       }
-      if (!isNullOrEmpty(dto.description())) {
-        project.setDescription(dto.description());
-      }
+      setNullable(emptyToNull(dto.description()), project::setDescription);
 
       data.projectLinksFor(dto.uuid()).stream()
         .map(ProjectLinkDtoToWs.INSTANCE)

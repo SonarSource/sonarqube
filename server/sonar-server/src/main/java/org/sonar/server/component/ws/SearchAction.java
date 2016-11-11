@@ -42,6 +42,7 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -164,10 +165,7 @@ public class SearchAction implements ComponentsWsAction {
         .setKey(dto.key())
         .setName(dto.name())
         .setQualifier(dto.qualifier());
-      if (dto.language() != null) {
-        builder.setLanguage(dto.language());
-      }
-
+      setNullable(dto.language(), builder::setLanguage);
       return builder.build();
     }
   }

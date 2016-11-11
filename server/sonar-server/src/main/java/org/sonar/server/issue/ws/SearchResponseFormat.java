@@ -49,7 +49,9 @@ import org.sonar.server.ws.WsResponseCommonFormat;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 public class SearchResponseFormat {
 
@@ -141,10 +143,8 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
-    Common.RuleType type = Common.RuleType.valueOf(dto.getType());
-    if (type != null) {
-      issueBuilder.setType(type);
-    }
+    setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::valueOf);
+
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setComponent(component.key());
     // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
@@ -159,12 +159,8 @@ public class SearchResponseFormat {
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
-    if (!Strings.isNullOrEmpty(dto.getAssignee())) {
-      issueBuilder.setAssignee(dto.getAssignee());
-    }
-    if (!Strings.isNullOrEmpty(dto.getResolution())) {
-      issueBuilder.setResolution(dto.getResolution());
-    }
+    setNullable(emptyToNull(dto.getAssignee()), issueBuilder::setAssignee);
+    setNullable(emptyToNull(dto.getResolution()), issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllTags(dto.getTags());
@@ -174,40 +170,29 @@ public class SearchResponseFormat {
       issueBuilder.setDebt(effortValue);
       issueBuilder.setEffort(effortValue);
     }
-    Integer line = dto.getLine();
-    if (line != null) {
-      issueBuilder.setLine(line);
-    }
+    setNullable(dto.getLine(), issueBuilder::setLine);
     completeIssueLocations(dto, issueBuilder);
     issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
-    Date date = dto.getIssueCreationDate();
-    if (date != null) {
-      issueBuilder.setCreationDate(DateUtils.formatDateTime(date));
-    }
-    date = dto.getIssueUpdateDate();
-    if (date != null) {
-      issueBuilder.setUpdateDate(DateUtils.formatDateTime(date));
-    }
-    date = dto.getIssueCloseDate();
-    if (date != null) {
-      issueBuilder.setCloseDate(DateUtils.formatDateTime(date));
-    }
+    setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
+    setNullable(dto.getIssueUpdateDate(), issueBuilder::setUpdateDate, DateUtils::formatDateTime);
+    setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
   }
 
   private void completeIssueLocations(IssueDto dto, Issues.Issue.Builder issueBuilder) {
     DbIssues.Locations locations = dto.parseLocations();
-    if (locations != null) {
-      if (locations.hasTextRange()) {
-        DbCommons.TextRange textRange = locations.getTextRange();
-        issueBuilder.setTextRange(convertTextRange(textRange));
+    if (locations == null) {
+      return;
+    }
+    if (locations.hasTextRange()) {
+      DbCommons.TextRange textRange = locations.getTextRange();
+      issueBuilder.setTextRange(convertTextRange(textRange));
+    }
+    for (DbIssues.Flow flow : locations.getFlowList()) {
+      Issues.Flow.Builder targetFlow = Issues.Flow.newBuilder();
+      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+        targetFlow.addLocations(convertLocation(flowLocation));
       }
-      for (DbIssues.Flow flow : locations.getFlowList()) {
-        Issues.Flow.Builder targetFlow = Issues.Flow.newBuilder();
-        for (DbIssues.Location flowLocation : flow.getLocationList()) {
-          targetFlow.addLocations(convertLocation(flowLocation));
-        }
-        issueBuilder.addFlows(targetFlow);
-      }
+      issueBuilder.addFlows(targetFlow);
     }
   }
 
@@ -323,13 +308,10 @@ public class SearchResponseFormat {
         // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
         if (!uuid.equals(dto.getRootUuid())) {
           ComponentDto project = data.getComponentByUuid(dto.projectUuid());
-          if (project != null) {
-            builder.setProjectId(project.getId());
-          }
+          setNullable(project, builder::setProjectId, ComponentDto::getId);
+
           ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
-          if (subProject != null) {
-            builder.setSubProjectId(subProject.getId());
-          }
+          setNullable(subProject, builder::setSubProjectId, ComponentDto::getId);
         }
         result.add(builder.build());
       }
@@ -376,7 +358,7 @@ public class SearchResponseFormat {
           valueBuilder.build();
         }
       } else {
-        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
+        wsFacet.addAllValues(Collections.emptyList());
       }
       wsFacets.addFacets(wsFacet);
     }

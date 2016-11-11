@@ -41,6 +41,7 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
@@ -122,12 +123,8 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setName(templateDto.getName())
         .setCreatedAt(formatDateTime(templateDto.getCreatedAt()))
         .setUpdatedAt(formatDateTime(templateDto.getUpdatedAt()));
-      if (templateDto.getKeyPattern() != null) {
-        templateBuilder.setProjectKeyPattern(templateDto.getKeyPattern());
-      }
-      if (templateDto.getDescription() != null) {
-        templateBuilder.setDescription(templateDto.getDescription());
-      }
+      setNullable(templateDto.getKeyPattern(), templateBuilder::setProjectKeyPattern);
+      setNullable(templateDto.getDescription(), templateBuilder::setDescription);
       for (String permission : ProjectPermissions.ALL) {
         templateBuilder.addPermissions(
           permissionResponse

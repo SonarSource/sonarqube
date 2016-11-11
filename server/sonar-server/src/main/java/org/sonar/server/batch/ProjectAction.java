@@ -30,6 +30,7 @@ import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
 
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -85,7 +86,7 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse buildResponse(ProjectRepositories data) {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
-    setLastAnalysisDate(response, data);
+    setNullable(data.lastAnalysisDate(), response::setLastAnalysisDate, Date::getTime);
     response.setTimestamp(data.timestamp());
     response.getMutableFileDataByModuleAndPath()
       .putAll(buildFileDataByModuleAndPath(data));
@@ -93,13 +94,6 @@ public class ProjectAction implements BatchWsAction {
       .putAll(buildSettingsByModule(data));
 
     return response.build();
-  }
-
-  private static void setLastAnalysisDate(WsProjectResponse.Builder response, ProjectRepositories data) {
-    Date lastAnalysisDate = data.lastAnalysisDate();
-    if (lastAnalysisDate != null) {
-      response.setLastAnalysisDate(lastAnalysisDate.getTime());
-    }
   }
 
   private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPath(ProjectRepositories data) {
@@ -150,13 +144,8 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {
     Builder fileDataBuilder = WsProjectResponse.FileData.newBuilder();
-    if (fileData.hash() != null) {
-      fileDataBuilder.setHash(fileData.hash());
-    }
-    if (fileData.revision() != null) {
-      fileDataBuilder.setRevision(fileData.revision());
-    }
-
+    setNullable(fileData.hash(), fileDataBuilder::setHash);
+    setNullable(fileData.revision(), fileDataBuilder::setRevision);
     return fileDataBuilder.build();
   }
 }
