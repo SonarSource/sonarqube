@@ -233,12 +233,18 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .create();
 
+  /**
+   * @deprecated since 6.2
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   */
+  @Deprecated
   public static final String PUBLIC_API_KEY = "public_api";
   public static final Metric<Integer> PUBLIC_API = new Metric.Builder(PUBLIC_API_KEY, "Public API", Metric.ValueType.INT)
     .setDescription("Public API")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DOCUMENTATION)
+    .setHidden(true)
     .create();
 
   /**
@@ -278,6 +284,11 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_DOCUMENTATION)
     .create();
 
+  /**
+   * @deprecated since 6.2
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   */
+  @Deprecated
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
   public static final Metric<Double> PUBLIC_DOCUMENTED_API_DENSITY = new Metric.Builder(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public Documented API (%)", Metric.ValueType.PERCENT)
     .setDescription("Public documented classes and functions balanced by ncloc")
@@ -287,8 +298,14 @@ public final class CoreMetrics {
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 6.2
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-8328">SONAR-8328</a>
+   */
+  @Deprecated
   public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
   public static final Metric<Integer> PUBLIC_UNDOCUMENTED_API = new Metric.Builder(PUBLIC_UNDOCUMENTED_API_KEY, "Public Undocumented API", Metric.ValueType.INT)
     .setDescription("Public undocumented classes, functions and variables")
@@ -298,6 +315,7 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
