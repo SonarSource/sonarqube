@@ -54,6 +54,10 @@ public final class CoreMetrics {
   @Deprecated
   public static String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
   public static String DOMAIN_COMPLEXITY = "Complexity";
+  /**
+   * @deprecated since 6.2. Merged into {@link #DOMAIN_SIZE}
+   */
+  @Deprecated
   public static String DOMAIN_DOCUMENTATION = "Documentation";
   public static String DOMAIN_SCM = "SCM";
   public static String DOMAIN_ISSUES = "Issues";
@@ -262,27 +266,33 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .create();
 
-  // --------------------------------------------------------------------------------------------------------------------
-  //
-  // DOCUMENTATION
-  //
-  // --------------------------------------------------------------------------------------------------------------------
-
+  /**
+   * Moved to Size domain since 6.2
+   */
   public static final String COMMENT_LINES_KEY = "comment_lines";
   public static final Metric<Integer> COMMENT_LINES = new Metric.Builder(COMMENT_LINES_KEY, "Comment Lines", Metric.ValueType.INT)
     .setDescription("Number of comment lines")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
-    .setDomain(DOMAIN_DOCUMENTATION)
+    .setDomain(DOMAIN_SIZE)
     .create();
 
+  /**
+   * Moved to Size domain since 6.2
+   */
   public static final String COMMENT_LINES_DENSITY_KEY = "comment_lines_density";
   public static final Metric<Double> COMMENT_LINES_DENSITY = new Metric.Builder(COMMENT_LINES_DENSITY_KEY, "Comments (%)", Metric.ValueType.PERCENT)
     .setDescription("Comments balanced by ncloc + comment lines")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_DOCUMENTATION)
+    .setDomain(DOMAIN_SIZE)
     .create();
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // DOCUMENTATION
+  //
+  // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @deprecated since 6.2
@@ -2610,7 +2620,7 @@ public final class CoreMetrics {
    */
   public static final Metric<String> COMMENT_LINES_DATA = new Metric.Builder(COMMENT_LINES_DATA_KEY, "comment_lines_data", Metric.ValueType.DATA)
     .setHidden(true)
-    .setDomain(DOMAIN_DOCUMENTATION)
+    .setDomain(DOMAIN_SIZE)
     .create();
 
   /**
