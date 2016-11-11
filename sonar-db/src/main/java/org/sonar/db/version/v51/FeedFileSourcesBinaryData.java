@@ -40,8 +40,6 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
 
 public class FeedFileSourcesBinaryData extends BaseDataChange {
 
@@ -54,14 +52,11 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("issues");
     update.select("SELECT id,data FROM file_sources WHERE binary_data is null");
     update.update("UPDATE file_sources SET binary_data=? WHERE id=?");
-    update.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long fileSourceId = row.getNullableLong(1);
-        update.setBytes(1, toBinary(fileSourceId, row.getNullableString(2)));
-        update.setLong(2, fileSourceId);
-        return true;
-      }
+    update.execute((row, update1) -> {
+      Long fileSourceId = row.getNullableLong(1);
+      update1.setBytes(1, toBinary(fileSourceId, row.getNullableString(2)));
+      update1.setLong(2, fileSourceId);
+      return true;
     });
   }
 
@@ -76,7 +71,6 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
         while (rows.hasNext()) {
           CSVRecord row = rows.next();
           if (row.size() == 16) {
-
             DbFileSources.Line.Builder lineBuilder = dataBuilder.addLinesBuilder();
             lineBuilder.setLine(line);
             String s = row.get(0);
