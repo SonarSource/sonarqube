@@ -19,13 +19,18 @@
  */
 package org.sonar.process;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessUtils.awaitTermination;
 
 public class ProcessUtilsTest {
+
+  @Rule
+  public Timeout timeout= Timeout.seconds(5);
 
   @Test
   public void private_constructor() {
@@ -37,12 +42,12 @@ public class ProcessUtilsTest {
     awaitTermination((Thread) null);
   }
 
-  @Test(timeout = 250L)
+  @Test
   public void awaitTermination_does_not_wait_on_currentThread() {
     awaitTermination(Thread.currentThread());
   }
 
-  @Test(timeout = 3_000L)
+  @Test
   public void awaitTermination_ignores_interrupted_exception_of_current_thread() throws InterruptedException {
     final EverRunningThread runningThread = new EverRunningThread();
     final Thread safeJoiner = new Thread() {
@@ -89,7 +94,7 @@ public class ProcessUtilsTest {
     safeJoiner.join();
   }
 
-  @Test(timeout = 1_000L)
+  @Test
   public void awaitTermination_of_vararg_does_not_fail_when_there_is_a_null_or_current_thread() {
     awaitTermination(null, Thread.currentThread(), null);
   }
