@@ -87,7 +87,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
-      .setDescription("TODO");
+      .setDescription("Filter projects on measure value, quality gate or whether a project is a favorite or not.<br>" +
+        "Examples of use:" +
+        "<ul>" +
+        " <li>to filter my favorite projects with a coverage strictly between 60% and 80%: filter=\"isFavorite and coverage > 60 and coverage < 80\"</li>" +
+        " <li>to filter projects with a Failed quality gate: filter=\"alert_status = ERROR\"</li>" +
+        " <li>to filter my favorite projects with a coverage lower than or equals to 80% and with a Passed Quality Gate: " +
+        "filter=\"isFavorite and coverage <= 80 and alert_status=OK\"</li>" +
+        " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B: " +
+        "filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</li>" +
+        "</ul>");
   }
 
   @Override
