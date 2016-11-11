@@ -54,6 +54,8 @@ function prepareAppOptions (navResponse) {
   const appOptions = { el: '#content' };
   if (navResponse) {
     appOptions.rootQualifiers = navResponse.global.qualifiers;
+    appOptions.logoUrl = navResponse.global.logoUrl;
+    appOptions.logoWidth = navResponse.global.logoWidth;
     if (navResponse.component) {
       appOptions.component = {
         id: navResponse.component.uuid,

@@ -18,29 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { Link } from 'react-router';
+import { formatMeasure } from '../../../helpers/measures';
 
-export default React.createClass({
-  renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || 100;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url}
-                width={width}
-                height={height}
-                alt={title}
-                title={title}/>;
-  },
+export default class AboutProjects extends React.Component {
+  static propTypes = {
+    count: React.PropTypes.number.isRequired
+  };
 
-  render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
-    const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
+  render () {
+    const { count } = this.props;
+    const label = count > 1 ? `${formatMeasure(count, 'INT')} projects` : '1 project';
+
     return (
-        <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
+        <div className="about-page-text">
+          {count > 0 ? (
+              <Link to="/projects">{label}</Link>
+          ) : 'Put your projects'}
+          {' '}
+          under continuous<br/>code quality management
         </div>
     );
   }
-});
+}

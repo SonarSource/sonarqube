@@ -23,6 +23,7 @@ import { Router, Route, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
 import { Provider } from 'react-redux';
 import App from './components/App';
+import aboutRoutes from '../apps/about/routes';
 import accountRoutes from '../apps/account/routes';
 import projectsRoutes from '../apps/projects/routes';
 import qualityGatesRoutes from '../apps/quality-gates/routes';
@@ -44,6 +45,7 @@ window.sonarqube.appStarted.then(options => {
       <Provider store={store}>
         <Router history={history}>
           <Route path="/" component={App}>
+            <Route path="about">{aboutRoutes}</Route>
             <Route path="account">{accountRoutes}</Route>
             {projectsRoutes}
             {qualityGatesRoutes}

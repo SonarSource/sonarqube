@@ -18,29 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import './OAuthProvider.css';
 
-export default React.createClass({
-  renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || 100;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url}
-                width={width}
-                height={height}
-                alt={title}
-                title={title}/>;
-  },
+export default class OAuthProvider extends React.Component {
+  static propTypes = {
+    provider: React.PropTypes.shape({
+      key: React.PropTypes.string.isRequired,
+      name: React.PropTypes.string.isRequired,
+      iconPath: React.PropTypes.string.isRequired,
+      backgroundColor: React.PropTypes.string.isRequired
+    }).isRequired
+  };
 
-  render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
-    const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
+  render () {
+    const { key, name, iconPath, backgroundColor } = this.props.provider;
+
+    const url = window.baseUrl + '/sessions/init/' + key;
+    const label = 'Log in with ' + name;
+
     return (
-        <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
-        </div>
+        <a className="oauth-provider" href={url} style={{ backgroundColor }} title={label}>
+          <img alt={name} width="20" height="20" src={window.baseUrl + iconPath}/>
+          <span>{label}</span>
+        </a>
     );
   }
-});
+}

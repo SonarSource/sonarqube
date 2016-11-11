@@ -1,0 +1,179 @@
+.about-page {
+}
+
+.about-page-container {
+  position: relative;
+  width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-page-center-container {
+  position: relative;
+  width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.about-page-container .pull-left {
+  margin-right: 40px;
+}
+
+.about-page-container .pull-right {
+  margin-left: 40px;
+}
+
+.about-page-logo {
+  margin-bottom: 30px;
+}
+
+.about-page-entry {
+  padding: 75px 0;
+  background-color: #363636;
+  text-align: center;
+}
+
+.about-page-entry .alert {
+  font-size: 13px;
+}
+
+.about-page-entry-box {
+  width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 40px 30px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  background-color: #fff;
+}
+
+.about-login-form-header {
+  margin-bottom: 30px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.about-page-sign-up {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.about-page-sign-up a {
+  color: #4b9fd5;
+  border-color: #4b9fd5;
+}
+
+.about-page-auth-providers {
+}
+
+.about-page-auth-providers .oauth-provider {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.about-page-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.about-page-section-gray {
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+}
+
+.about-page-section-image {
+  position: absolute;
+  z-index: 5;
+  top: -80px;
+  right: 100%;
+}
+
+.about-page-center-container .about-page-section-image {
+  right: auto;
+  left: -210px;
+}
+
+.about-page-header {
+  line-height: 1;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.about-page-text {
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.about-page-link-more {
+  border: none;
+}
+
+.about-page-link-more > span {
+  border-bottom: 1px solid #cae3f2;
+}
+
+.about-page-issues {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 80px;
+}
+
+.about-page-issues-box {
+  width: 280px;
+  text-align: center;
+}
+
+.about-page-issues-number {
+  display: block;
+  border: none;
+  padding: 20px 0;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  background-color: #4b9fd5;
+  color: #fff;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.about-page-issues-number:hover {
+  background-color: #236a97;
+  color: #fff;
+}
+
+.about-page-issues-number:focus {
+  color: #fff;
+}
+
+.about-page-issues-description {
+  min-height: 120px;
+  padding: 25px 20px 25px;
+  border: 1px solid #e6e6e6;
+  border-top: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  background-color: #fff;
+}
+
+.about-page-issues-header {
+  margin-bottom: 20px;
+  font-size: 21px;
+  text-transform: uppercase;
+}
+
+.about-page-issues-text {
+  line-height: 1.3;
+  font-size: 14px;
+}
+
+.about-page-analyzers {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.about-page-analyzer-box {
+  width: 280px;
+  margin-top: 80px;
+}

@@ -18,29 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { IndexRoute } from 'react-router';
+import AboutApp from './components/AboutApp';
 
-export default React.createClass({
-  renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || 100;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url}
-                width={width}
-                height={height}
-                alt={title}
-                title={title}/>;
-  },
-
-  render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
-    const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
-    return (
-        <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
-        </div>
-    );
-  }
-});
+export default (
+    <IndexRoute component={AboutApp}/>
+);
