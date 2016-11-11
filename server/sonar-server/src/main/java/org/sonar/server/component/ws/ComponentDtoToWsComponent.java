@@ -24,7 +24,8 @@ import java.util.Map;
 import org.sonar.db.component.ComponentDto;
 import org.sonarqube.ws.WsComponents;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 class ComponentDtoToWsComponent {
   private ComponentDtoToWsComponent() {
@@ -37,16 +38,9 @@ class ComponentDtoToWsComponent {
       .setKey(dto.key())
       .setName(dto.name())
       .setQualifier(dto.qualifier());
-    if (!isNullOrEmpty(dto.path())) {
-      wsComponent.setPath(dto.path());
-    }
-    if (!isNullOrEmpty(dto.description())) {
-      wsComponent.setDescription(dto.description());
-    }
-    if (!isNullOrEmpty(dto.language())) {
-      wsComponent.setLanguage(dto.language());
-    }
-
+    setNullable(emptyToNull(dto.path()), wsComponent::setPath);
+    setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
+    setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
     return wsComponent;
   }
 

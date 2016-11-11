@@ -213,7 +213,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
           .map(bucketToFacetValue)
           .forEach(wsFacet::addValues);
       } else {
-        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
+        wsFacet.addAllValues(Collections.emptyList());
       }
 
       return wsFacet.build();

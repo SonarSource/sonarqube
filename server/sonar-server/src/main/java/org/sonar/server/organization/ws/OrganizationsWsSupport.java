@@ -26,6 +26,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.Organizations;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 /**
  * Factorizes code and constants between Organization WS's actions.
@@ -119,15 +120,9 @@ public class OrganizationsWsSupport {
       .clear()
       .setName(dto.getName())
       .setKey(dto.getKey());
-    if (dto.getDescription() != null) {
-      builder.setDescription(dto.getDescription());
-    }
-    if (dto.getUrl() != null) {
-      builder.setUrl(dto.getUrl());
-    }
-    if (dto.getAvatarUrl() != null) {
-      builder.setAvatar(dto.getAvatarUrl());
-    }
+    setNullable(dto.getDescription(), builder::setDescription);
+    setNullable(dto.getUrl(), builder::setUrl);
+    setNullable(dto.getAvatarUrl(), builder::setAvatar);
     return builder.build();
   }
 }

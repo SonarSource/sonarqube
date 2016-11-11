@@ -45,6 +45,7 @@ import org.sonarqube.ws.WsPermissions.UsersWsResponse;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -130,12 +131,8 @@ public class TemplateUsersAction implements PermissionsWsAction {
       WsPermissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
         .setLogin(user.getLogin())
         .addAllPermissions(permissionsByUserId.get(user.getId()));
-      if (user.getEmail() != null) {
-        userResponse.setEmail(user.getEmail());
-      }
-      if (user.getName() != null) {
-        userResponse.setName(user.getName());
-      }
+      setNullable(user.getEmail(), userResponse::setEmail);
+      setNullable(user.getName(), userResponse::setName);
     });
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
