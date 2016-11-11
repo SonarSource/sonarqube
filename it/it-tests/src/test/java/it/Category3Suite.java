@@ -36,6 +36,7 @@ import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import it.organization.OrganizationIt;
 import it.root.RootIt;
+import it.webhook.WebhooksTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -64,7 +65,8 @@ import static util.ItUtils.xooPlugin;
   // organization
   OrganizationIt.class,
   // root users
-  RootIt.class
+  RootIt.class,
+  WebhooksTest.class
 })
 public class Category3Suite {
 
