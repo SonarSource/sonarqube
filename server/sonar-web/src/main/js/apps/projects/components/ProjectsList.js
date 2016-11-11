@@ -21,19 +21,23 @@ import React from 'react';
 import ProjectCardContainer from './ProjectCardContainer';
 import NoProjects from './NoProjects';
 import NoFavoriteProjects from './NoFavoriteProjects';
+import EmptyInstance from './EmptyInstance';
 
 export default class ProjectsList extends React.Component {
   static propTypes = {
     projects: React.PropTypes.arrayOf(React.PropTypes.string),
-    favoriteAndNoFilters: React.PropTypes.bool.isRequired
+    isFavorite: React.PropTypes.bool.isRequired,
+    isFiltered: React.PropTypes.bool.isRequired
   };
 
   renderNoProjects () {
-    return this.props.favoriteAndNoFilters ? (
-        <NoFavoriteProjects/>
-    ) : (
-        <NoProjects/>
-    );
+    if (this.props.isFavorite && !this.props.isFiltered) {
+      return <NoFavoriteProjects/>;
+    } else if (!this.props.isFiltered) {
+      return <EmptyInstance/>;
+    } else {
+      return <NoProjects/>;
+    }
   }
 
   render () {
