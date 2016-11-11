@@ -23,40 +23,32 @@ class DashboardController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
-    if params[:id]
-      @resource = Project.by_key(params[:id])
-      return project_not_found unless @resource
-      @resource = @resource.permanent_resource
+    @resource = Project.by_key(params[:id])
+    return project_not_found unless @resource
+    @resource = @resource.permanent_resource
 
-      access_denied unless has_role?(:user, @resource)
+    access_denied unless has_role?(:user, @resource)
 
-      # for backward compatibility with old widgets
-      @project = @resource
+    # for backward compatibility with old widgets
+    @project = @resource
 
-      # if file
-      if !@resource.display_dashboard?
-        @snapshot = @resource.last_snapshot
-        return project_not_analyzed unless @snapshot
-        @hide_sidebar = true
-        @file = @resource
-        @project = @resource.root_project
-        @metric=params[:metric]
-        render :action => 'no_dashboard'
-      else
-        # it is a project dashboard
-        # if governance plugin is installed and we are opening a view
-        if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
-          return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
-        else
-          @snapshot = @resource.last_snapshot
-          render :action => 'overview'
-        end
-      end
+    # if file
+    if !@resource.display_dashboard?
+      @snapshot = @resource.last_snapshot
+      return project_not_analyzed unless @snapshot
+      @hide_sidebar = true
+      @file = @resource
+      @project = @resource.root_project
+      @metric=params[:metric]
+      render :action => 'no_dashboard'
     else
-      if logged_in?
-        return redirect_to :controller => 'projects', :action => 'favorite'
+      # it is a project dashboard
+      # if governance plugin is installed and we are opening a view
+      if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
+        return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
       else
-        return redirect_to :controller => 'projects'
+        @snapshot = @resource.last_snapshot
+        render :action => 'overview'
       end
     end
   end

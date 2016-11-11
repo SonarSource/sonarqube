@@ -18,29 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import DropImage from './DropImage';
 
-export default React.createClass({
-  renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || 100;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url}
-                width={width}
-                height={height}
-                alt={title}
-                title={title}/>;
-  },
-
-  render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
-    const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
+export default class AboutCleanCode extends React.Component {
+  render () {
     return (
-        <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
+        <div className="about-page-section">
+          <div className="about-page-center-container">
+            <h2 className="about-page-header">Keep your code clean by fixing the leak</h2>
+            <p className="about-page-text about-page-text-center">
+              By fixing new issues as they appear in code, you create and maintain a clean code base.
+              <br/>
+              Even on legacy projects, focusing on keeping new code clean will eventually yield a code base you can be
+              proud of.
+            </p>
+            <div className="about-page-section-image">
+              <DropImage/>
+            </div>
+          </div>
         </div>
     );
   }
-});
+}

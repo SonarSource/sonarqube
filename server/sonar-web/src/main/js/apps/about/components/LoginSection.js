@@ -18,29 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { Link } from 'react-router';
+import OAuthProvider from './OAuthProvider';
+import IconLock from './IconLock';
 
-export default React.createClass({
-  renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || 100;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url}
-                width={width}
-                height={height}
-                alt={title}
-                title={title}/>;
-  },
+export default class LoginSection extends React.Component {
+  render () {
+    const { authProviders } = window.sonarqube;
 
-  render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
-    const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
+    const loginWithSonarQubeLabel = authProviders.length ? 'Log in with SonarQube' : 'Log in';
+
     return (
-        <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
+        <div id="about-login">
+          <div className="about-page-auth-providers">
+            {authProviders.map(provider => (
+                <OAuthProvider key={provider.key} provider={provider}/>
+            ))}
+
+            <Link to={{ pathname: '/about', query: { login: null } }}
+                  className="oauth-provider oauth-provider-sonarqube">
+              <IconLock/>
+              <span>{loginWithSonarQubeLabel}</span>
+            </Link>
+          </div>
         </div>
     );
   }
-});
+}

@@ -1,0 +1,26 @@
+<svg viewBox="0 0 500 240" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.41">
+  <g transform="matrix(.964 0 0 .964 91.858 -35.894)">
+    <path d="M143.7 209.7l79.6 76.2H356s.3-40.2 0-41.2C354.3 238.3 236 121 236 121l-30.3 52.7L168 212l-24.3-2.3z" fill="url(#a)" fill-rule="nonzero"/>
+    <path d="M95.6 64.3l68.8-3.9c3.3-.3 6.2 1 8.5 3.2l87.1 80.9c4.3 4.2 6.9 14.3 2.6 18.8l-75 74.4c-4.3 4.2-11.5 4.2-16 0l-87.1-86.4c-2.3-2.3-3.6-5.2-3.3-8.4l3.9-69.5c.3-5.6 4.9-8.8 10.5-9.1z" fill="#E8201D" fill-rule="nonzero"/>
+    <path d="M95.6 58.8l68.8-3.9c3.3-.3 6.2 1 8.5 3.2l87.1 86.4c4.3 4.2 4.3 11.4 0 15.9l-72.4 71.8c-4.3 4.2-11.5 4.2-16 0l-87.1-86.4c-2.3-2.3-3.6-5.2-3.3-8.4l3.9-67.9c.3-5.9 4.9-10.4 10.5-10.7z" fill="#ED592C" fill-rule="nonzero"/>
+    <path d="M187.6 232.2c-4.3 4.2-11.5 4.2-16 0l-87.1-86.4c-2.3-2.3-3.6-5.2-3.3-8.4l3.9-67.9c.3-5.5 4.9-10.1 10.5-10.4l68.8-4.2c3.3-.3 6.2 1 8.5 3.2" fill="#EC4F22" fill-rule="nonzero"/>
+    <path d="M99.8 91.6c0 10.1 8.2 23.7 18.7 23.7 10.1 0 18.7-13.6 18.7-23.7S129 73 118.5 73s-18.7 8.5-18.7 18.6z" fill="#DF4221" fill-rule="nonzero"/>
+    <ellipse cx="118.1" cy="91.6" rx="18.7" ry="18.5" fill="#DE1B1E"/>
+    <path d="M131.2 78.6c-7.2-7.1-19-7.1-26.2 0-7.2 7.1-7.2 18.8 0 26" fill="#C1081D" fill-rule="nonzero"/>
+    <ellipse cx="118.1" cy="91.6" rx="11.1" ry="11" fill="#EBF0F2"/>
+    <path d="M110.3 83.8c-4.3 4.2-4.3 11 0 15.3 4.3 4.2 11.1 4.2 15.4 0" fill="#C9DFE4" fill-rule="nonzero"/>
+    <g fill="#435A57" fill-rule="nonzero">
+      <path d="M66.1 44.1c-1.3-1.3-1.3-2.9 0-4.2 1.3-1.3 2.9-1.3 4.3 0l50.1 49.7c1.3 1.3 1.3 2.9 0 4.2-1.3 1.3-5.2 3.6-6.5 2.3l-47.9-52z" fill-opacity=".3"/>
+      <path d="M66.1 44.1c-1.3-1.3-1.3-2.9 0-4.2 1.3-1.3 2.9-1.3 4.3 0l50.1 49.7c1.3 1.3 1.3 2.9 0 4.2-1.3 1.3-2.9 1.3-4.3 0L66.1 44.1z"/>
+    </g>
+    <path d="M120.4 93.8c-1.3 1.3-2.9 1.3-4.3 0l-50-49.7c-1.3-1.3-1.3-2.9 0-4.2" fill="#314442" fill-rule="nonzero"/>
+    <path d="M128 163.7c-2 1.9-2 4.9 0 6.8l48.1 47.7c2 1.9 4.9 1.9 6.9 0l62.9-62.4c2-1.9 2-4.9 0-6.8l-48.1-47.7c-2-1.9-4.9-1.9-6.9 0L128 163.7z" fill="#EBF0F2" fill-rule="nonzero"/>
+    <path d="M128 163.7l49.8-49 8.5 100.7-3.3 3.2c-2 1.9-4.9 1.9-6.9 0L128 170.8c-2-2.3-2-5.2 0-7.1z" fill="#C9DFE4" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <linearGradient id="a" x2="1" gradientUnits="userSpaceOnUse" gradientTransform="scale(110.93) rotate(-128 1.66 .488)">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#ABABAB"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -35,7 +35,7 @@ export function getIssuesUrl (query) {
   const serializedQuery = Object.keys(query).map(criterion => (
       `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
   )).join('|');
-  return window.baseUrl + '/issues/search#' + serializedQuery;
+  return window.baseUrl + '/issues#' + serializedQuery;
 }
 
 /**
