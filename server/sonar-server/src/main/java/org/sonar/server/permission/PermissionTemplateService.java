@@ -149,7 +149,7 @@ public class PermissionTemplateService {
    */
   public void applyDefault(DbSession dbSession, ComponentDto component, @Nullable Long projectCreatorUserId) {
     PermissionTemplateDto template = findDefaultTemplate(dbSession, component);
-    checkArgument(template != null, "Can not retrieve default permission template");
+    checkArgument(template != null, "Cannot retrieve default permission template");
     copyPermissions(dbSession, template, component, projectCreatorUserId);
     dbSession.commit();
     indexProjectPermissions(dbSession, asList(component.uuid()));

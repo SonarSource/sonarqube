@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -40,12 +41,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final ComponentService componentService;
   private final PermissionTemplateService permissionTemplateService;
+  private final FavoriteService favoriteService;
 
-  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionTemplateService permissionTemplateService) {
+  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionTemplateService permissionTemplateService,
+    FavoriteService favoriteService) {
     this.dbClient = dbClient;
     this.resourceDao = resourceDao;
     this.componentService = componentService;
     this.permissionTemplateService = permissionTemplateService;
+    this.favoriteService = favoriteService;
   }
 
   @Override
@@ -81,6 +85,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
     ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
+    if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())) {
+      favoriteService.put(dbSession, provisionedComponent.getId());
+      dbSession.commit();
+    }
+
     return provisionedComponent.getId();
   }
 

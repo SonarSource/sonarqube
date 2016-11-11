@@ -126,13 +126,15 @@ public class ComponentService {
     projectMeasuresIndexer.index(projectUuid);
   }
 
+  // Used by SQ and Governance
   public ComponentDto create(DbSession session, NewComponent newComponent) {
     userSession.checkPermission(GlobalPermissions.PROVISIONING);
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
-    ComponentDto project = createProject(session, newComponent);
-    removeDuplicatedProjects(session, project.getKey());
-    projectMeasuresIndexer.index(project.uuid());
-    return project;
+    ComponentDto rootComponent = createRootComponent(session, newComponent);
+    removeDuplicatedProjects(session, rootComponent.getKey());
+    projectMeasuresIndexer.index(rootComponent.uuid());
+
+    return rootComponent;
   }
 
   /**
@@ -141,10 +143,10 @@ public class ComponentService {
    * No need to remove duplicated components as it's not possible to create the same developer twice in the same time.
    */
   public ComponentDto createDeveloper(DbSession session, NewComponent newComponent) {
-    return createProject(session, newComponent);
+    return createRootComponent(session, newComponent);
   }
 
-  private ComponentDto createProject(DbSession session, NewComponent newComponent) {
+  private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
 

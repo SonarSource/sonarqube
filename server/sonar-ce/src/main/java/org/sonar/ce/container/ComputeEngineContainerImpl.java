@@ -326,7 +326,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UserPermissionChanger.class,
       GroupPermissionChanger.class,
 
-
       // components
       ComponentFinder.class, // used in ComponentService
       ComponentService.class, // used in ReportSubmitter

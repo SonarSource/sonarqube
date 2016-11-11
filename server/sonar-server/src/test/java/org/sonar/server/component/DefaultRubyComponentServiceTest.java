@@ -61,19 +61,20 @@ public class DefaultRubyComponentServiceTest {
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
 
-  I18nRule i18n = new I18nRule();
+  private I18nRule i18n = new I18nRule();
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  ResourceDao resourceDao = dbClient.resourceDao();
-  ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient),
+  private ResourceDao resourceDao = dbClient.resourceDao();
+  private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient),
     new ProjectMeasuresIndexer(dbClient, es.client()));
-  PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private FavoriteService favoriteService = mock(FavoriteService.class);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService);
+  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteService);
 
   @Test
   public void find_by_key() {
@@ -111,6 +112,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
     verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
+    verify(favoriteService).put(any(DbSession.class), eq(project.getId()));
   }
 
   @Test(expected = BadRequestException.class)

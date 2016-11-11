@@ -41,6 +41,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.FavoriteService;
 import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -379,6 +380,7 @@ public class PlatformLevel4 extends PlatformLevel {
       NewAlerts.class,
       NewAlerts.newMetadata(),
       ComponentCleanerService.class,
+      FavoriteService.class,
 
       // views
       ViewIndexDefinition.class,
