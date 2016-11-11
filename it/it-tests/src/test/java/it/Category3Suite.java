@@ -20,7 +20,6 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.analysis.ScannerTest;
 import it.analysis.ExtensionLifecycleTest;
 import it.analysis.IssueJsonReportTest;
 import it.analysis.IssuesModeTest;
@@ -30,11 +29,13 @@ import it.analysis.ProjectBuilderTest;
 import it.analysis.ProjectProvisioningTest;
 import it.analysis.ReportDumpTest;
 import it.analysis.SSLTest;
+import it.analysis.ScannerTest;
 import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import it.organization.OrganizationIt;
 import it.root.RootIt;
+import it.webhook.WebhooksTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -62,7 +63,8 @@ import static util.ItUtils.xooPlugin;
   // organization
   OrganizationIt.class,
   // root users
-  RootIt.class
+  RootIt.class,
+  WebhooksTest.class
 })
 public class Category3Suite {
 
