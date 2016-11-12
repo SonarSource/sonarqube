@@ -47,7 +47,7 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.setting.ValuesRequest;
 
 import static java.lang.String.format;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
@@ -156,7 +156,7 @@ public class ValuesAction implements SettingsWsAction {
   private List<Setting> loadDefaultSettings(Set<String> keys) {
     return propertyDefinitions.getAll().stream()
       .filter(definition -> keys.contains(definition.key()))
-      .filter(defaultProperty -> !isNullOrEmpty(defaultProperty.defaultValue()))
+      .filter(defaultProperty -> !isEmpty(defaultProperty.defaultValue()))
       .map(Setting::createForDefinition)
       .collect(Collectors.toList());
   }

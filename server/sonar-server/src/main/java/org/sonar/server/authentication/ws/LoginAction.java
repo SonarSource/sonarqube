@@ -38,7 +38,7 @@ import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class LoginAction extends ServletFilter {
 
@@ -85,7 +85,7 @@ public class LoginAction extends ServletFilter {
   private UserDto authenticate(HttpServletRequest request) {
     String login = request.getParameter("login");
     String password = request.getParameter("password");
-    if (isNullOrEmpty(login) || isNullOrEmpty(password)) {
+    if (isEmpty(login) || isEmpty(password)) {
       throw new UnauthorizedException();
     }
     return credentialsAuthenticator.authenticate(login, password, request);

@@ -38,8 +38,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.server.authentication.CookieUtils.findCookie;
 
 @ServerSide
@@ -117,7 +117,7 @@ public class JwtHttpHandler {
     }
     Cookie cookie = jwtCookie.get();
     String token = cookie.getValue();
-    if (isNullOrEmpty(token)) {
+    if (isEmpty(token)) {
       return Optional.empty();
     }
     return Optional.of(token);

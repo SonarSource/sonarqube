@@ -21,6 +21,7 @@ package org.sonar.core.util;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +31,7 @@ import org.sonar.test.TestUtils;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.test.Test.Fake;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 public class ProtobufTest {
 
@@ -51,13 +53,13 @@ public class ProtobufTest {
 
     File file = temp.newFile();
     FileUtils.forceDelete(file);
-    Protobuf.read(file, Fake.PARSER);
+    Protobuf.read(file, Fake.parser());
   }
 
   @Test
   public void read_file_returns_empty_message_if_file_is_empty() throws Exception {
     File file = temp.newFile();
-    Fake msg = Protobuf.read(file, Fake.PARSER);
+    Fake msg = Protobuf.read(file, Fake.parser());
     assertThat(msg).isNotNull();
     assertThat(msg.isInitialized()).isTrue();
   }
@@ -66,7 +68,7 @@ public class ProtobufTest {
   public void read_file_returns_message() throws Exception {
     File file = temp.newFile();
     Protobuf.write(Fake.getDefaultInstance(), file);
-    Fake message = Protobuf.read(file, Fake.PARSER);
+    Fake message = Protobuf.read(file, Fake.parser());
     assertThat(message).isNotNull();
     assertThat(message.isInitialized()).isTrue();
   }
@@ -88,7 +90,7 @@ public class ProtobufTest {
     Fake item2 = Fake.newBuilder().setLabel("two").build();
     Protobuf.writeStream(asList(item1, item2), file, false);
 
-    CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.PARSER);
+    CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.parser());
     Fake read = it.next();
     assertThat(read.getLabel()).isEqualTo("one");
     assertThat(read.getLine()).isEqualTo(1);
@@ -104,16 +106,43 @@ public class ProtobufTest {
     thrown.expectMessage("Unable to read messages");
 
     File dir = temp.newFolder();
-    Protobuf.readStream(dir, Fake.PARSER);
+    Protobuf.readStream(dir, Fake.parser());
   }
 
   @Test
   public void read_empty_stream() throws Exception {
     File file = temp.newFile();
-    CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.PARSER);
+    CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.parser());
     assertThat(it).isNotNull();
     assertThat(it.hasNext()).isFalse();
   }
 
-  // TODO test in-moemry file
+  @Test
+  public void setNullable_sets_field_if_value_is_not_null() {
+    Fake.Builder builder = Fake.newBuilder();
+
+    setNullable("foo", builder::setLabel);
+    assertThat(builder.getLabel()).isEqualTo("foo");
+
+    builder.clear();
+    setNullable(null, builder::setLabel);
+    assertThat(builder.hasLabel()).isFalse();
+  }
+
+  @Test
+  public void setNullable_converts_value_and_sets_field_if_value_is_not_null() {
+    Fake.Builder builder = Fake.newBuilder();
+
+    setNullable("foo", builder::setLabel, StringUtils::upperCase);
+    assertThat(builder.getLabel()).isEqualTo("FOO");
+
+    builder.clear();
+    setNullable((String)null, builder::setLabel, StringUtils::upperCase);
+    assertThat(builder.hasLabel()).isFalse();
+
+    // do not set field if value is present but result of conversion is null
+    builder.clear();
+    setNullable("    ", builder::setLabel, StringUtils::trimToNull);
+    assertThat(builder.hasLabel()).isFalse();
+  }
 }

@@ -20,9 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static java.util.Locale.ENGLISH;
-import static org.elasticsearch.common.Strings.isEmpty;
-
 import com.google.common.base.Charsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -32,6 +29,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
+
+import static java.util.Locale.ENGLISH;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class BasicAuthenticator {
 

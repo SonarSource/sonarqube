@@ -20,12 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
-import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS;
-import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -46,6 +40,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.SecurityRealmFactory;
+
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS;
+import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
 
@@ -107,7 +107,7 @@ public class RealmAuthenticator implements Startable {
     String name = details.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setLogin(userLogin)
-      .setName(isNullOrEmpty(name) ? userLogin : name)
+      .setName(isEmpty(name) ? userLogin : name)
       .setEmail(trimToNull(details.getEmail()))
       .setProviderLogin(userLogin);
     if (externalGroupsProvider != null) {

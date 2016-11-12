@@ -38,7 +38,8 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -134,30 +135,14 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .setKey(key)
       .setType(Settings.Type.valueOf(definition.type().name()))
       .setMultiValues(definition.multiValues());
-    String deprecatedKey = definition.deprecatedKey();
-    if (!isNullOrEmpty(deprecatedKey)) {
-      builder.setDeprecatedKey(deprecatedKey);
-    }
-    String name = definition.name();
-    if (!isNullOrEmpty(name)) {
-      builder.setName(name);
-    }
-    String description = definition.description();
-    if (!isNullOrEmpty(description)) {
-      builder.setDescription(description);
-    }
+    setNullable(emptyToNull(definition.deprecatedKey()), builder::setDeprecatedKey);
+    setNullable(emptyToNull(definition.name()), builder::setName);
+    setNullable(emptyToNull(definition.description()), builder::setDescription);
     String category = propertyDefinitions.getCategory(key);
-    if (!isNullOrEmpty(category)) {
-      builder.setCategory(category);
-    }
+    setNullable(emptyToNull(category), builder::setCategory);
     String subCategory = propertyDefinitions.getSubCategory(key);
-    if (!isNullOrEmpty(subCategory)) {
-      builder.setSubCategory(subCategory);
-    }
-    String defaultValue = definition.defaultValue();
-    if (!isNullOrEmpty(defaultValue)) {
-      builder.setDefaultValue(defaultValue);
-    }
+    setNullable(emptyToNull(subCategory), builder::setSubCategory);
+    setNullable(emptyToNull(definition.defaultValue()), builder::setDefaultValue);
     List<String> options = definition.options();
     if (!options.isEmpty()) {
       builder.addAllOptions(options);
