@@ -1,6 +1,6 @@
 /*
  * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
+ * Copyright (C) 2008-2016 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
  * SonarQube is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import org.sonar.api.SonarPlugin;
 
 import java.util.Collections;
