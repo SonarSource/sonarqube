@@ -80,7 +80,7 @@ export default class AboutApp extends React.Component {
     }
 
     const isAuthenticated = !!window.SS.user;
-    const { signUpAllowed } = window.sonarqube;
+    const { signUpAllowed, landingText } = window.sonarqube;
     const loginFormShown = !isAuthenticated && this.props.location.query.login !== undefined;
 
     const logoUrl = this.state.logoUrl || `${window.baseUrl}/images/logo.svg`;
@@ -113,6 +113,12 @@ export default class AboutApp extends React.Component {
                 </div>
             )}
           </div>
+
+          {landingText.length > 0 && (
+              <div className="about-page-section bordered-bottom">
+                <div className="about-page-container" dangerouslySetInnerHTML={{ __html: landingText }}/>
+              </div>
+          )}
 
           <AboutCleanCode/>
 

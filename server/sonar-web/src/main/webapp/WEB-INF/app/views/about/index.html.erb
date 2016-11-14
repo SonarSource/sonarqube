@@ -1,6 +1,7 @@
 <% content_for :extra_script do %>
   <script>
     window.sonarqube.signUpAllowed = <%= Property.value("sonar.allowUsersToSignUp") == "true" ? "true" : "false" -%>;
+    window.sonarqube.landingText = '<%= escape_javascript configuration("sonar.lf.landingText", "") -%>';
 
     <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
     window.sonarqube.authProviders = [
