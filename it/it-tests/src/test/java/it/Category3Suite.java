@@ -20,8 +20,8 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.analysis.ScannerTest;
 import it.analysis.ExtensionLifecycleTest;
+import it.analysis.FavoriteTest;
 import it.analysis.IssueJsonReportTest;
 import it.analysis.IssuesModeTest;
 import it.analysis.LinksTest;
@@ -30,6 +30,7 @@ import it.analysis.ProjectBuilderTest;
 import it.analysis.ProjectProvisioningTest;
 import it.analysis.ReportDumpTest;
 import it.analysis.SSLTest;
+import it.analysis.ScannerTest;
 import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
@@ -57,6 +58,7 @@ import static util.ItUtils.xooPlugin;
   SettingsEncryptionTest.class,
   ReportDumpTest.class,
   SSLTest.class,
+  FavoriteTest.class,
   // measures
   DecimalScaleMetricTest.class,
   // organization
