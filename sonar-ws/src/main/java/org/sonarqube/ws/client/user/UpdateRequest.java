@@ -35,7 +35,7 @@ public class UpdateRequest {
   private final String email;
   private final List<String> scmAccounts;
 
-  public UpdateRequest(Builder builder) {
+  private UpdateRequest(Builder builder) {
     this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;

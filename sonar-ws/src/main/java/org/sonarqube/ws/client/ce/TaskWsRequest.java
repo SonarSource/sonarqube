@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class TaskWsRequest {
   private final String taskUuid;
   private final List<String> additionalFields;

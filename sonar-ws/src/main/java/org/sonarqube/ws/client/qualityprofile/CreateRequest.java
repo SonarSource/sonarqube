@@ -20,9 +20,11 @@
 package org.sonarqube.ws.client.qualityprofile;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Immutable
 public class CreateRequest {
 
   private final String profileName;

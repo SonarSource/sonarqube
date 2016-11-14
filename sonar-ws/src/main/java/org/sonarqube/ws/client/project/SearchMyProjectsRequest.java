@@ -22,13 +22,15 @@ package org.sonarqube.ws.client.project;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class SearchMyProjectsRequest {
   private final String query;
   private final Integer page;
   private final Integer pageSize;
 
-  public SearchMyProjectsRequest(Builder builder) {
+  private SearchMyProjectsRequest(Builder builder) {
     this.query = builder.query;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
@@ -39,10 +41,12 @@ public class SearchMyProjectsRequest {
     return query;
   }
 
+  @CheckForNull
   public Integer getPage() {
     return page;
   }
 
+  @CheckForNull
   public Integer getPageSize() {
     return pageSize;
   }
@@ -65,12 +69,12 @@ public class SearchMyProjectsRequest {
       return this;
     }
 
-    public Builder setPage(Integer page) {
+    public Builder setPage(@Nullable Integer page) {
       this.page = page;
       return this;
     }
 
-    public Builder setPageSize(Integer pageSize) {
+    public Builder setPageSize(@Nullable Integer pageSize) {
       this.pageSize = pageSize;
       return this;
     }

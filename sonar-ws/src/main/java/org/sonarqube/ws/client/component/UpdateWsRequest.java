@@ -22,9 +22,11 @@ package org.sonarqube.ws.client.component;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Immutable
 public class UpdateWsRequest {
   private final String id;
   private final String key;

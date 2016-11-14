@@ -21,10 +21,12 @@ package org.sonarqube.ws.client.qualitygate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+@Immutable
 public class CreateConditionRequest {
 
   private final long qualityGateId;
@@ -34,7 +36,7 @@ public class CreateConditionRequest {
   private final String error;
   private final Integer period;
 
-  public CreateConditionRequest(Builder builder) {
+  private CreateConditionRequest(Builder builder) {
     this.qualityGateId = builder.qualityGateId;
     this.metricKey = builder.metricKey;
     this.operator = builder.operator;

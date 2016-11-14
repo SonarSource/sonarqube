@@ -21,7 +21,9 @@ package org.sonarqube.ws.client.webhook;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class DeliveriesRequest {
 
   private final String componentKey;

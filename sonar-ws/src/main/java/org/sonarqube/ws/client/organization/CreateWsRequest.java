@@ -19,6 +19,9 @@
  */
 package org.sonarqube.ws.client.organization;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class CreateWsRequest {
   private final String name;
   private final String key;
@@ -26,7 +29,7 @@ public class CreateWsRequest {
   private final String url;
   private final String avatar;
 
-  public CreateWsRequest(Builder builder) {
+  private CreateWsRequest(Builder builder) {
     this.name = builder.name;
     this.key = builder.key;
     this.description = builder.description;

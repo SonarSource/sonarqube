@@ -19,19 +19,26 @@
  */
 package org.sonarqube.ws.client.organization;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class SearchWsRequest {
   private final Integer page;
   private final Integer pageSize;
 
-  public SearchWsRequest(Builder builder) {
+  private SearchWsRequest(Builder builder) {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
   }
 
+  @CheckForNull
   public Integer getPageSize() {
     return pageSize;
   }
 
+  @CheckForNull
   public Integer getPage() {
     return page;
   }
@@ -40,12 +47,12 @@ public class SearchWsRequest {
     private Integer page;
     private Integer pageSize;
 
-    public Builder setPage(Integer page) {
+    public Builder setPage(@Nullable Integer page) {
       this.page = page;
       return this;
     }
 
-    public Builder setPageSize(Integer pageSize) {
+    public Builder setPageSize(@Nullable Integer pageSize) {
       this.pageSize = pageSize;
       return this;
     }

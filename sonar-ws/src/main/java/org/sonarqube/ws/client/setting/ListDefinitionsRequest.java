@@ -22,7 +22,9 @@ package org.sonarqube.ws.client.setting;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class ListDefinitionsRequest {
 
   private final String componentId;

@@ -20,13 +20,16 @@
 
 package org.sonarqube.ws.client.serverid;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
+@Immutable
 public class GenerateRequest {
   private final String organization;
   private final String ip;
 
-  public GenerateRequest(Builder builder) {
+  private GenerateRequest(Builder builder) {
     this.organization = builder.organization;
     this.ip = builder.ip;
   }

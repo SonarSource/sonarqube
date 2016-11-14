@@ -36,7 +36,7 @@ public class ValuesRequest {
   private final String componentKey;
   private final List<String> keys;
 
-  public ValuesRequest(Builder builder) {
+  private ValuesRequest(Builder builder) {
     this.componentId = builder.componentId;
     this.componentKey = builder.componentKey;
     this.keys = builder.keys;

@@ -25,7 +25,7 @@ import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.picocontainer.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.GlobalContainer;
 

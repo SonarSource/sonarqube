@@ -21,7 +21,9 @@ package org.sonarqube.ws.client.qualityprofile;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class AddProjectRequest {
 
   private final String language;
@@ -30,7 +32,7 @@ public class AddProjectRequest {
   private final String projectKey;
   private final String projectUuid;
 
-  public AddProjectRequest(Builder builder) {
+  private AddProjectRequest(Builder builder) {
     this.language = builder.language;
     this.profileName = builder.profileName;
     this.profileKey = builder.profileKey;

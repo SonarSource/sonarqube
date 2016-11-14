@@ -21,10 +21,9 @@ package org.sonarqube.ws.client.project;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-/**
- * @since 5.5
- */
+@Immutable
 public class CreateRequest {
 
   private final String key;

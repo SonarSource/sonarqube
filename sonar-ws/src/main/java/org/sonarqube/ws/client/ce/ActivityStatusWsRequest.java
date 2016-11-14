@@ -22,7 +22,9 @@ package org.sonarqube.ws.client.ce;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class ActivityStatusWsRequest {
   private final String componentId;
   private final String componentKey;

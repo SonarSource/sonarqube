@@ -21,16 +21,19 @@
 package org.sonarqube.ws.client.permission;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
+@Immutable
 public class AddProjectCreatorToTemplateWsRequest {
   private final String templateId;
   private final String organization;
   private final String templateName;
   private final String permission;
 
-  public AddProjectCreatorToTemplateWsRequest(Builder builder) {
+  private AddProjectCreatorToTemplateWsRequest(Builder builder) {
     this.templateId = builder.templateId;
     this.organization = builder.organization;
     this.templateName = builder.templateName;
@@ -70,22 +73,22 @@ public class AddProjectCreatorToTemplateWsRequest {
       // enforce method constructor
     }
 
-    public Builder setTemplateId(String templateId) {
+    public Builder setTemplateId(@Nullable String templateId) {
       this.templateId = templateId;
       return this;
     }
 
-    public Builder setOrganization(String s) {
+    public Builder setOrganization(@Nullable String s) {
       this.organization = s;
       return this;
     }
 
-    public Builder setTemplateName(String templateName) {
+    public Builder setTemplateName(@Nullable String templateName) {
       this.templateName = templateName;
       return this;
     }
 
-    public Builder setPermission(String permission) {
+    public Builder setPermission(@Nullable String permission) {
       this.permission = permission;
       return this;
     }

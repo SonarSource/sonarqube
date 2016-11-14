@@ -32,7 +32,7 @@ public class ResetRequest {
   private final String componentId;
   private final String componentKey;
 
-  public ResetRequest(Builder builder) {
+  private ResetRequest(Builder builder) {
     this.keys = builder.keys;
     this.componentId = builder.componentId;
     this.componentKey = builder.componentKey;

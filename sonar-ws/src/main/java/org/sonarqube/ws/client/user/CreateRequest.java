@@ -23,11 +23,13 @@ package org.sonarqube.ws.client.user;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.emptyList;
 
+@Immutable
 public class CreateRequest {
 
   private final String login;
@@ -36,7 +38,7 @@ public class CreateRequest {
   private final String email;
   private final List<String> scmAccounts;
 
-  public CreateRequest(Builder builder) {
+  private CreateRequest(Builder builder) {
     this.login = builder.login;
     this.password = builder.password;
     this.name = builder.name;

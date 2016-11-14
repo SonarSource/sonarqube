@@ -19,6 +19,11 @@
  */
 package org.sonarqube.ws.client.organization;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class UpdateWsRequest {
   private final String key;
   private final String name;
@@ -26,7 +31,7 @@ public class UpdateWsRequest {
   private final String url;
   private final String avatar;
 
-  public UpdateWsRequest(Builder builder) {
+  private UpdateWsRequest(Builder builder) {
     this.name = builder.name;
     this.key = builder.key;
     this.description = builder.description;
@@ -34,22 +39,27 @@ public class UpdateWsRequest {
     this.avatar = builder.avatar;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
+  @CheckForNull
   public String getUrl() {
     return url;
   }
 
+  @CheckForNull
   public String getAvatar() {
     return avatar;
   }
@@ -61,27 +71,27 @@ public class UpdateWsRequest {
     private String url;
     private String avatar;
 
-    public Builder setKey(String key) {
+    public Builder setKey(@Nullable String key) {
       this.key = key;
       return this;
     }
 
-    public Builder setName(String name) {
+    public Builder setName(@Nullable String name) {
       this.name = name;
       return this;
     }
 
-    public Builder setDescription(String description) {
+    public Builder setDescription(@Nullable String description) {
       this.description = description;
       return this;
     }
 
-    public Builder setUrl(String url) {
+    public Builder setUrl(@Nullable String url) {
       this.url = url;
       return this;
     }
 
-    public Builder setAvatar(String avatar) {
+    public Builder setAvatar(@Nullable String avatar) {
       this.avatar = avatar;
       return this;
     }

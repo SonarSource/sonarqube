@@ -35,7 +35,7 @@ public class SetRequest {
   private final String componentId;
   private final String componentKey;
 
-  public SetRequest(Builder builder) {
+  private SetRequest(Builder builder) {
     this.key = builder.key;
     this.value = builder.value;
     this.values = builder.values;
