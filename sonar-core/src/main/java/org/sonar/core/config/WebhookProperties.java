@@ -49,7 +49,7 @@ public class WebhookProperties {
   private static final String CATEGORY = "webhooks";
   private static final String DESCRIPTION = "Webhooks are used to notify external services when a project analysis is done. " +
     "An HTTP POST request including a JSON payload is sent to each of the first ten provided URLs. <br/>" +
-    "Learn more in the <a href=\"#\">Webhooks documentation</a>.";
+    "Learn more in the <a href=\"http://docs.sonarqube.org/display/SONARNEXT/Webhooks\">Webhooks documentation</a>.";
 
   private WebhookProperties() {
     // only static stuff
