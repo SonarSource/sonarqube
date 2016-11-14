@@ -79,6 +79,6 @@ public class SearchLoggingTest {
     assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "es.log").getAbsolutePath());
     assertThat(fileAppender.getEncoder()).isInstanceOf(PatternLayoutEncoder.class);
     PatternLayoutEncoder encoder = (PatternLayoutEncoder) fileAppender.getEncoder();
-    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level [][%logger{20}] %msg%n");
+    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level es[][%logger{20}] %msg%n");
   }
 }

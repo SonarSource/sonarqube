@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 
+import static org.sonar.process.monitor.StreamGobbler.LOGGER_GOBBLER;
+
 /**
  * Configure logback for the master process
  */
@@ -38,7 +40,6 @@ class AppLogging {
 
   static final String CONSOLE_LOGGER = "console";
   static final String CONSOLE_APPENDER = "CONSOLE";
-  static final String GOBBLER_LOGGER = "gobbler";
   static final String GOBBLER_APPENDER = "GOBBLER";
   static final String APP_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level app[][%logger{20}] %msg%n";
 
@@ -65,7 +66,7 @@ class AppLogging {
     Logger consoleLogger = (Logger) LoggerFactory.getLogger(CONSOLE_LOGGER);
     Appender<ILoggingEvent> consoleAppender = consoleLogger.getAppender(CONSOLE_APPENDER);
 
-    Logger gobblerLogger = (Logger) LoggerFactory.getLogger(GOBBLER_LOGGER);
+    Logger gobblerLogger = (Logger) LoggerFactory.getLogger(LOGGER_GOBBLER);
     gobblerLogger.addAppender(consoleAppender);
   }
 
@@ -89,7 +90,7 @@ class AppLogging {
     fileAppender.start();
 
     // configure logger
-    Logger gobblerLogger = ctx.getLogger(GOBBLER_LOGGER);
+    Logger gobblerLogger = ctx.getLogger(LOGGER_GOBBLER);
     gobblerLogger.setAdditive(false);
     gobblerLogger.addAppender(fileAppender);
   }

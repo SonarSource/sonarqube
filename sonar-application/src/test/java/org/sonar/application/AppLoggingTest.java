@@ -38,19 +38,22 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.monitor.StreamGobbler.LOGGER_GOBBLER;
 
 public class AppLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Props props = new Props(new Properties());
-  AppLogging underTest = new AppLogging();
+  private File logDir;
+
+  private Props props = new Props(new Properties());
+  private AppLogging underTest = new AppLogging();
 
   @Before
   public void setUp() throws Exception {
-    File dir = temp.newFolder();
-    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+    logDir = temp.newFolder();
+    props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
   }
 
   @AfterClass
@@ -62,7 +65,7 @@ public class AppLoggingTest {
   public void configure_defaults() {
     LoggerContext ctx = underTest.configure(props);
 
-    Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
+    Logger gobbler = ctx.getLogger(LOGGER_GOBBLER);
     Appender<ILoggingEvent> appender = gobbler.getAppender(AppLogging.GOBBLER_APPENDER);
     assertThat(appender).isInstanceOf(RollingFileAppender.class);
 
@@ -77,7 +80,7 @@ public class AppLoggingTest {
 
     LoggerContext ctx = underTest.configure(props);
 
-    Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
+    Logger gobbler = ctx.getLogger(LOGGER_GOBBLER);
     Appender<ILoggingEvent> appender = gobbler.getAppender(AppLogging.GOBBLER_APPENDER);
     assertThat(appender).isNotInstanceOf(RollingFileAppender.class).isInstanceOf(FileAppender.class);
   }
@@ -87,7 +90,7 @@ public class AppLoggingTest {
     props.set("sonar.log.console", "true");
 
     LoggerContext ctx = underTest.configure(props);
-    Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
+    Logger gobbler = ctx.getLogger(LOGGER_GOBBLER);
     assertThat(gobbler.getAppender(AppLogging.GOBBLER_APPENDER)).isNotNull();
     assertThat(gobbler.getAppender(AppLogging.CONSOLE_APPENDER)).isNotNull();
   }

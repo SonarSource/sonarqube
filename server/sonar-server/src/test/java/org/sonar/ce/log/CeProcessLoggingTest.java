@@ -83,7 +83,7 @@ public class CeProcessLoggingTest {
     assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "ce.log").getAbsolutePath());
     assertThat(fileAppender.getEncoder()).isInstanceOf(PatternLayoutEncoder.class);
     PatternLayoutEncoder encoder = (PatternLayoutEncoder) fileAppender.getEncoder();
-    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level [%X{ceTaskUuid}][%logger{20}] %msg%n");
+    assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level ce[%X{ceTaskUuid}][%logger{20}] %msg%n");
   }
 
   @Test

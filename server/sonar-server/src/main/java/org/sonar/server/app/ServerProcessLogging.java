@@ -28,6 +28,8 @@ import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.platform.ServerLogging;
 
+import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+
 public abstract class ServerProcessLogging {
   private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
   private final String processName;
@@ -44,7 +46,12 @@ public abstract class ServerProcessLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
-    helper.configureRootLogger(ctx, props, threadIdFieldPattern, processName);
+    helper.configureRootLogger(ctx, props,
+      newRootLoggerConfigBuilder()
+        .setProcessName(processName)
+        .setThreadIdFieldPattern(threadIdFieldPattern)
+        .setFileName(processName)
+        .build());
     configureLevels(props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j

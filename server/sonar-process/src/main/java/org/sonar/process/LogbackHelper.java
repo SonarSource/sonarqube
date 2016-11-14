@@ -37,8 +37,11 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Helps to configure Logback in a programmatic way, without using XML.
@@ -47,8 +50,9 @@ public class LogbackHelper {
 
   public static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
   public static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
+  private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level [" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
 
   public LoggerContext getRootContext() {
     org.slf4j.Logger logger;
@@ -76,10 +80,99 @@ public class LogbackHelper {
     return propagator;
   }
 
-  public void configureRootLogger(LoggerContext ctx, Props props, String threadIdFieldPattern, String fileName) {
-    String logFormat = LOG_FORMAT.replace(THREAD_ID_PLACEHOLDER, threadIdFieldPattern);
+  public static final class RootLoggerConfig {
+    private final String processName;
+    private final String threadIdFieldPattern;
+    private final String fileName;
+    private final boolean detachConsole;
+
+    public RootLoggerConfig(Builder builder) {
+      this.processName = builder.processName;
+      this.threadIdFieldPattern = builder.threadIdFieldPattern;
+      this.fileName = builder.fileName;
+      this.detachConsole = builder.detachConsole;
+    }
+
+    public static Builder newRootLoggerConfigBuilder() {
+      return new Builder();
+    }
+
+    public String getProcessName() {
+      return processName;
+    }
+
+    public String getThreadIdFieldPattern() {
+      return threadIdFieldPattern;
+    }
+
+    public String getFileName() {
+      return fileName;
+    }
+
+    public boolean isDetachConsole() {
+      return detachConsole;
+    }
+
+    public static final class Builder {
+      @CheckForNull
+      public String processName;
+      private String threadIdFieldPattern = "";
+      @CheckForNull
+      private String fileName;
+      private boolean detachConsole = true;
+
+      private Builder() {
+        // prevents instantiation outside RootLoggerConfig, use static factory method
+      }
+
+      public Builder setProcessName(String processName) {
+        checkProcessName(processName);
+        this.processName = processName;
+        return this;
+      }
+
+      public Builder setThreadIdFieldPattern(String threadIdFieldPattern) {
+        this.threadIdFieldPattern = requireNonNull(threadIdFieldPattern, "threadIdFieldPattern can't be null");
+        return this;
+      }
+
+      public Builder setFileName(String fileName) {
+        checkFileName(fileName);
+        this.fileName = fileName;
+        return this;
+      }
+
+      private static void checkFileName(String fileName) {
+        if (requireNonNull(fileName, "fileName can't be null").isEmpty()) {
+          throw new IllegalArgumentException("fileName can't be empty");
+        }
+      }
+
+      private static void checkProcessName(String fileName) {
+        if (requireNonNull(fileName, "processName can't be null").isEmpty()) {
+          throw new IllegalArgumentException("processName can't be empty");
+        }
+      }
+
+      public Builder setDetachConsole(boolean detachConsole) {
+        this.detachConsole = detachConsole;
+        return this;
+      }
+
+      public RootLoggerConfig build() {
+        checkProcessName(this.processName);
+        checkFileName(this.fileName);
+        return new RootLoggerConfig(this);
+      }
+    }
+  }
+
+  public void configureRootLogger(LoggerContext ctx, Props props, RootLoggerConfig config) {
+    String logFormat = LOG_FORMAT
+        .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
+        .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
     // configure appender
-    LogbackHelper.RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, fileName);
+    LogbackHelper.RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getFileName());
     FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file");
     fileAppender.setContext(ctx);
     PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
@@ -92,7 +185,10 @@ public class LogbackHelper {
     // configure logger
     Logger rootLogger = ctx.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     rootLogger.addAppender(fileAppender);
-    rootLogger.detachAppender("console");
+//    if (config.isDetachConsole()) {
+//      rootLogger.detachAppender("console");
+//    }
+    rootLogger.addAppender(newConsoleAppender(ctx, "console", logFormat));
   }
 
   public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, Filter... filters) {

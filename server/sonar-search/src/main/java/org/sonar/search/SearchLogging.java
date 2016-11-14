@@ -23,6 +23,8 @@ import ch.qos.logback.classic.LoggerContext;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 
+import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+
 public class SearchLogging {
 
   private LogbackHelper helper = new LogbackHelper();
@@ -31,7 +33,7 @@ public class SearchLogging {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    helper.configureRootLogger(ctx, props, "", "es");
+    helper.configureRootLogger(ctx, props, newRootLoggerConfigBuilder().setProcessName("es").setFileName("es").build());
 
     return ctx;
   }
