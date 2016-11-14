@@ -73,7 +73,7 @@ public class SearchLoggingTest {
     LoggerContext ctx = underTest.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
-    Appender<ILoggingEvent> appender = root.getAppender("file");
+    Appender<ILoggingEvent> appender = root.getAppender("file_es");
     assertThat(appender).isInstanceOf(FileAppender.class);
     FileAppender fileAppender = (FileAppender) appender;
     assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "es.log").getAbsolutePath());

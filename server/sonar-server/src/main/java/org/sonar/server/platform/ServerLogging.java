@@ -21,13 +21,11 @@ package org.sonar.server.platform;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import java.util.Set;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
@@ -38,17 +36,23 @@ import org.sonar.process.ProcessProperties;
 @ComputeEngineSide
 public class ServerLogging {
 
-  public static final Set<LoggerLevel> ALLOWED_ROOT_LOG_LEVELS = Sets.immutableEnumSet(LoggerLevel.TRACE, LoggerLevel.DEBUG, LoggerLevel.INFO);
-
-  private final LogbackHelper helper = new LogbackHelper();
+  private final LogbackHelper helper;
   private final Settings settings;
 
   public ServerLogging(Settings settings) {
+    this(new LogbackHelper(), settings);
+  }
+
+  @VisibleForTesting
+  ServerLogging(LogbackHelper helper, Settings settings) {
+    this.helper = helper;
     this.settings = settings;
   }
 
   public void changeLevel(LoggerLevel level) {
-    configureLevels(helper, level);
+    Level logbackLevel = Level.toLevel(level.name());
+    helper.configureRootLogLevel(logbackLevel);
+    configureHardcodedLevels(helper);
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);
   }
 
@@ -56,9 +60,7 @@ public class ServerLogging {
     return Loggers.get(Logger.ROOT_LOGGER_NAME).getLevel();
   }
 
-  public static void configureLevels(LogbackHelper helper, LoggerLevel level) {
-    Preconditions.checkArgument(ALLOWED_ROOT_LOG_LEVELS.contains(level), "%s log level is not supported (allowed levels are %s)", level, ALLOWED_ROOT_LOG_LEVELS);
-    helper.configureLogger(Logger.ROOT_LOGGER_NAME, Level.toLevel(level.name()));
+  public static void configureHardcodedLevels(LogbackHelper helper) {
     helper.configureLogger("rails", Level.WARN);
     helper.configureLogger("org.apache.ibatis", Level.WARN);
     helper.configureLogger("java.sql", Level.WARN);

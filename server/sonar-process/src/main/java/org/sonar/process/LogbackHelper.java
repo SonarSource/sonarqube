@@ -30,33 +30,40 @@ import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.FileAppender;
-import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 /**
  * Helps to configure Logback in a programmatic way, without using XML.
  */
 public class LogbackHelper {
 
-  public static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
-  public static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
+  private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
+  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
+  private static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
+  private static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
+  public static final Set<Level> ALLOWED_ROOT_LOG_LEVELS = unmodifiableSet(setOf(Level.TRACE, Level.DEBUG, Level.INFO));
 
   public LoggerContext getRootContext() {
     org.slf4j.Logger logger;
-    while (!((logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)) instanceof Logger)) {
+    while (!((logger = LoggerFactory.getLogger(ROOT_LOGGER_NAME)) instanceof Logger)) {
       // It occurs when the initialization step is still not finished because of a race condition
       // on ILoggerFactory.getILoggerFactory
       // http://jira.qos.ch/browse/SLF4J-167
@@ -83,14 +90,12 @@ public class LogbackHelper {
   public static final class RootLoggerConfig {
     private final String processName;
     private final String threadIdFieldPattern;
-    private final String fileName;
-    private final boolean detachConsole;
+    private final String fileNamePrefix;
 
-    public RootLoggerConfig(Builder builder) {
+    private RootLoggerConfig(Builder builder) {
       this.processName = builder.processName;
       this.threadIdFieldPattern = builder.threadIdFieldPattern;
-      this.fileName = builder.fileName;
-      this.detachConsole = builder.detachConsole;
+      this.fileNamePrefix = builder.fileNamePrefix;
     }
 
     public static Builder newRootLoggerConfigBuilder() {
@@ -101,16 +106,12 @@ public class LogbackHelper {
       return processName;
     }
 
-    public String getThreadIdFieldPattern() {
+    String getThreadIdFieldPattern() {
       return threadIdFieldPattern;
     }
 
-    public String getFileName() {
-      return fileName;
-    }
-
-    public boolean isDetachConsole() {
-      return detachConsole;
+    String getFileNamePrefix() {
+      return fileNamePrefix;
     }
 
     public static final class Builder {
@@ -118,8 +119,7 @@ public class LogbackHelper {
       public String processName;
       private String threadIdFieldPattern = "";
       @CheckForNull
-      private String fileName;
-      private boolean detachConsole = true;
+      private String fileNamePrefix;
 
       private Builder() {
         // prevents instantiation outside RootLoggerConfig, use static factory method
@@ -136,15 +136,15 @@ public class LogbackHelper {
         return this;
       }
 
-      public Builder setFileName(String fileName) {
-        checkFileName(fileName);
-        this.fileName = fileName;
+      public Builder setFileNamePrefix(String fileNamePrefix) {
+        checkFileName(fileNamePrefix);
+        this.fileNamePrefix = fileNamePrefix;
         return this;
       }
 
       private static void checkFileName(String fileName) {
-        if (requireNonNull(fileName, "fileName can't be null").isEmpty()) {
-          throw new IllegalArgumentException("fileName can't be empty");
+        if (requireNonNull(fileName, "fileNamePrefix can't be null").isEmpty()) {
+          throw new IllegalArgumentException("fileNamePrefix can't be empty");
         }
       }
 
@@ -154,60 +154,140 @@ public class LogbackHelper {
         }
       }
 
-      public Builder setDetachConsole(boolean detachConsole) {
-        this.detachConsole = detachConsole;
-        return this;
-      }
-
       public RootLoggerConfig build() {
         checkProcessName(this.processName);
-        checkFileName(this.fileName);
+        checkFileName(this.fileNamePrefix);
         return new RootLoggerConfig(this);
       }
     }
   }
 
-  public void configureRootLogger(LoggerContext ctx, Props props, RootLoggerConfig config) {
-    String logFormat = LOG_FORMAT
-        .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
-        .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
-    // configure appender
-    LogbackHelper.RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getFileName());
-    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file");
-    fileAppender.setContext(ctx);
-    PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
-    fileEncoder.setContext(ctx);
-    fileEncoder.setPattern(logFormat);
-    fileEncoder.start();
-    fileAppender.setEncoder(fileEncoder);
-    fileAppender.start();
-
-    // configure logger
-    Logger rootLogger = ctx.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-    rootLogger.addAppender(fileAppender);
-//    if (config.isDetachConsole()) {
-//      rootLogger.detachAppender("console");
-//    }
-    rootLogger.addAppender(newConsoleAppender(ctx, "console", logFormat));
+  public String buildLogPattern(LogbackHelper.RootLoggerConfig config) {
+    return LOG_FORMAT
+      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
+      .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
   }
 
-  public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, Filter... filters) {
+  /**
+   * Creates a new {@link ConsoleAppender} to {@code System.out} with the specified name and log pattern.
+   *
+   * @see #buildLogPattern(RootLoggerConfig)
+   */
+  public ConsoleAppender<ILoggingEvent> newConsoleAppender(Context loggerContext, String name, String logPattern) {
     PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
     consoleEncoder.setContext(loggerContext);
-    consoleEncoder.setPattern(pattern);
+    consoleEncoder.setPattern(logPattern);
     consoleEncoder.start();
-    ConsoleAppender consoleAppender = new ConsoleAppender();
+    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
     consoleAppender.setContext(loggerContext);
     consoleAppender.setEncoder(consoleEncoder);
     consoleAppender.setName(name);
     consoleAppender.setTarget("System.out");
-    for (Filter filter : filters) {
-      consoleAppender.addFilter(filter);
-    }
     consoleAppender.start();
     return consoleAppender;
   }
 
+  /**
+   * Make logback configuration for a process to push all its logs to a log file.
+   * <p>
+   *   <ul>
+   *     <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getFileNamePrefix()}.</li>
+   *     <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
+   *     the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
+   *     <li>the logs will follow the specified log pattern</li>
+   *   </ul>
+   * </p>
+   *
+   * @see #buildLogPattern(RootLoggerConfig)
+   */
+  public FileAppender<ILoggingEvent> configureGlobalFileLog(Props props, RootLoggerConfig config, String logPattern) {
+    LoggerContext ctx = getRootContext();
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    FileAppender<ILoggingEvent> fileAppender = newFileAppender(ctx, props, config, logPattern);
+    rootLogger.addAppender(fileAppender);
+    return fileAppender;
+  }
+
+  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, LogbackHelper.RootLoggerConfig config, String logPattern) {
+    RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getFileNamePrefix());
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getFileNamePrefix());
+    fileAppender.setContext(ctx);
+    PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
+    fileEncoder.setContext(ctx);
+    fileEncoder.setPattern(logPattern);
+    fileEncoder.start();
+    fileAppender.setEncoder(fileEncoder);
+    fileAppender.start();
+    return fileAppender;
+  }
+
+  /**
+   * Make the logback configuration for a sub process to correctly push all its logs to be read by a stream gobbler
+   * on the sub process's System.out.
+   *
+   * @see #buildLogPattern(RootLoggerConfig)
+   */
+  public void configureForSubprocessGobbler(Props props, String logPattern) {
+    if (isAllLogsToConsoleEnabled(props)) {
+      LoggerContext ctx = getRootContext();
+      ctx.getLogger(ROOT_LOGGER_NAME).addAppender(newConsoleAppender(ctx, "root_console", logPattern));
+    }
+  }
+
+  /**
+   * Finds out whether we are in testing environment (usually ITs) and logs of all processes must be forward to
+   * App's System.out. This is specified by the value of property {@link #ALL_LOGS_TO_CONSOLE_PROPERTY}.
+   */
+  public boolean isAllLogsToConsoleEnabled(Props props) {
+    return props.valueAsBoolean(ALL_LOGS_TO_CONSOLE_PROPERTY, false);
+  }
+
+  @SafeVarargs
+  private static <T> Set<T> setOf(T... args) {
+    Set<T> res = new HashSet<>(args.length);
+    res.addAll(Arrays.asList(args));
+    return res;
+  }
+
+  /**
+   * Configure the log level of the root logger reading the value of property {@link #SONAR_LOG_LEVEL_PROPERTY}.
+   *
+   * @throws IllegalArgumentException if the value of {@link #SONAR_LOG_LEVEL_PROPERTY} is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
+  public Level configureRootLogLevel(Props props) {
+    return configureRootLogLevel(props, SONAR_LOG_LEVEL_PROPERTY);
+  }
+
+  /**
+   * Configure the log level of the root logger reading the value of specified property.
+   *
+   * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
+  public Level configureRootLogLevel(Props props, String propertyKey) {
+    Level newLevel = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+    return configureRootLogLevel(newLevel);
+  }
+
+  /**
+   * Configure the log level of the root logger to the specified level.
+   *
+   * @throws IllegalArgumentException if the specified level is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
+  public Level configureRootLogLevel(Level newLevel) {
+    Logger rootLogger = getRootContext().getLogger(ROOT_LOGGER_NAME);
+    if (!ALLOWED_ROOT_LOG_LEVELS.contains(newLevel)) {
+      throw new IllegalArgumentException(String.format("%s log level is not supported (allowed levels are %s)", newLevel, ALLOWED_ROOT_LOG_LEVELS));
+    }
+    rootLogger.setLevel(newLevel);
+    return newLevel;
+  }
+
+  /**
+   * Configure the log level of the specified logger to specified level.
+   * <p>
+   * Any level is allowed.
+   * </p>
+   */
   public Logger configureLogger(String loggerName, Level level) {
     Logger logger = getRootContext().getLogger(loggerName);
     logger.setLevel(level);
@@ -246,31 +326,31 @@ public class LogbackHelper {
 
   public abstract static class RollingPolicy {
     protected final Context context;
-    protected final String filenamePrefix;
-    protected final File logsDir;
-    protected final int maxFiles;
+    final String filenamePrefix;
+    final File logsDir;
+    final int maxFiles;
 
-    public RollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles) {
+    RollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles) {
       this.context = context;
       this.filenamePrefix = filenamePrefix;
       this.logsDir = logsDir;
       this.maxFiles = maxFiles;
     }
 
-    public abstract FileAppender createAppender(String appenderName);
+    public abstract FileAppender<ILoggingEvent> createAppender(String appenderName);
   }
 
   /**
    * Log files are not rotated, for example for unix command logrotate is in place.
    */
-  static class NoRollingPolicy extends RollingPolicy {
-    NoRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles) {
+  private static class NoRollingPolicy extends RollingPolicy {
+    private NoRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles) {
       super(context, filenamePrefix, logsDir, maxFiles);
     }
 
     @Override
-    public FileAppender createAppender(String appenderName) {
-      FileAppender appender = new FileAppender<>();
+    public FileAppender<ILoggingEvent> createAppender(String appenderName) {
+      FileAppender<ILoggingEvent> appender = new FileAppender<>();
       appender.setContext(context);
       appender.setFile(new File(logsDir, filenamePrefix + ".log").getAbsolutePath());
       appender.setName(appenderName);
@@ -282,17 +362,17 @@ public class LogbackHelper {
    * Log files are rotated according to time (one file per day, month or year).
    * See http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy
    */
-  static class TimeRollingPolicy extends RollingPolicy {
+  private static class TimeRollingPolicy extends RollingPolicy {
     private final String datePattern;
 
-    public TimeRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles, String datePattern) {
+    private TimeRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles, String datePattern) {
       super(context, filenamePrefix, logsDir, maxFiles);
       this.datePattern = datePattern;
     }
 
     @Override
-    public FileAppender createAppender(String appenderName) {
-      RollingFileAppender appender = new RollingFileAppender();
+    public FileAppender<ILoggingEvent> createAppender(String appenderName) {
+      RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<>();
       appender.setContext(context);
       appender.setName(appenderName);
       String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
@@ -314,23 +394,23 @@ public class LogbackHelper {
    * Log files are rotated according to their size.
    * See http://logback.qos.ch/manual/appenders.html#FixedWindowRollingPolicy
    */
-  static class SizeRollingPolicy extends RollingPolicy {
+  private static class SizeRollingPolicy extends RollingPolicy {
     private final String size;
 
-    SizeRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles, String parameter) {
+    private SizeRollingPolicy(Context context, String filenamePrefix, File logsDir, int maxFiles, String parameter) {
       super(context, filenamePrefix, logsDir, maxFiles);
       this.size = parameter;
     }
 
     @Override
-    public FileAppender createAppender(String appenderName) {
-      RollingFileAppender appender = new RollingFileAppender();
+    public FileAppender<ILoggingEvent> createAppender(String appenderName) {
+      RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<>();
       appender.setContext(context);
       appender.setName(appenderName);
       String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
       appender.setFile(filePath);
 
-      SizeBasedTriggeringPolicy trigger = new SizeBasedTriggeringPolicy(size);
+      SizeBasedTriggeringPolicy<ILoggingEvent> trigger = new SizeBasedTriggeringPolicy<>(size);
       trigger.setContext(context);
       trigger.start();
       appender.setTriggeringPolicy(trigger);

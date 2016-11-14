@@ -19,6 +19,10 @@
  */
 package org.sonar.server.app;
 
+import java.util.logging.LogManager;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.sonar.process.Props;
+
 /**
  * Configure logback for the Web Server process. Logs are written to file "web.log" in SQ's log directory.
  */
@@ -28,4 +32,10 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     super("web", "%X{UID}");
   }
 
+  @Override
+  protected void extendConfiguration(Props props) {
+    // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
+    LogManager.getLogManager().reset();
+    SLF4JBridgeHandler.install();
+  }
 }

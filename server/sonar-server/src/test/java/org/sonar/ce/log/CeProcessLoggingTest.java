@@ -77,7 +77,7 @@ public class CeProcessLoggingTest {
     LoggerContext ctx = underTest.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
-    Appender<ILoggingEvent> appender = root.getAppender("file");
+    Appender<ILoggingEvent> appender = root.getAppender("file_ce");
     assertThat(appender).isInstanceOf(FileAppender.class);
     FileAppender fileAppender = (FileAppender) appender;
     assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "ce.log").getAbsolutePath());

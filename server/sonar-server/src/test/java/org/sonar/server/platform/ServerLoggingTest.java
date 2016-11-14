@@ -20,7 +20,6 @@
 package org.sonar.server.platform;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -28,8 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
@@ -37,18 +36,19 @@ import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ServerLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  Settings settings = new MapSettings();
-  ServerLogging underTest = new ServerLogging(settings);
+  private LogbackHelper logbackHelper = spy(new LogbackHelper());
+  private Settings settings = new MapSettings();
+  private ServerLogging underTest = new ServerLogging(logbackHelper, settings);
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -78,20 +78,66 @@ public class ServerLoggingTest {
   }
 
   @Test
-  public void configureLevels() {
+  public void configureHardcodedLevels() {
     LogbackHelper logbackHelper = mock(LogbackHelper.class);
-    ServerLogging.configureLevels(logbackHelper, LoggerLevel.TRACE);
+    ServerLogging.configureHardcodedLevels(logbackHelper);
 
-    verify(logbackHelper).configureLogger(Logger.ROOT_LOGGER_NAME, Level.TRACE);
-    verify(logbackHelper).configureLogger("java.sql", Level.WARN);
+    verifyHardcodedLevels(logbackHelper);
   }
 
   @Test
-  public void configureLevels_unsupported_level() {
+  public void changeLevel_throws_IAE_if_level_is_WARN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
+    expectedException.expectMessage("WARN log level is not supported (allowed levels are [");
 
-    LogbackHelper logbackHelper = mock(LogbackHelper.class);
-    ServerLogging.configureLevels(logbackHelper, LoggerLevel.ERROR);
+    underTest.changeLevel(LoggerLevel.WARN);
+  }
+
+  @Test
+  public void changeLevel_throws_IAE_if_level_is_ERROR() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [");
+
+    underTest.changeLevel(LoggerLevel.ERROR);
+  }
+
+  @Test
+  public void changeLevel_changes_root_logger_level_to_INFO() {
+    underTest.changeLevel(LoggerLevel.INFO);
+
+    verify(logbackHelper).configureRootLogLevel(Level.INFO);
+    verifyHardcodedLevels(logbackHelper);
+  }
+
+  @Test
+  public void changeLevel_changes_root_logger_level_to_DEBUG() {
+    underTest.changeLevel(LoggerLevel.DEBUG);
+
+    verify(logbackHelper).configureRootLogLevel(Level.DEBUG);
+    verifyHardcodedLevels(logbackHelper);
+  }
+
+  @Test
+  public void changeLevel_changes_root_logger_level_to_TRACE() {
+    underTest.changeLevel(LoggerLevel.TRACE);
+
+    verify(logbackHelper).configureRootLogLevel(Level.TRACE);
+    verifyHardcodedLevels(logbackHelper);
+  }
+
+  private void verifyHardcodedLevels(LogbackHelper logbackHelper) {
+    verify(logbackHelper).configureLogger("rails", Level.WARN);
+    verify(logbackHelper).configureLogger("org.apache.ibatis", Level.WARN);
+    verify(logbackHelper).configureLogger("java.sql", Level.WARN);
+    verify(logbackHelper).configureLogger("java.sql.ResultSet", Level.WARN);
+    verify(logbackHelper).configureLogger("org.sonar.MEASURE_FILTER", Level.WARN);
+    verify(logbackHelper).configureLogger("org.elasticsearch", Level.INFO);
+    verify(logbackHelper).configureLogger("org.elasticsearch.node", Level.INFO);
+    verify(logbackHelper).configureLogger("org.elasticsearch.http", Level.INFO);
+    verify(logbackHelper).configureLogger("ch.qos.logback", Level.WARN);
+    verify(logbackHelper).configureLogger("org.apache.catalina", Level.INFO);
+    verify(logbackHelper).configureLogger("org.apache.coyote", Level.INFO);
+    verify(logbackHelper).configureLogger("org.apache.jasper", Level.INFO);
+    verify(logbackHelper).configureLogger("org.apache.tomcat", Level.INFO);
   }
 }

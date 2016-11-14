@@ -20,10 +20,6 @@
 package org.sonar.server.app;
 
 import ch.qos.logback.classic.LoggerContext;
-import java.util.logging.LogManager;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.platform.ServerLogging;
@@ -31,7 +27,6 @@ import org.sonar.server.platform.ServerLogging;
 import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
-  private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
   private final String processName;
   private final String threadIdFieldPattern;
   private final LogbackHelper helper = new LogbackHelper();
@@ -46,32 +41,28 @@ public abstract class ServerProcessLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
-    helper.configureRootLogger(ctx, props,
-      newRootLoggerConfigBuilder()
-        .setProcessName(processName)
-        .setThreadIdFieldPattern(threadIdFieldPattern)
-        .setFileName(processName)
-        .build());
-    configureLevels(props);
+    configureRootLogger(props);
 
-    // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
-    LogManager.getLogManager().reset();
-    SLF4JBridgeHandler.install();
+    extendConfiguration(props);
+
     return ctx;
   }
 
-  private void configureLevels(Props props) {
-    String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
-    LoggerLevel level;
-    if ("TRACE".equals(levelCode)) {
-      level = LoggerLevel.TRACE;
-    } else if ("DEBUG".equals(levelCode)) {
-      level = LoggerLevel.DEBUG;
-    } else if ("INFO".equals(levelCode)) {
-      level = LoggerLevel.INFO;
-    } else {
-      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
-    }
-    ServerLogging.configureLevels(helper, level);
+  protected abstract void extendConfiguration(Props props);
+
+  private void configureRootLogger(Props props) {
+    LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setProcessName(processName)
+      .setThreadIdFieldPattern(threadIdFieldPattern)
+      .setFileNamePrefix(processName)
+      .build();
+    String logPattern = helper.buildLogPattern(config);
+
+    helper.configureGlobalFileLog(props, config, logPattern);
+    helper.configureForSubprocessGobbler(props, logPattern);
+
+    helper.configureRootLogLevel(props);
+    ServerLogging.configureHardcodedLevels(helper);
   }
+
 }

@@ -33,8 +33,14 @@ public class SearchLogging {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    helper.configureRootLogger(ctx, props, newRootLoggerConfigBuilder().setProcessName("es").setFileName("es").build());
+    LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessName("es").setFileNamePrefix("es").build();
+
+    String logPattern = helper.buildLogPattern(config);
+    helper.configureGlobalFileLog(props, config, logPattern);
+    helper.configureForSubprocessGobbler(props, logPattern);
+    helper.configureRootLogLevel(props);
 
     return ctx;
   }
+
 }

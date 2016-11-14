@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.log;
 
+import org.sonar.process.Props;
 import org.sonar.server.app.ServerProcessLogging;
 
 /**
@@ -30,4 +31,8 @@ public class CeProcessLogging extends ServerProcessLogging {
     super("ce", "%X{ceTaskUuid}");
   }
 
+  @Override
+  protected void extendConfiguration(Props props) {
+    // no configuration extension to do
+  }
 }

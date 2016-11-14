@@ -77,7 +77,7 @@ public class WebServerProcessLoggingTest {
     LoggerContext ctx = underTest.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
-    Appender<ILoggingEvent> appender = root.getAppender("file");
+    Appender<ILoggingEvent> appender = root.getAppender("file_web");
     assertThat(appender).isInstanceOf(FileAppender.class);
     FileAppender fileAppender = (FileAppender) appender;
     assertThat(fileAppender.getFile()).isEqualTo(new File(logDir, "web.log").getAbsolutePath());
