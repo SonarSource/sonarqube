@@ -88,14 +88,32 @@ public class SearchProjectsAction implements ComponentsWsAction {
     action
       .createParam(PARAM_FILTER)
       .setDescription("Filter projects on measure value, quality gate or whether a project is a favorite or not.<br>" +
+        "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
         "<ul>" +
-        " <li>to filter my favorite projects with a coverage strictly between 60% and 80%: filter=\"isFavorite and coverage > 60 and coverage < 80\"</li>" +
-        " <li>to filter projects with a Failed quality gate: filter=\"alert_status = ERROR\"</li>" +
-        " <li>to filter my favorite projects with a coverage lower than or equals to 80% and with a Passed Quality Gate: " +
-        "filter=\"isFavorite and coverage <= 80 and alert_status=OK\"</li>" +
-        " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B: " +
-        "filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</li>" +
+        " <li>to filter my favorite projects with a failed quality gate and a coverage greater than or equals to 60% and a coverage strictly lower than 80%:<br>" +
+        "   <code>filter=\"alert_status = ERROR and isFavorite and coverage >= 60 and coverage < 80\"</code></li>" +
+        " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B:<br>" +
+        "   <code>filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</code></li>" +
+        "</ul>" +
+        "To filter on any numeric metric, provide the metric key.<br>" +
+        "Use the WS api/metrics/search to find the key of a metric.<br>" +
+        "<br>" +
+        "To filter on a rating, provide the corresponding metric key (ex: reliability_rating for reliability rating).<br>" +
+        "The possible values are:" +
+        "<ul>" +
+        " <li>'1' for rating A</li>" +
+        " <li>'2' for rating B</li>" +
+        " <li>'3' for rating C</li>" +
+        " <li>'4' for rating D</li>" +
+        " <li>'5' for rating E</li>" +
+        "</ul>" +
+        "To filter on a Quality Gate status use the metric key 'alert_status'. You can only use the '=' operator.<br>" +
+        "The possible values are:" +
+        "<ul>" +
+        " <li>'OK' for Passed</li>" +
+        " <li>'WARN' for Warning</li>" +
+        " <li>'ERROR' for Failed</li>" +
         "</ul>");
   }
 
