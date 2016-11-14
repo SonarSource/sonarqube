@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -475,8 +475,7 @@ public class IssueQuery {
 
     public IssueQuery build() {
       if (issueKeys != null) {
-        Preconditions.checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size()
-          + ")");
+        checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
     }

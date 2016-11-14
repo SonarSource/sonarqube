@@ -19,17 +19,23 @@
  */
 package org.sonar.server.es;
 
+import java.io.StringWriter;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.test.JsonAssert;
-
-import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class SearchOptionsTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private SearchOptions underTest = new SearchOptions();
 
   @Test
   public void defaults() {
@@ -152,5 +158,13 @@ public class SearchOptionsTest {
     jsonWriter.endObject().close();
 
     JsonAssert.assertJson(json.toString()).isSimilarTo("{\"paging\": {\"pageIndex\": 3, \"pageSize\": 10, \"total\": 30, \"fTotal\": \"30\", \"pages\": 3}}");
+  }
+
+  @Test
+  public void fail_if_result_after_first_10_000() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Can return only the first 10000 results. 10500th result asked.");
+
+    underTest.setPage(21, 500);
   }
 }

@@ -19,19 +19,18 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Various Elasticsearch request options: paging, fields and facets
@@ -41,6 +40,7 @@ public class SearchOptions {
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
   public static final int MAX_LIMIT = 500;
+  private static final int MAX_RETURNABLE_RESULTS = 10_000;
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
@@ -58,7 +58,7 @@ public class SearchOptions {
    * Sets the offset of the first result to return (zero-based).
    */
   public SearchOptions setOffset(int offset) {
-    Preconditions.checkArgument(offset >= 0, "Offset must be positive");
+    checkArgument(offset >= 0, "Offset must be positive");
     this.offset = offset;
     return this;
   }
@@ -68,7 +68,9 @@ public class SearchOptions {
    * {@link #MAX_LIMIT} is used.
    */
   public SearchOptions setPage(int page, int pageSize) {
-    Preconditions.checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
+    checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
+    int lastResultIndex = page * pageSize;
+    checkArgument(lastResultIndex <= MAX_RETURNABLE_RESULTS, "Can return only the first %s results. %sth result asked.", MAX_RETURNABLE_RESULTS, lastResultIndex);
     setLimit(pageSize);
     setOffset((page * this.limit) - this.limit);
     return this;

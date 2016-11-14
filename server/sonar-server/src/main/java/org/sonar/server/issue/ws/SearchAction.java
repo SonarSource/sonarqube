@@ -291,9 +291,7 @@ public class SearchAction implements IssuesWsAction {
 
   private SearchWsResponse doHandle(SearchWsRequest request, Request wsRequest) {
     // prepare the Elasticsearch request
-    SearchOptions options = new SearchOptions();
-    options.setPage(request.getPage(), request.getPageSize());
-    options.addFacets(request.getFacets());
+    SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
     IssueQuery query = issueQueryService.createFromRequest(request);
 
@@ -329,7 +327,15 @@ public class SearchAction implements IssuesWsAction {
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
+  private static SearchOptions createSearchOptionsFromRequest(SearchWsRequest request) {
+    SearchOptions options = new SearchOptions();
+    options.setPage(request.getPage(), request.getPageSize());
+    options.addFacets(request.getFacets());
+
+    return options;
+  }
+
+  private static Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
     if (facets == null) {
       return null;
     }
