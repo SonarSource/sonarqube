@@ -197,6 +197,13 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
+      PropertyDefinition.builder("sonar.lf.landingText")
+        .name("Landing page text")
+        .description("Optional text that is display on the landing page. Supports html.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
+        .type(PropertyType.TEXT)
+        .build(),
 
       // ISSUES
       PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
