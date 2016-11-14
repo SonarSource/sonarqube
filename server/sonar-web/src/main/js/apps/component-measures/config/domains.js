@@ -141,15 +141,6 @@ export const domains = {
     ]
   },
 
-  'Documentation': {
-    main: [
-      'comment_lines_density'
-    ],
-    order: [
-      'comment_lines_density'
-    ]
-  },
-
   'Releasability': {
     main: [
       'alert_status',
