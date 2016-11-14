@@ -185,6 +185,24 @@ public class QProfileChangeDaoTest {
   }
 
   @Test
+  public void selectByQuery_mapping() {
+    when(system2.now()).thenReturn(A_DATE);
+    when(uuidFactory.create()).thenReturn("C1");
+    insertChange("P1", "ACTIVATED", "Oscar", "data");
+
+    List<QProfileChangeDto> result = underTest.selectByQuery(dbSession, new QProfileChangeQuery("P1"));
+
+    assertThat(result).hasSize(1);
+    QProfileChangeDto change = result.get(0);
+    assertThat(change.getProfileKey()).isEqualTo("P1");
+    assertThat(change.getLogin()).isEqualTo("Oscar");
+    assertThat(change.getData()).isEqualTo("data");
+    assertThat(change.getChangeType()).isEqualTo("ACTIVATED");
+    assertThat(change.getKey()).isEqualTo("C1");
+    assertThat(change.getCreatedAt()).isEqualTo(A_DATE);
+  }
+
+  @Test
   public void test_countForProfileKey() {
     when(system2.now()).thenReturn(A_DATE, A_DATE + 10);
     when(uuidFactory.create()).thenReturn("C1", "C2");
