@@ -22,6 +22,7 @@ package org.sonar.server.view.index;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.index.IndexRequest;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -36,8 +37,8 @@ public class ViewIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public ViewIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
+  public ViewIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
   }
 

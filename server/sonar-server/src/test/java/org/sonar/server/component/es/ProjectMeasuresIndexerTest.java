@@ -45,16 +45,18 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_
 
 public class ProjectMeasuresIndexerTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester esTester = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
 
-  ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(dbTester.getDbClient(), esTester.client());
+  ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(system2, dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_nothing() {

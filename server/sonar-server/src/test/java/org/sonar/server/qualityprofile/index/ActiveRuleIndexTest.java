@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -57,6 +58,8 @@ public class ActiveRuleIndexTest {
   private static final String QUALITY_PROFILE_KEY1 = "qp1";
   private static final String QUALITY_PROFILE_KEY2 = "qp2";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester tester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
@@ -66,8 +69,8 @@ public class ActiveRuleIndexTest {
 
   @Before
   public void setUp() {
-    activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
-    ruleIndexer = new RuleIndexer(null, tester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(system2, null, tester.client());
+    ruleIndexer = new RuleIndexer(system2, null, tester.client());
     index = new ActiveRuleIndex(tester.client());
   }
 

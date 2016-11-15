@@ -54,20 +54,20 @@ import static org.mockito.Mockito.mock;
 
 public class IssuesActionTest {
 
-  final static String PROJECT_KEY = "struts";
-  static final String PROJECT_UUID = "ABCD";
+  private static final String PROJECT_KEY = "struts";
+  private static final String PROJECT_UUID = "ABCD";
+  private static final String MODULE_KEY = "struts-core";
+  private static final String MODULE_UUID = "BCDE";
+  private final static String FILE_KEY = "Action.java";
+  private static final String FILE_UUID = "CDEF";
 
-  final static String MODULE_KEY = "struts-core";
-  static final String MODULE_UUID = "BCDE";
-
-  final static String FILE_KEY = "Action.java";
-  static final String FILE_UUID = "CDEF";
+  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
@@ -79,15 +79,13 @@ public class IssuesActionTest {
   private IssueIndexer issueIndexer;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
-
-  WsTester tester;
-
-  IssuesAction issuesAction;
+  private WsTester tester;
+  private IssuesAction issuesAction;
 
   @Before
   public void before() {
-    issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
-    issueIndexer = new IssueIndexer(null, es.client());
+    issueIndex = new IssueIndex(es.client(), system2, userSessionRule);
+    issueIndexer = new IssueIndexer(system2, null, es.client());
     issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
     tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));

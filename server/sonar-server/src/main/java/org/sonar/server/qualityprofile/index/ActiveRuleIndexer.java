@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -47,8 +48,8 @@ public class ActiveRuleIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public ActiveRuleIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, INDEX, TYPE_ACTIVE_RULE, FIELD_ACTIVE_RULE_UPDATED_AT);
+  public ActiveRuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 300, INDEX, TYPE_ACTIVE_RULE, FIELD_ACTIVE_RULE_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

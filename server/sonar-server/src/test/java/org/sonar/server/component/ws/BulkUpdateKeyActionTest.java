@@ -70,6 +70,8 @@ public class BulkUpdateKeyActionTest {
   static final String FROM = "my_";
   static final String TO = "your_";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -80,7 +82,7 @@ public class BulkUpdateKeyActionTest {
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
@@ -89,7 +91,7 @@ public class BulkUpdateKeyActionTest {
   ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
   WsActionTester ws = new WsActionTester(
-    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(dbClient, es.client())), userSession));
+    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client())), userSession));
 
   @Before
   public void setUp() {

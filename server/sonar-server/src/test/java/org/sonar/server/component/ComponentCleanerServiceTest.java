@@ -61,8 +61,10 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class ComponentCleanerServiceTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(
@@ -73,17 +75,15 @@ public class ComponentCleanerServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client());
+  private IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, es.client());
+  private TestIndexer testIndexer = new TestIndexer(system2, dbClient, es.client());
+  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
+  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
-  PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client());
-  IssueIndexer issueIndexer = new IssueIndexer(dbClient, es.client());
-  TestIndexer testIndexer = new TestIndexer(dbClient, es.client());
-  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
-
-  ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
-
-  ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, mockResourceTypes,
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, mockResourceTypes,
     new ComponentFinder(dbClient));
 
   @Test

@@ -56,6 +56,8 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_
 
 public class ComponentServiceUpdateKeyTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -66,7 +68,7 @@ public class ComponentServiceUpdateKeyTest {
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
@@ -74,7 +76,7 @@ public class ComponentServiceUpdateKeyTest {
 
   I18nRule i18n = new I18nRule();
 
-  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
+  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
 
   ComponentService underTest;
 
@@ -82,7 +84,7 @@ public class ComponentServiceUpdateKeyTest {
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
   }
 
   @Test

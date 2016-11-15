@@ -55,10 +55,11 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 public class DeactivateActionTest {
 
+  private System2 system2 = System2.INSTANCE;
   private Settings settings = new MapSettings();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
@@ -74,13 +75,12 @@ public class DeactivateActionTest {
 
   @Before
   public void setUp() {
-    System2 system2 = new System2();
     UserDao userDao = new UserDao(db.myBatis(), system2);
     dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(), new UserTokenDao());
     dbSession = db.getSession();
     dbSession.commit();
 
-    userIndexer = new UserIndexer(dbClient, esTester.client());
+    userIndexer = new UserIndexer(system2, dbClient, esTester.client());
     index = new UserIndex(esTester.client());
     DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     ws = new WsTester(new UsersWs(new DeactivateAction(

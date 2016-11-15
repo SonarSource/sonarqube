@@ -41,8 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexTestsStepTest extends BaseStepTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new TestIndexDefinition(new MapSettings()));
@@ -54,7 +56,7 @@ public class IndexTestsStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
+    TestIndexer testIndexer = new TestIndexer(system2, dbClient, esTester.client());
     return new IndexTestsStep(testIndexer, treeRootHolder);
   }
 

@@ -68,6 +68,8 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class IssueIndexTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester tester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
 
@@ -84,8 +86,8 @@ public class IssueIndexTest {
 
   @Before
   public void setUp() {
-    issueIndexer = new IssueIndexer(null, tester.client());
-    viewIndexer = new ViewIndexer(null, tester.client());
+    issueIndexer = new IssueIndexer(system2, null, tester.client());
+    viewIndexer = new ViewIndexer(system2, null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT-1:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());

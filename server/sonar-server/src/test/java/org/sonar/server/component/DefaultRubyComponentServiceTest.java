@@ -52,8 +52,10 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
 public class DefaultRubyComponentServiceTest {
 
+  private System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -67,8 +69,8 @@ public class DefaultRubyComponentServiceTest {
   private DbSession dbSession = db.getSession();
 
   private ResourceDao resourceDao = dbClient.resourceDao();
-  private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient),
-    new ProjectMeasuresIndexer(dbClient, es.client()));
+  private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
+    new ProjectMeasuresIndexer(system2, dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteService favoriteService = mock(FavoriteService.class);
 

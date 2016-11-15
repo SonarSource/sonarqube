@@ -19,7 +19,6 @@
  */
 package org.sonar.server.view.index;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +52,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewIndexerTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
@@ -64,7 +65,7 @@ public class ViewIndexerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private ViewIndexer indexer = (ViewIndexer) new ViewIndexer(dbClient, esTester.client());
+  private ViewIndexer indexer = (ViewIndexer) new ViewIndexer(system2, dbClient, esTester.client());
 
   @Test
   public void index_nothing() {
@@ -81,12 +82,7 @@ public class ViewIndexerTest {
     List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
     assertThat(docs).hasSize(4);
 
-    Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, new Function<ViewDoc, String>() {
-      @Override
-      public String apply(ViewDoc doc) {
-        return doc.uuid();
-      }
-    });
+    Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
 
     assertThat(viewsByUuid.get("ABCD").projects()).containsOnly("JKLM");
     assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("KLMN", "JKLM");
@@ -116,12 +112,7 @@ public class ViewIndexerTest {
     List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);
     assertThat(docs).hasSize(2);
 
-    Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, new Function<ViewDoc, String>() {
-      @Override
-      public String apply(ViewDoc doc) {
-        return doc.uuid();
-      }
-    });
+    Map<String, ViewDoc> viewsByUuid = Maps.uniqueIndex(docs, ViewDoc::uuid);
 
     assertThat(viewsByUuid.get("EFGH").projects()).containsOnly("KLMN", "JKLM");
     assertThat(viewsByUuid.get("FGHI").projects()).containsOnly("JKLM");
@@ -142,7 +133,7 @@ public class ViewIndexerTest {
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule);
-    IssueIndexer issueIndexer = new IssueIndexer(dbClient, esTester.client());
+    IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, esTester.client());
     PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client());
 
     String viewUuid = "ABCD";

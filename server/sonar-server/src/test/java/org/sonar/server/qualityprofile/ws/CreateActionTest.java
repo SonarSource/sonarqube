@@ -69,15 +69,15 @@ import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.parseFrom;
 
 public class CreateActionTest {
 
-  static final String XOO_LANGUAGE = "xoo";
-
-  static final RuleDto RULE = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage(XOO_LANGUAGE);
+  private static final String XOO_LANGUAGE = "xoo";
+  private static final RuleDto RULE = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage(XOO_LANGUAGE);
+  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
@@ -89,10 +89,10 @@ public class CreateActionTest {
   DbSession dbSession = dbTester.getSession();
 
   RuleIndex ruleIndex = new RuleIndex(esTester.client());
-  RuleIndexer ruleIndexer = new RuleIndexer(dbClient, esTester.client());
+  RuleIndexer ruleIndexer = new RuleIndexer(system2, dbClient, esTester.client());
 
   ActiveRuleIndex activeRuleIndex = new ActiveRuleIndex(esTester.client());
-  ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
+  ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
 
   ProfileImporter[] profileImporters = createImporters();
 

@@ -55,8 +55,10 @@ public class AddProjectActionTest {
   static final String LANGUAGE_1 = "xoo";
   static final String LANGUAGE_2 = "foo";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
@@ -77,7 +79,7 @@ public class AddProjectActionTest {
 
   WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
     qProfileProjectOperations, new ProjectAssociationFinder(new QProfileLookup(dbClient),
-      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(dbClient, es.client()))),
+      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()))),
     userSession));
 
   @Before

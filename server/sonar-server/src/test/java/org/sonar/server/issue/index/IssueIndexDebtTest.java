@@ -63,6 +63,7 @@ public class IssueIndexDebtTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  private System2 system2 = System2.INSTANCE;
   IssueIndex index;
 
   IssueIndexer issueIndexer;
@@ -71,8 +72,8 @@ public class IssueIndexDebtTest {
 
   @Before
   public void setUp() {
-    issueIndexer = new IssueIndexer(null, tester.client());
-    viewIndexer = new ViewIndexer(null, tester.client());
+    issueIndexer = new IssueIndexer(system2, null, tester.client());
+    viewIndexer = new ViewIndexer(system2, null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -47,8 +48,8 @@ public class IssueIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public IssueIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, INDEX, TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+  public IssueIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 300, INDEX, TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
