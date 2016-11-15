@@ -58,10 +58,14 @@ const onFail = dispatch => error => {
   dispatch(updateState({ loading: false }));
 };
 
-const onReceiveMeasures = dispatch => response => {
+const onReceiveMeasures = (dispatch, expectedProjectKeys) => response => {
   const byComponentKey = groupBy(response.measures, 'component');
 
   const toStore = {};
+
+  // fill store with empty objects for expected projects
+  // this is required to not have "null"s for provisioned projects
+  expectedProjectKeys.forEach(projectKey => toStore[projectKey] = {});
 
   Object.keys(byComponentKey).forEach(componentKey => {
     const measures = {};
@@ -80,7 +84,7 @@ const fetchProjectMeasures = projects => dispatch => {
   }
 
   const projectKeys = projects.map(project => project.key);
-  return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch), onFail(dispatch));
+  return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch, projectKeys), onFail(dispatch));
 };
 
 const handleFavorites = (dispatch, projects) => {

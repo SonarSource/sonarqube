@@ -28,10 +28,10 @@ export default class FavoriteFilter extends React.Component {
     }
 
     return (
-        <div className="pull-left big-spacer-left">
+        <div className="projects-sidebar pull-left text-center">
           <div className="button-group">
             <Link to="/projects/favorite" className="button" activeClassName="button-active">
-              {translate('my_favorite')}
+              {translate('my_favorites')}
             </Link>
             <IndexLink to="/projects" className="button" activeClassName="button-active">
               {translate('all')}

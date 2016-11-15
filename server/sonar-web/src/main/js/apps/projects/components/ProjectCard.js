@@ -23,6 +23,7 @@ import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import { getComponentUrl } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
 
 export default class ProjectCard extends React.Component {
   static propTypes = {
@@ -36,11 +37,14 @@ export default class ProjectCard extends React.Component {
       return null;
     }
 
-    const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': this.props.measures == null });
+    const areProjectMeasuresLoaded = this.props.measures != null;
+    const isProjectAnalyzed = areProjectMeasuresLoaded && this.props.measures.ncloc != null;
+
+    const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': !areProjectMeasuresLoaded });
 
     return (
         <div data-key={project.key} className={className}>
-          {this.props.measures != null && (
+          {isProjectAnalyzed && (
               <div className="boxed-group-actions">
                 <ProjectCardQualityGate status={this.props.measures['alert_status']}/>
               </div>
@@ -53,9 +57,17 @@ export default class ProjectCard extends React.Component {
               <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
             </h2>
           </div>
-          <div className="boxed-group-inner">
-            <ProjectCardMeasures measures={this.props.measures}/>
-          </div>
+          {isProjectAnalyzed ? (
+              <div className="boxed-group-inner">
+                <ProjectCardMeasures measures={this.props.measures}/>
+              </div>
+          ) : (
+              <div className="boxed-group-inner">
+                <div className="note project-card-not-analyzed">
+                  {translate('projects.not_analyzed')}
+                </div>
+              </div>
+          )}
         </div>
     );
   }
