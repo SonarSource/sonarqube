@@ -20,9 +20,7 @@
 package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
-import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,9 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 
 import static java.lang.String.format;
 
@@ -50,26 +46,11 @@ import static java.lang.String.format;
  */
 public class RootFilter implements Filter {
 
-  private static final String CONFIG_SEPARATOR = ",";
-  private static final String URL_SEPARATOR = "/";
-
-  private static final String MESSAGE_WITH_QUERY = "%s %s?%s";
-  private static final String MESSAGE_WITHOUT_QUERY = "%s %s";
   public static final org.sonar.api.utils.log.Logger Logger = Loggers.get("http");
-
-  private String contextRoot;
-  private Set<String> staticResourceDirs;
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-    contextRoot = filterConfig.getServletContext().getContextPath();
-
-    String staticResourcesConfig = filterConfig.getInitParameter("staticDirs");
-    if (StringUtils.isNotBlank(staticResourcesConfig)) {
-      staticResourceDirs = ImmutableSet.copyOf(staticResourcesConfig.split(CONFIG_SEPARATOR));
-    } else {
-      staticResourceDirs = ImmutableSet.of();
-    }
+    // nothing to do
   }
 
   @Override
@@ -78,7 +59,7 @@ public class RootFilter implements Filter {
       HttpServletRequest httpRequest = (HttpServletRequest) request;
       HttpServletResponse httpResponse = (HttpServletResponse) response;
       try {
-        doFilter(new ServletRequestWrapper(httpRequest), httpResponse, chain);
+        chain.doFilter(new ServletRequestWrapper(httpRequest), httpResponse);
       } catch (Throwable e) {
         Loggers.get(RootFilter.class).error(format("Processing of request %s failed", toUrl(httpRequest)), e);
         if (!response.isCommitted()) {
@@ -98,39 +79,6 @@ public class RootFilter implements Filter {
       return requestURI;
     }
     return requestURI + '?' + queryString;
-  }
-
-  private void doFilter(HttpServletRequest httpRequest, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-    String requestUri = httpRequest.getRequestURI();
-    String rootDir = getRootDir(requestUri);
-
-    if (staticResourceDirs.contains(rootDir)) {
-      // Static resource, not profiled
-      chain.doFilter(httpRequest, response);
-    } else {
-      Profiler profiler = Profiler.createIfDebug(Logger).start();
-      try {
-        chain.doFilter(httpRequest, response);
-      } finally {
-        if (profiler.isDebugEnabled()) {
-          String queryString = httpRequest.getQueryString();
-          String message = format(queryString == null ? MESSAGE_WITHOUT_QUERY : MESSAGE_WITH_QUERY, httpRequest.getMethod(), requestUri, queryString);
-          profiler.stopDebug(message);
-        }
-      }
-    }
-  }
-
-  private String getRootDir(String requestUri) {
-    String rootPath = "";
-    String localPath = StringUtils.substringAfter(requestUri, contextRoot);
-    if (localPath.startsWith(URL_SEPARATOR)) {
-      int secondSlash = localPath.indexOf(URL_SEPARATOR, 1);
-      if (secondSlash > 0) {
-        rootPath = URL_SEPARATOR + localPath.substring(1, secondSlash);
-      }
-    }
-    return rootPath;
   }
 
   @Override

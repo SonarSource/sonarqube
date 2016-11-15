@@ -55,10 +55,6 @@
   <filter>
     <filter-name>RootFilter</filter-name>
     <filter-class>org.sonar.server.platform.web.RootFilter</filter-class>
-    <init-param>
-      <param-name>staticDirs</param-name>
-      <param-value>/images,/javascripts,/stylesheets</param-value>
-    </init-param>
   </filter>
   <filter>
     <filter-name>RoutesFilter</filter-name>

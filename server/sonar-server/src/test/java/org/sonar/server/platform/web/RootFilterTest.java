@@ -51,7 +51,6 @@ public class RootFilterTest {
   @Before
   public void initialize() throws Exception {
     FilterConfig filterConfig = mock(FilterConfig.class);
-    when(filterConfig.getInitParameter("staticDirs")).thenReturn("/static,/assets");
     ServletContext context = mock(ServletContext.class);
     when(context.getContextPath()).thenReturn("/context");
     when(filterConfig.getServletContext()).thenReturn(context);
@@ -59,21 +58,6 @@ public class RootFilterTest {
 
     filter = new RootFilter();
     filter.init(filterConfig);
-  }
-
-  @Test
-  public void should_profile_service_call() throws Exception {
-    filter.doFilter(request("POST", "/context/service/call", "param=value"), null, chain);
-  }
-
-  @Test
-  public void should_profile_service() throws Exception {
-    filter.doFilter(request("POST", "/context/service", null), null, chain);
-  }
-
-  @Test
-  public void should_profile_context_root_as_slash2() throws Exception {
-    filter.doFilter(request("POST", "/context", null), null, chain);
   }
 
   @Test
@@ -92,27 +76,6 @@ public class RootFilterTest {
     filter.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
 
     verify(response, never()).sendError(500);
-  }
-
-  @Test
-  public void should_not_profile_non_http_request() throws Exception {
-    filter.doFilter(mock(ServletRequest.class), null, chain);
-  }
-
-  @Test
-  public void should_not_profile_static_resource() throws Exception {
-    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
-  }
-
-  @Test
-  public void should_profile_static_resource_if_no_config() throws Exception {
-    FilterConfig filterConfig = mock(FilterConfig.class);
-    ServletContext context = mock(ServletContext.class);
-    when(context.getContextPath()).thenReturn("/context");
-    when(filterConfig.getServletContext()).thenReturn(context);
-
-    filter.init(filterConfig);
-    filter.doFilter(request("GET", "/context/static/image.png", null), null, chain);
   }
 
   @Test
