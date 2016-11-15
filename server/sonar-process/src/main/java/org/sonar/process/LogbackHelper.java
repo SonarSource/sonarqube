@@ -53,11 +53,12 @@ import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 public class LogbackHelper {
 
   private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
-  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
-  private static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
+  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
+  private static final String SONAR_PROCESS_LOG_LEVEL_PROPERTY = "sonar.log.level." + PROCESS_NAME_PLACEHOLDER;
+  private static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
+  private static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
   public static final Set<Level> ALLOWED_ROOT_LOG_LEVELS = unmodifiableSet(setOf(Level.TRACE, Level.DEBUG, Level.INFO));
 
@@ -164,8 +165,8 @@ public class LogbackHelper {
 
   public String buildLogPattern(LogbackHelper.RootLoggerConfig config) {
     return LOG_FORMAT
-      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
-      .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
+        .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
+        .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
   }
 
   /**
@@ -190,12 +191,12 @@ public class LogbackHelper {
   /**
    * Make logback configuration for a process to push all its logs to a log file.
    * <p>
-   *   <ul>
-   *     <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getFileNamePrefix()}.</li>
-   *     <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
-   *     the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
-   *     <li>the logs will follow the specified log pattern</li>
-   *   </ul>
+   * <ul>
+   * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getFileNamePrefix()}.</li>
+   * <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
+   * the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
+   * <li>the logs will follow the specified log pattern</li>
+   * </ul>
    * </p>
    *
    * @see #buildLogPattern(RootLoggerConfig)
@@ -254,17 +255,26 @@ public class LogbackHelper {
    *
    * @throws IllegalArgumentException if the value of {@link #SONAR_LOG_LEVEL_PROPERTY} is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
-  public Level configureRootLogLevel(Props props) {
-    return configureRootLogLevel(props, SONAR_LOG_LEVEL_PROPERTY);
+  public Level configureRootLogLevel(Props props, ProcessId processId) {
+    return configureRootLogLevel(props,
+        SONAR_LOG_LEVEL_PROPERTY,
+        SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
   }
 
   /**
-   * Configure the log level of the root logger reading the value of specified property.
+   * Configure the log level of the root logger reading the value of specified properties. The lowest level will be
+   * applied.
    *
    * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
-  public Level configureRootLogLevel(Props props, String propertyKey) {
-    Level newLevel = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+  public Level configureRootLogLevel(Props props, String... propertyKeys) {
+    Level newLevel = Level.INFO;
+    for (String propertyKey : propertyKeys) {
+      Level level = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+      if (!level.isGreaterOrEqual(newLevel)) {
+        newLevel = level;
+      }
+    }
     return configureRootLogLevel(newLevel);
   }
 

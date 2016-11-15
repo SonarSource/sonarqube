@@ -21,6 +21,7 @@ package org.sonar.server.app;
 
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 /**
@@ -29,7 +30,7 @@ import org.sonar.process.Props;
 public class WebServerProcessLogging extends ServerProcessLogging {
 
   public WebServerProcessLogging() {
-    super("web", "%X{UID}");
+    super(ProcessId.WEB_SERVER, "%X{UID}");
   }
 
   @Override

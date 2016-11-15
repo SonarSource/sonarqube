@@ -21,18 +21,19 @@ package org.sonar.server.app;
 
 import ch.qos.logback.classic.LoggerContext;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.server.platform.ServerLogging;
 
 import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
-  private final String processName;
+  private final ProcessId processId;
   private final String threadIdFieldPattern;
   private final LogbackHelper helper = new LogbackHelper();
 
-  protected ServerProcessLogging(String processName, String threadIdFieldPattern) {
-    this.processName = processName;
+  protected ServerProcessLogging(ProcessId processId, String threadIdFieldPattern) {
+    this.processId = processId;
     this.threadIdFieldPattern = threadIdFieldPattern;
   }
 
@@ -52,16 +53,16 @@ public abstract class ServerProcessLogging {
 
   private void configureRootLogger(Props props) {
     LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder()
-      .setProcessName(processName)
+      .setProcessName(processId.getKey())
       .setThreadIdFieldPattern(threadIdFieldPattern)
-      .setFileNamePrefix(processName)
+      .setFileNamePrefix(processId.getKey())
       .build();
     String logPattern = helper.buildLogPattern(config);
 
     helper.configureGlobalFileLog(props, config, logPattern);
     helper.configureForSubprocessGobbler(props, logPattern);
 
-    helper.configureRootLogLevel(props);
+    helper.configureRootLogLevel(props, processId);
     ServerLogging.configureHardcodedLevels(helper);
   }
 

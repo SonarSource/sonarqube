@@ -178,7 +178,7 @@ public class AppLoggingTest {
 
   @Test
   public void root_logger_level_can_be_changed_with_a_property() {
-    props.set("sonar.app.log.level", "TRACE");
+    props.set("sonar.log.level.app", "TRACE");
 
     LoggerContext ctx = underTest.configure(props);
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
@@ -187,7 +187,7 @@ public class AppLoggingTest {
 
   @Test
   public void property_changing_root_logger_level_is_case_insensitive() {
-    props.set("sonar.app.log.level", "trace");
+    props.set("sonar.log.level.app", "trace");
 
     LoggerContext ctx = underTest.configure(props);
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
@@ -196,7 +196,7 @@ public class AppLoggingTest {
 
   @Test
   public void default_to_INFO_if_property_changing_root_logger_level_has_invalid_value() {
-    props.set("sonar.app.log.level", "DodoDouh!");
+    props.set("sonar.log.level.app", "DodoDouh!");
 
     LoggerContext ctx = underTest.configure(props);
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);

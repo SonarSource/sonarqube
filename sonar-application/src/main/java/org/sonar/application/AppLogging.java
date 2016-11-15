@@ -25,6 +25,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -126,7 +127,7 @@ class AppLogging {
     } else {
       configureWithWrapperWritingToFile(ctx);
     }
-    helper.configureRootLogLevel(props, "sonar.app.log.level");
+    helper.configureRootLogLevel(props, ProcessId.APP);
 
     return ctx;
   }
