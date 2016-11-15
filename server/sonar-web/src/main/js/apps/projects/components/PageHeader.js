@@ -32,7 +32,7 @@ export default class PageHeader extends React.Component {
 
     return (
         <header className="page-header">
-          <div className="page-actions">
+          <div className="page-actions projects-page-actions">
             {!!loading && (
                 <i className="spinner spacer-right"/>
             )}
@@ -43,8 +43,6 @@ export default class PageHeader extends React.Component {
               </span>
             )}
           </div>
-
-          <h1 className="page-title">{translate('projects.page')}</h1>
 
           <FavoriteFilterContainer/>
         </header>
