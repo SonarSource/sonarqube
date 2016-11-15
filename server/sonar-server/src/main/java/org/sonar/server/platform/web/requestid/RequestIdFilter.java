@@ -59,7 +59,9 @@ public class RequestIdFilter implements Filter {
     if (requestIdGenerator == null) {
       chain.doFilter(request, response);
     } else {
-      try (RequestIdMDCStorage mdcStorage = new RequestIdMDCStorage(requestIdGenerator.generate())) {
+      String requestId = requestIdGenerator.generate();
+      try (RequestIdMDCStorage mdcStorage = new RequestIdMDCStorage(requestId)) {
+        request.setAttribute("ID", requestId);
         chain.doFilter(request, response);
       }
     }

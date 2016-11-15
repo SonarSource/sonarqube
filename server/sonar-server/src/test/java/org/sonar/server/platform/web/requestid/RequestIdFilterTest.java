@@ -32,8 +32,11 @@ import org.sonar.server.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RequestIdFilterTest {
@@ -87,11 +90,32 @@ public class RequestIdFilterTest {
   }
 
   @Test
+  public void filter_adds_requestId_to_request_passed_on_to_chain() throws IOException, ServletException {
+    String requestId = "request id";
+    when(requestIdGenerator.generate()).thenReturn(requestId);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verify(servletRequest).setAttribute("ID", requestId);
+  }
+
+  @Test
   public void filter_does_not_fail_when_there_is_no_RequestIdGenerator_in_container() throws IOException, ServletException {
     Platform platform = mock(Platform.class);
     when(platform.getContainer()).thenReturn(new ComponentContainer());
     RequestIdFilter underTest = new RequestIdFilter(platform);
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
+  }
+
+  @Test
+  public void filter_does_not_add_requestId_to_request_passed_on_to_chain_when_there_is_no_RequestIdGenerator_in_container() throws IOException, ServletException {
+    Platform platform = mock(Platform.class);
+    when(platform.getContainer()).thenReturn(new ComponentContainer());
+    RequestIdFilter underTest = new RequestIdFilter(platform);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verify(servletRequest, times(0)).setAttribute(anyString(), anyString());
   }
 }
