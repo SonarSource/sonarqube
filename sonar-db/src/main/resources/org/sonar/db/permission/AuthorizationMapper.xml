@@ -28,6 +28,7 @@
     where
     ur.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
     ur.user_id=#{userId,jdbcType=BIGINT}
+    and ur.resource_id is null
   </select>
 
   <select id="selectOrganizationPermissionsOfAnonymous" parameterType="map" resultType="string">

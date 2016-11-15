@@ -336,7 +336,9 @@ public class ServerUserSessionTest {
   @Test
   public void hasOrganizationPermission_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertProject();
     db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
+    db.users().insertProjectPermissionOnUser(org, userDto, UserRole.ADMIN, project);
 
     UserSession session = newUserSession(userDto);
     assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();

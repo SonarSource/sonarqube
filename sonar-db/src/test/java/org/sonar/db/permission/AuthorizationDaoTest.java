@@ -72,8 +72,10 @@ public class AuthorizationDaoTest {
    */
   @Test
   public void selectOrganizationPermissions_for_logged_in_user() {
+    ComponentDto project = db.components().insertProject();
     db.users().insertMember(group1, user);
     db.users().insertPermissionOnUser(org, user, "perm1");
+    db.users().insertProjectPermissionOnUser(org, user, "perm42", project);
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertPermissionOnAnyone(org, "perm3");
 
