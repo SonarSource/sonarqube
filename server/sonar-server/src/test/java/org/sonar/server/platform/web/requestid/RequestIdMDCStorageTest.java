@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RequestUidMDCStorageTest {
+public class RequestIdMDCStorageTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -39,21 +39,21 @@ public class RequestUidMDCStorageTest {
   @Test
   public void constructor_fails_with_NPE_when_argument_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Request UID can't be null");
+    expectedException.expectMessage("Request ID can't be null");
 
-    new RequestUidMDCStorage(null);
+    new RequestIdMDCStorage(null);
   }
 
   @Test
   public void constructor_adds_specified_value_in_MDC_under_HTTP_REQUEST_ID_key() {
-    new RequestUidMDCStorage("toto");
+    new RequestIdMDCStorage("toto");
 
     assertThat(MDC.get("HTTP_REQUEST_ID")).isEqualTo("toto");
   }
 
   @Test
   public void close_removes_value_from_MDC() {
-    RequestUidMDCStorage underTest = new RequestUidMDCStorage("boum");
+    RequestIdMDCStorage underTest = new RequestIdMDCStorage("boum");
     assertThat(MDC.get("HTTP_REQUEST_ID")).isEqualTo("boum");
 
     underTest.close();

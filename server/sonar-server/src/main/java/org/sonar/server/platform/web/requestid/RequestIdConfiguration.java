@@ -21,7 +21,7 @@ package org.sonar.server.platform.web.requestid;
 
 public class RequestIdConfiguration {
   /**
-   * @see RequestUidGeneratorImpl#mustRenewUuidGenerator(long)
+   * @see RequestIdGeneratorImpl#mustRenewUuidGenerator(long)
    */
   private final long uuidGeneratorRenewalCount;
 

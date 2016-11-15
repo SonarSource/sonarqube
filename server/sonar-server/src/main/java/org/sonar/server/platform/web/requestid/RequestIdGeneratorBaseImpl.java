@@ -19,22 +19,13 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.util.UuidGenerator;
+import org.sonar.core.util.UuidGeneratorImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class RequestIdGeneratorBaseImpl implements RequestIdGeneratorBase {
 
-public class HttpRequestUidModuleTest {
-  private static final int COMPONENTS_HARDCODED_IN_CONTAINER = 2;
-
-  private HttpRequestUidModule underTest = new HttpRequestUidModule();
-
-  @Test
-  public void count_components_in_module() {
-    ComponentContainer container = new ComponentContainer();
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_HARDCODED_IN_CONTAINER + 3);
+  @Override
+  public UuidGenerator.WithFixedBase createNew() {
+    return new UuidGeneratorImpl().withFixedBase();
   }
 }

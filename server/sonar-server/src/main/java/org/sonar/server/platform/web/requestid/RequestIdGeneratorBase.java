@@ -21,9 +21,9 @@ package org.sonar.server.platform.web.requestid;
 
 import org.sonar.core.util.UuidGenerator;
 
-public interface RequestUidGeneratorBase {
+public interface RequestIdGeneratorBase {
   /**
-   * Provides a new instance of {@link UuidGenerator.WithFixedBase} to be used by {@link RequestUidGeneratorImpl}.
+   * Provides a new instance of {@link UuidGenerator.WithFixedBase} to be used by {@link RequestIdGeneratorImpl}.
    */
   UuidGenerator.WithFixedBase createNew();
 }

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.sonar.core.util.UuidGenerator;
 
 /**
- * This implementation of {@link RequestUidGenerator} creates unique identifiers for HTTP requests leveraging
+ * This implementation of {@link RequestIdGenerator} creates unique identifiers for HTTP requests leveraging
  * {@link UuidGenerator.WithFixedBase#generate(int)} and a counter of HTTP requests.
  * <p>
  * To work around the limit of unique values produced by {@link UuidGenerator.WithFixedBase#generate(int)}, the
@@ -37,7 +37,7 @@ import org.sonar.core.util.UuidGenerator;
  * This implementation is Thread safe.
  * </p>
  */
-public class RequestUidGeneratorImpl implements RequestUidGenerator {
+public class RequestIdGeneratorImpl implements RequestIdGenerator {
   /**
    * The value to which the HTTP request count will be compared to (using a modulo operator,
    * see {@link #mustRenewUuidGenerator(long)}).
@@ -55,13 +55,13 @@ public class RequestUidGeneratorImpl implements RequestUidGenerator {
   public static final long UUID_GENERATOR_RENEWAL_COUNT = 4_194_304;
 
   private final AtomicLong counter = new AtomicLong();
-  private final RequestUidGeneratorBase requestUidGeneratorBase;
+  private final RequestIdGeneratorBase requestIdGeneratorBase;
   private final RequestIdConfiguration requestIdConfiguration;
   private final AtomicReference<UuidGenerator.WithFixedBase> uuidGenerator;
 
-  public RequestUidGeneratorImpl(RequestUidGeneratorBase requestUidGeneratorBase, RequestIdConfiguration requestIdConfiguration) {
-    this.requestUidGeneratorBase = requestUidGeneratorBase;
-    this.uuidGenerator  = new AtomicReference<>(requestUidGeneratorBase.createNew());
+  public RequestIdGeneratorImpl(RequestIdGeneratorBase requestIdGeneratorBase, RequestIdConfiguration requestIdConfiguration) {
+    this.requestIdGeneratorBase = requestIdGeneratorBase;
+    this.uuidGenerator  = new AtomicReference<>(requestIdGeneratorBase.createNew());
     this.requestIdConfiguration = requestIdConfiguration;
   }
 
@@ -70,7 +70,7 @@ public class RequestUidGeneratorImpl implements RequestUidGenerator {
     UuidGenerator.WithFixedBase currentUuidGenerator = this.uuidGenerator.get();
     long counterValue = counter.getAndIncrement();
     if (counterValue != 0 && mustRenewUuidGenerator(counterValue)) {
-      UuidGenerator.WithFixedBase newUuidGenerator = requestUidGeneratorBase.createNew();
+      UuidGenerator.WithFixedBase newUuidGenerator = requestIdGeneratorBase.createNew();
       uuidGenerator.set(newUuidGenerator);
       return generate(newUuidGenerator, counterValue);
     }

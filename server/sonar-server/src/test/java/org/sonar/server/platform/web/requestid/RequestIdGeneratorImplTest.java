@@ -28,14 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RequestUidGeneratorImplTest {
+public class RequestIdGeneratorImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private UuidGenerator.WithFixedBase generator1 = increment -> new byte[] {124, 22, 66, 96, 55, 88, 2, 9};
   private UuidGenerator.WithFixedBase generator2 = increment -> new byte[] {0, 5, 88, 81, 8, 6, 44, 19};
   private UuidGenerator.WithFixedBase generator3 = increment -> new byte[] {126, 9, 35, 76, 2, 1, 2};
-  private RequestUidGeneratorBase uidGeneratorBase = mock(RequestUidGeneratorBase.class);
+  private RequestIdGeneratorBase uidGeneratorBase = mock(RequestIdGeneratorBase.class);
   private IllegalStateException expected = new IllegalStateException("Unexpected third call to createNew");
 
   @Test
@@ -46,7 +46,7 @@ public class RequestUidGeneratorImplTest {
       .thenReturn(generator3)
       .thenThrow(expected);
 
-    RequestUidGeneratorImpl underTest = new RequestUidGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(2));
+    RequestIdGeneratorImpl underTest = new RequestIdGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(2));
 
     assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // using generator1
     assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // still using generator1
@@ -69,7 +69,7 @@ public class RequestUidGeneratorImplTest {
       .thenReturn(generator3)
       .thenThrow(expected);
 
-    RequestUidGeneratorImpl underTest = new RequestUidGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(3));
+    RequestIdGeneratorImpl underTest = new RequestIdGeneratorImpl(uidGeneratorBase, new RequestIdConfiguration(3));
 
     assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // using generator1
     assertThat(underTest.generate()).isEqualTo("fBZCYDdYAgk="); // still using generator1

@@ -19,13 +19,22 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.sonar.core.util.UuidGenerator;
-import org.sonar.core.util.UuidGeneratorImpl;
+import org.slf4j.MDC;
 
-public class RequestUidGeneratorBaseImpl implements RequestUidGeneratorBase {
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Wraps MDC calls to store the HTTP request ID in the {@link MDC} into an {@link AutoCloseable}.
+ */
+class RequestIdMDCStorage implements AutoCloseable {
+  private static final String HTTP_REQUEST_ID_MDC_KEY = "HTTP_REQUEST_ID";
+
+  public RequestIdMDCStorage(String requestId) {
+    MDC.put(HTTP_REQUEST_ID_MDC_KEY, requireNonNull(requestId, "Request ID can't be null"));
+  }
 
   @Override
-  public UuidGenerator.WithFixedBase createNew() {
-    return new UuidGeneratorImpl().withFixedBase();
+  public void close() {
+    MDC.remove(HTTP_REQUEST_ID_MDC_KEY);
   }
 }

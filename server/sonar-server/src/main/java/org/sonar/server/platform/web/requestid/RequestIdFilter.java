@@ -30,17 +30,17 @@ import javax.servlet.ServletResponse;
 import org.sonar.server.platform.Platform;
 
 /**
- * A {@link Filter} that puts and removes the HTTP request UID from the {@link org.slf4j.MDC}.
+ * A {@link Filter} that puts and removes the HTTP request ID from the {@link org.slf4j.MDC}.
  */
-public class RequestUidFilter implements Filter {
+public class RequestIdFilter implements Filter {
   private final Platform platform;
 
-  public RequestUidFilter() {
+  public RequestIdFilter() {
     this(Platform.getInstance());
   }
 
   @VisibleForTesting
-  RequestUidFilter(Platform platform) {
+  RequestIdFilter(Platform platform) {
     this.platform = platform;
   }
 
@@ -51,9 +51,9 @@ public class RequestUidFilter implements Filter {
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    RequestUidGenerator requestUidGenerator = platform.getContainer().getComponentByType(RequestUidGenerator.class);
+    RequestIdGenerator requestIdGenerator = platform.getContainer().getComponentByType(RequestIdGenerator.class);
 
-    try (RequestUidMDCStorage mdcStorage = new RequestUidMDCStorage(requestUidGenerator.generate())) {
+    try (RequestIdMDCStorage mdcStorage = new RequestIdMDCStorage(requestIdGenerator.generate())) {
       chain.doFilter(request, response);
     }
   }

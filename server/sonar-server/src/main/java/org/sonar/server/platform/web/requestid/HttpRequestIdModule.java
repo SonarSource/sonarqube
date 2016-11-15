@@ -19,12 +19,13 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-/**
- * Generate a Unique Identifier for Http Requests.
- */
-public interface RequestUidGenerator {
-  /**
-   * Generate a new and unique request id for each call.
-   */
-  String generate();
+import org.sonar.core.platform.Module;
+
+public class HttpRequestIdModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(new RequestIdConfiguration(RequestIdGeneratorImpl.UUID_GENERATOR_RENEWAL_COUNT),
+      RequestIdGeneratorBaseImpl.class,
+      RequestIdGeneratorImpl.class);
+  }
 }

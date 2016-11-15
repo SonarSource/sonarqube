@@ -19,22 +19,22 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.slf4j.MDC;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Wraps MDC calls to store the HTTP request UID in the {@link MDC} into an {@link AutoCloseable}.
- */
-class RequestUidMDCStorage implements AutoCloseable {
-  private static final String HTTP_REQUEST_UID_MDC_KEY = "HTTP_REQUEST_ID";
+public class HttpRequestIdModuleTest {
+  private static final int COMPONENTS_HARDCODED_IN_CONTAINER = 2;
 
-  public RequestUidMDCStorage(String requestUid) {
-    MDC.put(HTTP_REQUEST_UID_MDC_KEY, requireNonNull(requestUid, "Request UID can't be null"));
-  }
+  private HttpRequestIdModule underTest = new HttpRequestIdModule();
 
-  @Override
-  public void close() {
-    MDC.remove(HTTP_REQUEST_UID_MDC_KEY);
+  @Test
+  public void count_components_in_module() {
+    ComponentContainer container = new ComponentContainer();
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_HARDCODED_IN_CONTAINER + 3);
   }
 }
