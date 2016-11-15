@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogsTest {
 
-  public static final String ACCESS_LOGS_PATTERN = "\"%reqAttribute{LOGIN}\" \"%r\" %s";
+  public static final String ACCESS_LOGS_PATTERN = "\"%reqAttribute{ID}\" \"%reqAttribute{LOGIN}\" \"%r\" %s";
   private static final String PATH = "/called/from/LogsTest";
 
   @ClassRule
@@ -45,7 +45,7 @@ public class LogsTest {
    * SONAR-7581
    */
   @Test
-  public void test_access_logs() throws Exception {
+  public void verify_login_in_access_logs() throws Exception {
     // log "-" for anonymous
     sendHttpRequest(ItUtils.newWsClient(orchestrator), PATH);
     assertThat(accessLogsFile()).isFile().exists();
@@ -55,8 +55,18 @@ public class LogsTest {
     verifyLastAccessLogLine("admin", PATH, 404);
   }
 
+  @Test
+  public void verify_request_id_in_access_logs() throws IOException {
+    sendHttpRequest(ItUtils.newWsClient(orchestrator), PATH);
+    String lastAccessLog = readLastAccessLog();
+    assertThat(lastAccessLog).doesNotStartWith("\"\"").startsWith("\"");
+    int firstQuote = lastAccessLog.indexOf('"');
+    String requestId = lastAccessLog.substring(firstQuote + 1, lastAccessLog.indexOf('"', firstQuote + 1));
+    assertThat(requestId.length()).isGreaterThanOrEqualTo(20);
+  }
+
   private void verifyLastAccessLogLine(String login, String path, int status) throws IOException {
-    assertThat(readLastAccessLog()).isEqualTo(format("\"%s\" \"GET %s HTTP/1.1\" %d", login, path, status));
+    assertThat(readLastAccessLog()).endsWith(format("\"%s\" \"GET %s HTTP/1.1\" %d", login, path, status));
   }
 
   private String readLastAccessLog() throws IOException {
