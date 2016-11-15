@@ -84,6 +84,10 @@
   line-height: 24px;
 }
 
+.project-card-not-analyzed {
+  padding: 14px 0;
+}
+
 .projects-facet-header {
   padding-top: 10px;
   padding-bottom: 10px;
