@@ -56,8 +56,12 @@ public class RequestIdFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     RequestIdGenerator requestIdGenerator = platform.getContainer().getComponentByType(RequestIdGenerator.class);
 
-    try (RequestIdMDCStorage mdcStorage = new RequestIdMDCStorage(requestIdGenerator.generate())) {
+    if (requestIdGenerator == null) {
       chain.doFilter(request, response);
+    } else {
+      try (RequestIdMDCStorage mdcStorage = new RequestIdMDCStorage(requestIdGenerator.generate())) {
+        chain.doFilter(request, response);
+      }
     }
   }
 

@@ -84,6 +84,14 @@ public class RequestIdFilterTest {
     } finally {
       assertThat(MDC.get("HTTP_REQUEST_ID")).isNull();
     }
+  }
 
+  @Test
+  public void filter_does_not_fail_when_there_is_no_RequestIdGenerator_in_container() throws IOException, ServletException {
+    Platform platform = mock(Platform.class);
+    when(platform.getContainer()).thenReturn(new ComponentContainer());
+    RequestIdFilter underTest = new RequestIdFilter(platform);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
   }
 }
