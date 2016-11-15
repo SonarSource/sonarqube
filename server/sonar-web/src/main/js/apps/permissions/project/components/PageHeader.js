@@ -59,13 +59,13 @@ class PageHeader extends React.Component {
               <i className="spinner"/>
           )}
 
-          <div className="page-actions">
-            <button
-                className="js-apply-template"
-                onClick={this.handleApplyTemplate}>
-              Apply Template
-            </button>
-          </div>
+          {!!window.SS.isUserAdmin && (
+              <div className="page-actions">
+                <button className="js-apply-template" onClick={this.handleApplyTemplate}>
+                  Apply Template
+                </button>
+              </div>
+          )}
 
           <div className="page-description">
             {translate('roles.page.description2')}
