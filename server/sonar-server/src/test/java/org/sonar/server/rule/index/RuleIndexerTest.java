@@ -36,20 +36,19 @@ import org.sonar.server.es.EsTester;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class RuleIndexerTest {
+
+  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
-  DbClient dbClient = dbTester.getDbClient();
-
-  DbSession dbSession = dbTester.getSession();
-
-  RuleDto rule = new RuleDto()
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private RuleDto rule = new RuleDto()
     .setRuleKey("S001")
     .setRepositoryKey("xoo")
     .setConfigKey("S1")
@@ -103,7 +102,7 @@ public class RuleIndexerTest {
   }
 
   private RuleIndexer createIndexer() {
-    return new RuleIndexer(dbTester.getDbClient(), esTester.client());
+    return new RuleIndexer(system2, dbTester.getDbClient(), esTester.client());
   }
 
 }

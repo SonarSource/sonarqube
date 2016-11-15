@@ -57,13 +57,15 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 public class TestIndexerTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
-  private TestIndexer underTest = new TestIndexer(db.getDbClient(), es.client());
+  private TestIndexer underTest = new TestIndexer(system2, db.getDbClient(), es.client());
 
   @Test
   public void index_tests() throws Exception {

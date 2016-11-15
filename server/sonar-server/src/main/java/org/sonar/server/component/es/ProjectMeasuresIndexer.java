@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator;
@@ -41,8 +42,8 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public ProjectMeasuresIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
+  public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
     this.dbClient = dbClient;
   }
 

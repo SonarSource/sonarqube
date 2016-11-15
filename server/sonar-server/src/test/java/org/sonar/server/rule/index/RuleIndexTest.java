@@ -32,6 +32,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -67,25 +68,26 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class RuleIndexTest {
 
-  static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
-  static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
-  static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
-  static final RuleKey RULE_KEY_4 = RuleKey.of("xoo", "x4");
+  private static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
+  private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
+  private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
+  private static final RuleKey RULE_KEY_4 = RuleKey.of("xoo", "x4");
+  private static final String QUALITY_PROFILE_KEY1 = "qp1";
+  private static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  static final String QUALITY_PROFILE_KEY1 = "qp1";
-  static final String QUALITY_PROFILE_KEY2 = "qp2";
+  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public EsTester tester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  RuleIndex index;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private RuleIndex index;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {
-    ruleIndexer = new RuleIndexer(null, tester.client());
-    activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
+    ruleIndexer = new RuleIndexer(system2, null, tester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(system2, null, tester.client());
     index = new RuleIndex(tester.client());
   }
 

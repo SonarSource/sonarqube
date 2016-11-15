@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import java.util.Iterator;
 import org.elasticsearch.action.index.IndexRequest;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
@@ -35,8 +36,8 @@ public class RuleIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public RuleIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, INDEX, TYPE_RULE, FIELD_RULE_UPDATED_AT);
+  public RuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 300, INDEX, TYPE_RULE, FIELD_RULE_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

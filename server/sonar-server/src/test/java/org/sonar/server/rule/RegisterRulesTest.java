@@ -66,7 +66,7 @@ public class RegisterRulesTest {
   private static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");
   private static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
 
-  private System2 system = mock(System2.class);;
+  private System2 system = mock(System2.class);
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
@@ -83,9 +83,9 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     when(system.now()).thenReturn(DATE1.getTime());
-    ruleIndexer = new RuleIndexer(dbClient, esTester.client());
+    ruleIndexer = new RuleIndexer(system, dbClient, esTester.client());
     ruleIndex = new RuleIndex(esTester.client());
-    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
   }
 
   @Test

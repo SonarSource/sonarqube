@@ -67,8 +67,10 @@ public class DeleteActionTest {
 
   private static final String ACTION = "delete";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(
@@ -81,13 +83,10 @@ public class DeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  WsTester ws;
-
-  DbClient dbClient = db.getDbClient();
-
-  final DbSession dbSession = db.getSession();
-
-  ResourceType resourceType;
+  private WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private ResourceType resourceType;
 
   @Before
   public void setUp() {
@@ -99,9 +98,9 @@ public class DeleteActionTest {
       new DeleteAction(
         new ComponentCleanerService(
           dbClient,
-          new IssueIndexer(dbClient, es.client()),
-          new TestIndexer(dbClient, es.client()),
-          new ProjectMeasuresIndexer(dbClient, es.client()),
+          new IssueIndexer(system2, dbClient, es.client()),
+          new TestIndexer(system2, dbClient, es.client()),
+          new ProjectMeasuresIndexer(system2, dbClient, es.client()),
           mockResourceTypes,
           new ComponentFinder(dbClient)),
         new ComponentFinder(dbClient),

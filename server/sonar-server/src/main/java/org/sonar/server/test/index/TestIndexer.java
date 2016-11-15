@@ -19,21 +19,22 @@
  */
 package org.sonar.server.test.index;
 
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
-import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
-import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
-
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
+
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
+import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
@@ -43,8 +44,8 @@ public class TestIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
-  public TestIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, INDEX, TYPE, FIELD_UPDATED_AT);
+  public TestIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
+    super(system2, esClient, 0L, INDEX, TYPE, FIELD_UPDATED_AT);
     this.dbClient = dbClient;
   }
 

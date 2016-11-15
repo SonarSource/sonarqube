@@ -48,7 +48,7 @@ public class ClearRulesOverloadedDebtTest {
   private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
   private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester tester = DbTester.create(system2);
@@ -59,12 +59,12 @@ public class ClearRulesOverloadedDebtTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  DbClient dbClient = tester.getDbClient();
-  DbSession dbSession = tester.getSession();
-  RuleDao ruleDao = new RuleDao();
-  RuleIndexer ruleIndexer = new RuleIndexer(dbClient, esTester.client());
+  private DbClient dbClient = tester.getDbClient();
+  private DbSession dbSession = tester.getSession();
+  private RuleDao ruleDao = new RuleDao();
+  private RuleIndexer ruleIndexer = new RuleIndexer(system2, dbClient, esTester.client());
 
-  ClearRulesOverloadedDebt underTest = new ClearRulesOverloadedDebt(system2, dbClient, ruleIndexer);
+  private ClearRulesOverloadedDebt underTest = new ClearRulesOverloadedDebt(system2, dbClient, ruleIndexer);
 
   @Test
   public void remove_overridden_debt() throws Exception {

@@ -63,6 +63,8 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_
 
 public class ComponentServiceTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -75,21 +77,19 @@ public class ComponentServiceTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession dbSession = dbTester.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private I18nRule i18n = new I18nRule();
+  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
 
-  I18nRule i18n = new I18nRule();
-
-  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(dbClient, es.client());
-
-  ComponentService underTest;
+  private ComponentService underTest;
 
   @Before
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
   }
 
   @Test

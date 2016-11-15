@@ -32,8 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIndexerTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
@@ -65,6 +67,6 @@ public class UserIndexerTest {
   }
 
   private UserIndexer createIndexer() {
-    return new UserIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    return new UserIndexer(system2, new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
   }
 }

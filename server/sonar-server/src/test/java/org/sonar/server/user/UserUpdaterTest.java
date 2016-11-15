@@ -88,7 +88,7 @@ public class UserUpdaterTest {
 
   @Before
   public void setUp() {
-    userIndexer = new UserIndexer(dbClient, es.client());
+    userIndexer = new UserIndexer(system2, dbClient, es.client());
     DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     underTest = new UserUpdater(newUserNotifier, settings, dbClient,
       userIndexer, system2, defaultOrganizationProvider);

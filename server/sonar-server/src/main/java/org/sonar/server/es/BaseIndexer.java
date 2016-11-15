@@ -27,18 +27,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.System2;
 
 public abstract class BaseIndexer implements Startable {
 
+  private final System2 system2;
   private final ThreadPoolExecutor executor;
   private final String indexName;
   private final String typeName;
-  private final String dateFieldName;
   protected final EsClient esClient;
+  private final String dateFieldName;
   private volatile long lastUpdatedAt = -1L;
 
-  protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
+  protected BaseIndexer(System2 system2, EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
     String dateFieldName) {
+    this.system2 = system2;
     this.indexName = indexName;
     this.typeName = typeName;
     this.dateFieldName = dateFieldName;
@@ -48,7 +51,7 @@ public abstract class BaseIndexer implements Startable {
   }
 
   public void index(final IndexerTask task) {
-    final long requestedAt = System.currentTimeMillis();
+    final long requestedAt = system2.now();
     Future submit = executor.submit(() -> {
       if (lastUpdatedAt == -1L) {
         lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);

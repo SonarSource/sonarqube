@@ -70,8 +70,10 @@ public class BulkDeleteActionTest {
 
   private static final String ACTION = "bulk_delete";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()),
@@ -83,10 +85,10 @@ public class BulkDeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  WsTester ws;
-  DbClient dbClient = db.getDbClient();
+  private WsTester ws;
+  private DbClient dbClient = db.getDbClient();
   final DbSession dbSession = db.getSession();
-  ResourceType resourceType;
+  private ResourceType resourceType;
 
   @Before
   public void setUp() {
@@ -97,9 +99,9 @@ public class BulkDeleteActionTest {
     ws = new WsTester(new ProjectsWs(
       new BulkDeleteAction(
         new ComponentCleanerService(dbClient,
-          new IssueIndexer(dbClient, es.client()),
-          new TestIndexer(dbClient, es.client()),
-          new ProjectMeasuresIndexer(dbClient, es.client()),
+          new IssueIndexer(system2, dbClient, es.client()),
+          new TestIndexer(system2, dbClient, es.client()),
+          new ProjectMeasuresIndexer(system2, dbClient, es.client()),
           mockResourceTypes,
           new ComponentFinder(dbClient)),
         dbClient,

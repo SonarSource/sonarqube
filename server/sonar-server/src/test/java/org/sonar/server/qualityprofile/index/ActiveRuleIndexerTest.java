@@ -48,12 +48,13 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexerTest {
 
-  static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
-  static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
-  static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
+  private static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
+  private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
+  private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
+  private static final String QUALITY_PROFILE_KEY1 = "qp1";
+  private static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  static final String QUALITY_PROFILE_KEY1 = "qp1";
-  static final String QUALITY_PROFILE_KEY2 = "qp2";
+  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
@@ -61,7 +62,7 @@ public class ActiveRuleIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
+  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(system2, dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_nothing() {

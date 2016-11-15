@@ -53,6 +53,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
@@ -60,12 +62,12 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private UserIndex index = new UserIndex(esTester.client());
-  private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
+  private UserIndexer userIndexer = new UserIndexer(system2, dbClient, esTester.client());
   private WsTester ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
 
   @Test

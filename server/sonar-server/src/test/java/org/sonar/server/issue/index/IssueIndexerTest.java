@@ -44,11 +44,13 @@ public class IssueIndexerTest {
 
   private static final String A_PROJECT_UUID = "P1";
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Test
   public void index_nothing() {
@@ -156,7 +158,7 @@ public class IssueIndexerTest {
   }
 
   private IssueIndexer createIndexer() {
-    return new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    return new IssueIndexer(system2, new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
   }
 
   private void addIssue(String projectUuid, String issueKey) throws Exception {

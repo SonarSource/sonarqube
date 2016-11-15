@@ -58,9 +58,10 @@ public class CreateActionTest {
 
   private static final String DEFAULT_GROUP_NAME = "sonar-users";
   private Settings settings = new MapSettings().setProperty("sonar.defaultGroup", DEFAULT_GROUP_NAME);
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  public DbTester db = DbTester.create(system2);
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
   @Rule
@@ -76,9 +77,8 @@ public class CreateActionTest {
 
   @Before
   public void setUp() {
-    System2 system2 = new System2();
     defaultGroupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME);
-    userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
+    userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
     index = new UserIndex(esTester.client());
     DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     tester = new WsTester(new UsersWs(new CreateAction(db.getDbClient(),

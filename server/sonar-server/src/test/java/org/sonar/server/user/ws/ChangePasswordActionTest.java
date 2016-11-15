@@ -57,10 +57,11 @@ import static org.mockito.Mockito.when;
 
 public class ChangePasswordActionTest {
 
+  private System2 system2 = System2.INSTANCE;
   private Settings settings = new MapSettings();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
@@ -86,7 +87,7 @@ public class ChangePasswordActionTest {
     groupDao.insert(session, GroupTesting.newGroupDto().setName("sonar-users"));
     session.commit();
 
-    UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
+    UserIndexer userIndexer = new UserIndexer(system2, dbClient, esTester.client());
     userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider);
     tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));
   }
