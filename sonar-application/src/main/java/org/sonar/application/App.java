@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.Lifecycle;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -31,6 +34,7 @@ import org.sonar.process.Stoppable;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
+import static org.sonar.process.Lifecycle.State;
 import static org.sonar.process.ProcessId.APP;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
@@ -45,7 +49,7 @@ public class App implements Stoppable {
   /**
    * Properties about proxy that must be set as system properties
    */
-  private static final String[] PROXY_PROPERTY_KEYS = new String[]{
+  private static final String[] PROXY_PROPERTY_KEYS = new String[] {
     HTTP_PROXY_HOST,
     HTTP_PROXY_PORT,
     "http.nonProxyHosts",
@@ -58,7 +62,7 @@ public class App implements Stoppable {
   private final Monitor monitor;
 
   public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.create(APP.getIpcIndex(), appFileSystem, watchForHardStop));
+    this(Monitor.create(APP.getIpcIndex(), appFileSystem, watchForHardStop, new AppLifecycleListener()));
   }
 
   App(Monitor monitor) {
@@ -185,4 +189,14 @@ public class App implements Stoppable {
     monitor.stop();
   }
 
+  private static class AppLifecycleListener implements Lifecycle.LifecycleListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+
+    @Override
+    public void successfulTransition(State from, State to) {
+      if (to == State.STARTED) {
+        LOGGER.info("SonarQube is up");
+      }
+    }
+  }
 }

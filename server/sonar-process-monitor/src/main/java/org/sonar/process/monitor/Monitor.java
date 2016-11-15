@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class Monitor {
   private final Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
 
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
-  private final Lifecycle lifecycle = new Lifecycle();
+  private final Lifecycle lifecycle;
 
   private final TerminatorThread terminator = new TerminatorThread();
   private final RestartRequestWatcherThread restartWatcher = new RestartRequestWatcherThread();
@@ -65,15 +66,20 @@ public class Monitor {
   @CheckForNull
   HardStopWatcherThread hardStopWatcher;
 
-  Monitor(int processNumber, FileSystem fileSystem, SystemExit exit, boolean watchForHardStop) {
+  Monitor(int processNumber, FileSystem fileSystem, SystemExit exit, boolean watchForHardStop, Lifecycle.LifecycleListener... listeners) {
     this.processNumber = processNumber;
     this.fileSystem = fileSystem;
     this.systemExit = exit;
     this.watchForHardStop = watchForHardStop;
+    this.lifecycle = new Lifecycle(listeners);
   }
 
   public static Monitor create(int processNumber, FileSystem fileSystem, boolean watchForHardStop) {
     return new Monitor(processNumber, fileSystem, new SystemExit(), watchForHardStop);
+  }
+
+  public static Monitor create(int processNumber, FileSystem fileSystem, boolean watchForHardStop, Lifecycle.LifecycleListener listener) {
+    return new Monitor(processNumber, fileSystem, new SystemExit(), watchForHardStop, Objects.requireNonNull(listener));
   }
 
   /**
