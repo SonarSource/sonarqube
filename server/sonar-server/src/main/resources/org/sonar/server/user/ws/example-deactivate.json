@@ -1,0 +1,10 @@
+{
+  "user": {
+    "login": "ada.lovelace",
+    "name": "Ada Lovelace",
+    "active": false,
+    "local": true,
+    "groups": [],
+    "scmAccounts": []
+  }
+}

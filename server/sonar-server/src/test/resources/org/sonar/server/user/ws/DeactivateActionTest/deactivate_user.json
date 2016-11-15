@@ -1,9 +1,0 @@
-{
-  "user": {
-    "login": "john",
-    "name": "John",
-    "scmAccounts": [],
-    "active": false,
-    "local": true
-  }
-}

@@ -96,15 +96,17 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_and_delete_his_related_data() throws Exception {
-    UserDto user = insertUser(newUserDto().setEmail("john@email.com")
-      .setLogin("john")
-      .setName("John")
-      .setScmAccounts(singletonList("jn")));
+    UserDto user = insertUser(newUserDto()
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
     loginAsAdmin();
 
     String json = deactivate(user.getLogin()).getInput();
 
-    assertJson(json).isSimilarTo(getClass().getResource("DeactivateActionTest/deactivate_user.json"));
+    // scm accounts, groups and email are deleted
+    assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
 
     assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
     verifyThatUserIsDeactivated(user.getLogin());
@@ -246,5 +248,7 @@ public class DeactivateActionTest {
     Optional<UserDto> user = db.users().selectUserByLogin(login);
     assertThat(user).isPresent();
     assertThat(user.get().isActive()).isFalse();
+    assertThat(user.get().getEmail()).isNull();
+    assertThat(user.get().getScmAccountsAsList()).isEmpty();
   }
 }
