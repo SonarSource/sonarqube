@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Collections2;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
@@ -36,18 +35,17 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -77,7 +75,10 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction("bulk_apply_template")
       .setDescription("Apply a permission template to several projects.<br />" +
         "The template id or name must be provided.<br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission:" +
+        "<ul>" +
+        "  <li>'Administer System'</li>" +
+        "</ul>")
       .setPost(true)
       .setSince("5.5")
       .setHandler(this);
@@ -108,10 +109,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         .build();
       List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
 
-      for (ComponentDto project : projects) {
-        ProjectId projectId = new ProjectId(project);
-        checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.of(projectId));
-      }
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
       permissionTemplateService.apply(dbSession, template, projects);
     }
   }

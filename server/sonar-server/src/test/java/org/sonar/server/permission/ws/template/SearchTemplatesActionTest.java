@@ -43,6 +43,7 @@ import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
@@ -74,7 +75,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   @Before
   public void setUp() {
     i18n.setProjectPermissions();
-    userSession.login();
+    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
   }
 
   @Test
@@ -146,8 +147,9 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void search_in_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
-    PermissionTemplateDto templateInDefaultOrg = insertProjectTemplateOnDefaultOrganization();
+    insertProjectTemplateOnDefaultOrganization();
     db.commit();
+    userSession.addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
 
     WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(newRequest()
       .setParam("organization", org.getKey())

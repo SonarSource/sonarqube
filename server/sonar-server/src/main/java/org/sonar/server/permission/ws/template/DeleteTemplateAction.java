@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,7 +31,7 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.DeleteTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -75,7 +74,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = finder.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
-      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       checkTemplateUuidIsNotDefault(template.getUuid());
       dbClient.permissionTemplateDao().deleteById(dbSession, template.getId());

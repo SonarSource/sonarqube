@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -36,7 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
 
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
@@ -89,7 +88,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String qualifier = request.getQualifier();
       PermissionTemplateDto template = findTemplate(dbSession, request);
-      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
       validateQualifier(qualifier, resourceTypes);
       setDefaultTemplateUuid(dbSession, template.getUuid(), qualifier);
       dbSession.commit();

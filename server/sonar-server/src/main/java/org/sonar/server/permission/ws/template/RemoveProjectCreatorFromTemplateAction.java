@@ -35,7 +35,7 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
@@ -80,7 +80,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
-      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionTemplateCharacteristicDao dao = dbClient.permissionTemplateCharacteristicDao();
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());

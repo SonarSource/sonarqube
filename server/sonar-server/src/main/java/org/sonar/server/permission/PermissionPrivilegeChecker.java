@@ -22,18 +22,19 @@ package org.sonar.server.permission;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class PermissionPrivilegeChecker {
   private PermissionPrivilegeChecker() {
     // static methods only
   }
 
-  public static void checkGlobalAdminUser(UserSession userSession) {
+  public static void checkGlobalAdmin(UserSession userSession, String organizationUuid) {
     userSession
       .checkLoggedIn()
-      .checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      .checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
   }
 
   /**
@@ -43,7 +44,7 @@ public class PermissionPrivilegeChecker {
   public static void checkProjectAdminUserByComponentKey(UserSession userSession, @Nullable String componentKey) {
     userSession.checkLoggedIn();
     if (componentKey == null || !userSession.hasComponentPermission(UserRole.ADMIN, componentKey)) {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkPermission(SYSTEM_ADMIN);
     }
   }
 
@@ -55,7 +56,7 @@ public class PermissionPrivilegeChecker {
   public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectId> projectId) {
     userSession.checkLoggedIn();
     if (!projectId.isPresent() || !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid())) {
-      userSession.checkOrganizationPermission(organizationUuid, GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
     }
   }
 
@@ -69,7 +70,7 @@ public class PermissionPrivilegeChecker {
   public static void checkProjectAdmin(UserSession userSession, Optional<ProjectId> projectId) {
     userSession.checkLoggedIn();
     if (!projectId.isPresent() || !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid())) {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkPermission(SYSTEM_ADMIN);
     }
   }
 }

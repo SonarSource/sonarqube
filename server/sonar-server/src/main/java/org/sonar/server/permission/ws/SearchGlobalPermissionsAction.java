@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,7 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsPermissions.Permission.newBuilder;
@@ -74,7 +73,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
-      checkProjectAdmin(userSession, org.getUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, org.getUuid());
 
       WsSearchGlobalPermissionsResponse response = buildResponse(dbSession, org);
       writeProtobuf(response, wsRequest, wsResponse);

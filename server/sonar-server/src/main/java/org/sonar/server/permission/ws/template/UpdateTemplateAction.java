@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,7 +37,7 @@ import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
@@ -100,7 +99,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, uuid, nameParam, descriptionParam, projectPatternParam);
-      checkProjectAdmin(userSession, templateToUpdate.getOrganizationUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, templateToUpdate.getOrganizationUuid());
 
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);

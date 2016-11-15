@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,7 +37,7 @@ import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 
 import static java.lang.String.format;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
@@ -95,7 +94,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
   private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganizationKey());
-      checkProjectAdmin(userSession, org.getUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, org.getUuid());
 
       validateTemplateNameForCreation(dbSession, org, request.getName());
       validateProjectPattern(request.getProjectKeyPattern());

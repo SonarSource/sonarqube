@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Collections;
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,13 +28,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.ProjectId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
@@ -62,10 +60,13 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("apply_template")
-      .setDescription("Apply a permission template to one project.<br />" +
-        "The project id or project key must be provided.<br />" +
-        "The template id or name must be provided.<br />" +
-        "It requires administration permissions to access.")
+      .setDescription("Apply a permission template to one project.<br>" +
+        "The project id or project key must be provided.<br>" +
+        "The template id or name must be provided.<br>" +
+        "Requires the following permission:" +
+        "<ul>" +
+        "  <li>'Administer System'</li>" +
+        "</ul>")
       .setPost(true)
       .setSince("5.2")
       .setHandler(this);
@@ -86,8 +87,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
 
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
-      ProjectId projectId = new ProjectId(project);
-      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.of(projectId));
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       permissionTemplateService.apply(dbSession, template, Collections.singletonList(project));
     }

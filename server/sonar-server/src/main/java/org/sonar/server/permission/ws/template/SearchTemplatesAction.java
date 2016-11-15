@@ -41,6 +41,7 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -68,7 +69,10 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search_templates")
       .setDescription("List permission templates.<br />" +
-        "It requires to be authenticated.")
+        "Requires the following permission:" +
+        "<ul>" +
+        "  <li>'Administer System'</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("search_templates-example.json"))
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
@@ -79,13 +83,12 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkLoggedIn();
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
       SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
         .setOrganizationUuid(org.getUuid())
         .setQuery(wsRequest.param(Param.TEXT_QUERY));
+      userSession.checkLoggedIn().checkOrganizationPermission(request.getOrganizationUuid(), SYSTEM_ADMIN);
 
       SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
       writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,7 +32,7 @@ import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -79,7 +78,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
         format("It is not possible to add the '%s' permission to the group 'Anyone'.", permission));
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
-      checkProjectAdmin(userSession, template.getOrganizationUuid(), Optional.empty());
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       if (!groupAlreadyAdded(dbSession, template.getId(), permission, groupId)) {
         dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId.getId(), permission);
