@@ -23,6 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -63,6 +65,14 @@ public class LogsTest {
     int firstQuote = lastAccessLog.indexOf('"');
     String requestId = lastAccessLog.substring(firstQuote + 1, lastAccessLog.indexOf('"', firstQuote + 1));
     assertThat(requestId.length()).isGreaterThanOrEqualTo(20);
+  }
+
+  @Test
+  public void info_log_in_sonar_log_file_when_SQ_is_done_starting() throws IOException {
+    List<String> logs = FileUtils.readLines(orchestrator.getServer().getAppLogs());
+    String sqIsUpMessage = "SonarQube is up";
+    assertThat(logs.stream().filter(str -> str.contains(sqIsUpMessage)).findFirst()).describedAs("message is there").isNotEmpty();
+    assertThat(logs.get(logs.size() - 1)).describedAs("message is the last line of logs").contains(sqIsUpMessage);
   }
 
   private void verifyLastAccessLogLine(String login, String path, int status) throws IOException {
