@@ -24,8 +24,7 @@ export default class EmptyInstance extends React.Component {
   render () {
     return (
         <div className="projects-empty-list">
-          <h3>{translate('projects.no_projects.1')}</h3>
-          <p className="big-spacer-top">{translate('projects.no_projects.empty_instance')}</p>
+          <h3>{translate('projects.no_projects.empty_instance')}</h3>
         </div>
     );
   }
