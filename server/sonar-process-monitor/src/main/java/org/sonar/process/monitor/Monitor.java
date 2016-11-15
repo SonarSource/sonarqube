@@ -141,10 +141,14 @@ public class Monitor {
     File tempDir = fileSystem.getTempDir();
     this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir);
     for (JavaCommand command : javaCommands) {
+      ProcessRef processRef = null;
       try {
-        ProcessRef processRef = launcher.launch(command);
+        processRef = launcher.launch(command);
         monitor(processRef);
       } catch (InterruptedException | RuntimeException e) {
+        if (processRef != null) {
+          LOG.info("{} failed to start", processRef);
+        }
         // fail to start or to monitor
         stop();
         throw e;
