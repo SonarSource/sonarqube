@@ -87,7 +87,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS);
     action
       .createParam(PARAM_FILTER)
-      .setDescription("Filter projects on measure value, quality gate or whether a project is a favorite or not.<br>" +
+      .setDescription("Filter of projects on measure value, quality gate or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
         "<ul>" +
@@ -108,7 +108,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'4' for rating D</li>" +
         " <li>'5' for rating E</li>" +
         "</ul>" +
-        "To filter on a Quality Gate status use the metric key 'alert_status'. You can only use the '=' operator.<br>" +
+        "To filter on a Quality Gate status use the metric key 'alert_status'. Only the '=' operator can be used.<br>" +
         "The possible values are:" +
         "<ul>" +
         " <li>'OK' for Passed</li>" +
