@@ -20,6 +20,7 @@
 package org.sonarsource.sonarqube.perf;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.container.Server;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -56,8 +57,13 @@ public class ServerLogs {
   }
 
   public static void clear(Orchestrator orch) throws IOException {
-    if (orch.getServer() != null && orch.getServer().getCeLogs() != null) {
-      FileUtils.write(orch.getServer().getCeLogs(), "", false);
+    Server server = orch.getServer();
+    if (server != null) {
+      for (File file : new File[]{server.getAppLogs(), server.getWebLogs(), server.getCeLogs(), server.getEsLogs()}) {
+        if (file != null) {
+          FileUtils.write(file, "", false);
+        }
+      }
     }
   }
 

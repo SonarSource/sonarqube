@@ -24,12 +24,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.sonarsource.sonarqube.perf.PerfTestCase;
 import org.sonarsource.sonarqube.perf.ServerLogs;
+
+import static org.apache.commons.io.FileUtils.readLines;
 
 public class ServerTest extends PerfTestCase {
   private static final int TIMEOUT_3_MINUTES = 1000 * 60 * 3;
@@ -56,14 +57,14 @@ public class ServerTest extends PerfTestCase {
       orchestrator.start();
 
       // compare dates of first and last log
-      long firstLogDate = ServerLogs.extractFirstDate(readLogLines(orchestrator)).getTime();
+      long firstLogDate = ServerLogs.extractFirstDate(readLines(orchestrator.getServer().getAppLogs())).getTime();
       long startedAtDate = extractStartedAtDate(orchestrator);
       assertDurationAround(startedAtDate - firstLogDate, 38_000);
 
       ServerLogs.clear(orchestrator);
       orchestrator.stop();
 
-      List<String> lines = readLogLines(orchestrator);
+      List<String> lines = readLines(orchestrator.getServer().getAppLogs());
       long firstStopLogDate = ServerLogs.extractFirstDate(lines).getTime();
       long stopDate = extractStopDate(lines);
       assertDurationLessThan(stopDate - firstStopLogDate, 10_000);
@@ -74,12 +75,12 @@ public class ServerTest extends PerfTestCase {
   }
 
   private static long extractStartedAtDate(Orchestrator orchestrator) throws IOException {
-    Date startedAtDate = extractStartedDate(readLogLines(orchestrator));
+    Date startedAtDate = extractStartedDate(readLines(orchestrator.getServer().getCeLogs()));
     // if SQ never starts, the test will fail with timeout
     while (startedAtDate == null) {
       try {
         Thread.sleep(100);
-        startedAtDate = extractStartedDate(readLogLines(orchestrator));
+        startedAtDate = extractStartedDate(readLines(orchestrator.getServer().getCeLogs()));
       } catch (InterruptedException e) {
         // ignored
       }
@@ -105,7 +106,4 @@ public class ServerTest extends PerfTestCase {
     return end.getTime();
   }
 
-  private static List<String> readLogLines(Orchestrator orchestrator) throws IOException {
-    return FileUtils.readLines(orchestrator.getServer().getCeLogs());
-  }
 }

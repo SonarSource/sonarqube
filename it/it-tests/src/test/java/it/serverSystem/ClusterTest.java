@@ -114,7 +114,7 @@ public class ClusterTest {
       String coreId = getPropertyValue(web, "sonar.core.id");
       String startTime = getPropertyValue(web, "sonar.core.startTime");
 
-      assertThat(FileUtils.readFileToString(elasticsearch.getServer().getAppLogs())).doesNotContain("Process[es]");
+      assertThat(FileUtils.readFileToString(web.getServer().getAppLogs())).doesNotContain("Process[es]");
       // call a web service that requires Elasticsearch
       Issues.SearchWsResponse wsResponse = ItUtils.newWsClient(web).issues().search(new org.sonarqube.ws.client.issue.SearchWsRequest());
       assertThat(wsResponse.getIssuesCount()).isEqualTo(0);
