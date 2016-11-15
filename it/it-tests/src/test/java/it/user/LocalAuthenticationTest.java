@@ -214,6 +214,7 @@ public class LocalAuthenticationTest {
       "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
       // SONAR-2132
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
+      "/user/LocalAuthenticationTest/redirect_to_original_url_with_parameters_after_direct_login.html",
       // SONAR-2009
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html").build()).runOn(ORCHESTRATOR);
 

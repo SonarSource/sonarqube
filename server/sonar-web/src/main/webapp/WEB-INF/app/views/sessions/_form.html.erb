@@ -67,7 +67,7 @@
 
     $("#login_form").modalForm({
       success: function () {
-        window.location = '<%= h(@return_to) -%>' + $('[name="return_to_anchor"]').val();
+        window.location = '<%= escape_javascript @return_to -%>' + $('[name="return_to_anchor"]').val();
       },
       error: function () {
         $('.alert-flash').addClass('hidden');
