@@ -36,7 +36,8 @@ import static org.mockito.Mockito.mock;
 public class UsersWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  WebService.Controller controller;
+
+  private WebService.Controller controller;
 
   @Before
   public void setUp() {
@@ -44,7 +45,6 @@ public class UsersWsTest {
       new CreateAction(mock(DbClient.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(org.sonar.db.DbClient.class)),
-      new DeactivateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
       new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));
     controller = tester.controller("api/users");
@@ -55,7 +55,7 @@ public class UsersWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test
@@ -89,14 +89,6 @@ public class UsersWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.params()).hasSize(3);
-  }
-
-  @Test
-  public void define_deactivate_action() {
-    WebService.Action action = controller.action("deactivate");
-    assertThat(action).isNotNull();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(1);
   }
 
   @Test

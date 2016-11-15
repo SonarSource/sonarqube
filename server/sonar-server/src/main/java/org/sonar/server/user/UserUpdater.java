@@ -176,17 +176,6 @@ public class UserUpdater {
     userIndexer.index();
   }
 
-  public void deactivateUserByLogin(String login) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      dbClient.userTokenDao().deleteByLogin(dbSession, login);
-      dbClient.userDao().deactivateUserByLogin(dbSession, login);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-    userIndexer.index();
-  }
-
   public void checkCurrentPassword(String login, String password) {
     DbSession dbSession = dbClient.openSession(false);
     try {

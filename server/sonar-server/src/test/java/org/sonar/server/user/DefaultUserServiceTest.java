@@ -29,43 +29,35 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class DefaultUserServiceTest {
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  UserIndex userIndex = mock(UserIndex.class);
-  UserFinder finder = mock(UserFinder.class);
-  UserUpdater userUpdater = mock(UserUpdater.class);
-  DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder, userSessionRule);
+  private UserIndex userIndex = mock(UserIndex.class);
+  private UserFinder finder = mock(UserFinder.class);
+  private UserUpdater userUpdater = mock(UserUpdater.class);
+  private DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void parse_query() {
-    service.find(ImmutableMap.<String, Object>of(
+    service.find(ImmutableMap.of(
       "logins", "simon,loic",
       "includeDeactivated", "true",
-      "s", "sim"
-    ));
+      "s", "sim"));
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -80,7 +72,7 @@ public class DefaultUserServiceTest {
 
   @Test
   public void test_empty_query() throws Exception {
-    service.find(Maps.<String, Object>newHashMap());
+    service.find(Maps.newHashMap());
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -89,47 +81,6 @@ public class DefaultUserServiceTest {
         return !query.includeDeactivated() && query.logins() == null && query.searchText() == null;
       }
     }));
-  }
-
-  @Test
-  public void self_deactivation_is_not_possible() {
-    try {
-      userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-      service.deactivate("simon");
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("Self-deactivation is not possible");
-      verify(userUpdater, never()).deactivateUserByLogin("simon");
-    }
-  }
-
-  @Test
-  public void user_deactivation_requires_admin_permission() {
-    try {
-      userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-      service.deactivate("julien");
-      fail();
-    } catch (ForbiddenException e) {
-      verify(userUpdater, never()).deactivateUserByLogin("simon");
-    }
-  }
-
-  @Test
-  public void deactivate_user() {
-    userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    service.deactivate("julien");
-    verify(userUpdater).deactivateUserByLogin("julien");
-  }
-
-  @Test
-  public void fail_to_deactivate_when_blank_login() {
-    userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    try {
-      service.deactivate("");
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("Login is missing");
-    }
   }
 
   @Test
