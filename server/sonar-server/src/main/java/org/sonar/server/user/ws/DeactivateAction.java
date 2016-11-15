@@ -30,28 +30,27 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.UserUpdater;
+import org.sonar.server.user.index.UserIndexer;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DeactivateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
 
-  private final UserUpdater userUpdater;
+  private final DbClient dbClient;
+  private final UserIndexer userIndexer;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
-  private final DbClient dbClient;
 
-  public DeactivateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient) {
-    this.userUpdater = userUpdater;
+  public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter) {
+    this.dbClient = dbClient;
+    this.userIndexer = userIndexer;
     this.userSession = userSession;
     this.userWriter = userWriter;
-    this.dbClient = dbClient;
   }
 
   @Override
@@ -73,33 +72,33 @@ public class DeactivateAction implements UsersWsAction {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
-    if (login.equals(userSession.getLogin())) {
-      throw new BadRequestException("Self-deactivation is not possible");
-    }
-    userUpdater.deactivateUserByLogin(login);
+    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
 
+    UserDto user;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      user = dbClient.userDao().selectByLogin(dbSession, login);
+      checkFound(user, "User '%s' doesn't exist", login);
+
+      dbClient.userTokenDao().deleteByLogin(dbSession, login);
+      dbClient.userDao().deactivateUserByLogin(dbSession, login);
+      dbSession.commit();
+    }
+
+    userIndexer.index();
     writeResponse(response, login);
   }
 
   private void writeResponse(Response response, String login) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeUser(json, login);
-    json.endObject().close();
-  }
-
-  private void writeUser(JsonWriter json, String login) {
-    json.name("user");
-    Set<String> groups = Sets.newHashSet();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      JsonWriter json = response.newJsonWriter().beginObject();
+      json.name("user");
+      Set<String> groups = Sets.newHashSet();
       UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      if (user == null) {
-        throw new NotFoundException(format("User '%s' doesn't exist", login));
-      }
+      checkFound(user, "User '%s' doesn't exist", login);
       groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
       userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
-    } finally {
-      dbClient.closeSession(dbSession);
+      json.endObject().close();
     }
   }
+
 }
