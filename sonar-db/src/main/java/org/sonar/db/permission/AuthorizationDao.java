@@ -118,6 +118,17 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userId);
   }
 
+  /**
+   * The UUIDs of all the organizations in which the specified user has the specified global permission. An empty
+   * set is returned if user or permission do not exist. An empty set is also returned if the user is not involved
+   * in any organization.
+   * <br/>
+   * Group membership is taken into account. Anonymous privileges are ignored.
+   */
+  public Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(DbSession dbSession, long userId, String permission) {
+    return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userId, permission);
+  }
+
   public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
     return executeLargeInputsIntoSet(
       componentIds,

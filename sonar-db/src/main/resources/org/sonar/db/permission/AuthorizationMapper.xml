@@ -169,6 +169,26 @@
     ) remaining
   </select>
 
+  <select id="selectOrganizationUuidsOfUserWithGlobalPermission" parameterType="map" resultType="String">
+    select gr.organization_uuid
+    from group_roles gr
+    inner join groups_users gu on gr.group_id = gu.group_id
+    where
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is not null and
+    gu.user_id = #{userId,jdbcType=BIGINT}
+
+    union
+
+    select ur.organization_uuid
+    from user_roles ur
+    where
+    ur.resource_id is null and
+    ur.role = #{permission,jdbcType=VARCHAR} and
+    ur.user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
   <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
     SELECT gr.resource_id
     FROM group_roles gr

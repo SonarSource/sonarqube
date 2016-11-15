@@ -30,17 +30,17 @@ import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -50,6 +50,8 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -69,6 +71,7 @@ public class DeactivateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsActionTester ws;
   private UserIndex index;
   private DbClient dbClient = db.getDbClient();
@@ -81,7 +84,7 @@ public class DeactivateActionTest {
     index = new UserIndex(esTester.client());
     userIndexer = new UserIndexer(system2, dbClient, esTester.client());
     ws = new WsActionTester(new DeactivateAction(
-      dbClient, userIndexer, userSession, new UserJsonWriter(userSession)));
+      dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
   }
 
   @Test
@@ -93,15 +96,17 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_and_delete_his_related_data() throws Exception {
-    UserDto user = createUser();
+    UserDto user = insertUser(newUserDto().setEmail("john@email.com")
+      .setLogin("john")
+      .setName("John")
+      .setScmAccounts(singletonList("jn")));
     loginAsAdmin();
 
     String json = deactivate(user.getLogin()).getInput();
 
     assertJson(json).isSimilarTo(getClass().getResource("DeactivateActionTest/deactivate_user.json"));
-    UserDoc userDoc = index.getNullableByLogin(user.getLogin());
-    assertThat(userDoc.active()).isFalse();
 
+    assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
     verifyThatUserIsDeactivated(user.getLogin());
     assertThat(dbClient.userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId().intValue()).build(), dbSession)).isEmpty();
@@ -158,17 +163,64 @@ public class DeactivateActionTest {
     deactivate("");
   }
 
+  @Test
+  public void fail_to_deactivate_last_administrator_of_default_organization() throws Exception {
+    UserDto admin = createUser();
+    db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
+    loginAsAdmin();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("User is last administrator, and cannot be deactivated");
+
+    deactivate(admin.getLogin());
+  }
+
+  @Test
+  public void fail_to_deactivate_last_administrator_of_organization() throws Exception {
+    // user1 is the unique administrator of org1 and org2.
+    // user1 and user2 are both administrators of org3
+    UserDto user1 = createUser();
+    OrganizationDto org1 = db.organizations().insert(newOrganizationDto().setKey("org1"));
+    OrganizationDto org2 = db.organizations().insert(newOrganizationDto().setKey("org2"));
+    OrganizationDto org3 = db.organizations().insert(newOrganizationDto().setKey("org3"));
+    db.users().insertPermissionOnUser(org1, user1, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(org2, user1, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(org3, user1, SYSTEM_ADMIN);
+    UserDto user2 = createUser();
+    db.users().insertPermissionOnUser(org3, user2, SYSTEM_ADMIN);
+    loginAsAdmin();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("User is last administrator of organizations [org1, org2], and cannot be deactivated");
+
+    deactivate(user1.getLogin());
+  }
+
+  @Test
+  public void administrators_can_be_deactivated_if_there_are_still_other_administrators() throws Exception {
+    UserDto admin = createUser();
+    UserDto anotherAdmin = createUser();
+    db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(anotherAdmin, SYSTEM_ADMIN);
+    db.commit();
+    loginAsAdmin();
+
+    deactivate(admin.getLogin());
+
+    verifyThatUserIsDeactivated(admin.getLogin());
+    verifyThatUserExists(anotherAdmin.getLogin());
+  }
+
   private UserDto createUser() {
-    UserDto user = UserTesting.newUserDto()
-      .setActive(true)
-      .setEmail("john@email.com")
-      .setLogin("john")
-      .setName("John")
-      .setScmAccounts(singletonList("jn"))
+    return insertUser(newUserDto());
+  }
+
+  private UserDto insertUser(UserDto user) {
+    user
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.userDao().insert(dbSession, user);
-    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin("john"));
+    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setUserId(user.getId()).setKey("foo").setValue("bar"));
     dbSession.commit();
     userIndexer.index();

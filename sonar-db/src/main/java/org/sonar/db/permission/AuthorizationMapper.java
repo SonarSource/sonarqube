@@ -49,6 +49,8 @@ public interface AuthorizationMapper {
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
                                                             @Param("permission") String permission, @Param("userId") long userId);
 
+  Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") long userId, @Param("permission") String permission);
+
   Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
   
   Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
