@@ -39,6 +39,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
@@ -64,7 +65,10 @@ public class SearchAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
-        "Requires to be logged in.")
+        "Requires the following permission:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "</ul>")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")
@@ -81,8 +85,6 @@ public class SearchAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn();
-
     int page = request.mandatoryParamAsInt(Param.PAGE);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     SearchOptions options = new SearchOptions()
@@ -93,6 +95,7 @@ public class SearchAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = groupWsSupport.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      userSession.checkLoggedIn().checkOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);

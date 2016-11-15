@@ -36,6 +36,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class SearchActionTest {
@@ -58,7 +59,7 @@ public class SearchActionTest {
 
   @Test
   public void search_empty() throws Exception {
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     newRequest().execute().assertJson(getClass(), "empty.json");
   }
 
@@ -70,7 +71,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     newRequest().execute().assertJson(getClass(), "five_groups.json");
   }
 
@@ -82,7 +83,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer2", 4);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     newRequest().execute().assertJson(getClass(), "with_members.json");
   }
 
@@ -94,7 +95,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer%_%/2", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
 
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().assertJson(getClass(), "customers.json");
   }
 
@@ -106,7 +107,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
 
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     newRequest()
       .setParam(Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
     newRequest()
@@ -119,7 +120,7 @@ public class SearchActionTest {
   public void search_with_fields() throws Exception {
     insertGroup(db.getDefaultOrganization(), "sonar-users", 0);
 
-    loginAsSimpleUser();
+    loginAsDefaultOrgAdmin();
     assertThat(newRequest().execute().outputAsString())
       .contains("id")
       .contains("name")
@@ -157,8 +158,9 @@ public class SearchActionTest {
     GroupDto group = db.users().insertGroup(org, "users");
     // the group in default org is not returned
     db.users().insertGroup(db.getDefaultOrganization(), "users");
+    loginAsDefaultOrgAdmin();
+    userSession.addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
 
-    loginAsSimpleUser();
     newRequest()
       .setParam("organization", org.getKey())
       .execute()
@@ -188,8 +190,8 @@ public class SearchActionTest {
     }
   }
 
-  private void loginAsSimpleUser() {
-    userSession.login("user");
+  private void loginAsDefaultOrgAdmin() {
+    userSession.login("user").addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
   }
 
   private GroupWsSupport newGroupWsSupport() {
