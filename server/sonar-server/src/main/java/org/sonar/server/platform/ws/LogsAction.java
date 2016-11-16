@@ -24,11 +24,17 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.process.ProcessId;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Arrays.stream;
+
 public class LogsAction implements SystemWsAction {
+
+  private static final String PROCESS_PROPERTY = "process";
 
   private final UserSession userSession;
   private final ServerLogging serverLogging;
@@ -40,20 +46,36 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("logs")
+    WebService.NewAction action = controller.createAction("logs")
       .setDescription("Get system logs in plain-text format. Requires system administration permission.")
       .setResponseExample(getClass().getResource("logs-example.log"))
       .setSince("5.2")
       .setHandler(this);
+
+    action
+      .createParam(PROCESS_PROPERTY)
+      .setPossibleValues(stream(ProcessId.values())
+        .map(ProcessId::getKey)
+        .sorted()
+        .collect(Collectors.toList(ProcessId.values().length)))
+      .setDefaultValue(ProcessId.APP.getKey())
+      .setSince("6.2")
+      .setDescription("Process to get logs from");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     userSession.checkIsRoot();
 
+    String processKey = wsRequest.mandatoryParam(PROCESS_PROPERTY);
+    ProcessId processId = ProcessId.fromKey(processKey);
+
     wsResponse.stream().setMediaType(MediaTypes.TXT);
-    File file = serverLogging.getCurrentLogFile();
-    if (file.exists()) {
+    File logsDir = serverLogging.getLogsDir();
+    File file = new File(logsDir, processId.getLogFilenamePrefix() + ".log");
+    // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
+    // path is double-checked to prevent returning any file present on the file system.
+    if (file.exists() && file.getParentFile().equals(logsDir)) {
       FileUtils.copyFile(file, wsResponse.stream().output());
     }
   }

@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,6 +52,13 @@ public class LogsActionTest {
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
+  public void values_of_process_parameter_are_names_of_processes() {
+    Set<String> values = actionTester.getDef().param("process").possibleValues();
+    // values are lower-case and alphabetically ordered
+    assertThat(values).containsExactly("app", "ce", "es", "web");
+  }
+
+  @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
     expectedException.expect(ForbiddenException.class);
 
@@ -67,29 +75,94 @@ public class LogsActionTest {
   }
 
   @Test
-  public void get_logs() throws IOException {
+  public void get_app_logs_by_default() throws IOException {
     makeAuthenticatedUserRoot();
 
-    File file = temp.newFile();
-    FileUtils.write(file, "{logs}");
-    when(serverLogging.getCurrentLogFile()).thenReturn(file);
+    createAllLogsFiles();
 
     TestResponse response = actionTester.newRequest().execute();
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-    assertThat(response.getInput()).isEqualTo("{logs}");
+    assertThat(response.getInput()).isEqualTo("{app}");
   }
 
   @Test
   public void get_empty_logs_if_file_does_not_exist() throws IOException {
     makeAuthenticatedUserRoot();
 
-    File file = temp.newFile();
-    file.delete();
-    when(serverLogging.getCurrentLogFile()).thenReturn(file);
+    createLogsDir();
 
     TestResponse response = actionTester.newRequest().execute();
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
     assertThat(response.getInput()).isEqualTo("");
+  }
+
+  @Test
+  public void get_ce_logs() throws IOException {
+    makeAuthenticatedUserRoot();
+
+    createAllLogsFiles();
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "ce")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{ce}");
+  }
+
+  @Test
+  public void get_es_logs() throws IOException {
+    makeAuthenticatedUserRoot();
+
+    createAllLogsFiles();
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "es")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{es}");
+  }
+
+  @Test
+  public void get_web_logs() throws IOException {
+    makeAuthenticatedUserRoot();
+
+    createAllLogsFiles();
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "web")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{web}");
+  }
+
+  @Test
+  public void do_not_return_rotated_files() throws IOException {
+    makeAuthenticatedUserRoot();
+
+    File dir = createLogsDir();
+    FileUtils.write(new File(dir, "sonar.1.log"), "{old}");
+    FileUtils.write(new File(dir, "sonar.log"), "{recent}");
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "app")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{recent}");
+  }
+
+  private File createAllLogsFiles() throws IOException {
+    File dir = createLogsDir();
+    FileUtils.write(new File(dir, "sonar.log"), "{app}");
+    FileUtils.write(new File(dir, "ce.log"), "{ce}");
+    FileUtils.write(new File(dir, "es.log"), "{es}");
+    FileUtils.write(new File(dir, "web.log"), "{web}");
+    return dir;
+  }
+
+  private File createLogsDir() throws IOException {
+    File dir = temp.newFolder();
+    when(serverLogging.getLogsDir()).thenReturn(dir);
+    return dir;
   }
 
   private void makeAuthenticatedUserRoot() {

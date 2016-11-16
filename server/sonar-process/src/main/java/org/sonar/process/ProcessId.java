@@ -19,6 +19,8 @@
  */
 package org.sonar.process;
 
+import static java.lang.String.format;
+
 public enum ProcessId {
 
   APP("app", 0, "sonar"),
@@ -64,4 +66,14 @@ public enum ProcessId {
     sb.append(']');
     return sb.toString();
   }
+
+  public static ProcessId fromKey(String key) {
+    for (ProcessId processId : values()) {
+      if (processId.getKey().equals(key)) {
+        return processId;
+      }
+    }
+    throw new IllegalArgumentException(format("Process [%s] does not exist", key));
+  }
+
 }
