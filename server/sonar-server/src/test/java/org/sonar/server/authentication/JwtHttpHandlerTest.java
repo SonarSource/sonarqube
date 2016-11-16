@@ -48,6 +48,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -57,40 +58,35 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class JwtHttpHandlerTest {
 
-  static final String JWT_TOKEN = "TOKEN";
-  static final String CSRF_STATE = "CSRF_STATE";
-  static final String USER_LOGIN = "john";
+  private static final String JWT_TOKEN = "TOKEN";
+  private static final String CSRF_STATE = "CSRF_STATE";
+  private static final String USER_LOGIN = "john";
 
-  static final long NOW = 10_000_000_000L;
-  static final long FOUR_MINUTES_AGO = NOW - 4 * 60 * 1000L;
-  static final long SIX_MINUTES_AGO = NOW - 6 * 60 * 1000L;
-  static final long TEN_DAYS_AGO = NOW - 10 * 24 * 60 * 60 * 1000L;
+  private static final long NOW = 10_000_000_000L;
+  private static final long FOUR_MINUTES_AGO = NOW - 4 * 60 * 1000L;
+  private static final long SIX_MINUTES_AGO = NOW - 6 * 60 * 1000L;
+  private static final long TEN_DAYS_AGO = NOW - 10 * 24 * 60 * 60 * 1000L;
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private ArgumentCaptor<JwtSerializer.JwtSession> jwtArgumentCaptor = ArgumentCaptor.forClass(JwtSerializer.JwtSession.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpSession httpSession = mock(HttpSession.class);
+  private System2 system2 = spy(System2.INSTANCE);
+  private Settings settings = new MapSettings();
+  private JwtSerializer jwtSerializer = mock(JwtSerializer.class);
+  private JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
+  private UserDto userDto = newUserDto().setLogin(USER_LOGIN);
 
-  DbSession dbSession = dbTester.getSession();
-
-  ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
-  ArgumentCaptor<JwtSerializer.JwtSession> jwtArgumentCaptor = ArgumentCaptor.forClass(JwtSerializer.JwtSession.class);
-
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  HttpSession httpSession = mock(HttpSession.class);
-
-  System2 system2 = mock(System2.class);
-  Settings settings = new MapSettings();
-  JwtSerializer jwtSerializer = mock(JwtSerializer.class);
-  JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
-
-  UserDto userDto = newUserDto().setLogin(USER_LOGIN);
-
-  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+  private JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
 
   @Before
   public void setUp() throws Exception {
@@ -127,30 +123,60 @@ public class JwtHttpHandlerTest {
 
   @Test
   public void generate_token_is_using_session_timeout_from_settings() throws Exception {
-    int sessionTimeoutInHours = 10;
-    settings.setProperty("sonar.auth.sessionTimeoutInHours", sessionTimeoutInHours);
+    int sessionTimeoutInMinutes = 10;
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", sessionTimeoutInMinutes);
 
     underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(userDto, request, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
-    verifyToken(jwtArgumentCaptor.getValue(), sessionTimeoutInHours * 60 * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getValue(), sessionTimeoutInMinutes * 60, NOW);
   }
 
   @Test
   public void session_timeout_property_cannot_be_updated() throws Exception {
-    int firstSessionTimeoutInHours = 10;
-    settings.setProperty("sonar.auth.sessionTimeoutInHours", firstSessionTimeoutInHours);
+    int firstSessionTimeoutInMinutes = 10;
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", firstSessionTimeoutInMinutes);
 
     underTest = new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(userDto, request, response);
 
     // The property is updated, but it won't be taking into account
-    settings.setProperty("sonar.auth.sessionTimeoutInHours", 15);
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 15);
     underTest.generateToken(userDto, request, response);
     verify(jwtSerializer, times(2)).encode(jwtArgumentCaptor.capture());
-    verifyToken(jwtArgumentCaptor.getAllValues().get(0), firstSessionTimeoutInHours * 60 * 60, NOW);
-    verifyToken(jwtArgumentCaptor.getAllValues().get(1), firstSessionTimeoutInHours * 60 * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getAllValues().get(0), firstSessionTimeoutInMinutes * 60, NOW);
+    verifyToken(jwtArgumentCaptor.getAllValues().get(1), firstSessionTimeoutInMinutes * 60, NOW);
+  }
+
+  @Test
+  public void session_timeout_property_cannot_be_zero() throws Exception {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got 0.");
+
+    new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+  }
+
+  @Test
+  public void session_timeout_property_cannot_be_negative() throws Exception {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got -10.");
+
+    new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+  }
+
+  @Test
+  public void session_timeout_property_cannot_be_greater_than_three_months() throws Exception {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must not be greater than 129600. Got 172800.");
+
+    new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
   }
 
   @Test

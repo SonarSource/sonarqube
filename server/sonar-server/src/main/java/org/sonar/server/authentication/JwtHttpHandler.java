@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
@@ -45,8 +46,9 @@ import static org.sonar.server.authentication.CookieUtils.findCookie;
 @ServerSide
 public class JwtHttpHandler {
 
-  private static final String SESSION_TIMEOUT_PROPERTY = "sonar.auth.sessionTimeoutInHours";
-  private static final int SESSION_TIMEOUT_DEFAULT_VALUE_IN_SECONDS = 3 * 24 * 60 * 60;
+  private static final String SESSION_TIMEOUT_IN_MINUTES_PROPERTY = "sonar.web.sessionTimeoutInMinutes";
+  private static final int SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES = 3 * 24 * 60;
+  private static final int MAX_SESSION_TIMEOUT_IN_MINUTES = 3 * 30 * 24 * 60;
 
   private static final String JWT_COOKIE = "JWT-SESSION";
   private static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
@@ -178,11 +180,16 @@ public class JwtHttpHandler {
   }
 
   private static int getSessionTimeoutInSeconds(Settings settings) {
-    int propertyFromSettings = settings.getInt(SESSION_TIMEOUT_PROPERTY);
-    if (propertyFromSettings > 0) {
-      return propertyFromSettings * 60 * 60;
+    int minutes;
+    if (settings.hasKey(SESSION_TIMEOUT_IN_MINUTES_PROPERTY)) {
+      minutes = settings.getInt(SESSION_TIMEOUT_IN_MINUTES_PROPERTY);
+      checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s.", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
+    } else {
+      minutes = SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES;
     }
-    return SESSION_TIMEOUT_DEFAULT_VALUE_IN_SECONDS;
+    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than %s. Got %s.",
+      SESSION_TIMEOUT_IN_MINUTES_PROPERTY, MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
+    return minutes * 60;
   }
 
   public static class Token {
