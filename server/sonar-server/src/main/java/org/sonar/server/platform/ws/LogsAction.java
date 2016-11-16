@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -70,13 +71,15 @@ public class LogsAction implements SystemWsAction {
     String processKey = wsRequest.mandatoryParam(PROCESS_PROPERTY);
     ProcessId processId = ProcessId.fromKey(processKey);
 
-    wsResponse.stream().setMediaType(MediaTypes.TXT);
     File logsDir = serverLogging.getLogsDir();
     File file = new File(logsDir, processId.getLogFilenamePrefix() + ".log");
     // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
     // path is double-checked to prevent returning any file present on the file system.
     if (file.exists() && file.getParentFile().equals(logsDir)) {
+      wsResponse.stream().setMediaType(MediaTypes.TXT);
       FileUtils.copyFile(file, wsResponse.stream().output());
+    } else {
+      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
     }
   }
 }

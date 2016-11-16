@@ -86,14 +86,13 @@ public class LogsActionTest {
   }
 
   @Test
-  public void get_empty_logs_if_file_does_not_exist() throws IOException {
+  public void return_404_not_found_if_file_does_not_exist() throws IOException {
     makeAuthenticatedUserRoot();
 
     createLogsDir();
 
     TestResponse response = actionTester.newRequest().execute();
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-    assertThat(response.getInput()).isEqualTo("");
+    assertThat(response.getStatus()).isEqualTo(404);
   }
 
   @Test
