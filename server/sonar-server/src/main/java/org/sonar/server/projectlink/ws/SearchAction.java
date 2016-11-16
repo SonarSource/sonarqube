@@ -35,6 +35,7 @@ import org.sonarqube.ws.WsProjectLinks.Link;
 import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
 import org.sonarqube.ws.client.projectlinks.SearchWsRequest;
 
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -111,12 +112,8 @@ public class SearchAction implements ProjectLinksWsAction {
     Link.Builder builder = Link.newBuilder()
       .setId(String.valueOf(link.getId()))
       .setUrl(link.getHref());
-    if (link.getName() != null) {
-      builder.setName(link.getName());
-    }
-    if (link.getType() != null) {
-      builder.setType(link.getType());
-    }
+    setNullable(link.getName(), builder::setName);
+    setNullable(link.getType(), builder::setType);
     return builder.build();
   }
 
