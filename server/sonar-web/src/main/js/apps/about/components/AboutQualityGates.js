@@ -26,8 +26,8 @@ export default class AboutQualityGates extends React.Component {
     return (
         <div className="about-page-section">
           <div className="about-page-container clearfix">
-            <img className="pull-right" src="/images/understanding-quality-gates.svg" width={500} height={175}
-                 alt="Understanding Quality Gates"/>
+            <img className="pull-right" src={window.baseUrl + '/images/understanding-quality-gates.svg'}
+                 width={500} height={175} alt="Understanding Quality Gates"/>
             <h2 className="about-page-header">Understanding Quality Gates</h2>
             <p className="about-page-text">
               Your project's quality gate is the set of conditions the project must meet before it can be released

@@ -107,7 +107,7 @@ export default class AboutApp extends React.Component {
                 </div>
             )}
 
-            {signUpAllowed && (
+            {signUpAllowed && !isAuthenticated && (
                 <div className="about-page-sign-up">
                   No account yet? <a href={window.baseUrl + '/users/new'}>Sign up</a>
                 </div>

@@ -26,8 +26,8 @@ export default class AboutLeakPeriod extends React.Component {
     return (
         <div className="about-page-section">
           <div className="about-page-container clearfix">
-            <img className="pull-left" src="/images/understanding-leak-period.svg" width={500} height={175}
-                 alt="Understanding the Leak Period"/>
+            <img className="pull-left" src={window.baseUrl + '/images/understanding-leak-period.svg'}
+                 width={500} height={175} alt="Understanding the Leak Period"/>
             <h2 className="about-page-header">Understanding the Leak Period</h2>
             <p className="about-page-text">
               The leak metaphor and the default Quality Gate are based on the leak period - the recent period against

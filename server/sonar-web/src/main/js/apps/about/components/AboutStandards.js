@@ -26,8 +26,8 @@ export default class AboutStandards extends React.Component {
     return (
         <div className="about-page-section">
           <div className="about-page-container clearfix">
-            <img className="pull-right" src="/images/recognized-standards.svg" width={500} height={175}
-                 alt="Conform to recognized standards"/>
+            <img className="pull-right" src={window.baseUrl + '/images/recognized-standards.svg'}
+                 width={500} height={175} alt="Conform to recognized standards"/>
             <h2 className="about-page-header">Conform to recognized standards</h2>
             <p className="about-page-text">
               SonarAnalyzers offer rules that support industry standards: MISRA, CERT, CWE, OWASP Top 10 and SANS Top
