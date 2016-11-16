@@ -170,6 +170,16 @@ public class JwtHttpHandlerTest {
   }
 
   @Test
+  public void session_timeout_property_cannot_be_greater_than_three_months() throws Exception {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must not be greater than 129600. Got 172800.");
+
+    new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
+  }
+
+  @Test
   public void validate_token() throws Exception {
     addJwtCookie();
 

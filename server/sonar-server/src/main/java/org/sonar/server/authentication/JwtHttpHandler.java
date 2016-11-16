@@ -48,6 +48,7 @@ public class JwtHttpHandler {
 
   private static final String SESSION_TIMEOUT_IN_MINUTES_PROPERTY = "sonar.web.sessionTimeoutInMinutes";
   private static final int SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES = 3 * 24 * 60;
+  private static final int MAX_SESSION_TIMEOUT_IN_MINUTES = 3 * 30 * 24 * 60;
 
   private static final String JWT_COOKIE = "JWT-SESSION";
   private static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
@@ -186,6 +187,8 @@ public class JwtHttpHandler {
     } else {
       minutes = SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES;
     }
+    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than %s. Got %s.",
+      SESSION_TIMEOUT_IN_MINUTES_PROPERTY, MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
     return minutes * 60;
   }
 
