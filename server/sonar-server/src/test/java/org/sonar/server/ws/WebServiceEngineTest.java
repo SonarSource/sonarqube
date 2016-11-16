@@ -54,9 +54,8 @@ public class WebServiceEngineTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  I18n i18n = mock(I18n.class);
-
-  WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n, userSessionRule);
+  private I18n i18n = mock(I18n.class);
+  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n, userSessionRule);
 
   @Before
   public void start() {
@@ -223,9 +222,10 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"error_occurred\"}]}");
     assertThat(response.stream().status()).isEqualTo(500);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request")).isNotEmpty();
   }
 
   @Test
