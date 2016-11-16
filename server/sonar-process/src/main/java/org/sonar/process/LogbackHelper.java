@@ -45,6 +45,7 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
@@ -273,7 +274,7 @@ public class LogbackHelper {
 
     Level level = Level.toLevel(value, Level.INFO);
     if (!isAllowed(level)) {
-      throw new IllegalArgumentException(String.format("log level %s in property %s is not a supported value (allowed levels are %s)",
+      throw new IllegalArgumentException(format("log level %s in property %s is not a supported value (allowed levels are %s)",
         level, propertyKey, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
     }
     return level;
@@ -302,7 +303,7 @@ public class LogbackHelper {
 
   private static void ensureSupportedLevel(Level newLevel) {
     if (!isAllowed(newLevel)) {
-      throw new IllegalArgumentException(String.format("%s log level is not supported (allowed levels are %s)", newLevel, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
+      throw new IllegalArgumentException(format("%s log level is not supported (allowed levels are %s)", newLevel, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
     }
   }
 
@@ -362,7 +363,7 @@ public class LogbackHelper {
       return new NoRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles);
 
     } else {
-      throw new MessageException(String.format("Unsupported value for property %s: %s", ROLLING_POLICY_PROPERTY, rollingPolicy));
+      throw new MessageException(format("Unsupported value for property %s: %s", ROLLING_POLICY_PROPERTY, rollingPolicy));
     }
   }
 

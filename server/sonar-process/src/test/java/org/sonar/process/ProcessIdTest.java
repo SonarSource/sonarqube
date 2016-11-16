@@ -21,11 +21,16 @@ package org.sonar.process;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProcessIdTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_constants() {
@@ -43,5 +48,29 @@ public class ProcessIdTest {
     }
     assertThat(ipcIndices).hasSize(ProcessId.values().length);
     assertThat(keys).hasSize(ProcessId.values().length);
+  }
+
+  @Test
+  public void fromKey_searches_process_by_its_key() {
+    assertThat(ProcessId.fromKey("app")).isEqualTo(ProcessId.APP);
+    assertThat(ProcessId.fromKey("ce")).isEqualTo(ProcessId.COMPUTE_ENGINE);
+    assertThat(ProcessId.fromKey("es")).isEqualTo(ProcessId.ELASTICSEARCH);
+    assertThat(ProcessId.fromKey("web")).isEqualTo(ProcessId.WEB_SERVER);
+  }
+
+  @Test
+  public void fromKey_throws_IAE_if_key_is_null() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Process [null] does not exist");
+
+    ProcessId.fromKey(null);
+  }
+
+  @Test
+  public void fromKey_throws_IAE_if_key_does_not_exist() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Process [foo] does not exist");
+
+    ProcessId.fromKey("foo");
   }
 }
