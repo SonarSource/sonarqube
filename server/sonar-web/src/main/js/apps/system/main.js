@@ -72,7 +72,30 @@ export default React.createClass({
       <header className="page-header">
         <h1 className="page-title">{translate('system_info.page')}</h1>
         <div className="page-actions">
-          <a className="spacer-right" href={window.baseUrl + '/api/system/logs'} id="logs-link">Logs</a>
+          <a
+              className="spacer-right"
+              href={window.baseUrl + '/api/system/logs?process=app'}
+              id="logs-link">
+              App Logs
+          </a>
+          <a
+              className="spacer-right"
+              href={window.baseUrl + '/api/system/logs?process=ce'}
+              id="ce-logs-link">
+              Compute Engine Logs
+          </a>
+          <a
+              className="spacer-right"
+              href={window.baseUrl + '/api/system/logs?process=es'}
+              id="es-logs-link">
+              Elasticsearch Logs
+          </a>
+          <a
+              className="spacer-right"
+              href={window.baseUrl + '/api/system/logs?process=web'}
+              id="web-logs-link">
+              Web Logs
+          </a>
           <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
           <button
               id="restart-server-button"
