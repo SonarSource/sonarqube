@@ -266,8 +266,12 @@ public class LogbackHelper {
   }
 
   /**
-   * Configure the log level of the root logger reading the value of specified properties. The lowest level will be
-   * applied.
+   * Configure the log level of the root logger reading the value of specified properties.
+   * <p>
+   * To compute the applied log level the following rules will be followed:
+   * <ul>the last property with a defined and valid value in the order of the {@code propertyKeys} argument will be applied</ul>
+   * <ul>if there is none, {@link Level#INFO INFO} will apply</ul>
+   * </p>
    *
    * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
@@ -279,7 +283,7 @@ public class LogbackHelper {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
       Level level = getPropertyValueAsLevel(props, propertyKey);
-      if (!level.isGreaterOrEqual(newLevel)) {
+      if (level != null) {
         newLevel = level;
       }
     }
@@ -287,8 +291,14 @@ public class LogbackHelper {
     return newLevel;
   }
 
+  @CheckForNull
   private static Level getPropertyValueAsLevel(Props props, String propertyKey) {
-    Level level = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+    String value = props.value(propertyKey);
+    if (value == null) {
+      return null;
+    }
+
+    Level level = Level.toLevel(value, Level.INFO);
     if (!isAllowed(level)) {
       throw new IllegalArgumentException(String.format("log level %s in property %s is not a supported value (allowed levels are %s)",
         level, propertyKey, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));

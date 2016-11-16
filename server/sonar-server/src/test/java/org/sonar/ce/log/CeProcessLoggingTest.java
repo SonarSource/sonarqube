@@ -105,7 +105,7 @@ public class CeProcessLoggingTest {
   }
 
   @Test
-  public void root_logger_level_changes_with_app_property() {
+  public void root_logger_level_changes_with_ce_property() {
     props.set("sonar.log.level.ce", "TRACE");
 
     LoggerContext ctx = underTest.configure(props);
@@ -114,7 +114,17 @@ public class CeProcessLoggingTest {
   }
 
   @Test
-  public void root_logger_level_changes_with_app_property_and_is_case_insensitive() {
+  public void root_logger_level_is_configured_from_ce_property_over_global_property() {
+    props.set("sonar.log.level", "TRACE");
+    props.set("sonar.log.level.ce", "DEBUG");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyRootLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void root_logger_level_changes_with_ce_property_and_is_case_insensitive() {
     props.set("sonar.log.level.ce", "debug");
 
     LoggerContext ctx = underTest.configure(props);
@@ -123,7 +133,7 @@ public class CeProcessLoggingTest {
   }
 
   @Test
-  public void default_to_INFO_if_app_property_has_invalid_value() {
+  public void default_to_INFO_if_ce_property_has_invalid_value() {
     props.set("sonar.log.level.ce", "DodoDouh!");
 
     LoggerContext ctx = underTest.configure(props);
@@ -141,7 +151,7 @@ public class CeProcessLoggingTest {
   }
 
   @Test
-  public void fail_with_IAE_if_app_property_unsupported_level() {
+  public void fail_with_IAE_if_ce_property_unsupported_level() {
     props.set("sonar.log.level.ce", "ERROR");
 
     expectedException.expect(IllegalArgumentException.class);

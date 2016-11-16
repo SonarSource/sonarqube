@@ -198,6 +198,16 @@ public class AppLoggingTest {
   }
 
   @Test
+  public void root_logger_level_is_configured_from_app_property_over_global_property() {
+    props.set("sonar.log.level", "TRACE");
+    props.set("sonar.log.level.app", "DEBUG");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyRootLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
   public void root_logger_level_changes_with_app_property_and_is_case_insensitive() {
     props.set("sonar.log.level.app", "debug");
 
