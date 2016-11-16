@@ -29,6 +29,15 @@ export default React.createClass({
     return { globalDashboards: [], globalPages: [] };
   },
 
+  renderAbout () {
+    const url = window.baseUrl + '/about';
+    return (
+        <li className={this.activeLink('/about')}>
+          <a href={url}>About</a>
+        </li>
+    );
+  },
+
   renderProjects () {
     const controller = window.SS.user ? '/projects/favorite' : '/projects';
     const url = window.baseUrl + controller;
@@ -118,12 +127,14 @@ export default React.createClass({
   render () {
     return (
         <ul className="nav navbar-nav">
+          {!window.SS.user && this.renderAbout()}
           {this.renderProjects()}
           {this.renderIssuesLink()}
           {this.renderRulesLink()}
           {this.renderProfilesLink()}
           {this.renderQualityGatesLink()}
           {this.renderAdministrationLink()}
+          {!!window.SS.user && this.renderAbout()}
           {this.renderMore()}
         </ul>
     );
