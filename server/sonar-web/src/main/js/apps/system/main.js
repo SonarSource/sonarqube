@@ -72,31 +72,32 @@ export default React.createClass({
       <header className="page-header">
         <h1 className="page-title">{translate('system_info.page')}</h1>
         <div className="page-actions">
-          <a
-              className="spacer-right"
-              href={window.baseUrl + '/api/system/logs?process=app'}
-              id="logs-link">
-              App Logs
-          </a>
-          <a
-              className="spacer-right"
-              href={window.baseUrl + '/api/system/logs?process=ce'}
-              id="ce-logs-link">
-              Compute Engine Logs
-          </a>
-          <a
-              className="spacer-right"
-              href={window.baseUrl + '/api/system/logs?process=es'}
-              id="es-logs-link">
-              Elasticsearch Logs
-          </a>
-          <a
-              className="spacer-right"
-              href={window.baseUrl + '/api/system/logs?process=web'}
-              id="web-logs-link">
-              Web Logs
-          </a>
           <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
+          <div className="display-inline-block dropdown big-spacer-left">
+            <button data-toggle="dropdown">Logs <i className="icon-dropdown"/></button>
+            <ul className="dropdown-menu">
+              <li>
+                <a href={window.baseUrl + '/api/system/logs?process=app'} id="logs-link">
+                  Main
+                </a>
+              </li>
+              <li>
+                <a href={window.baseUrl + '/api/system/logs?process=ce'} id="ce-logs-link">
+                  Compute Engine
+                </a>
+              </li>
+              <li>
+                <a href={window.baseUrl + '/api/system/logs?process=es'} id="es-logs-link">
+                  Elasticsearch
+                </a>
+              </li>
+              <li>
+                <a href={window.baseUrl + '/api/system/logs?process=web'} id="web-logs-link">
+                  Web
+                </a>
+              </li>
+            </ul>
+          </div>
           <button
               id="restart-server-button"
               className="big-spacer-left"
