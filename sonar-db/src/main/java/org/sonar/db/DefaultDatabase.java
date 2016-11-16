@@ -19,6 +19,7 @@
  */
 package org.sonar.db;
 
+import ch.qos.logback.classic.Level;
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,6 +40,7 @@ import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.NullConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledDataSource;
+import org.sonar.process.LogbackHelper;
 
 import static java.lang.String.format;
 
@@ -54,12 +56,14 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
 
-  private Settings settings;
+  private final LogbackHelper logbackHelper;
+  private final Settings settings;
   private ProfiledDataSource datasource;
   private Dialect dialect;
   private Properties properties;
 
-  public DefaultDatabase(Settings settings) {
+  public DefaultDatabase(LogbackHelper logbackHelper, Settings settings) {
+    this.logbackHelper = logbackHelper;
     this.settings = settings;
   }
 
@@ -93,7 +97,7 @@ public class DefaultDatabase implements Database {
     datasource = new ProfiledDataSource(basicDataSource, NullConnectionInterceptor.INSTANCE);
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
-    enableSqlLogging(datasource, "TRACE".equals(settings.getString("sonar.log.level")));
+    enableSqlLogging(datasource, logbackHelper.getLoggerLevel("sql") == Level.TRACE);
   }
 
   private void checkConnection() {

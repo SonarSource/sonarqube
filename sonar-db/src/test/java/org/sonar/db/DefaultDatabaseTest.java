@@ -25,14 +25,17 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.db.dialect.PostgreSql;
+import org.sonar.process.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultDatabaseTest {
+  private LogbackHelper logbackHelper = mock(LogbackHelper.class);
 
   @Test
   public void shouldLoadDefaultValues() {
-    DefaultDatabase db = new DefaultDatabase(new MapSettings());
+    DefaultDatabase db = new DefaultDatabase(logbackHelper, new MapSettings());
     db.initSettings();
 
     Properties props = db.getProperties();
@@ -59,7 +62,7 @@ public class DefaultDatabaseTest {
   public void shouldCompleteProperties() {
     Settings settings = new MapSettings();
 
-    DefaultDatabase db = new DefaultDatabase(settings) {
+    DefaultDatabase db = new DefaultDatabase(logbackHelper, settings) {
       @Override
       protected void doCompleteProperties(Properties properties) {
         properties.setProperty("sonar.jdbc.maxActive", "2");
@@ -81,7 +84,7 @@ public class DefaultDatabaseTest {
     settings.setProperty("sonar.jdbc.password", "sonar");
     settings.setProperty("sonar.jdbc.maxActive", "1");
 
-    DefaultDatabase db = new DefaultDatabase(settings);
+    DefaultDatabase db = new DefaultDatabase(logbackHelper, settings);
     db.start();
     db.stop();
 
@@ -94,7 +97,7 @@ public class DefaultDatabaseTest {
     Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
-    DefaultDatabase database = new DefaultDatabase(settings);
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
     database.initSettings();
 
     assertThat(database.getDialect().getId()).isEqualTo(PostgreSql.ID);
@@ -105,7 +108,7 @@ public class DefaultDatabaseTest {
     Settings settings = new MapSettings();
     settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
 
-    DefaultDatabase database = new DefaultDatabase(settings);
+    DefaultDatabase database = new DefaultDatabase(logbackHelper, settings);
     database.initSettings();
 
     assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.postgresql.Driver");

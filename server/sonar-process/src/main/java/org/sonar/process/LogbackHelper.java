@@ -121,7 +121,7 @@ public class LogbackHelper {
 
     public static final class Builder {
       @CheckForNull
-      public String processName;
+      private String processName;
       private String threadIdFieldPattern = "";
       @CheckForNull
       private String fileNamePrefix;
@@ -333,6 +333,11 @@ public class LogbackHelper {
     }
   }
 
+  public Level configureLoggerLogLevelFromDomain(String loggerName, Props props, ProcessId processId, LogDomain domain) {
+    String processProperty = SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey());
+    return configureLoggerLogLevel(getRootContext().getLogger(loggerName), props, SONAR_LOG_LEVEL_PROPERTY, processProperty, processProperty + "." + domain.key);
+  }
+
   /**
    * Configure the log level of the specified logger to specified level.
    * <p>
@@ -343,6 +348,10 @@ public class LogbackHelper {
     Logger logger = getRootContext().getLogger(loggerName);
     logger.setLevel(level);
     return logger;
+  }
+
+  public Level getLoggerLevel(String loggerName) {
+    return getRootContext().getLogger(loggerName).getLevel();
   }
 
   /**
@@ -476,6 +485,16 @@ public class LogbackHelper {
       appender.setRollingPolicy(rollingPolicy);
 
       return appender;
+    }
+  }
+
+  public enum LogDomain {
+    SQL("sql");
+
+    private final String key;
+
+    LogDomain(String key) {
+      this.key = key;
     }
   }
 }

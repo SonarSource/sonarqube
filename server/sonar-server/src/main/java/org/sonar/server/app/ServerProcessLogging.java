@@ -44,12 +44,12 @@ public abstract class ServerProcessLogging {
     helper.enableJulChangePropagation(ctx);
     configureRootLogger(props);
 
-    extendConfiguration(props);
+    extendConfiguration(helper, props);
 
     return ctx;
   }
 
-  protected abstract void extendConfiguration(Props props);
+  protected abstract void extendConfiguration(LogbackHelper helper, Props props);
 
   private void configureRootLogger(Props props) {
     LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder()

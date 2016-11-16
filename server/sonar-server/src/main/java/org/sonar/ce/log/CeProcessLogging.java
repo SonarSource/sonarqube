@@ -19,11 +19,13 @@
  */
 package org.sonar.ce.log;
 
+import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.server.app.ServerProcessLogging;
 
 import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
+import static org.sonar.process.LogbackHelper.LogDomain;
 
 /**
  * Configure logback for the Compute Engine process. Logs are written to file "ce.log" in SQ's log directory.
@@ -35,7 +37,7 @@ public class CeProcessLogging extends ServerProcessLogging {
   }
 
   @Override
-  protected void extendConfiguration(Props props) {
-    // no configuration extension to do
+  protected void extendConfiguration(LogbackHelper helper, Props props) {
+    helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
   }
 }

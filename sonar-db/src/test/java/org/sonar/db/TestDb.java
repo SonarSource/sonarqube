@@ -41,6 +41,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
+import org.sonar.process.LogbackHelper;
 
 /**
  * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
@@ -84,7 +85,7 @@ class TestDb {
       }
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
-        db = new DefaultDatabase(settings);
+        db = new DefaultDatabase(new LogbackHelper(), settings);
       } else {
         db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
       }

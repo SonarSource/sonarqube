@@ -37,6 +37,7 @@ import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
+import org.sonar.process.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.issue.index.IssueIndex;
@@ -85,6 +86,7 @@ public class PlatformLevel1 extends PlatformLevel {
       UuidFactoryImpl.INSTANCE,
       UrlSettings.class,
       EmbeddedDatabaseFactory.class,
+      LogbackHelper.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
       // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
