@@ -1,4 +1,4 @@
-Action
+org/apache/struts/Action.java
 Rule: Avoid Cycles
 Message: Has 3 cycles
 
