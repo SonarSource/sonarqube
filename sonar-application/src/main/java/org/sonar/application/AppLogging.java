@@ -109,8 +109,7 @@ class AppLogging {
   private static final String APP_CONSOLE_APPENDER = "APP_CONSOLE";
   private static final String GOBBLER_PLAIN_CONSOLE = "GOBBLER_CONSOLE";
   private static final LogbackHelper.RootLoggerConfig APP_ROOT_LOGGER_CONFIG = newRootLoggerConfigBuilder()
-    .setProcessName("app")
-    .setFileNamePrefix("sonar")
+    .setProcessId(ProcessId.APP)
     .build();
 
   private final LogbackHelper helper = new LogbackHelper();

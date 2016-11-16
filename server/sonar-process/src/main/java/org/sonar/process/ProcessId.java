@@ -21,14 +21,20 @@ package org.sonar.process;
 
 public enum ProcessId {
 
-  APP("app", 0), ELASTICSEARCH("es", 1), WEB_SERVER("web", 2), COMPUTE_ENGINE("ce", 3);
+  APP("app", 0, "sonar"),
+  ELASTICSEARCH("es", 1, "es"),
+  WEB_SERVER("web", 2, "web"),
+  COMPUTE_ENGINE("ce", 3, "ce");
 
   private final String key;
   private final int ipcIndex;
+  private final String logFilenamePrefix;
 
-  ProcessId(String key, int ipcIndex) {
+
+  ProcessId(String key, int ipcIndex, String logFilenamePrefix) {
     this.key = key;
     this.ipcIndex = ipcIndex;
+    this.logFilenamePrefix = logFilenamePrefix;
   }
 
   public String getKey() {
@@ -42,11 +48,19 @@ public enum ProcessId {
     return ipcIndex;
   }
 
+  /**
+   * Prefix of log file, for example "web" for file "web.log"
+   */
+  public String getLogFilenamePrefix() {
+    return logFilenamePrefix;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("[");
     sb.append("key='").append(key).append('\'');
     sb.append(", ipcIndex=").append(ipcIndex);
+    sb.append(", logFilenamePrefix=").append(logFilenamePrefix);
     sb.append(']');
     return sb.toString();
   }

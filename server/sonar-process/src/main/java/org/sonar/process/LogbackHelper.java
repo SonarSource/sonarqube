@@ -94,46 +94,37 @@ public class LogbackHelper {
   }
 
   public static final class RootLoggerConfig {
-    private final String processName;
+    private final ProcessId processId;
     private final String threadIdFieldPattern;
-    private final String fileNamePrefix;
 
     private RootLoggerConfig(Builder builder) {
-      this.processName = builder.processName;
+      this.processId = requireNonNull(builder.processId);
       this.threadIdFieldPattern = builder.threadIdFieldPattern;
-      this.fileNamePrefix = builder.fileNamePrefix;
     }
 
     public static Builder newRootLoggerConfigBuilder() {
       return new Builder();
     }
 
-    public String getProcessName() {
-      return processName;
+    public ProcessId getProcessId() {
+      return processId;
     }
 
     String getThreadIdFieldPattern() {
       return threadIdFieldPattern;
     }
 
-    String getFileNamePrefix() {
-      return fileNamePrefix;
-    }
-
     public static final class Builder {
       @CheckForNull
-      private String processName;
+      public ProcessId processId;
       private String threadIdFieldPattern = "";
-      @CheckForNull
-      private String fileNamePrefix;
 
       private Builder() {
         // prevents instantiation outside RootLoggerConfig, use static factory method
       }
 
-      public Builder setProcessName(String processName) {
-        checkProcessName(processName);
-        this.processName = processName;
+      public Builder setProcessId(ProcessId processId) {
+        this.processId = processId;
         return this;
       }
 
@@ -142,27 +133,7 @@ public class LogbackHelper {
         return this;
       }
 
-      public Builder setFileNamePrefix(String fileNamePrefix) {
-        checkFileName(fileNamePrefix);
-        this.fileNamePrefix = fileNamePrefix;
-        return this;
-      }
-
-      private static void checkFileName(String fileName) {
-        if (requireNonNull(fileName, "fileNamePrefix can't be null").isEmpty()) {
-          throw new IllegalArgumentException("fileNamePrefix can't be empty");
-        }
-      }
-
-      private static void checkProcessName(String fileName) {
-        if (requireNonNull(fileName, "processName can't be null").isEmpty()) {
-          throw new IllegalArgumentException("processName can't be empty");
-        }
-      }
-
       public RootLoggerConfig build() {
-        checkProcessName(this.processName);
-        checkFileName(this.fileNamePrefix);
         return new RootLoggerConfig(this);
       }
     }
@@ -170,7 +141,7 @@ public class LogbackHelper {
 
   public String buildLogPattern(LogbackHelper.RootLoggerConfig config) {
     return LOG_FORMAT
-      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
+      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessId().getKey())
       .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
   }
 
@@ -197,7 +168,7 @@ public class LogbackHelper {
    * Make logback configuration for a process to push all its logs to a log file.
    * <p>
    * <ul>
-   * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getFileNamePrefix()}.</li>
+   * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getProcessId()#getLogFilenamePrefix()}.</li>
    * <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
    * the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
    * <li>the logs will follow the specified log pattern</li>
@@ -215,8 +186,8 @@ public class LogbackHelper {
   }
 
   public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, LogbackHelper.RootLoggerConfig config, String logPattern) {
-    RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getFileNamePrefix());
-    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getFileNamePrefix());
+    RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getProcessId().getLogFilenamePrefix());
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getProcessId().getLogFilenamePrefix());
     fileAppender.setContext(ctx);
     PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
     fileEncoder.setContext(ctx);

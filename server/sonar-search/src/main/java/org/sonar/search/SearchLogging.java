@@ -21,6 +21,7 @@ package org.sonar.search;
 
 import ch.qos.logback.classic.LoggerContext;
 import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
@@ -33,7 +34,7 @@ public class SearchLogging {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessName("es").setFileNamePrefix("es").build();
+    LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(ProcessId.ELASTICSEARCH).build();
 
     String logPattern = helper.buildLogPattern(config);
     helper.configureGlobalFileLog(props, config, logPattern);

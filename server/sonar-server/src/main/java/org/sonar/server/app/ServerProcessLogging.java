@@ -65,9 +65,8 @@ public abstract class ServerProcessLogging {
 
   private void configureRootLogger(Props props) {
     LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder()
-      .setProcessName(processId.getKey())
+      .setProcessId(processId)
       .setThreadIdFieldPattern(threadIdFieldPattern)
-      .setFileNamePrefix(processId.getKey())
       .build();
     String logPattern = helper.buildLogPattern(config);
 
