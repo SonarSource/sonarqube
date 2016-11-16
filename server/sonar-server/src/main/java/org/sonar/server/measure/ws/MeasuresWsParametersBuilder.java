@@ -52,10 +52,10 @@ class MeasuresWsParametersBuilder {
 
   static void createDeveloperParameters(NewAction action) {
     action.createParam(PARAM_DEVELOPER_ID)
-      .setDescription("Developer id. If set, developer's measures are returned.")
+      .setDescription("Developer id. If set, developer's measures are returned. Only with Developer Cockpit plugin.")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
     action.createParam(PARAM_DEVELOPER_KEY)
-      .setDescription("Developer key. If set, developer's measures are returned.")
+      .setDescription("Developer key. If set, developer's measures are returned. Only with Developer Cockpit plugin.")
       .setExampleValue(KeyExamples.KEY_DEVELOPER_EXAMPLE_001);
   }
 
