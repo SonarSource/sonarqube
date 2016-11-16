@@ -111,7 +111,8 @@ public class ValuesAction implements SettingsWsAction {
       checkAdminPermission(component);
       Set<String> keys = new HashSet<>(valuesRequest.getKeys());
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
-      return new ValuesResponseBuilder(loadSettings(dbSession, component, keysToDisplayMap.keySet()), component, keysToDisplayMap).build();
+      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
+      return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -157,7 +158,7 @@ public class ValuesAction implements SettingsWsAction {
     return propertyDefinitions.getAll().stream()
       .filter(definition -> keys.contains(definition.key()))
       .filter(defaultProperty -> !isEmpty(defaultProperty.defaultValue()))
-      .map(Setting::createForDefinition)
+      .map(Setting::createFromDefinition)
       .collect(Collectors.toList());
   }
 

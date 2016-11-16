@@ -60,11 +60,11 @@ public class Setting {
     this.isDefault = true;
   }
 
-  public static Setting createForDto(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition){
+  public static Setting createFromDto(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition){
     return new Setting(propertyDto, propertyDtoSetValues, definition);
   }
 
-  public static Setting createForDefinition(PropertyDefinition definition){
+  public static Setting createFromDefinition(PropertyDefinition definition){
     return new Setting(definition);
   }
 

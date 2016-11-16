@@ -130,6 +130,7 @@
         and p.resource_id=#{componentId}
       </if>
       and p.user_id is null
+    order by p.id
   </select>
 
   <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">

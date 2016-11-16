@@ -55,7 +55,7 @@ public class SettingsFinder {
     List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
     return properties.stream()
-      .map(property -> Setting.createForDto(property, getPropertySets(property.getKey(), propertySets, null), definitions.get(property.getKey())))
+      .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), definitions.get(property.getKey())))
       .collect(Collectors.toList());
   }
 
@@ -76,7 +76,7 @@ public class SettingsFinder {
       String componentUuid = uuidsById.get(componentId);
       String propertyKey = propertyDto.getKey();
       settingsByUuid.put(componentUuid,
-        Setting.createForDto(propertyDto, getPropertySets(propertyKey, propertySets, componentId), definitions.get(propertyKey)));
+        Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentId), definitions.get(propertyKey)));
     }
     return settingsByUuid;
   }
