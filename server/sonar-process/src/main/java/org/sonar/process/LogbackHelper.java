@@ -489,7 +489,8 @@ public class LogbackHelper {
   }
 
   public enum LogDomain {
-    SQL("sql");
+    SQL("sql"),
+    ES_CLIENT("es");
 
     private final String key;
 

@@ -190,6 +190,63 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
+  public void es_logger_level_changes_with_global_property_and_is_case_insensitive() {
+    props.set("sonar.log.level", "InFO");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  public void es_logger_level_changes_with_web_property_and_is_case_insensitive() {
+    props.set("sonar.log.level.web", "TrACe");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.TRACE);
+  }
+
+  @Test
+  public void es_logger_level_changes_with_web_es_property_and_is_case_insensitive() {
+    props.set("sonar.log.level.web.es", "debug");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void es_logger_level_is_configured_from_web_es_property_over_web_property() {
+    props.set("sonar.log.level.web.es", "debug");
+    props.set("sonar.log.level.web", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void es_logger_level_is_configured_from_web_es_property_over_global_property() {
+    props.set("sonar.log.level.web.es", "debug");
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void es_logger_level_is_configured_from_web_property_over_global_property() {
+    props.set("sonar.log.level.web", "debug");
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyEsLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
   public void root_logger_level_defaults_to_INFO_if_web_property_has_invalid_value() {
     props.set("sonar.log.level.web", "DodoDouh!");
 
@@ -203,6 +260,14 @@ public class WebServerProcessLoggingTest {
 
     LoggerContext ctx = underTest.configure(props);
     verifySqlLogLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  public void es_logger_level_defaults_to_INFO_if_web_es_property_has_invalid_value() {
+    props.set("sonar.log.level.web.es", "DodoDouh!");
+
+    LoggerContext ctx = underTest.configure(props);
+    verifyEsLogLevel(ctx, Level.INFO);
   }
 
   @Test
@@ -235,6 +300,16 @@ public class WebServerProcessLoggingTest {
     underTest.configure(props);
   }
 
+  @Test
+  public void fail_with_IAE_if_web_es_property_unsupported_level() {
+    props.set("sonar.log.level.web.es", "ERROR");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.es is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
+
+    underTest.configure(props);
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     assertThat(rootLogger.getLevel()).isEqualTo(expected);
@@ -242,6 +317,10 @@ public class WebServerProcessLoggingTest {
 
   private void verifySqlLogLevel(LoggerContext ctx, Level expected) {
     assertThat(ctx.getLogger("sql").getLevel()).isEqualTo(expected);
+  }
+
+  private void verifyEsLogLevel(LoggerContext ctx, Level expected) {
+    assertThat(ctx.getLogger("es").getLevel()).isEqualTo(expected);
   }
 
 }

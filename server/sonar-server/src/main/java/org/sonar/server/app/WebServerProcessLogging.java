@@ -25,6 +25,8 @@ import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
+import static org.sonar.process.LogbackHelper.LogDomain;
+
 /**
  * Configure logback for the Web Server process. Logs are written to file "web.log" in SQ's log directory.
  */
@@ -40,6 +42,7 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     LogManager.getLogManager().reset();
     SLF4JBridgeHandler.install();
 
-    helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.WEB_SERVER, LogbackHelper.LogDomain.SQL);
+    helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.WEB_SERVER, LogDomain.SQL);
+    helper.configureLoggerLogLevelFromDomain("es", props, ProcessId.WEB_SERVER, LogDomain.ES_CLIENT);
   }
 }
