@@ -29,38 +29,48 @@ export default class AboutIssues extends React.Component {
   };
 
   render () {
+    const displayNumbers = this.props.bugs > 0 || this.props.vulnerabilities > 0 || this.props.codeSmells > 0;
+
     return (
         <div className="about-page-section about-page-section-gray">
           <div className="about-page-container">
             <h2 className="about-page-header text-center">Track incoming issues using the SonarQube Quality Model</h2>
             <div className="about-page-issues">
               <div className="about-page-issues-box">
-                <a className="about-page-issues-number" href={getIssuesUrl({ resolved: false, types: 'BUG' })}>
-                  {formatMeasure(this.props.bugs, 'SHORT_INT')}
-                </a>
+                {displayNumbers && (
+                    <a className="about-page-issues-number"
+                       href={getIssuesUrl({ resolved: false, types: 'BUG' })}>
+                      {formatMeasure(this.props.bugs, 'SHORT_INT')}
+                    </a>
+                )}
                 <div className="about-page-issues-description">
                   <h3 className="about-page-issues-header">Bugs</h3>
                   <p className="about-page-issues-text">
-                    Bugs track code that is demonstrably wrong or highly likely to be yielding unexpected behavior.
+                    Bugs track code that is demonstrably wrong or highly likely to yield unexpected behavior.
                   </p>
                 </div>
               </div>
               <div className="about-page-issues-box">
-                <a className="about-page-issues-number"
-                   href={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}>
-                  {formatMeasure(this.props.vulnerabilities, 'SHORT_INT')}
-                </a>
+                {displayNumbers && (
+                    <a className="about-page-issues-number"
+                       href={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}>
+                      {formatMeasure(this.props.vulnerabilities, 'SHORT_INT')}
+                    </a>
+                )}
                 <div className="about-page-issues-description">
                   <h3 className="about-page-issues-header">Vulnerabilities</h3>
                   <p className="about-page-issues-text">
-                    Vulnerabilities are raised on code that potentially vulnerable to exploitation by hackers.
+                    Vulnerabilities are raised on code that is potentially vulnerable to exploitation by hackers.
                   </p>
                 </div>
               </div>
               <div className="about-page-issues-box">
-                <a className="about-page-issues-number" href={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}>
-                  {formatMeasure(this.props.codeSmells, 'SHORT_INT')}
-                </a>
+                {displayNumbers && (
+                    <a className="about-page-issues-number"
+                       href={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}>
+                      {formatMeasure(this.props.codeSmells, 'SHORT_INT')}
+                    </a>
+                )}
                 <div className="about-page-issues-description">
                   <h3 className="about-page-issues-header">Code Smells</h3>
                   <p className="about-page-issues-text">

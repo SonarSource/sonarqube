@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 
 export default class AboutProjects extends React.Component {
@@ -33,7 +32,7 @@ export default class AboutProjects extends React.Component {
     return (
         <div className="about-page-text">
           {count > 0 ? (
-              <Link to="/projects">{label}</Link>
+              <a href={window.baseUrl + '/projects'}>{label}</a>
           ) : 'Put your projects'}
           {' '}
           under continuous<br/>code quality management

@@ -150,10 +150,14 @@
   min-height: 120px;
   padding: 25px 20px 25px;
   border: 1px solid #e6e6e6;
-  border-top: none;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-radius: 2px;
   background-color: #fff;
+}
+
+.about-page-issues-number + .about-page-issues-description {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .about-page-issues-header {

@@ -41,7 +41,8 @@ export default class AboutScanners extends React.Component {
                        alt="SonarQube Scanner"/>
                 </div>
                 <p className="about-page-text">
-                  This Java-based command-line tool can analyze any languages SonarQube supports.
+                  The SonarQube Scanner is a Java-based command-line tool that can analyze any languages SonarQube
+                  supports.
                 </p>
                 <div className="big-spacer-top">
                   <a className="about-page-link-more" href={links.sonarqube} target="_blank">
@@ -56,8 +57,8 @@ export default class AboutScanners extends React.Component {
                        alt="SonarQube Scanner for MSBuild"/>
                 </div>
                 <p className="about-page-text">
-                  Built in collaboration with Microsoft this is the recommended way to launch a SonarQube analysis on
-                  MSBuild projects and solutions.
+                  Built in collaboration with Microsoft, the SonarQube Scanner for MSBuild is the recommended way to
+                  launch a SonarQube analysis on MSBuild projects and solutions.
                 </p>
                 <div className="big-spacer-top">
                   <a className="about-page-link-more" href={links.msbuild} target="_blank">
