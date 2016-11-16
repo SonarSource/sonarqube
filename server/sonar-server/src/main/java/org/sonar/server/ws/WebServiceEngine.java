@@ -120,7 +120,9 @@ public class WebServiceEngine implements LocalConnector, Startable {
         return;
       }
       LOGGER.error("Fail to process request " + request, e);
-      sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
+      // Sending exception message into response is a vulnerability. Error must be
+      // displayed only in logs.
+      sendErrors(response, 500, new Errors().add(Message.of("error_occurred")));
     }
   }
 
