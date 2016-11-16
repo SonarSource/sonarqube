@@ -50,7 +50,7 @@ public class RestartTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
-  public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(300L));
+  public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(900L));
 
   @After
   public void stop() {
