@@ -38,6 +38,7 @@ import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -276,10 +277,12 @@ public class LogbackHelper {
    * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
   public Level configureRootLogLevel(Props props, String... propertyKeys) {
-    return configureLoggerLogLevel(getRootContext().getLogger(ROOT_LOGGER_NAME), props, propertyKeys);
+    Level newLevel = resolveLevel(props, propertyKeys);
+    getRootContext().getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
+    return newLevel;
   }
 
-  private Level configureLoggerLogLevel(Logger logger, Props props, String... propertyKeys) {
+  private Level resolveLevel(Props props, String... propertyKeys) {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
       Level level = getPropertyValueAsLevel(props, propertyKey);
@@ -287,7 +290,6 @@ public class LogbackHelper {
         newLevel = level;
       }
     }
-    logger.setLevel(newLevel);
     return newLevel;
   }
 
@@ -334,8 +336,17 @@ public class LogbackHelper {
   }
 
   public Level configureLoggerLogLevelFromDomain(String loggerName, Props props, ProcessId processId, LogDomain domain) {
+    return configureLoggersLogLevelFromDomain(Collections.singleton(loggerName), props, processId, domain);
+  }
+
+  public Level configureLoggersLogLevelFromDomain(Set<String> loggerNames, Props props, ProcessId processId, LogDomain domain) {
     String processProperty = SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey());
-    return configureLoggerLogLevel(getRootContext().getLogger(loggerName), props, SONAR_LOG_LEVEL_PROPERTY, processProperty, processProperty + "." + domain.key);
+    Level newLevel = resolveLevel(props, SONAR_LOG_LEVEL_PROPERTY, processProperty, processProperty + "." + domain.key);
+    loggerNames.forEach(loggerName -> {
+      Logger logger = getRootContext().getLogger(loggerName);
+      logger.setLevel(newLevel);
+    });
+    return newLevel;
   }
 
   /**
@@ -490,7 +501,8 @@ public class LogbackHelper {
 
   public enum LogDomain {
     SQL("sql"),
-    ES_CLIENT("es");
+    ES_CLIENT("es"),
+    JMX("jmx");
 
     private final String key;
 

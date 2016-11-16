@@ -40,5 +40,6 @@ public class CeProcessLogging extends ServerProcessLogging {
   protected void extendConfiguration(LogbackHelper helper, Props props) {
     helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
     helper.configureLoggerLogLevelFromDomain("es", props, ProcessId.COMPUTE_ENGINE, LogDomain.ES_CLIENT);
+    helper.configureLoggersLogLevelFromDomain(JMX_RMI_LOGGER_NAMES, props, ProcessId.COMPUTE_ENGINE, LogDomain.JMX);
   }
 }
