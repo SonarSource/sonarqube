@@ -34,19 +34,21 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 public class WebServerProcessLoggingTest {
 
-  private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private File logDir;
   private Props props = new Props(new Properties());
@@ -87,17 +89,70 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
-  public void enable_debug_logs() {
-    props.set(LOG_LEVEL_PROPERTY, "DEBUG");
+  public void default_level_for_root_logger_is_INFO() {
     LoggerContext ctx = underTest.configure(props);
-    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
+
+    verifyRootLogLevel(ctx, Level.INFO);
   }
 
   @Test
-  public void enable_trace_logs() {
-    props.set(LOG_LEVEL_PROPERTY, "TRACE");
+  public void root_logger_level_changes_with_global_property() {
+    props.set("sonar.log.level", "TRACE");
+
     LoggerContext ctx = underTest.configure(props);
-    assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.TRACE);
+
+    verifyRootLogLevel(ctx, Level.TRACE);
+  }
+
+  @Test
+  public void root_logger_level_changes_with_app_property() {
+    props.set("sonar.log.level.web", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyRootLogLevel(ctx, Level.TRACE);
+  }
+
+  @Test
+  public void root_logger_level_changes_with_app_property_and_is_case_insensitive() {
+    props.set("sonar.log.level.web", "debug");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyRootLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void default_to_INFO_if_app_property_has_invalid_value() {
+    props.set("sonar.log.level.web", "DodoDouh!");
+
+    LoggerContext ctx = underTest.configure(props);
+    verifyRootLogLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  public void fail_with_IAE_if_global_property_unsupported_level() {
+    props.set("sonar.log.level", "ERROR");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
+
+    underTest.configure(props);
+  }
+
+  @Test
+  public void fail_with_IAE_if_app_property_unsupported_level() {
+    props.set("sonar.log.level.web", "ERROR");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("log level ERROR in property sonar.log.level.web is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
+
+    underTest.configure(props);
+  }
+
+  private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(expected);
   }
 
 }

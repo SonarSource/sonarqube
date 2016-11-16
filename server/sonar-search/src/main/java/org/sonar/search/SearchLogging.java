@@ -39,7 +39,7 @@ public class SearchLogging {
     helper.configureGlobalFileLog(props, config, logPattern);
     helper.configureForSubprocessGobbler(props, logPattern);
     // SQ's global log level must not change ES's log level
-    helper.configureRootLogLevel(props, "sonar.log.es.level");
+    helper.configureRootLogLevel(props, "sonar.log.level.es");
 
     return ctx;
   }

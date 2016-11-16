@@ -28,7 +28,7 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.process.LogbackHelper.ALLOWED_ROOT_LOG_LEVELS;
+import static org.sonar.process.LogbackHelper.allowedLogLevels;
 
 public class ChangeLogLevelAction implements SystemWsAction {
 
@@ -57,7 +57,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
     newAction.createParam(PARAM_LEVEL)
       .setDescription("The new level. Be cautious: DEBUG, and even more TRACE, may have performance impacts.")
-      .setPossibleValues(ALLOWED_ROOT_LOG_LEVELS)
+      .setPossibleValues(allowedLogLevels())
       .setRequired(true);
   }
 

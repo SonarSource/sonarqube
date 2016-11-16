@@ -19,6 +19,7 @@
  */
 package org.sonar.search;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -38,6 +39,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 public class SearchLoggingTest {
   @Rule
@@ -63,7 +65,7 @@ public class SearchLoggingTest {
   public void do_not_log_to_console() {
     LoggerContext ctx = underTest.configure(props);
 
-    Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    Logger root = ctx.getLogger(ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
     assertThat(appender).isNull();
   }
@@ -72,7 +74,7 @@ public class SearchLoggingTest {
   public void log_to_es_file() {
     LoggerContext ctx = underTest.configure(props);
 
-    Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    Logger root = ctx.getLogger(ROOT_LOGGER_NAME);
     Appender<ILoggingEvent> appender = root.getAppender("file_es");
     assertThat(appender).isInstanceOf(FileAppender.class);
     FileAppender fileAppender = (FileAppender) appender;
@@ -80,5 +82,25 @@ public class SearchLoggingTest {
     assertThat(fileAppender.getEncoder()).isInstanceOf(PatternLayoutEncoder.class);
     PatternLayoutEncoder encoder = (PatternLayoutEncoder) fileAppender.getEncoder();
     assertThat(encoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level es[][%logger{20}] %msg%n");
+  }
+
+  @Test
+  public void root_log_level_does_not_change_with_global_property_value() {
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.INFO);
+  }
+
+  @Test
+  public void root_log_level_change_with_es_property_value() {
+    props.set("sonar.log.level.es", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.TRACE);
   }
 }

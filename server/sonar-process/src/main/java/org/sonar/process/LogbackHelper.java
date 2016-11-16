@@ -37,13 +37,13 @@ import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
@@ -60,7 +60,11 @@ public class LogbackHelper {
   private static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
   private static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
-  public static final Set<Level> ALLOWED_ROOT_LOG_LEVELS = unmodifiableSet(setOf(Level.TRACE, Level.DEBUG, Level.INFO));
+  private static final Level[] ALLOWED_ROOT_LOG_LEVELS = new Level[] {Level.TRACE, Level.DEBUG, Level.INFO};
+
+  public static Collection<Level> allowedLogLevels() {
+    return Arrays.asList(ALLOWED_ROOT_LOG_LEVELS);
+  }
 
   public LoggerContext getRootContext() {
     org.slf4j.Logger logger;
@@ -165,8 +169,8 @@ public class LogbackHelper {
 
   public String buildLogPattern(LogbackHelper.RootLoggerConfig config) {
     return LOG_FORMAT
-        .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
-        .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
+      .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessName())
+      .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
   }
 
   /**
@@ -257,8 +261,8 @@ public class LogbackHelper {
    */
   public Level configureRootLogLevel(Props props, ProcessId processId) {
     return configureRootLogLevel(props,
-        SONAR_LOG_LEVEL_PROPERTY,
-        SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
+      SONAR_LOG_LEVEL_PROPERTY,
+      SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
   }
 
   /**
@@ -268,14 +272,37 @@ public class LogbackHelper {
    * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
   public Level configureRootLogLevel(Props props, String... propertyKeys) {
+    return configureLoggerLogLevel(getRootContext().getLogger(ROOT_LOGGER_NAME), props, propertyKeys);
+  }
+
+  private Level configureLoggerLogLevel(Logger logger, Props props, String... propertyKeys) {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
-      Level level = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+      Level level = getPropertyValueAsLevel(props, propertyKey);
       if (!level.isGreaterOrEqual(newLevel)) {
         newLevel = level;
       }
     }
-    return configureRootLogLevel(newLevel);
+    logger.setLevel(newLevel);
+    return newLevel;
+  }
+
+  private static Level getPropertyValueAsLevel(Props props, String propertyKey) {
+    Level level = Level.toLevel(props.value(propertyKey, Level.INFO.toString()), Level.INFO);
+    if (!isAllowed(level)) {
+      throw new IllegalArgumentException(String.format("log level %s in property %s is not a supported value (allowed levels are %s)",
+        level, propertyKey, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
+    }
+    return level;
+  }
+
+  private static boolean isAllowed(Level level) {
+    for (Level allowedRootLogLevel : ALLOWED_ROOT_LOG_LEVELS) {
+      if (level == allowedRootLogLevel) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -285,11 +312,15 @@ public class LogbackHelper {
    */
   public Level configureRootLogLevel(Level newLevel) {
     Logger rootLogger = getRootContext().getLogger(ROOT_LOGGER_NAME);
-    if (!ALLOWED_ROOT_LOG_LEVELS.contains(newLevel)) {
-      throw new IllegalArgumentException(String.format("%s log level is not supported (allowed levels are %s)", newLevel, ALLOWED_ROOT_LOG_LEVELS));
-    }
+    ensureSupportedLevel(newLevel);
     rootLogger.setLevel(newLevel);
     return newLevel;
+  }
+
+  private static void ensureSupportedLevel(Level newLevel) {
+    if (!isAllowed(newLevel)) {
+      throw new IllegalArgumentException(String.format("%s log level is not supported (allowed levels are %s)", newLevel, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
+    }
   }
 
   /**
