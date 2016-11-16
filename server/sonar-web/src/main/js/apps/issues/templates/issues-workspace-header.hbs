@@ -35,10 +35,9 @@
 <div class="search-navigator-header-actions">
   {{#notNull state.total}}
     {{#unless state.component}}
-      <div class="issues-header-order">Ordered: <strong>by creation date</strong></div>
+      <div class="issues-header-order">{{t 'issues.ordered'}} <strong>{{t 'issues.by_creation_date'}}</strong></div>
     {{/unless}}
     <div class="search-navigator-header-pagination flash flash-heavy">
-      {{#unless state.component}}Issues:{{/unless}}
       {{#gt state.total 0}}
         <strong>
           <span class="current">
@@ -50,6 +49,7 @@
       {{else}}
         <span class="current">0 / <span id="issues-total">0</span></span>
       {{/gt}}
+      {{t 'issues.issues'}}
     </div>
   {{/notNull}}
 

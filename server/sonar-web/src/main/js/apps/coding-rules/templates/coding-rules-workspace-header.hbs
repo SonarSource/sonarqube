@@ -10,14 +10,18 @@
 <div class="search-navigator-header-actions">
   {{#notNull state.total}}
     <div class="search-navigator-header-pagination flash flash-heavy">
-      {{#gt state.total 0}}
-        <a class="js-prev icon-prev" title="{{t 'paging_previous'}}"></a>
-        <span class="current">{{sum state.selectedIndex 1}} / <span
-            id="coding-rules-total">{{formatMeasure state.total 'INT'}}</span></span>
-        <a class="js-next icon-next" title="{{t 'paging_next'}}"></a>
-      {{else}}
-        <span class="current">0 / <span id="coding-rules-total">0</span></span>
-      {{/gt}}
+      <strong>
+        {{#gt state.total 0}}
+          <span class="current">
+            {{sum state.selectedIndex 1}}
+            /
+            <span id="coding-rules-total">{{formatMeasure state.total 'INT'}}</span>
+          </span>
+        {{else}}
+          <span class="current">0 / <span id="coding-rules-total">0</span></span>
+        {{/gt}}
+      </strong>
+      {{t 'coding_rules._rules'}}
     </div>
   {{/notNull}}
 
