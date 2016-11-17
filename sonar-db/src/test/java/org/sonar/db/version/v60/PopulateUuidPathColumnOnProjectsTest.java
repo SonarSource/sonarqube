@@ -117,6 +117,19 @@ public class PopulateUuidPathColumnOnProjectsTest {
     verifyNoNullPath();
   }
 
+  @Test
+  public void ignore_snapshots_with_invalid_snapshots_in_path() throws SQLException {
+    insert(QUALIFIER_PROJECT, A_PROJECT_UUID, A_PROJECT_UUID, new Snapshot(1L, "", true));
+    // the ID 999999 is unknown in the path
+    insert(QUALIFIER_DIR, A_DIR_UUID, A_PROJECT_UUID, new Snapshot(2L, "1.999999.", true));
+
+    underTest.execute();
+
+    verifyPath(A_PROJECT_UUID, ".");
+    // path of orphans is the path to project only
+    verifyPath(A_DIR_UUID, format(".%s.", A_PROJECT_UUID));
+  }
+
   private void insert(String qualifier, String uuid, String rootUuid, Snapshot... snapshots) {
     db.executeInsert(
       TABLE_PROJECTS,
@@ -142,11 +155,6 @@ public class PopulateUuidPathColumnOnProjectsTest {
   private void verifyPath(String componentUuid, String expectedUuidPath) {
     Map<String, Object> row = db.selectFirst("select uuid_path from projects where uuid='" + componentUuid + "'");
     assertThat(row.get("UUID_PATH")).isEqualTo(expectedUuidPath);
-  }
-
-  private void verifyProjectUuid(String componentUuid, String expectedProjectUuid) {
-    Map<String, Object> row = db.selectFirst("select project_uuid from projects where uuid='" + componentUuid + "'");
-    assertThat(row.get("PROJECT_UUID")).isEqualTo(expectedProjectUuid);
   }
 
   private void verifyNoNullPath() {
