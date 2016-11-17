@@ -38,72 +38,83 @@ public class HttpHeadersTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  /**
-   * SONAR-6964
-   */
   @Test
-  public void no_browser_cache_for_pages() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/");
+  public void verify_headers_of_base_url() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/html;charset=utf-8");
+
+    // SONAR-6964
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void no_browser_cache_for_ws() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/api/issues/search");
+  public void verify_headers_of_ws() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/api/issues/search");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/json");
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void no_browser_cache_in_ruby_ws() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/api/resources/index");
+  public void verify_headers_of_ruby_ws() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/api/resources/index");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/json;charset=utf-8");
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void browser_cache_on_images() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
+  public void verify_headers_of_images() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
 
-    assertCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "image/svg+xml");
+    assertCacheInBrowser(response);
   }
 
   @Test
-  public void browser_cache_on_css() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/css/sonar.css");
+  public void verify_headers_of_css() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/css/sonar.css");
 
-    assertCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/css");
+    assertCacheInBrowser(response);
   }
 
   @Test
-  public void verify_security_headers_on_base_url() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/"));
+  public void verify_headers_of_js() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/js/bundles/main.js");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/javascript");
   }
 
   @Test
-  public void verify_security_headers_on_ws() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/issues/search"));
+  public void verify_headers_of_images_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/cute.jpg");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "image/jpeg");
   }
 
   @Test
-  public void verify_security_headers_on_ruby_ws() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/api/resources/index"));
+  public void verify_headers_of_js_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/extension.js");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/javascript");
   }
 
   @Test
-  public void verify_security_headers_on_images() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/images/logo.svg"));
-  }
+  public void verify_headers_of_html_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/file.html");
 
-  @Test
-  public void verify_security_headers_on_css() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/css/sonar.css"));
-  }
-
-  @Test
-  public void verify_security_headers_on_js() throws Exception {
-    verifySecurityHeaders(call(orchestrator.getServer().getUrl() + "/js/bundles/main.js"));
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/html");
   }
 
   private static void assertCacheInBrowser(Response httpResponse) {
@@ -128,6 +139,10 @@ public class HttpHeadersTest {
     assertThat(httpResponse.headers().get("X-Frame-Options")).isEqualTo("SAMEORIGIN");
     assertThat(httpResponse.headers().get("X-XSS-Protection")).isEqualTo("1; mode=block");
     assertThat(httpResponse.headers().get("X-Content-Type-Options")).isEqualTo("nosniff");
+  }
+
+  private static void verifyContentType(Response httpResponse, String expectedContentType) {
+    assertThat(httpResponse.headers().get("Content-Type")).isEqualTo(expectedContentType);
   }
 
   private static Response call(String url) {
