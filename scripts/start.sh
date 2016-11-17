@@ -12,7 +12,7 @@ while getopts ":p:" opt; do
     p) PATCHES=$OPTARG
        ;;
     \?)
-      >&2 echo "Unsupported option $OPTARG"
+      echo "Unsupported option $OPTARG" >&2
       exit 1 
       ;;
   esac
@@ -24,14 +24,14 @@ else
   OS='linux-x86-64'
 fi
 
-ls sonar-application/target/sonarqube-*.zip 1> /dev/null 2>&1
+ls sonar-application/target/sonarqube-*.zip &> /dev/null
 if [ "$?" != "0" ]; then
   echo 'Sources are not built'
   ./build.sh
 fi
 
 cd sonar-application/target/
-ls sonarqube-*/bin/$OS/sonar.sh 1> /dev/null 2>&1
+ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null
 if [ "$?" != "0" ]; then
   echo "Unzipping SQ..."
   unzip -qq sonarqube-*.zip
