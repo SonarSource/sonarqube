@@ -104,7 +104,7 @@ export default WorkspaceHeaderView.extend({
   },
 
   bulkChange () {
-    const query = this.options.app.controller.getQuery('&', true);
+    const query = this.options.app.controller.getQuery('&', true, true);
     const url = window.baseUrl + '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
   },
