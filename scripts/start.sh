@@ -24,15 +24,13 @@ else
   OS='linux-x86-64'
 fi
 
-ls sonar-application/target/sonarqube-*.zip &> /dev/null
-if [ "$?" != "0" ]; then
+if ! ls sonar-application/target/sonarqube-*.zip &> /dev/null; then
   echo 'Sources are not built'
   ./build.sh
 fi
 
 cd sonar-application/target/
-ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null
-if [ "$?" != "0" ]; then
+if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
   echo "Unzipping SQ..."
   unzip -qq sonarqube-*.zip
 fi
