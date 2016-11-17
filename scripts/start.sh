@@ -39,20 +39,20 @@ cd sonarqube-*
 # from that point on, strict bash
 set -euo pipefail
 SQ_HOME=$(pwd)
-cd $ROOT
+cd "$ROOT"
 
-source $ROOT/scripts/patches_utils.sh
+source "$ROOT"/scripts/patches_utils.sh
 
 SQ_EXEC=$SQ_HOME/bin/$OS/sonar.sh
 
-$SQ_EXEC stop
+"$SQ_EXEC" stop
 
 # invoke patches if at least one was specified
 # each patch is passed the path to the SQ instance home directory as first and only argument
 if [ "$PATCHES" != "" ]; then
-  call_patches $PATCHES $SQ_HOME
+  call_patches "$PATCHES" "$SQ_HOME"
 fi
 
-$SQ_EXEC start
+"$SQ_EXEC" start
 sleep 1
-tail -100f $SQ_HOME/logs/sonar.log
+tail -100f "$SQ_HOME"/logs/sonar.log
