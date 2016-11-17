@@ -254,7 +254,7 @@ public class LogbackHelper {
     return newLevel;
   }
 
-  private Level resolveLevel(Props props, String... propertyKeys) {
+  private static Level resolveLevel(Props props, String... propertyKeys) {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
       Level level = getPropertyValueAsLevel(props, propertyKey);

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
@@ -160,8 +161,8 @@ public class FileMoveDetectionStep implements ComputationStep {
           .setStrategy(Strategy.LEAVES)
           .build());
       return from(componentDtos)
-            .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.key(), componentDto.uuid(), componentDto.path()))
-            .uniqueIndex(DbComponent::getKey);
+        .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.key(), componentDto.uuid(), componentDto.path()))
+        .uniqueIndex(DbComponent::getKey);
     }
   }
 
@@ -247,36 +248,38 @@ public class FileMoveDetectionStep implements ComputationStep {
   private static ElectedMatches electMatches(Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey, MatchesByScore matchesByScore) {
     ElectedMatches electedMatches = new ElectedMatches(matchesByScore, dbFileKeys, reportFileSourcesByKey);
     Multimap<String, Match> matchesPerFileForScore = ArrayListMultimap.create();
-    for (List<Match> matches : matchesByScore) {
-      // no match for this score value, ignore
-      if (matches == null) {
-        continue;
-      }
+    matchesByScore.forEach(matches -> electMatches(matches, electedMatches, matchesPerFileForScore));
+    return electedMatches;
+  }
 
-      List<Match> matchesToValidate = electedMatches.filter(matches);
-      if (matchesToValidate.isEmpty()) {
-        continue;
+  private static void electMatches(@Nullable List<Match> matches, ElectedMatches electedMatches, Multimap<String, Match> matchesPerFileForScore) {
+    // no match for this score value, ignore
+    if (matches == null) {
+      return;
+    }
+
+    List<Match> matchesToValidate = electedMatches.filter(matches);
+    if (matchesToValidate.isEmpty()) {
+      return;
+    }
+    if (matchesToValidate.size() == 1) {
+      Match match = matchesToValidate.get(0);
+      electedMatches.add(match);
+    } else {
+      matchesPerFileForScore.clear();
+      for (Match match : matchesToValidate) {
+        matchesPerFileForScore.put(match.getDbKey(), match);
+        matchesPerFileForScore.put(match.getReportKey(), match);
       }
-      if (matchesToValidate.size() == 1) {
-        Match match = matchesToValidate.get(0);
-        electedMatches.add(match);
-      } else {
-        matchesPerFileForScore.clear();
-        for (Match match : matchesToValidate) {
-          matchesPerFileForScore.put(match.getDbKey(), match);
-          matchesPerFileForScore.put(match.getReportKey(), match);
-        }
-        // validate non ambiguous matches (ie. the match is the only match of either the db file and the report file)
-        for (Match match : matchesToValidate) {
-          int dbFileMatchesCount = matchesPerFileForScore.get(match.getDbKey()).size();
-          int reportFileMatchesCount = matchesPerFileForScore.get(match.getReportKey()).size();
-          if (dbFileMatchesCount == 1 && reportFileMatchesCount == 1) {
-            electedMatches.add(match);
-          }
+      // validate non ambiguous matches (ie. the match is the only match of either the db file and the report file)
+      for (Match match : matchesToValidate) {
+        int dbFileMatchesCount = matchesPerFileForScore.get(match.getDbKey()).size();
+        int reportFileMatchesCount = matchesPerFileForScore.get(match.getReportKey()).size();
+        if (dbFileMatchesCount == 1 && reportFileMatchesCount == 1) {
+          electedMatches.add(match);
         }
       }
     }
-    return electedMatches;
   }
 
   private static MovedFilesRepository.OriginalFile toOriginalFile(DbComponent dbComponent) {
