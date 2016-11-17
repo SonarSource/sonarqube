@@ -168,7 +168,6 @@ import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.qualityprofile.ws.SearchDataLoader;
-import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
@@ -540,7 +539,8 @@ public class PlatformLevel4 extends PlatformLevel {
       NavigationWs.class,
 
       // root
-      RootWsModule.class,
+      // FIXME Root WebServices are disabled in 6.2 release
+//      RootWsModule.class,
 
       // webhooks
       WebhooksWsModule.class,

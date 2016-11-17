@@ -35,7 +35,6 @@ import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import it.organization.OrganizationIt;
-import it.root.RootIt;
 import it.webhook.WebhooksTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -65,7 +64,8 @@ import static util.ItUtils.xooPlugin;
   // organization
   OrganizationIt.class,
   // root users
-  RootIt.class,
+  // FIXME root WS disabled for release of SQ 6.2
+//  RootIt.class,
   WebhooksTest.class
 })
 public class Category3Suite {

@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -60,6 +61,8 @@ public class RestartTest {
   }
 
   @Test
+  // FIXME disabled because Root WS are removed for release of SQ 6.2
+  @Ignore
   public void restart_in_prod_mode_requires_root_and_restarts_WebServer_and_ES() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
