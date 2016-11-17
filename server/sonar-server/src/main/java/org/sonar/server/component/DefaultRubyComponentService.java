@@ -85,7 +85,8 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
     ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
-    if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier()) && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {
+    if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
+      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {
       favoriteService.put(dbSession, provisionedComponent.getId());
       dbSession.commit();
     }
