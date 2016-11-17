@@ -33,7 +33,7 @@ import static org.sonar.process.LogbackHelper.LogDomain;
 public class WebServerProcessLogging extends ServerProcessLogging {
 
   public WebServerProcessLogging() {
-    super(ProcessId.WEB_SERVER, "%X{UID}");
+    super(ProcessId.WEB_SERVER, "%X{ID}");
   }
 
   @Override
