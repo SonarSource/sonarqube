@@ -131,7 +131,7 @@ export default Controller.extend({
     return q;
   },
 
-  getQuery (separator, addContext) {
+  getQuery (separator, addContext, handleMyIssues = false) {
     if (separator == null) {
       separator = '|';
     }
@@ -142,7 +142,7 @@ export default Controller.extend({
     if (addContext && this.options.app.state.get('isContext')) {
       _.extend(filter, this.options.app.state.get('contextQuery'));
     }
-    if (this.options.app.state.get('query').assigned_to_me) {
+    if (handleMyIssues && this.options.app.state.get('query').assigned_to_me) {
       _.extend(filter, { assignees: '__me__' });
     }
     const route = [];
