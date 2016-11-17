@@ -49,7 +49,7 @@ SQ_EXEC=$SQ_HOME/bin/$OS/sonar.sh
 
 # invoke patches if at least one was specified
 # each patch is passed the path to the SQ instance home directory as first and only argument
-if [ "$PATCHES" != "" ]; then
+if [ "$PATCHES" ]; then
   call_patches "$PATCHES" "$SQ_HOME"
 fi
 
