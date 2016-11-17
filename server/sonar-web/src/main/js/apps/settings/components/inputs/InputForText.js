@@ -33,7 +33,7 @@ export default class InputForText extends React.Component {
             name={this.props.name}
             className="input-super-large text-top"
             rows="5"
-            value={this.props.value}
+            value={this.props.value || ''}
             onChange={e => this.handleInputChange(e)}/>
     );
   }

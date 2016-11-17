@@ -38,7 +38,7 @@ export default class SimpleInput extends React.Component {
             name={this.props.name}
             className={this.props.className + ' text-top'}
             type={this.props.type}
-            value={this.props.value}
+            value={this.props.value || ''}
             onChange={e => this.handleInputChange(e)}/>
     );
   }
