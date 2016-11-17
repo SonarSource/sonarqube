@@ -55,4 +55,4 @@ fi
 
 "$SQ_EXEC" start
 sleep 1
-tail -100f "$SQ_HOME"/logs/sonar.log
+tail -fn 100 "$SQ_HOME"/logs/sonar.log
