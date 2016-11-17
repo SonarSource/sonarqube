@@ -132,30 +132,22 @@
       <unpack>false</unpack>
       <scope>provided</scope>
     </dependencySet>
-    <!-- Java Service Wrapper -->
-    <dependencySet>
-      <outputDirectory>bin</outputDirectory>
-      <includes>
-        <include>org.sonatype.jsw-binaries:jsw-binaries</include>
-      </includes>
-      <unpack>true</unpack>
-      <scope>provided</scope>
-      <unpackOptions>
-        <excludes>
-          <exclude>**/app</exclude>
-          <exclude>**/*.bat</exclude>
-          <exclude>**/sample*/**</exclude>
-          <exclude>**/macosx-universal-32/**</exclude>
-          <exclude>**/solaris*/**</exclude>
-          <!-- SONAR-6110 - Drop support files for Linux PPC 64 -->
-          <exclude>**/linux-ppc-64/**</exclude>
-        </excludes>
-      </unpackOptions>
-      <fileMode>0755</fileMode>
-    </dependencySet>
   </dependencySets>
 
   <fileSets>
+    <!-- wrapper binaries -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>bin/*/lib/*.so</include>
+        <include>bin/*/lib/*.jnilib</include>
+        <include>bin/*/lib/*.dll</include>
+        <include>bin/*/wrapper</include>
+        <include>bin/*/wrapper.exe</include>
+      </includes>
+      <fileMode>0755</fileMode>
+    </fileSet>
     <!-- Configuration Files -->
     <fileSet>
       <directory>src/main/assembly</directory>
