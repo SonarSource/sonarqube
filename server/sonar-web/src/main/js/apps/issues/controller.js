@@ -142,6 +142,9 @@ export default Controller.extend({
     if (addContext && this.options.app.state.get('isContext')) {
       _.extend(filter, this.options.app.state.get('contextQuery'));
     }
+    if (this.options.app.state.get('query').assigned_to_me) {
+      _.extend(filter, { assignees: '__me__' });
+    }
     const route = [];
     _.map(filter, function (value, property) {
       return route.push(`${property}=${encodeURIComponent(value)}`);
