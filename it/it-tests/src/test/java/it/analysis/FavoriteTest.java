@@ -23,13 +23,18 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category3Suite;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
+import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
+import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
@@ -49,16 +54,21 @@ public class FavoriteTest {
     orchestrator.resetData();
   }
 
+  @After
+  public void tearDown() {
+    removeProjectCreatorPermission();
+  }
+
   @BeforeClass
   public static void classSetUp() {
     adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @Test
-  public void project_as_favorite_when_authenticated_and_first_analysis() {
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"))
-      .setProperty("sonar.login", ADMIN_LOGIN)
-      .setProperty("sonar.password", ADMIN_PASSWORD);
+  public void project_as_favorite_when_authenticated_and_first_analysis_and_a_project_creator_permission() {
+    SonarScanner sampleProject = createScannerWithUserCredentials();
+    addProjectCreatorPermission();
+
     orchestrator.executeBuild(sampleProject);
 
     String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
@@ -66,15 +76,49 @@ public class FavoriteTest {
   }
 
   @Test
-  public void no_project_as_favorite_when_second_analysis() {
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(sampleProject);
-    sampleProject
-      .setProperty("sonar.login", ADMIN_LOGIN)
-      .setProperty("sonar.password", ADMIN_PASSWORD);
+  public void no_project_as_favorite_when_no_project_creator_permission() {
+    SonarScanner sampleProject = createScannerWithUserCredentials();
+
     orchestrator.executeBuild(sampleProject);
 
     String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
     assertThat(response).doesNotContain(PROJECT_KEY);
+  }
+
+  @Test
+  public void no_project_as_favorite_when_second_analysis() {
+    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
+    orchestrator.executeBuild(sampleProject);
+    sampleProject = createScannerWithUserCredentials();
+    addProjectCreatorPermission();
+
+    orchestrator.executeBuild(sampleProject);
+
+    String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
+    assertThat(response).doesNotContain(PROJECT_KEY);
+  }
+
+  private static SonarScanner createScannerWithUserCredentials() {
+    return SonarScanner.create(projectDir("shared/xoo-sample"))
+      .setProperty("sonar.login", ADMIN_LOGIN)
+      .setProperty("sonar.password", ADMIN_PASSWORD);
+  }
+
+  private void addProjectCreatorPermission() {
+    WsPermissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesWsRequest());
+    assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
+    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
+      .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
+      .setPermission("admin")
+      .build());
+  }
+
+  private void removeProjectCreatorPermission() {
+    WsPermissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesWsRequest());
+    assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
+    adminWsClient.permissions().removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateWsRequest.builder()
+      .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
+      .setPermission("admin")
+      .build());
   }
 }

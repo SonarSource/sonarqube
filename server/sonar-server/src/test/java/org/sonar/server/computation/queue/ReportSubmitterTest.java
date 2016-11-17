@@ -113,6 +113,7 @@ public class ReportSubmitterTest {
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
@@ -131,6 +132,22 @@ public class ReportSubmitterTest {
 
       }
     }));
+  }
+
+  @Test
+  public void no_favorite_when_no_project_creator_permission_on_permission_template() {
+    userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
+
+    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder(TASK_UUID));
+    ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
+    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+      .thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(false);
+
+    underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+
+    verifyZeroInteractions(favoriteService);
   }
 
   @Test

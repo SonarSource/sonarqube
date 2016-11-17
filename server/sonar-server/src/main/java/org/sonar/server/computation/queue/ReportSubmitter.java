@@ -53,7 +53,7 @@ public class ReportSubmitter {
   private final FavoriteService favoriteService;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession,
-                         ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteService favoriteService) {
+    ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteService favoriteService) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentService = componentService;
@@ -87,8 +87,10 @@ public class ReportSubmitter {
     newProject.setQualifier(Qualifiers.PROJECT);
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
-    favoriteService.put(dbSession, project.getId());
-    dbSession.commit();
+    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, project)) {
+      favoriteService.put(dbSession, project.getId());
+      dbSession.commit();
+    }
 
     permissionTemplateService.applyDefault(dbSession, project, projectCreatorUserId);
 

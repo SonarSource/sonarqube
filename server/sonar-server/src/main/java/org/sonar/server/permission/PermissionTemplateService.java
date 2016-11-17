@@ -50,6 +50,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -153,6 +154,16 @@ public class PermissionTemplateService {
     copyPermissions(dbSession, template, component, projectCreatorUserId);
     dbSession.commit();
     indexProjectPermissions(dbSession, asList(component.uuid()));
+  }
+
+  public boolean hasDefaultTemplateWithPermissionOnProjectCreator(DbSession dbSession, ComponentDto component) {
+    PermissionTemplateDto template = findDefaultTemplate(dbSession, component);
+    return hasProjectCreatorPermission(dbSession, template);
+  }
+
+  private boolean hasProjectCreatorPermission(DbSession dbSession, @Nullable PermissionTemplateDto template) {
+    return template != null && dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, singletonList(template.getId())).stream()
+      .anyMatch(PermissionTemplateCharacteristicDto::getWithProjectCreator);
   }
 
   private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {

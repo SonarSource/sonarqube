@@ -48,6 +48,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
 public class DefaultRubyComponentServiceTest {
@@ -76,27 +77,27 @@ public class DefaultRubyComponentServiceTest {
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DefaultRubyComponentService service = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteService);
+  DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteService);
 
   @Test
   public void find_by_key() {
     ComponentDto componentDto = componentDb.insertProject();
 
-    assertThat(service.findByKey(componentDto.getKey())).isNotNull();
+    assertThat(underTest.findByKey(componentDto.getKey())).isNotNull();
   }
 
   @Test
   public void find_by_uuid() {
     ComponentDto componentDto = componentDb.insertProject();
 
-    assertThat(service.findByUuid(componentDto.uuid())).isNotNull();
+    assertThat(underTest.findByUuid(componentDto.uuid())).isNotNull();
   }
 
   @Test
   public void not_find_by_uuid() {
     componentDb.insertProject();
 
-    assertThat(service.findByUuid("UNKNOWN")).isNull();
+    assertThat(underTest.findByUuid("UNKNOWN")).isNull();
   }
 
   @Test
@@ -105,8 +106,9 @@ public class DefaultRubyComponentServiceTest {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
-    Long result = service.createComponent(componentKey, componentName, qualifier);
+    Long result = underTest.createComponent(componentKey, componentName, qualifier);
 
     ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, componentKey);
     assertThat(project.key()).isEqualTo(componentKey);
@@ -120,7 +122,7 @@ public class DefaultRubyComponentServiceTest {
   @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
-    service.createComponent("1234", "New Project", Qualifiers.PROJECT);
+    underTest.createComponent("1234", "New Project", Qualifiers.PROJECT);
   }
 
   @Test
@@ -130,7 +132,7 @@ public class DefaultRubyComponentServiceTest {
     Map<String, Object> map = newHashMap();
     map.put("qualifiers", qualifiers);
 
-    List<ResourceDto> resourceDtos = service.findProvisionedProjects(map);
+    List<ResourceDto> resourceDtos = underTest.findProvisionedProjects(map);
     assertThat(resourceDtos).hasSize(1);
   }
 
