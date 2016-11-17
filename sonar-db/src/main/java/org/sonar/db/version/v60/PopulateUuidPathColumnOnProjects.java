@@ -118,10 +118,10 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     }
 
     List<String> componentUuidPath = Arrays.stream(snapshot.snapshotPath)
-      .mapToObj(snapshotId -> relations.snapshotsById.get(snapshotId))
+      .mapToObj(relations.snapshotsById::get)
       .filter(Objects::nonNull)
       .map(s -> s.componentUuid)
-      .collect(toCollection(() -> new ArrayList<>()));
+      .collect(toCollection(ArrayList::new));
     if (componentUuidPath.size() != snapshot.snapshotPath.length) {
       LOG.trace("Some component UUIDs not found for snapshots [{}]", snapshot.snapshotPath);
       return false;
