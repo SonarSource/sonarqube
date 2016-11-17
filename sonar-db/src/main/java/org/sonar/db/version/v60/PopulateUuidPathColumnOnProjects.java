@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -117,8 +118,15 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     }
 
     List<String> componentUuidPath = Arrays.stream(snapshot.snapshotPath)
-      .mapToObj(snapshotId -> relations.snapshotsById.get(snapshotId).componentUuid)
-      .collect(toCollection(() -> new ArrayList<>(snapshot.snapshotPath.length)));
+      .mapToObj(snapshotId -> relations.snapshotsById.get(snapshotId))
+      .filter(Objects::nonNull)
+      .map(s -> s.componentUuid)
+      .collect(toCollection(() -> new ArrayList<>()));
+    if (componentUuidPath.size() != snapshot.snapshotPath.length) {
+      LOG.trace("Some component UUIDs not found for snapshots [{}]", snapshot.snapshotPath);
+      return false;
+    }
+
     update.setString(1, PATH_SEPARATOR + PATH_JOINER.join(componentUuidPath) + PATH_SEPARATOR);
     update.setString(2, componentUuid);
     return true;
