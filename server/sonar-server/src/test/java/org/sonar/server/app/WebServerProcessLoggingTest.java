@@ -124,7 +124,7 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
-  public void root_logger_level_changes_with_ce_property_and_is_case_insensitive() {
+  public void root_logger_level_changes_with_web_property_and_is_case_insensitive() {
     props.set("sonar.log.level.web", "debug");
 
     LoggerContext ctx = underTest.configure(props);

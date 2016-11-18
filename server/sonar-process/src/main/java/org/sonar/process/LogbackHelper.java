@@ -39,7 +39,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +106,7 @@ public class LogbackHelper {
       return new Builder();
     }
 
-    public ProcessId getProcessId() {
+    ProcessId getProcessId() {
       return processId;
     }
 
@@ -117,7 +116,7 @@ public class LogbackHelper {
 
     public static final class Builder {
       @CheckForNull
-      public ProcessId processId;
+      private ProcessId processId;
       private String threadIdFieldPattern = "";
 
       private Builder() {
@@ -220,40 +219,27 @@ public class LogbackHelper {
     return props.valueAsBoolean(ALL_LOGS_TO_CONSOLE_PROPERTY, false);
   }
 
-  @SafeVarargs
-  private static <T> Set<T> setOf(T... args) {
-    Set<T> res = new HashSet<>(args.length);
-    res.addAll(Arrays.asList(args));
-    return res;
-  }
-
   /**
    * Configure the log level of the root logger reading the value of property {@link #SONAR_LOG_LEVEL_PROPERTY}.
    *
    * @throws IllegalArgumentException if the value of {@link #SONAR_LOG_LEVEL_PROPERTY} is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
    */
   public Level configureRootLogLevel(Props props, ProcessId processId) {
-    return configureRootLogLevel(props,
-      SONAR_LOG_LEVEL_PROPERTY,
-      SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
-  }
-
-  /**
-   * Configure the log level of the root logger reading the value of specified properties.
-   * <p>
-   * To compute the applied log level the following rules will be followed:
-   * <ul>the last property with a defined and valid value in the order of the {@code propertyKeys} argument will be applied</ul>
-   * <ul>if there is none, {@link Level#INFO INFO} will apply</ul>
-   * </p>
-   *
-   * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
-   */
-  public Level configureRootLogLevel(Props props, String... propertyKeys) {
-    Level newLevel = resolveLevel(props, propertyKeys);
+    Level newLevel = resolveLevel(props, SONAR_LOG_LEVEL_PROPERTY, SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
     getRootContext().getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
     return newLevel;
   }
 
+  /**
+   * Resolve a log level reading the value of specified properties.
+   * <p>
+   * To compute the applied log level the following rules will be followed:
+   * <ul>the last property with a defined and valid value in the order of the {@code propertyKeys} argument will be applied</ul>
+   * <ul>if there is none, {@link Level#INFO INFO} will be returned</ul>
+   * </p>
+   *
+   * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
   private static Level resolveLevel(Props props, String... propertyKeys) {
     Level newLevel = Level.INFO;
     for (String propertyKey : propertyKeys) {
