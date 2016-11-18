@@ -26,6 +26,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static org.sonar.process.LogbackHelper.LogDomain;
+import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
 
 /**
  * Configure logback for the Web Server process. Logs are written to file "web.log" in SQ's log directory.
@@ -33,7 +34,7 @@ import static org.sonar.process.LogbackHelper.LogDomain;
 public class WebServerProcessLogging extends ServerProcessLogging {
 
   public WebServerProcessLogging() {
-    super(ProcessId.WEB_SERVER, "%X{ID}");
+    super(ProcessId.WEB_SERVER, "%X{" + HTTP_REQUEST_ID_MDC_KEY + "}");
   }
 
   @Override

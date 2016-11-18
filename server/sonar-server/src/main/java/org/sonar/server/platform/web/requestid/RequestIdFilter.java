@@ -27,15 +27,13 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.slf4j.MDC;
 import org.sonar.server.platform.Platform;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A {@link Filter} that puts and removes the HTTP request ID from the {@link org.slf4j.MDC}.
  */
 public class RequestIdFilter implements Filter {
+
   private final Platform platform;
 
   public RequestIdFilter() {
@@ -72,19 +70,4 @@ public class RequestIdFilter implements Filter {
     // nothing to do
   }
 
-  /**
-   * Wraps MDC calls to store the HTTP request ID in the {@link MDC} into an {@link AutoCloseable}.
-   */
-  static class RequestIdMDCStorage implements AutoCloseable {
-    private static final String HTTP_REQUEST_ID_MDC_KEY = "HTTP_REQUEST_ID";
-
-    public RequestIdMDCStorage(String requestId) {
-      MDC.put(HTTP_REQUEST_ID_MDC_KEY, requireNonNull(requestId, "Request ID can't be null"));
-    }
-
-    @Override
-    public void close() {
-      MDC.remove(HTTP_REQUEST_ID_MDC_KEY);
-    }
-  }
 }
