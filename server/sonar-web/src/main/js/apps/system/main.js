@@ -93,7 +93,7 @@ export default React.createClass({
               </li>
               <li>
                 <a href={window.baseUrl + '/api/system/logs?process=web'} id="web-logs-link">
-                  Web
+                  Web Server
                 </a>
               </li>
             </ul>
