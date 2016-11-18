@@ -68,7 +68,7 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(email.getSubject()).isEqualTo("Struts, change on issue in Action.java");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
@@ -88,7 +88,7 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(email.getSubject()).isEqualTo("Struts, change on issue in Action.java");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
@@ -108,7 +108,7 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(email.getSubject()).isEqualTo("Struts, change on issue in Action.java");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
@@ -127,7 +127,7 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(email.getSubject()).isEqualTo("Struts, change on issue in Action.java");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
@@ -150,7 +150,7 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage email = template.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(email.getSubject()).isEqualTo("Struts, change on issue in Action.java");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
@@ -178,8 +178,7 @@ public class IssueChangesEmailTemplateTest {
     Notification notification = new IssueChangeNotification()
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("componentName", "org/apache/struts/Action.java")
-      .setFieldValue("componentShortName", "Action.java")
+      .setFieldValue("componentName", "Action")
       .setFieldValue("componentKey", "org.apache.struts.Action")
       .setFieldValue("key", "ABCDE")
       .setFieldValue("ruleName", "Avoid Cycles")

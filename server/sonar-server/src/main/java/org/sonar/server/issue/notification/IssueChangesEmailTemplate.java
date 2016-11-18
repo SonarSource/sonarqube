@@ -20,8 +20,6 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.base.Strings;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -29,6 +27,9 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * Creates email message for notification "issue-changes".
@@ -58,13 +59,12 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     appendFooter(sb, notif);
 
     String projectName = notif.getFieldValue("projectName");
-    String componentShortName = notif.getFieldValue("componentShortName");
     String issueKey = notif.getFieldValue("key");
     String author = notif.getFieldValue("changeAuthor");
 
     EmailMessage message = new EmailMessage()
       .setMessageId("issue-changes/" + issueKey)
-      .setSubject(projectName + ", change on issue in " + componentShortName)
+      .setSubject(projectName + ", change on issue #" + issueKey)
       .setMessage(sb.toString());
     if (author != null) {
       message.setFrom(getUserFullName(author));
