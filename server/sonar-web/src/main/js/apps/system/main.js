@@ -78,7 +78,7 @@ export default React.createClass({
             <ul className="dropdown-menu">
               <li>
                 <a href={window.baseUrl + '/api/system/logs?process=app'} id="logs-link">
-                  Main
+                  Main Process
                 </a>
               </li>
               <li>
