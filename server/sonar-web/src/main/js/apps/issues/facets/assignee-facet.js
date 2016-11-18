@@ -42,6 +42,10 @@ export default CustomValuesFacet.extend({
 
   onRender () {
     CustomValuesFacet.prototype.onRender.apply(this, arguments);
+
+    const myIssuesSelected = !!this.options.app.state.get('query').assigned_to_me;
+    this.$el.toggleClass('hidden', myIssuesSelected);
+
     const value = this.options.app.state.get('query').assigned;
     if ((value != null) && (!value || value === 'false')) {
       return this.$('.js-facet').filter('[data-unassigned]').addClass('active');
