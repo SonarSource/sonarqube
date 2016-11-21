@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import moment from 'moment';
 import { request } from './request';
 
 let messages = {};
 
-export function translate (...keys) {
+export function translate (...keys: string[]) {
   const messageKey = keys.join('.');
   return messages[messageKey] || messageKey;
 }
 
-export function translateWithParameters (messageKey, ...parameters) {
+export function translateWithParameters (messageKey: string, ...parameters: Array<string|number>) {
   const message = messages[messageKey];
   if (message) {
-    return parameters.reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
+    return parameters
+        .map(parameter => String(parameter))
+        .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
   } else {
     return `${messageKey}.${parameters.join('.')}`;
   }
 }
 
-export function hasMessage (...keys) {
+export function hasMessage (...keys: string[]) {
   const messageKey = keys.join('.');
   return messages[messageKey] != null;
 }
@@ -56,7 +59,7 @@ function makeRequest (params) {
           case 200:
             return response.json();
           case 304:
-            return JSON.parse(localStorage.getItem('l10n.bundle'));
+            return JSON.parse(localStorage.getItem('l10n.bundle') || '{}');
           case 401:
             window.location = window.baseUrl + '/sessions/new?return_to=' +
                 encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
@@ -113,7 +116,7 @@ export function requestMessages () {
   });
 }
 
-export function resetBundle (bundle) {
+export function resetBundle (bundle: any) {
   messages = bundle;
 }
 
@@ -123,19 +126,19 @@ export function installGlobal () {
   window.requestMessages = requestMessages;
 }
 
-export function getLocalizedDashboardName (baseName) {
+export function getLocalizedDashboardName (baseName: string) {
   const l10nKey = `dashboard.${baseName}.name`;
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
 
-export function getLocalizedMetricName (metric) {
+export function getLocalizedMetricName (metric: { key: string, name: string }) {
   const bundleKey = `metric.${metric.key}.name`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : metric.name;
 }
 
-export function getLocalizedMetricDomain (domainName) {
+export function getLocalizedMetricDomain (domainName: string) {
   const bundleKey = `metric_domain.${domainName}`;
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : domainName;

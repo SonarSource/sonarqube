@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
+import { Task } from './types';
 
-export function updateTask (tasks, newTask) {
+export function updateTask (tasks: Task[], newTask: Task) {
   return tasks.map(task => task.id === newTask.id ? newTask : task);
 }
 
-export function mapFiltersToParameters (filters = {}) {
+export function mapFiltersToParameters (filters: any = {}) {
   const parameters = {};
 
   if (filters.status === STATUSES.ALL) {
@@ -79,7 +81,7 @@ function format (int, suffix) {
   return `${int}${suffix}`;
 }
 
-export function formatDuration (value) {
+export function formatDuration (value: ?number) {
   if (!value) {
     return '';
   }

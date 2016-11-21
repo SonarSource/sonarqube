@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import groupBy from 'lodash/groupBy';
@@ -31,11 +32,11 @@ export default class SubCategoryDefinitionsList extends React.Component {
     settings: React.PropTypes.array.isRequired
   };
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps: {}, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderEmailForm (subCategoryKey) {
+  renderEmailForm (subCategoryKey: string) {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';
     if (!isEmailSettings) {
       return null;
