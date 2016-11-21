@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import debounce from 'lodash/debounce';
@@ -30,6 +31,7 @@ import Search from '../components/Search';
 import Tasks from '../components/Tasks';
 import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
+import { Task } from '../types';
 import '../background-tasks.css';
 
 export default class BackgroundTasksApp extends React.Component {
@@ -42,7 +44,7 @@ export default class BackgroundTasksApp extends React.Component {
     location: RouterPropTypes.location.isRequired
   };
 
-  state = {
+  state: any = {
     loading: true,
     tasks: [],
 
@@ -67,11 +69,11 @@ export default class BackgroundTasksApp extends React.Component {
     });
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps: any, nextState: any) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate (prevProps: any) {
     if (prevProps.component !== this.props.component ||
         prevProps.location !== this.props.location) {
       this.loadTasksDebounced();
@@ -81,6 +83,9 @@ export default class BackgroundTasksApp extends React.Component {
   componentWillUnmount () {
     this.mounted = false;
   }
+
+  loadTasksDebounced: any;
+  mounted: boolean;
 
   loadTasks () {
     this.setState({ loading: true });
@@ -93,7 +98,7 @@ export default class BackgroundTasksApp extends React.Component {
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 
     const filters = { status, taskType, currents, minSubmittedAt, maxExecutedAt, query };
-    const parameters = mapFiltersToParameters(filters);
+    const parameters: any = mapFiltersToParameters(filters);
 
     if (this.props.component) {
       parameters.componentId = this.props.component.id;
@@ -120,7 +125,7 @@ export default class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleFilterUpdate (nextState) {
+  handleFilterUpdate (nextState: any) {
     const nextQuery = { ...this.props.location.query, ...nextState };
 
     // remove defaults
@@ -136,7 +141,7 @@ export default class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleCancelTask (task) {
+  handleCancelTask (task: Task) {
     this.setState({ loading: true });
 
     cancelTaskAPI(task.id).then(nextTask => {
@@ -147,7 +152,7 @@ export default class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleFilterTask (task) {
+  handleFilterTask (task: Task) {
     this.handleFilterUpdate({ query: task.componentKey });
   }
 

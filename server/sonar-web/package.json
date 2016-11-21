@@ -42,6 +42,7 @@
     "file-loader": "0.9.0",
     "filesize": "3.3.0",
     "find-cache-dir": "0.1.1",
+    "flow-bin": "0.35.0",
     "fs-extra": "0.30.0",
     "gzip-size": "3.0.0",
     "handlebars": "2.0.0",
@@ -90,7 +91,8 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
-    "lint": "eslint src/main/js"
+    "lint": "eslint src/main/js",
+    "typecheck": "flow check src/main/js"
   },
   "engines": {
     "node": ">=4"

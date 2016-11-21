@@ -1,0 +1,13 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/fbjs.*
+<PROJECT_ROOT>/node_modules/react-side-effect.*
+<PROJECT_ROOT>/node/.*
+
+[include]
+
+[libs]
+
+[options]
+module.file_ext=.js
+module.file_ext=.hbs
+module.name_mapper.extension='hbs' -> 'empty/object'

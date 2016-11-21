@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import keyBy from 'lodash/keyBy';
 import { RECEIVE_VALUES } from './actions';
+import type { SettingValue } from '../../types';
 
-const reducer = (state = {}, action = {}) => {
+type State = { [key: string]: {} };
+
+type Action = { type: string, settings: SettingValue[] };
+
+const reducer = (state: State = {}, action: Action) => {
   if (action.type === RECEIVE_VALUES) {
     const settingsByKey = keyBy(action.settings, 'key');
     return { ...state, ...settingsByKey };
@@ -31,4 +37,4 @@ const reducer = (state = {}, action = {}) => {
 
 export default reducer;
 
-export const getValue = (state, key) => state[key];
+export const getValue = (state: State, key: string) => state[key];

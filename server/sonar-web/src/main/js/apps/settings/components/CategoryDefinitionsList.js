@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 import { getSettingsForCategory } from '../store/rootReducer';
+
 
 class CategoryDefinitionsList extends React.Component {
   render () {
