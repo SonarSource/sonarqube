@@ -19,19 +19,30 @@
  */
 import * as api from '../../../../api/permissions';
 import { parseError } from '../../../code/utils';
-import { raiseError } from '../../shared/store/actions';
 import {
-    getQuery,
-    getFilter,
-    getSelectedPermission
-} from '../../shared/store/rootReducer';
+  raiseError,
+  REQUEST_HOLDERS,
+  RECEIVE_HOLDERS_SUCCESS,
+  UPDATE_QUERY,
+  UPDATE_FILTER,
+  SELECT_PERMISSION,
+  GRANT_PERMISSION_TO_USER,
+  REVOKE_PERMISSION_TO_USER,
+  GRANT_PERMISSION_TO_GROUP,
+  REVOKE_PERMISSION_FROM_GROUP
+} from '../../shared/store/actions';
+import {
+  getPermissionsAppQuery,
+  getPermissionsAppFilter,
+  getPermissionsAppSelectedPermission
+} from '../../../../app/store/rootReducer';
 
 export const loadHolders = () => (dispatch, getState) => {
-  const query = getQuery(getState());
-  const filter = getFilter(getState());
-  const selectedPermission = getSelectedPermission(getState());
+  const query = getPermissionsAppQuery(getState());
+  const filter = getPermissionsAppFilter(getState());
+  const selectedPermission = getPermissionsAppSelectedPermission(getState());
 
-  dispatch({ type: 'REQUEST_HOLDERS', query });
+  dispatch({ type: REQUEST_HOLDERS, query });
 
   const requests = [];
 
@@ -49,7 +60,7 @@ export const loadHolders = () => (dispatch, getState) => {
 
   return Promise.all(requests).then(responses => (
       dispatch({
-        type: 'RECEIVE_HOLDERS_SUCCESS',
+        type: RECEIVE_HOLDERS_SUCCESS,
         users: responses[0],
         groups: responses[1],
         query
@@ -60,30 +71,30 @@ export const loadHolders = () => (dispatch, getState) => {
 };
 
 export const updateQuery = (query = '') => dispatch => {
-  dispatch({ type: 'UPDATE_QUERY', query });
+  dispatch({ type: UPDATE_QUERY, query });
   if (query.length === 0 || query.length > 2) {
     dispatch(loadHolders());
   }
 };
 
 export const updateFilter = filter => dispatch => {
-  dispatch({ type: 'UPDATE_FILTER', filter });
+  dispatch({ type: UPDATE_FILTER, filter });
   dispatch(loadHolders());
 };
 
 export const selectPermission = permission => (dispatch, getState) => {
-  const selectedPermission = getSelectedPermission(getState());
+  const selectedPermission = getPermissionsAppSelectedPermission(getState());
   if (selectedPermission !== permission) {
-    dispatch({ type: 'SELECT_PERMISSION', permission });
+    dispatch({ type: SELECT_PERMISSION, permission });
   } else {
-    dispatch({ type: 'SELECT_PERMISSION', permission: null });
+    dispatch({ type: SELECT_PERMISSION, permission: null });
   }
   dispatch(loadHolders());
 };
 
 export const grantToUser = (login, permission) => dispatch => {
   api.grantPermissionToUser(null, login, permission).then(() => {
-    dispatch({ type: 'GRANT_PERMISSION_TO_USER', login, permission });
+    dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
@@ -91,7 +102,7 @@ export const grantToUser = (login, permission) => dispatch => {
 
 export const revokeFromUser = (login, permission) => dispatch => {
   api.revokePermissionFromUser(null, login, permission).then(() => {
-    dispatch({ type: 'REVOKE_PERMISSION_TO_USER', login, permission });
+    dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
@@ -100,7 +111,7 @@ export const revokeFromUser = (login, permission) => dispatch => {
 export const grantToGroup = (groupName, permission) => dispatch => {
   api.grantPermissionToGroup(null, groupName, permission).then(() => {
     dispatch({
-      type: 'GRANT_PERMISSION_TO_GROUP',
+      type: GRANT_PERMISSION_TO_GROUP,
       groupName,
       permission
     });
@@ -112,7 +123,7 @@ export const grantToGroup = (groupName, permission) => dispatch => {
 export const revokeFromGroup = (groupName, permission) => dispatch => {
   api.revokePermissionFromGroup(null, groupName, permission).then(() => {
     dispatch({
-      type: 'REVOKE_PERMISSION_FROM_GROUP',
+      type: REVOKE_PERMISSION_FROM_GROUP,
       groupName,
       permission
     });

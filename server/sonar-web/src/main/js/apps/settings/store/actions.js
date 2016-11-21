@@ -25,9 +25,9 @@ import { parseError } from '../../code/utils';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../components/store/globalMessages';
 import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
 import { cancelChange } from './settingsPage/changedValues/actions';
-import { getDefinition, getChangedValue } from './rootReducer';
 import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
+import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../app/store/rootReducer';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey)
@@ -48,8 +48,8 @@ export const saveValue = (key, componentKey) => (dispatch, getState) => {
   dispatch(startLoading(key));
 
   const state = getState();
-  const definition = getDefinition(state, key);
-  const value = getChangedValue(state, key);
+  const definition = getSettingsAppDefinition(state, key);
+  const value = getSettingsAppChangedValue(state, key);
 
   if (isEmptyValue(definition, value)) {
     dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));

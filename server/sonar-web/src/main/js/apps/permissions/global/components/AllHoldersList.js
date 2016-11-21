@@ -22,23 +22,23 @@ import { connect } from 'react-redux';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import {
-    loadHolders,
-    grantToUser,
-    revokeFromUser,
-    grantToGroup,
-    revokeFromGroup,
-    updateFilter,
-    updateQuery,
-    selectPermission
+  loadHolders,
+  grantToUser,
+  revokeFromUser,
+  grantToGroup,
+  revokeFromGroup,
+  updateFilter,
+  updateQuery,
+  selectPermission
 } from '../store/actions';
-import {
-    getUsers,
-    getGroups,
-    getQuery,
-    getFilter,
-    getSelectedPermission
-} from '../../shared/store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
+import {
+  getPermissionsAppUsers,
+  getPermissionsAppGroups,
+  getPermissionsAppQuery,
+  getPermissionsAppFilter,
+  getPermissionsAppSelectedPermission
+} from '../../../../app/store/rootReducer';
 
 const PERMISSIONS_ORDER = [
   'admin',
@@ -102,11 +102,11 @@ class AllHoldersList extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  users: getUsers(state),
-  groups: getGroups(state),
-  query: getQuery(state),
-  filter: getFilter(state),
-  selectedPermission: getSelectedPermission(state)
+  users: getPermissionsAppUsers(state),
+  groups: getPermissionsAppGroups(state),
+  query: getPermissionsAppQuery(state),
+  filter: getPermissionsAppFilter(state),
+  selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
 const mapDispatchToProps = dispatch => ({

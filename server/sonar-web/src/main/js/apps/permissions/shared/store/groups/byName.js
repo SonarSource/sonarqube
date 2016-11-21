@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import keyBy from 'lodash/keyBy';
+import { RECEIVE_HOLDERS_SUCCESS, GRANT_PERMISSION_TO_GROUP, REVOKE_PERMISSION_FROM_GROUP } from '../actions';
 
 const byName = (state = {}, action = {}) => {
-  if (action.type === 'RECEIVE_HOLDERS_SUCCESS') {
+  if (action.type === RECEIVE_HOLDERS_SUCCESS) {
     const newGroups = keyBy(action.groups, 'name');
     return { ...state, ...newGroups };
-  } else if (action.type === 'GRANT_PERMISSION_TO_GROUP') {
+  } else if (action.type === GRANT_PERMISSION_TO_GROUP) {
     const newGroup = { ...state[action.groupName] };
     newGroup.permissions = [...newGroup.permissions, action.permission];
     return { ...state, [action.groupName]: newGroup };
-  } else if (action.type === 'REVOKE_PERMISSION_FROM_GROUP') {
+  } else if (action.type === REVOKE_PERMISSION_FROM_GROUP) {
     const newGroup = { ...state[action.groupName] };
     newGroup.permissions = newGroup.permissions
         .filter(p => p !== action.permission);

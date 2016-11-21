@@ -21,8 +21,9 @@ import { startFetching, stopFetching } from '../store/statusActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { getLeakValue } from '../utils';
+import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
 
-export const RECEIVE_MEASURES = 'home/RECEIVE_MEASURES';
+export const RECEIVE_MEASURES = 'measuresApp/home/RECEIVE_MEASURES';
 
 export function receiveMeasures (measures, periods) {
   return { type: RECEIVE_MEASURES, measures, periods };
@@ -39,7 +40,10 @@ export function fetchMeasures () {
   return (dispatch, getState) => {
     dispatch(startFetching());
 
-    const { component, metrics } = getState().app;
+    const state = getState();
+    const component = getMeasuresAppComponent(state);
+    const metrics = getMeasuresAppAllMetrics(state);
+
     const metricKeys = metrics
         .filter(metric => !metric.hidden)
         .filter(metric => metric.type !== 'DATA' && metric.type !== 'DISTRIB')

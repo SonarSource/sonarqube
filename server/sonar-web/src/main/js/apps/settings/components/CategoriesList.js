@@ -37,7 +37,7 @@ type Props = {
 };
 
 export default class CategoriesList extends React.Component {
-  props: Props;
+  rops: Props;
 
   shouldComponentUpdate (nextProps: Props, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
@@ -56,8 +56,10 @@ export default class CategoriesList extends React.Component {
 
     const className = category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
 
+    const pathname = this.props.component ? '/project/settings' : '/settings';
+
     return (
-        <IndexLink to={{ pathname: '/', query }} className={className} title={category.name}>
+        <IndexLink to={{ pathname, query }} className={className} title={category.name}>
           {category.name}
         </IndexLink>
     );

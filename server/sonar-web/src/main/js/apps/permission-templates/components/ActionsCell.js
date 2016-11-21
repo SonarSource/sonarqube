@@ -152,7 +152,7 @@ export default class ActionsCell extends React.Component {
 
             {!this.props.fromDetails && (
               <li>
-                <Link to={{ pathname: '/', query: { id: t.id } }}>
+                <Link to={{ pathname: '/permission_templates', query: { id: t.id } }}>
                   {this.renderDropdownIcon(<i className="icon-edit"/>)}
                   Edit Permissions
                 </Link>

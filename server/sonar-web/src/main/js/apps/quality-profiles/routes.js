@@ -27,7 +27,7 @@ import ChangelogContainer from './changelog/ChangelogContainer';
 import ComparisonContainer from './compare/ComparisonContainer';
 
 export default (
-    <Route path="profiles" component={AppContainer}>
+    <Route component={AppContainer}>
       <Redirect from="/profiles/index" to="/profiles/"/>
 
       <IndexRoute component={HomeContainer}/>

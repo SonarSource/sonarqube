@@ -33,7 +33,7 @@ export default class NameCell extends React.Component {
 
     return (
         <td>
-          <Link to={{ pathname: '/', query: { id: t.id } }}>
+          <Link to={{ pathname: '/permission_templates', query: { id: t.id } }}>
             <strong className="js-name">{t.name}</strong>
           </Link>
 

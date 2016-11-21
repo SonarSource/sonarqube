@@ -19,10 +19,10 @@
  */
 import { connect } from 'react-redux';
 import GlobalMessages from '../../../components/controls/GlobalMessages';
-import { getGlobalMessages } from '../store/rootReducer';
+import { getProjectAdminGlobalMessages } from '../../../app/store/rootReducer';
 
 const mapStateToProps = state => ({
-  messages: getGlobalMessages(state)
+  messages: getProjectAdminGlobalMessages(state)
 });
 
 export default connect(mapStateToProps)(GlobalMessages);

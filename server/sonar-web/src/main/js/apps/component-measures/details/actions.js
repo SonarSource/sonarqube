@@ -19,13 +19,14 @@
  */
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceWithLeak } from '../utils';
+import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
 
 /*
  * Actions
  */
 
-export const REQUEST_MEASURE = 'details/REQUEST_MEASURE';
-export const RECEIVE_MEASURE = 'details/RECEIVE_MEASURE';
+export const REQUEST_MEASURE = 'measuresApp/details/REQUEST_MEASURE';
+export const RECEIVE_MEASURE = 'measuresApp/details/RECEIVE_MEASURE';
 
 /*
  * Action Creators
@@ -45,7 +46,9 @@ function receiveMeasure (measure, secondaryMeasure, periods) {
 
 export function fetchMeasure (metricKey, periodIndex = 1) {
   return (dispatch, getState) => {
-    const { component, metrics } = getState().app;
+    const state = getState();
+    const component = getMeasuresAppComponent(state);
+    const metrics = getMeasuresAppAllMetrics(state);
     const metricsToRequest = [metricKey];
 
     if (metricKey === 'ncloc') {

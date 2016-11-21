@@ -48,7 +48,7 @@ function mostCommitPrefix (strings) {
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
-const Component = ({ component, rootComponent, previous, canBrowse }) => {
+const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
   const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
   const name = prefix ? (
@@ -75,7 +75,7 @@ const Component = ({ component, rootComponent, previous, canBrowse }) => {
         Object.assign(query, { selected: component.key });
       }
       inner = (
-          <Link to={{ pathname: '/', query }} className="link-with-icon">
+          <Link to={{ pathname: '/code', query }} className="link-with-icon">
             <QualifierIcon qualifier={component.qualifier}/>
             {' '}
             <span>{name}</span>
@@ -99,4 +99,4 @@ const Component = ({ component, rootComponent, previous, canBrowse }) => {
   );
 };
 
-export default Component;
+export default ComponentName;

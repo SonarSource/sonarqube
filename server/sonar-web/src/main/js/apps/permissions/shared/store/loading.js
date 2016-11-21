@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { REQUEST_HOLDERS, RECEIVE_HOLDERS_SUCCESS } from './actions';
+
 const loading = (state = false, action = {}) => {
   switch (action.type) {
-    case 'REQUEST_HOLDERS':
+    case REQUEST_HOLDERS:
       return true;
-    case 'RECEIVE_HOLDERS_SUCCESS':
+    case RECEIVE_HOLDERS_SUCCESS:
       return false;
     default:
       return state;

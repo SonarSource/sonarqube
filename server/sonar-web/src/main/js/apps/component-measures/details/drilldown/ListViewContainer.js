@@ -18,24 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import pick from '../../../../../../../node_modules/lodash/pick';
-
 import ListView from './ListView';
 import { fetchList, fetchMore, selectComponent, selectNext, selectPrevious } from '../../store/listViewActions';
+import {
+  getMeasuresAppListComponents,
+  getMeasuresAppListSelected,
+  getMeasuresAppListTotal,
+  getMeasuresAppListPageIndex,
+  getMeasuresAppAllMetrics,
+  getMeasuresAppDetailsMetric,
+  isMeasuresAppFetching
+  , getMeasuresAppComponent
+} from '../../../../app/store/rootReducer';
 
 const mapStateToProps = state => {
-  const drilldown = pick(state.list, [
-    'components',
-    'selected',
-    'total',
-    'pageIndex'
-  ]);
   return {
-    ...drilldown,
-    component: state.app.component,
-    metrics: state.app.metrics,
-    metric: state.details.metric,
-    fetching: state.status.fetching
+    components: getMeasuresAppListComponents(state),
+    selected: getMeasuresAppListSelected(state),
+    total: getMeasuresAppListTotal(state),
+    pageIndex: getMeasuresAppListPageIndex(state),
+    component: getMeasuresAppComponent(state),
+    metrics: getMeasuresAppAllMetrics(state),
+    metric: getMeasuresAppDetailsMetric(state),
+    fetching: isMeasuresAppFetching(state)
   };
 };
 

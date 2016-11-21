@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { UPDATE_FILTER } from './actions';
+
 const filter = (state = 'all', action = {}) => {
   switch (action.type) {
-    case 'UPDATE_FILTER':
+    case UPDATE_FILTER:
       return action.filter;
     default:
       return state;

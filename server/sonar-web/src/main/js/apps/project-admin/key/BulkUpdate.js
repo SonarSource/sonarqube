@@ -30,7 +30,7 @@ import {
     closeAllGlobalMessages
 } from '../../../components/store/globalMessages';
 import { reloadUpdateKeyPage } from './utils';
-import RecentHistory from '../../../main/nav/component/RecentHistory';
+import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 
 class BulkUpdate extends React.Component {
   static propTypes = {

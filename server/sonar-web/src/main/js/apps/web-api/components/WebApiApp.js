@@ -24,6 +24,7 @@ import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
 import { getActionKey, isDomainPathActive } from '../utils';
+import '../styles/web-api.css';
 
 export default class WebApiApp extends React.Component {
   state = {
@@ -59,7 +60,7 @@ export default class WebApiApp extends React.Component {
   }
 
   scrollToAction () {
-    const { splat } = this.props.params;
+    const splat = this.props.params.splat || '';
     this.scrollToElement(splat);
   }
 
@@ -77,7 +78,7 @@ export default class WebApiApp extends React.Component {
   }
 
   toggleInternalInitially () {
-    const { splat } = this.props.params;
+    const splat = this.props.params.splat || '';
     const { domains, showInternal } = this.state;
 
     if (!showInternal) {
@@ -100,7 +101,7 @@ export default class WebApiApp extends React.Component {
   }
 
   handleToggleInternal () {
-    const { splat } = this.props.params;
+    const splat = this.props.params.splat || '';
     const { router } = this.context;
     const { domains } = this.state;
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
@@ -118,7 +119,7 @@ export default class WebApiApp extends React.Component {
   }
 
   render () {
-    const { splat } = this.props.params;
+    const splat = this.props.params.splat || '';
     const { domains, showInternal, showOnlyDeprecated, searchQuery } = this.state;
 
     const domain = domains.find(domain => isDomainPathActive(domain.path, splat));
@@ -127,7 +128,7 @@ export default class WebApiApp extends React.Component {
         <div className="search-navigator sticky">
           <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
             <div className="web-api-page-header">
-              <Link to="/">
+              <Link to="/web_api/">
                 <h1>Web API</h1>
               </Link>
             </div>

@@ -17,41 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
-import { Provider } from 'react-redux';
-import App from './components/App';
-import aboutRoutes from '../apps/about/routes';
-import accountRoutes from '../apps/account/routes';
-import projectsRoutes from '../apps/projects/routes';
-import qualityGatesRoutes from '../apps/quality-gates/routes';
-import qualityProfilesRoutes from '../apps/quality-profiles/routes';
-import configureStore from '../components/store/configureStore';
-import rootReducer from './store/rootReducer';
+import configureLocale from './utils/configureLocale';
+import exposeLibraries from './utils/exposeLibraries';
+import startAjaxMonitoring from './utils/startAjaxMonitoring';
+import startApp from './utils/startApp';
+import startReactApp from './utils/startReactApp';
 import './styles/index';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
-
-  const history = useRouterHistory(createHistory)({
-    basename: window.baseUrl + '/'
-  });
-
-  const store = configureStore(rootReducer);
-
-  render((
-      <Provider store={store}>
-        <Router history={history}>
-          <Route path="/" component={App}>
-            <Route path="about">{aboutRoutes}</Route>
-            <Route path="account">{accountRoutes}</Route>
-            {projectsRoutes}
-            {qualityGatesRoutes}
-            {qualityProfilesRoutes}
-          </Route>
-        </Router>
-      </Provider>
-  ), el);
-});
+configureLocale();
+startAjaxMonitoring();
+startApp();
+startReactApp();
+exposeLibraries();
