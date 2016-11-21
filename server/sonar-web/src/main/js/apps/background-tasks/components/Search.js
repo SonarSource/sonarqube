@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
 
 import StatusFilter from './StatusFilter';
@@ -37,32 +38,32 @@ export default class Search extends React.Component {
     onReload: React.PropTypes.func.isRequired
   };
 
-  handleStatusChange (status) {
+  handleStatusChange (status: string) {
     this.props.onFilterUpdate({ status });
   }
 
-  handleTypeChange (taskType) {
+  handleTypeChange (taskType: string) {
     this.props.onFilterUpdate({ taskType });
   }
 
-  handleCurrentsChange (currents) {
+  handleCurrentsChange (currents: string) {
     this.props.onFilterUpdate({ currents });
   }
 
-  handleDateChange (date) {
+  handleDateChange (date: string) {
     this.props.onFilterUpdate(date);
   }
 
-  handleQueryChange (query) {
+  handleQueryChange (query: string) {
     this.props.onFilterUpdate({ query });
   }
 
-  handleReload (e) {
+  handleReload (e: any) {
     e.target.blur();
     this.props.onReload();
   }
 
-  handleReset (e) {
+  handleReset (e: any) {
     e.preventDefault();
     e.target.blur();
     this.props.onFilterUpdate(DEFAULT_FILTERS);

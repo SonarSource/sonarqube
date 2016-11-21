@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import { connect } from 'react-redux';
@@ -29,14 +30,20 @@ import { fetchSettings } from '../store/actions';
 import { getDefaultCategory } from '../store/rootReducer';
 import '../styles.css';
 
-class App extends React.Component {
-  static propTypes = {
-    component: React.PropTypes.object,
-    fetchSettings: React.PropTypes.func.isRequired,
-    defaultCategory: React.PropTypes.string
-  };
+type Props = {
+  component: { key: string },
+  defaultCategory: ?string,
+  fetchSettings(componentKey: ?string): Promise<any>,
+  location: { query: {} }
+};
 
-  state = { loaded: false };
+type State = {
+  loaded: boolean
+};
+
+class App extends React.Component {
+  props: Props;
+  state: State = { loaded: false };
 
   componentDidMount () {
     document.querySelector('html').classList.add('dashboard-page');
@@ -46,7 +53,7 @@ class App extends React.Component {
     });
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps: Props, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 

@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
 
 import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/shared/pending-icon';
 import { translate } from '../../../helpers/l10n';
+import { Task } from '../types';
 
-const TaskStatus = ({ task }) => {
+const TaskStatus = ({ task }: { task: Task }) => {
   let inner;
 
   switch (task.status) {

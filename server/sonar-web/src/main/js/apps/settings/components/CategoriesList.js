@@ -17,24 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import sortBy from 'lodash/sortBy';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
 
-export default class CategoriesList extends React.Component {
-  static propTypes = {
-    categories: React.PropTypes.array.isRequired,
-    selectedCategory: React.PropTypes.string.isRequired,
-    defaultCategory: React.PropTypes.string.isRequired
-  };
+type Category = {
+  key: string,
+  name: string
+};
 
-  shouldComponentUpdate (nextProps, nextState) {
+type Props = {
+  categories: Category[],
+  component?: { key: string },
+  defaultCategory: string,
+  selectedCategory: string
+};
+
+export default class CategoriesList extends React.Component {
+  props: Props;
+
+  shouldComponentUpdate (nextProps: Props, nextState: ?{}) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  renderLink (category) {
+  renderLink (category: Category) {
     const query = {};
 
     if (category.key !== this.props.defaultCategory) {

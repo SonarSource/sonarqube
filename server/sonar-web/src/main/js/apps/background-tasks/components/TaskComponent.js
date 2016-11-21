@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
 
 import TaskType from './TaskType';
 import { getComponentUrl } from '../../../helpers/urls';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
+import { Task } from '../types';
 
-const TaskComponent = ({ task, types }) => {
+const TaskComponent = ({ task, types }: { task: Task, types: string[] }) => {
   if (!task.componentKey) {
     return (
         <td>

@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import React from 'react';
-
+import { Task } from '../types';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 const LIMIT = 1000;
 
-const Footer = ({ tasks }) => {
+const Footer = ({ tasks }: { tasks: Task[] }) => {
   if (tasks.length < LIMIT) {
     return null;
   }

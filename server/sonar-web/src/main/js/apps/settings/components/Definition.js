@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
@@ -33,6 +34,9 @@ import { cancelChange, changeValue } from '../store/settingsPage/changedValues/a
 import { TYPE_PASSWORD } from '../constants';
 
 class Definition extends React.Component {
+  mounted: boolean;
+  timeout: number;
+
   static propTypes = {
     component: React.PropTypes.object,
     setting: React.PropTypes.object.isRequired,

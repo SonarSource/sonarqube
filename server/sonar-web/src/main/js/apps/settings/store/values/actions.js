@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const RECEIVE_VALUES = 'RECEIVE_VALUES';
+// @flow
+import type { SettingValue } from '../../types';
+export const RECEIVE_VALUES: string = 'RECEIVE_VALUES';
 
 /**
  * Receive settings action creator
  * @param {Array} settings
  * @returns {Object}
  */
-export const receiveValues = settings => ({
+export const receiveValues = (settings: SettingValue[]) => ({
   type: RECEIVE_VALUES,
   settings
 });

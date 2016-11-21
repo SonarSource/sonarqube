@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* @flow */
 import moment from 'moment';
 import React from 'react';
+import { Task } from '../types';
 
 function isAnotherDay (a, b) {
   return !moment(a).isSame(moment(b), 'day');
 }
 
-const TaskDay = ({ task, prevTask }) => {
+const TaskDay = ({ task, prevTask } : { task: Task, prevTask: ?Task }) => {
   const shouldDisplay = !prevTask || isAnotherDay(task.submittedAt, prevTask.submittedAt);
 
   return (
