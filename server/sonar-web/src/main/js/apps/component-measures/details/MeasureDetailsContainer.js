@@ -18,18 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-
 import MeasureDetails from './MeasureDetails';
 import { fetchMeasure } from './actions';
+import {
+  getMeasuresAppAllMetrics,
+  getMeasuresAppDetailsMetric,
+  getMeasuresAppDetailsMeasure,
+  getMeasuresAppDetailsSecondaryMeasure,
+  getMeasuresAppDetailsPeriods
+  , getMeasuresAppComponent
+} from '../../../app/store/rootReducer';
 
 const mapStateToProps = state => {
   return {
-    component: state.app.component,
-    metrics: state.app.metrics,
-    metric: state.details.metric,
-    measure: state.details.measure,
-    secondaryMeasure: state.details.secondaryMeasure,
-    periods: state.details.periods
+    component: getMeasuresAppComponent(state),
+    metrics: getMeasuresAppAllMetrics(state),
+    metric: getMeasuresAppDetailsMetric(state),
+    measure: getMeasuresAppDetailsMeasure(state),
+    secondaryMeasure: getMeasuresAppDetailsSecondaryMeasure(state),
+    periods: getMeasuresAppDetailsPeriods(state)
   };
 };
 

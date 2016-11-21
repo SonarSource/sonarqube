@@ -23,10 +23,14 @@ import Form from './Form';
 
 export default class Deletion extends React.Component {
   static propTypes = {
-    component: React.PropTypes.object.isRequired
+    component: React.PropTypes.object
   };
 
   render () {
+    if (!this.props.component) {
+      return null;
+    }
+
     return (
         <div className="page page-limited">
           <Header/>

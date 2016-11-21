@@ -18,33 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import pick from '../../../../../../../node_modules/lodash/pick';
-
 import TreeView from './TreeView';
 import {
-    start,
-    drilldown,
-    useBreadcrumbs,
-    fetchMore,
-    selectComponent,
-    selectNext,
-    selectPrevious
+  start,
+  drilldown,
+  useBreadcrumbs,
+  fetchMore,
+  selectComponent,
+  selectNext,
+  selectPrevious
 } from '../../store/treeViewActions';
+import {
+  getMeasuresAppTreeComponents,
+  getMeasuresAppTreeBreadcrumbs,
+  getMeasuresAppTreeSelected,
+  getMeasuresAppTreeTotal,
+  getMeasuresAppTreePageIndex,
+  getMeasuresAppAllMetrics,
+  getMeasuresAppDetailsMetric,
+  isMeasuresAppFetching
+  , getMeasuresAppComponent
+} from '../../../../app/store/rootReducer';
 
 const mapStateToProps = state => {
-  const drilldown = pick(state.tree, [
-    'components',
-    'breadcrumbs',
-    'selected',
-    'total',
-    'pageIndex'
-  ]);
   return {
-    ...drilldown,
-    component: state.app.component,
-    metrics: state.app.metrics,
-    metric: state.details.metric,
-    fetching: state.status.fetching
+    components: getMeasuresAppTreeComponents(state),
+    breadcrumbs: getMeasuresAppTreeBreadcrumbs(state),
+    selected: getMeasuresAppTreeSelected(state),
+    total: getMeasuresAppTreeTotal(state),
+    pageIndex: getMeasuresAppTreePageIndex(state),
+    component: getMeasuresAppComponent(state),
+    metrics: getMeasuresAppAllMetrics(state),
+    metric: getMeasuresAppDetailsMetric(state),
+    fetching: isMeasuresAppFetching(state)
   };
 };
 

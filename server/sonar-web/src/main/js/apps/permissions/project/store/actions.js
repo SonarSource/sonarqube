@@ -19,19 +19,30 @@
  */
 import * as api from '../../../../api/permissions';
 import { parseError } from '../../../code/utils';
-import { raiseError } from '../../shared/store/actions';
 import {
-    getQuery,
-    getFilter,
-    getSelectedPermission
-} from '../../shared/store/rootReducer';
+  raiseError,
+  REQUEST_HOLDERS,
+  RECEIVE_HOLDERS_SUCCESS,
+  UPDATE_QUERY,
+  UPDATE_FILTER,
+  SELECT_PERMISSION,
+  GRANT_PERMISSION_TO_USER,
+  REVOKE_PERMISSION_TO_USER,
+  GRANT_PERMISSION_TO_GROUP,
+  REVOKE_PERMISSION_FROM_GROUP
+} from '../../shared/store/actions';
+import {
+  getPermissionsAppQuery,
+  getPermissionsAppFilter,
+  getPermissionsAppSelectedPermission
+} from '../../../../app/store/rootReducer';
 
 export const loadHolders = projectKey => (dispatch, getState) => {
-  const query = getQuery(getState());
-  const filter = getFilter(getState());
-  const selectedPermission = getSelectedPermission(getState());
+  const query = getPermissionsAppQuery(getState());
+  const filter = getPermissionsAppFilter(getState());
+  const selectedPermission = getPermissionsAppSelectedPermission(getState());
 
-  dispatch({ type: 'REQUEST_HOLDERS', query });
+  dispatch({ type: REQUEST_HOLDERS, query });
 
   const requests = [];
 
@@ -51,7 +62,7 @@ export const loadHolders = projectKey => (dispatch, getState) => {
 
   return Promise.all(requests).then(responses => (
       dispatch({
-        type: 'RECEIVE_HOLDERS_SUCCESS',
+        type: RECEIVE_HOLDERS_SUCCESS,
         users: responses[0],
         groups: responses[1],
         query
@@ -62,30 +73,30 @@ export const loadHolders = projectKey => (dispatch, getState) => {
 };
 
 export const updateQuery = (projectKey, query = '') => dispatch => {
-  dispatch({ type: 'UPDATE_QUERY', query });
+  dispatch({ type: UPDATE_QUERY, query });
   if (query.length === 0 || query.length > 2) {
     dispatch(loadHolders(projectKey));
   }
 };
 
 export const updateFilter = (projectKey, filter) => dispatch => {
-  dispatch({ type: 'UPDATE_FILTER', filter });
+  dispatch({ type: UPDATE_FILTER, filter });
   dispatch(loadHolders(projectKey));
 };
 
 export const selectPermission = (projectKey, permission) => (dispatch, getState) => {
-  const selectedPermission = getSelectedPermission(getState());
+  const selectedPermission = getPermissionsAppSelectedPermission(getState());
   if (selectedPermission !== permission) {
-    dispatch({ type: 'SELECT_PERMISSION', permission });
+    dispatch({ type: SELECT_PERMISSION, permission });
   } else {
-    dispatch({ type: 'SELECT_PERMISSION', permission: null });
+    dispatch({ type: SELECT_PERMISSION, permission: null });
   }
   dispatch(loadHolders(projectKey));
 };
 
 export const grantToUser = (projectKey, login, permission) => dispatch => {
   api.grantPermissionToUser(projectKey, login, permission).then(() => {
-    dispatch({ type: 'GRANT_PERMISSION_TO_USER', login, permission });
+    dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
@@ -93,7 +104,7 @@ export const grantToUser = (projectKey, login, permission) => dispatch => {
 
 export const revokeFromUser = (projectKey, login, permission) => dispatch => {
   api.revokePermissionFromUser(projectKey, login, permission).then(() => {
-    dispatch({ type: 'REVOKE_PERMISSION_TO_USER', login, permission });
+    dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
@@ -102,7 +113,7 @@ export const revokeFromUser = (projectKey, login, permission) => dispatch => {
 export const grantToGroup = (projectKey, groupName, permission) => dispatch => {
   api.grantPermissionToGroup(projectKey, groupName, permission).then(() => {
     dispatch({
-      type: 'GRANT_PERMISSION_TO_GROUP',
+      type: GRANT_PERMISSION_TO_GROUP,
       groupName,
       permission
     });
@@ -114,7 +125,7 @@ export const grantToGroup = (projectKey, groupName, permission) => dispatch => {
 export const revokeFromGroup = (projectKey, groupName, permission) => dispatch => {
   api.revokePermissionFromGroup(projectKey, groupName, permission).then(() => {
     dispatch({
-      type: 'REVOKE_PERMISSION_FROM_GROUP',
+      type: REVOKE_PERMISSION_FROM_GROUP,
       groupName,
       permission
     });

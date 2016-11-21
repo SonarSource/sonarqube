@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SELECT_PERMISSION } from './actions';
+
 const selectedPermission = (state = null, action = {}) => {
   switch (action.type) {
-    case 'SELECT_PERMISSION':
+    case SELECT_PERMISSION:
       return action.permission;
     default:
       return state;

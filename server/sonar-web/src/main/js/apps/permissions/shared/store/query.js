@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { UPDATE_QUERY, REQUEST_HOLDERS } from './actions';
+
 const query = (state = '', action = {}) => {
   switch (action.type) {
-    case 'UPDATE_QUERY':
-    case 'REQUEST_HOLDERS':
+    case UPDATE_QUERY:
+    case REQUEST_HOLDERS:
       return action.query;
     default:
       return state;

@@ -21,8 +21,9 @@ import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
+import { getMeasuresAppList } from '../../../app/store/rootReducer';
 
-export const UPDATE_STORE = 'drilldown/list/UPDATE_STORE';
+export const UPDATE_STORE = 'measuresApp/drilldown/list/UPDATE_STORE';
 
 function updateStore (state) {
   return { type: UPDATE_STORE, state };
@@ -77,7 +78,7 @@ function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
  */
 export function fetchList (baseComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
-    const { list } = getState();
+    const list = getMeasuresAppList(getState());
     if (list.baseComponent === baseComponent && list.metric === metric) {
       return Promise.resolve();
     }
@@ -96,7 +97,7 @@ export function fetchList (baseComponent, metric, periodIndex = 1) {
 
 export function fetchMore (periodIndex) {
   return (dispatch, getState) => {
-    const { baseComponent, metric, pageIndex, components } = getState().list;
+    const { baseComponent, metric, pageIndex, components } = getMeasuresAppList(getState());
     dispatch(startFetching());
     return fetchLeaves(baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
       const nextComponents = [...components, ...r.components];
@@ -121,7 +122,7 @@ export function selectComponent (component) {
  */
 export function selectNext () {
   return (dispatch, getState) => {
-    const { components, selected } = getState().list;
+    const { components, selected } = getMeasuresAppList(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex < components.length - 1) {
       const nextSelected = components[selectedIndex + 1];
@@ -135,7 +136,7 @@ export function selectNext () {
  */
 export function selectPrevious () {
   return (dispatch, getState) => {
-    const { components, selected } = getState().list;
+    const { components, selected } = getMeasuresAppList(getState());
     const selectedIndex = components.indexOf(selected);
     if (selectedIndex > 0) {
       const nextSelected = components[selectedIndex - 1];

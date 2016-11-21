@@ -28,10 +28,14 @@ import DefinitionChanges from './DefinitionChanges';
 import { getPropertyName, getPropertyDescription, getSettingValue, isDefaultOrInherited } from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue } from '../store/actions';
-import { isLoading, getValidationMessage, getChangedValue } from '../store/rootReducer';
 import { failValidation, passValidation } from '../store/settingsPage/validationMessages/actions';
 import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
 import { TYPE_PASSWORD } from '../constants';
+import {
+  getSettingsAppChangedValue,
+  isSettingsAppLoading,
+  getSettingsAppValidationMessage
+} from '../../../app/store/rootReducer';
 
 class Definition extends React.Component {
   mounted: boolean;
@@ -186,9 +190,9 @@ class Definition extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  changedValue: getChangedValue(state, ownProps.setting.definition.key),
-  loading: isLoading(state, ownProps.setting.definition.key),
-  validationMessage: getValidationMessage(state, ownProps.setting.definition.key)
+  changedValue: getSettingsAppChangedValue(state, ownProps.setting.definition.key),
+  loading: isSettingsAppLoading(state, ownProps.setting.definition.key),
+  validationMessage: getSettingsAppValidationMessage(state, ownProps.setting.definition.key)
 });
 
 export default connect(

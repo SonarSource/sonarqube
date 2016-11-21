@@ -24,7 +24,7 @@ import AllProjectsContainer from './components/AllProjectsContainer';
 import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 
 export default (
-    <Route path="projects" component={App}>
+    <Route component={App}>
       <IndexRoute component={AllProjectsContainer}/>
       <Route path="favorite" component={FavoriteProjectsContainer}/>
     </Route>

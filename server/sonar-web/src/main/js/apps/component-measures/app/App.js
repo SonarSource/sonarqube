@@ -23,6 +23,7 @@ import Spinner from './../components/Spinner';
 
 export default class App extends React.Component {
   componentDidMount () {
+    this.props.setComponent(this.props.component);
     this.props.fetchMetrics();
   }
 

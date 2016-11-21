@@ -103,7 +103,7 @@ export default class Search extends React.Component {
         window.location = getComponentUrl(selected.refKey);
       } else {
         this.context.router.push({
-          pathname: '/',
+          pathname: '/code',
           query: {
             id: component.key,
             selected: selected.key
