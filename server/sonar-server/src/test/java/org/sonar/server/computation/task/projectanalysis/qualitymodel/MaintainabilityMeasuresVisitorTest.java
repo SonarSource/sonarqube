@@ -61,7 +61,7 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
-public class MaintainabilityMeasuresVisitorForReportTest {
+public class MaintainabilityMeasuresVisitorTest {
 
   static final String LANGUAGE_KEY_1 = "lKey1";
   static final String LANGUAGE_KEY_2 = "lKey2";
