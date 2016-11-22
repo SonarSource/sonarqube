@@ -18,6 +18,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*Log In to SonarQube*</td>
+</tr>
+<tr>
 	<td>type</td>
 	<td>id=login</td>
 	<td>admin</td>
@@ -33,14 +38,19 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForElementPresent</td>
+	<td>css=.js-user-authenticated</td>
+	<td></td>
+</tr>
+<tr>
 	<td>open</td>
 	<td>/issues</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.js-issue-transition</td>
-	<td>*Open*</td>
+	<td>waitForElementPresent</td>
+	<td>css=.search-navigator-workspace-list .issue</td>
+	<td></td>
 </tr>
 <tr>
 	<td>waitForElementPresent</td>

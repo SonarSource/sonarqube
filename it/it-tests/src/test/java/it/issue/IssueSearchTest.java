@@ -40,6 +40,7 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.selenium.SeleneseTest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -105,7 +106,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void search_issues_by_components() {
     assertThat(
       search(IssueQuery.create().components("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).list())
-        .hasSize(34);
+      .hasSize(34);
     assertThat(search(IssueQuery.create().components("unknown")).list()).isEmpty();
   }
 
@@ -280,9 +281,9 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void redirect_to_search_url_after_wrong_login() {
     // Force user authentication to check login on the issues search page
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("redirect_to_search_url_after_wrong_login",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("redirect_to_search_url_after_wrong_login",
       "/issue/IssueSearchTest/redirect_to_search_url_after_wrong_login.html" // SONAR-5659
-    ).build());
+    ).build()).runOn(ORCHESTRATOR);
   }
 
   @Test
@@ -312,9 +313,9 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void bulk_change() {
-    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("bulk_change",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("bulk_change",
       "/issue/IssueSearchTest/bulk_change.html"
-    ).build());
+    ).build()).runOn(ORCHESTRATOR);
   }
 
   private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
