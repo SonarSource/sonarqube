@@ -20,12 +20,13 @@
 package it.uiExtension;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
+
+import static util.selenium.Selenese.runSelenese;
+
 
 public class UiExtensionsTest {
 
@@ -40,9 +41,7 @@ public class UiExtensionsTest {
 
   @Test
   public void test_static_files() {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("ui-static-files",
-        "/uiExtension/UiExtensionsTest/static-files.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/static-files.html");
   }
 
   /**
@@ -50,9 +49,7 @@ public class UiExtensionsTest {
    */
   @Test
   public void test_page_decoration() {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("ui-page-decoration",
-        "/uiExtension/UiExtensionsTest/page-decoration.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/page-decoration.html");
   }
 
   /**
@@ -60,9 +57,7 @@ public class UiExtensionsTest {
    */
   @Test
   public void test_resource_configuration_extension() {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("resource-configuration-extension",
-        "/uiExtension/UiExtensionsTest/resource-configuration-extension.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/resource-configuration-extension.html");
   }
 
 }

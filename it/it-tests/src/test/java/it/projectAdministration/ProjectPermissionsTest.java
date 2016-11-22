@@ -21,13 +21,12 @@ package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectPermissionsTest {
 
@@ -39,10 +38,7 @@ public class ProjectPermissionsTest {
     executeBuild("project-permissions-project", "Test Project");
     executeBuild("project-permissions-project-2", "Another Test Project");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project_permissions_page_shows_only_single_project",
-      "/projectAdministration/ProjectPermissionsTest/test_project_permissions_page_shows_only_single_project.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/projectAdministration/ProjectPermissionsTest/test_project_permissions_page_shows_only_single_project.html");
   }
 
   private void executeBuild(String projectKey, String projectName) {

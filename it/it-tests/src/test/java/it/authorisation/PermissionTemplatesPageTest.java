@@ -20,11 +20,11 @@
 package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
+
+import static util.selenium.Selenese.runSelenese;
 
 public class PermissionTemplatesPageTest {
 
@@ -33,18 +33,13 @@ public class PermissionTemplatesPageTest {
 
   @Test
   public void should_display_page() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_page",
+    runSelenese(orchestrator,
       "/authorisation/PermissionTemplatesPageTest/should_display_page.html",
-      "/authorisation/PermissionTemplatesPageTest/should_create.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/authorisation/PermissionTemplatesPageTest/should_create.html");
   }
 
   @Test
   public void should_manage_project_creators() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_manage_project_creators",
-      "/authorisation/PermissionTemplatesPageTest/should_manage_project_creators.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/authorisation/PermissionTemplatesPageTest/should_manage_project_creators.html");
   }
 }

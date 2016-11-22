@@ -22,7 +22,6 @@ package it.qualityProfile;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.After;
 import org.junit.Before;
@@ -33,11 +32,11 @@ import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
-import util.selenium.SeleneseTest;
 
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class QualityProfilesPageTest {
 
@@ -68,23 +67,19 @@ public class QualityProfilesPageTest {
 
   @Test
   public void testHomePage() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_home_page",
+    runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesPageTest/should_display_list.html",
       "/qualityProfile/QualityProfilesPageTest/should_open_from_list.html",
-      "/qualityProfile/QualityProfilesPageTest/should_filter_by_language.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/qualityProfile/QualityProfilesPageTest/should_filter_by_language.html");
   }
 
   @Test
   public void testProfilePage() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_profile_page",
+    runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesPageTest/should_display_profile_rules.html",
       "/qualityProfile/QualityProfilesPageTest/should_display_profile_inheritance.html",
       "/qualityProfile/QualityProfilesPageTest/should_display_profile_projects.html",
-      "/qualityProfile/QualityProfilesPageTest/should_display_profile_exporters.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/qualityProfile/QualityProfilesPageTest/should_display_profile_exporters.html");
   }
 
   @Test
@@ -96,70 +91,48 @@ public class QualityProfilesPageTest {
 
   @Test
   public void testProfileChangelog() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_profile_changelog",
-      "/qualityProfile/QualityProfilesPageTest/should_display_changelog.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator,
+      "/qualityProfile/QualityProfilesPageTest/should_display_changelog.html");
   }
 
   @Ignore("find a way to know profile key inside selenium tests")
   @Test
   public void testComparison() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_comparison",
-      "/qualityProfile/QualityProfilesPageTest/should_compare.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_compare.html");
   }
 
   @Test
   public void testCreation() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_creation",
-      "/qualityProfile/QualityProfilesPageTest/should_create.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_create.html");
   }
 
   @Test
   public void testDeletion() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_deletion",
-      "/qualityProfile/QualityProfilesPageTest/should_delete.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_delete.html");
   }
 
   @Test
   public void testCopying() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_copying",
-      "/qualityProfile/QualityProfilesPageTest/should_copy.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_copy.html");
   }
 
   @Test
   public void testRenaming() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_renaming",
-      "/qualityProfile/QualityProfilesPageTest/should_rename.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_rename.html");
   }
 
   @Test
   public void testSettingDefault() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_setting_default",
-      "/qualityProfile/QualityProfilesPageTest/should_set_default.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_set_default.html");
   }
 
   @Test
   public void testRestoration() throws Exception {
     deleteProfile("xoo", "empty");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_restoration",
+    runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesPageTest/should_restore.html",
-      "/qualityProfile/QualityProfilesPageTest/should_restore_built_in.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/qualityProfile/QualityProfilesPageTest/should_restore_built_in.html");
   }
 
   private static void createProfile(String language, String name) {
@@ -197,7 +170,7 @@ public class QualityProfilesPageTest {
   }
 
   private static void setDefault(String language, String name) {
-     adminWsClient.wsConnector().call(
+    adminWsClient.wsConnector().call(
       new PostRequest("api/qualityprofiles/set_default")
         .setParam("language", language)
         .setParam("profileName", name));

@@ -21,14 +21,13 @@ package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectMeasuresPageTest {
 
@@ -55,26 +54,17 @@ public class ProjectMeasuresPageTest {
 
   @Test
   public void should_display_measures_page() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_measures_page",
-      "/measure/ProjectMeasuresPageTest/should_display_measures_page.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/measure/ProjectMeasuresPageTest/should_display_measures_page.html");
   }
 
   @Test
   public void should_drilldown_on_list_view() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_drilldown_on_list_view",
-      "/measure/ProjectMeasuresPageTest/should_drilldown_on_list_view.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/measure/ProjectMeasuresPageTest/should_drilldown_on_list_view.html");
   }
 
   @Test
   public void should_drilldown_on_tree_view() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_drilldown_on_tree_view",
-      "/measure/ProjectMeasuresPageTest/should_drilldown_on_tree_view.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/measure/ProjectMeasuresPageTest/should_drilldown_on_tree_view.html");
   }
 
 }

@@ -21,7 +21,6 @@ package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,11 +28,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import pageobjects.Navigation;
 import pageobjects.ProjectDashboardPage;
-import util.selenium.SeleneseTest;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectDashboardTest {
 
@@ -49,10 +48,7 @@ public class ProjectDashboardTest {
   public void after_first_analysis() throws Exception {
     executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("after_first_analysis",
-      "/measure/ProjectDashboardTest/test_project_overview_after_first_analysis.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/measure/ProjectDashboardTest/test_project_overview_after_first_analysis.html");
   }
 
   @Test

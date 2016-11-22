@@ -21,15 +21,14 @@ package it.i18n;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class I18nTest {
 
@@ -51,13 +50,12 @@ public class I18nTest {
   public void test_localization() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("ui-i18n",
+    runSelenese(orchestrator,
       "/i18n/default-locale-is-english.html",
       "/i18n/french-locale.html",
       "/i18n/french-pack.html",
       "/i18n/locale-with-france-country.html",
-      "/i18n/locale-with-swiss-country.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/i18n/locale-with-swiss-country.html");
   }
 
 }

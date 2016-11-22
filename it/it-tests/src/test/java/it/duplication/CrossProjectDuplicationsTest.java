@@ -22,7 +22,6 @@ package it.duplication;
 import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -34,12 +33,12 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 public class CrossProjectDuplicationsTest {
 
@@ -127,11 +126,7 @@ public class CrossProjectDuplicationsTest {
 
   @Test
   public void verify_viewer() {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("duplications-viewer",
-        "/duplication/CrossProjectDuplicationsTest/cross-project-duplications-viewer.html")
-        .build())
-      .runOn(orchestrator);
+    runSelenese(orchestrator, "/duplication/CrossProjectDuplicationsTest/cross-project-duplications-viewer.html");
   }
 
   private static void analyzeProject(String projectKey, String path, String... additionalProperties) {

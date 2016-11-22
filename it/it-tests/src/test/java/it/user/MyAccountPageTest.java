@@ -21,7 +21,6 @@ package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.After;
 import org.junit.Before;
@@ -32,10 +31,10 @@ import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class MyAccountPageTest {
 
@@ -64,36 +63,24 @@ public class MyAccountPageTest {
 
   @Test
   public void should_display_user_details() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_user_details",
-      "/user/MyAccountPageTest/should_display_user_details.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_user_details.html");
   }
 
   @Test
   public void should_change_password() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_change_password",
-      "/user/MyAccountPageTest/should_change_password.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/MyAccountPageTest/should_change_password.html");
   }
 
   @Test
   public void should_display_projects() throws Exception {
     // first, try on empty instance
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_projects",
-      "/user/MyAccountPageTest/should_display_no_projects.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_no_projects.html");
 
     // then, analyze a project
     analyzeProject("sample");
     grantAdminPermission("account-user", "sample");
 
-    selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_projects",
-      "/user/MyAccountPageTest/should_display_projects.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_projects.html");
   }
 
   private static void createUser(String login, String name, String email) {

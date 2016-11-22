@@ -20,7 +20,6 @@
 package it.issue;
 
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
 import org.junit.AfterClass;
@@ -35,13 +34,13 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
-import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.resetEmailSettings;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 public class IssueNotificationsTest extends AbstractIssueTest {
 
@@ -71,11 +70,9 @@ public class IssueNotificationsTest extends AbstractIssueTest {
 
     // 1. Check that SMTP server was turned on and able to send test email
     // 2. Create user, which will receive notifications for new violations
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("issue-notifications",
-        "/issue/IssueNotificationsTest/email_configuration.html",
-        "/issue/IssueNotificationsTest/user_notifications_settings.html").build()
-    ).runOn(ORCHESTRATOR);
+    runSelenese(ORCHESTRATOR,
+      "/issue/IssueNotificationsTest/email_configuration.html",
+      "/issue/IssueNotificationsTest/user_notifications_settings.html");
 
     // We need to wait until all notifications will be delivered
     waitUntilAllNotificationsAreDelivered();

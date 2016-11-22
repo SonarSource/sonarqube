@@ -21,7 +21,6 @@ package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
@@ -39,10 +38,10 @@ import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import pageobjects.Navigation;
 import pageobjects.settings.SettingsPage;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectAdministrationTest {
   private static final String DELETE_WS_ENDPOINT = "api/projects/bulk_delete";
@@ -120,9 +119,7 @@ public class ProjectAdministrationTest {
         "projectKey", "sample",
         "permission", "admin");
 
-      new SeleneseTest(
-        Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/projectAdministration/ProjectAdministrationTest/project-deletion/project-deletion.html").build())
-        .runOn(orchestrator);
+      runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-deletion/project-deletion.html");
     } finally {
       wsClient.userClient().deactivate(projectAdminUser);
     }
@@ -145,19 +142,11 @@ public class ProjectAdministrationTest {
     // There are 7 modules
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
 
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("modify_version_of_multimodule_project",
-        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html")
-      .build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html");
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(2);
 
-    selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
-        "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html")
-      .build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html");
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
   }

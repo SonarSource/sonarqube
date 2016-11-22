@@ -20,7 +20,6 @@
 package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -37,11 +36,11 @@ import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
-import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProvisioningPermissionTest {
 
@@ -97,8 +96,7 @@ public class ProvisioningPermissionTest {
    */
   @Test
   public void should_not_be_able_to_provision_project() {
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("should-not-be-able-to-provision-project",
-      "/authorisation/ProvisioningPermissionTest/should-not-be-able-to-provision-project.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/authorisation/ProvisioningPermissionTest/should-not-be-able-to-provision-project.html");
   }
 
   /**
@@ -107,8 +105,7 @@ public class ProvisioningPermissionTest {
    */
   @Test
   public void should_be_able_to_provision_project() {
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("should-be-able-to-provision-project",
-      "/authorisation/ProvisioningPermissionTest/should-be-able-to-provision-project.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/authorisation/ProvisioningPermissionTest/should-be-able-to-provision-project.html");
   }
 
   /**

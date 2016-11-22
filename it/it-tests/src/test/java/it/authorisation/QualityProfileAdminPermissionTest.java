@@ -20,7 +20,6 @@
 package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,6 +31,7 @@ import util.user.UserRule;
 
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
+import static util.selenium.Selenese.runSelenese;
 
 /**
  * SONAR-4210
@@ -44,7 +44,7 @@ public class QualityProfileAdminPermissionTest {
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
 
-  static PermissionsService permissionsWsClient;
+  private static PermissionsService permissionsWsClient;
 
   @BeforeClass
   public static void init() {
@@ -64,12 +64,11 @@ public class QualityProfileAdminPermissionTest {
     userRule.createUser("profileadm", "papwd");
     permissionsWsClient.addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
 
-    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("administrate-profiles",
+    runSelenese(orchestrator,
       // Verify normal user is not allowed to do any modification
       "/authorisation/QualityProfileAdminPermissionTest/normal-user.html",
       // Verify profile admin is allowed to do modifications
-      "/authorisation/QualityProfileAdminPermissionTest/profile-admin.html"
-    ).build());
+      "/authorisation/QualityProfileAdminPermissionTest/profile-admin.html");
   }
 
 }

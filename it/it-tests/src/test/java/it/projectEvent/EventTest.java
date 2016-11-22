@@ -33,11 +33,10 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
-import com.sonar.orchestrator.selenium.Selenese;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class EventTest {
 
@@ -74,9 +73,7 @@ public class EventTest {
   public void delete_standard_event() {
     executeAnalysis();
 
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("delete-event",
-        "/projectEvent/EventTest/create_delete_standard_event.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/projectEvent/EventTest/create_delete_standard_event.html");
   }
 
   /**

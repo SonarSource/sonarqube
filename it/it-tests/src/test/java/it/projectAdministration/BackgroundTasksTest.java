@@ -21,7 +21,6 @@ package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -30,10 +29,10 @@ import org.junit.Test;
 import pageobjects.BackgroundTaskItem;
 import pageobjects.BackgroundTasksPage;
 import pageobjects.Navigation;
-import util.selenium.SeleneseTest;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class BackgroundTasksTest {
 
@@ -51,10 +50,8 @@ public class BackgroundTasksTest {
 
   @Test
   public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_not_display_failing_and_search_and_filter_elements_on_project_level_page",
-      "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(ORCHESTRATOR);
+    runSelenese(ORCHESTRATOR,
+      "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html");
   }
 
   @Test
