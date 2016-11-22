@@ -24,6 +24,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.MapSettings;
@@ -44,6 +45,8 @@ public class WebhookCallerImplTest {
 
   @Rule
   public MockWebServer server = new MockWebServer();
+  @Rule
+  public Timeout timeout = Timeout.seconds(60);
 
   private System2 system = new TestSystem2().setNow(NOW);
 
@@ -81,7 +84,8 @@ public class WebhookCallerImplTest {
 
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
-    assertThat(delivery.getErrorMessage().get()).startsWith("Failed to connect");
+    // message can be "Failed to connect" or "connect timed out"
+    assertThat(delivery.getErrorMessage().get()).contains("connect");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(payload);
