@@ -22,12 +22,10 @@ package it.projectEvent;
 import com.google.common.collect.Lists;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.services.Event;
 import org.sonar.wsclient.services.EventQuery;
@@ -35,6 +33,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
+import com.sonar.orchestrator.selenium.Selenese;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,18 +47,6 @@ public class EventTest {
   @Before
   public void setUp() throws Exception {
     orchestrator.resetData();
-  }
-
-  @Test
-  @Ignore("Too many false-positives")
-  public void configuration_of_event() {
-    executeAnalysis();
-
-    orchestrator.executeSelenese(
-      Selenese.builder().setHtmlTestsInClasspath("events",
-        "/projectEvent/EventTest/create_event_with_special_character.html",
-        "/projectEvent/EventTest/no_events_widget_on_dir.html")
-        .build());
   }
 
   @Test
@@ -90,19 +77,6 @@ public class EventTest {
     new SeleneseTest(
       Selenese.builder().setHtmlTestsInClasspath("delete-event",
         "/projectEvent/EventTest/create_delete_standard_event.html").build()).runOn(orchestrator);
-  }
-
-  @Test
-  @Ignore("Too many false-positives")
-  public void event_widget() {
-    // first build, in the past
-    executeAnalysis("sonar.projectDate", "2016-01-01");
-    // Second build, today
-    executeAnalysis();
-
-    orchestrator.executeSelenese(
-      Selenese.builder().setHtmlTestsInClasspath("event-widget",
-        "/projectEvent/EventTest/show_events_using_filters.html").build());
   }
 
   /**

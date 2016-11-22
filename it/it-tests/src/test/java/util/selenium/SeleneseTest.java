@@ -159,6 +159,9 @@ public class SeleneseTest {
       case "assertLocation":
         assertLocation(param1);
         return this;
+      case "verifyHtmlSource":
+        verifyHtmlSource(param1);
+        return this;
       case "waitForElementPresent":
         waitForElementPresent(param1, param2);
         return this;
@@ -167,6 +170,9 @@ public class SeleneseTest {
         return this;
       case "waitForVisible":
         waitForVisible(param1);
+        return this;
+      case "waitForXpathCount":
+        waitForXpathCount(param1, Integer.parseInt(param2));
         return this;
       case "assertValue":
       case "waitForValue":
@@ -198,7 +204,7 @@ public class SeleneseTest {
 
     url = replacePlaceholders(url);
 
-    URI uri = URI.create(url.replace(" ", "%20"));
+    URI uri = URI.create(url.replace(" ", "%20").replace("|", "%7C"));
     if (!uri.isAbsolute()) {
       url = baseUrl + url;
     }
@@ -407,6 +413,10 @@ public class SeleneseTest {
     find(selector).should().contain(text);
   }
 
+  private void waitForXpathCount(String selector, int expectedCount) {
+    assertThat(find(selector).stream().size()).isEqualTo(expectedCount);
+  }
+
   private void confirm(final String message) {
     System.out.println(" - confirm(" + message + ")");
 
@@ -420,6 +430,10 @@ public class SeleneseTest {
 
   private void assertLocation(String urlPattern) {
     assertThat(driver.getCurrentUrl()).matches(glob(urlPattern));
+  }
+
+  private void verifyHtmlSource(String expect) {
+    assertThat(driver.getPageSource()).matches(glob(expect));
   }
 
   private String replacePlaceholders(String text) {

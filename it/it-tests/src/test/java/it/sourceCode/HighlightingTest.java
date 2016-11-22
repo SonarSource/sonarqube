@@ -25,6 +25,7 @@ import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import util.selenium.SeleneseTest;
 
 import static util.ItUtils.runProjectAnalysis;
 
@@ -48,7 +49,7 @@ public class HighlightingTest {
       // SONAR-4249 & SONAR-4250
       "/sourceCode/HighlightingTest/symbol-usages-highlighting.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   // Check that E/S index is updated when file content is unchanged but plugin generates different syntax/symbol highlighting
@@ -58,13 +59,13 @@ public class HighlightingTest {
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v1",
       "/sourceCode/HighlightingTest/syntax-highlighting-v1.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
     selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v2",
       "/sourceCode/HighlightingTest/syntax-highlighting-v2.html",
       "/sourceCode/HighlightingTest/symbol-usages-highlighting.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 }
