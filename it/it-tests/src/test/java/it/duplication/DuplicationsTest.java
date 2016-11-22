@@ -22,7 +22,6 @@ package it.duplication;
 import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +33,6 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;

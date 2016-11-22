@@ -22,7 +22,6 @@ package it.user;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
@@ -47,7 +46,6 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -56,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 /**
  * Test REALM authentication.
@@ -115,16 +114,10 @@ public class RealmAuthenticationTest {
     // Then
     assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
     // with external details and groups
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("external-user-details",
-        "/user/ExternalAuthenticationTest/external-user-details.html")
-        .build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
 
     // SONAR-4462
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("system-info",
-        "/user/ExternalAuthenticationTest/system-info.html")
-        .build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/system-info.html");
   }
 
   /**
@@ -147,10 +140,7 @@ public class RealmAuthenticationTest {
     assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
     // with external details and groups
     // TODO replace by WS ? Or with new Selenese utils
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("external-user-details",
-        "/user/ExternalAuthenticationTest/external-user-details.html")
-        .build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
 
     // Now update user details
     users.put(username + ".name", "Tester2 Testerovich");
@@ -159,9 +149,7 @@ public class RealmAuthenticationTest {
     // Then
     assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
     // with external details and groups updated
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("external-user-details2",
-        "/user/ExternalAuthenticationTest/external-user-details2.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details2.html");
   }
 
   /**
@@ -259,9 +247,7 @@ public class RealmAuthenticationTest {
     // Given clean Sonar installation and no users in external system
 
     // Let's create and delete the user "tester" in Sonar DB
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("external-user-create-and-delete-user",
-        "/user/ExternalAuthenticationTest/create-and-delete-user.html").build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/create-and-delete-user.html");
 
     // And now update the security with the user that was deleted
     String login = USER_LOGIN;

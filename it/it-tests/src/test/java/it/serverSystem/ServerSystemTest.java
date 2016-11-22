@@ -21,7 +21,6 @@ package it.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
@@ -48,11 +47,11 @@ import org.sonarqube.ws.client.WsResponse;
 import pageobjects.Navigation;
 import pageobjects.ServerIdPage;
 import util.ItUtils;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
+import static util.selenium.Selenese.runSelenese;
 
 public class ServerSystemTest {
 
@@ -105,9 +104,7 @@ public class ServerSystemTest {
 
   @Test
   public void display_system_info() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-administration",
-      "/serverSystem/ServerSystemTest/system_info.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/system_info.html");
   }
 
   @Test
@@ -149,9 +146,7 @@ public class ServerSystemTest {
   @Test
   public void display_warnings_when_using_h2() {
     if (orchestrator.getConfiguration().getString("sonar.jdbc.dialect").equals("h2")) {
-      Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("derby-warnings",
-        "/serverSystem/ServerSystemTest/derby-warning.html").build();
-      new SeleneseTest(selenese).runOn(orchestrator);
+      runSelenese(orchestrator, "/serverSystem/ServerSystemTest/derby-warning.html");
     }
   }
 
@@ -160,9 +155,7 @@ public class ServerSystemTest {
    */
   @Test
   public void hide_jdbc_settings_to_non_admin() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("jdbc-settings",
-      "/serverSystem/ServerSystemTest/hide-jdbc-settings.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
   }
 
   @Test
@@ -196,9 +189,7 @@ public class ServerSystemTest {
     orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "myproject.jsp"));
     // Access dashboard
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("url_ending_by_jsp",
-      "/serverSystem/ServerSystemTest/url_ending_by_jsp.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/url_ending_by_jsp.html");
   }
 
   /**

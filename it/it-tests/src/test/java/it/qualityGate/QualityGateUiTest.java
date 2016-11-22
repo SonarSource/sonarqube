@@ -21,7 +21,6 @@ package it.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
@@ -35,10 +34,10 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
 import util.ItUtils;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 public class QualityGateUiTest {
 
@@ -82,10 +81,7 @@ public class QualityGateUiTest {
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
     scanSampleWithDate("2012-01-02");
 
-    new SeleneseTest(Selenese.builder()
-      .setHtmlTestsInClasspath("display-alerts-history-page",
-        "/qualityGate/QualityGateUiTest/should-display-alerts-correctly-history-page.html"
-      ).build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityGate/QualityGateUiTest/should-display-alerts-correctly-history-page.html");
 
     qgClient.unsetDefault();
     qgClient.destroy(qGate.id());
@@ -93,10 +89,7 @@ public class QualityGateUiTest {
 
   @Test
   public void should_display_quality_gates_page() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_quality_gates_page",
-        "/qualityGate/QualityGateUiTest/should_display_quality_gates_page.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/qualityGate/QualityGateUiTest/should_display_quality_gates_page.html");
   }
 
   private void scanSampleWithDate(String date) {

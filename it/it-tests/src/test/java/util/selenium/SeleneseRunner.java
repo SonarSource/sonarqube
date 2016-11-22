@@ -20,7 +20,6 @@
 package util.selenium;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -46,26 +45,21 @@ import static java.util.regex.Pattern.DOTALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.selenium.Retry._30_SECONDS;
 
-public class SeleneseTest {
-  private final Selenese suite;
+class SeleneseRunner {
 
   private Map<String, String> variables;
   private String baseUrl;
   private SeleniumDriver driver;
 
-  public SeleneseTest(Selenese suite) {
-    this.suite = suite;
-  }
-
-  public void runOn(Orchestrator orchestrator) {
+  void runOn(Selenese selenese, Orchestrator orchestrator) {
     this.variables = new HashMap<>();
     this.baseUrl = orchestrator.getServer().getUrl();
     this.driver = Browser.FIREFOX.getDriverForThread();
 
     driver.manage().deleteAllCookies();
-    driver.manage().window().setSize(new Dimension(1280,1024));
+    driver.manage().window().setSize(new Dimension(1280, 1024));
 
-    for (File file : suite.getHtmlTests()) {
+    for (File file : selenese.getHtmlTests()) {
       System.out.println();
       System.out.println("============ " + file.getName() + " ============");
       Document doc = parse(file);
@@ -103,7 +97,7 @@ public class SeleneseTest {
     }
   }
 
-  public SeleneseTest action(String action, String param1, String param2) {
+  public SeleneseRunner action(String action, String param1, String param2) {
     switch (action) {
       case "open":
         open(param1);

@@ -20,14 +20,13 @@
 package it.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.runProjectAnalysis;
+import static util.selenium.Selenese.runSelenese;
 
 public class EncodingTest {
 
@@ -43,9 +42,6 @@ public class EncodingTest {
   public void support_japanese_charset() {
     runProjectAnalysis(orchestrator, "sourceCode/japanese-charset", "sonar.sourceEncoding", "Shift_JIS");
 
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("java-japanese-charset",
-      "/sourceCode/EncodingTest/japanese_sources.html"
-      ).build()).runOn(orchestrator);
+    runSelenese(orchestrator, "/sourceCode/EncodingTest/japanese_sources.html");
   }
 }

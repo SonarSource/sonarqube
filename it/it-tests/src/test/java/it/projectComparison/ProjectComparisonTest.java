@@ -21,15 +21,14 @@ package it.projectComparison;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectComparisonTest {
 
@@ -41,22 +40,19 @@ public class ProjectComparisonTest {
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey("project-comparison-test-project")
-        .setProjectName("ProjectComparisonTest Project")
-    );
+        .setProjectName("ProjectComparisonTest Project"));
   }
 
   @Test
   @Ignore("need to find a way to type into invisible input fields")
   public void test_project_comparison_service() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_comparison_service",
+    runSelenese(orchestrator,
       "/projectComparison/ProjectComparisonTest/should-display-basic-set-of-metrics.html",
       "/projectComparison/ProjectComparisonTest/should-add-projects.html",
       "/projectComparison/ProjectComparisonTest/should-move-and-remove-projects.html",
       "/projectComparison/ProjectComparisonTest/should-add-metrics.html",
       "/projectComparison/ProjectComparisonTest/should-not-add-differential-metrics.html",
-      "/projectComparison/ProjectComparisonTest/should-move-and-remove-metrics.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/projectComparison/ProjectComparisonTest/should-move-and-remove-metrics.html");
   }
 
 }

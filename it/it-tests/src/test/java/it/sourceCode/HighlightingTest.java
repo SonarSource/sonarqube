@@ -20,14 +20,13 @@
 package it.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.runProjectAnalysis;
+import static util.selenium.Selenese.runSelenese;
 
 public class HighlightingTest {
 
@@ -43,13 +42,11 @@ public class HighlightingTest {
   public void highlight_source_code_and_symbols_usage() throws Exception {
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("highlight_source_code_and_symbols_usage",
+    runSelenese(orchestrator,
       // SONAR-3893 & SONAR-4247
       "/sourceCode/HighlightingTest/syntax-highlighting.html",
       // SONAR-4249 & SONAR-4250
-      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
   }
 
   // Check that E/S index is updated when file content is unchanged but plugin generates different syntax/symbol highlighting
@@ -57,15 +54,12 @@ public class HighlightingTest {
   public void update_highlighting_even_when_code_unchanged() throws Exception {
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v1");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v1",
-      "/sourceCode/HighlightingTest/syntax-highlighting-v1.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/sourceCode/HighlightingTest/syntax-highlighting-v1.html");
 
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
-    selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v2",
+    runSelenese(orchestrator,
       "/sourceCode/HighlightingTest/syntax-highlighting-v2.html",
-      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
   }
 }

@@ -20,11 +20,11 @@
 package it.administration;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
+import util.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
+
 
 public class UsersPageTest {
 
@@ -33,17 +33,11 @@ public class UsersPageTest {
 
   @Test
   public void generate_and_revoke_user_token() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("generate_and_revoke_user_token",
-      "/administration/UsersPageTest/generate_and_revoke_user_token.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    Selenese.runSelenese(orchestrator, "/administration/UsersPageTest/generate_and_revoke_user_token.html");
   }
 
   @Test
   public void admin_should_change_its_own_password() throws Exception {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("admin_should_change_its_own_password",
-      "/administration/UsersPageTest/admin_should_change_its_own_password.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    Selenese.runSelenese(orchestrator, "/administration/UsersPageTest/admin_should_change_its_own_password.html");
   }
 }

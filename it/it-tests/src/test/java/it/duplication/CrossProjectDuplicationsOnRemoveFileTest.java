@@ -21,18 +21,17 @@ package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.runProjectAnalysis;
+import static util.selenium.Selenese.runSelenese;
 
 public class CrossProjectDuplicationsOnRemoveFileTest {
 
@@ -75,11 +74,8 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
   @Test
   public void display_message_in_viewer_when_duplications_with_deleted_files_are_found() throws Exception {
     // TODO stas, please replace this IT by a medium test
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("duplications-on-deleted-project",
-        "/duplication/CrossProjectDuplicationsOnRemoveFileTest/duplications-with-deleted-project.html")
-        .build())
-      .runOn(orchestrator);
+    runSelenese(orchestrator,
+      "/duplication/CrossProjectDuplicationsOnRemoveFileTest/duplications-with-deleted-project.html");
   }
 
   private static void analyzeProject(String projectKey, String path) {

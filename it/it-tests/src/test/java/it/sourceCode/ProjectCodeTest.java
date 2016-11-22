@@ -21,13 +21,12 @@ package it.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class ProjectCodeTest {
 
@@ -38,22 +37,17 @@ public class ProjectCodeTest {
   public void test_project_code_page() throws Exception {
     executeBuild("shared/xoo-sample", "project-for-code", "Project For Code");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_code_page",
+    runSelenese(orchestrator,
       "/sourceCode/ProjectCodeTest/test_project_code_page.html",
       "/sourceCode/ProjectCodeTest/search.html",
-      "/sourceCode/ProjectCodeTest/permalink.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+      "/sourceCode/ProjectCodeTest/permalink.html");
   }
 
   @Test
   public void code_page_should_expand_root_dir() throws Exception {
     executeBuild("shared/xoo-sample-with-root-dir", "project-for-code-root-dir", "Project For Code");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("code_page_should_expand_root_dir",
-      "/sourceCode/ProjectCodeTest/code_page_should_expand_root_dir.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/sourceCode/ProjectCodeTest/code_page_should_expand_root_dir.html");
   }
 
   private void executeBuild(String projectLocation, String projectKey, String projectName) {

@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.io.IOException;
 import java.util.UUID;
@@ -46,7 +45,6 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
-import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
 import static java.lang.String.format;
@@ -54,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 public class LocalAuthenticationTest {
 
@@ -196,9 +195,7 @@ public class LocalAuthenticationTest {
   public void allow_users_to_sign_up() throws IOException {
     setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", "true");
 
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("allow_users_to_sign_up",
-        "/user/LocalAuthenticationTest/allow_users_to_sign_up.html").build()).runOn(ORCHESTRATOR);
+    runSelenese(ORCHESTRATOR, "/user/LocalAuthenticationTest/allow_users_to_sign_up.html");
 
     // This check is failing because signup doesn't refresh the users ES index !
     // Will be fixed by SONAR-7308
@@ -207,7 +204,7 @@ public class LocalAuthenticationTest {
 
   @Test
   public void authentication_through_ui() {
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("authentication",
+    runSelenese(ORCHESTRATOR,
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
       "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html",
@@ -216,13 +213,13 @@ public class LocalAuthenticationTest {
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
       "/user/LocalAuthenticationTest/redirect_to_original_url_with_parameters_after_direct_login.html",
       // SONAR-2009
-      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html").build()).runOn(ORCHESTRATOR);
+      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html");
 
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("force-authentication",
+    runSelenese(ORCHESTRATOR,
       // SONAR-3473
-      "/user/LocalAuthenticationTest/force-authentication.html").build()).runOn(ORCHESTRATOR);
+      "/user/LocalAuthenticationTest/force-authentication.html");
   }
 
   @Test

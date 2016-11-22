@@ -21,14 +21,13 @@ package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
+import static util.selenium.Selenese.runSelenese;
 
 public class BulkDeletionTest {
 
@@ -50,18 +49,14 @@ public class BulkDeletionTest {
     executeBuild("cameleon-2", "Foo-Application");
     executeBuild("cameleon-3", "Bar-Sonar-Plugin");
 
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-bulk-deletion-on-selected-project",
-      "/projectAdministration/BulkDeletionTest/bulk-delete-filter-projects.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    runSelenese(orchestrator, "/projectAdministration/BulkDeletionTest/bulk-delete-filter-projects.html");
   }
 
   private void executeBuild(String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey(projectKey)
-        .setProjectName(projectName)
-      );
+        .setProjectName(projectName));
   }
 
 }

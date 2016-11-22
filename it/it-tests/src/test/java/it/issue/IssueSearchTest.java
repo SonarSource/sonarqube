@@ -21,7 +21,6 @@ package it.issue;
 
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -29,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.assertj.core.api.Fail;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
@@ -40,7 +39,6 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import util.selenium.SeleneseTest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -52,6 +50,7 @@ import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
+import static util.selenium.Selenese.runSelenese;
 
 public class IssueSearchTest extends AbstractIssueTest {
 
@@ -83,9 +82,9 @@ public class IssueSearchTest extends AbstractIssueTest {
     adminIssueClient().doTransition(searchRandomIssue().key(), "resolve");
   }
 
-  @After
+  @Before
   public void resetProperties() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", null);
+    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "false");
   }
 
   @Test
@@ -281,9 +280,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void redirect_to_search_url_after_wrong_login() {
     // Force user authentication to check login on the issues search page
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("redirect_to_search_url_after_wrong_login",
-      "/issue/IssueSearchTest/redirect_to_search_url_after_wrong_login.html" // SONAR-5659
-    ).build()).runOn(ORCHESTRATOR);
+    runSelenese(ORCHESTRATOR, "/issue/IssueSearchTest/redirect_to_search_url_after_wrong_login.html");
   }
 
   @Test
@@ -313,9 +310,7 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void bulk_change() {
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("bulk_change",
-      "/issue/IssueSearchTest/bulk_change.html"
-    ).build()).runOn(ORCHESTRATOR);
+    runSelenese(ORCHESTRATOR, "/issue/IssueSearchTest/bulk_change.html");
   }
 
   private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
