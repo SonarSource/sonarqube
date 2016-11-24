@@ -87,6 +87,8 @@
 
     <!-- used for deployment to SonarSource Artifactory -->
     <gitRepositoryName>sonarqube</gitRepositoryName>
+    <!-- Release: enable publication to Bintray -->
+    <artifactsToPublish>${project.groupId}:sonar-application:zip</artifactsToPublish>
   </properties>
 
   <build>
