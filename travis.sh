@@ -63,7 +63,7 @@ CI)
 
     mvn deploy \
         $MAVEN_OPTIONS \
-        -Pdeploy-sonarsource
+        -Pdeploy-sonarsource,release
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Internal pull request: trigger QA and analysis'
