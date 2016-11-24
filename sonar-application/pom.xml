@@ -208,24 +208,6 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <configuration>
-              <failOnError>${checksum.failOnError}</failOnError>
-              <target>
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5" />
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
