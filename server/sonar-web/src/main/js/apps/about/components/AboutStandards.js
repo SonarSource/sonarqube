@@ -18,27 +18,59 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import ReadMore from './ReadMore';
+import { translate } from '../../../helpers/l10n';
+import { getRulesUrl } from '../../../helpers/urls';
 
 const link = 'http://redirect.sonarsource.com/doc/rules.html';
+
+const owaspTags = 'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
 
 export default class AboutStandards extends React.Component {
   render () {
     return (
-        <div className="about-page-section">
-          <div className="about-page-container clearfix">
-            <img className="pull-right" src={window.baseUrl + '/images/recognized-standards.svg'}
-                 width={500} height={175} alt="Conform to recognized standards"/>
-            <h2 className="about-page-header">Conform to recognized standards</h2>
-            <p className="about-page-text">
-              SonarAnalyzers offer rules that support industry standards: MISRA, CERT, CWE, OWASP Top 10 and SANS Top
-              25. Configure your Quality Profile with standard-related rules to ensure adherence.
-            </p>
-            <div className="big-spacer-top">
-              <a className="about-page-link-more" href={link} target="_blank">
-                <span>Read more</span>
-                <i className="icon-detach spacer-left"/>
-              </a>
+        <div className="boxed-group">
+          <h2>{translate('about_page.standards')}</h2>
+          <div className="boxed-group-inner">
+            <p className="about-page-text">{translate('about_page.standards.text')}</p>
+
+            <div className="spacer-top">
+              <ul className="list-inline">
+                <li>
+                  <a className="link-with-icon" href={getRulesUrl({ tags: 'misra' })}>
+                    <i className="icon-tags"/>
+                    <span className="little-spacer-left">MISRA</span>
+                  </a>
+                </li>
+                <li>
+                  <a className="link-with-icon" href={getRulesUrl({ tags: 'cert' })}>
+                    <i className="icon-tags"/>
+                    <span className="little-spacer-left">CERT</span>
+                  </a>
+                </li>
+                <li>
+                  <a className="link-with-icon" href={getRulesUrl({ tags: 'cwe' })}>
+                    <i className="icon-tags"/>
+                    <span className="little-spacer-left">CWE</span>
+                  </a>
+                </li>
+                <li>
+                  <a className="link-with-icon" href={getRulesUrl({ tags: owaspTags })}>
+                    <i className="icon-tags"/>
+                    <span className="little-spacer-left">OWASP Top 10</span>
+                  </a>
+                </li>
+                <li>
+                  <a className="link-with-icon"
+                     href={getRulesUrl({ tags: 'sans-top25-porous,sans-top25-risky,sans-top25-insecure' })}>
+                    <i className="icon-tags"/>
+                    <span className="little-spacer-left">SANS Top 25</span>
+                  </a>
+                </li>
+              </ul>
             </div>
+
+            <ReadMore link={link}/>
           </div>
         </div>
     );

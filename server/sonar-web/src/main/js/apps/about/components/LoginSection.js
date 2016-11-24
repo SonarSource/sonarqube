@@ -30,7 +30,7 @@ export default class LoginSection extends React.Component {
 
     return (
         <div id="about-login">
-          <div className="about-page-auth-providers">
+          <div className="about-page-auth-providers big-spacer-top">
             {authProviders.map(provider => (
                 <OAuthProvider key={provider.key} provider={provider}/>
             ))}

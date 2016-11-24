@@ -8,6 +8,7 @@
   box-sizing: border-box;
   background-color: #236a97;
   color: #fff;
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
