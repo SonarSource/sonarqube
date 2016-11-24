@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.ce.measure.Issue;
@@ -44,7 +43,7 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
-import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.LEAVES;
+import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
@@ -52,10 +51,9 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.valueOf;
 
 /**
- * Compute following measures :
+ * Compute following measures for projects and descendants:
  * {@link CoreMetrics#RELIABILITY_RATING_KEY}
  * {@link CoreMetrics#SECURITY_RATING_KEY}
  */
@@ -78,7 +76,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   private final Map<String, Metric> metricsByKey;
 
   public ReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository) {
-    super(LEAVES, POST_ORDER, CounterFactory.INSTANCE);
+    super(FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
 
@@ -109,26 +107,6 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
   @Override
   public void visitFile(Component file, Path<Counter> path) {
     computeAndSaveMeasures(file, path);
-  }
-
-  @Override
-  public void visitView(Component view, Path<Counter> path) {
-    computeAndSaveMeasures(view, path);
-  }
-
-  @Override
-  public void visitSubView(Component subView, Path<Counter> path) {
-    computeAndSaveMeasures(subView, path);
-  }
-
-  @Override
-  public void visitProjectView(Component projectView, Path<Counter> path) {
-    path.parent().ratingValueByMetric.entrySet().forEach(entry -> {
-      Optional<Measure> ratingMeasure = measureRepository.getRawMeasure(projectView, metricsByKey.get(entry.getKey()));
-      if (ratingMeasure.isPresent()) {
-        entry.getValue().increment(valueOf(ratingMeasure.get().getData()));
-      }
-    });
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
@@ -189,14 +167,6 @@ public class ReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVisito
     @Override
     public Counter createForAny(Component component) {
       return new Counter();
-    }
-
-    /**
-     * Counter is not used at ProjectView level, saves on instantiating useless objects
-     */
-    @Override
-    public Counter createForProjectView(Component projectView) {
-      return null;
     }
   }
 }

@@ -21,8 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -43,15 +41,13 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 /**
- * Compute measures related to maintainability :
+ * Compute measures related to maintainability for projects and descendants :
  * {@link CoreMetrics#DEVELOPMENT_COST_KEY}
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
  * {@link CoreMetrics#EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY}
  */
 public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<MaintainabilityMeasuresVisitor.Counter> {
-  private static final Logger LOG = Loggers.get(MaintainabilityMeasuresVisitor.class);
-
   private final MeasureRepository measureRepository;
   private final RatingSettings ratingSettings;
   private final RatingGrid ratingGrid;
@@ -65,7 +61,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   private final Metric effortToMaintainabilityRatingAMetric;
 
   public MaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
-    super(CrawlerDepthLimit.LEAVES, POST_ORDER, CounterFactory.INSTANCE);
+    super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.ratingSettings = ratingSettings;
     this.ratingGrid = ratingSettings.getRatingGrid();
@@ -106,28 +102,6 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     Optional<Measure> measure = measureRepository.getRawMeasure(file, nclocMetric);
     long ncloc = measure.isPresent() ? measure.get().getIntValue() : 0;
     return ncloc * ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
-  }
-
-  @Override
-  public void visitView(Component view, Path<Counter> path) {
-    computeAndSaveMeasures(view, path);
-  }
-
-  @Override
-  public void visitSubView(Component subView, Path<Counter> path) {
-    computeAndSaveMeasures(subView, path);
-  }
-
-  @Override
-  public void visitProjectView(Component projectView, Path<Counter> path) {
-    Optional<Measure> developmentCostMeasure = measureRepository.getRawMeasure(projectView, developmentCostMetric);
-    if (developmentCostMeasure.isPresent()) {
-      try {
-        path.parent().addDevCosts(Long.valueOf(developmentCostMeasure.get().getStringValue()));
-      } catch (NumberFormatException e) {
-        LOG.trace("Failed to parse value of metric {} for component {}", developmentCostMetric.getName(), projectView.getKey());
-      }
-    }
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
@@ -209,12 +183,6 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     @Override
     public Counter createForAny(Component component) {
       return new Counter();
-    }
-
-    /** Counter is not used at ProjectView level, saves on instantiating useless objects */
-    @Override
-    public Counter createForProjectView(Component projectView) {
-      return null;
     }
   }
 }
