@@ -59,6 +59,8 @@ CI)
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'release branch: trigger QA, no analysis'
 
+    export PROJECT_VERSION=`maven_expression "project.version"`
+
     mvn deploy \
         $MAVEN_OPTIONS \
         -Pdeploy-sonarsource
