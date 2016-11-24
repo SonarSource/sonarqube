@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-const link = 'http://docs.sonarqube.org/display/SONAR/Rules';
+const link = 'http://redirect.sonarsource.com/doc/rules.html';
 
 export default class AboutStandards extends React.Component {
   render () {

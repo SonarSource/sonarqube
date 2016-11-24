@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-const link = 'http://docs.sonarqube.org/display/HOME/Fixing+the+Water+Leak';
+const link = 'http://redirect.sonarsource.com/doc/fix-the-leak.html';
 
 export default class AboutLeakPeriod extends React.Component {
   render () {
