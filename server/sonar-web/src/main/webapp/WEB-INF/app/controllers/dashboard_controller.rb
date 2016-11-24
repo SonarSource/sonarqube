@@ -56,8 +56,7 @@ class DashboardController < ApplicationController
   private
 
   def project_not_found
-    flash[:error] = message('dashboard.project_not_found')
-    redirect_to :action => :index
+    raise ActionController::RoutingError.new('Not Found')
   end
 
   def project_not_analyzed
