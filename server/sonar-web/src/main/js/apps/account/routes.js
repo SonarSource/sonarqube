@@ -31,5 +31,9 @@ export default (
       <Route path="security" component={Security}/>
       <Route path="notifications" component={NotificationsContainer}/>
       <Route path="projects" component={ProjectsContainer}/>
+
+      <Route path="issues" onEnter={() => {
+        window.location = window.baseUrl + '/issues' + window.location.hash + '|assigned_to_me=true';
+      }}/>
     </Route>
 );
