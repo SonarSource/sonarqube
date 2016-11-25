@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-const link = 'http://docs.sonarqube.org/display/SONAR/Quality+Gates';
+const link = 'http://redirect.sonarsource.com/doc/quality-gates.html';
 
 export default class AboutQualityGates extends React.Component {
   render () {
