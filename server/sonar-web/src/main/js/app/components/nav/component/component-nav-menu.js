@@ -64,6 +64,10 @@ export default React.createClass({
     return path.indexOf(window.baseUrl + '/dashboard') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
   },
 
+  shouldShowAdministration() {
+    return Object.keys(this.props.conf).some(key => this.props.conf[key]);
+  },
+
   renderDashboardLink() {
     const url = getComponentUrl(this.props.component.key);
     const name = <i className="icon-home"/>;
@@ -96,22 +100,10 @@ export default React.createClass({
   },
 
   renderAdministration() {
-    const shouldShowAdministration =
-        this.props.conf.showBackgroundTasks ||
-        this.props.conf.showHistory ||
-        this.props.conf.showLinks ||
-        this.props.conf.showManualMeasures ||
-        this.props.conf.showPermissions ||
-        this.props.conf.showQualityGates ||
-        this.props.conf.showQualityProfiles ||
-        this.props.conf.showSettings ||
-        this.props.conf.showUpdateKey;
-    if (!shouldShowAdministration) {
+    if (!this.shouldShowAdministration()) {
       return null;
     }
-    const isSettingsActive = SETTINGS_URLS.some(url => {
-      return window.location.href.indexOf(url) !== -1;
-    });
+    const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
     const className = 'dropdown' + (isSettingsActive ? ' active' : '');
     return (
         <li className={className}>
