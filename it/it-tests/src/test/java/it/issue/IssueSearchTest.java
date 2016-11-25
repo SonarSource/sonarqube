@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -105,7 +104,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void search_issues_by_components() {
     assertThat(
       search(IssueQuery.create().components("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).list())
-      .hasSize(34);
+        .hasSize(34);
     assertThat(search(IssueQuery.create().components("unknown")).list()).isEmpty();
   }
 
@@ -321,8 +320,11 @@ public class IssueSearchTest extends AbstractIssueTest {
     return newAdminWsClient(ORCHESTRATOR).issues().search(request);
   }
 
-  private static Component findComponent(Collection<Component> components, final String key) {
-    return Iterables.find(components, input -> key.equals(input.key()));
+  private static Component findComponent(Collection<Component> components, String key) {
+    return components.stream()
+      .filter(input -> key.equals(input.key()))
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Component key not found: " + key));
   }
 
 }
