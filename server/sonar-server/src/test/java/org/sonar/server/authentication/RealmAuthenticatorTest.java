@@ -21,7 +21,7 @@
 package org.sonar.server.authentication;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,6 +36,7 @@ import org.sonar.api.security.UserDetails;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -46,36 +47,45 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 
 public class RealmAuthenticatorTest {
+
+  private static final String LOGIN = "LOGIN";
+  private static final String PASSWORD = "PASSWORD";
+
+  private static final UserDto USER = newUserDto();
+  private static final String REALM_NAME = "realm name";
 
   @Rule
   public ExpectedException expectedException = none();
 
-  static final String LOGIN = "LOGIN";
-  static final String PASSWORD = "PASSWORD";
+  private ArgumentCaptor<UserIdentity> userIdentityArgumentCaptor = ArgumentCaptor.forClass(UserIdentity.class);
+  private ArgumentCaptor<IdentityProvider> identityProviderArgumentCaptor = ArgumentCaptor.forClass(IdentityProvider.class);
 
-  static final UserDto USER = newUserDto();
+  private Settings settings = new MapSettings();
 
-  ArgumentCaptor<UserIdentity> userIdentityArgumentCaptor = ArgumentCaptor.forClass(UserIdentity.class);
-  ArgumentCaptor<IdentityProvider> identityProviderArgumentCaptor = ArgumentCaptor.forClass(IdentityProvider.class);
+  private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
+  private SecurityRealm realm = mock(SecurityRealm.class);
+  private Authenticator authenticator = mock(Authenticator.class);
+  private ExternalUsersProvider externalUsersProvider = mock(ExternalUsersProvider.class);
+  private ExternalGroupsProvider externalGroupsProvider = mock(ExternalGroupsProvider.class);
 
-  Settings settings = new MapSettings();
+  private UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
-  SecurityRealm realm = mock(SecurityRealm.class);
-  Authenticator authenticator = mock(Authenticator.class);
-  ExternalUsersProvider externalUsersProvider = mock(ExternalUsersProvider.class);
-  ExternalGroupsProvider externalGroupsProvider = mock(ExternalGroupsProvider.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
+  private RealmAuthenticator underTest = new RealmAuthenticator(settings, securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-
-  RealmAuthenticator underTest = new RealmAuthenticator(settings, securityRealmFactory, userIdentityAuthenticator);
+  @Before
+  public void setUp() throws Exception {
+    when(realm.getName()).thenReturn(REALM_NAME);
+  }
 
   @Test
   public void authenticate() throws Exception {
@@ -87,7 +97,7 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
     when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class))).thenReturn(USER);
 
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
@@ -96,6 +106,7 @@ public class RealmAuthenticatorTest {
     assertThat(userIdentity.getName()).isEqualTo("name");
     assertThat(userIdentity.getEmail()).isEqualTo("email");
     assertThat(userIdentity.shouldSyncGroups()).isFalse();
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -108,7 +119,7 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
     when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class))).thenReturn(USER);
 
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
 
@@ -116,6 +127,7 @@ public class RealmAuthenticatorTest {
     assertThat(identityProviderArgumentCaptor.getValue().getName()).isEqualTo("sonarqube");
     assertThat(identityProviderArgumentCaptor.getValue().getDisplay()).isNull();
     assertThat(identityProviderArgumentCaptor.getValue().isEnabled()).isTrue();
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -127,10 +139,11 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
     when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class))).thenReturn(USER);
 
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
     assertThat(identityProviderArgumentCaptor.getValue().getName()).isEqualTo("sonarqube");
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -145,6 +158,7 @@ public class RealmAuthenticatorTest {
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.shouldSyncGroups()).isTrue();
     assertThat(userIdentity.getGroups()).containsOnly("group1", "group2");
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -156,10 +170,11 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
     when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class))).thenReturn(USER);
 
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
     assertThat(userIdentityArgumentCaptor.getValue().getName()).isEqualTo(LOGIN);
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -171,6 +186,7 @@ public class RealmAuthenticatorTest {
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
     assertThat(identityProviderArgumentCaptor.getValue().allowsUsersToSignUp()).isTrue();
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -182,6 +198,7 @@ public class RealmAuthenticatorTest {
 
     verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture());
     assertThat(identityProviderArgumentCaptor.getValue().allowsUsersToSignUp()).isFalse();
+    verify(authenticationEvent).login(request, LOGIN, AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -195,6 +212,7 @@ public class RealmAuthenticatorTest {
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.getLogin()).isEqualTo("login");
     assertThat(userIdentity.getProviderLogin()).isEqualTo("login");
+    verify(authenticationEvent).login(request, "login", AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -208,6 +226,7 @@ public class RealmAuthenticatorTest {
     UserIdentity userIdentity = userIdentityArgumentCaptor.getValue();
     assertThat(userIdentity.getLogin()).isEqualTo("LoGiN");
     assertThat(userIdentity.getProviderLogin()).isEqualTo("LoGiN");
+    verify(authenticationEvent).login(request, "LoGiN", AuthenticationEvent.Source.realm(BASIC, REALM_NAME));
   }
 
   @Test
@@ -218,7 +237,11 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(null);
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    try {
+      underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -229,7 +252,11 @@ public class RealmAuthenticatorTest {
     when(authenticator.doAuthenticate(any(Authenticator.Context.class))).thenReturn(false);
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    try {
+      underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -240,12 +267,17 @@ public class RealmAuthenticatorTest {
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(null);
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(LOGIN, PASSWORD, request);
+    try {
+      underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
   public void return_empty_user_when_no_realm() throws Exception {
-    assertThat(underTest.authenticate(LOGIN, PASSWORD, request)).isEmpty();
+    assertThat(underTest.authenticate(LOGIN, PASSWORD, request, BASIC)).isEmpty();
+    verifyNoMoreInteractions(authenticationEvent);
   }
 
   @Test
@@ -293,7 +325,7 @@ public class RealmAuthenticatorTest {
     UserDetails userDetails = new UserDetails();
     userDetails.setName("name");
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(userDetails);
-    underTest.authenticate(login, PASSWORD, request);
+    underTest.authenticate(login, PASSWORD, request, BASIC);
   }
 
 }

@@ -42,10 +42,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
 
 public class SsoAuthenticator implements Startable {
@@ -84,15 +86,18 @@ public class SsoAuthenticator implements Startable {
   private final Settings settings;
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
+  private final AuthenticationEvent authenticationEvent;
 
   private boolean enabled = false;
   private Map<String, String> settingsByKey = new HashMap<>();
 
-  public SsoAuthenticator(System2 system2, Settings settings, UserIdentityAuthenticator userIdentityAuthenticator, JwtHttpHandler jwtHttpHandler) {
+  public SsoAuthenticator(System2 system2, Settings settings, UserIdentityAuthenticator userIdentityAuthenticator,
+    JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
     this.settings = settings;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -134,6 +139,7 @@ public class SsoAuthenticator implements Startable {
 
     UserDto userDto = doAuthenticate(headerValuesByNames, login);
     jwtHttpHandler.generateToken(userDto, ImmutableMap.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
+    authenticationEvent.login(request, userDto.getLogin(), Source.sso());
     return Optional.of(userDto);
   }
 

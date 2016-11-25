@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.authentication.event.AuthenticationEventImpl;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.authentication.ws.LoginAction;
 import org.sonar.server.authentication.ws.ValidateAction;
@@ -28,6 +29,7 @@ public class AuthenticationModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      AuthenticationEventImpl.class,
       AuthenticationWs.class,
       InitFilter.class,
       OAuth2CallbackFilter.class,

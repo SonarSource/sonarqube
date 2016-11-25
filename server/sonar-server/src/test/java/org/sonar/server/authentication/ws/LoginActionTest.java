@@ -45,31 +45,32 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.FORM;
 
 public class LoginActionTest {
 
-  static final String LOGIN = "LOGIN";
-  static final String PASSWORD = "PASSWORD";
+  private static final String LOGIN = "LOGIN";
+  private static final String PASSWORD = "PASSWORD";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
-  ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
 
-  CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
+  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
+  private UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
 
-  LoginAction underTest  = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession);
+  private LoginAction underTest  = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession);
 
   @Before
   public void setUp() throws Exception {
@@ -87,12 +88,12 @@ public class LoginActionTest {
 
   @Test
   public void do_authenticate() throws Exception {
-    when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request)).thenReturn(user);
+    when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request, FORM)).thenReturn(user);
 
     executeRequest(LOGIN, PASSWORD);
 
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
-    verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request);
+    verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
     verify(jwtHttpHandler).generateToken(user, request, response);
     verifyZeroInteractions(chain);
   }
@@ -108,7 +109,7 @@ public class LoginActionTest {
 
   @Test
   public void return_authorized_code_when_unauthorized_exception_is_thrown() throws Exception {
-    doThrow(new UnauthorizedException()).when(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request);
+    doThrow(new UnauthorizedException()).when(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
 
     executeRequest(LOGIN, PASSWORD);
 

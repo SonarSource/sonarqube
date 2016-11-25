@@ -41,6 +41,7 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.NewUserNotifier;
@@ -59,6 +60,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class SsoAuthenticatorTest {
 
@@ -99,8 +101,9 @@ public class SsoAuthenticatorTest {
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private SsoAuthenticator underTest = new SsoAuthenticator(system2, settings, userIdentityAuthenticator, jwtHttpHandler);
+  private SsoAuthenticator underTest = new SsoAuthenticator(system2, settings, userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
@@ -120,6 +123,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
     verifyTokenIsUpdated(NOW);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -127,9 +131,11 @@ public class SsoAuthenticatorTest {
     startWithSso();
     setNotUserInToken();
 
-    underTest.authenticate(createRequest(DEFAULT_LOGIN, null, null, null), response);
+    HttpServletRequest request = createRequest(DEFAULT_LOGIN, null, null, null);
+    underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -144,6 +150,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group2);
     verifyTokenIsUpdated(NOW);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -151,10 +158,12 @@ public class SsoAuthenticatorTest {
     startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
+    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, "");
 
-    underTest.authenticate(createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, ""), response);
+    underTest.authenticate(request, response);
 
     verityUserHasNoGroup(DEFAULT_LOGIN);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -165,10 +174,12 @@ public class SsoAuthenticatorTest {
     Map<String, String> headerValuesByName = new HashMap<>();
     headerValuesByName.put("X-Forwarded-Login", DEFAULT_LOGIN);
     headerValuesByName.put("X-Forwarded-Groups", null);
+    HttpServletRequest request = createRequest(headerValuesByName);
 
-    underTest.authenticate(createRequest(headerValuesByName), response);
+    underTest.authenticate(request, response);
 
     verityUserHasNoGroup(DEFAULT_LOGIN);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -176,10 +187,12 @@ public class SsoAuthenticatorTest {
     startWithSso();
     setNotUserInToken();
     insertUser(DEFAULT_USER, group1);
+    HttpServletRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, null);
 
-    underTest.authenticate(createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, null), response);
+    underTest.authenticate(request, response);
 
     verityUserGroups(DEFAULT_LOGIN, group1);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -194,6 +207,7 @@ public class SsoAuthenticatorTest {
     // User is not updated
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1);
     verifyTokenIsNotUpdated();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -209,6 +223,7 @@ public class SsoAuthenticatorTest {
     // User is updated
     verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
     verifyTokenIsUpdated(NOW);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -223,6 +238,7 @@ public class SsoAuthenticatorTest {
     // User is updated
     verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
     verifyTokenIsUpdated(NOW);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -239,6 +255,7 @@ public class SsoAuthenticatorTest {
     // User is not updated
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1);
     verifyTokenIsNotUpdated();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -252,6 +269,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb("AnotherLogin", "Another name", "Another email", group2);
     verifyTokenIsUpdated(NOW);
+    verify(authenticationEvent).login(request, "AnotherLogin", Source.sso());
   }
 
   @Test
@@ -267,6 +285,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -282,6 +301,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -293,6 +313,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, group1, group2);
+    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -304,6 +325,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserNotAuthenticated();
     verifyTokenIsNotUpdated();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -313,7 +335,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
 
     verifyUserNotAuthenticated();
-    verifyZeroInteractions(jwtHttpHandler);
+    verifyZeroInteractions(jwtHttpHandler, authenticationEvent);
   }
 
   @Test
@@ -323,7 +345,11 @@ public class SsoAuthenticatorTest {
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("user.bad_login");
-    underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
+    try {
+      underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   private void startWithSso() {

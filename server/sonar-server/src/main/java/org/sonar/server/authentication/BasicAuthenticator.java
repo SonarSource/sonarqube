@@ -27,11 +27,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
 
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class BasicAuthenticator {
 
@@ -43,12 +46,14 @@ public class BasicAuthenticator {
   private final DbClient dbClient;
   private final CredentialsAuthenticator credentialsAuthenticator;
   private final UserTokenAuthenticator userTokenAuthenticator;
+  private final AuthenticationEvent authenticationEvent;
 
   public BasicAuthenticator(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator,
-    UserTokenAuthenticator userTokenAuthenticator) {
+    UserTokenAuthenticator userTokenAuthenticator, AuthenticationEvent authenticationEvent) {
     this.dbClient = dbClient;
     this.credentialsAuthenticator = credentialsAuthenticator;
     this.userTokenAuthenticator = userTokenAuthenticator;
+    this.authenticationEvent = authenticationEvent;
   }
 
   public Optional<UserDto> authenticate(HttpServletRequest request) {
@@ -60,7 +65,8 @@ public class BasicAuthenticator {
     String[] credentials = getCredentials(authorizationHeader);
     String login = credentials[0];
     String password = credentials[1];
-    return Optional.of(authenticate(login, password, request));
+    UserDto userDto = authenticate(login, password, request);
+    return Optional.of(userDto);
   }
 
   private static String[] getCredentials(String authorizationHeader) {
@@ -86,9 +92,11 @@ public class BasicAuthenticator {
 
   private UserDto authenticate(String login, String password, HttpServletRequest request) {
     if (isEmpty(password)) {
-      return authenticateFromUserToken(login);
+      UserDto userDto = authenticateFromUserToken(login);
+      authenticationEvent.login(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
+      return userDto;
     } else {
-      return credentialsAuthenticator.authenticate(login, password, request);
+      return credentialsAuthenticator.authenticate(login, password, request, Method.BASIC);
     }
   }
 

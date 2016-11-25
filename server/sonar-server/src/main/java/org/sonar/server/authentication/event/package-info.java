@@ -17,36 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.authentication;
+@ParametersAreNonnullByDefault
+package org.sonar.server.authentication.event;
 
-import org.sonar.api.server.authentication.OAuth2IdentityProvider;
-
-class FakeOAuth2IdentityProvider extends TestIdentityProvider implements OAuth2IdentityProvider {
-
-  private boolean initCalled = false;
-  private boolean callbackCalled = false;
-
-  public FakeOAuth2IdentityProvider(String key, boolean enabled) {
-    setKey(key);
-    setName("name of " + key);
-    setEnabled(enabled);
-  }
-
-  @Override
-  public void init(InitContext context) {
-    initCalled = true;
-  }
-
-  @Override
-  public void callback(CallbackContext context) {
-    callbackCalled = true;
-  }
-
-  public boolean isInitCalled() {
-    return initCalled;
-  }
-
-  public boolean isCallbackCalled() {
-    return callbackCalled;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

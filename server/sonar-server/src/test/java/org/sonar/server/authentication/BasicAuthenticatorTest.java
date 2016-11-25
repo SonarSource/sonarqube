@@ -23,7 +23,6 @@ package org.sonar.server.authentication;
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
 
@@ -41,18 +41,22 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 
 public class BasicAuthenticatorTest {
 
   private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
-  static final String LOGIN = "login";
-  static final String PASSWORD = "password";
-  static final String CREDENTIALS_IN_BASE64 = toBase64(LOGIN + ":" + PASSWORD);
+  private static final String LOGIN = "login";
+  private static final String PASSWORD = "password";
+  private static final String CREDENTIALS_IN_BASE64 = toBase64(LOGIN + ":" + PASSWORD);
 
-  static final UserDto USER = UserTesting.newUserDto().setLogin(LOGIN);
+  private static final UserDto USER = UserTesting.newUserDto().setLogin(LOGIN);
 
   @Rule
   public ExpectedException expectedException = none();
@@ -60,44 +64,47 @@ public class BasicAuthenticatorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
-  CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
-  UserTokenAuthenticator userTokenAuthenticator = mock(UserTokenAuthenticator.class);
+  private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
+  private UserTokenAuthenticator userTokenAuthenticator = mock(UserTokenAuthenticator.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  BasicAuthenticator underTest = new BasicAuthenticator(dbClient, credentialsAuthenticator, userTokenAuthenticator);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+
+  private BasicAuthenticator underTest = new BasicAuthenticator(dbClient, credentialsAuthenticator, userTokenAuthenticator, authenticationEvent);
 
   @Test
   public void authenticate_from_basic_http_header() throws Exception {
     when(request.getHeader("Authorization")).thenReturn("Basic " + CREDENTIALS_IN_BASE64);
-    when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request)).thenReturn(USER);
+    when(credentialsAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(USER);
 
     underTest.authenticate(request);
 
-    verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request);
+    verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, BASIC);
+    verifyNoMoreInteractions(authenticationEvent);
   }
 
   @Test
   public void authenticate_from_basic_http_header_with_password_containing_semi_colon() throws Exception {
     String password = "!ascii-only:-)@";
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(LOGIN + ":" + password));
-    when(credentialsAuthenticator.authenticate(LOGIN, password, request)).thenReturn(USER);
+    when(credentialsAuthenticator.authenticate(LOGIN, password, request, BASIC)).thenReturn(USER);
 
     underTest.authenticate(request);
 
-    verify(credentialsAuthenticator).authenticate(LOGIN, password, request);
+    verify(credentialsAuthenticator).authenticate(LOGIN, password, request, BASIC);
+    verifyNoMoreInteractions(authenticationEvent);
   }
 
   @Test
   public void does_not_authenticate_when_no_authorization_header() throws Exception {
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthenticator);
+    verifyZeroInteractions(credentialsAuthenticator, authenticationEvent);
   }
 
   @Test
@@ -106,7 +113,7 @@ public class BasicAuthenticatorTest {
 
     underTest.authenticate(request);
 
-    verifyZeroInteractions(credentialsAuthenticator);
+    verifyZeroInteractions(credentialsAuthenticator, authenticationEvent);
   }
 
   @Test
@@ -114,7 +121,11 @@ public class BasicAuthenticatorTest {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(":" + PASSWORD));
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(request);
+    try {
+      underTest.authenticate(request);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -136,6 +147,7 @@ public class BasicAuthenticatorTest {
 
     assertThat(userDto.isPresent()).isTrue();
     assertThat(userDto.get().getLogin()).isEqualTo(LOGIN);
+    verify(authenticationEvent).login(request, LOGIN, Source.local(BASIC_TOKEN));
   }
 
   @Test
@@ -145,7 +157,11 @@ public class BasicAuthenticatorTest {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(request);
+    try {
+      underTest.authenticate(request);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -155,16 +171,20 @@ public class BasicAuthenticatorTest {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
     expectedException.expect(UnauthorizedException.class);
-    underTest.authenticate(request);
+    try {
+      underTest.authenticate(request);
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
-  private UserDto insertUser(UserDto userDto){
+  private UserDto insertUser(UserDto userDto) {
     dbClient.userDao().insert(dbSession, userDto);
     dbSession.commit();
     return userDto;
   }
 
-  private static String toBase64(String text){
+  private static String toBase64(String text) {
     return new String(BASE64_ENCODER.encode(text.getBytes(UTF_8)));
   }
 
