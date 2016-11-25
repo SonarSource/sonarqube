@@ -20,16 +20,8 @@
 
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,30 +30,40 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 
 public class CredentialsAuthenticatorTest {
 
-  static final String LOGIN = "LOGIN";
-  static final String PASSWORD = "PASSWORD";
-  static final String SALT = "0242b0b4c0a93ddfe09dd886de50bc25ba000b51";
-  static final String CRYPTED_PASSWORD = "540e4fc4be4e047db995bc76d18374a5b5db08cc";
+  private static final String LOGIN = "LOGIN";
+  private static final String PASSWORD = "PASSWORD";
+  private static final String SALT = "0242b0b4c0a93ddfe09dd886de50bc25ba000b51";
+  private static final String CRYPTED_PASSWORD = "540e4fc4be4e047db995bc76d18374a5b5db08cc";
 
   @Rule
   public ExpectedException expectedException = none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
-  RealmAuthenticator externalAuthenticator = mock(RealmAuthenticator.class);
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  private RealmAuthenticator externalAuthenticator = mock(RealmAuthenticator.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator);
+  private CredentialsAuthenticator underTest = new CredentialsAuthenticator(dbClient, externalAuthenticator, authenticationEvent);
 
   @Test
   public void authenticate_local_user() throws Exception {
@@ -73,6 +75,7 @@ public class CredentialsAuthenticatorTest {
 
     UserDto userDto = executeAuthenticate();
     assertThat(userDto.getLogin()).isEqualTo(LOGIN);
+    verify(authenticationEvent).login(request, LOGIN, Source.local(BASIC));
   }
 
   @Test
@@ -84,30 +87,39 @@ public class CredentialsAuthenticatorTest {
       .setLocal(true));
 
     expectedException.expect(UnauthorizedException.class);
-    executeAuthenticate();
+    try {
+      executeAuthenticate();
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
   public void authenticate_external_user() throws Exception {
-    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request)).thenReturn(Optional.of(newUserDto()));
+    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(Optional.of(newUserDto()));
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
     executeAuthenticate();
 
-    verify(externalAuthenticator).authenticate(LOGIN, PASSWORD, request);
+    verify(externalAuthenticator).authenticate(LOGIN, PASSWORD, request, BASIC);
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() throws Exception {
-    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request)).thenReturn(Optional.empty());
+    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
     expectedException.expect(UnauthorizedException.class);
-    executeAuthenticate();
+    try {
+      executeAuthenticate();
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -119,7 +131,11 @@ public class CredentialsAuthenticatorTest {
       .setLocal(true));
 
     expectedException.expect(UnauthorizedException.class);
-    executeAuthenticate();
+    try {
+      executeAuthenticate();
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   @Test
@@ -131,14 +147,18 @@ public class CredentialsAuthenticatorTest {
       .setLocal(true));
 
     expectedException.expect(UnauthorizedException.class);
-    executeAuthenticate();
+    try {
+      executeAuthenticate();
+    } finally {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
-  private UserDto executeAuthenticate(){
-    return underTest.authenticate(LOGIN, PASSWORD, request);
+  private UserDto executeAuthenticate() {
+    return underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
   }
 
-  private UserDto insertUser(UserDto userDto){
+  private UserDto insertUser(UserDto userDto) {
     dbClient.userDao().insert(dbSession, userDto);
     dbSession.commit();
     return userDto;

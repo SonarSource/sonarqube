@@ -20,40 +20,46 @@
 
 package org.sonar.server.authentication;
 
-import static org.sonar.db.user.UserDto.encryptPassword;
-
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
+
+import static org.sonar.db.user.UserDto.encryptPassword;
+import static org.sonar.server.authentication.event.AuthenticationEvent.*;
 
 public class CredentialsAuthenticator {
 
   private final DbClient dbClient;
   private final RealmAuthenticator externalAuthenticator;
+  private final AuthenticationEvent authenticationEvent;
 
-  public CredentialsAuthenticator(DbClient dbClient, RealmAuthenticator externalAuthenticator) {
+  public CredentialsAuthenticator(DbClient dbClient, RealmAuthenticator externalAuthenticator, AuthenticationEvent authenticationEvent) {
     this.dbClient = dbClient;
     this.externalAuthenticator = externalAuthenticator;
+    this.authenticationEvent = authenticationEvent;
   }
 
-  public UserDto authenticate(String userLogin, String userPassword, HttpServletRequest request) {
+  public UserDto authenticate(String userLogin, String userPassword, HttpServletRequest request, Method method) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      return authenticate(dbSession, userLogin, userPassword, request);
+      return authenticate(dbSession, userLogin, userPassword, request, method);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private UserDto authenticate(DbSession dbSession, String userLogin, String userPassword, HttpServletRequest request) {
+  private UserDto authenticate(DbSession dbSession, String userLogin, String userPassword, HttpServletRequest request, Method method) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     if (user != null && user.isLocal()) {
-      return authenticateFromDb(user, userPassword);
+      UserDto userDto = authenticateFromDb(user, userPassword);
+      authenticationEvent.login(request, userLogin, Source.local(method));
+      return userDto;
     }
-    Optional<UserDto> userDto = externalAuthenticator.authenticate(userLogin, userPassword, request);
+    Optional<UserDto> userDto = externalAuthenticator.authenticate(userLogin, userPassword, request, method);
     if (userDto.isPresent()) {
       return userDto.get();
     }

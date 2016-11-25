@@ -39,6 +39,7 @@ import org.sonar.server.user.ThreadLocalUserSession;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 
 public class LoginAction extends ServletFilter {
 
@@ -88,7 +89,7 @@ public class LoginAction extends ServletFilter {
     if (isEmpty(login) || isEmpty(password)) {
       throw new UnauthorizedException();
     }
-    return credentialsAuthenticator.authenticate(login, password, request);
+    return credentialsAuthenticator.authenticate(login, password, request, Method.FORM);
   }
 
   @Override

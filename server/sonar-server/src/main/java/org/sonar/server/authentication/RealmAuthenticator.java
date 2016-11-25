@@ -38,6 +38,7 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -45,6 +46,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
@@ -54,16 +56,19 @@ public class RealmAuthenticator implements Startable {
   private final Settings settings;
   private final SecurityRealmFactory securityRealmFactory;
   private final UserIdentityAuthenticator userIdentityAuthenticator;
+  private final AuthenticationEvent authenticationEvent;
 
   private SecurityRealm realm;
   private Authenticator authenticator;
   private ExternalUsersProvider externalUsersProvider;
   private ExternalGroupsProvider externalGroupsProvider;
 
-  public RealmAuthenticator(Settings settings, SecurityRealmFactory securityRealmFactory, UserIdentityAuthenticator userIdentityAuthenticator) {
+  public RealmAuthenticator(Settings settings, SecurityRealmFactory securityRealmFactory,
+    UserIdentityAuthenticator userIdentityAuthenticator, AuthenticationEvent authenticationEvent) {
     this.settings = settings;
     this.securityRealmFactory = securityRealmFactory;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -76,14 +81,14 @@ public class RealmAuthenticator implements Startable {
     }
   }
 
-  public Optional<UserDto> authenticate(String userLogin, String userPassword, HttpServletRequest request) {
+  public Optional<UserDto> authenticate(String userLogin, String userPassword, HttpServletRequest request, AuthenticationEvent.Method method) {
     if (realm == null) {
       return Optional.empty();
     }
-    return Optional.of(doAuthenticate(getLogin(userLogin), userPassword, request));
+    return Optional.of(doAuthenticate(getLogin(userLogin), userPassword, request, method));
   }
 
-  private UserDto doAuthenticate(String userLogin, String userPassword, HttpServletRequest request) {
+  private UserDto doAuthenticate(String userLogin, String userPassword, HttpServletRequest request, AuthenticationEvent.Method method) {
     try {
       ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(userLogin, request);
       UserDetails details = externalUsersProvider.doGetUserDetails(externalUsersProviderContext);
@@ -95,7 +100,9 @@ public class RealmAuthenticator implements Startable {
       if (!status) {
         throw new UnauthorizedException("Fail to authenticate from external provider");
       }
-      return synchronize(userLogin, details, request);
+      UserDto userDto = synchronize(userLogin, details, request);
+      authenticationEvent.login(request, userLogin, Source.realm(method, realm.getName()));
+      return userDto;
     } catch (Exception e) {
       // It seems that with Realm API it's expected to log the error and to not authenticate the user
       LOG.error("Error during authentication", e);

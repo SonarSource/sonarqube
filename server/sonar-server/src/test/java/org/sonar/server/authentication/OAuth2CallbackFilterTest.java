@@ -19,11 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,37 +29,45 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
+import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilterTest {
 
-  static String OAUTH2_PROVIDER_KEY = "github";
+  private static final String OAUTH2_PROVIDER_KEY = "github";
+  private static final String LOGIN = "foo";
 
   @Rule
   public LogTester logTester = new LogTester();
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 
-  OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
+  private OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  Server server = mock(Server.class);
-  FilterChain chain = mock(FilterChain.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private Server server = mock(Server.class);
+  private FilterChain chain = mock(FilterChain.class);
 
-  FakeOAuth2IdentityProvider oAuth2IdentityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
-  OAuth2IdentityProvider.InitContext oauth2Context = mock(OAuth2IdentityProvider.InitContext.class);
+  private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new WellbehaveFakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true, LOGIN);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server);
+  private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
-    when(oAuth2ContextFactory.newContext(request, response, oAuth2IdentityProvider)).thenReturn(oauth2Context);
+    when(oAuth2ContextFactory.newCallback(request, response, oAuth2IdentityProvider)).thenReturn(mock(OAuth2IdentityProvider.CallbackContext.class));
     when(server.getContextPath()).thenReturn("");
   }
 
@@ -81,7 +84,19 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertCallbackCalled();
+    assertCallbackCalled(oAuth2IdentityProvider, true);
+  }
+
+  @Test
+  public void do_filter_with_context_no_log_if_provider_did_not_call_authenticate_on_context() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
+    FakeOAuth2IdentityProvider identityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    assertCallbackCalled(identityProvider, false);
   }
 
   @Test
@@ -91,7 +106,7 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertCallbackCalled();
+    assertCallbackCalled(oAuth2IdentityProvider, true);
   }
 
   @Test
@@ -103,6 +118,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Not an OAuth2IdentityProvider: class org.sonar.server.authentication.FakeBasicIdentityProvider");
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -113,6 +129,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Fail to callback authentication with 'github'");
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -126,6 +143,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -137,11 +155,17 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertError("Fail to callback authentication");
+    verifyZeroInteractions(authenticationEvent);
   }
 
-  private void assertCallbackCalled() {
+  private void assertCallbackCalled(FakeOAuth2IdentityProvider oAuth2IdentityProvider, boolean expectLoginLog) {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isCallbackCalled()).isTrue();
+    if (expectLoginLog) {
+      verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider.getName()));
+    } else {
+      verifyZeroInteractions(authenticationEvent);
+    }
   }
 
   private void assertError(String expectedError) throws Exception {
@@ -163,4 +187,26 @@ public class OAuth2CallbackFilterTest {
     }
   }
 
+  /**
+   * An extension of {@link FakeOAuth2IdentityProvider} that actually call {@link org.sonar.api.server.authentication.OAuth2IdentityProvider.CallbackContext#authenticate(UserIdentity)}.
+   */
+  private static class WellbehaveFakeOAuth2IdentityProvider extends FakeOAuth2IdentityProvider {
+    private final String login;
+
+    public WellbehaveFakeOAuth2IdentityProvider(String key, boolean enabled, String login) {
+      super(key, enabled);
+      this.login = login;
+    }
+
+    @Override
+    public void callback(CallbackContext context) {
+      super.callback(context);
+      context.authenticate(UserIdentity.builder()
+        .setLogin(login)
+        .setProviderLogin(login)
+        .setEmail(login + "@toto.com")
+        .setName("name of " + login)
+        .build());
+    }
+  }
 }

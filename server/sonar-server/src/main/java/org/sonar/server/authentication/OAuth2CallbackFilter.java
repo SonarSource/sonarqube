@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import java.io.IOException;
+import javax.annotation.CheckForNull;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -32,12 +33,15 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
+import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 import static org.sonar.server.authentication.AuthenticationError.handleUnauthorizedError;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilter extends ServletFilter {
 
@@ -46,11 +50,14 @@ public class OAuth2CallbackFilter extends ServletFilter {
   private final IdentityProviderRepository identityProviderRepository;
   private final OAuth2ContextFactory oAuth2ContextFactory;
   private final Server server;
+  private final AuthenticationEvent authenticationEvent;
 
-  public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory, Server server) {
+  public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory,
+    Server server, AuthenticationEvent authenticationEvent) {
     this.identityProviderRepository = identityProviderRepository;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.server = server;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -68,7 +75,11 @@ public class OAuth2CallbackFilter extends ServletFilter {
       IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
       if (provider instanceof OAuth2IdentityProvider) {
         OAuth2IdentityProvider oauthProvider = (OAuth2IdentityProvider) provider;
-        oauthProvider.callback(oAuth2ContextFactory.newCallback(httpRequest, (HttpServletResponse) response, oauthProvider));
+        WrappedContext context = new WrappedContext(oAuth2ContextFactory.newCallback(httpRequest, (HttpServletResponse) response, oauthProvider));
+        oauthProvider.callback(context);
+        if (context.isAuthenticated()) {
+          authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(provider.getName()));
+        }
       } else {
         handleError((HttpServletResponse) response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
@@ -76,12 +87,11 @@ public class OAuth2CallbackFilter extends ServletFilter {
       handleUnauthorizedError(e, (HttpServletResponse) response);
     } catch (Exception e) {
       handleError(e, (HttpServletResponse) response,
-        keyProvider.isEmpty() ? "Fail to callback authentication" :
-          format("Fail to callback authentication with '%s'", keyProvider));
+        keyProvider.isEmpty() ? "Fail to callback authentication" : format("Fail to callback authentication with '%s'", keyProvider));
     }
   }
 
-  public static String extractKeyProvider(String requestUri, String context) {
+  private static String extractKeyProvider(String requestUri, String context) {
     if (requestUri.contains(context)) {
       String key = requestUri.replace(context, "");
       if (!isNullOrEmpty(key)) {
@@ -99,5 +109,57 @@ public class OAuth2CallbackFilter extends ServletFilter {
   @Override
   public void destroy() {
     // Nothing to do
+  }
+
+  private static final class WrappedContext implements OAuth2IdentityProvider.CallbackContext {
+    private final OAuth2IdentityProvider.CallbackContext delegate;
+    private boolean authenticated = false;
+    @CheckForNull
+    private String login;
+
+    private WrappedContext(OAuth2IdentityProvider.CallbackContext delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public String getCallbackUrl() {
+      return delegate.getCallbackUrl();
+    }
+
+    @Override
+    public HttpServletRequest getRequest() {
+      return delegate.getRequest();
+    }
+
+    @Override
+    public HttpServletResponse getResponse() {
+      return delegate.getResponse();
+    }
+
+    @Override
+    public void verifyCsrfState() {
+      delegate.verifyCsrfState();
+    }
+
+    @Override
+    public void redirectToRequestedPage() {
+      delegate.redirectToRequestedPage();
+    }
+
+    @Override
+    public void authenticate(UserIdentity userIdentity) {
+      delegate.authenticate(userIdentity);
+      this.authenticated = true;
+      this.login = userIdentity.getLogin();
+    }
+
+    public boolean isAuthenticated() {
+      return authenticated;
+    }
+
+    @CheckForNull
+    public String getLogin() {
+      return login;
+    }
   }
 }
