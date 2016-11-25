@@ -32,7 +32,7 @@ export default class App {
 
     require('../../../components/workspace/main');
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const response = {};
       const requests = [];
 
