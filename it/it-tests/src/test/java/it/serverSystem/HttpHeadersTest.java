@@ -87,7 +87,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_js() throws Exception {
-    Response response = call(orchestrator.getServer().getUrl() + "/js/bundles/main.js");
+    Response response = call(orchestrator.getServer().getUrl() + "/js/bundles/app.js");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/javascript");
