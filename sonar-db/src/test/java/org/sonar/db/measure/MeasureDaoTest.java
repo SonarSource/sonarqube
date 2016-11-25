@@ -413,6 +413,40 @@ public class MeasureDaoTest {
     verifyMeasures(project, MeasureTreeQuery.builder().setQualifiers(asList(FILE, UNIT_TEST_FILE)).setStrategy(LEAVES), "M2", "M3", "M6");
   }
 
+  @Test
+  public void select_tree_by_query_use_only_latest_analysis() {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project).setUuid("C1").setName("File One"));
+    db.components().insertComponent(newFileDto(project).setUuid("C2").setName("File Two").setQualifier(UNIT_TEST_FILE));
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
+    db.components().indexAllComponents();
+
+    // project
+    insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    insertMeasure("PROJECT_M2", OTHER_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    // component C1
+    insertMeasure("M2", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
+    insertMeasure("M3", LAST_ANALYSIS_UUID, "C1", COVERAGE_METRIC_ID);
+    insertMeasure("M4", OTHER_ANALYSIS_UUID, "C1", COVERAGE_METRIC_ID);
+    // component C2
+    insertMeasure("M5", LAST_ANALYSIS_UUID, "C2", NCLOC_METRIC_ID);
+    insertMeasure("M6", OTHER_ANALYSIS_UUID, "C2", NCLOC_METRIC_ID);
+    db.commit();
+
+    // Children measures of project
+    verifyMeasures(project, MeasureTreeQuery.builder().setStrategy(CHILDREN), "PROJECT_M1", "M2", "M3", "M5");
+
+    // Children measure on file => only measures from itself
+    verifyMeasures(file1, MeasureTreeQuery.builder().setStrategy(CHILDREN), "M2", "M3");
+
+    // Leaves measures of project
+    verifyMeasures(project, MeasureTreeQuery.builder().setStrategy(LEAVES), "PROJECT_M1", "M2", "M3", "M5");
+
+    // Leaves measure on file
+    verifyMeasures(file1, MeasureTreeQuery.builder().setStrategy(LEAVES), "M2", "M3");
+  }
+
   private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {
     return underTest.selectSingle(db.getSession(), query.build());
   }

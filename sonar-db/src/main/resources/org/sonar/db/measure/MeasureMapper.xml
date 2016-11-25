@@ -112,6 +112,7 @@
   </select>
 
   <sql id="selectTreeByQueryFilters">
+    and analysis.islast=${_true}
     <if test="query.getMetricIds() != null">
       and pm.metric_id in
       <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
