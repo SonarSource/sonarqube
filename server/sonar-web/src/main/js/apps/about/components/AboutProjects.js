@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 export default class AboutProjects extends React.Component {
   static propTypes = {
@@ -26,16 +27,16 @@ export default class AboutProjects extends React.Component {
   };
 
   render () {
-    const { count } = this.props;
-    const label = count > 1 ? `${formatMeasure(count, 'INT')} projects` : '1 project';
-
     return (
-        <div className="about-page-text">
-          {count > 0 ? (
-              <a href={window.baseUrl + '/projects'}>{label}</a>
-          ) : 'Put your projects'}
-          {' '}
-          under continuous<br/>code quality management
+        <div className="about-page-projects">
+          <div className="big-spacer-bottom">
+            <a className="about-page-projects-link" href={window.baseUrl + '/projects'}>
+              {formatMeasure(this.props.count, 'INT')}
+            </a>
+          </div>
+          <div>
+            {translate('about_page.projects_analyzed')}
+          </div>
         </div>
     );
   }

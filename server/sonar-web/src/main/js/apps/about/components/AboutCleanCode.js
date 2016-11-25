@@ -18,23 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import DropImage from './DropImage';
+import { translate } from '../../../helpers/l10n';
 
 export default class AboutCleanCode extends React.Component {
   render () {
     return (
-        <div className="about-page-section">
-          <div className="about-page-center-container">
-            <h2 className="about-page-header">Keep your code clean by fixing the leak</h2>
-            <p className="about-page-text about-page-text-center">
-              By fixing new issues as they appear in code, you create and maintain a clean code base.
-              <br/>
-              Even on legacy projects, focusing on keeping new code clean will eventually yield a code base you can be
-              proud of.
-            </p>
-            <div className="about-page-section-image">
-              <DropImage/>
-            </div>
+        <div className="boxed-group">
+          <h2>{translate('about_page.clean_code')}</h2>
+          <div className="boxed-group-inner">
+            <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
           </div>
         </div>
     );

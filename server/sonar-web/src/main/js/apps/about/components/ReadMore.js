@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
-const link = 'http://redirect.sonarsource.com/doc/quality-gates.html';
+export default class ReadMore extends React.Component {
+  static propTypes = {
+    link: React.PropTypes.string.isRequired
+  };
 
-export default class AboutQualityGates extends React.Component {
   render () {
     return (
-        <div className="boxed-group">
-          <h2>{translate('about_page.quality_gates')}</h2>
-          <div className="boxed-group-inner">
-            <p className="about-page-text">{translate('about_page.quality_gates.text')}</p>
-            <ReadMore link={link}/>
-          </div>
+        <div className="big-spacer-top">
+          <a className="about-page-link-more" href={this.props.link} target="_blank">
+            <span>{translate('about_page.read_more')}</span>
+            <i className="icon-detach spacer-left"/>
+          </a>
         </div>
     );
   }
