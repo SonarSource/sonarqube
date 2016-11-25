@@ -1,11 +1,20 @@
 .about-page {
 }
 
+.about-page .boxed-group h2 {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
 .about-page-container {
   position: relative;
   width: 1080px;
   margin-left: auto;
   margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
 }
 
 .about-page-center-container {
@@ -15,36 +24,66 @@
   text-align: center;
 }
 
-.about-page-container .pull-left {
-  margin-right: 40px;
-}
-
-.about-page-container .pull-right {
-  margin-left: 40px;
-}
-
 .about-page-logo {
-  margin-bottom: 30px;
+  padding: 20px 0;
 }
 
 .about-page-entry {
-  padding: 75px 0;
+  margin-bottom: 50px;
+  padding: 40px 0 50px;
   background-color: #363636;
+}
+
+.about-page-entry .about-page-header {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.about-page-entry-column {
+  float: right;
   text-align: center;
+  box-sizing: border-box;
+}
+
+.about-page-entry-column + .about-page-entry-column {
+  margin-right: 60px;
+  padding-right: 60px;
+  border-right: 1px solid rgba(75, 159, 213, 0.2);
 }
 
 .about-page-entry .alert {
   font-size: 13px;
 }
 
-.about-page-entry-box {
-  width: 320px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 40px 30px;
-  box-sizing: border-box;
-  border-radius: 2px;
-  background-color: #fff;
+.about-page-projects {
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  text-align: center;
+}
+
+.about-page-projects-link {
+  border-bottom-color: rgba(75, 159, 213, 0.2);
+  color: rgb(75, 159, 213);
+  font-size: 44px;
+  font-weight: bold;
+}
+
+.about-page-issue-types {
+  text-align: left;
+}
+
+.about-page-issue-type-number {
+  display: inline-block;
+  min-width: 60px;
+  margin-right: 8px;
+  text-align: right;
+}
+
+.about-page-issue-type-link {
+  border-bottom-color: rgba(75, 159, 213, 0.2);
+  color: rgb(75, 159, 213);
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .about-login-form-header {
@@ -64,16 +103,19 @@
 }
 
 .about-page-auth-providers {
+  width: 200px;
 }
 
 .about-page-auth-providers .oauth-provider {
   width: 100%;
+}
+
+.about-page-auth-providers .oauth-provider + .oauth-provider {
   margin-top: 20px;
 }
 
 .about-page-section {
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-bottom: 40px;
 }
 
 .about-page-section-gray {
@@ -102,8 +144,7 @@
 }
 
 .about-page-text {
-  line-height: 1.5;
-  font-size: 15px;
+  line-height: 1.4;
 }
 
 .about-page-link-more {
@@ -115,43 +156,25 @@
 }
 
 .about-page-issues {
-  display: flex;
-  justify-content: space-around;
   margin-top: 80px;
 }
 
 .about-page-issues-box {
-  width: 280px;
+  float: left;
+  width: 33%;
   text-align: center;
 }
 
 .about-page-issues-number {
-  display: block;
-  border: none;
-  padding: 20px 0;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  background-color: #4b9fd5;
-  color: #fff;
-  font-size: 50px;
+  display: inline-block;
+  font-size: 32px;
   font-weight: bold;
 }
 
-.about-page-issues-number:hover {
-  background-color: #236a97;
-  color: #fff;
-}
-
-.about-page-issues-number:focus {
-  color: #fff;
-}
-
 .about-page-issues-description {
-  min-height: 120px;
-  padding: 25px 20px 25px;
-  border: 1px solid #e6e6e6;
-  border-radius: 2px;
-  background-color: #fff;
+  margin-top: 12px;
+  padding: 0 15px;
+  line-height: 1.4;
 }
 
 .about-page-issues-number + .about-page-issues-description {
@@ -166,18 +189,13 @@
   text-transform: uppercase;
 }
 
-.about-page-issues-text {
-  line-height: 1.3;
-  font-size: 14px;
-}
-
 .about-page-analyzers {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
 .about-page-analyzer-box {
-  width: 280px;
-  margin-top: 80px;
+  width: 310px;
+  margin-top: 40px;
 }

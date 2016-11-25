@@ -18,116 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import ReadMore from './ReadMore';
+import { translate } from '../../../helpers/l10n';
 
-const links = {
-  sonarqube: 'http://redirect.sonarsource.com/doc/install-configure-scanner.html',
-  msbuild: 'http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html',
-  maven: 'http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html',
-  gradle: 'http://redirect.sonarsource.com/doc/gradle.html',
-  jenkins: 'http://redirect.sonarsource.com/plugins/jenkins.html',
-  ant: 'http://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
-};
+const scanners = [
+  {
+    key: 'sonarqube',
+    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner.html'
+  }, {
+    key: 'msbuild',
+    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html'
+  }, {
+    key: 'maven',
+    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html'
+  }, {
+    key: 'gradle',
+    link: 'http://redirect.sonarsource.com/doc/gradle.html'
+  }, {
+    key: 'jenkins',
+    link: 'http://redirect.sonarsource.com/plugins/jenkins.html'
+  }, {
+    key: 'ant',
+    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
+  }
+];
 
 export default class AboutScanners extends React.Component {
   render () {
     return (
-        <div className="about-page-section">
-          <div className="about-page-container">
-            <h2 className="about-page-header text-center">Start analyzing your projects with a SonarQube Scanner</h2>
+        <div className="boxed-group">
+          <h2>Start analyzing your projects with a SonarQube Scanner</h2>
+          <div className="boxed-group-inner">
             <div className="about-page-analyzers">
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/sonarqube.svg'} height={80}
-                       alt="SonarQube Scanner"/>
-                </div>
-                <p className="about-page-text">
-                  The SonarQube Scanner is a Java-based command-line tool that can analyze any language SonarQube
-                  supports.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.sonarqube} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/msbuild.png'} height={80}
-                       alt="SonarQube Scanner for MSBuild"/>
-                </div>
-                <p className="about-page-text">
-                  Built in collaboration with Microsoft, the SonarQube Scanner for MSBuild is the recommended way to
-                  launch a SonarQube analysis on MSBuild projects and solutions.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.msbuild} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/maven.svg'} height={80}
-                       alt="SonarQube Scanner for Maven"/>
-                </div>
-                <p className="about-page-text">
-                  Using the SonarQube Scanner for Maven is as simple as running <code>mvn sonar:sonar</code> on your
-                  Maven project.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.maven} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/gradle.svg'} height={80}
-                       alt="SonarQube Scanner for Gradle"/>
-                </div>
-                <p className="about-page-text">
-                  The SonarQube Scanner for Gradle provides an easy way to start analysis of a Gradle project.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.gradle} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/jenkins.svg'} height={80}
-                       alt="SonarQube Scanner for Jenkins"/>
-                </div>
-                <p className="about-page-text">
-                  The SonarQube Scanner for Jenkins lets you integrate analysis seamlessly into a job or a pipeline.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.jenkins} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
-              <div className="about-page-analyzer-box">
-                <div className=" big-spacer-bottom">
-                  <img src={window.baseUrl + '/images/scanner-logos/ant.svg'} height={80}
-                       alt="SonarQube Scanner for Ant"/>
-                </div>
-                <p className="about-page-text">
-                  The SonarQube Scanner for Ant lets you start an analysis directly from an Apache Ant script.
-                </p>
-                <div className="big-spacer-top">
-                  <a className="about-page-link-more" href={links.ant} target="_blank">
-                    <span>Read more</span>
-                    <i className="icon-detach spacer-left"/>
-                  </a>
-                </div>
-              </div>
+              {scanners.map(scanner => (
+                  <div key={scanner.key} className="about-page-analyzer-box">
+                    <div className="big-spacer-bottom">
+                      <img src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`} height={80}
+                           alt={translate('about_page.scanners', scanner.key)}/>
+                    </div>
+                    <p className="about-page-text">{translate('about_page.scanners.sonarqube.text')}</p>
+                    <ReadMore link={scanner.link}/>
+                  </div>
+              ))}
             </div>
           </div>
         </div>

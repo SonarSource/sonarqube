@@ -18,68 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { formatMeasure } from '../../../helpers/measures';
-import { getIssuesUrl } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
 
 export default class AboutIssues extends React.Component {
-  static propTypes = {
-    bugs: React.PropTypes.number.isRequired,
-    vulnerabilities: React.PropTypes.number.isRequired,
-    codeSmells: React.PropTypes.number.isRequired
-  };
 
   render () {
-    const displayNumbers = this.props.bugs > 0 || this.props.vulnerabilities > 0 || this.props.codeSmells > 0;
-
     return (
-        <div className="about-page-section about-page-section-gray">
-          <div className="about-page-container">
-            <h2 className="about-page-header text-center">Track incoming issues using the SonarQube Quality Model</h2>
-            <div className="about-page-issues">
-              <div className="about-page-issues-box">
-                {displayNumbers && (
-                    <a className="about-page-issues-number"
-                       href={getIssuesUrl({ resolved: false, types: 'BUG' })}>
-                      {formatMeasure(this.props.bugs, 'SHORT_INT')}
-                    </a>
-                )}
-                <div className="about-page-issues-description">
-                  <h3 className="about-page-issues-header">Bugs</h3>
-                  <p className="about-page-issues-text">
-                    Bugs track code that is demonstrably wrong or highly likely to yield unexpected behavior.
-                  </p>
-                </div>
-              </div>
-              <div className="about-page-issues-box">
-                {displayNumbers && (
-                    <a className="about-page-issues-number"
-                       href={getIssuesUrl({ resolved: false, types: 'VULNERABILITY' })}>
-                      {formatMeasure(this.props.vulnerabilities, 'SHORT_INT')}
-                    </a>
-                )}
-                <div className="about-page-issues-description">
-                  <h3 className="about-page-issues-header">Vulnerabilities</h3>
-                  <p className="about-page-issues-text">
-                    Vulnerabilities are raised on code that is potentially vulnerable to exploitation by hackers.
-                  </p>
-                </div>
-              </div>
-              <div className="about-page-issues-box">
-                {displayNumbers && (
-                    <a className="about-page-issues-number"
-                       href={getIssuesUrl({ resolved: false, types: 'CODE_SMELL' })}>
-                      {formatMeasure(this.props.codeSmells, 'SHORT_INT')}
-                    </a>
-                )}
-                <div className="about-page-issues-description">
-                  <h3 className="about-page-issues-header">Code Smells</h3>
-                  <p className="about-page-issues-text">
-                    Code Smells will confuse maintainers or give them pause. They are measured primarily in terms of
-                    the time they will take to fix.
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className="boxed-group">
+          <h2>{translate('about_page.quality_model')}</h2>
+
+          <div className="boxed-group-inner clearfix">
+            <h3 className="spacer-bottom">{translate('issue.type.BUG.plural')}</h3>
+            <p className="about-page-text">{translate('about_page.quality_model.bugs')}</p>
+
+            <h3 className="big-spacer-top spacer-bottom">{translate('issue.type.VULNERABILITY.plural')}</h3>
+            <p className="about-page-text">{translate('about_page.quality_model.vulnerabilities')}</p>
+
+            <h3 className="big-spacer-top spacer-bottom">{translate('issue.type.CODE_SMELL.plural')}</h3>
+            <p className="about-page-text">{translate('about_page.quality_model.code_smells')}</p>
           </div>
         </div>
     );

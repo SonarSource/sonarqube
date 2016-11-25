@@ -19,9 +19,8 @@
  */
 import React from 'react';
 import keyBy from 'lodash/keyBy';
-import LoginSection from './LoginSection';
-import LoginForm from './LoginForm';
 import AboutProjects from './AboutProjects';
+import EntryIssueTypes from './EntryIssueTypes';
 import AboutCleanCode from './AboutCleanCode';
 import AboutIssues from './AboutIssues';
 import AboutQualityGates from './AboutQualityGates';
@@ -40,10 +39,12 @@ export default class AboutApp extends React.Component {
 
   componentDidMount () {
     this.mounted = true;
+    document.querySelector('html').classList.add('dashboard-page');
     this.loadData();
   }
 
   componentWillUnmount () {
+    document.querySelector('html').classList.remove('dashboard-page');
     this.mounted = false;
   }
 
@@ -52,7 +53,7 @@ export default class AboutApp extends React.Component {
   }
 
   loadIssues () {
-    return getFacet({ resolved: false }, 'types').then(r => keyBy(r.facet, 'val'));
+    return getFacet({ resolved: false }, 'types');
   }
 
   loadData () {
@@ -62,7 +63,8 @@ export default class AboutApp extends React.Component {
       this.loadIssues()
     ]).then(responses => {
       if (this.mounted) {
-        const [options, projectsCount, issueTypes] = responses;
+        const [options, projectsCount, issues] = responses;
+        const issueTypes = keyBy(issues.facet, 'val');
         this.setState({
           projectsCount,
           issueTypes,
@@ -79,9 +81,7 @@ export default class AboutApp extends React.Component {
       return null;
     }
 
-    const isAuthenticated = !!window.SS.user;
-    const { signUpAllowed, landingText } = window.sonarqube;
-    const loginFormShown = !isAuthenticated && this.props.location.query.login !== undefined;
+    const { landingText } = window.sonarqube;
 
     const logoUrl = this.state.logoUrl || `${window.baseUrl}/images/logo.svg`;
     const logoWidth = this.state.logoWidth || 100;
@@ -91,49 +91,53 @@ export default class AboutApp extends React.Component {
     return (
         <div id="about-page" className="about-page">
           <div className="about-page-entry">
+            <div className="about-page-container clearfix">
+              <div className="pull-left">
+                <div className="about-page-logo">
+                  <img src={logoUrl} width={2 * logoWidth} height={2 * logoHeight} alt={logoTitle}/>
+                </div>
+              </div>
 
-            <div className="about-page-logo">
-              <img src={logoUrl} width={2 * logoWidth} height={2 * logoHeight} alt={logoTitle}/>
+              <div className="about-page-entry-column">
+                <EntryIssueTypes
+                    bugs={this.state.issueTypes['BUG'].count}
+                    vulnerabilities={this.state.issueTypes['VULNERABILITY'].count}
+                    codeSmells={this.state.issueTypes['CODE_SMELL'].count}/>
+              </div>
+
+              <div className="about-page-entry-column">
+                <AboutProjects count={this.state.projectsCount}/>
+              </div>
             </div>
-
-            {loginFormShown ? (
-                <div className="about-page-entry-box">
-                  <LoginForm/>
-                </div>
-            ) : (
-                <div className="about-page-entry-box">
-                  <AboutProjects count={this.state.projectsCount}/>
-                  {!isAuthenticated && <LoginSection/>}
-                </div>
-            )}
-
-            {signUpAllowed && !isAuthenticated && (
-                <div className="about-page-sign-up">
-                  No account yet? <a href={window.baseUrl + '/users/new'}>Sign up</a>
-                </div>
-            )}
           </div>
 
-          {landingText.length > 0 && (
-              <div className="about-page-section bordered-bottom">
-                <div className="about-page-container" dangerouslySetInnerHTML={{ __html: landingText }}/>
+          <div className="about-page-container">
+
+            {landingText.length > 0 && (
+                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: landingText }}/>
+            )}
+
+            <div className="columns">
+              <div className="column-two-thirds">
+                <AboutCleanCode/>
+                <AboutLeakPeriod/>
               </div>
-          )}
+              <div className="column-third">
+                <AboutIssues/>
+              </div>
+            </div>
 
-          <AboutCleanCode/>
+            <div className="columns">
+              <div className="column-half">
+                <AboutQualityGates/>
+              </div>
+              <div className="column-half">
+                <AboutStandards/>
+              </div>
+            </div>
 
-          <AboutIssues
-              bugs={this.state.issueTypes['BUG'].count}
-              vulnerabilities={this.state.issueTypes['VULNERABILITY'].count}
-              codeSmells={this.state.issueTypes['CODE_SMELL'].count}/>
-
-          <AboutQualityGates/>
-
-          <AboutLeakPeriod/>
-
-          <AboutStandards/>
-
-          <AboutScanners/>
+            <AboutScanners/>
+          </div>
         </div>
     );
   }

@@ -18,28 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import ReadMore from './ReadMore';
+import { translate } from '../../../helpers/l10n';
 
 const link = 'http://redirect.sonarsource.com/doc/fix-the-leak.html';
 
 export default class AboutLeakPeriod extends React.Component {
   render () {
     return (
-        <div className="about-page-section">
-          <div className="about-page-container clearfix">
-            <img className="pull-left" src={window.baseUrl + '/images/understanding-leak-period.svg'}
-                 width={500} height={175} alt="Understanding the Leak Period"/>
-            <h2 className="about-page-header">Understanding the Leak Period</h2>
-            <p className="about-page-text">
-              The leak metaphor and the default Quality Gate are based on the leak period - the recent period against
-              which you're tracking issues. For some <code>previous_version</code> makes the most sense, for others
-              the last 30 days is a good option.
-            </p>
-            <div className="big-spacer-top">
-              <a className="about-page-link-more" href={link} target="_blank">
-                <span>Read more</span>
-                <i className="icon-detach spacer-left"/>
-              </a>
-            </div>
+        <div className="boxed-group">
+          <h2>{translate('about_page.leak_period')}</h2>
+          <div className="boxed-group-inner">
+            <p className="about-page-text">{translate('about_page.leak_period.text')}</p>
+            <ReadMore link={link}/>
           </div>
         </div>
     );
