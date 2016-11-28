@@ -47,7 +47,7 @@ export default class AboutScanners extends React.Component {
   render () {
     return (
         <div className="boxed-group">
-          <h2>Start analyzing your projects with a SonarQube Scanner</h2>
+          <h2>{translate('about_page.scanners')}</h2>
           <div className="boxed-group-inner">
             <div className="about-page-analyzers">
               {scanners.map(scanner => (
@@ -56,7 +56,7 @@ export default class AboutScanners extends React.Component {
                       <img src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`} height={80}
                            alt={translate('about_page.scanners', scanner.key)}/>
                     </div>
-                    <p className="about-page-text">{translate('about_page.scanners.sonarqube.text')}</p>
+                    <p className="about-page-text">{translate('about_page.scanners', scanner.key, 'text')}</p>
                     <ReadMore link={scanner.link}/>
                   </div>
               ))}

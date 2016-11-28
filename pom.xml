@@ -46,13 +46,6 @@
     <url>http://jira.sonarsource.com/browse/SONAR</url>
   </issueManagement>
 
-  <distributionManagement>
-    <repository>
-      <id>bintray</id>
-      <url>https://api.bintray.com/maven/sonarsource/SonarQube/${project.groupId}/;publish=1</url>
-    </repository>
-  </distributionManagement>
-
   <properties>
     <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
     <sonarJava.version>4.0</sonarJava.version>
@@ -87,6 +80,8 @@
 
     <!-- used for deployment to SonarSource Artifactory -->
     <gitRepositoryName>sonarqube</gitRepositoryName>
+    <!-- Release: enable publication to Bintray -->
+    <artifactsToPublish>${project.groupId}:sonar-application:zip</artifactsToPublish>
   </properties>
 
   <build>
@@ -1150,27 +1145,6 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>javadoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <excludePackageNames>
-                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.core:org.sonar.duplications:org.sonar.markdown:com.*
-              </excludePackageNames>
-              <author>false</author>
-              <linksource>true</linksource>
-              <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs
-              </reportOutputDirectory>
-            </configuration>
           </plugin>
         </plugins>
       </build>
