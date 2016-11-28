@@ -17,9 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 var config = require('./webpack.config.base');
+var getClientEnvironment = require('../env');
+var paths = require('../paths');
+
+// Get environment variables to inject into our app.
+var env = getClientEnvironment();
 
 // disable eslint loader
 config.module.preLoaders = [];
+
+// Don't attempt to continue if there are any errors.
+config.bail = true;
+
+config.plugins = [
+  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.[chunkhash:8].js'),
+
+  new ExtractTextPlugin('css/sonar.[chunkhash:8].css', { allChunks: true }),
+
+  new HtmlWebpackPlugin({
+    inject: false,
+    template: paths.appHtml
+  })
+];
 
 module.exports = config;

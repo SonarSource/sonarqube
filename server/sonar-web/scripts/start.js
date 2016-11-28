@@ -45,19 +45,6 @@ var handleCompile;
 
 var PROXY_URL = 'http://localhost:9000';
 
-// You can safely remove this after ejecting.
-// We only use this block for testing of Create React App itself:
-var isSmokeTest = process.argv.some(arg => arg.indexOf('--smoke-test') > -1);
-if (isSmokeTest) {
-  handleCompile = function (err, stats) {
-    if (err || stats.hasErrors() || stats.hasWarnings()) {
-      process.exit(1);
-    } else {
-      process.exit(0);
-    }
-  };
-}
-
 function setupCompiler (host, port, protocol) {
   // "Compiler" is a low-level interface to Webpack.
   // It lets us listen to some events and provide our own custom messages.
@@ -181,7 +168,7 @@ function addMiddleware (devServer) {
     // - /*.hot-update.json (WebpackDevServer uses this too for hot reloading)
     // - /sockjs-node/* (WebpackDevServer uses this for hot reloading)
     // Tip: use https://jex.im/regulex/ to visualize the regex
-    var mayProxy = /^(?!\/(.*\.hot-update\.json$|sockjs-node\/)).*$/;
+    var mayProxy = /^(?!\/(index\.html$|.*\.hot-update\.json$|sockjs-node\/)).*$/;
     devServer.use(mayProxy,
         // Pass the scope regex both to Express and to the middleware for proxying
         // of both HTTP and WebSockets to work without false positives.
@@ -201,6 +188,8 @@ function addMiddleware (devServer) {
 
 function runDevServer (host, port, protocol) {
   var devServer = new WebpackDevServer(compiler, {
+    // Enable gzip compression of generated files.
+    compress: true,
     // Silence WebpackDevServer's own logs since they're generally not useful.
     // It will still show compile warnings and errors with this setting.
     clientLogLevel: 'none',

@@ -20,7 +20,7 @@
 process.env.NODE_ENV = 'production';
 
 var chalk = require('chalk');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var rimrafSync = require('rimraf').sync;
 var webpack = require('webpack');
@@ -33,54 +33,73 @@ var config = isFastBuild ?
     require('../config/webpack/webpack.config.fast') :
     require('../config/webpack/webpack.config.prod');
 
+function clean () {
 // Remove all content but keep the directory so that
 // if you're in it, you don't end up in Trash
-console.log(chalk.cyan.bold('Cleaning output directories...'));
+  console.log(chalk.cyan.bold('Cleaning output directories and files...'));
 
-console.log(paths.appBuild + '/*');
-rimrafSync(paths.appBuild + '/*');
+  console.log(paths.jsBuild + '/*');
+  rimrafSync(paths.jsBuild + '/*');
 
-console.log(paths.cssBuild + '/*');
-rimrafSync(paths.cssBuild + '/*');
+  console.log(paths.cssBuild + '/*');
+  rimrafSync(paths.cssBuild + '/*');
 
-console.log();
+  console.log(paths.htmlBuild);
+  rimrafSync(paths.htmlBuild);
 
-if (isFastBuild) {
-  console.log(chalk.magenta.bold('Running fast build...'));
-} else {
-  console.log(chalk.cyan.bold('Creating optimized production build...'));
+  console.log();
 }
-console.log();
 
-webpack(config, (err, stats) => {
-  if (err) {
-    console.log(chalk.red.bold('Failed to create a production build!'));
-    console.log(chalk.red(err.message || err));
-    process.exit(1);
+function build () {
+  if (isFastBuild) {
+    console.log(chalk.magenta.bold('Running fast build...'));
+  } else {
+    console.log(chalk.cyan.bold('Creating optimized production build...'));
   }
+  console.log();
 
-  if (stats.compilation.errors && stats.compilation.errors.length) {
-    console.log(chalk.red.bold('Failed to create a production build!'));
-    stats.compilation.errors.forEach(err => console.log(chalk.red(err.message || err)));
-    process.exit(1);
-  }
+  webpack(config, (err, stats) => {
+    if (err) {
+      console.log(chalk.red.bold('Failed to create a production build!'));
+      console.log(chalk.red(err.message || err));
+      process.exit(1);
+    }
 
-  var jsonStats = stats.toJson();
+    if (stats.compilation.errors && stats.compilation.errors.length) {
+      console.log(chalk.red.bold('Failed to create a production build!'));
+      stats.compilation.errors.forEach(err => console.log(chalk.red(err.message || err)));
+      process.exit(1);
+    }
 
-  console.log('Assets:');
-  var assets = jsonStats.assets.slice();
-  assets.sort((a, b) => b.size - a.size);
-  assets.forEach(asset => {
-    var sizeLabel = formatSize(asset.size);
-    var leftPadding = ' '.repeat(8 - sizeLabel.length);
-    sizeLabel = leftPadding + sizeLabel;
-    console.log('', chalk.yellow(sizeLabel), asset.name);
+    var jsonStats = stats.toJson();
+
+    console.log('Assets:');
+    var assets = jsonStats.assets.slice();
+    assets.sort((a, b) => b.size - a.size);
+    assets.forEach(asset => {
+      var sizeLabel = formatSize(asset.size);
+      var leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
+      sizeLabel = leftPadding + sizeLabel;
+      console.log('', chalk.yellow(sizeLabel), asset.name);
+    });
+    console.log();
+
+    var seconds = jsonStats.time / 1000;
+    console.log('Duration: ' + seconds.toFixed(2) + 's');
+    console.log();
+
+    console.log(chalk.green.bold('Compiled successfully!'));
   });
-  console.log();
+}
 
-  var seconds = jsonStats.time / 1000;
-  console.log('Duration: ' + seconds.toFixed(2) + 's');
-  console.log();
+function copyPublicFolder () {
+  fs.copySync(paths.appPublic, paths.appBuild, {
+    dereference: true,
+    filter: file => file !== paths.appHtml
+  });
+}
 
-  console.log(chalk.green.bold('Compiled successfully!'));
-});
+
+clean();
+build();
+copyPublicFolder();
