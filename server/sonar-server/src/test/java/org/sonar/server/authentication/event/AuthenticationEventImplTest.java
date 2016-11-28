@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,6 +35,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -50,29 +52,48 @@ public class AuthenticationEventImplTest {
 
   private AuthenticationEventImpl underTest = new AuthenticationEventImpl();
 
+  @Before
+  public void setUp() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+  }
+
   @Test
   public void login_fails_with_NPE_if_request_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
     expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("request can't be null");
 
     underTest.login(null, "login", Source.sso());
   }
 
   @Test
   public void login_fails_with_NPE_if_source_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
     expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("source can't be null");
 
     underTest.login(mock(HttpServletRequest.class), "login", null);
   }
 
   @Test
-  public void login_creates_INFO_log_with_empty_login_if_login_argument_is_null() {
+  public void login_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    logTester.setLevel(LoggerLevel.INFO);
+
+    underTest.login(request, "login", Source.sso());
+
+    verifyZeroInteractions(request);
+  }
+
+  @Test
+  public void login_creates_DEBUG_log_with_empty_login_if_login_argument_is_null() {
     underTest.login(mockRequest(), null, Source.sso());
 
     verifyLog("login success [method|SSO][provider|SSO|sso][IP||][login|]");
   }
 
   @Test
-  public void login_creates_INFO_log_with_method_provider_and_login() {
+  public void login_creates_DEBUG_log_with_method_provider_and_login() {
     underTest.login(mockRequest(), "foo", Source.realm(Method.BASIC, "some provider name"));
 
     verifyLog("login success [method|BASIC][provider|REALM|some provider name][IP||][login|foo]");
@@ -111,20 +132,35 @@ public class AuthenticationEventImplTest {
 
   @Test
   public void failure_fails_with_NPE_if_request_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
     expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("request can't be null");
 
     underTest.failure(null, newBuilder().setSource(Source.sso()).build());
   }
 
   @Test
   public void failure_fails_with_NPE_if_AuthenticationException_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
     expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("AuthenticationException can't be null");
 
     underTest.failure(mock(HttpServletRequest.class), null);
   }
 
   @Test
-  public void failure_creates_INFO_log_with_empty_login_if_AuthenticationException_has_no_login() {
+  public void failure_does_not_interact_with_arguments_if_log_level_is_above_DEBUG() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    AuthenticationException exception = mock(AuthenticationException.class);
+    logTester.setLevel(LoggerLevel.INFO);
+
+    underTest.failure(request, exception);
+
+    verifyZeroInteractions(request, exception);
+  }
+
+  @Test
+  public void failure_creates_DEBUG_log_with_empty_login_if_AuthenticationException_has_no_login() {
     AuthenticationException exception = newBuilder().setSource(Source.sso()).setMessage("message").build();
     underTest.failure(mockRequest(), exception);
 
@@ -132,7 +168,7 @@ public class AuthenticationEventImplTest {
   }
 
   @Test
-  public void failure_creates_INFO_log_with_empty_cause_if_AuthenticationException_has_no_message() {
+  public void failure_creates_DEBUG_log_with_empty_cause_if_AuthenticationException_has_no_message() {
     AuthenticationException exception = newBuilder().setSource(Source.sso()).setLogin("FoO").build();
     underTest.failure(mockRequest(), exception);
 
@@ -140,7 +176,7 @@ public class AuthenticationEventImplTest {
   }
 
   @Test
-  public void failure_creates_INFO_log_with_method_provider_and_login() {
+  public void failure_creates_DEBUG_log_with_method_provider_and_login() {
     AuthenticationException exception = newBuilder()
       .setSource(Source.realm(Method.BASIC, "some provider name"))
       .setMessage("something got terribly wrong")
@@ -204,7 +240,7 @@ public class AuthenticationEventImplTest {
 
   private void verifyLog(String expected) {
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
       .containsOnly(expected);
   }
 

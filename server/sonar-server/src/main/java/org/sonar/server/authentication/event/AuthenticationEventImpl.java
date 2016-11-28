@@ -27,13 +27,20 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
+
 public class AuthenticationEventImpl implements AuthenticationEvent {
   private static final Logger LOGGER = Loggers.get("auth.event");
   private static final int FLOOD_THRESHOLD = 128;
 
   @Override
   public void login(HttpServletRequest request, @Nullable String login, Source source) {
-    LOGGER.info("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+    requireNonNull(request, "request can't be null");
+    requireNonNull(source, "source can't be null");
+    if (!LOGGER.isDebugEnabled()) {
+      return;
+    }
+    LOGGER.debug("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
       preventLogFlood(emptyIfNull(login)));
@@ -45,8 +52,13 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
 
   @Override
   public void failure(HttpServletRequest request, AuthenticationException e) {
+    requireNonNull(request, "request can't be null");
+    requireNonNull(e, "AuthenticationException can't be null");
+    if (!LOGGER.isDebugEnabled()) {
+      return;
+    }
     Source source = e.getSource();
-    LOGGER.info("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+    LOGGER.debug("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
       emptyIfNull(e.getMessage()),
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
