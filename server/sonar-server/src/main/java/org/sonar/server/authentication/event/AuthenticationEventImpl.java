@@ -29,13 +29,14 @@ import org.sonar.core.util.stream.Collectors;
 
 public class AuthenticationEventImpl implements AuthenticationEvent {
   private static final Logger LOGGER = Loggers.get("auth.event");
+  private static final int FLOOD_THRESHOLD = 128;
 
   @Override
   public void login(HttpServletRequest request, @Nullable String login, Source source) {
     LOGGER.info("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
-      emptyIfNull(login));
+      preventLogFlood(emptyIfNull(login)));
   }
 
   private static String getAllIps(HttpServletRequest request) {
@@ -49,11 +50,18 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       emptyIfNull(e.getMessage()),
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
-      emptyIfNull(e.getLogin()));
+      preventLogFlood(emptyIfNull(e.getLogin())));
   }
 
   private static String emptyIfNull(@Nullable String login) {
     return login == null ? "" : login;
+  }
+
+  private static String preventLogFlood(String str) {
+    if (str.length() > FLOOD_THRESHOLD) {
+      return str.substring(0, FLOOD_THRESHOLD) + "...(" + str.length() + ")";
+    }
+    return str;
   }
 
 }
