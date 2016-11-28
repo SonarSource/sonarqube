@@ -136,7 +136,7 @@ public class JwtHttpHandler {
     if (now.after(addSeconds(token.getIssuedAt(), SESSION_DISCONNECT_IN_SECONDS))) {
       return Optional.empty();
     }
-    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
+    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM), token.getSubject());
 
     if (now.after(addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
       refreshToken(token, request, response);

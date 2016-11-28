@@ -169,7 +169,7 @@ public class SsoAuthenticator implements Startable {
       String groupsValue = getHeaderValue(headerValuesByNames, GROUPS_HEADER_PARAM);
       userIdentityBuilder.setGroups(groupsValue == null ? Collections.emptySet() : new HashSet<>(COMA_SPLITTER.splitToList(groupsValue)));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new SsoIdentityProvider());
+    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new SsoIdentityProvider(), Source.sso());
   }
 
   @CheckForNull

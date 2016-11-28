@@ -29,6 +29,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+
 public class BaseContextFactory {
 
   private final DbClient dbClient;
@@ -78,7 +80,7 @@ public class BaseContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, Source.external(identityProvider));
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
     }

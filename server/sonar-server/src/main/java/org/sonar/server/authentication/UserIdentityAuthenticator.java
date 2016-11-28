@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -38,6 +37,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.ExternalIdentity;
@@ -63,11 +64,11 @@ public class UserIdentityAuthenticator {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public UserDto authenticate(UserIdentity user, IdentityProvider provider) {
-    return register(user, provider);
+  public UserDto authenticate(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
+    return register(user, provider, source);
   }
 
-  private UserDto register(UserIdentity user, IdentityProvider provider) {
+  private UserDto register(UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       String userLogin = user.getLogin();
@@ -76,21 +77,30 @@ public class UserIdentityAuthenticator {
         registerExistingUser(dbSession, userDto, user, provider);
         return userDto;
       }
-      return registerNewUser(dbSession, user, provider);
+      return registerNewUser(dbSession, user, provider, source);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private UserDto registerNewUser(DbSession dbSession, UserIdentity user, IdentityProvider provider) {
+  private UserDto registerNewUser(DbSession dbSession, UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
     if (!provider.allowsUsersToSignUp()) {
-      throw new UnauthorizedException(format("'%s' users are not allowed to sign up", provider.getKey()));
+      throw AuthenticationException.newBuilder()
+        .setSource(source)
+        .setLogin(user.getLogin())
+        .setMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
+        .build();
     }
 
     String email = user.getEmail();
     if (email != null && dbClient.userDao().doesEmailExist(dbSession, email)) {
-      throw new UnauthorizedException(format(
-        "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.", email));
+      throw AuthenticationException.newBuilder()
+        .setLogin(user.getLogin())
+        .setSource(source)
+        .setMessage(format(
+          "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
+          email))
+        .build();
     }
 
     String userLogin = user.getLogin();

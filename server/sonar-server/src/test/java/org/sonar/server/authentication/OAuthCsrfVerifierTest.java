@@ -28,7 +28,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
@@ -36,23 +37,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class OAuthCsrfVerifierTest {
+  private static final String PROVIDER_NAME = "provider name";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  Server server = mock(Server.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  HttpServletRequest request = mock(HttpServletRequest.class);
+  private OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
+  private Server server = mock(Server.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  OAuthCsrfVerifier underTest = new OAuthCsrfVerifier();
+  private OAuthCsrfVerifier underTest = new OAuthCsrfVerifier();
 
   @Before
   public void setUp() throws Exception {
     when(server.getContextPath()).thenReturn("");
+    when(identityProvider.getName()).thenReturn(PROVIDER_NAME);
   }
 
   @Test
@@ -71,7 +76,7 @@ public class OAuthCsrfVerifierTest {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
     when(request.getParameter("state")).thenReturn(state);
 
-    underTest.verifyState(request, response);
+    underTest.verifyState(request, response, identityProvider);
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
     Cookie updatedCookie = cookieArgumentCaptor.getValue();
@@ -82,30 +87,42 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void fail_with_unauthorized_when_state_cookie_is_not_the_same_as_state_parameter() throws Exception {
+  public void fail_with_AuthenticationException_when_state_cookie_is_not_the_same_as_state_parameter() throws Exception {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("other value");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, response);
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expectMessage("CSRF state value is invalid");
+    underTest.verifyState(request, response, identityProvider);
   }
 
   @Test
-  public void fail_to_verify_state_when_state_cookie_is_null() throws Exception {
+  public void fail_with_AuthenticationException_when_state_cookie_is_null() throws Exception {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", null)});
     when(request.getParameter("state")).thenReturn("state");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, response);
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expectMessage("CSRF state value is invalid");
+    underTest.verifyState(request, response, identityProvider);
   }
 
   @Test
-  public void fail_with_unauthorized_when_state_parameter_is_empty() throws Exception {
+  public void fail_with_AuthenticationException_when_state_parameter_is_empty() throws Exception {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, response);
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expectMessage("CSRF state value is invalid");
+    underTest.verifyState(request, response, identityProvider);
+  }
+
+  @Test
+  public void fail_with_AuthenticationException_when_cookie_is_missing() throws Exception {
+    when(request.getCookies()).thenReturn(new Cookie[] {});
+
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expectMessage("Cookie 'OAUTHSTATE' is missing");
+    underTest.verifyState(request, response, identityProvider);
   }
 
   private void verifyCookie(Cookie cookie) {

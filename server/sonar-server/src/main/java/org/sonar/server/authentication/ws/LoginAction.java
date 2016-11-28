@@ -21,6 +21,7 @@
 package org.sonar.server.authentication.ws;
 
 import java.io.IOException;
+import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -33,13 +34,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class LoginAction extends ServletFilter {
 
@@ -51,12 +56,15 @@ public class LoginAction extends ServletFilter {
   private final CredentialsAuthenticator credentialsAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
   private final ThreadLocalUserSession threadLocalUserSession;
+  private final AuthenticationEvent authenticationEvent;
 
-  public LoginAction(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler, ThreadLocalUserSession threadLocalUserSession) {
+  public LoginAction(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler,
+    ThreadLocalUserSession threadLocalUserSession, AuthenticationEvent authenticationEvent) {
     this.dbClient = dbClient;
     this.credentialsAuthenticator = credentialsAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
     this.threadLocalUserSession = threadLocalUserSession;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -73,21 +81,29 @@ public class LoginAction extends ServletFilter {
       response.setStatus(HTTP_BAD_REQUEST);
       return;
     }
+
+    String login = request.getParameter("login");
+    String password = request.getParameter("password");
     try {
-      UserDto userDto = authenticate(request);
+      UserDto userDto = authenticate(request, login, password);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
       // TODO add chain.doFilter when Rack filter will not be executed after this filter (or use a Servlet)
+    } catch (AuthenticationException e) {
+      authenticationEvent.failure(request, e);
+      response.setStatus(HTTP_UNAUTHORIZED);
     } catch (UnauthorizedException e) {
       response.setStatus(e.httpCode());
     }
   }
 
-  private UserDto authenticate(HttpServletRequest request) {
-    String login = request.getParameter("login");
-    String password = request.getParameter("password");
+  private UserDto authenticate(HttpServletRequest request, @Nullable String login, @Nullable String password) {
     if (isEmpty(login) || isEmpty(password)) {
-      throw new UnauthorizedException();
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.local(Method.FORM))
+        .setLogin(login)
+        .setMessage("empty login and/or password")
+        .build();
     }
     return credentialsAuthenticator.authenticate(login, password, request, Method.FORM);
   }

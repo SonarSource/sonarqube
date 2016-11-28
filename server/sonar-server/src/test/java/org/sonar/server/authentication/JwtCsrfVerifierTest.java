@@ -27,30 +27,31 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.platform.Server;
-import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class JwtCsrfVerifierTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final int TIMEOUT = 30;
-  static final String CSRF_STATE = "STATE";
-  static final String JAVA_WS_URL = "/api/metrics/create";
+  private static final int TIMEOUT = 30;
+  private static final String CSRF_STATE = "STATE";
+  private static final String JAVA_WS_URL = "/api/metrics/create";
+  private static final String LOGIN = "foo login";
 
-  ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
-  Server server = mock(Server.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  JwtCsrfVerifier underTest = new JwtCsrfVerifier();
+  private JwtCsrfVerifier underTest = new JwtCsrfVerifier();
 
   @Before
   public void setUp() throws Exception {
@@ -71,34 +72,37 @@ public class JwtCsrfVerifierTest {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
-    underTest.verifyState(request, CSRF_STATE);
+    underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
   @Test
-  public void fail_with_unauthorized_when_state_header_is_not_the_same_as_state_parameter() throws Exception {
+  public void fail_with_AuthenticationException_when_state_header_is_not_the_same_as_state_parameter() throws Exception {
     mockRequestCsrf("other value");
     mockPostJavaWsRequest();
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, CSRF_STATE);
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("wrong CSFR in request");
+    underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
   @Test
-  public void fail_with_unauthorized_when_state_is_null() throws Exception {
+  public void fail_with_AuthenticationException_when_state_is_null() throws Exception {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, null);
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("missing reference CSRF value");
+    underTest.verifyState(request, null, LOGIN);
   }
 
   @Test
-  public void fail_with_unauthorized_when_state_parameter_is_empty() throws Exception {
+  public void fail_with_AuthenticationException_when_state_parameter_is_empty() throws Exception {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, "");
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("missing reference CSRF value");
+    underTest.verifyState(request, "", LOGIN);
   }
 
   @Test
@@ -107,8 +111,9 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("POST");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, CSRF_STATE);
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("wrong CSFR in request");
+    underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
   @Test
@@ -117,8 +122,9 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("PUT");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, CSRF_STATE);
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("wrong CSFR in request");
+    underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
   @Test
@@ -127,8 +133,9 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("DELETE");
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.verifyState(request, CSRF_STATE);
+    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN));
+    thrown.expectMessage("wrong CSFR in request");
+    underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
   @Test
@@ -136,7 +143,7 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("GET");
 
-    underTest.verifyState(request, null);
+    underTest.verifyState(request, null, LOGIN);
   }
 
   @Test
@@ -199,6 +206,6 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(uri);
     when(request.getMethod()).thenReturn(method);
 
-    underTest.verifyState(request, null);
+    underTest.verifyState(request, null, LOGIN);
   }
 }

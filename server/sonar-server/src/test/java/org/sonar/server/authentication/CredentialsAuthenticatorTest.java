@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
@@ -40,8 +39,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class CredentialsAuthenticatorTest {
 
@@ -73,7 +74,7 @@ public class CredentialsAuthenticatorTest {
       .setSalt(SALT)
       .setLocal(true));
 
-    UserDto userDto = executeAuthenticate();
+    UserDto userDto = executeAuthenticate(BASIC);
     assertThat(userDto.getLogin()).isEqualTo(LOGIN);
     verify(authenticationEvent).login(request, LOGIN, Source.local(BASIC));
   }
@@ -86,9 +87,10 @@ public class CredentialsAuthenticatorTest {
       .setSalt("Wrong salt")
       .setLocal(true));
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN));
+    expectedException.expectMessage("wrong password");
     try {
-      executeAuthenticate();
+      executeAuthenticate(BASIC);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -101,7 +103,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setLocal(false));
 
-    executeAuthenticate();
+    executeAuthenticate(BASIC);
 
     verify(externalAuthenticator).authenticate(LOGIN, PASSWORD, request, BASIC);
     verifyZeroInteractions(authenticationEvent);
@@ -109,14 +111,15 @@ public class CredentialsAuthenticatorTest {
 
   @Test
   public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() throws Exception {
-    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC)).thenReturn(Optional.empty());
+    when(externalAuthenticator.authenticate(LOGIN, PASSWORD, request, BASIC_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN));
+    expectedException.expectMessage("User is not local");
     try {
-      executeAuthenticate();
+      executeAuthenticate(BASIC_TOKEN);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -130,9 +133,10 @@ public class CredentialsAuthenticatorTest {
       .setSalt(SALT)
       .setLocal(true));
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN));
+    expectedException.expectMessage("null password in DB");
     try {
-      executeAuthenticate();
+      executeAuthenticate(BASIC);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
@@ -146,16 +150,17 @@ public class CredentialsAuthenticatorTest {
       .setSalt(null)
       .setLocal(true));
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN));
+    expectedException.expectMessage("null salt");
     try {
-      executeAuthenticate();
+      executeAuthenticate(BASIC_TOKEN);
     } finally {
       verifyZeroInteractions(authenticationEvent);
     }
   }
 
-  private UserDto executeAuthenticate() {
-    return underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
+  private UserDto executeAuthenticate(AuthenticationEvent.Method method) {
+    return underTest.authenticate(LOGIN, PASSWORD, request, method);
   }
 
   private UserDto insertUser(UserDto userDto) {
