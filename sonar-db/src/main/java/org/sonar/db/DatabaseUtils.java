@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -48,6 +49,11 @@ import static java.lang.String.format;
 public class DatabaseUtils {
 
   public static final int PARTITION_SIZE_FOR_ORACLE = 1000;
+
+  /**
+   * @see DatabaseMetaData#getTableTypes()
+   */
+  private static final String[] TABLE_TYPE = {"TABLE"};
 
   public static void closeQuietly(@Nullable Connection connection) {
     if (connection != null) {
@@ -301,7 +307,8 @@ public class DatabaseUtils {
     * @throws SQLException
     */
   public static boolean tableExists(String table, Connection connection) {
-    try (ResultSet rs = connection.getMetaData().getTables(null, null, null, null)) {
+    // table type is used to speed-up Oracle by removing introspection of system tables and aliases.
+    try (ResultSet rs = connection.getMetaData().getTables(null, null, null, TABLE_TYPE)) {
       while (rs.next()) {
         String name = rs.getString("TABLE_NAME");
         if (table.equalsIgnoreCase(name)) {
