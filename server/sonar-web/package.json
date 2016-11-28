@@ -48,6 +48,7 @@
     "handlebars": "2.0.0",
     "handlebars-loader": "1.1.4",
     "history": "2.0.0",
+    "html-webpack-plugin": "2.24.1",
     "imports-loader": "0.6.5",
     "jest": "15.1.1",
     "jquery": "2.2.0",

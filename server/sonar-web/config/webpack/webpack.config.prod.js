@@ -18,8 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 var config = require('./webpack.config.base');
 var getClientEnvironment = require('../env');
+var paths = require('../paths');
 
 // Get environment variables to inject into our app.
 var env = getClientEnvironment();
@@ -33,16 +36,40 @@ if (env['process.env.NODE_ENV'] !== '"production"') {
 // Don't attempt to continue if there are any errors.
 config.bail = true;
 
-config.plugins = [].concat(config.plugins, [
+config.plugins = [
+  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.[chunkhash:8].js'),
+
+  new ExtractTextPlugin('css/sonar.[chunkhash:8].css', { allChunks: true }),
+
+  new HtmlWebpackPlugin({
+    inject: false,
+    template: paths.appHtml,
+    minify: {
+      removeComments: true,
+      collapseWhitespace: true,
+      removeRedundantAttributes: true,
+      useShortDoctype: true,
+      removeEmptyAttributes: true,
+      removeStyleLinkTypeAttributes: true,
+      keepClosingSlash: true,
+      minifyJS: true,
+      minifyCSS: true,
+      minifyURLs: true
+    }
+  }),
+
   // Makes some environment variables available to the JS code, for example:
   // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
   // It is absolutely essential that NODE_ENV was set to production here.
   // Otherwise React will be compiled in the very slow development mode.
   new webpack.DefinePlugin(env),
+
   // This helps ensure the builds are consistent if source hasn't changed:
   new webpack.optimize.OccurrenceOrderPlugin(),
+
   // Try to dedupe duplicated modules, if any:
   new webpack.optimize.DedupePlugin(),
+
   // Minify the code.
   new webpack.optimize.UglifyJsPlugin({
     compress: {
@@ -56,7 +83,7 @@ config.plugins = [].concat(config.plugins, [
       comments: false,
       screw_ie8: true
     }
-  }),
-]);
+  })
+];
 
 module.exports = config;

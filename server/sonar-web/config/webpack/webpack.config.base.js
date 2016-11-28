@@ -1,10 +1,7 @@
-/* eslint no-var: 0 */
 var path = require('path');
 var autoprefixer = require('autoprefixer');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-var url = require('url');
 var paths = require('../paths');
 var autoprefixerOptions = require('../autoprefixer');
 
@@ -25,19 +22,13 @@ module.exports = {
 
     'sonar': './src/main/js/libs/sonar.js',
 
-    'app': './src/main/js/app/index.js',
-
-    // not unique url
-    'source-viewer': './src/main/js/apps/source-viewer/app.js'
+    'app': './src/main/js/app/index.js'
   },
   output: {
     path: paths.appBuild,
-    filename: '[name].js'
+    filename: 'js/[name].[chunkhash:8].js',
+    chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
   },
-  plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
-    new ExtractTextPlugin('../../css/sonar.css', { allChunks: true })
-  ],
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
     // We read `NODE_PATH` environment variable in `paths.js` and pass paths here.

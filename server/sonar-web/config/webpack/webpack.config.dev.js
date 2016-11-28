@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 var paths = require('../paths');
 var config = require('./webpack.config.base');
 var getClientEnvironment = require('../env');
 
-// Webpack uses `publicPath` to determine where the app is being served from.
-var publicPath = '/js/bundles/';
-
-// Get environment variables to inject into our app.
+var publicPath = '';
+var webContext = '';
 var env = getClientEnvironment();
 
 // This makes the bundle appear split into separate modules in the devtools.
@@ -53,22 +54,44 @@ config.output.pathinfo = true;
 
 // This is the URL that app is served from.
 config.output.publicPath = publicPath;
+config.output.filename = 'js/[name].js';
+config.output.chunkFilename = 'js/[name].chunk.js';
 
-config.plugins = [].concat(config.plugins, [
+config.plugins = [
+  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js'),
+
+  new ExtractTextPlugin('css/sonar.css', { allChunks: true }),
+
+  // Makes the web context available as %WEB_CONTEXT% in index.html, e.g.:
+  // <link rel="shortcut icon" href="%WEB_CONTEXT%/favicon.ico">
+  // In development, this will be an empty string.
+  new InterpolateHtmlPlugin({
+    WEB_CONTEXT: webContext
+  }),
+
+  // Generates an `index.html` file with the <script> injected.
+  new HtmlWebpackPlugin({
+    inject: false,
+    template: paths.appHtml,
+  }),
+
   // Makes some environment variables available to the JS code, for example:
   // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
   new webpack.DefinePlugin(env),
+
   // This is necessary to emit hot updates (currently CSS only):
   new webpack.HotModuleReplacementPlugin(),
+
   // Watcher doesn't work well if you mistype casing in a path so we use
   // a plugin that prints an error when you attempt to do this.
   // See https://github.com/facebookincubator/create-react-app/issues/240
   new CaseSensitivePathsPlugin(),
+
   // If you require a missing module and then `npm install` it, you still have
   // to restart the development server for Webpack to discover it. This plugin
   // makes the discovery automatic so you don't have to restart.
   // See https://github.com/facebookincubator/create-react-app/issues/186
   new WatchMissingNodeModulesPlugin(paths.appNodeModules)
-]);
+];
 
 module.exports = config;
