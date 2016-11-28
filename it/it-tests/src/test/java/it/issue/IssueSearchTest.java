@@ -29,6 +29,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.base.Paging;
@@ -276,6 +277,7 @@ public class IssueSearchTest extends AbstractIssueTest {
    * SONAR-5659
    */
   @Test
+  @Ignore("unstable")
   public void redirect_to_search_url_after_wrong_login() {
     // Force user authentication to check login on the issues search page
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
