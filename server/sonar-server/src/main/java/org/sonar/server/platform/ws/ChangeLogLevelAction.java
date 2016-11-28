@@ -28,7 +28,7 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.process.LogbackHelper.allowedLogLevels;
+import static org.sonar.process.logging.LogbackHelper.allowedLogLevels;
 
 public class ChangeLogLevelAction implements SystemWsAction {
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+package org.sonar.process.logging;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -43,6 +43,10 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.MessageException;
+import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;

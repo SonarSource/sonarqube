@@ -39,7 +39,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 

@@ -24,12 +24,12 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
-import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+import static org.sonar.process.logging.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
 import static org.sonar.process.monitor.StreamGobbler.LOGGER_GOBBLER;
 
 /**

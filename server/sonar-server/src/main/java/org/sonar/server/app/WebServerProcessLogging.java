@@ -21,11 +21,11 @@ package org.sonar.server.app;
 
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
-import static org.sonar.process.LogbackHelper.LogDomain;
+import static org.sonar.process.logging.LogbackHelper.LogDomain;
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
 
 /**

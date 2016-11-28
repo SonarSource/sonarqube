@@ -22,12 +22,12 @@ package org.sonar.server.app;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.server.platform.ServerLogging;
 
-import static org.sonar.process.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+import static org.sonar.process.logging.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
   protected static final Set<String> JMX_RMI_LOGGER_NAMES = ImmutableSet.of(

@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.slf4j.MDC;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
