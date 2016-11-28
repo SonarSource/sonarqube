@@ -40,11 +40,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 /**
  * This class can be used to encode or decode a JWT token
@@ -100,8 +101,9 @@ public class JwtSerializer implements Startable {
 
   Optional<Claims> decode(String token) {
     checkIsStarted();
+    Claims claims = null;
     try {
-      Claims claims = Jwts.parser()
+      claims = Jwts.parser()
         .setSigningKey(secretKey)
         .parseClaimsJws(token)
         .getBody();
@@ -113,7 +115,11 @@ public class JwtSerializer implements Startable {
     } catch (ExpiredJwtException | SignatureException e) {
       return Optional.empty();
     } catch (Exception e) {
-      throw new UnauthorizedException(e.getMessage());
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.jwt())
+        .setLogin(claims == null ? null : claims.getSubject())
+        .setMessage(e.getMessage())
+        .build();
     }
   }
 

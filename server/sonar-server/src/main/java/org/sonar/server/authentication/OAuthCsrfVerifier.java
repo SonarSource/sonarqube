@@ -24,13 +24,15 @@ import java.security.SecureRandom;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.authentication.CookieUtils.createCookie;
 import static org.sonar.server.authentication.CookieUtils.findCookie;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuthCsrfVerifier {
 
@@ -44,8 +46,12 @@ public class OAuthCsrfVerifier {
     return state;
   }
 
-  public void verifyState(HttpServletRequest request, HttpServletResponse response) {
-    Cookie cookie = findCookie(CSRF_STATE_COOKIE, request).orElseThrow(() -> new UnauthorizedException(format("Cookie '%s' is missing", CSRF_STATE_COOKIE)));
+  public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
+    Cookie cookie = findCookie(CSRF_STATE_COOKIE, request)
+      .orElseThrow(() -> AuthenticationException.newBuilder()
+        .setSource(Source.oauth2(provider))
+        .setMessage(format("Cookie '%s' is missing", CSRF_STATE_COOKIE))
+        .build());
     String hashInCookie = cookie.getValue();
 
     // remove cookie
@@ -53,7 +59,10 @@ public class OAuthCsrfVerifier {
 
     String stateInRequest = request.getParameter("state");
     if (isBlank(stateInRequest) || !sha256Hex(stateInRequest).equals(hashInCookie)) {
-      throw new UnauthorizedException("CSRF state value is invalid");
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.oauth2(provider))
+        .setMessage("CSRF state value is invalid")
+        .build();
     }
   }
 

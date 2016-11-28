@@ -39,19 +39,19 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
-import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.authentication.JwtSerializer.JwtSession;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class JwtSerializerTest {
 
+  private static final String A_SECRET_KEY = "HrPSavOYLNNrwTY+SOqpChr7OwvbR/zbDLdVXRN0+Eg=";
+  private static final String USER_LOGIN = "john";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  static final String A_SECRET_KEY = "HrPSavOYLNNrwTY+SOqpChr7OwvbR/zbDLdVXRN0+Eg=";
-
-  static final String USER_LOGIN = "john";
 
   private Settings settings = new MapSettings();
   private System2 system2 = System2.INSTANCE;
@@ -156,7 +156,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
     expectedException.expectMessage("Token id hasn't been found");
     underTest.decode(token);
   }
@@ -174,7 +174,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.jwt()).withoutLogin());
     expectedException.expectMessage("Token subject hasn't been found");
     underTest.decode(token);
   }
@@ -192,7 +192,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
     expectedException.expectMessage("Token expiration date hasn't been found");
     underTest.decode(token);
   }
@@ -209,7 +209,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
     expectedException.expectMessage("Token creation date hasn't been found");
     underTest.decode(token);
   }

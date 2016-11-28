@@ -29,6 +29,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -37,6 +39,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.web.ServletFilter.UrlPattern;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
 import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
@@ -74,15 +77,17 @@ public class UserSessionInitializer {
   private final BasicAuthenticator basicAuthenticator;
   private final SsoAuthenticator ssoAuthenticator;
   private final ThreadLocalUserSession threadLocalSession;
+  private final AuthenticationEvent authenticationEvent;
 
   public UserSessionInitializer(DbClient dbClient, Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
-    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession) {
+    SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
     this.ssoAuthenticator = ssoAuthenticator;
     this.threadLocalSession = threadLocalSession;
+    this.authenticationEvent = authenticationEvent;
   }
 
   public boolean initUserSession(HttpServletRequest request, HttpServletResponse response) {
@@ -94,6 +99,14 @@ public class UserSessionInitializer {
       }
       setUserSession(request, response);
       return true;
+    } catch (AuthenticationException e) {
+      authenticationEvent.failure(request, e);
+      if (isWsUrl(path)) {
+        response.setStatus(HTTP_UNAUTHORIZED);
+        return false;
+      }
+      handleAuthenticationError(e, response);
+      return false;
     } catch (UnauthorizedException e) {
       response.setStatus(HTTP_UNAUTHORIZED);
       if (isWsUrl(path)) {
@@ -102,6 +115,14 @@ public class UserSessionInitializer {
       // WS should stop here. Rails page should continue in order to deal with redirection
       return true;
     }
+  }
+
+  private static boolean shouldContinueFilterOnError(String path) {
+    if (isWsUrl(path)) {
+      return false;
+    }
+    // WS should stop here. Rails page should continue in order to deal with redirection
+    return true;
   }
 
   private void setUserSession(HttpServletRequest request, HttpServletResponse response) {

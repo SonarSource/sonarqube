@@ -279,7 +279,7 @@ public class JwtHttpHandlerTest {
 
     underTest.validateToken(request, response);
 
-    verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE);
+    verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE, USER_LOGIN);
   }
 
   @Test

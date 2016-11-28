@@ -23,14 +23,17 @@ import com.google.common.collect.ImmutableSet;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.authentication.CookieUtils.createCookie;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class JwtCsrfVerifier {
 
@@ -59,14 +62,30 @@ public class JwtCsrfVerifier {
     return state;
   }
 
-  public void verifyState(HttpServletRequest request, @Nullable String csrfState) {
+  public void verifyState(HttpServletRequest request, @Nullable String csrfState, @Nullable String login) {
     if (!shouldRequestBeChecked(request)) {
       return;
     }
-    String stateInHeader = request.getHeader(CSRF_HEADER);
-    if (isBlank(csrfState) || !StringUtils.equals(csrfState, stateInHeader)) {
-      throw new UnauthorizedException();
+
+    String failureCause = checkCsrf(csrfState, request.getHeader(CSRF_HEADER));
+    if (failureCause != null) {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.local(Method.JWT))
+        .setLogin(login)
+        .setMessage(failureCause)
+        .build();
     }
+  }
+
+  @CheckForNull
+  private static String checkCsrf(@Nullable String csrfState, @Nullable String stateInHeader) {
+    if (isBlank(csrfState)) {
+      return "missing reference CSRF value";
+    }
+    if (!StringUtils.equals(csrfState, stateInHeader)) {
+      return "wrong CSFR in request";
+    }
+    return null;
   }
 
   public void refreshState(HttpServletRequest request, HttpServletResponse response, String csrfState, int timeoutInSeconds) {

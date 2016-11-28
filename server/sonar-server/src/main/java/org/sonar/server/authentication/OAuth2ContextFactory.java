@@ -28,6 +28,7 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.MessageException;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -109,7 +110,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public void verifyCsrfState() {
-      csrfVerifier.verifyState(request, response);
+      csrfVerifier.verifyState(request, response, identityProvider);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider, AuthenticationEvent.Source.oauth2(identityProvider));
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
     }

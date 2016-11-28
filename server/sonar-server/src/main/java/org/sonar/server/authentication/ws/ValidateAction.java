@@ -20,8 +20,6 @@
 
 package org.sonar.server.authentication.ws;
 
-import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
-
 import java.io.IOException;
 import java.util.Optional;
 import javax.servlet.FilterChain;
@@ -37,8 +35,10 @@ import org.sonar.api.web.ServletFilter;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.BasicAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonarqube.ws.MediaTypes;
+
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 
 public class ValidateAction extends ServletFilter {
 
@@ -84,7 +84,7 @@ public class ValidateAction extends ServletFilter {
         return true;
       }
       return !settings.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY);
-    } catch (UnauthorizedException e) {
+    } catch (AuthenticationException e) {
       return false;
     }
   }

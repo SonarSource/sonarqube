@@ -28,11 +28,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.server.authentication.BasicAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 
@@ -55,7 +55,7 @@ public class ValidateActionTest {
 
   Settings settings = new MapSettings();
 
-  ValidateAction underTest  = new ValidateAction(settings, basicAuthenticator, jwtHttpHandler);
+  ValidateAction underTest = new ValidateAction(settings, basicAuthenticator, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {
@@ -111,7 +111,7 @@ public class ValidateActionTest {
 
   @Test
   public void return_false_when_jwt_throws_unauthorized_exception() throws Exception {
-    doThrow(UnauthorizedException.class).when(jwtHttpHandler).validateToken(request, response);
+    doThrow(AuthenticationException.class).when(jwtHttpHandler).validateToken(request, response);
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
 
     underTest.doFilter(request, response, chain);
@@ -123,7 +123,7 @@ public class ValidateActionTest {
   @Test
   public void return_false_when_basic_authenticator_throws_unauthorized_exception() throws Exception {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
-    doThrow(UnauthorizedException.class).when(basicAuthenticator).authenticate(request);
+    doThrow(AuthenticationException.class).when(basicAuthenticator).authenticate(request);
 
     underTest.doFilter(request, response, chain);
 

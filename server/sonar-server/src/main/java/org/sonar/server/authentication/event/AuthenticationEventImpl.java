@@ -33,12 +33,27 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   @Override
   public void login(HttpServletRequest request, @Nullable String login, Source source) {
     LOGGER.info("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
-        source.getMethod(), source.getProvider(), source.getProviderName(), request.getRemoteAddr(), getAllIps(request),
-        login == null ? "" : login);
+      source.getMethod(), source.getProvider(), source.getProviderName(),
+      request.getRemoteAddr(), getAllIps(request),
+      emptyIfNull(login));
   }
 
   private static String getAllIps(HttpServletRequest request) {
     return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(Collectors.join(Joiner.on(",")));
+  }
+
+  @Override
+  public void failure(HttpServletRequest request, AuthenticationException e) {
+    Source source = e.getSource();
+    LOGGER.info("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+      emptyIfNull(e.getMessage()),
+      source.getMethod(), source.getProvider(), source.getProviderName(),
+      request.getRemoteAddr(), getAllIps(request),
+      emptyIfNull(e.getLogin()));
+  }
+
+  private static String emptyIfNull(@Nullable String login) {
+    return login == null ? "" : login;
   }
 
 }

@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -55,24 +56,24 @@ public class UserSessionInitializerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession = dbTester.getSession();
+  private DbSession dbSession = dbTester.getSession();
 
-  ThreadLocalUserSession userSession = mock(ThreadLocalUserSession.class);
+  private ThreadLocalUserSession userSession = mock(ThreadLocalUserSession.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
 
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
-  BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
-  SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
+  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
+  private SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
 
-  Settings settings = new MapSettings();
+  private Settings settings = new MapSettings();
 
-  UserDto user = newUserDto();
+  private UserDto user = newUserDto();
 
-  UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator, ssoAuthenticator, userSession);
+  private UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator, ssoAuthenticator, userSession, mock(AuthenticationEvent.class));
 
   @Before
   public void setUp() throws Exception {

@@ -39,7 +39,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Objects.requireNonNull;
@@ -93,24 +93,42 @@ public class RealmAuthenticator implements Startable {
       ExternalUsersProvider.Context externalUsersProviderContext = new ExternalUsersProvider.Context(userLogin, request);
       UserDetails details = externalUsersProvider.doGetUserDetails(externalUsersProviderContext);
       if (details == null) {
-        throw new UnauthorizedException("No user details");
+        throw AuthenticationException.newBuilder()
+          .setSource(realmEventSource(method))
+          .setLogin(userLogin)
+          .setMessage("No user details")
+          .build();
       }
       Authenticator.Context authenticatorContext = new Authenticator.Context(userLogin, userPassword, request);
       boolean status = authenticator.doAuthenticate(authenticatorContext);
       if (!status) {
-        throw new UnauthorizedException("Fail to authenticate from external provider");
+        throw AuthenticationException.newBuilder()
+          .setSource(realmEventSource(method))
+          .setLogin(userLogin)
+          .setMessage("realm returned authenticate=false")
+          .build();
       }
-      UserDto userDto = synchronize(userLogin, details, request);
-      authenticationEvent.login(request, userLogin, Source.realm(method, realm.getName()));
+      UserDto userDto = synchronize(userLogin, details, request, method);
+      authenticationEvent.login(request, userLogin, realmEventSource(method));
       return userDto;
+    } catch (AuthenticationException e) {
+      throw e;
     } catch (Exception e) {
       // It seems that with Realm API it's expected to log the error and to not authenticate the user
       LOG.error("Error during authentication", e);
-      throw new UnauthorizedException();
+      throw AuthenticationException.newBuilder()
+        .setSource(realmEventSource(method))
+        .setLogin(userLogin)
+        .setMessage(e.getMessage())
+        .build();
     }
   }
 
-  private UserDto synchronize(String userLogin, UserDetails details, HttpServletRequest request) {
+  private Source realmEventSource(AuthenticationEvent.Method method) {
+    return Source.realm(method, realm.getName());
+  }
+
+  private UserDto synchronize(String userLogin, UserDetails details, HttpServletRequest request, AuthenticationEvent.Method method) {
     String name = details.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setLogin(userLogin)
@@ -122,7 +140,7 @@ public class RealmAuthenticator implements Startable {
       Collection<String> groups = externalGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
-    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider());
+    return userIdentityAuthenticator.authenticate(userIdentityBuilder.build(), new ExternalIdentityProvider(), realmEventSource(method));
   }
 
   private String getLogin(String userLogin) {

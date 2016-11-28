@@ -78,7 +78,7 @@ public class OAuth2CallbackFilter extends ServletFilter {
         WrappedContext context = new WrappedContext(oAuth2ContextFactory.newCallback(httpRequest, (HttpServletResponse) response, oauthProvider));
         oauthProvider.callback(context);
         if (context.isAuthenticated()) {
-          authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(provider.getName()));
+          authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(oauthProvider));
         }
       } else {
         handleError((HttpServletResponse) response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));

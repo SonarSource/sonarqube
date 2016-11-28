@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationException.newBuilder;
 
 public class AuthenticationEventImplTest {
   @Rule
@@ -95,6 +96,86 @@ public class AuthenticationEventImplTest {
     underTest.login(request, "foo", Source.realm(Method.EXTERNAL, "bar"));
 
     verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
+  }
+
+  @Test
+  public void failure_fails_with_NPE_if_request_is_null() {
+    expectedException.expect(NullPointerException.class);
+
+    underTest.failure(null, newBuilder().setSource(Source.sso()).build());
+  }
+
+  @Test
+  public void failure_fails_with_NPE_if_AuthenticationException_is_null() {
+    expectedException.expect(NullPointerException.class);
+
+    underTest.failure(mock(HttpServletRequest.class), null);
+  }
+
+  @Test
+  public void failure_creates_INFO_log_with_empty_login_if_AuthenticationException_has_no_login() {
+    AuthenticationException exception = newBuilder().setSource(Source.sso()).setMessage("message").build();
+    underTest.failure(mockRequest(), exception);
+
+    verifyLog("login failure [cause|message][method|SSO][provider|SSO|sso][IP||][login|]");
+  }
+
+  @Test
+  public void failure_creates_INFO_log_with_empty_cause_if_AuthenticationException_has_no_message() {
+    AuthenticationException exception = newBuilder().setSource(Source.sso()).setLogin("FoO").build();
+    underTest.failure(mockRequest(), exception);
+
+    verifyLog("login failure [cause|][method|SSO][provider|SSO|sso][IP||][login|FoO]");
+  }
+
+  @Test
+  public void failure_creates_INFO_log_with_method_provider_and_login() {
+    AuthenticationException exception = newBuilder()
+        .setSource(Source.realm(Method.BASIC, "some provider name"))
+        .setMessage("something got terribly wrong")
+        .setLogin("BaR")
+        .build();
+    underTest.failure(mockRequest(), exception);
+
+    verifyLog("login failure [cause|something got terribly wrong][method|BASIC][provider|REALM|some provider name][IP||][login|BaR]");
+  }
+
+  @Test
+  public void failure_logs_remote_ip_from_request() {
+    AuthenticationException exception = newBuilder()
+        .setSource(Source.realm(Method.EXTERNAL, "bar"))
+        .setMessage("Damn it!")
+        .setLogin("Baaad")
+        .build();
+    underTest.failure(mockRequest("1.2.3.4"), exception);
+
+    verifyLog("login failure [cause|Damn it!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|][login|Baaad]");
+  }
+
+  @Test
+  public void failure_logs_X_Forwarded_For_header_from_request() {
+    AuthenticationException exception = newBuilder()
+        .setSource(Source.realm(Method.EXTERNAL, "bar"))
+        .setMessage("Hop la!")
+        .setLogin("foo")
+        .build();
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    underTest.failure(request, exception);
+
+    verifyLog("login failure [cause|Hop la!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5][login|foo]");
+  }
+
+  @Test
+  public void failure_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
+    AuthenticationException exception = newBuilder()
+        .setSource(Source.realm(Method.EXTERNAL, "bar"))
+        .setMessage("Boom!")
+        .setLogin("foo")
+        .build();
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    underTest.failure(request, exception);
+
+    verifyLog("login failure [cause|Boom!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
   }
 
   private void verifyLog(String expected) {

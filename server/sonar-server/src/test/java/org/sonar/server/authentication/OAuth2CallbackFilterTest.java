@@ -162,7 +162,7 @@ public class OAuth2CallbackFilterTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isCallbackCalled()).isTrue();
     if (expectLoginLog) {
-      verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider.getName()));
+      verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
     } else {
       verifyZeroInteractions(authenticationEvent);
     }

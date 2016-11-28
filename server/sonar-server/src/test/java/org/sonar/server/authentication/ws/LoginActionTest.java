@@ -36,6 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -70,7 +71,7 @@ public class LoginActionTest {
 
   private UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
 
-  private LoginAction underTest  = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession);
+  private LoginAction underTest  = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession, mock(AuthenticationEvent.class));
 
   @Before
   public void setUp() throws Exception {

@@ -45,43 +45,42 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2ContextFactoryTest {
+
+  private static final String PROVIDER_KEY = "github";
+  private static final String SECURED_PUBLIC_ROOT_URL = "https://mydomain.com";
+  private static final String NOT_SECURED_PUBLIC_URL = "http://mydomain.com";
+  private static final String PROVIDER_NAME = "provider name";
+  private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
+      .setProviderLogin("johndoo")
+      .setLogin("id:johndoo")
+      .setName("John")
+      .setEmail("john@email.com")
+      .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static String PROVIDER_KEY = "github";
-
-  static String SECURED_PUBLIC_ROOT_URL = "https://mydomain.com";
-  static String NOT_SECURED_PUBLIC_URL = "http://mydomain.com";
-
-  static UserIdentity USER_IDENTITY = UserIdentity.builder()
-    .setProviderLogin("johndoo")
-    .setLogin("id:johndoo")
-    .setName("John")
-    .setEmail("john@email.com")
-    .build();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
 
-  DbSession dbSession = dbTester.getSession();
+  private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
+  private UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
+  private Server server = mock(Server.class);
+  private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
+  private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
-  UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
-  Server server = mock(Server.class);
-  OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpSession session = mock(HttpSession.class);
+  private OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  HttpSession session = mock(HttpSession.class);
-  OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
-
-  OAuth2ContextFactory underTest = new OAuth2ContextFactory(dbClient, threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler);
+  private OAuth2ContextFactory underTest = new OAuth2ContextFactory(dbClient, threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {
@@ -90,7 +89,8 @@ public class OAuth2ContextFactoryTest {
 
     when(request.getSession()).thenReturn(session);
     when(identityProvider.getKey()).thenReturn(PROVIDER_KEY);
-    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider)).thenReturn(userDto);
+    when(identityProvider.getName()).thenReturn(PROVIDER_NAME);
+    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider))).thenReturn(userDto);
   }
 
   @Test
@@ -150,7 +150,7 @@ public class OAuth2ContextFactoryTest {
 
     callback.authenticate(USER_IDENTITY);
 
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider);
+    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, Source.oauth2(identityProvider));
     verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(request), eq(response));
     verify(threadLocalUserSession).set(any(UserSession.class));
   }
@@ -181,7 +181,7 @@ public class OAuth2ContextFactoryTest {
 
     callback.verifyCsrfState();
 
-    verify(csrfVerifier).verifyState(request, response);
+    verify(csrfVerifier).verifyState(request, response, identityProvider);
   }
 
   private OAuth2IdentityProvider.InitContext newInitContext() {
