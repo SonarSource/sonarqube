@@ -12,6 +12,7 @@ npm.tar.gz
 build/
 src/main/webapp/js/
 src/main/webapp/css/
+src/main/webapp/index.html
 src/main/webapp/WEB-INF/lib/*.jar
 
 # tests
