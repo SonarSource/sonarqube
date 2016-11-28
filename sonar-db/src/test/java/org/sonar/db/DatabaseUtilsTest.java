@@ -327,4 +327,14 @@ public class DatabaseUtilsTest {
     assertThat(buildLikeValue("like-\\_%/-value", AFTER)).isEqualTo(escapedValue + wildcard);
     assertThat(buildLikeValue("like-\\_%/-value", BEFORE_AND_AFTER)).isEqualTo(wildcard + escapedValue + wildcard);
   }
+
+  @Test
+  public void tableExists_returns_true_if_table_is_referenced_in_db_metadata() throws Exception {
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("schema_migrations", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("schema_MIGRATIONS", connection)).isTrue();
+      assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
+    }
+  }
 }
