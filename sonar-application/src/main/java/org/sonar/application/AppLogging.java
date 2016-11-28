@@ -27,9 +27,10 @@ import ch.qos.logback.core.FileAppender;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
-import static org.sonar.process.logging.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 import static org.sonar.process.monitor.StreamGobbler.LOGGER_GOBBLER;
 
 /**
@@ -108,7 +109,7 @@ class AppLogging {
   private static final String CONSOLE_PLAIN_APPENDER = "CONSOLE";
   private static final String APP_CONSOLE_APPENDER = "APP_CONSOLE";
   private static final String GOBBLER_PLAIN_CONSOLE = "GOBBLER_CONSOLE";
-  private static final LogbackHelper.RootLoggerConfig APP_ROOT_LOGGER_CONFIG = newRootLoggerConfigBuilder()
+  private static final RootLoggerConfig APP_ROOT_LOGGER_CONFIG = newRootLoggerConfigBuilder()
     .setProcessId(ProcessId.APP)
     .build();
 

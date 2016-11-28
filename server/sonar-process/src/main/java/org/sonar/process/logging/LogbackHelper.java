@@ -49,7 +49,6 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 /**
@@ -97,53 +96,7 @@ public class LogbackHelper {
     return propagator;
   }
 
-  public static final class RootLoggerConfig {
-    private final ProcessId processId;
-    private final String threadIdFieldPattern;
-
-    private RootLoggerConfig(Builder builder) {
-      this.processId = requireNonNull(builder.processId);
-      this.threadIdFieldPattern = builder.threadIdFieldPattern;
-    }
-
-    public static Builder newRootLoggerConfigBuilder() {
-      return new Builder();
-    }
-
-    ProcessId getProcessId() {
-      return processId;
-    }
-
-    String getThreadIdFieldPattern() {
-      return threadIdFieldPattern;
-    }
-
-    public static final class Builder {
-      @CheckForNull
-      private ProcessId processId;
-      private String threadIdFieldPattern = "";
-
-      private Builder() {
-        // prevents instantiation outside RootLoggerConfig, use static factory method
-      }
-
-      public Builder setProcessId(ProcessId processId) {
-        this.processId = processId;
-        return this;
-      }
-
-      public Builder setThreadIdFieldPattern(String threadIdFieldPattern) {
-        this.threadIdFieldPattern = requireNonNull(threadIdFieldPattern, "threadIdFieldPattern can't be null");
-        return this;
-      }
-
-      public RootLoggerConfig build() {
-        return new RootLoggerConfig(this);
-      }
-    }
-  }
-
-  public String buildLogPattern(LogbackHelper.RootLoggerConfig config) {
+  public String buildLogPattern(RootLoggerConfig config) {
     return LOG_FORMAT
       .replace(PROCESS_NAME_PLACEHOLDER, config.getProcessId().getKey())
       .replace(THREAD_ID_PLACEHOLDER, config.getThreadIdFieldPattern());
@@ -189,7 +142,7 @@ public class LogbackHelper {
     return fileAppender;
   }
 
-  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, LogbackHelper.RootLoggerConfig config, String logPattern) {
+  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, RootLoggerConfig config, String logPattern) {
     RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getProcessId().getLogFilenamePrefix());
     FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getProcessId().getLogFilenamePrefix());
     fileAppender.setContext(ctx);

@@ -25,9 +25,10 @@ import java.util.Set;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.logging.RootLoggerConfig;
 import org.sonar.server.platform.ServerLogging;
 
-import static org.sonar.process.logging.LogbackHelper.RootLoggerConfig.newRootLoggerConfigBuilder;
+import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
   protected static final Set<String> JMX_RMI_LOGGER_NAMES = ImmutableSet.of(
@@ -64,7 +65,7 @@ public abstract class ServerProcessLogging {
   protected abstract void extendConfiguration(LogbackHelper helper, Props props);
 
   private void configureRootLogger(Props props) {
-    LogbackHelper.RootLoggerConfig config = newRootLoggerConfigBuilder()
+    RootLoggerConfig config = newRootLoggerConfigBuilder()
       .setProcessId(processId)
       .setThreadIdFieldPattern(threadIdFieldPattern)
       .build();
