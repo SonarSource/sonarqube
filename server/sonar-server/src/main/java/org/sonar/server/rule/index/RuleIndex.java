@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -69,6 +68,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
@@ -106,7 +106,6 @@ public class RuleIndex extends BaseIndex {
   public static final String FACET_STATUSES = "statuses";
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
-  private static Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
     Collections2.filter(Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatusToString.INSTANCE), NotRemoved.INSTANCE));
@@ -494,10 +493,6 @@ public class RuleIndex extends BaseIndex {
       aggregation.getBuckets().forEach(value -> terms.add(value.getKeyAsString()));
     }
     return terms;
-  }
-
-  private static String escapeSpecialRegexChars(String str) {
-    return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
   }
 
   private enum ToRuleKey implements Function<String, RuleKey> {
