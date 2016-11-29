@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -105,6 +106,7 @@ public class RuleIndex extends BaseIndex {
   public static final String FACET_STATUSES = "statuses";
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
+  private static Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
     Collections2.filter(Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatusToString.INSTANCE), NotRemoved.INSTANCE));
@@ -180,8 +182,7 @@ public class RuleIndex extends BaseIndex {
     qb.should(simpleQueryStringQuery(query.getQueryText())
       .field(FIELD_RULE_NAME + "." + SEARCH_WORDS_SUFFIX, 20f)
       .field(FIELD_RULE_HTML_DESCRIPTION, 3f)
-      .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
-      ).boost(20f);
+      .defaultOperator(SimpleQueryStringBuilder.Operator.AND)).boost(20f);
 
     // Match and partial Match queries
     // Search by key uses the "sortable" sub-field as it requires to be case-insensitive (lower-case filtering)
@@ -477,7 +478,7 @@ public class RuleIndex extends BaseIndex {
       .size(size)
       .minDocCount(1);
     if (query != null) {
-      termsAggregation.include(".*" + query + ".*");
+      termsAggregation.include(".*" + escapeSpecialRegexChars(query) + ".*");
     }
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX)
@@ -493,6 +494,10 @@ public class RuleIndex extends BaseIndex {
       aggregation.getBuckets().forEach(value -> terms.add(value.getKeyAsString()));
     }
     return terms;
+  }
+
+  private static String escapeSpecialRegexChars(String str) {
+    return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
   }
 
   private enum ToRuleKey implements Function<String, RuleKey> {
