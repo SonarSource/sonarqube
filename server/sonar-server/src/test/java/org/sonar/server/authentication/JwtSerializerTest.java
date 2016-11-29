@@ -156,7 +156,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
     expectedException.expectMessage("Token id hasn't been found");
     underTest.decode(token);
   }
@@ -174,7 +174,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withoutLogin());
+    expectedException.expect(authenticationException().from(Source.jwt()).withoutLogin().andNoPublicMessage());
     expectedException.expectMessage("Token subject hasn't been found");
     underTest.decode(token);
   }
@@ -192,7 +192,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
     expectedException.expectMessage("Token expiration date hasn't been found");
     underTest.decode(token);
   }
@@ -209,7 +209,7 @@ public class JwtSerializerTest {
       .signWith(SignatureAlgorithm.HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN));
+    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
     expectedException.expectMessage("Token creation date hasn't been found");
     underTest.decode(token);
   }

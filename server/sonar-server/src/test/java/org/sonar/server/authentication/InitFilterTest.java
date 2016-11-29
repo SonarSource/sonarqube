@@ -19,11 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
@@ -39,36 +35,47 @@ import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class InitFilterTest {
 
-  static String OAUTH2_PROVIDER_KEY = "github";
-  static String BASIC_PROVIDER_KEY = "openid";
+  private static final String OAUTH2_PROVIDER_KEY = "github";
+  private static final String BASIC_PROVIDER_KEY = "openid";
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 
-  BaseContextFactory baseContextFactory = mock(BaseContextFactory.class);
-  OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-  Server server = mock(Server.class);
+  private BaseContextFactory baseContextFactory = mock(BaseContextFactory.class);
+  private OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
+  private Server server = mock(Server.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
 
-  FakeOAuth2IdentityProvider oAuth2IdentityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
-  OAuth2IdentityProvider.InitContext oauth2Context = mock(OAuth2IdentityProvider.InitContext.class);
+  private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
+  private OAuth2IdentityProvider.InitContext oauth2Context = mock(OAuth2IdentityProvider.InitContext.class);
 
-  FakeBasicIdentityProvider baseIdentityProvider = new FakeBasicIdentityProvider(BASIC_PROVIDER_KEY, true);
-  BaseIdentityProvider.Context baseContext = mock(BaseIdentityProvider.Context.class);
+  private FakeBasicIdentityProvider baseIdentityProvider = new FakeBasicIdentityProvider(BASIC_PROVIDER_KEY, true);
+  private BaseIdentityProvider.Context baseContext = mock(BaseIdentityProvider.Context.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server);
+  private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+
+  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
@@ -91,6 +98,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertOAuth2InitCalled();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -101,6 +109,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertOAuth2InitCalled();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -111,6 +120,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertBasicInitCalled();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -119,52 +129,32 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to initialize authentication with provider ''");
+    assertError("No provider key found in URI");
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
-  public void fail_if_uri_doesnt_contains_callback() throws Exception {
+  public void fail_if_uri_does_not_contains_callback() throws Exception {
     when(request.getRequestURI()).thenReturn("/sessions/init");
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to initialize authentication with provider ''");
+    assertError("No provider key found in URI");
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void fail_if_identity_provider_class_is_unsupported() throws Exception {
-    final String unsupportedKey = "unsupported";
+    String unsupportedKey = "unsupported";
     when(request.getRequestURI()).thenReturn("/sessions/init/" + unsupportedKey);
-    identityProviderRepository.addIdentityProvider(new IdentityProvider() {
-      @Override
-      public String getKey() {
-        return unsupportedKey;
-      }
-
-      @Override
-      public String getName() {
-        return null;
-      }
-
-      @Override
-      public Display getDisplay() {
-        return null;
-      }
-
-      @Override
-      public boolean isEnabled() {
-        return true;
-      }
-
-      @Override
-      public boolean allowsUsersToSignUp() {
-        return false;
-      }
-    });
+    IdentityProvider identityProvider = new UnsupportedIdentityProvider(unsupportedKey);
+    identityProviderRepository.addIdentityProvider(identityProvider);
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to initialize authentication with provider 'unsupported'");
+    assertError("Unsupported IdentityProvider class: class org.sonar.server.authentication.InitFilterTest$UnsupportedIdentityProvider");
+    verifyZeroInteractions(authenticationEvent);
+
   }
 
   @Test
@@ -176,6 +166,12 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
+    assertThat(authenticationException).hasMessage("Email john@email.com is already used");
+    assertThat(authenticationException.getSource()).isEqualTo(AuthenticationEvent.Source.external(identityProvider));
+    assertThat(authenticationException.getLogin()).isNull();
+    assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
   }
 
   private void assertOAuth2InitCalled() {
@@ -203,6 +199,39 @@ public class InitFilterTest {
     @Override
     public void init(Context context) {
       throw new UnauthorizedException("Email john@email.com is already used");
+    }
+  }
+
+  private static class UnsupportedIdentityProvider implements IdentityProvider {
+    private final String unsupportedKey;
+
+    public UnsupportedIdentityProvider(String unsupportedKey) {
+      this.unsupportedKey = unsupportedKey;
+    }
+
+    @Override
+    public String getKey() {
+      return unsupportedKey;
+    }
+
+    @Override
+    public String getName() {
+      return null;
+    }
+
+    @Override
+    public Display getDisplay() {
+      return null;
+    }
+
+    @Override
+    public boolean isEnabled() {
+      return true;
+    }
+
+    @Override
+    public boolean allowsUsersToSignUp() {
+      return false;
     }
   }
 }

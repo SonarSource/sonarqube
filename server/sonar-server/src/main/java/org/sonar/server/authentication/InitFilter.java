@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import java.io.IOException;
+import javax.annotation.CheckForNull;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -33,11 +34,14 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
-import static org.sonar.server.authentication.AuthenticationError.handleUnauthorizedError;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class InitFilter extends ServletFilter {
 
@@ -47,12 +51,15 @@ public class InitFilter extends ServletFilter {
   private final BaseContextFactory baseContextFactory;
   private final OAuth2ContextFactory oAuth2ContextFactory;
   private final Server server;
+  private final AuthenticationEvent authenticationEvent;
 
-  public InitFilter(IdentityProviderRepository identityProviderRepository, BaseContextFactory baseContextFactory, OAuth2ContextFactory oAuth2ContextFactory, Server server) {
+  public InitFilter(IdentityProviderRepository identityProviderRepository, BaseContextFactory baseContextFactory,
+    OAuth2ContextFactory oAuth2ContextFactory, Server server, AuthenticationEvent authenticationEvent) {
     this.identityProviderRepository = identityProviderRepository;
     this.baseContextFactory = baseContextFactory;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.server = server;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -63,35 +70,80 @@ public class InitFilter extends ServletFilter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    String requestURI = httpRequest.getRequestURI();
-    String keyProvider = "";
-    try {
-      keyProvider = extractKeyProvider(requestURI, server.getContextPath() + INIT_CONTEXT);
-      IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
-      if (provider instanceof BaseIdentityProvider) {
-        BaseIdentityProvider baseIdentityProvider = (BaseIdentityProvider) provider;
-        baseIdentityProvider.init(baseContextFactory.newContext(httpRequest, (HttpServletResponse) response, baseIdentityProvider));
-      } else if (provider instanceof OAuth2IdentityProvider) {
-        OAuth2IdentityProvider oAuth2IdentityProvider = (OAuth2IdentityProvider) provider;
-        oAuth2IdentityProvider.init(oAuth2ContextFactory.newContext(httpRequest, (HttpServletResponse) response, oAuth2IdentityProvider));
-      } else {
-        throw new UnsupportedOperationException(format("Unsupported IdentityProvider class: %s ", provider.getClass()));
-      }
-    } catch (UnauthorizedException e) {
-      handleUnauthorizedError(e, (HttpServletResponse) response);
-    } catch (Exception e) {
-      handleError(e, (HttpServletResponse) response, format("Fail to initialize authentication with provider '%s'", keyProvider));
+    HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse);
+    if (provider != null) {
+      handleProvider(httpRequest, httpResponse, provider);
     }
   }
 
-  public static String extractKeyProvider(String requestUri, String context) {
+  @CheckForNull
+  private IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response) {
+    String requestURI = request.getRequestURI();
+    String providerKey = extractKeyProvider(requestURI, server.getContextPath() + INIT_CONTEXT);
+    if (providerKey == null) {
+      handleError(response, "No provider key found in URI");
+      return null;
+    }
+    try {
+      return identityProviderRepository.getEnabledByKey(providerKey);
+    } catch (Exception e) {
+      handleError(e, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
+      return null;
+    }
+  }
+
+  @CheckForNull
+  private static String extractKeyProvider(String requestUri, String context) {
     if (requestUri.contains(context)) {
       String key = requestUri.replace(context, "");
       if (!isNullOrEmpty(key)) {
         return key;
       }
     }
-    throw new IllegalArgumentException("A valid identity provider key is required.");
+    return null;
+  }
+
+  private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {
+    try {
+      if (provider instanceof BaseIdentityProvider) {
+        handleBaseIdentityProvider(request, response, (BaseIdentityProvider) provider);
+      } else if (provider instanceof OAuth2IdentityProvider) {
+        handleOAuth2IdentityProvider(request, response, (OAuth2IdentityProvider) provider);
+      } else {
+        handleError(response, format("Unsupported IdentityProvider class: %s", provider.getClass()));
+      }
+    } catch (AuthenticationException e) {
+      authenticationEvent.failure(request, e);
+      handleAuthenticationError(e, response);
+    } catch (Exception e) {
+      handleError(e, response, format("Fail to initialize authentication with provider '%s'", provider.getKey()));
+    }
+  }
+
+  private void handleBaseIdentityProvider(HttpServletRequest request, HttpServletResponse response, BaseIdentityProvider provider) {
+    try {
+      provider.init(baseContextFactory.newContext(request, response, provider));
+    } catch (UnauthorizedException e) {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.external(provider))
+        .setMessage(e.getMessage())
+        .setPublicMessage(e.getMessage())
+        .build();
+    }
+  }
+
+  private void handleOAuth2IdentityProvider(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
+    try {
+      provider.init(oAuth2ContextFactory.newContext(request, response, provider));
+    } catch (UnauthorizedException e) {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.oauth2(provider))
+        .setMessage(e.getMessage())
+        .setPublicMessage(e.getMessage())
+        .build();
+    }
   }
 
   @Override

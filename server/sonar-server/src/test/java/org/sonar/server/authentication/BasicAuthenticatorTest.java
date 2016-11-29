@@ -121,7 +121,7 @@ public class BasicAuthenticatorTest {
   public void fail_to_authenticate_when_no_login() throws Exception {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(":" + PASSWORD));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin());
+    expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin().andNoPublicMessage());
     try {
       underTest.authenticate(request);
     } finally {
@@ -157,7 +157,7 @@ public class BasicAuthenticatorTest {
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.empty());
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withoutLogin());
+    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
     try {
       underTest.authenticate(request);
     } finally {
@@ -171,7 +171,7 @@ public class BasicAuthenticatorTest {
     when(userTokenAuthenticator.authenticate("token")).thenReturn(Optional.of("Unknown user"));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin());
+    expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
     try {
       underTest.authenticate(request);
     } finally {

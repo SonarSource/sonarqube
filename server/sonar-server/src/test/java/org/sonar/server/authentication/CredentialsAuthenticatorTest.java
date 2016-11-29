@@ -87,7 +87,7 @@ public class CredentialsAuthenticatorTest {
       .setSalt("Wrong salt")
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("wrong password");
     try {
       executeAuthenticate(BASIC);
@@ -116,7 +116,7 @@ public class CredentialsAuthenticatorTest {
       .setLogin(LOGIN)
       .setLocal(false));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("User is not local");
     try {
       executeAuthenticate(BASIC_TOKEN);
@@ -133,7 +133,7 @@ public class CredentialsAuthenticatorTest {
       .setSalt(SALT)
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("null password in DB");
     try {
       executeAuthenticate(BASIC);
@@ -150,7 +150,7 @@ public class CredentialsAuthenticatorTest {
       .setSalt(null)
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("null salt");
     try {
       executeAuthenticate(BASIC_TOKEN);

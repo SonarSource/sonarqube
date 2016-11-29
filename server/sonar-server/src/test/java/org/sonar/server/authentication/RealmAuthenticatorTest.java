@@ -239,7 +239,7 @@ public class RealmAuthenticatorTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(null);
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("No user details");
     try {
       underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
@@ -255,7 +255,7 @@ public class RealmAuthenticatorTest {
 
     when(authenticator.doAuthenticate(any(Authenticator.Context.class))).thenReturn(false);
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage("realm returned authenticate=false");
     try {
       underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
@@ -272,7 +272,7 @@ public class RealmAuthenticatorTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(new UserDetails());
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC_TOKEN, REALM_NAME)).withLogin(LOGIN));
+    expectedException.expect(authenticationException().from(Source.realm(BASIC_TOKEN, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
     expectedException.expectMessage(expectedMessage);
     try {
       underTest.authenticate(LOGIN, PASSWORD, request, BASIC_TOKEN);

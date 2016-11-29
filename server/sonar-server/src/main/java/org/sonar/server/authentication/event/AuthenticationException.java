@@ -38,11 +38,13 @@ public class AuthenticationException extends RuntimeException {
   private final AuthenticationEvent.Source source;
   @CheckForNull
   private final String login;
+  private final String publicMessage;
 
   private AuthenticationException(Builder builder) {
     super(builder.message);
     this.source = requireNonNull(builder.source, "source can't be null");
     this.login = builder.login;
+    this.publicMessage = builder.publicMessage;
   }
 
   public AuthenticationEvent.Source getSource() {
@@ -52,6 +54,11 @@ public class AuthenticationException extends RuntimeException {
   @CheckForNull
   public String getLogin() {
     return login;
+  }
+
+  @CheckForNull
+  public String getPublicMessage() {
+    return publicMessage;
   }
 
   public static Builder newBuilder() {
@@ -65,6 +72,8 @@ public class AuthenticationException extends RuntimeException {
     private String login;
     @CheckForNull
     private String message;
+    @CheckForNull
+    private String publicMessage;
 
     private Builder() {
       // use static factory method
@@ -82,6 +91,11 @@ public class AuthenticationException extends RuntimeException {
 
     public Builder setMessage(String message) {
       this.message = message;
+      return this;
+    }
+
+    public Builder setPublicMessage(String publicMessage) {
+      this.publicMessage = publicMessage;
       return this;
     }
 

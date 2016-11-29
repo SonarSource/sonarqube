@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -33,8 +34,10 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -63,6 +66,8 @@ public class OAuth2CallbackFilterTest {
   private FakeOAuth2IdentityProvider oAuth2IdentityProvider = new WellbehaveFakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true, LOGIN);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
+  private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+
   private OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server, authenticationEvent);
 
   @Before
@@ -84,7 +89,8 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertCallbackCalled(oAuth2IdentityProvider, true);
+    assertCallbackCalled(oAuth2IdentityProvider);
+    verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
   }
 
   @Test
@@ -96,7 +102,13 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertCallbackCalled(identityProvider, false);
+    assertCallbackCalled(identityProvider);
+    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
+    assertThat(authenticationException).hasMessage("Plugin did not call authenticate");
+    assertThat(authenticationException.getSource()).isEqualTo(Source.oauth2(identityProvider));
+    assertThat(authenticationException.getLogin()).isNull();
+    assertThat(authenticationException.getPublicMessage()).isNull();
   }
 
   @Test
@@ -106,7 +118,8 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertCallbackCalled(oAuth2IdentityProvider, true);
+    assertCallbackCalled(oAuth2IdentityProvider);
+    verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
   }
 
   @Test
@@ -128,14 +141,16 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to callback authentication with 'github'");
+    assertError("Failed to retrieve IdentityProvider for key 'github'");
     verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void redirect_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
-    TestIdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider()
+    FailWithUnauthorizedExceptionIdProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider();
+    identityProvider
       .setKey("failing")
+      .setName("name of failing")
       .setEnabled(true);
     when(request.getRequestURI()).thenReturn("/oauth2/callback/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);
@@ -143,29 +158,27 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
-    verifyZeroInteractions(authenticationEvent);
+    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
+    assertThat(authenticationException).hasMessage("Email john@email.com is already used");
+    assertThat(authenticationException.getSource()).isEqualTo(Source.oauth2(identityProvider));
+    assertThat(authenticationException.getLogin()).isNull();
+    assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
   }
 
   @Test
   public void fail_when_no_oauth2_provider_provided() throws Exception {
-    String providerKey = "openid";
     when(request.getRequestURI()).thenReturn("/oauth2/callback");
-    identityProviderRepository.addIdentityProvider(new FakeBasicIdentityProvider(providerKey, true));
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to callback authentication");
+    assertError("No provider key found in URI");
     verifyZeroInteractions(authenticationEvent);
   }
 
-  private void assertCallbackCalled(FakeOAuth2IdentityProvider oAuth2IdentityProvider, boolean expectLoginLog) {
+  private void assertCallbackCalled(FakeOAuth2IdentityProvider oAuth2IdentityProvider) {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isCallbackCalled()).isTrue();
-    if (expectLoginLog) {
-      verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
-    } else {
-      verifyZeroInteractions(authenticationEvent);
-    }
   }
 
   private void assertError(String expectedError) throws Exception {

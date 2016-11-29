@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.util.stream.Collectors;
@@ -61,6 +60,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class SsoAuthenticatorTest {
 
@@ -339,11 +339,11 @@ public class SsoAuthenticatorTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_when_BadRequestException_is_generated() throws Exception {
+  public void throw_AuthenticationException_when_BadRequestException_is_generated() throws Exception {
     startWithSso();
     setNotUserInToken();
 
-    expectedException.expect(UnauthorizedException.class);
+    expectedException.expect(authenticationException().from(Source.sso()).withoutLogin().andNoPublicMessage());
     expectedException.expectMessage("user.bad_login");
     try {
       underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);

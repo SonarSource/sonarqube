@@ -361,7 +361,7 @@ public class UserIdentityAuthenticatorTest {
       .setAllowsUsersToSignUp(false);
     Source source = Source.realm(Method.FORM, identityProvider.getName());
 
-    thrown.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()));
+    thrown.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andNoPublicMessage());
     thrown.expectMessage("'github' users are not allowed to sign up");
     underTest.authenticate(USER_IDENTITY, identityProvider, source);
   }
@@ -374,7 +374,7 @@ public class UserIdentityAuthenticatorTest {
       .setEmail("john@email.com"));
     Source source = Source.realm(Method.FORM, IDENTITY_PROVIDER.getName());
 
-    thrown.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()));
+    thrown.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getLogin()).andNoPublicMessage());
     thrown.expectMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
       "This means that you probably already registered with another account.");
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, source);
