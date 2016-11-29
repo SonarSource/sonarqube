@@ -64,6 +64,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
@@ -168,7 +169,7 @@ public class RuleIndex extends BaseIndex {
     // No contextual query case
     String queryText = query.getQueryText();
     if (StringUtils.isEmpty(queryText)) {
-      return QueryBuilders.matchAllQuery();
+      return matchAllQuery();
     }
 
     // Build RuleBased contextual query
@@ -295,7 +296,7 @@ public class RuleIndex extends BaseIndex {
     if (childrenFilter.hasClauses()) {
       childQuery = childrenFilter;
     } else {
-      childQuery = QueryBuilders.matchAllQuery();
+      childQuery = matchAllQuery();
     }
 
     /** Implementation of activation query */
@@ -469,31 +470,28 @@ public class RuleIndex extends BaseIndex {
   }
 
   public Set<String> terms(String fields, @Nullable String query, int size) {
-    Set<String> tags = new HashSet<>();
-    String key = "_ref";
+    String aggregationKey = "_ref";
 
-    TermsBuilder terms = AggregationBuilders.terms(key)
+    TermsBuilder termsAggregation = AggregationBuilders.terms(aggregationKey)
       .field(fields)
       .size(size)
       .minDocCount(1);
     if (query != null) {
-      terms.include(".*" + query + ".*");
+      termsAggregation.include(".*" + query + ".*");
     }
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX)
-      .setQuery(QueryBuilders.matchAllQuery())
-      .addAggregation(terms);
+      .setQuery(matchAllQuery())
+      .addAggregation(termsAggregation);
 
     SearchResponse esResponse = request.get();
 
-    Terms aggregation = esResponse.getAggregations().get(key);
-
+    Set<String> terms = new HashSet<>();
+    Terms aggregation = esResponse.getAggregations().get(aggregationKey);
     if (aggregation != null) {
-      for (Terms.Bucket value : aggregation.getBuckets()) {
-        tags.add(value.getKeyAsString());
-      }
+      aggregation.getBuckets().forEach(value -> terms.add(value.getKeyAsString()));
     }
-    return tags;
+    return terms;
   }
 
   private enum ToRuleKey implements Function<String, RuleKey> {
