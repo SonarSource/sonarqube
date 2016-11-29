@@ -26,6 +26,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
@@ -42,6 +43,7 @@ import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
+@Ignore("notifications page is not available yet")
 public class IssueNotificationsTest extends AbstractIssueTest {
 
   private final static String PROJECT_KEY = "sample";

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+// @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import debounce from 'lodash/debounce';
-
+import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';
 import Footer from './Footer';
@@ -31,9 +31,10 @@ import Tasks from '../components/Tasks';
 import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
 import { Task } from '../types';
+import { getComponent } from '../../../app/store/rootReducer';
 import '../background-tasks.css';
 
-export default class BackgroundTasksApp extends React.Component {
+class BackgroundTasksApp extends React.Component {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };
@@ -229,3 +230,9 @@ export default class BackgroundTasksApp extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: ownProps.location.query.id ? getComponent(state, ownProps.location.query.id) : undefined
+});
+
+export default connect(mapStateToProps)(BackgroundTasksApp);

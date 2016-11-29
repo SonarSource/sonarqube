@@ -53,7 +53,7 @@ export default ModalForm.extend({
 
   serializeData () {
     return Object.assign({}, ModalForm.prototype.serializeData.apply(this, arguments), {
-      isOwnPassword: window.SS.user === this.model.id
+      isOwnPassword: this.options.currentUser.login === this.model.id
     });
   }
 });

@@ -17,25 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { connect } from 'react-redux';
 import App from './App';
+import { getAppState } from '../../../app/store/rootReducer';
+import { getRootQualifiers } from '../../../app/store/appState/duck';
 
-export default class AppContainer extends React.Component {
-  state = {};
+const mapStateToProps = state => ({
+  topQualifiers: getRootQualifiers(getAppState(state)),
+});
 
-  componentDidMount () {
-    window.sonarqube.appStarted.then(options => {
-      this.setState({ rootQualifiers: options.rootQualifiers });
-    });
-  }
-
-  render () {
-    if (!this.state.rootQualifiers) {
-      return null;
-    }
-
-    return (
-        <App {...this.props} topQualifiers={this.state.rootQualifiers}/>
-    );
-  }
-}
+export default connect(
+    mapStateToProps
+)(App);

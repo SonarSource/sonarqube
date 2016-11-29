@@ -28,16 +28,6 @@ class Account extends React.Component {
   render () {
     const { currentUser, children } = this.props;
 
-    if (currentUser == null) {
-      return (
-          <div id="account-page">
-            <div className="text-center">
-              <i className="spinner"/>
-            </div>
-          </div>
-      );
-    }
-
     return (
         <div id="account-page">
           <header className="account-header">

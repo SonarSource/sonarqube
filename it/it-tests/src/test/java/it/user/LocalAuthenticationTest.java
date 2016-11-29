@@ -183,6 +183,7 @@ public class LocalAuthenticationTest {
   }
 
   @Test
+  @Ignore("signing up will be dropped: SONAR-7762")
   public void allow_users_to_sign_up() throws IOException {
     setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", "true");
 

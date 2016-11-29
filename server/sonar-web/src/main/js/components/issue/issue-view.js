@@ -32,6 +32,7 @@ import SetTypeFormView from './views/set-type-form-view';
 import TagsFormView from './views/tags-form-view';
 import Workspace from '../workspace/main';
 import Template from './templates/issue.hbs';
+import getCurrentUserFromStore from '../../app/utils/getCurrentUserFromStore';
 
 export default Marionette.ItemView.extend({
   className: 'issue',
@@ -213,7 +214,8 @@ export default Marionette.ItemView.extend({
       model: this.model,
       triggerEl: $('body')
     });
-    view.submit(window.SS.user, window.SS.userName);
+    const currentUser = getCurrentUserFromStore();
+    view.submit(currentUser.login, currentUser.name);
     view.destroy();
   },
 

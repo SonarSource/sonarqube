@@ -19,13 +19,22 @@
  */
 import React from 'react';
 import init from '../init';
+import { connect } from 'react-redux';
+import { getComponent, getCurrentUser } from '../../../app/store/rootReducer';
 
-export default class ComponentIssuesAppContainer extends React.Component {
+class ComponentIssuesAppContainer extends React.Component {
   componentDidMount () {
-    init(this.refs.container);
+    init(this.refs.container, this.props.component, this.props.currentUser);
   }
 
   render () {
     return <div ref="container"/>;
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id),
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(ComponentIssuesAppContainer);

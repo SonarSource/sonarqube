@@ -17,32 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { connect } from 'react-redux';
 import App from './App';
+import { getComponent } from '../../../app/store/rootReducer';
 
-export default class AppContainer extends React.Component {
-  state = {};
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id)
+});
 
-  componentDidMount () {
-    window.sonarqube.appStarted.then(options => {
-      this.setState({ component: options.component });
-    });
-  }
-
-  render () {
-    // workaround for the case when a file is displayed
-    if (window.sonarqube.file) {
-      return null;
-    }
-
-    if (!this.state.component) {
-      return null;
-    }
-
-    const component = { ...this.state.component, ...window.sonarqube.overview.component };
-
-    return (
-        <App component={component}/>
-    );
-  }
-}
+export default connect(mapStateToProps)(App);

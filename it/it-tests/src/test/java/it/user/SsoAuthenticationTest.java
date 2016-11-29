@@ -20,6 +20,7 @@
 package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.net.URLEncoder;
 import java.util.List;
 import javax.annotation.Nullable;
 import okhttp3.Response;
@@ -30,6 +31,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import util.user.UserRule;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.call;
 
@@ -126,7 +128,7 @@ public class SsoAuthenticationTest {
     Response response = doCall("invalid login $", null, null, null);
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(response.body().string()).contains("You're not authorized to access this page. Please contact the administrator");
+    assertThat(response.request().url().toString()).contains("sessions/unauthorized");
 
     List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8);
     assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: user.bad_login");
@@ -141,7 +143,7 @@ public class SsoAuthenticationTest {
 
     String expectedError = "You can't sign up because email 'tester@email.com' is already used by an existing user. This means that you probably already registered with another account";
     assertThat(response.code()).isEqualTo(200);
-    assertThat(response.body().string()).contains(expectedError);
+    assertThat(response.request().url().toString()).contains(URLEncoder.encode(expectedError, UTF_8.name()));
     assertThat(FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8)).doesNotContain(expectedError);
   }
 

@@ -54,7 +54,7 @@ export default Marionette.ItemView.extend({
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       me,
       isContext: this.options.app.state.get('isContext'),
-      user: window.SS.user
+      user: this.options.app.state.get('user')
     };
   }
 });

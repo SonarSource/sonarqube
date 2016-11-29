@@ -29,7 +29,7 @@ import { getIdentityProviders } from '../../api/users';
 
 const App = new Marionette.Application();
 
-const init = function (el, providers) {
+const init = function ({ el, currentUser }, providers) {
   // Layout
   this.layout = new Layout({ el });
   this.layout.render();
@@ -46,7 +46,7 @@ const init = function (el, providers) {
   this.layout.searchRegion.show(this.searchView);
 
   // List View
-  this.listView = new ListView({ collection: this.users, providers });
+  this.listView = new ListView({ collection: this.users, currentUser, providers });
   this.layout.listRegion.show(this.listView);
 
   // List Footer View
@@ -57,10 +57,10 @@ const init = function (el, providers) {
   this.users.fetch();
 };
 
-App.on('start', function (el) {
-  getIdentityProviders().then(r => init.call(App, el, r.identityProviders));
+App.on('start', function (options) {
+  getIdentityProviders().then(r => init.call(App, options, r.identityProviders));
 });
 
-export default function (el) {
-  App.start(el);
+export default function (el, currentUser) {
+  App.start({ el, currentUser });
 }

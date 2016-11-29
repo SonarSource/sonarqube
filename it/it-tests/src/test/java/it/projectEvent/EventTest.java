@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
+@Ignore("history page is not available yet")
 public class EventTest {
 
   @ClassRule

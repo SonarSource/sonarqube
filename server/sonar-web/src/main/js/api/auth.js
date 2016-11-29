@@ -36,3 +36,10 @@ export const login = (login, password) => (
         .submit()
         .then(basicCheckStatus)
 );
+
+export const logout = () => (
+    request('/api/authentication/logout')
+        .setMethod('POST')
+        .submit()
+        .then(basicCheckStatus)
+);

@@ -302,11 +302,21 @@ function formatDurationShort (isNegative, days, hours, minutes) {
   return translateWithParameters('work_duration.x_minutes', formattedMinutes);
 }
 
+function getHoursInDay () {
+  // workaround cyclic dependencies
+  const getStore = require('../app/utils/getStore').default;
+  const { getSettingValue } = require('../app/store/rootReducer');
+
+  const store = getStore();
+  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.hoursInDay');
+  return settingValue ? settingValue.value : 8;
+}
+
 function durationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = window.SS.hoursInDay;
+  const hoursInDay = getHoursInDay();
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = Math.floor(absValue / hoursInDay / 60);
@@ -321,7 +331,7 @@ function shortDurationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = window.SS.hoursInDay;
+  const hoursInDay = getHoursInDay();
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = absValue / hoursInDay / 60;
@@ -347,13 +357,23 @@ function shortDurationVariationFormatter (value) {
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
+function getRatingGrid () {
+  // workaround cyclic dependencies
+  const getStore = require('../app/utils/getStore').default;
+  const { getSettingValue } = require('../app/store/rootReducer');
+
+  const store = getStore();
+  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');
+  return settingValue ? settingValue.value : '';
+}
+
 let maintainabilityRatingGrid;
 function getMaintainabilityRatingGrid () {
   if (maintainabilityRatingGrid) {
     return maintainabilityRatingGrid;
   }
 
-  const str = window.SS['sonar.technicalDebt.ratingGrid'];
+  const str = getRatingGrid();
   const numbers = str.split(',')
       .map(s => parseFloat(s))
       .filter(n => !isNaN(n));

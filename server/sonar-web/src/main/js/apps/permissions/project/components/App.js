@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import AllHoldersList from './AllHoldersList';
 import PageError from '../../shared/components/PageError';
+import { getComponent, getCurrentUser } from '../../../../app/store/rootReducer';
 import '../../styles.css';
 
 // TODO helmet
 
-export default class App extends React.Component {
+class App extends React.Component {
   static propTypes = {
     component: React.PropTypes.object
   };
@@ -37,10 +39,18 @@ export default class App extends React.Component {
 
     return (
         <div className="page page-limited">
-          <PageHeader project={this.props.component}/>
+          <PageHeader project={this.props.component} currentUser={this.props.currentUser}/>
           <PageError/>
           <AllHoldersList project={this.props.component}/>
         </div>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id),
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(App);
+

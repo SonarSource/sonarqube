@@ -18,22 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import init from '../init';
+import { getComponent } from '../../../app/store/rootReducer';
 
-export default class CustomMeasuresAppContainer extends React.Component {
+class CustomMeasuresAppContainer extends React.Component {
   componentDidMount () {
-    if (this.props.component) {
-      init(this.refs.container, this.props.component);
-    }
-  }
-
-  componentDidUpdate () {
-    if (this.props.component) {
-      init(this.refs.container, this.props.component);
-    }
+    init(this.refs.container, this.props.component);
   }
 
   render () {
     return <div ref="container"/>;
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id)
+});
+
+export default connect(mapStateToProps)(CustomMeasuresAppContainer);

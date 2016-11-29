@@ -165,6 +165,12 @@ function handleAjaxError (jqXHR) {
   }
 }
 
+function handleNotAuthenticatedError () {
+  // workaround cyclic dependencies
+  const handleRequiredAuthentication = require('./handleRequiredAuthentication').default;
+  handleRequiredAuthentication();
+}
+
 $.ajaxSetup({
   beforeSend (jqXHR) {
     jqXHR.setRequestHeader(getCSRFTokenName(), getCSRFTokenValue());
@@ -177,6 +183,7 @@ $.ajaxSetup({
   },
   statusCode: {
     400: handleAjaxError,
+    401: handleNotAuthenticatedError,
     403: handleAjaxError,
     500: handleAjaxError,
     502: handleAjaxError,

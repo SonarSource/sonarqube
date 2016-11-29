@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static util.selenium.Selenese.runSelenese;
@@ -48,6 +49,7 @@ public class UiExtensionsTest {
    * SONAR-2376
    */
   @Test
+  @Ignore("page extensions are not reimplemented yet")
   public void test_page_decoration() {
     runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/page-decoration.html");
   }
@@ -56,6 +58,7 @@ public class UiExtensionsTest {
    * SONAR-4173
    */
   @Test
+  @Ignore("page extensions are not reimplemented yet")
   public void test_resource_configuration_extension() {
     runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/resource-configuration-extension.html");
   }

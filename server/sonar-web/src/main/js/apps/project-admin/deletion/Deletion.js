@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
+import { getComponent } from '../../../app/store/rootReducer';
 
-export default class Deletion extends React.Component {
+class Deletion extends React.Component {
   static propTypes = {
     component: React.PropTypes.object
   };
@@ -39,3 +41,9 @@ export default class Deletion extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id)
+});
+
+export default connect(mapStateToProps)(Deletion);

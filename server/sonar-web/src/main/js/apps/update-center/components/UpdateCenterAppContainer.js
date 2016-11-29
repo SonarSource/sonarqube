@@ -18,14 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import init from '../init';
+import { getSettingValue } from '../../../app/store/rootReducer';
 
-export default class UpdateCenterAppContainer extends React.Component {
+class UpdateCenterAppContainer extends React.Component {
   componentDidMount () {
-    init(this.refs.container);
+    init(this.refs.container, this.props.updateCenterActive);
   }
 
   render () {
     return <div ref="container"/>;
   }
 }
+
+const mapStateToProps = state => ({
+  updateCenterActive: (getSettingValue(state, 'sonar.updatecenter.activate') || {}).value
+});
+
+export default connect(mapStateToProps)(UpdateCenterAppContainer);

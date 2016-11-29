@@ -30,7 +30,7 @@ export function getSystemInfo () {
   return getJSON(url);
 }
 
-export function getStatus () {
+export function getSystemStatus () {
   const url = '/api/system/status';
   return getJSON(url);
 }
@@ -44,7 +44,7 @@ const POLLING_INTERVAL = 2000;
 
 function pollStatus (cb) {
   setTimeout(() => {
-    getStatus()
+    getSystemStatus()
         .then(r => {
           if (r.status === 'UP') {
             cb();

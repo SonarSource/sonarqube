@@ -28,7 +28,7 @@ import {
     deleteProjectLink,
     createProjectLink
 } from '../store/actions';
-import { getProjectAdminProjectLinks } from '../../../app/store/rootReducer';
+import { getProjectAdminProjectLinks, getComponent } from '../../../app/store/rootReducer';
 
 class Links extends React.Component {
   static propTypes = {
@@ -73,7 +73,8 @@ class Links extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  links: getProjectAdminProjectLinks(state, ownProps.component.key)
+  component: getComponent(state, ownProps.location.query.id),
+  links: getProjectAdminProjectLinks(state, ownProps.location.query.id)
 });
 
 export default connect(

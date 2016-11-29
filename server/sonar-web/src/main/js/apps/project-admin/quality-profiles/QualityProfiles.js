@@ -24,7 +24,11 @@ import Header from './Header';
 import Table from './Table';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { fetchProjectProfiles, setProjectProfile } from '../store/actions';
-import { getProjectAdminAllProfiles, getProjectAdminProjectProfiles } from '../../../app/store/rootReducer';
+import {
+  getProjectAdminAllProfiles,
+  getProjectAdminProjectProfiles,
+  getComponent
+} from '../../../app/store/rootReducer';
 
 class QualityProfiles extends React.Component {
   static propTypes = {
@@ -68,8 +72,9 @@ class QualityProfiles extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id),
   allProfiles: getProjectAdminAllProfiles(state),
-  profiles: getProjectAdminProjectProfiles(state, ownProps.component.key)
+  profiles: getProjectAdminProjectProfiles(state, ownProps.location.query.id)
 });
 
 export default connect(

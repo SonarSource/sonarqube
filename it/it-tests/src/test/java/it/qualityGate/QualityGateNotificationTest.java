@@ -28,6 +28,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.qualitygate.NewCondition;
@@ -78,6 +79,7 @@ public class QualityGateNotificationTest {
   }
 
   @Test
+  @Ignore("notifications page is not available yet")
   public void status_on_metric_variation_and_send_notifications() throws Exception {
     Wiser smtpServer = new Wiser(0);
     try {

@@ -17,36 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
 import React from 'react';
+import { connect } from 'react-redux';
 import Main from './main';
-import { getCurrentUser } from '../../app/store/rootReducer';
+import { getCurrentUser, getAppState } from '../../app/store/rootReducer';
+import { getRootQualifiers } from '../../app/store/appState/duck';
 
 class AppContainer extends React.Component {
-  state = {};
-
-  componentDidMount () {
-    window.sonarqube.appStarted.then(options => {
-      this.setState({ rootQualifiers: options.rootQualifiers });
-    });
-  }
-
   render () {
-    if (!this.props.user || !this.state.rootQualifiers) {
-      return null;
-    }
-
     const hasProvisionPermission = this.props.user.permissions.global.indexOf('provisioning') !== -1;
 
     return (
         <Main
             hasProvisionPermission={hasProvisionPermission}
-            topLevelQualifiers={this.state.rootQualifiers}/>
+            topLevelQualifiers={this.props.rootQualifiers}/>
     );
   }
 }
 
 const mapStateToProps = state => ({
+  rootQualifiers: getRootQualifiers(getAppState(state)),
   user: getCurrentUser(state)
 });
 

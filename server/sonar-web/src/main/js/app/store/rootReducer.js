@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
+import appState from './appState/duck';
 import components, * as fromComponents from './components/reducer';
 import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
@@ -33,6 +34,7 @@ import qualityGatesApp from '../../apps/quality-gates/store/rootReducer';
 import settingsApp, * as fromSettingsApp from '../../apps/settings/store/rootReducer';
 
 export default combineReducers({
+  appState,
   components,
   globalMessages,
   favorites,
@@ -48,6 +50,10 @@ export default combineReducers({
   qualityGatesApp,
   settingsApp
 });
+
+export const getAppState = state => (
+    state.appState
+);
 
 export const getComponent = (state, key) => (
     fromComponents.getComponent(state.components, key)
@@ -123,6 +129,10 @@ export const getPermissionsAppSelectedPermission = state => (
 
 export const getPermissionsAppError = state => (
     fromPermissionsApp.getError(state.permissionsApp)
+);
+
+export const getSettingValue = (state, key) => (
+    fromSettingsApp.getValue(state.settingsApp, key)
 );
 
 export const getSettingsAppDefinition = (state, key) => (

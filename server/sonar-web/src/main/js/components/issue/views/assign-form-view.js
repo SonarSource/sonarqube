@@ -23,6 +23,7 @@ import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';
 import { translate } from '../../../helpers/l10n';
+import getCurrentUserFromStore from '../../../app/utils/getCurrentUserFromStore';
 
 export default ActionOptionsView.extend({
   template: Template,
@@ -142,8 +143,9 @@ export default ActionOptionsView.extend({
     if (this.assignees) {
       return this.assignees;
     }
+    const currentUser = getCurrentUserFromStore();
     const assignees = [
-      { id: window.SS.user, text: window.SS.userName },
+      { id: currentUser.login, text: currentUser.name },
       { id: '', text: translate('unassigned') }
     ];
     return this.makeUnique(assignees);

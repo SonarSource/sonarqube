@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
+import { getLanguages } from '../../../app/store/rootReducer';
 
-export default class MetaQualityProfiles extends React.Component {
+class MetaQualityProfiles extends React.Component {
   state = {
     deprecatedByKey: {}
   };
@@ -69,10 +71,13 @@ export default class MetaQualityProfiles extends React.Component {
   }
 
   renderProfile (profile) {
+    const languageFromStore = this.props.languages[profile.language];
+    const languageName = languageFromStore ? languageFromStore.name : profile.language;
+
     const inner = (
         <div className="text-ellipsis">
           <span className="note spacer-right">
-            {'(' + profile.language + ')'}
+            {'(' + languageName + ')'}
           </span>
           <a href={getQualityProfileUrl(profile.key)}>
             {profile.name}
@@ -120,3 +125,9 @@ export default class MetaQualityProfiles extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  languages: getLanguages(state)
+});
+
+export default connect(mapStateToProps)(MetaQualityProfiles);

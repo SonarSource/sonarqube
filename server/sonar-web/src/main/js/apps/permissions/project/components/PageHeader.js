@@ -23,6 +23,7 @@ import { translate } from '../../../../helpers/l10n';
 import ApplyTemplateView from '../views/ApplyTemplateView';
 import { loadHolders } from '../store/actions';
 import { isPermissionsAppLoading } from '../../../../app/store/rootReducer';
+import { isUserAdmin } from '../../../../helpers/users';
 
 class PageHeader extends React.Component {
   static propTypes = {
@@ -59,7 +60,7 @@ class PageHeader extends React.Component {
               <i className="spinner"/>
           )}
 
-          {!!window.SS.isUserAdmin && (
+          {isUserAdmin(this.props.currentUser) && (
               <div className="page-actions">
                 <button className="js-apply-template" onClick={this.handleApplyTemplate}>
                   Apply Template

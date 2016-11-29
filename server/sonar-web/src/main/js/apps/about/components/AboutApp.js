@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypes from './EntryIssueTypes';
@@ -28,11 +29,18 @@ import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import { translate } from '../../../helpers/l10n';
-import '../styles.css';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
+import { getSettingValue } from '../../../app/store/rootReducer';
+import * as settingsAPI from '../../../api/settings';
+import '../styles.css';
 
-export default class AboutApp extends React.Component {
+class AboutApp extends React.Component {
+  static propTypes = {
+    customLogoUrl: React.PropTypes.string,
+    customLogoWidth: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
+  };
+
   state = {
     loading: true
   };
@@ -56,20 +64,23 @@ export default class AboutApp extends React.Component {
     return getFacet({ resolved: false }, 'types');
   }
 
+  loadCustomText () {
+    return settingsAPI.getSettingValue('sonar.lf.aboutText');
+  }
+
   loadData () {
     Promise.all([
-      window.sonarqube.appStarted,
       this.loadProjects(),
-      this.loadIssues()
+      this.loadIssues(),
+      this.loadCustomText()
     ]).then(responses => {
       if (this.mounted) {
-        const [options, projectsCount, issues] = responses;
+        const [projectsCount, issues, customText] = responses;
         const issueTypes = keyBy(issues.facet, 'val');
         this.setState({
           projectsCount,
           issueTypes,
-          logoUrl: options.logoUrl,
-          logoWidth: options.logoWidth,
+          customText,
           loading: false
         });
       }
@@ -81,12 +92,12 @@ export default class AboutApp extends React.Component {
       return null;
     }
 
-    const { landingText } = window.sonarqube;
+    const { customText } = this.state;
 
-    const logoUrl = this.state.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const logoWidth = this.state.logoWidth || 100;
+    const logoUrl = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg`;
+    const logoWidth = Number(this.props.customLogoWidth || 100);
     const logoHeight = 30;
-    const logoTitle = this.state.logoUrl ? '' : translate('layout.sonar.slogan');
+    const logoTitle = this.props.customLogoUrl ? '' : translate('layout.sonar.slogan');
 
     return (
         <div id="about-page" className="about-page">
@@ -113,8 +124,8 @@ export default class AboutApp extends React.Component {
 
           <div className="about-page-container">
 
-            {landingText.length > 0 && (
-                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: landingText }}/>
+            {customText != null && customText.length > 0 && (
+                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }}/>
             )}
 
             <div className="columns">
@@ -142,3 +153,10 @@ export default class AboutApp extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  customLogoUrl: (getSettingValue(state, 'sonar.lf.logoUrl') || {}).value,
+  customLogoWidth: (getSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
+});
+
+export default connect(mapStateToProps)(AboutApp);
