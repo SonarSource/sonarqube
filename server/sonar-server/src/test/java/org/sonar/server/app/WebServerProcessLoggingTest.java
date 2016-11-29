@@ -247,6 +247,63 @@ public class WebServerProcessLoggingTest {
   }
 
   @Test
+  public void jmx_logger_level_changes_with_global_property_and_is_case_insensitive() {
+    props.set("sonar.log.level", "InFO");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  public void jmx_logger_level_changes_with_jmx_property_and_is_case_insensitive() {
+    props.set("sonar.log.level.web", "TrACe");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.TRACE);
+  }
+
+  @Test
+  public void jmx_logger_level_changes_with_web_jmx_property_and_is_case_insensitive() {
+    props.set("sonar.log.level.web.jmx", "debug");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void jmx_logger_level_is_configured_from_web_jmx_property_over_web_property() {
+    props.set("sonar.log.level.web.jmx", "debug");
+    props.set("sonar.log.level.web", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void jmx_logger_level_is_configured_from_web_jmx_property_over_global_property() {
+    props.set("sonar.log.level.web.jmx", "debug");
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
+  public void jmx_logger_level_is_configured_from_web_property_over_global_property() {
+    props.set("sonar.log.level.web", "debug");
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    verifyJmxLogLevel(ctx, Level.DEBUG);
+  }
+
+  @Test
   public void root_logger_level_defaults_to_INFO_if_web_property_has_invalid_value() {
     props.set("sonar.log.level.web", "DodoDouh!");
 
@@ -268,6 +325,14 @@ public class WebServerProcessLoggingTest {
 
     LoggerContext ctx = underTest.configure(props);
     verifyEsLogLevel(ctx, Level.INFO);
+  }
+
+  @Test
+  public void jmx_loggers_level_defaults_to_INFO_if_wedb_jmx_property_has_invalid_value() {
+    props.set("sonar.log.level.web.jmx", "DodoDouh!");
+
+    LoggerContext ctx = underTest.configure(props);
+    verifyJmxLogLevel(ctx, Level.INFO);
   }
 
   @Test
@@ -310,6 +375,16 @@ public class WebServerProcessLoggingTest {
     underTest.configure(props);
   }
 
+  @Test
+  public void fail_with_IAE_if_web_jmx_property_unsupported_level() {
+    props.set("sonar.log.level.web.jmx", "ERROR");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
+
+    underTest.configure(props);
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     assertThat(rootLogger.getLevel()).isEqualTo(expected);
@@ -321,6 +396,18 @@ public class WebServerProcessLoggingTest {
 
   private void verifyEsLogLevel(LoggerContext ctx, Level expected) {
     assertThat(ctx.getLogger("es").getLevel()).isEqualTo(expected);
+  }
+
+  private void verifyJmxLogLevel(LoggerContext ctx, Level expected) {
+    assertThat(ctx.getLogger("javax.management.remote.timeout").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("javax.management.remote.misc").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("javax.management.remote.rmi").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("javax.management.mbeanserver").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("sun.rmi.loader").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("sun.rmi.transport.tcp").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("sun.rmi.transport.misc").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("sun.rmi.server.call").getLevel()).isEqualTo(expected);
+    assertThat(ctx.getLogger("sun.rmi.dgc").getLevel()).isEqualTo(expected);
   }
 
 }
