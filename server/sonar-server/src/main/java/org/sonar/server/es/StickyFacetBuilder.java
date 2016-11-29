@@ -19,8 +19,10 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Joiner;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -40,7 +42,6 @@ public class StickyFacetBuilder {
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   private static final int FACET_DEFAULT_SIZE = 10;
   private static final Order FACET_DEFAULT_ORDER = Terms.Order.count(false);
-  private static final Joiner PIPE_JOINER = Joiner.on('|');
 
   private final QueryBuilder query;
   private final Map<String, QueryBuilder> filters;
@@ -107,9 +108,14 @@ public class StickyFacetBuilder {
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
     if (selected.length > 0) {
+      String includes = Arrays.stream(selected)
+        .filter(Objects::nonNull)
+        .map(s -> EsUtils.escapeSpecialRegexChars(s.toString()))
+        .collect(Collectors.joining("|"));
+
       TermsBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
         .field(fieldName)
-        .include(PIPE_JOINER.join(selected));
+        .include(includes);
       if (subAggregation != null) {
         selectedTerms = selectedTerms.subAggregation(subAggregation);
       }

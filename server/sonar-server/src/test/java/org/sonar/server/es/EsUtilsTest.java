@@ -33,6 +33,7 @@ import org.sonar.test.TestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 
 public class EsUtilsTest {
 
@@ -73,5 +74,16 @@ public class EsUtilsTest {
 
     assertThat(EsUtils.parseDateTime("2017-07-14T04:40:00.000+02:00").getTime()).isEqualTo(1_500_000_000_000L);
     assertThat(EsUtils.parseDateTime(null)).isNull();
+  }
+
+  @Test
+  public void test_escapeSpecialRegexChars() {
+    assertThat(escapeSpecialRegexChars("")).isEqualTo("");
+    assertThat(escapeSpecialRegexChars("foo")).isEqualTo("foo");
+    assertThat(escapeSpecialRegexChars("FOO")).isEqualTo("FOO");
+    assertThat(escapeSpecialRegexChars("foo++")).isEqualTo("foo\\+\\+");
+    assertThat(escapeSpecialRegexChars("foo[]")).isEqualTo("foo\\[\\]");
+    assertThat(escapeSpecialRegexChars("foo.*")).isEqualTo("foo\\.\\*");
+    assertThat(escapeSpecialRegexChars("foo\\d")).isEqualTo("foo\\\\d");
   }
 }

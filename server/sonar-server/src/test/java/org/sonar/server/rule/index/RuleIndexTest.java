@@ -253,6 +253,17 @@ public class RuleIndexTest {
   }
 
   @Test
+  public void tags_facet_supports_selected_value_with_regexp_special_characters() {
+    indexRules(newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("misra++")));
+
+    RuleQuery query = new RuleQuery().setTags(singletonList("misra["));
+    SearchOptions options = new SearchOptions().addFacets(RuleIndex.FACET_TAGS);
+
+    // do not fail
+    assertThat(index.search(query, options).getTotal()).isEqualTo(0);
+  }
+
+  @Test
   public void search_by_types() {
     indexRules(
       newDoc(RULE_KEY_1).setType(CODE_SMELL),
