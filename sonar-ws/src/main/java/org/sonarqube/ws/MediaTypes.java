@@ -21,10 +21,9 @@ package org.sonarqube.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.FilenameUtils;
-
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * @since 5.3
@@ -37,6 +36,7 @@ public final class MediaTypes {
   public static final String PROTOBUF = "application/x-protobuf";
   public static final String ZIP = "application/zip";
   public static final String JAVASCRIPT = "application/javascript";
+  public static final String HTML = "text/html";
   public static final String DEFAULT = "application/octet-stream";
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
@@ -65,7 +65,7 @@ public final class MediaTypes {
     .put("csv", "text/csv")
     .put("properties", "text/plain")
     .put("rtf", "text/rtf")
-    .put("html", "text/html")
+    .put("html", HTML)
     .put("css", "text/css")
     .put("tsv", "text/tab-separated-values")
     .build();

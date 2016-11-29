@@ -21,6 +21,7 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -29,22 +30,28 @@ import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class WebPagesFilterTest {
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
-  ServletContext servletContext = mock(ServletContext.class);
-  FilterConfig filterConfig = mock(FilterConfig.class);
-  StringOutputStream outputStream = new StringOutputStream();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  WebPagesFilter underTest = new WebPagesFilter();
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
+  private ServletContext servletContext = mock(ServletContext.class);
+  private FilterConfig filterConfig = mock(FilterConfig.class);
+  private StringOutputStream outputStream = new StringOutputStream();
+
+  private WebPagesFilter underTest = new WebPagesFilter();
 
   @Before
   public void setUp() throws Exception {
@@ -63,7 +70,7 @@ public class WebPagesFilterTest {
 
   @Test
   public void return_index_file_with_default_web_context() throws Exception {
-    when(servletContext.getResource("/index.html")).thenReturn(getClass().getResource("WebPagesFilterTest/index.html"));
+    mockIndexFile();
     when(servletContext.getContextPath()).thenReturn("");
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
@@ -71,11 +78,12 @@ public class WebPagesFilterTest {
     assertThat(outputStream.toString()).contains("href=\"/sonar.css\"");
     assertThat(outputStream.toString()).contains("<script src=\"/sonar.js\"></script>");
     assertThat(outputStream.toString()).doesNotContain("%WEB_CONTEXT%");
+    verify(response).setContentType("text/html");
   }
 
   @Test
   public void return_index_file_with_web_context() throws Exception {
-    when(servletContext.getResource("/index.html")).thenReturn(getClass().getResource("WebPagesFilterTest/index.html"));
+    mockIndexFile();
     when(servletContext.getContextPath()).thenReturn("/web");
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
@@ -83,6 +91,19 @@ public class WebPagesFilterTest {
     assertThat(outputStream.toString()).contains("href=\"/web/sonar.css\"");
     assertThat(outputStream.toString()).contains("<script src=\"/web/sonar.js\"></script>");
     assertThat(outputStream.toString()).doesNotContain("%WEB_CONTEXT%");
+  }
+
+  @Test
+  public void fail_when_index_is_not_found() throws Exception {
+    when(servletContext.getResource("/index.html")).thenReturn(null);
+    when(servletContext.getContextPath()).thenReturn("/web");
+
+    expectedException.expect(IllegalStateException.class);
+    underTest.init(filterConfig);
+  }
+
+  private void mockIndexFile() throws MalformedURLException {
+    when(servletContext.getResource("/index.html")).thenReturn(getClass().getResource("WebPagesFilterTest/index.html"));
   }
 
   class StringOutputStream extends ServletOutputStream {

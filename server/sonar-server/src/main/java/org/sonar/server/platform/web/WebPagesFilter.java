@@ -24,12 +24,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
+import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 
 /**
@@ -53,17 +56,22 @@ public class WebPagesFilter extends ServletFilter {
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    response.setContentType(MediaTypes.HTML);
     IOUtils.write(index, response.getOutputStream());
   }
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     String context = filterConfig.getServletContext().getContextPath();
+    String indexFile = readIndexFile(filterConfig.getServletContext());
+    this.index = indexFile.replaceAll(CONTEXT_PLACEHOLDER, context);
+  }
+
+  private String readIndexFile(ServletContext servletContext) {
     try {
-      String indexFile = IOUtils.toString(filterConfig.getServletContext().getResource("/index.html"), StandardCharsets.UTF_8);
-      this.index = indexFile.replaceAll(CONTEXT_PLACEHOLDER, context);
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to find index file", e);
+      return IOUtils.toString(requireNonNull(servletContext.getResource("/index.html")), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to provide index file", e);
     }
   }
 
