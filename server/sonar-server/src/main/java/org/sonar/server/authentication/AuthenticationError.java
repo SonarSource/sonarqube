@@ -19,17 +19,21 @@
  */
 package org.sonar.server.authentication;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
-import static org.sonar.api.server.authentication.UnauthorizedException.UNAUTHORIZED_PATH;
+import static java.net.URLEncoder.encode;
 
 public class AuthenticationError {
 
+  private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
+  private static final String UNAUTHORIZED_PATH_WITH_MESSAGE = UNAUTHORIZED_PATH + "?message=%s";
   private static final Logger LOGGER = Loggers.get(AuthenticationError.class);
 
   private AuthenticationError() {
@@ -47,7 +51,19 @@ public class AuthenticationError {
   }
 
   public static void handleUnauthorizedError(UnauthorizedException e, HttpServletResponse response) {
-    redirectTo(response, e.getPath());
+    redirectTo(response, getPath(e));
+  }
+
+  private static String getPath(UnauthorizedException e) {
+    return format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(e.getMessage()));
+  }
+
+  private static String encodeMessage(String message) {
+    try {
+      return encode(message, Charsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(format("Fail to encode %s", message), e);
+    }
   }
 
   private static void redirectToUnauthorized(HttpServletResponse response) {
