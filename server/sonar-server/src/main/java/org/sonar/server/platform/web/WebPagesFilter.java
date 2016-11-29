@@ -22,12 +22,14 @@ package org.sonar.server.platform.web;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
 import org.sonarqube.ws.MediaTypes;
@@ -39,23 +41,29 @@ import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourceP
  * This filter provide the HTML file that will be used to display every web pages.
  * The same file should be provided for any URLs except WS and static resources.
  */
-public class WebPagesFilter extends ServletFilter {
+public class WebPagesFilter implements Filter {
 
   private static final String CONTEXT_PLACEHOLDER = "%WEB_CONTEXT%";
+
+  private static final ServletFilter.UrlPattern URL_PATTERN = ServletFilter.UrlPattern
+    .builder()
+    // This exclusion won't be needed anymore when static resources will be handled in a dedicated filter, executed before this one
+    .excludes(staticResourcePatterns())
+    // These exclusions won't be needed anymore when this filter will be last filter (no more rails filter)
+    .excludes("/api/*", "/batch/*")
+    .build();
 
   private String index;
 
   @Override
-  public UrlPattern doGetPattern() {
-    return UrlPattern
-      .builder()
-      .excludes(staticResourcePatterns())
-      .excludes("/api/*", "/batch/*")
-      .build();
-  }
-
-  @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String path = httpServletRequest.getRequestURI().replaceFirst(httpServletRequest.getContextPath(), "");
+    if (!URL_PATTERN.matches(path)) {
+      chain.doFilter(request, response);
+      return;
+    }
+
     response.setContentType(MediaTypes.HTML);
     IOUtils.write(index, response.getOutputStream());
   }

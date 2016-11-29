@@ -35,8 +35,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class WebPagesFilterTest {
@@ -60,18 +63,19 @@ public class WebPagesFilterTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
-    assertThat(underTest.doGetPattern().matches("/")).isTrue();
-    assertThat(underTest.doGetPattern().matches("/issues")).isTrue();
-    assertThat(underTest.doGetPattern().matches("/foo")).isTrue();
-    assertThat(underTest.doGetPattern().matches("/api/issues/search")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/batch/index")).isFalse();
+  public void verify_paths() throws Exception {
+    mockIndexFile();
+    verifyPathIsHandled("/");
+    verifyPathIsHandled("/issues");
+    verifyPathIsHandled("/foo");
+    verifyPthIsIgnored("/api/issues/search");
+    verifyPthIsIgnored("/batch/index");
   }
 
   @Test
   public void return_index_file_with_default_web_context() throws Exception {
     mockIndexFile();
-    when(servletContext.getContextPath()).thenReturn("");
+    mockPath("/foo", "");
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
 
@@ -84,7 +88,7 @@ public class WebPagesFilterTest {
   @Test
   public void return_index_file_with_web_context() throws Exception {
     mockIndexFile();
-    when(servletContext.getContextPath()).thenReturn("/web");
+    mockPath("/foo", "/web");
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
 
@@ -95,8 +99,8 @@ public class WebPagesFilterTest {
 
   @Test
   public void fail_when_index_is_not_found() throws Exception {
+    mockPath("/foo", "");
     when(servletContext.getResource("/index.html")).thenReturn(null);
-    when(servletContext.getContextPath()).thenReturn("/web");
 
     expectedException.expect(IllegalStateException.class);
     underTest.init(filterConfig);
@@ -104,6 +108,35 @@ public class WebPagesFilterTest {
 
   private void mockIndexFile() throws MalformedURLException {
     when(servletContext.getResource("/index.html")).thenReturn(getClass().getResource("WebPagesFilterTest/index.html"));
+  }
+
+  private void mockPath(String path, String context) throws MalformedURLException {
+    when(request.getRequestURI()).thenReturn(path);
+    when(request.getContextPath()).thenReturn(context);
+    when(servletContext.getContextPath()).thenReturn(context);
+  }
+
+  private void verifyPathIsHandled(String path) throws Exception {
+    mockPath(path, "");
+    underTest.init(filterConfig);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).getOutputStream();
+    verify(response).setContentType(anyString());
+    reset(response);
+    when(response.getOutputStream()).thenReturn(outputStream);
+  }
+
+  private void verifyPthIsIgnored(String path) throws Exception {
+    mockPath(path, "");
+    underTest.init(filterConfig);
+
+    underTest.doFilter(request, response, chain);
+
+    verifyZeroInteractions(response);
+    reset(response);
+    when(response.getOutputStream()).thenReturn(outputStream);
   }
 
   class StringOutputStream extends ServletOutputStream {
