@@ -20,12 +20,22 @@
 import configureLocale from './utils/configureLocale';
 import exposeLibraries from './utils/exposeLibraries';
 import startAjaxMonitoring from './utils/startAjaxMonitoring';
-import startApp from './utils/startApp';
 import startReactApp from './utils/startReactApp';
+import { installGlobal } from '../helpers/l10n';
 import './styles/index';
+
+require('script!../libs/third-party/jquery-ui.js');
+require('script!../libs/third-party/select2.js');
+require('script!../libs/third-party/keymaster.js');
+require('script!../libs/third-party/bootstrap/tooltip.js');
+require('script!../libs/third-party/bootstrap/dropdown.js');
+require('script!../libs/select2-jquery-ui-fix.js');
+require('script!../libs/inputs.js');
+require('script!../libs/jquery-isolated-scroll.js');
+require('script!../libs/application.js');
 
 configureLocale();
 startAjaxMonitoring();
-startApp();
+installGlobal();
 startReactApp();
 exposeLibraries();

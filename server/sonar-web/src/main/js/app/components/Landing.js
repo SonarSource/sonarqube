@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import init from '../init';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../store/rootReducer';
 
-class IssuesAppContainer extends React.Component {
+class Landing extends React.Component {
   static propTypes = {
-    currentUser: React.PropTypes.any.isRequired
+    currentUser: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.object]).isRequired
   };
 
   componentDidMount () {
-    init(this.refs.container, this.props.currentUser);
+    const { currentUser, router } = this.props;
+    if (currentUser && currentUser.isLoggedIn) {
+      router.replace('/projects/favorite');
+    } else {
+      router.replace('/about');
+    }
   }
 
   render () {
-    return <div ref="container"/>;
+    return null;
   }
 }
 
@@ -40,4 +46,4 @@ const mapStateToProps = state => ({
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(IssuesAppContainer);
+export default connect(mapStateToProps)(withRouter(Landing));

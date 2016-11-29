@@ -17,22 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchCurrentUser } from '../store/users/actions';
 import { fetchLanguages } from '../store/rootActions';
+import { requestMessages } from '../../helpers/l10n';
 
 class App extends React.Component {
   static propTypes = {
-    fetchCurrentUser: React.PropTypes.func.isRequired
+    fetchCurrentUser: React.PropTypes.func.isRequired,
+    fetchLanguages: React.PropTypes.func.isRequired,
+    children: React.PropTypes.element.isRequired
+  };
+
+  state = {
+    loading: true
   };
 
   componentDidMount () {
-    this.props.fetchCurrentUser();
+    Promise.all([
+      requestMessages(),
+      this.props.fetchCurrentUser()
+    ]).then(() => {
+      setTimeout(() => {
+        this.setState({ loading: false });
+      }, 1000);
+    });
+
     this.props.fetchLanguages();
   }
 
   render () {
+    if (this.state.loading) {
+      return <p>Loading...</p>;
+    }
+
     return this.props.children;
   }
 }

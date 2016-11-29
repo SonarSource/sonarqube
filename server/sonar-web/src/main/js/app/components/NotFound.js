@@ -17,6 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function () {
-  return null;
+import React from 'react';
+
+export default class NotFound extends React.Component {
+  render () {
+    return (
+      <div className="alert alert-danger">
+        Page not found.
+      </div>
+    );
+  }
 }

@@ -32,8 +32,9 @@ import FacetsView from './facets-view';
 import HeaderView from './HeaderView';
 
 const App = new Marionette.Application();
-const init = function (el) {
-  this.state = new State({ canBulkChange: !!window.SS.user });
+const init = function ({ el, user }) {
+  // FIXME user
+  this.state = new State({ user, canBulkChange: !!user });
   this.list = new Issues();
   this.facets = new Facets();
 
@@ -76,7 +77,7 @@ App.on('start', function (el) {
   init.call(App, el);
 });
 
-export default function (el) {
-  App.start(el);
+export default function (el, user) {
+  App.start({ el, user });
 }
 

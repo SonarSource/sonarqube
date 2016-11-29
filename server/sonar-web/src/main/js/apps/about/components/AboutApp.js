@@ -58,12 +58,14 @@ export default class AboutApp extends React.Component {
 
   loadData () {
     Promise.all([
-      window.sonarqube.appStarted,
       this.loadProjects(),
       this.loadIssues()
     ]).then(responses => {
       if (this.mounted) {
-        const [options, projectsCount, issues] = responses;
+        // FIXME
+        const options = {};
+
+        const [projectsCount, issues] = responses;
         const issueTypes = keyBy(issues.facet, 'val');
         this.setState({
           projectsCount,
@@ -81,7 +83,8 @@ export default class AboutApp extends React.Component {
       return null;
     }
 
-    const { landingText } = window.sonarqube;
+    // FIXME
+    const landingText = '';
 
     const logoUrl = this.state.logoUrl || `${window.baseUrl}/images/logo.svg`;
     const logoWidth = this.state.logoWidth || 100;

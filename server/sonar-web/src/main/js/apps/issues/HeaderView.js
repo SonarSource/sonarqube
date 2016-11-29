@@ -50,11 +50,12 @@ export default Marionette.ItemView.extend({
   },
   serializeData () {
     const me = !!this.options.app.state.get('query').assigned_to_me;
+    // FIXME user is passed down ugly
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       me,
       isContext: this.options.app.state.get('isContext'),
-      user: window.SS.user
+      user: this.options.app.state.get('user')
     };
   }
 });
