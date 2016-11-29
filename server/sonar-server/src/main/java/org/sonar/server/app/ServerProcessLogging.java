@@ -19,35 +19,60 @@
  */
 package org.sonar.server.app;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.logging.RootLoggerConfig;
-import org.sonar.server.platform.ServerLogging;
 
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
   protected static final Set<String> JMX_RMI_LOGGER_NAMES = ImmutableSet.of(
-      "javax.management.remote.timeout",
-      "javax.management.remote.misc",
-      "javax.management.remote.rmi",
-      "javax.management.mbeanserver",
-      "sun.rmi.loader",
-      "sun.rmi.transport.tcp",
-      "sun.rmi.transport.misc",
-      "sun.rmi.server.call",
-      "sun.rmi.dgc");
+    "javax.management.remote.timeout",
+    "javax.management.remote.misc",
+    "javax.management.remote.rmi",
+    "javax.management.mbeanserver",
+    "sun.rmi.loader",
+    "sun.rmi.transport.tcp",
+    "sun.rmi.transport.misc",
+    "sun.rmi.server.call",
+    "sun.rmi.dgc");
   private final ProcessId processId;
   private final String threadIdFieldPattern;
   private final LogbackHelper helper = new LogbackHelper();
+  private final LogLevelConfig logLevelConfig;
 
   protected ServerProcessLogging(ProcessId processId, String threadIdFieldPattern) {
     this.processId = processId;
     this.threadIdFieldPattern = threadIdFieldPattern;
+    this.logLevelConfig = createLogLevelConfiguration(processId);
+  }
+
+  private LogLevelConfig createLogLevelConfiguration(ProcessId processId) {
+    LogLevelConfig.Builder builder = LogLevelConfig.newBuilder();
+    builder.rootLevelFor(processId);
+    builder.immutableLevel("rails", Level.WARN);
+    builder.immutableLevel("org.apache.ibatis", Level.WARN);
+    builder.immutableLevel("java.sql", Level.WARN);
+    builder.immutableLevel("java.sql.ResultSet", Level.WARN);
+    builder.immutableLevel("org.sonar.MEASURE_FILTER", Level.WARN);
+    builder.immutableLevel("org.elasticsearch", Level.INFO);
+    builder.immutableLevel("org.elasticsearch.node", Level.INFO);
+    builder.immutableLevel("org.elasticsearch.http", Level.INFO);
+    builder.immutableLevel("ch.qos.logback", Level.WARN);
+    builder.immutableLevel("org.apache.catalina", Level.INFO);
+    builder.immutableLevel("org.apache.coyote", Level.INFO);
+    builder.immutableLevel("org.apache.jasper", Level.INFO);
+    builder.immutableLevel("org.apache.tomcat", Level.INFO);
+
+    extendLogLevelConfiguration(builder);
+
+    return builder.build();
   }
 
   public LoggerContext configure(Props props) {
@@ -56,13 +81,20 @@ public abstract class ServerProcessLogging {
 
     helper.enableJulChangePropagation(ctx);
     configureRootLogger(props);
+    helper.apply(logLevelConfig, props);
 
-    extendConfiguration(helper, props);
+    extendConfigure();
 
     return ctx;
   }
 
-  protected abstract void extendConfiguration(LogbackHelper helper, Props props);
+  public LogLevelConfig getLogLevelConfig() {
+    return this.logLevelConfig;
+  }
+
+  protected abstract void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder);
+
+  protected abstract void extendConfigure();
 
   private void configureRootLogger(Props props) {
     RootLoggerConfig config = newRootLoggerConfigBuilder()
@@ -73,9 +105,6 @@ public abstract class ServerProcessLogging {
 
     helper.configureGlobalFileLog(props, config, logPattern);
     helper.configureForSubprocessGobbler(props, logPattern);
-
-    helper.configureRootLogLevel(props, processId);
-    ServerLogging.configureHardcodedLevels(helper);
   }
 
 }

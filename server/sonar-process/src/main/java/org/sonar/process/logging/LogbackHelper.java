@@ -38,13 +38,11 @@ import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
-import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
@@ -59,8 +57,6 @@ public class LogbackHelper {
   private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";
-  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
-  private static final String SONAR_PROCESS_LOG_LEVEL_PROPERTY = "sonar.log.level." + PROCESS_NAME_PLACEHOLDER;
   private static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
   private static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level " + PROCESS_NAME_PLACEHOLDER + "[" + THREAD_ID_PLACEHOLDER + "][%logger{20}] %msg%n";
@@ -94,6 +90,60 @@ public class LogbackHelper {
     propagator.start();
     loggerContext.addListener(propagator);
     return propagator;
+  }
+
+  /**
+   * Applies the specified {@link LogLevelConfig} reading the specified {@link Props}.
+   *
+   * @throws IllegalArgumentException if the any level specified in a property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
+  public LoggerContext apply(LogLevelConfig logLevelConfig, Props props) {
+    LoggerContext rootContext = getRootContext();
+    logLevelConfig.getConfiguredByProperties().entrySet().forEach(entry -> applyLevelByProperty(props, rootContext.getLogger(entry.getKey()), entry.getValue()));
+    logLevelConfig.getConfiguredByHardcodedLevel().entrySet().forEach(entry -> applyHardcodedLevel(rootContext, entry.getKey(), entry.getValue()));
+    return rootContext;
+  }
+
+  private void applyLevelByProperty(Props props, Logger logger, List<String> properties) {
+    logger.setLevel(resolveLevel(props, properties.stream().toArray(String[]::new)));
+  }
+
+  /**
+   * Resolve a log level reading the value of specified properties.
+   * <p>
+   * To compute the applied log level the following rules will be followed:
+   * <ul>the last property with a defined and valid value in the order of the {@code propertyKeys} argument will be applied</ul>
+   * <ul>if there is none, {@link Level#INFO INFO} will be returned</ul>
+   * </p>
+   *
+   * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   */
+  private static Level resolveLevel(Props props, String... propertyKeys) {
+    Level newLevel = Level.INFO;
+    for (String propertyKey : propertyKeys) {
+      Level level = getPropertyValueAsLevel(props, propertyKey);
+      if (level != null) {
+        newLevel = level;
+      }
+    }
+    return newLevel;
+  }
+
+  private static void applyHardcodedLevel(LoggerContext rootContext, String loggerName, Level newLevel) {
+    rootContext.getLogger(loggerName).setLevel(newLevel);
+  }
+
+  public void changeRoot(LogLevelConfig logLevelConfig, Level newLevel) {
+    ensureSupportedLevel(newLevel);
+    LoggerContext rootContext = getRootContext();
+    rootContext.getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
+    logLevelConfig.getConfiguredByProperties().entrySet().forEach(entry -> rootContext.getLogger(entry.getKey()).setLevel(newLevel));
+  }
+
+  private static void ensureSupportedLevel(Level newLevel) {
+    if (!isAllowed(newLevel)) {
+      throw new IllegalArgumentException(format("%s log level is not supported (allowed levels are %s)", newLevel, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
+    }
   }
 
   public String buildLogPattern(RootLoggerConfig config) {
@@ -176,38 +226,6 @@ public class LogbackHelper {
     return props.valueAsBoolean(ALL_LOGS_TO_CONSOLE_PROPERTY, false);
   }
 
-  /**
-   * Configure the log level of the root logger reading the value of property {@link #SONAR_LOG_LEVEL_PROPERTY}.
-   *
-   * @throws IllegalArgumentException if the value of {@link #SONAR_LOG_LEVEL_PROPERTY} is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
-   */
-  public Level configureRootLogLevel(Props props, ProcessId processId) {
-    Level newLevel = resolveLevel(props, SONAR_LOG_LEVEL_PROPERTY, SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey()));
-    getRootContext().getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
-    return newLevel;
-  }
-
-  /**
-   * Resolve a log level reading the value of specified properties.
-   * <p>
-   * To compute the applied log level the following rules will be followed:
-   * <ul>the last property with a defined and valid value in the order of the {@code propertyKeys} argument will be applied</ul>
-   * <ul>if there is none, {@link Level#INFO INFO} will be returned</ul>
-   * </p>
-   *
-   * @throws IllegalArgumentException if the value of the specified property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
-   */
-  private static Level resolveLevel(Props props, String... propertyKeys) {
-    Level newLevel = Level.INFO;
-    for (String propertyKey : propertyKeys) {
-      Level level = getPropertyValueAsLevel(props, propertyKey);
-      if (level != null) {
-        newLevel = level;
-      }
-    }
-    return newLevel;
-  }
-
   @CheckForNull
   private static Level getPropertyValueAsLevel(Props props, String propertyKey) {
     String value = props.value(propertyKey);
@@ -230,50 +248,6 @@ public class LogbackHelper {
       }
     }
     return false;
-  }
-
-  /**
-   * Configure the log level of the root logger to the specified level.
-   *
-   * @throws IllegalArgumentException if the specified level is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
-   */
-  public Level configureRootLogLevel(Level newLevel) {
-    Logger rootLogger = getRootContext().getLogger(ROOT_LOGGER_NAME);
-    ensureSupportedLevel(newLevel);
-    rootLogger.setLevel(newLevel);
-    return newLevel;
-  }
-
-  private static void ensureSupportedLevel(Level newLevel) {
-    if (!isAllowed(newLevel)) {
-      throw new IllegalArgumentException(format("%s log level is not supported (allowed levels are %s)", newLevel, Arrays.toString(ALLOWED_ROOT_LOG_LEVELS)));
-    }
-  }
-
-  public Level configureLoggerLogLevelFromDomain(String loggerName, Props props, ProcessId processId, LogDomain domain) {
-    return configureLoggersLogLevelFromDomain(Collections.singleton(loggerName), props, processId, domain);
-  }
-
-  public Level configureLoggersLogLevelFromDomain(Set<String> loggerNames, Props props, ProcessId processId, LogDomain domain) {
-    String processProperty = SONAR_PROCESS_LOG_LEVEL_PROPERTY.replace(PROCESS_NAME_PLACEHOLDER, processId.getKey());
-    Level newLevel = resolveLevel(props, SONAR_LOG_LEVEL_PROPERTY, processProperty, processProperty + "." + domain.key);
-    loggerNames.forEach(loggerName -> {
-      Logger logger = getRootContext().getLogger(loggerName);
-      logger.setLevel(newLevel);
-    });
-    return newLevel;
-  }
-
-  /**
-   * Configure the log level of the specified logger to specified level.
-   * <p>
-   * Any level is allowed.
-   * </p>
-   */
-  public Logger configureLogger(String loggerName, Level level) {
-    Logger logger = getRootContext().getLogger(loggerName);
-    logger.setLevel(level);
-    return logger;
   }
 
   public Level getLoggerLevel(String loggerName) {
@@ -414,15 +388,4 @@ public class LogbackHelper {
     }
   }
 
-  public enum LogDomain {
-    SQL("sql"),
-    ES_CLIENT("es"),
-    JMX("jmx");
-
-    private final String key;
-
-    LogDomain(String key) {
-      this.key = key;
-    }
-  }
 }

@@ -36,9 +36,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
@@ -385,6 +385,31 @@ public class CeProcessLoggingTest {
     underTest.configure(props);
   }
 
+  @Test
+  public void configure_defines_hardcoded_levels() {
+    LoggerContext context = underTest.configure(props);
+
+    verifyImmutableLogLevels(context);
+  }
+
+  @Test
+  public void configure_defines_hardcoded_levels_unchanged_by_global_property() {
+    props.set("sonar.log.level", "TRACE");
+
+    LoggerContext context = underTest.configure(props);
+
+    verifyImmutableLogLevels(context);
+  }
+
+  @Test
+  public void configure_defines_hardcoded_levels_unchanged_by_ce_property() {
+    props.set("sonar.log.level.ce", "TRACE");
+
+    LoggerContext context = underTest.configure(props);
+
+    verifyImmutableLogLevels(context);
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     assertThat(ctx.getLogger(ROOT_LOGGER_NAME).getLevel()).isEqualTo(expected);
   }
@@ -407,5 +432,21 @@ public class CeProcessLoggingTest {
     assertThat(ctx.getLogger("sun.rmi.transport.misc").getLevel()).isEqualTo(expected);
     assertThat(ctx.getLogger("sun.rmi.server.call").getLevel()).isEqualTo(expected);
     assertThat(ctx.getLogger("sun.rmi.dgc").getLevel()).isEqualTo(expected);
+  }
+
+  private void verifyImmutableLogLevels(LoggerContext ctx) {
+    assertThat(ctx.getLogger("rails").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.apache.ibatis").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("java.sql.ResultSet").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.sonar.MEASURE_FILTER").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.elasticsearch").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.elasticsearch.node").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.elasticsearch.http").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("ch.qos.logback").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.apache.catalina").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.apache.coyote").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.apache.jasper").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.apache.tomcat").getLevel()).isEqualTo(Level.INFO);
   }
 }

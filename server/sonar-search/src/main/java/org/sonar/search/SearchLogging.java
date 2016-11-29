@@ -20,6 +20,7 @@
 package org.sonar.search;
 
 import ch.qos.logback.classic.LoggerContext;
+import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -40,7 +41,8 @@ public class SearchLogging {
     String logPattern = helper.buildLogPattern(config);
     helper.configureGlobalFileLog(props, config, logPattern);
     helper.configureForSubprocessGobbler(props, logPattern);
-    helper.configureRootLogLevel(props, ProcessId.ELASTICSEARCH);
+
+    helper.apply(LogLevelConfig.newBuilder().rootLevelFor(ProcessId.ELASTICSEARCH).build(), props);
 
     return ctx;
   }

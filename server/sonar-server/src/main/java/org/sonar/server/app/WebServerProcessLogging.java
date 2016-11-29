@@ -21,11 +21,10 @@ package org.sonar.server.app;
 
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.sonar.process.logging.LogbackHelper;
+import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.ProcessId;
-import org.sonar.process.Props;
 
-import static org.sonar.process.logging.LogbackHelper.LogDomain;
+import org.sonar.process.logging.LogDomain;
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
 
 /**
@@ -38,13 +37,16 @@ public class WebServerProcessLogging extends ServerProcessLogging {
   }
 
   @Override
-  protected void extendConfiguration(LogbackHelper helper, Props props) {
+  protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
+    logLevelConfigBuilder.levelByDomain("sql", ProcessId.WEB_SERVER, LogDomain.SQL);
+    logLevelConfigBuilder.levelByDomain("es", ProcessId.WEB_SERVER, LogDomain.ES_CLIENT);
+    JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.WEB_SERVER, LogDomain.JMX));
+  }
+
+  @Override
+  protected void extendConfigure() {
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
     LogManager.getLogManager().reset();
     SLF4JBridgeHandler.install();
-
-    helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.WEB_SERVER, LogDomain.SQL);
-    helper.configureLoggerLogLevelFromDomain("es", props, ProcessId.WEB_SERVER, LogDomain.ES_CLIENT);
-    helper.configureLoggersLogLevelFromDomain(JMX_RMI_LOGGER_NAMES, props, ProcessId.WEB_SERVER, LogDomain.JMX);
   }
 }

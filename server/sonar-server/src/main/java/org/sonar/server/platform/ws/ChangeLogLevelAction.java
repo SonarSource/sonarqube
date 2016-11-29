@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.http.CeHttpClient;
 import org.sonar.db.Database;
+import org.sonar.server.app.WebServerProcessLogging;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
@@ -38,12 +39,14 @@ public class ChangeLogLevelAction implements SystemWsAction {
   private final ServerLogging logging;
   private final Database db;
   private final CeHttpClient ceHttpClient;
+  private final WebServerProcessLogging webServerProcessLogging;
 
-  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db, CeHttpClient ceHttpClient) {
+  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db, CeHttpClient ceHttpClient, WebServerProcessLogging webServerProcessLogging) {
     this.userSession = userSession;
     this.logging = logging;
     this.db = db;
     this.ceHttpClient = ceHttpClient;
+    this.webServerProcessLogging = webServerProcessLogging;
   }
 
   @Override
@@ -67,7 +70,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
     db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
-    logging.changeLevel(level);
+    logging.changeLevel(webServerProcessLogging, level);
     ceHttpClient.changeLogLevel(level);
     wsResponse.noContent();
   }
