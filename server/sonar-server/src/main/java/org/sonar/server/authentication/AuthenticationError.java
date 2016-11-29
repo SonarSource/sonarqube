@@ -23,14 +23,14 @@ import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static java.net.URLEncoder.encode;
 
-public class AuthenticationError {
+final class AuthenticationError {
 
   private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
   private static final String UNAUTHORIZED_PATH_WITH_MESSAGE = UNAUTHORIZED_PATH + "?message=%s";
@@ -40,22 +40,26 @@ public class AuthenticationError {
     // Utility class
   }
 
-  public static void handleError(Exception e, HttpServletResponse response, String message) {
+  static void handleError(Exception e, HttpServletResponse response, String message) {
     LOGGER.error(message, e);
     redirectToUnauthorized(response);
   }
 
-  public static void handleError(HttpServletResponse response, String message) {
+  static void handleError(HttpServletResponse response, String message) {
     LOGGER.error(message);
     redirectToUnauthorized(response);
   }
 
-  public static void handleUnauthorizedError(UnauthorizedException e, HttpServletResponse response) {
+  static void handleAuthenticationError(AuthenticationException e, HttpServletResponse response) {
     redirectTo(response, getPath(e));
   }
 
-  private static String getPath(UnauthorizedException e) {
-    return format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(e.getMessage()));
+  private static String getPath(AuthenticationException e) {
+    String publicMessage = e.getPublicMessage();
+    if (publicMessage == null || publicMessage.isEmpty()) {
+      return UNAUTHORIZED_PATH;
+    }
+    return format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
   }
 
   private static String encodeMessage(String message) {
@@ -66,7 +70,7 @@ public class AuthenticationError {
     }
   }
 
-  private static void redirectToUnauthorized(HttpServletResponse response) {
+  public static void redirectToUnauthorized(HttpServletResponse response) {
     redirectTo(response, UNAUTHORIZED_PATH);
   }
 

@@ -36,13 +36,13 @@ import org.sonar.api.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -119,7 +119,10 @@ public class SsoAuthenticator implements Startable {
     try {
       return doAuthenticate(request, response);
     } catch (BadRequestException e) {
-      throw new UnauthorizedException(e.getMessage(), e);
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.sso())
+        .setMessage(e.getMessage())
+        .build();
     }
   }
 

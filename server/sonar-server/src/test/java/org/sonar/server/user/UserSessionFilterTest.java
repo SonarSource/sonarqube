@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
@@ -202,16 +201,6 @@ public class UserSessionFilterTest {
       assertThat(e).isSameAs(thrown);
       verify(defaultOrganizationCache).unload();
     }
-  }
-
-  @Test
-  public void send_redirect_when_catching_functional_unauthorized_errors() throws Exception {
-    mockUserSessionInitializer(true);
-    doThrow(new UnauthorizedException("bad login")).when(userSessionInitializer).initUserSession(request, response);
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sessions/unauthorized?message=bad+login");
   }
 
   @Test

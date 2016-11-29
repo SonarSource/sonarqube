@@ -28,7 +28,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -36,11 +35,12 @@ import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
-import static org.sonar.server.authentication.AuthenticationError.handleUnauthorizedError;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2CallbackFilter extends ServletFilter {
@@ -68,29 +68,31 @@ public class OAuth2CallbackFilter extends ServletFilter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    String requestUri = httpRequest.getRequestURI();
-    String keyProvider = "";
-    try {
-      keyProvider = extractKeyProvider(requestUri, server.getContextPath() + CALLBACK_PATH);
-      IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
-      if (provider instanceof OAuth2IdentityProvider) {
-        OAuth2IdentityProvider oauthProvider = (OAuth2IdentityProvider) provider;
-        WrappedContext context = new WrappedContext(oAuth2ContextFactory.newCallback(httpRequest, (HttpServletResponse) response, oauthProvider));
-        oauthProvider.callback(context);
-        if (context.isAuthenticated()) {
-          authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(oauthProvider));
-        }
-      } else {
-        handleError((HttpServletResponse) response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
-      }
-    } catch (UnauthorizedException e) {
-      handleUnauthorizedError(e, (HttpServletResponse) response);
-    } catch (Exception e) {
-      handleError(e, (HttpServletResponse) response,
-        keyProvider.isEmpty() ? "Fail to callback authentication" : format("Fail to callback authentication with '%s'", keyProvider));
+    HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse);
+    if (provider != null) {
+      handleProvider(httpRequest, (HttpServletResponse) response, provider);
     }
   }
 
+  @CheckForNull
+  private IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response) {
+    String requestUri = request.getRequestURI();
+    String providerKey = extractKeyProvider(requestUri, server.getContextPath() + CALLBACK_PATH);
+    if (providerKey == null) {
+      handleError(response, "No provider key found in URI");
+      return null;
+    }
+    try {
+      return identityProviderRepository.getEnabledByKey(providerKey);
+    } catch (Exception e) {
+      handleError(e, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
+      return null;
+    }
+  }
+
+  @CheckForNull
   private static String extractKeyProvider(String requestUri, String context) {
     if (requestUri.contains(context)) {
       String key = requestUri.replace(context, "");
@@ -98,7 +100,43 @@ public class OAuth2CallbackFilter extends ServletFilter {
         return key;
       }
     }
-    throw new IllegalArgumentException(String.format("A valid identity provider key is required. Please check that property '%s' is valid.", CoreProperties.SERVER_BASE_URL));
+    return null;
+  }
+
+  private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {
+    try {
+      if (provider instanceof OAuth2IdentityProvider) {
+        handleOAuth2Provider(response, request, (OAuth2IdentityProvider) provider);
+      } else {
+        handleError(response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
+      }
+    } catch (AuthenticationException e) {
+      authenticationEvent.failure(request, e);
+      handleAuthenticationError(e, response);
+    } catch (Exception e) {
+      handleError(e, response, format("Fail to callback authentication with '%s'", provider.getKey()));
+    }
+  }
+
+  private void handleOAuth2Provider(HttpServletResponse response, HttpServletRequest httpRequest, OAuth2IdentityProvider oAuth2Provider) {
+    OAuth2CallbackFilter.WrappedContext context = new OAuth2CallbackFilter.WrappedContext(oAuth2ContextFactory.newCallback(httpRequest, response, oAuth2Provider));
+    try {
+      oAuth2Provider.callback(context);
+    } catch (UnauthorizedException e) {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.oauth2(oAuth2Provider))
+        .setMessage(e.getMessage())
+        .setPublicMessage(e.getMessage())
+        .build();
+    }
+    if (context.isAuthenticated()) {
+      authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(oAuth2Provider));
+    } else {
+      throw AuthenticationException.newBuilder()
+        .setSource(Source.oauth2(oAuth2Provider))
+        .setMessage("Plugin did not call authenticate")
+        .build();
+    }
   }
 
   @Override

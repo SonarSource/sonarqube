@@ -27,6 +27,7 @@ class FakeBasicIdentityProvider extends TestIdentityProvider implements BaseIden
 
   public FakeBasicIdentityProvider(String key, boolean enabled) {
     setKey(key);
+    setName("name of " + key);
     setEnabled(enabled);
   }
 

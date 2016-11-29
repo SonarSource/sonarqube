@@ -33,7 +33,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
  * <p>
  * Usage:
  * <pre>
- * expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin());
+ * expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withLogin("foo").andNoPublicMessage());
  * </pre>
  * </p>
  */
@@ -41,10 +41,13 @@ public class AuthenticationExceptionMatcher extends TypeSafeMatcher<Throwable> {
   private final Source source;
   @CheckForNull
   private final String login;
+  @CheckForNull
+  private final String publicMessage;
 
-  private AuthenticationExceptionMatcher(Source source, @Nullable String login) {
+  private AuthenticationExceptionMatcher(Source source, @Nullable String login, @Nullable String publicMessage) {
     this.source = requireNonNull(source, "source can't be null");
     this.login = login;
+    this.publicMessage = publicMessage;
   }
 
   public static Builder authenticationException() {
@@ -53,19 +56,29 @@ public class AuthenticationExceptionMatcher extends TypeSafeMatcher<Throwable> {
 
   public static class Builder {
     private Source source;
+    private String login;
 
     public Builder from(Source source) {
       this.source = checkSource(source);
       return this;
     }
 
-    public AuthenticationExceptionMatcher withLogin(String login) {
-      requireNonNull(login, "expected login can't be null");
-      return new AuthenticationExceptionMatcher(checkSource(source), login);
+    public Builder withLogin(String login) {
+      this.login = requireNonNull(login, "expected login can't be null");
+      return this;
     }
 
-    public AuthenticationExceptionMatcher withoutLogin() {
-      return new AuthenticationExceptionMatcher(checkSource(source), null);
+    public Builder withoutLogin() {
+      this.login = null;
+      return this;
+    }
+
+    public AuthenticationExceptionMatcher andNoPublicMessage() {
+      return new AuthenticationExceptionMatcher(this.source, this.login, null);
+    }
+
+    public AuthenticationExceptionMatcher andPublicMessage(String publicMessage){
+      return new AuthenticationExceptionMatcher(this.source, this.login, requireNonNull(publicMessage));
     }
 
     private static Source checkSource(Source source) {
@@ -98,6 +111,17 @@ public class AuthenticationExceptionMatcher extends TypeSafeMatcher<Throwable> {
       return "login is \"" + login + "\"";
     }
 
+    String publicMessage = authenticationException.getPublicMessage();
+    if (this.publicMessage == null) {
+      if (publicMessage != null) {
+        return "publicMessage is \"" + publicMessage + "\"";
+      }
+    } else if (publicMessage == null) {
+      return "publicMessage is null";
+    } else if (!this.publicMessage.equals(publicMessage)) {
+      return "publicMessage is \"" + publicMessage + "\"";
+    }
+
     return null;
   }
 
@@ -105,9 +129,14 @@ public class AuthenticationExceptionMatcher extends TypeSafeMatcher<Throwable> {
   public void describeTo(Description description) {
     description.appendText("AuthenticationException with source ").appendText(source.toString());
     if (login == null) {
-      description.appendText(" and no login");
+      description.appendText(", no login");
     } else {
-      description.appendText(" and login \"").appendText(login).appendText("\"");
+      description.appendText(", login \"").appendText(login).appendText("\"");
+    }
+    if (publicMessage == null) {
+      description.appendText(" and no publicMessage");
+    } else {
+      description.appendText(" and publicMessage \"").appendText(publicMessage).appendText("\"");
     }
   }
 

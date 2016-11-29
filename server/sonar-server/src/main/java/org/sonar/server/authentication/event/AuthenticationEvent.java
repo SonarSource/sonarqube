@@ -24,6 +24,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -127,7 +128,7 @@ public interface AuthenticationEvent {
       return JWT_INSTANCE;
     }
 
-    public static Source external(BaseIdentityProvider identityProvider) {
+    public static Source external(IdentityProvider identityProvider) {
       return new Source(
         Method.EXTERNAL, Provider.EXTERNAL,
         requireNonNull(identityProvider, "identityProvider can't be null").getName());

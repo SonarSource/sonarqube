@@ -91,7 +91,7 @@ public class OAuthCsrfVerifierTest {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("other value");
 
-    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin().andNoPublicMessage());
     thrown.expectMessage("CSRF state value is invalid");
     underTest.verifyState(request, response, identityProvider);
   }
@@ -101,7 +101,7 @@ public class OAuthCsrfVerifierTest {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", null)});
     when(request.getParameter("state")).thenReturn("state");
 
-    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin().andNoPublicMessage());
     thrown.expectMessage("CSRF state value is invalid");
     underTest.verifyState(request, response, identityProvider);
   }
@@ -111,7 +111,7 @@ public class OAuthCsrfVerifierTest {
     when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha1Hex("state"))});
     when(request.getParameter("state")).thenReturn("");
 
-    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin().andNoPublicMessage());
     thrown.expectMessage("CSRF state value is invalid");
     underTest.verifyState(request, response, identityProvider);
   }
@@ -120,7 +120,7 @@ public class OAuthCsrfVerifierTest {
   public void fail_with_AuthenticationException_when_cookie_is_missing() throws Exception {
     when(request.getCookies()).thenReturn(new Cookie[] {});
 
-    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin());
+    thrown.expect(authenticationException().from(AuthenticationEvent.Source.oauth2(identityProvider)).withoutLogin().andNoPublicMessage());
     thrown.expectMessage("Cookie 'OAUTHSTATE' is missing");
     underTest.verifyState(request, response, identityProvider);
   }
