@@ -43,7 +43,6 @@ import static util.selenium.Selenese.runSelenese;
 
 /**
  * TODO : Add missing ITs
- * - creating new user using email already used
  * - display multiple identity provider plugins (probably in another class)
  */
 public class BaseIdentityProviderTest {
@@ -99,7 +98,7 @@ public class BaseIdentityProviderTest {
   }
 
   @Test
-  public void authenticate_user() throws Exception {
+  public void authenticate_user_through_ui() throws Exception {
     enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
@@ -117,6 +116,18 @@ public class BaseIdentityProviderTest {
     runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
+  }
+
+  @Test
+  public void fail_when_email_already_exists() throws Exception {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    userRule.createUser("another", "Another", USER_EMAIL, "another");
+
+    runSelenese(ORCHESTRATOR,"/user/BaseIdentityProviderTest/fail_when_email_already_exists.html");
+
+    File logFile = ORCHESTRATOR.getServer().getWebLogs();
+    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account");
   }
 
   @Test
@@ -186,7 +197,8 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
 
-    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
+    runSelenese(ORCHESTRATOR,
+        "/user/BaseIdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
 
     File logFile = ORCHESTRATOR.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
