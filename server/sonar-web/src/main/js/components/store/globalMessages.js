@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import uniqueId from 'lodash/uniqueId';
+import { actions } from '../../app/store/appState/duck';
 
 export const ERROR = 'ERROR';
 export const SUCCESS = 'SUCCESS';
@@ -51,6 +52,24 @@ const globalMessages = (state = [], action = {}) => {
       id: uniqueId('global-message-'),
       message: action.message,
       level: action.level
+    }];
+  }
+
+  if (action.type === actions.REQUIRE_AUTHENTICATION) {
+    // FIXME l10n
+    return [{
+      id: uniqueId('global-message-'),
+      message: 'Authentication required to see this page.',
+      level: ERROR
+    }];
+  }
+
+  if (action.type === actions.REQUIRE_AUTHORIZATION) {
+    // FIXME l10n
+    return [{
+      id: uniqueId('global-message-'),
+      message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
+      level: ERROR
     }];
   }
 

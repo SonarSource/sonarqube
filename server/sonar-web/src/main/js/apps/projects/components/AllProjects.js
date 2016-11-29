@@ -51,10 +51,6 @@ export default class AllProjects extends React.Component {
   }
 
   render () {
-    if (this.props.user == null) {
-      return null;
-    }
-
     const isFiltered = Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
     return (

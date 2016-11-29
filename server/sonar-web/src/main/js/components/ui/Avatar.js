@@ -18,24 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import md5 from 'blueimp-md5';
 import classNames from 'classnames';
+import { getSettingValue } from '../../app/store/rootReducer';
 
-export default class Avatar extends React.Component {
+class Avatar extends React.Component {
   static propTypes = {
+    enableGravatar: React.PropTypes.bool.isRequired,
+    gravatarServerUrl: React.PropTypes.string.isRequired,
     email: React.PropTypes.string,
     size: React.PropTypes.number.isRequired,
     className: React.PropTypes.string
   };
 
   render () {
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
-    if (!shouldShowAvatar) {
+    if (!this.props.enableGravatar) {
       return null;
     }
 
     const emailHash = md5.md5((this.props.email || '').toLowerCase()).trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
+    const url = this.props.gravatarServerUrl
         .replace('{EMAIL_MD5}', emailHash)
         .replace('{SIZE}', this.props.size * 2);
 
@@ -50,3 +53,12 @@ export default class Avatar extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  enableGravatar: (getSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
+  gravatarServerUrl: (getSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
+});
+
+export default connect(mapStateToProps)(Avatar);
+
+export const unconnectedAvatar = Avatar;

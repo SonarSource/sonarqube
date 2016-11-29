@@ -310,6 +310,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Test
+  @Ignore("bulk change form is not available yet")
   public void bulk_change() {
     runSelenese(ORCHESTRATOR, "/issue/IssueSearchTest/bulk_change.html");
   }

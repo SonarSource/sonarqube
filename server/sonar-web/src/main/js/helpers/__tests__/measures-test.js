@@ -35,7 +35,6 @@ beforeEach(function () {
     'metric.level.WARN': 'Warning',
     'metric.level.OK': 'Ok'
   });
-  window.SS = { hoursInDay: HOURS_IN_DAY };
 });
 
 describe('#formatMeasure()', function () {

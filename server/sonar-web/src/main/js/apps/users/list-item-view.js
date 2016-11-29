@@ -109,7 +109,8 @@ export default Marionette.ItemView.extend({
   changePassword () {
     new ChangePasswordView({
       model: this.model,
-      collection: this.model.collection
+      collection: this.model.collection,
+      currentUser: this.options.currentUser
     }).render();
   },
 

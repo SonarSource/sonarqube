@@ -24,7 +24,7 @@ import Header from './Header';
 import Form from './Form';
 import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
-import { getProjectAdminAllGates, getProjectAdminProjectGate } from '../../../app/store/rootReducer';
+import { getProjectAdminAllGates, getProjectAdminProjectGate, getComponent } from '../../../app/store/rootReducer';
 
 class QualityGate extends React.Component {
   static propTypes = {
@@ -60,8 +60,9 @@ class QualityGate extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id),
   allGates: getProjectAdminAllGates(state),
-  gate: getProjectAdminProjectGate(state, ownProps.component.key)
+  gate: getProjectAdminProjectGate(state, ownProps.location.query.id)
 });
 
 export default connect(

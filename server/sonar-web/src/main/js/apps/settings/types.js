@@ -24,5 +24,6 @@ export type Definition = {
 };
 
 export type SettingValue = {
+  key: string,
   value?: string
 };

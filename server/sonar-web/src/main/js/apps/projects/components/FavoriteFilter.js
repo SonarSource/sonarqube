@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class FavoriteFilter extends React.Component {
   render () {
-    if (!this.props.user) {
+    if (!this.props.user.isLoggedIn) {
       return null;
     }
 

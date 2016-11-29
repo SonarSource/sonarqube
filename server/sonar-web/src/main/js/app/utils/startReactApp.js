@@ -19,17 +19,23 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHistory } from 'history';
+import { Router, Route, IndexRoute } from 'react-router';
 import { Provider } from 'react-redux';
+import LocalizationContainer from '../components/LocalizationContainer';
+import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
-import ComponentContainer from '../components/ComponentContainer';
-import NullComponent from '../components/NullComponent';
+import GlobalContainer from '../components/GlobalContainer';
+import SimpleContainer from '../components/SimpleContainer';
+import Landing from '../components/Landing';
+import ProjectContainer from '../components/ProjectContainer';
+import AdminContainer from '../components/AdminContainer';
+import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
+import componentRoutes from '../../apps/component/routes';
 import componentIssuesRoutes from '../../apps/component-issues/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
@@ -43,6 +49,7 @@ import projectsRoutes from '../../apps/projects/routes';
 import projectsAdminRoutes from '../../apps/projects-admin/routes';
 import qualityGatesRoutes from '../../apps/quality-gates/routes';
 import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
+import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
 import updateCenterRoutes from '../../apps/update-center/routes';
@@ -50,67 +57,79 @@ import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
-import configureStore from '../../components/store/configureStore';
-import rootReducer from '../store/rootReducer';
-import isCurrentPathKnown from './isCurrentPathKnown';
+import getStore from './getStore';
+import getHistory from './getHistory';
 
 const startReactApp = () => {
-  if (isCurrentPathKnown()) {
-    window.sonarqube.appStarted.then(options => {
-      const el = document.querySelector(options.el);
+  const el = document.getElementById('content');
 
-      const history = useRouterHistory(createHistory)({
-        basename: window.baseUrl + '/'
-      });
+  const history = getHistory();
+  const store = getStore();
 
-      const store = configureStore(rootReducer);
+  render((
+      <Provider store={store}>
+        <Router history={history}>
+          <Route component={LocalizationContainer}>
+            <Route component={SimpleContainer}>
+              <Route path="maintenance">{maintenanceRoutes}</Route>
+              <Route path="setup">{setupRoutes}</Route>
+            </Route>
 
-      render((
-          <Provider store={store}>
-            <Router history={history}>
-              <Route path="/" component={App}>
-                <Route path="about">{aboutRoutes}</Route>
-                <Route path="account">{accountRoutes}</Route>
-                <Route path="background_tasks">{backgroundTasksRoutes}</Route>
-                <Route path="coding_rules">{codingRulesRoutes}</Route>
-                <Route path="dashboard">{overviewRoutes}</Route>
-                <Route path="groups">{groupsRoutes}</Route>
-                <Route path="issues">{issuesRoutes}</Route>
-                <Route path="maintenance">{maintenanceRoutes}</Route>
-                <Route path="metrics">{metricsRoutes}</Route>
-                <Route path="permission_templates">{permissionTemplatesRoutes}</Route>
-                <Route path="projects">{projectsRoutes}</Route>
-                <Route path="projects_admin">{projectsAdminRoutes}</Route>
-                <Route path="roles/global">{globalPermissionsRoutes}</Route>
-                <Route path="settings">{settingsRoutes}</Route>
-                <Route path="setup">{setupRoutes}</Route>
-                <Route path="system">{systemRoutes}</Route>
-                <Route path="quality_gates">{qualityGatesRoutes}</Route>
-                <Route path="profiles">{qualityProfilesRoutes}</Route>
-                <Route path="updatecenter">{updateCenterRoutes}</Route>
-                <Route path="users">{usersRoutes}</Route>
-                <Route path="web_api">{webAPIRoutes}</Route>
-
-                <Route component={ComponentContainer}>
-                  <Route path="code">{codeRoutes}</Route>
-                  <Route path="component_issues">{componentIssuesRoutes}</Route>
-                  <Route path="component_measures">{componentMeasuresRoutes}</Route>
-                  <Route path="custom_measures">{customMeasuresRoutes}</Route>
-                  <Route path="project">
-                    <Route path="background_tasks">{backgroundTasksRoutes}</Route>
-                    <Route path="settings">{settingsRoutes}</Route>
-                    {projectAdminRoutes}
-                  </Route>
-                  <Route path="project_roles">{projectPermissionsRoutes}</Route>
-                </Route>
+            <Route component={MigrationContainer}>
+              <Route component={SimpleContainer}>
+                <Route path="/sessions">{sessionsRoutes}</Route>
               </Route>
 
-              <Route path="*" component={NullComponent}/>
-            </Router>
-          </Provider>
-      ), el);
-    });
-  }
+              <Route path="/" component={App}>
+
+                <IndexRoute component={Landing}/>
+
+                <Route component={GlobalContainer}>
+                  <Route path="about">{aboutRoutes}</Route>
+                  <Route path="account">{accountRoutes}</Route>
+                  <Route path="coding_rules">{codingRulesRoutes}</Route>
+                  <Route path="component">{componentRoutes}</Route>
+                  <Route path="issues">{issuesRoutes}</Route>
+                  <Route path="projects">{projectsRoutes}</Route>
+                  <Route path="quality_gates">{qualityGatesRoutes}</Route>
+                  <Route path="profiles">{qualityProfilesRoutes}</Route>
+                  <Route path="web_api">{webAPIRoutes}</Route>
+
+                  <Route component={ProjectContainer}>
+                    <Route path="code">{codeRoutes}</Route>
+                    <Route path="component_issues">{componentIssuesRoutes}</Route>
+                    <Route path="component_measures">{componentMeasuresRoutes}</Route>
+                    <Route path="custom_measures">{customMeasuresRoutes}</Route>
+                    <Route path="dashboard">{overviewRoutes}</Route>
+                    <Route path="project">
+                      <Route path="background_tasks">{backgroundTasksRoutes}</Route>
+                      <Route path="settings">{settingsRoutes}</Route>
+                      {projectAdminRoutes}
+                    </Route>
+                    <Route path="project_roles">{projectPermissionsRoutes}</Route>
+                  </Route>
+
+                  <Route component={AdminContainer}>
+                    <Route path="background_tasks">{backgroundTasksRoutes}</Route>
+                    <Route path="groups">{groupsRoutes}</Route>
+                    <Route path="metrics">{metricsRoutes}</Route>
+                    <Route path="permission_templates">{permissionTemplatesRoutes}</Route>
+                    <Route path="projects_admin">{projectsAdminRoutes}</Route>
+                    <Route path="roles/global">{globalPermissionsRoutes}</Route>
+                    <Route path="settings">{settingsRoutes}</Route>
+                    <Route path="system">{systemRoutes}</Route>
+                    <Route path="updatecenter">{updateCenterRoutes}</Route>
+                    <Route path="users">{usersRoutes}</Route>
+                  </Route>
+                </Route>
+
+                <Route path="*" component={NotFound}/>
+              </Route>
+            </Route>
+          </Route>
+        </Router>
+      </Provider>
+  ), el);
 };
 
 export default startReactApp;

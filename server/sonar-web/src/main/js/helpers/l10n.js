@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import moment from 'moment';
 import { request } from './request';
 
@@ -63,7 +63,9 @@ function makeRequest (params) {
           case 401:
             window.location = window.baseUrl + '/sessions/new?return_to=' +
                 encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-            return {};
+            // return unresolved promise to stop the promise chain
+            // anyway the page will be reloaded
+            return new Promise(() => {});
           default:
             throw new Error('Unexpected status code: ' + response.status);
         }

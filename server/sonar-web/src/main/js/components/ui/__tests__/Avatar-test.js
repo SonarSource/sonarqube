@@ -19,23 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import Avatar from '../Avatar';
+import { unconnectedAvatar as Avatar } from '../Avatar';
 
-beforeEach(() => {
-  window.SS = {
-    lf: {
-      enableGravatar: true,
-      gravatarServerUrl: 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}'
-    }
-  };
-});
-
-afterEach(() => {
-  window.SS = undefined;
-});
+const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
 
 it('should render', () => {
-  const avatar = shallow(<Avatar email="mail@example.com" size={20}/>);
+  const avatar = shallow(
+      <Avatar enableGravatar={true} gravatarServerUrl={gravatarServerUrl} email="mail@example.com" size={20}/>
+  );
   expect(avatar.is('img')).toBe(true);
   expect(avatar.prop('width')).toBe(20);
   expect(avatar.prop('height')).toBe(20);
@@ -44,7 +35,8 @@ it('should render', () => {
 });
 
 it('should not render', () => {
-  window.SS.lf.enableGravatar = false;
-  const avatar = shallow(<Avatar email="mail@example.com" size={20}/>);
+  const avatar = shallow(
+      <Avatar enableGravatar={false} gravatarServerUrl={gravatarServerUrl} email="mail@example.com" size={20}/>
+  );
   expect(avatar.is('img')).toBe(false);
 });

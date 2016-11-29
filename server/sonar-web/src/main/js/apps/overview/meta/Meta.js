@@ -27,15 +27,15 @@ import EventsList from './../events/EventsList';
 import MetaSize from './MetaSize';
 
 const Meta = ({ component, measures }) => {
-  const { qualifier, description, profiles, gate } = component;
+  const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
   const isView = qualifier === 'VW' || qualifier === 'SVW';
   const isDeveloper = qualifier === 'DEV';
 
   const hasDescription = !!description;
-  const hasQualityProfiles = Array.isArray(profiles) && profiles.length > 0;
-  const hasQualityGate = !!gate;
+  const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
+  const hasQualityGate = !!qualityGate;
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
@@ -53,11 +53,11 @@ const Meta = ({ component, measures }) => {
         <MetaSize component={component} measures={measures}/>
 
         {shouldShowQualityGate && (
-            <MetaQualityGate gate={gate}/>
+            <MetaQualityGate gate={qualityGate}/>
         )}
 
         {shouldShowQualityProfiles && (
-            <MetaQualityProfiles profiles={profiles}/>
+            <MetaQualityProfiles profiles={qualityProfiles}/>
         )}
 
         <MetaLinks component={component}/>

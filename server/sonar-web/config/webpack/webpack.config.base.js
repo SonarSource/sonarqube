@@ -20,8 +20,6 @@ module.exports = {
       'handlebars/runtime'
     ],
 
-    'sonar': './src/main/js/libs/sonar.js',
-
     'app': './src/main/js/app/index.js'
   },
   output: {

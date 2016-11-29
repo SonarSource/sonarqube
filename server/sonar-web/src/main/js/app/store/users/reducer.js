@@ -39,7 +39,7 @@ const userLogins = (state = [], action = {}) => {
 
 const currentUser = (state = null, action = {}) => {
   if (action.type === RECEIVE_CURRENT_USER) {
-    return action.user.isLoggedIn ? action.user.login : false;
+    return action.user;
   }
 
   return state;
@@ -48,5 +48,5 @@ const currentUser = (state = null, action = {}) => {
 export default combineReducers({ usersByLogin, userLogins, currentUser });
 
 export const getCurrentUser = state => (
-    state.currentUser ? state.usersByLogin[state.currentUser] : state.currentUser
+    state.currentUser
 );

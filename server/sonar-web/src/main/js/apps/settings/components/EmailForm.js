@@ -18,15 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../code/utils';
+import { getCurrentUser } from '../../../app/store/rootReducer';
 
-export default class EmailForm extends React.Component {
+class EmailForm extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      recipient: window.SS.userEmail,
+      recipient: this.props.currentUser.email,
       subject: translate('email_configuration.test.subject'),
       message: translate('email_configuration.test.message_text'),
       loading: false,
@@ -114,3 +116,9 @@ export default class EmailForm extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(EmailForm);

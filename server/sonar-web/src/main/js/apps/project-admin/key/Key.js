@@ -35,7 +35,7 @@ import {
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
-import { getProjectAdminProjectModules } from '../../../app/store/rootReducer';
+import { getProjectAdminProjectModules, getComponent } from '../../../app/store/rootReducer';
 
 class Key extends React.Component {
   static propTypes = {
@@ -152,7 +152,8 @@ class Key extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  modules: getProjectAdminProjectModules(state, ownProps.component.key)
+  component: getComponent(state, ownProps.location.query.id),
+  modules: getProjectAdminProjectModules(state, ownProps.location.query.id)
 });
 
 export default connect(

@@ -20,15 +20,21 @@
 // @flow
 import keyBy from 'lodash/keyBy';
 import { RECEIVE_VALUES } from './actions';
-import type { SettingValue } from '../../types';
+import { actions as appStateActions } from '../../../../app/store/appState/duck';
 
 type State = { [key: string]: {} };
 
-type Action = { type: string, settings: SettingValue[] };
-
-const reducer = (state: State = {}, action: Action) => {
+const reducer = (state: State = {}, action: any) => {
   if (action.type === RECEIVE_VALUES) {
     const settingsByKey = keyBy(action.settings, 'key');
+    return { ...state, ...settingsByKey };
+  }
+
+  if (action.type === appStateActions.SET_APP_STATE) {
+    const settingsByKey = {};
+    Object.keys(action.appState.settings).forEach(key => (
+        settingsByKey[key] = { value: action.appState.settings[key] }
+    ));
     return { ...state, ...settingsByKey };
   }
 

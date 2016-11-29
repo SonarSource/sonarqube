@@ -33,7 +33,10 @@ export default Marionette.CompositeView.extend({
   },
 
   childViewOptions () {
-    return { providers: this.options.providers };
+    return {
+      providers: this.options.providers,
+      currentUser: this.options.currentUser
+    };
   },
 
   showLoading () {

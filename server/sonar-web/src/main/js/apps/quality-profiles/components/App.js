@@ -19,9 +19,8 @@
  */
 import React from 'react';
 import { getQualityProfiles, getExporters } from '../../../api/quality-profiles';
-import { getCurrentUser } from '../../../api/users';
-import '../styles.css';
 import { sortProfiles } from '../utils';
+import '../styles.css';
 
 export default class App extends React.Component {
   state = { loading: true };
@@ -44,16 +43,13 @@ export default class App extends React.Component {
   loadData () {
     this.setState({ loading: true });
     Promise.all([
-      getCurrentUser(),
       getExporters(),
       getQualityProfiles()
     ]).then(responses => {
       if (this.mounted) {
-        const [user, exporters, profiles] = responses;
-        const canAdmin = user.permissions.global.includes('profileadmin');
+        const [exporters, profiles] = responses;
         this.setState({
           exporters,
-          canAdmin,
           profiles: sortProfiles(profiles),
           loading: false
         });
@@ -77,12 +73,14 @@ export default class App extends React.Component {
 
     const finalLanguages = Object.values(this.props.languages);
 
+    const canAdmin = this.props.currentUser.permissions.global.includes('profileadmin');
+
     return React.cloneElement(this.props.children, {
       profiles: this.state.profiles,
       languages: finalLanguages,
       exporters: this.state.exporters,
-      canAdmin: this.state.canAdmin,
-      updateProfiles: this.updateProfiles
+      updateProfiles: this.updateProfiles,
+      canAdmin
     });
   }
 

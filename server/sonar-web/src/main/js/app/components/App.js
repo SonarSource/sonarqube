@@ -17,27 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
+import GlobalLoading from './GlobalLoading';
 import { fetchCurrentUser } from '../store/users/actions';
-import { fetchLanguages } from '../store/rootActions';
+import { fetchLanguages, fetchAppState } from '../store/rootActions';
 
 class App extends React.Component {
+  mounted: bool;
+
   static propTypes = {
-    fetchCurrentUser: React.PropTypes.func.isRequired
+    fetchAppState: React.PropTypes.func.isRequired,
+    fetchCurrentUser: React.PropTypes.func.isRequired,
+    fetchLanguages: React.PropTypes.func.isRequired,
+    children: React.PropTypes.element.isRequired
+  };
+
+  state = {
+    loading: true
+  };
+
+  finishLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
   };
 
   componentDidMount () {
-    this.props.fetchCurrentUser();
-    this.props.fetchLanguages();
+    this.mounted = true;
+
+    this.props.fetchCurrentUser()
+        .then(this.props.fetchAppState)
+        .then(this.finishLoading)
+        .then(this.props.fetchLanguages)
+        .catch(this.finishLoading);
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
   }
 
   render () {
+    if (this.state.loading) {
+      return <GlobalLoading/>;
+    }
+
     return this.props.children;
   }
 }
 
 export default connect(
-    () => ({}),
-    { fetchCurrentUser, fetchLanguages }
+    null,
+    { fetchAppState, fetchCurrentUser, fetchLanguages }
 )(App);

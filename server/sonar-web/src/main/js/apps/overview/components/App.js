@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
 import { ComponentType } from '../propTypes';
@@ -35,6 +34,15 @@ export default class App extends React.Component {
 
   render () {
     const { component } = this.props;
+
+    if (['FIL', 'UTS'].includes(component.qualifier)) {
+      const SourceViewer = require('../../../components/source-viewer/SourceViewer').default;
+      return (
+          <div className="page">
+            <SourceViewer component={component}/>
+          </div>
+      );
+    }
 
     if (!component.snapshotDate) {
       return <EmptyOverview {...this.props}/>;

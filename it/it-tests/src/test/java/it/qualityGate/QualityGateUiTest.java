@@ -27,6 +27,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
@@ -69,6 +70,7 @@ public class QualityGateUiTest {
    * SONAR-3326
    */
   @Test
+  @Ignore("history page is not available yet")
   public void display_alerts_correctly_in_history_page() {
     QualityGateClient qgClient = qgClient();
     QualityGate qGate = qgClient.create("AlertsForHistory");

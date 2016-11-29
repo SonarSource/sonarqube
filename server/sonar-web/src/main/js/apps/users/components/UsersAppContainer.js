@@ -18,14 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import init from '../init';
+import { getCurrentUser } from '../../../app/store/rootReducer';
 
-export default class UsersAppContainer extends React.Component {
+class UsersAppContainer extends React.Component {
+  static propTypes = {
+    currentUser: React.PropTypes.object.isRequired
+  };
+
   componentDidMount () {
-    init(this.refs.container);
+    init(this.refs.container, this.props.currentUser);
   }
 
   render () {
     return <div ref="container"/>;
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(UsersAppContainer);
