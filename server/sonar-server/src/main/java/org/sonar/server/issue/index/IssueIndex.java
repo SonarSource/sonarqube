@@ -87,6 +87,7 @@ import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AT;
@@ -567,7 +568,9 @@ public class IssueIndex extends BaseIndex {
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
       .filter(facetFilter)
-      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login)));
+      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms")
+        .field(fieldName)
+        .include(escapeSpecialRegexChars(login))));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)

@@ -387,6 +387,19 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void assignedToMe_facet_must_escape_login_of_authenticated_user() throws Exception {
+    // login looks like an invalid regexp
+    userSessionRule.login("foo[");
+
+    // should not fail
+    wsTester.newGetRequest(API_ENDPOINT, SEARCH_ACTION)
+      .setParam(WebService.Param.FACETS, "assigned_to_me")
+      .execute()
+      .assertJson(this.getClass(), "assignedToMe_facet_must_escape_login_of_authenticated_user.json");
+
+  }
+
+  @Test
   public void filter_by_assigned_to_me() throws Exception {
     db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
 
