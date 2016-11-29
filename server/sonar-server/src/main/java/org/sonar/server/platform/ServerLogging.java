@@ -83,11 +83,4 @@ public class ServerLogging {
     return new File(settings.getString(ProcessProperties.PATH_LOGS));
   }
 
-  /**
-   * The file sonar.log, may not exist.
-   */
-  public File getCurrentLogFile() {
-    return new File(getLogsDir(), "sonar.log");
-  }
-
 }

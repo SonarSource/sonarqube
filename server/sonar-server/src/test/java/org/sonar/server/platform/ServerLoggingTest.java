@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import ch.qos.logback.classic.Level;
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,8 +30,8 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,16 +64,6 @@ public class ServerLoggingTest {
   public void getRootLoggerLevel() {
     logTester.setLevel(LoggerLevel.TRACE);
     assertThat(underTest.getRootLoggerLevel()).isEqualTo(LoggerLevel.TRACE);
-  }
-
-  @Test
-  public void getCurrentLogFile() throws IOException {
-    File dir = temp.newFolder();
-    File logFile = new File(dir, "sonar.log");
-    FileUtils.touch(logFile);
-    settings.setProperty(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
-
-    assertThat(underTest.getCurrentLogFile()).isEqualTo(logFile);
   }
 
   @Test
