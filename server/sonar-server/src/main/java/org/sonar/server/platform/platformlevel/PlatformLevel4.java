@@ -120,6 +120,7 @@ import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SettingsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
+import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
@@ -257,6 +258,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ServerWs.class,
       BackendCleanup.class,
       IndexDefinitions.class,
+      WebPagesFilter.class,
 
       // batch
       BatchWsModule.class,

@@ -64,10 +64,10 @@ public class LogsTest {
     // log "-" for anonymous
     sendHttpRequest(ItUtils.newWsClient(orchestrator), PATH);
     assertThat(accessLogsFile()).isFile().exists();
-    verifyLastAccessLogLine("-", PATH, 404);
+    verifyLastAccessLogLine("-", PATH, 200);
 
     sendHttpRequest(ItUtils.newAdminWsClient(orchestrator), PATH);
-    verifyLastAccessLogLine("admin", PATH, 404);
+    verifyLastAccessLogLine("admin", PATH, 200);
   }
 
   @Test

@@ -22,12 +22,17 @@ package it.serverSystem;
 import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import okhttp3.CacheControl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -37,6 +42,13 @@ public class HttpHeadersTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  private static String JS_HASH;
+
+  @BeforeClass
+  public static void setUp() throws Exception {
+    JS_HASH = getJsHash();
+  }
 
   @Test
   public void verify_headers_of_base_url() throws Exception {
@@ -78,7 +90,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_css() throws Exception {
-    Response response = call(orchestrator.getServer().getUrl() + "/css/sonar.css");
+    Response response = call(orchestrator.getServer().getUrl() + "/css/sonar." + JS_HASH + ".css");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "text/css");
@@ -87,7 +99,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_js() throws Exception {
-    Response response = call(orchestrator.getServer().getUrl() + "/js/bundles/app.js");
+    Response response = call(orchestrator.getServer().getUrl() + "/js/app." + JS_HASH + ".js");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/javascript");
@@ -135,7 +147,7 @@ public class HttpHeadersTest {
    * SONAR-8247
    */
   private static void verifySecurityHeaders(Response httpResponse) {
-    assertThat(httpResponse.isSuccessful()).isTrue();
+    assertThat(httpResponse.isSuccessful()).as("Code is %s", httpResponse.code()).isTrue();
     assertThat(httpResponse.headers().get("X-Frame-Options")).isEqualTo("SAMEORIGIN");
     assertThat(httpResponse.headers().get("X-XSS-Protection")).isEqualTo("1; mode=block");
     assertThat(httpResponse.headers().get("X-Content-Type-Options")).isEqualTo("nosniff");
@@ -158,5 +170,18 @@ public class HttpHeadersTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  /**
+   * Every JS and CSS files contains a hash between the file name and the extension.
+   */
+  private static String getJsHash() throws IOException {
+    File cssFolder = new File(orchestrator.getServer().getHome(), "web/css");
+    Optional<Path> cssPath = Files.list(cssFolder.toPath()).map(Path::getFileName).findFirst();
+    if (cssPath.isPresent()) {
+      String fileName = cssPath.get().toFile().getName();
+      return fileName.replace("sonar.", "").replace(".css", "");
+    }
+    throw new IllegalStateException("sonar.css hasn't been found");
   }
 }
