@@ -482,6 +482,7 @@ public class RuleIndex extends BaseIndex {
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX)
       .setQuery(matchAllQuery())
+      .setSize(0)
       .addAggregation(termsAggregation);
 
     SearchResponse esResponse = request.get();
