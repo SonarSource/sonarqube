@@ -137,6 +137,18 @@ public class SsoAuthenticationTest {
     USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
   }
 
+  @Test
+  public void fail_when_email_already_exists() throws Exception {
+    USER_RULE.createUser("another", "Another", USER_EMAIL, "another");
+
+    Response response = call(USER_LOGIN, USER_NAME, USER_EMAIL, null);
+
+    String expectedError = "You can't sign up because email 'tester@email.com' is already used by an existing user. This means that you probably already registered with another account";
+    assertThat(response.code()).isEqualTo(200);
+    assertThat(response.body().string()).contains(expectedError);
+    assertThat(FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8)).doesNotContain(expectedError);
+  }
+
   private static Response call(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {
     return doCall(login, name, email, groups);
   }
