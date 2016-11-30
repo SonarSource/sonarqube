@@ -83,6 +83,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
@@ -203,7 +204,7 @@ public class IssueIndex extends BaseIndex {
   public IssueDoc getByKey(String key) {
     IssueDoc value = getNullableByKey(key);
     if (value == null) {
-      throw new NotFoundException(String.format("Issue with key '%s' does not exist", key));
+      throw new NotFoundException(format("Issue with key '%s' does not exist", key));
     }
     return value;
   }
@@ -331,7 +332,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   public static String viewsLookupCacheKey(String viewUuid) {
-    return String.format("%s%s%s", IssueIndexDefinition.TYPE_ISSUE, viewUuid, ViewIndexDefinition.TYPE_VIEW);
+    return format("%s%s%s", IssueIndexDefinition.TYPE_ISSUE, viewUuid, ViewIndexDefinition.TYPE_VIEW);
   }
 
   private static FilterBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
@@ -632,16 +633,15 @@ public class IssueIndex extends BaseIndex {
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
-    if (textQuery != null) {
-      issueTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
-    }
     TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
       .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
     if (textQuery != null) {
-      ruleTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+      String escapedTextQuery = escapeSpecialRegexChars(textQuery);
+      issueTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+      ruleTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
@@ -681,7 +681,7 @@ public class IssueIndex extends BaseIndex {
       .order(termsOrder)
       .minDocCount(1L);
     if (textQuery != null) {
-      aggreg.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+      aggreg.include(format(SUBSTRING_MATCH_REGEXP, escapeSpecialRegexChars(textQuery)));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(aggreg).get();
@@ -716,7 +716,7 @@ public class IssueIndex extends BaseIndex {
         filter.must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
         break;
       default:
-        throw new IllegalStateException(String.format("Component of scope '%s' is not allowed", component.scope()));
+        throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
     }
 
     SearchRequestBuilder requestBuilder = getClient()

@@ -244,6 +244,7 @@ public class IssueServiceMediumTest {
     assertThat(service.listTags("sys", 5)).containsOnly("systag1", "systag2");
     assertThat(service.listTags(null, 1)).containsOnly("bug");
     assertThat(service.listTags(null, Integer.MAX_VALUE)).containsOnly("convention", "java8", "bug", "systag1", "systag2", "tag1", "tag2");
+    assertThat(service.listTags("invalidRegexp[", 5)).isEmpty();
   }
 
   @Test
@@ -302,7 +303,7 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void list_authors() {
+  public void test_listAuthors() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
@@ -316,6 +317,16 @@ public class IssueServiceMediumTest {
     assertThat(service.listAuthors("uke", 5)).containsExactly("luke.skywalker", "luke@skywalker.name");
     assertThat(service.listAuthors(null, 1)).containsExactly("anakin@skywalker.name");
     assertThat(service.listAuthors(null, Integer.MAX_VALUE)).containsExactly("anakin@skywalker.name", "luke.skywalker", "luke@skywalker.name");
+  }
+
+  @Test
+  public void listAuthors_escapes_regexp_special_characters() {
+    saveIssue(IssueTesting.newDto(newRule(), newFile(newProject()), newProject()).setAuthorLogin("name++"));
+
+    assertThat(service.listAuthors("invalidRegexp[", 5)).isEmpty();
+    assertThat(service.listAuthors("nam+", 5)).isEmpty();
+    assertThat(service.listAuthors("name+", 5)).containsExactly("name++");
+    assertThat(service.listAuthors(".*", 5)).isEmpty();
   }
 
   private RuleDto newRule() {
