@@ -20,20 +20,28 @@
 package it.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
+import org.assertj.core.util.Files;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.projectDir;
 
 public class LogsTest {
 
@@ -42,6 +50,11 @@ public class LogsTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  @Before
+  public void cleanDatabase() {
+    orchestrator.resetData();
+  }
 
   /**
    * SONAR-7581
@@ -73,6 +86,46 @@ public class LogsTest {
     String sqIsUpMessage = "SonarQube is up";
     assertThat(logs.stream().filter(str -> str.contains(sqIsUpMessage)).findFirst()).describedAs("message is there").isNotEmpty();
     assertThat(logs.get(logs.size() - 1)).describedAs("message is the last line of logs").contains(sqIsUpMessage);
+  }
+
+  @Test
+  public void test_ws_change_log_level() throws IOException {
+    generateSqlAndEsLogsInWebAndCe();
+
+    assertThat(logLevelsOf(orchestrator.getServer().getWebLogs())).doesNotContain("DEBUG", "TRACE");
+    assertThat(logLevelsOf(orchestrator.getServer().getCeLogs())).doesNotContain("DEBUG", "TRACE");
+
+    orchestrator.getServer().adminWsClient().post("api/system/change_log_level", "level", "TRACE");
+
+    generateSqlAndEsLogsInWebAndCe();
+
+    // there is hardly DEBUG logs, but we are sure there must be TRACE logs for SQL and ES requests
+    assertThat(logLevelsOf(orchestrator.getServer().getWebLogs())).contains("TRACE");
+    assertThat(logLevelsOf(orchestrator.getServer().getCeLogs())).contains("TRACE");
+
+    // reset log files to empty and level to INFO
+    orchestrator.getServer().adminWsClient().post("api/system/change_log_level", "level", "INFO");
+    FileUtils.write(orchestrator.getServer().getWebLogs(), "");
+    FileUtils.write(orchestrator.getServer().getCeLogs(), "");
+
+    generateSqlAndEsLogsInWebAndCe();
+
+    assertThat(logLevelsOf(orchestrator.getServer().getWebLogs())).doesNotContain("DEBUG", "TRACE");
+    assertThat(logLevelsOf(orchestrator.getServer().getCeLogs())).doesNotContain("DEBUG", "TRACE");
+  }
+
+  private void generateSqlAndEsLogsInWebAndCe() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    ItUtils.newAdminWsClient(orchestrator).issues().search(new SearchWsRequest()
+      .setProjectKeys(Collections.singletonList("sample")));
+  }
+
+  private Collection<String> logLevelsOf(File webLogs) {
+    return Files.linesOf(webLogs, "UTF-8").stream()
+      .filter(str -> str.length() >= 25)
+      .map(str -> str.substring(20, 25))
+      .map(String::trim)
+      .collect(Collectors.toSet());
   }
 
   private void verifyLastAccessLogLine(String login, String path, int status) throws IOException {

@@ -243,7 +243,7 @@ public class LogbackHelper {
 
   private static boolean isAllowed(Level level) {
     for (Level allowedRootLogLevel : ALLOWED_ROOT_LOG_LEVELS) {
-      if (level == allowedRootLogLevel) {
+      if (level.equals(allowedRootLogLevel)) {
         return true;
       }
     }
