@@ -32,6 +32,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.config.WebConstants;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
@@ -43,7 +44,7 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
  */
 @Properties({
   @Property(
-    key = UpdateCenterClient.ACTIVATION_PROPERTY,
+    key = WebConstants.SONAR_UPDATECENTER_ACTIVATE,
     defaultValue = "true",
     name = "Enable Update Center",
     category = "Update Center",
@@ -63,7 +64,6 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 public class UpdateCenterClient {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
-  public static final String ACTIVATION_PROPERTY = "sonar.updatecenter.activate";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
 
   private final URI uri;
@@ -75,7 +75,7 @@ public class UpdateCenterClient {
   public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(settings.getString(URL_PROPERTY));
-    this.isActivated = settings.getBoolean(ACTIVATION_PROPERTY);
+    this.isActivated = settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE);
     Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
