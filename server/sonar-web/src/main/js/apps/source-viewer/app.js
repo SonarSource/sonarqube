@@ -21,10 +21,10 @@ import Marionette from 'backbone.marionette';
 import SourceViewer from '../../components/source-viewer/main';
 
 const App = new Marionette.Application();
-const init = function () {
+const init = function ({ el }) {
   const options = window.sonarqube;
 
-  this.addRegions({ mainRegion: options.el });
+  this.addRegions({ mainRegion: el });
 
   const viewer = new SourceViewer();
   this.mainRegion.show(viewer);
@@ -41,8 +41,8 @@ const init = function () {
   }
 };
 
-App.on('start', function () {
-  init.call(App);
+App.on('start', function (options) {
+  init.call(App, options);
 });
 
 window.sonarqube.appStarted.then(options => App.start(options));
