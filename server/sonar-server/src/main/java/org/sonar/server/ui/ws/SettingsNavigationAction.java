@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
+import org.sonar.core.config.WebConstants;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -66,7 +66,7 @@ public class SettingsNavigationAction implements NavigationWsAction {
     boolean isAdmin = userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("showUpdateCenter", isAdmin && settings.getBoolean(UpdateCenterClient.ACTIVATION_PROPERTY));
+    json.prop("showUpdateCenter", isAdmin && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
     json.prop("showProvisioning", userSession.hasPermission(GlobalPermissions.PROVISIONING));
 
     json.name("extensions").beginArray();
