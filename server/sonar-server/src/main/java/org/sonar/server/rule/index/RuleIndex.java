@@ -471,31 +471,29 @@ public class RuleIndex extends BaseIndex {
   }
 
   public Set<String> terms(String fields, @Nullable String query, int size) {
-    Set<String> tags = new HashSet<>();
-    String key = "_ref";
-
-    TermsBuilder terms = AggregationBuilders.terms(key)
+    String termsAggregationKey = "_ref";
+    TermsBuilder termsAggregation = AggregationBuilders.terms(termsAggregationKey)
       .field(fields)
       .size(size)
       .minDocCount(1);
     if (query != null) {
-      terms.include(".*" + query + ".*");
+      termsAggregation.include(".*" + query + ".*");
     }
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX)
       .setQuery(QueryBuilders.matchAllQuery())
-      .addAggregation(terms);
+      .addAggregation(termsAggregation);
 
     SearchResponse esResponse = request.get();
 
-    Terms aggregation = esResponse.getAggregations().get(key);
-
+    Set<String> terms = new HashSet<>();
+    Terms aggregation = esResponse.getAggregations().get(termsAggregationKey);
     if (aggregation != null) {
       for (Terms.Bucket value : aggregation.getBuckets()) {
-        tags.add(value.getKey());
+        terms.add(value.getKey());
       }
     }
-    return tags;
+    return terms;
   }
 
   private enum ToRuleKey implements Function<String, RuleKey> {
