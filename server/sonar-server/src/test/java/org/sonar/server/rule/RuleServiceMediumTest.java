@@ -77,17 +77,32 @@ public class RuleServiceMediumTest {
 
   @Test
   public void listTags_returns_tags_filtered_by_name() {
-    insertRule(RuleKey.of("javascript", "S001"), newHashSet("tag1"), newHashSet("sys1", "sys2"));
+    insertRule(RuleKey.of("javascript", "S001"), newHashSet("tag1", "misra++"), newHashSet("sys1", "sys2"));
     insertRule(RuleKey.of("java", "S001"), newHashSet("tag2"), newHashSet());
 
     assertThat(service.listTags("missing", 10)).isEmpty();
+    assertThat(service.listTags("", 10)).containsOnly("tag1", "misra++", "tag2", "sys1", "sys2");
     assertThat(service.listTags("tag", 10)).containsOnly("tag1", "tag2");
     assertThat(service.listTags("sys", 10)).containsOnly("sys1", "sys2");
+    assertThat(service.listTags("misra", 10)).containsOnly("misra++");
+    assertThat(service.listTags("misra+", 10)).containsOnly("misra++");
+    assertThat(service.listTags("++", 10)).containsOnly("misra++");
 
     // LIMITATION: case sensitive
     assertThat(service.listTags("TAG", 10)).isEmpty();
     assertThat(service.listTags("TAg", 10)).isEmpty();
     assertThat(service.listTags("MISSing", 10)).isEmpty();
+
+    assertThat(service.listTags("misra-", 10)).isEmpty();
+  }
+
+  @Test
+  public void listTags_returns_empty_results_if_filter_contains_regexp_special_characters() {
+    insertRule(RuleKey.of("javascript", "S001"), newHashSet("misra++"), newHashSet("sys1", "sys2"));
+
+    assertThat(service.listTags("mis[", 10)).isEmpty();
+    assertThat(service.listTags("mis\\d", 10)).isEmpty();
+    assertThat(service.listTags(".*", 10)).isEmpty();
   }
 
   @Test(expected = UnauthorizedException.class)

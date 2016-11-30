@@ -69,6 +69,7 @@ import org.sonar.server.es.StickyFacetBuilder;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
@@ -477,7 +478,7 @@ public class RuleIndex extends BaseIndex {
       .size(size)
       .minDocCount(1);
     if (query != null) {
-      termsAggregation.include(".*" + query + ".*");
+      termsAggregation.include(".*" + escapeSpecialRegexChars(query) + ".*");
     }
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX)
