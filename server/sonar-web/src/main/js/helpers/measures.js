@@ -306,7 +306,8 @@ function durationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = window.SS.hoursInDay;
+  // FIXME
+  const hoursInDay = 8;
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = Math.floor(absValue / hoursInDay / 60);
@@ -321,7 +322,8 @@ function shortDurationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = window.SS.hoursInDay;
+  // FIXME
+  const hoursInDay = 8;
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = absValue / hoursInDay / 60;
@@ -353,7 +355,8 @@ function getMaintainabilityRatingGrid () {
     return maintainabilityRatingGrid;
   }
 
-  const str = window.SS['sonar.technicalDebt.ratingGrid'];
+  // FIXME
+  const str = '0.05,0.1,0.2,0.5';
   const numbers = str.split(',')
       .map(s => parseFloat(s))
       .filter(n => !isNaN(n));

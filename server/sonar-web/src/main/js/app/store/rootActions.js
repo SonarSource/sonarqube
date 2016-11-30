@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getLanguages } from '../../api/languages';
+import { getComponentNavigation } from '../../api/nav';
 import { receiveLanguages } from './languages/actions';
+import { receiveComponents } from './components/actions';
 import { addGlobalErrorMessage } from '../../components/store/globalMessages';
 import { parseError } from '../../apps/code/utils';
 
@@ -32,3 +34,12 @@ export const fetchLanguages = () => dispatch => {
       onFail(dispatch)
   );
 };
+
+const mapUuidToId = project => ({ ...project, id: project.uuid });
+
+export const fetchProject = key => dispatch => (
+    getComponentNavigation(key).then(
+        component => dispatch(receiveComponents([mapUuidToId(component)])),
+        onFail(dispatch)
+    )
+);

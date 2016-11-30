@@ -18,23 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
+import ComponentNav from './nav/component/component-nav';
+import { fetchProject } from '../store/rootActions';
+import { getComponent } from '../store/rootReducer';
 
-export default class ComponentContainer extends React.Component {
-  state = {};
+class ProjectContainer extends React.Component {
+  static propTypes = {
+    project: React.PropTypes.object,
+    fetchProject: React.PropTypes.func.isRequired
+  };
 
   componentDidMount () {
-    window.sonarqube.appStarted.then(options => {
-      this.setState({ component: options.component });
-    });
+    this.props.fetchProject();
   }
 
   render () {
-    if (!this.state.component) {
+    if (!this.props.project) {
       return null;
     }
 
-    return React.cloneElement(this.props.children, {
-      component: this.state.component
-    });
+    // FIXME conf
+    return (
+        <div>
+          <ComponentNav component={this.props.project} conf={{}}/>
+          {this.props.children}
+        </div>
+    );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  project: getComponent(state, ownProps.location.query.id)
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  fetchProject: () => dispatch(fetchProject(ownProps.location.query.id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectContainer);

@@ -28,6 +28,7 @@ import ComponentNavBreadcrumbs from './component-nav-breadcrumbs';
 import ComponentNavMeta from './component-nav-meta';
 import ComponentNavMenu from './component-nav-menu';
 import RecentHistory from './RecentHistory';
+import './ComponentNav.css';
 
 export default React.createClass({
   componentDidMount() {
@@ -63,25 +64,29 @@ export default React.createClass({
 
   render() {
     return (
-        <div className="container">
-          <ComponentNavFavorite
-              component={this.props.component.key}
-              favorite={this.props.component.isFavorite}
-              canBeFavorite={this.props.component.canBeFavorite}/>
+        <nav className="navbar navbar-context page-container" id="context-navigation">
+          <div className="navbar-context-inner">
+            <div className="container">
+              <ComponentNavFavorite
+                  component={this.props.component.key}
+                  favorite={this.props.component.isFavorite}
+                  canBeFavorite={this.props.component.canBeFavorite}/>
 
-          <ComponentNavBreadcrumbs
-              breadcrumbs={this.props.component.breadcrumbs}/>
+              <ComponentNavBreadcrumbs
+                  breadcrumbs={this.props.component.breadcrumbs}/>
 
-          <ComponentNavMeta
-              {...this.props}
-              {...this.state}
-              version={this.props.component.version}
-              snapshotDate={this.props.component.snapshotDate}/>
+              <ComponentNavMeta
+                  {...this.props}
+                  {...this.state}
+                  version={this.props.component.version}
+                  snapshotDate={this.props.component.snapshotDate}/>
 
-          <ComponentNavMenu
-              component={this.props.component}
-              conf={this.props.conf}/>
-        </div>
+              <ComponentNavMenu
+                  component={this.props.component}
+                  conf={this.props.conf}/>
+            </div>
+          </div>
+        </nav>
     );
   }
 });

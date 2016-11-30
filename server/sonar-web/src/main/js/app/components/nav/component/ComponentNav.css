@@ -1,0 +1,16 @@
+.navbar-context {
+  position: static;
+  padding: 0;
+  height: 65px;
+}
+
+.navbar-context-inner {
+  position: fixed;
+  z-index: 420;
+  left: 0;
+  right: 0;
+  height: 65px;
+  padding-top: 5px;
+  box-sizing: border-box;
+  background-color: #f3f3f3;
+}

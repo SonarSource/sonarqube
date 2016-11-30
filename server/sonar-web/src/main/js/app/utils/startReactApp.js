@@ -25,7 +25,7 @@ import { Provider } from 'react-redux';
 import App from '../components/App';
 import Global from '../components/Global';
 import Landing from '../components/Landing';
-import ComponentContainer from '../components/ComponentContainer';
+import ProjectContainer from '../components/ProjectContainer';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
@@ -75,7 +75,6 @@ const startReactApp = () => {
               <Route path="account">{accountRoutes}</Route>
               <Route path="background_tasks">{backgroundTasksRoutes}</Route>
               <Route path="coding_rules">{codingRulesRoutes}</Route>
-              <Route path="dashboard">{overviewRoutes}</Route>
               <Route path="groups">{groupsRoutes}</Route>
               <Route path="issues">{issuesRoutes}</Route>
               <Route path="maintenance">{maintenanceRoutes}</Route>
@@ -93,11 +92,12 @@ const startReactApp = () => {
               <Route path="users">{usersRoutes}</Route>
               <Route path="web_api">{webAPIRoutes}</Route>
 
-              <Route component={ComponentContainer}>
+              <Route component={ProjectContainer}>
                 <Route path="code">{codeRoutes}</Route>
                 <Route path="component_issues">{componentIssuesRoutes}</Route>
                 <Route path="component_measures">{componentMeasuresRoutes}</Route>
                 <Route path="custom_measures">{customMeasuresRoutes}</Route>
+                <Route path="dashboard">{overviewRoutes}</Route>
                 <Route path="project">
                   <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                   <Route path="settings">{settingsRoutes}</Route>

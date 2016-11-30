@@ -33,17 +33,19 @@ import FacetsView from './../issues/facets-view';
 import HeaderView from './../issues/HeaderView';
 
 const App = new Marionette.Application();
-const init = function (el) {
-  const options = window.sonarqube;
-
-  this.config = options.config;
+const init = function ({ el, component, currentUser }) {
+  this.config = {
+    resource: component.id,
+    resourceName: component.name,
+    resourceQualifier: component.qualifier
+  };
   this.state = new State({
-    canBulkChange: !!window.SS.user,
+    canBulkChange: !!currentUser,
     isContext: true,
-    contextQuery: { componentUuids: options.config.resource },
-    contextComponentUuid: options.config.resource,
-    contextComponentName: options.config.resourceName,
-    contextComponentQualifier: options.config.resourceQualifier
+    contextQuery: { componentUuids: this.config.resource },
+    contextComponentUuid: this.config.resource,
+    contextComponentName: this.config.resourceName,
+    contextComponentQualifier: this.config.resourceQualifier
   });
   this.updateContextFacets();
   this.list = new Issues();
@@ -109,10 +111,10 @@ App.updateContextFacets = function () {
   });
 };
 
-App.on('start', function (el) {
-  init.call(App, el);
+App.on('start', function (options) {
+  init.call(App, options);
 });
 
-export default function (el) {
-  App.start(el);
+export default function (el, component, currentUser) {
+  App.start({ el, component, currentUser });
 }

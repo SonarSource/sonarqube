@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import React from 'react';
-
+import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './../../../components/source-viewer/SourceViewer';
@@ -27,10 +27,10 @@ import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
 import { addComponent, addComponentBreadcrumbs } from '../bucket';
-
+import { getComponent } from '../../../app/store/rootReducer';
 import '../code.css';
 
-export default class App extends React.Component {
+class App extends React.Component {
   state = {
     loading: true,
     baseComponent: null,
@@ -210,3 +210,9 @@ export default class App extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id)
+});
+
+export default connect(mapStateToProps)(App);

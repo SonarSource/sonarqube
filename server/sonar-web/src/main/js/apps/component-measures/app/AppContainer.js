@@ -20,13 +20,12 @@
 import { connect } from 'react-redux';
 import App from './App';
 import { fetchMetrics, setComponent } from './actions';
-import { getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
+import { getComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
 
-const mapStateToProps = state => {
-  return {
-    metrics: getMeasuresAppAllMetrics(state)
-  };
-};
+const mapStateToProps = (state, ownProps) => ({
+  component: getComponent(state, ownProps.location.query.id),
+  metrics: getMeasuresAppAllMetrics(state)
+});
 
 const mapDispatchToProps = dispatch => {
   return {
