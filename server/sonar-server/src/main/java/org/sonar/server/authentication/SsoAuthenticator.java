@@ -54,21 +54,21 @@ public class SsoAuthenticator implements Startable {
 
   private static final Splitter COMA_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
-  private static final String ENABLE_PARAM = "sonar.sso.enable";
+  private static final String ENABLE_PARAM = "sonar.web.sso.enable";
 
-  private static final String LOGIN_HEADER_PARAM = "sonar.sso.loginHeader";
+  private static final String LOGIN_HEADER_PARAM = "sonar.web.sso.loginHeader";
   private static final String LOGIN_HEADER_DEFAULT_VALUE = "X-Forwarded-Login";
 
-  private static final String NAME_HEADER_PARAM = "sonar.sso.nameHeader";
+  private static final String NAME_HEADER_PARAM = "sonar.web.sso.nameHeader";
   private static final String NAME_HEADER_DEFAULT_VALUE = "X-Forwarded-Name";
 
-  private static final String EMAIL_HEADER_PARAM = "sonar.sso.emailHeader";
+  private static final String EMAIL_HEADER_PARAM = "sonar.web.sso.emailHeader";
   private static final String EMAIL_HEADER_DEFAULT_VALUE = "X-Forwarded-Email";
 
-  private static final String GROUPS_HEADER_PARAM = "sonar.sso.groupsHeader";
+  private static final String GROUPS_HEADER_PARAM = "sonar.web.sso.groupsHeader";
   private static final String GROUPS_HEADER_DEFAULT_VALUE = "X-Forwarded-Groups";
 
-  private static final String REFRESH_INTERVAL_PARAM = "sonar.sso.refreshIntervalInMinutes";
+  private static final String REFRESH_INTERVAL_PARAM = "sonar.web.sso.refreshIntervalInMinutes";
   private static final String REFRESH_INTERVAL_DEFAULT_VALUE = "5";
 
   private static final String LAST_REFRESH_TIME_TOKEN_PARAM = "ssoLastRefreshTime";

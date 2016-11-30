@@ -65,7 +65,7 @@ public class BasicAuthenticator {
 
   private static String[] getCredentials(String authorizationHeader) {
     String basicAuthEncoded = authorizationHeader.substring(6);
-    String basicAuthDecoded = new String(BASE64_DECODER.decode(basicAuthEncoded.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+    String basicAuthDecoded = getDecodedBasicAuth(basicAuthEncoded);
 
     int semiColonPos = basicAuthDecoded.indexOf(':');
     if (semiColonPos <= 0) {
@@ -74,6 +74,14 @@ public class BasicAuthenticator {
     String login = basicAuthDecoded.substring(0, semiColonPos);
     String password = basicAuthDecoded.substring(semiColonPos + 1);
     return new String[] {login, password};
+  }
+
+  private static String getDecodedBasicAuth(String basicAuthEncoded) {
+    try {
+      return new String(BASE64_DECODER.decode(basicAuthEncoded.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+    } catch (Exception e) {
+      throw new UnauthorizedException("Invalid basic header");
+    }
   }
 
   private UserDto authenticate(String login, String password, HttpServletRequest request) {

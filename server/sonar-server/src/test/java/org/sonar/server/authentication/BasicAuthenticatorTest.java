@@ -20,14 +20,6 @@
 
 package org.sonar.server.authentication;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.Base64;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +35,14 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class BasicAuthenticatorTest {
 
@@ -114,6 +114,15 @@ public class BasicAuthenticatorTest {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(":" + PASSWORD));
 
     expectedException.expect(UnauthorizedException.class);
+    underTest.authenticate(request);
+  }
+
+  @Test
+  public void fail_to_authenticate_when_invalid_header() throws Exception {
+    when(request.getHeader("Authorization")).thenReturn("Basic Invàlid");
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Invalid basic header");
     underTest.authenticate(request);
   }
 

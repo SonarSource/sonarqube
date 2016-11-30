@@ -227,7 +227,7 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void use_refresh_time_from_settings() throws Exception {
-    settings.setProperty("sonar.sso.refreshIntervalInMinutes", "10");
+    settings.setProperty("sonar.web.sso.refreshIntervalInMinutes", "10");
     startWithSso();
     UserDto user = insertUser(DEFAULT_USER, group1);
     // Refresh time was updated 6 minutes ago => less than 10 minutes ago so not updated
@@ -256,10 +256,10 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void use_headers_from_settings() throws Exception {
-    settings.setProperty("sonar.sso.loginHeader", "head-login");
-    settings.setProperty("sonar.sso.nameHeader", "head-name");
-    settings.setProperty("sonar.sso.emailHeader", "head-email");
-    settings.setProperty("sonar.sso.groupsHeader", "head-groups");
+    settings.setProperty("sonar.web.sso.loginHeader", "head-login");
+    settings.setProperty("sonar.web.sso.nameHeader", "head-name");
+    settings.setProperty("sonar.web.sso.emailHeader", "head-email");
+    settings.setProperty("sonar.web.sso.groupsHeader", "head-groups");
     startWithSso();
     setNotUserInToken();
     HttpServletRequest request = createRequest(ImmutableMap.of("head-login", DEFAULT_LOGIN, "head-name", DEFAULT_NAME, "head-email", DEFAULT_EMAIL, "head-groups", GROUPS));
@@ -271,10 +271,10 @@ public class SsoAuthenticatorTest {
 
   @Test
   public void detect_group_header_even_with_wrong_case() throws Exception {
-    settings.setProperty("sonar.sso.loginHeader", "login");
-    settings.setProperty("sonar.sso.nameHeader", "name");
-    settings.setProperty("sonar.sso.emailHeader", "email");
-    settings.setProperty("sonar.sso.groupsHeader", "Groups");
+    settings.setProperty("sonar.web.sso.loginHeader", "login");
+    settings.setProperty("sonar.web.sso.nameHeader", "name");
+    settings.setProperty("sonar.web.sso.emailHeader", "email");
+    settings.setProperty("sonar.web.sso.groupsHeader", "Groups");
     startWithSso();
     setNotUserInToken();
     HttpServletRequest request = createRequest(ImmutableMap.of("login", DEFAULT_LOGIN, "name", DEFAULT_NAME, "email", DEFAULT_EMAIL, "groups", GROUPS));
@@ -327,12 +327,12 @@ public class SsoAuthenticatorTest {
   }
 
   private void startWithSso() {
-    settings.setProperty("sonar.sso.enable", true);
+    settings.setProperty("sonar.web.sso.enable", true);
     underTest.start();
   }
 
   private void startWithoutSso() {
-    settings.setProperty("sonar.sso.enable", false);
+    settings.setProperty("sonar.web.sso.enable", false);
     underTest.start();
   }
 

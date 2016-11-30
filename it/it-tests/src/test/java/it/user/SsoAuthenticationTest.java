@@ -59,11 +59,11 @@ public class SsoAuthenticationTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setServerProperty("sonar.sso.enable", "true")
-    .setServerProperty("sonar.sso.loginHeader", LOGIN_HEADER)
-    .setServerProperty("sonar.sso.nameHeader", NAME_HEADER)
-    .setServerProperty("sonar.sso.emailHeader", EMAIL_HEADER)
-    .setServerProperty("sonar.sso.groupsHeader", GROUPS_HEADER)
+    .setServerProperty("sonar.web.sso.enable", "true")
+    .setServerProperty("sonar.web.sso.loginHeader", LOGIN_HEADER)
+    .setServerProperty("sonar.web.sso.nameHeader", NAME_HEADER)
+    .setServerProperty("sonar.web.sso.emailHeader", EMAIL_HEADER)
+    .setServerProperty("sonar.web.sso.groupsHeader", GROUPS_HEADER)
     .build();
 
   @ClassRule
