@@ -77,7 +77,8 @@ public class RuleService {
   }
 
   private void checkPermission() {
-    userSession.checkLoggedIn();
-    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession
+      .checkLoggedIn()
+      .checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

@@ -82,11 +82,13 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AT;
@@ -209,7 +211,7 @@ public class IssueIndex extends BaseIndex {
   public IssueDoc getByKey(String key) {
     IssueDoc value = getNullableByKey(key);
     if (value == null) {
-      throw new NotFoundException(String.format("Issue with key '%s' does not exist", key));
+      throw new NotFoundException(format("Issue with key '%s' does not exist", key));
     }
     return value;
   }
@@ -567,7 +569,9 @@ public class IssueIndex extends BaseIndex {
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
       .filter(facetFilter)
-      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login)));
+      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms")
+        .field(fieldName)
+        .include(escapeSpecialRegexChars(login))));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)
@@ -619,16 +623,15 @@ public class IssueIndex extends BaseIndex {
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
-    if (textQuery != null) {
-      issueTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
-    }
     TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
       .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
     if (textQuery != null) {
-      ruleTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+      String escapedTextQuery = escapeSpecialRegexChars(textQuery);
+      issueTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+      ruleTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
@@ -667,7 +670,7 @@ public class IssueIndex extends BaseIndex {
       .order(termsOrder)
       .minDocCount(1L);
     if (textQuery != null) {
-      aggreg.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
+      aggreg.include(format(SUBSTRING_MATCH_REGEXP, escapeSpecialRegexChars(textQuery)));
     }
 
     SearchResponse searchResponse = requestBuilder.addAggregation(aggreg).get();
@@ -701,7 +704,7 @@ public class IssueIndex extends BaseIndex {
         filter.must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
         break;
       default:
-        throw new IllegalStateException(String.format("Component of scope '%s' is not allowed", component.scope()));
+        throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
     }
 
     SearchRequestBuilder requestBuilder = getClient()

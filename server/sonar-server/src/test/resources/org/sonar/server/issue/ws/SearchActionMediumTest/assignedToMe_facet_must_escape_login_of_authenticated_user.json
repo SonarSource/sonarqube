@@ -1,0 +1,23 @@
+{
+  "total": 0,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 0
+  },
+  "issues": [],
+  "components": [],
+  "facets": [
+    {
+      "property": "assigned_to_me",
+      "values": [
+        {
+          "val": "foo[",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

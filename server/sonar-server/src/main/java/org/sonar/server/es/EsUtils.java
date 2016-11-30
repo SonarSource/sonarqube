@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -47,6 +48,7 @@ import static java.lang.String.format;
 public class EsUtils {
 
   public static final int SCROLL_TIME_IN_MINUTES = 3;
+  private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
   private EsUtils() {
     // only static methods
@@ -105,6 +107,15 @@ public class EsUtils {
 
   public static <D extends BaseDoc> Iterator<D> scroll(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {
     return new DocScrollIterator<>(esClient, scrollId, docConverter);
+  }
+
+  /**
+   * Escapes regexp special characters so that text can be forwarded from end-user input
+   * to Elasticsearch regexp query (for instance attributes "include" and "exclude" of
+   * term aggregations.
+   */
+  public static String escapeSpecialRegexChars(String str) {
+    return SPECIAL_REGEX_CHARS.matcher(str).replaceAll("\\\\$0");
   }
 
   private static class DocScrollIterator<D extends BaseDoc> implements Iterator<D> {
