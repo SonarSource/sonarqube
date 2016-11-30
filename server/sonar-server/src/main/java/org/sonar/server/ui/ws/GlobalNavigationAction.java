@@ -31,6 +31,9 @@ import org.sonar.api.web.Page;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 
+import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
+import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
+
 public class GlobalNavigationAction implements NavigationWsAction {
 
   private final Views views;
@@ -76,8 +79,8 @@ public class GlobalNavigationAction implements NavigationWsAction {
   }
 
   private void writeLogoProperties(JsonWriter json) {
-    json.prop("logoUrl", settings.getString("sonar.lf.logoUrl"));
-    json.prop("logoWidth", settings.getString("sonar.lf.logoWidthPx"));
+    json.prop("logoUrl", settings.getString(SONAR_LF_LOGO_URL));
+    json.prop("logoWidth", settings.getString(SONAR_LF_LOGO_WIDTH_PX));
   }
 
   private void writeQualifiers(JsonWriter json) {

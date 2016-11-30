@@ -29,8 +29,8 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
+import org.sonar.core.config.WebConstants;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsActionTester;
@@ -84,7 +84,7 @@ public class SettingsNavigationActionTest {
   @Test
   public void with_update_center() throws Exception {
     init();
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     executeAndVerify("with_update_center.json");
@@ -93,7 +93,7 @@ public class SettingsNavigationActionTest {
   @Test
   public void with_views_and_update_center_but_not_admin() throws Exception {
     init(createViews());
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
 
     executeAndVerify("empty.json");
   }
