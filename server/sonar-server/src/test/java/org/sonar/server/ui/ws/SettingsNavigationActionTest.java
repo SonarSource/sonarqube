@@ -23,19 +23,18 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
+import org.sonar.core.config.WebConstants;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -43,71 +42,71 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SettingsNavigationActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private WsTester wsTester;
+  private Settings settings = new MapSettings();
 
-  private Settings settings;
+  private I18n i18n = mock(I18n.class);
 
-  private I18n i18n;
+  private WsActionTester ws;
 
   @Before
   public void before() {
-    settings = new MapSettings();
-    i18n = mock(I18n.class);
-    when(i18n.message(any(Locale.class), anyString(), anyString())).thenAnswer(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return invocation.getArgumentAt(2, String.class);
-      }
-      
-    });
+    when(i18n.message(any(Locale.class), anyString(), anyString())).thenAnswer(invocation -> invocation.getArgumentAt(2, String.class));
   }
 
   @Test
   public void empty() throws Exception {
+    init();
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
-    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "empty.json");
+    executeAndVerify("empty.json");
   }
 
   @Test
   public void with_provisioning() throws Exception {
+    init();
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
-    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_provisioning.json");
+    executeAndVerify("with_provisioning.json");
   }
 
   @Test
   public void with_views() throws Exception {
+    init(createViews());
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n, userSessionRule)));
 
-    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_views.json");
+    executeAndVerify("with_views.json");
   }
 
   @Test
   public void with_update_center() throws Exception {
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    init();
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
-    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_update_center.json");
+    executeAndVerify("with_update_center.json");
   }
 
   @Test
   public void with_views_and_update_center_but_not_admin() throws Exception {
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n, userSessionRule)));
+    init(createViews());
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
 
-    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "empty.json");
+    executeAndVerify("empty.json");
   }
 
-  private Views createViews() {
+  private void init(View... views) {
+    ws = new WsActionTester(new SettingsNavigationAction(settings, new Views(userSessionRule, views), i18n, userSessionRule));
+  }
 
+  private void executeAndVerify(String json) {
+    JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("SettingsNavigationActionTest/" + json));
+  }
+
+  private View[] createViews() {
 
     @NavigationSection(NavigationSection.CONFIGURATION)
     class FirstPage implements Page {
@@ -137,6 +136,6 @@ public class SettingsNavigationActionTest {
 
     Page page = new FirstPage();
     Page controller = new SecondPage();
-    return new Views(userSessionRule, new View[] {page, controller});
+    return new View[] {page, controller};
   }
 }

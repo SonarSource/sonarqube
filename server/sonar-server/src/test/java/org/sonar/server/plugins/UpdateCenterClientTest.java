@@ -28,6 +28,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
+import org.sonar.core.config.WebConstants;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
@@ -51,7 +52,7 @@ public class UpdateCenterClientTest {
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
     settings.setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
     underTest = new UpdateCenterClient(reader, settings);
   }
 
@@ -97,7 +98,7 @@ public class UpdateCenterClientTest {
 
   @Test
   public void update_center_is_null_when_property_is_false() {
-    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, false);
+    settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, false);
 
     assertThat(underTest.getUpdateCenter()).isAbsent();
   }
