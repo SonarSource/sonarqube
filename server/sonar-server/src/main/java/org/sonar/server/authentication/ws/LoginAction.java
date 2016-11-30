@@ -45,12 +45,11 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class LoginAction extends ServletFilter {
 
   public static final String AUTH_LOGIN_URL = "/api/authentication/login";
-
-  private static final String POST = "POST";
 
   private final DbClient dbClient;
   private final CredentialsAuthenticator credentialsAuthenticator;
@@ -77,7 +76,7 @@ public class LoginAction extends ServletFilter {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-    if (!request.getMethod().equals(POST)) {
+    if (!request.getMethod().equals(POST.name())) {
       response.setStatus(HTTP_BAD_REQUEST);
       return;
     }

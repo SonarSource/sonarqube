@@ -23,6 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.event.AuthenticationEventImpl;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.authentication.ws.LoginAction;
+import org.sonar.server.authentication.ws.LogoutAction;
 import org.sonar.server.authentication.ws.ValidateAction;
 
 public class AuthenticationModule extends Module {
@@ -43,6 +44,7 @@ public class AuthenticationModule extends Module {
       JwtHttpHandler.class,
       JwtCsrfVerifier.class,
       LoginAction.class,
+      LogoutAction.class,
       CredentialsAuthenticator.class,
       RealmAuthenticator.class,
       BasicAuthenticator.class,

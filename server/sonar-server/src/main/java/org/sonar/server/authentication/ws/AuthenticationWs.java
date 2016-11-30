@@ -32,6 +32,7 @@ public class AuthenticationWs implements WebService {
     controller.setDescription("Handle authentication.");
 
     defineLoginAction(controller);
+    defineLogoutAction(controller);
     defineValidateAction(controller);
 
     controller.done();
@@ -59,6 +60,14 @@ public class AuthenticationWs implements WebService {
     action.createParam("password")
       .setDescription("Password of the user")
       .setRequired(true);
+  }
+
+  private static void defineLogoutAction(NewController controller) {
+    controller.createAction("logout")
+      .setDescription("Logout a user.")
+      .setSince("6.3")
+      .setPost(true)
+      .setHandler(ServletFilterHandler.INSTANCE);
   }
 
 }

@@ -42,6 +42,7 @@ import static org.sonar.server.authentication.AuthenticationError.handleAuthenti
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
+import static org.sonar.server.authentication.ws.LogoutAction.AUTH_LOGOUT_URL;
 import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
@@ -64,7 +65,7 @@ public class UserSessionInitializer {
     "/sessions/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/index", "/api/server/setup", "/api/server/version",
-    AUTH_LOGIN_URL, AUTH_VALIDATE_URL);
+    AUTH_LOGIN_URL, AUTH_VALIDATE_URL, AUTH_LOGOUT_URL);
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")

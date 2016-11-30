@@ -19,12 +19,12 @@
  */
 package org.sonar.server.authentication.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.WsTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthenticationWsTest {
 
@@ -35,7 +35,7 @@ public class AuthenticationWsTest {
     WebService.Controller controller = tester.controller("api/authentication");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
 
     WebService.Action validate = controller.action("validate");
     assertThat(validate).isNotNull();
@@ -48,5 +48,11 @@ public class AuthenticationWsTest {
     assertThat(login.handler()).isInstanceOf(ServletFilterHandler.class);
     assertThat(login.isPost()).isTrue();
     assertThat(login.params()).hasSize(2);
+
+    WebService.Action logout = controller.action("logout");
+    assertThat(logout).isNotNull();
+    assertThat(logout.handler()).isInstanceOf(ServletFilterHandler.class);
+    assertThat(logout.isPost()).isTrue();
+    assertThat(logout.params()).isEmpty();
   }
 }

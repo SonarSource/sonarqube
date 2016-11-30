@@ -161,7 +161,7 @@ public class JwtHttpHandler {
     jwtCsrfVerifier.refreshState(request, response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
   }
 
-  void removeToken(HttpServletRequest request, HttpServletResponse response) {
+  public void removeToken(HttpServletRequest request, HttpServletResponse response) {
     response.addCookie(createCookie(request, JWT_COOKIE, null, 0));
     jwtCsrfVerifier.removeState(request, response);
   }

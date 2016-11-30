@@ -96,6 +96,7 @@ public class UserSessionInitializerTest {
     assertPathIsNotIgnored("/api/server_id/show");
 
     assertPathIsIgnored("/api/authentication/login");
+    assertPathIsIgnored("/api/authentication/logout");
     assertPathIsIgnored("/api/authentication/validate");
     assertPathIsIgnored("/batch/index");
     assertPathIsIgnored("/batch/file");
