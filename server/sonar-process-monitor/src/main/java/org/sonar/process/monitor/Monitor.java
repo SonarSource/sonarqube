@@ -153,7 +153,7 @@ public class Monitor {
         monitor(processRef);
       } catch (InterruptedException | RuntimeException e) {
         if (processRef != null) {
-          LOG.info("{} failed to start", processRef);
+          LOG.error("{} failed to start", processRef);
         }
         // fail to start or to monitor
         stop();
