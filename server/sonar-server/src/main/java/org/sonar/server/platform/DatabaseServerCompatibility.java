@@ -24,8 +24,11 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.version.DatabaseVersion;
 
+import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
+
 public class DatabaseServerCompatibility implements Startable {
 
+  private static final String HIGHLIGHTER = "################################################################################";
   private DatabaseVersion version;
 
   public DatabaseServerCompatibility(DatabaseVersion version) {
@@ -43,7 +46,12 @@ public class DatabaseServerCompatibility implements Startable {
       if (currentVersion != null && currentVersion < DatabaseVersion.MIN_UPGRADE_VERSION) {
         throw MessageException.of("Current version is too old. Please upgrade to Long Term Support version firstly.");
       }
-      Loggers.get(DatabaseServerCompatibility.class).warn("Database must be upgraded. Please backup database and browse /setup");
+      String msg = "Database must be upgraded. Please backup database and browse /setup";
+      Loggers.get(DatabaseServerCompatibility.class).warn(msg);
+      Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
+        + HIGHLIGHTER + '\n'
+        + "      " + msg
+        + '\n' + HIGHLIGHTER);
     }
   }
 
