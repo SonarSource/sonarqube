@@ -19,7 +19,9 @@
  */
 import Backbone from 'backbone';
 import React from 'react';
+import { connect } from 'react-redux';
 import SearchView from './search-view';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 function contains (root, node) {
   while (node) {
@@ -31,7 +33,7 @@ function contains (root, node) {
   return false;
 }
 
-export default React.createClass({
+const GlobalNavSearch = React.createClass({
   getInitialState() {
     return { open: false };
   },
@@ -104,3 +106,9 @@ export default React.createClass({
     );
   }
 });
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(GlobalNavSearch);

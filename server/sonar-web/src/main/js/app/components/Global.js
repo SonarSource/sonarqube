@@ -17,37 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import md5 from 'blueimp-md5';
-import classNames from 'classnames';
+import GlobalNav from './nav/global/global-nav';
 
-export default class Avatar extends React.Component {
-  static propTypes = {
-    email: React.PropTypes.string,
-    size: React.PropTypes.number.isRequired,
-    className: React.PropTypes.string
-  };
-
+export default class Global extends React.Component {
   render () {
-    // FIXME
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
-    if (!shouldShowAvatar) {
-      return null;
-    }
-
-    const emailHash = md5.md5((this.props.email || '').toLowerCase()).trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
-        .replace('{EMAIL_MD5}', emailHash)
-        .replace('{SIZE}', this.props.size * 2);
-
-    const className = classNames(this.props.className, 'rounded');
-
     return (
-        <img className={className}
-             src={url}
-             width={this.props.size}
-             height={this.props.size}
-             alt={this.props.email}/>
+        <div className="page-wrapper page-wrapper-global" id="container">
+          <GlobalNav/>
+          {this.props.children}
+        </div>
     );
   }
 }

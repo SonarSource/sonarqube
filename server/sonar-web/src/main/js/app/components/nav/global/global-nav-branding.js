@@ -34,7 +34,7 @@ export default React.createClass({
   },
 
   render() {
-    const homeController = window.SS.user ? '/projects/favorite' : '/about';
+    const homeController = this.props.currentUser ? '/projects/favorite' : '/about';
     const homeUrl = window.baseUrl + homeController;
     const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
     return (

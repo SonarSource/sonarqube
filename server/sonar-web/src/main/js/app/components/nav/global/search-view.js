@@ -28,6 +28,7 @@ import SearchTemplate from '../templates/nav-search.hbs';
 import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../../helpers/path';
+import { isUserAdmin } from '../../../../helpers/users';
 
 const SearchItemView = Marionette.ItemView.extend({
   tagName: 'li',
@@ -96,7 +97,7 @@ export default Marionette.LayoutView.extend({
     const that = this;
     this.results = new Backbone.Collection();
     this.favorite = [];
-    if (window.SS.user) {
+    if (this.model.get('currentUser')) {
       this.fetchFavorite().always(function () {
         that.resetResultsToDefault();
       });
@@ -226,7 +227,7 @@ export default Marionette.LayoutView.extend({
       { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' }
     ];
     const customItems = [];
-    if (window.SS.isUserAdmin) {
+    if (isUserAdmin(this.model.get('currentUser'))) {
       customItems.push({ name: translate('layout.settings'), url: window.baseUrl + '/settings' });
     }
     const findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {

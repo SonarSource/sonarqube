@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import GlobalNavBranding from './global-nav-branding';
 import GlobalNavMenu from './global-nav-menu';
 import GlobalNavUser from './global-nav-user';
 import GlobalNavSearch from './global-nav-search';
 import ShortcutsHelpView from './shortcuts-help-view';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-export default React.createClass({
+const GlobalNav = React.createClass({
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
   },
@@ -53,21 +55,29 @@ export default React.createClass({
 
   render() {
     return (
-        <div className="container">
-          <GlobalNavBranding {...this.props}/>
+        <nav className="navbar navbar-global page-container" id="global-navigation">
+          <div className="container">
+            <GlobalNavBranding {...this.props}/>
 
-          <GlobalNavMenu {...this.props}/>
+            <GlobalNavMenu {...this.props}/>
 
-          <ul className="nav navbar-nav navbar-right">
-            <GlobalNavUser {...this.props}/>
-            <GlobalNavSearch {...this.props}/>
-            <li>
-              <a onClick={this.openHelp} href="#">
-                <i className="icon-help navbar-icon"/>
-              </a>
-            </li>
-          </ul>
-        </div>
+            <ul className="nav navbar-nav navbar-right">
+              <GlobalNavUser {...this.props}/>
+              <GlobalNavSearch {...this.props}/>
+              <li>
+                <a onClick={this.openHelp} href="#">
+                  <i className="icon-help navbar-icon"/>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
     );
   }
 });
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(GlobalNav);

@@ -23,12 +23,25 @@ import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
 
 export default React.createClass({
+  handleLogin(e) {
+    e.preventDefault();
+    const returnTo = window.location.pathname + window.location.search;
+    window.location = `${window.baseUrl}/sessions/new?return_to=${encodeURIComponent(returnTo)}${window.location.hash}`;
+  },
+
+  handleLogout(e) {
+    e.preventDefault();
+    RecentHistory.clear();
+    window.location = `${window.baseUrl}/sessions/logout`;
+  },
+
   renderAuthenticated() {
+    const { currentUser } = this.props;
     return (
         <li className="dropdown js-user-authenticated">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            <Avatar email={window.SS.userEmail} size={20}/>&nbsp;
-            {window.SS.userName}&nbsp;<i className="icon-dropdown"/>
+            <Avatar email={currentUser.email} size={20}/>&nbsp;
+            {currentUser.name}&nbsp;<i className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
@@ -50,20 +63,8 @@ export default React.createClass({
     );
   },
 
-  handleLogin(e) {
-    e.preventDefault();
-    const returnTo = window.location.pathname + window.location.search;
-    window.location = `${window.baseUrl}/sessions/new?return_to=${encodeURIComponent(returnTo)}${window.location.hash}`;
-  },
-
-  handleLogout(e) {
-    e.preventDefault();
-    RecentHistory.clear();
-    window.location = `${window.baseUrl}/sessions/logout`;
-  },
-
   render() {
-    const isUserAuthenticated = !!window.SS.user;
+    const isUserAuthenticated = !!this.props.currentUser;
     return isUserAuthenticated ? this.renderAuthenticated() : this.renderAnonymous();
   }
 });
