@@ -88,6 +88,14 @@ public class EsUtilsTest {
     assertThat(escapeSpecialRegexChars("^")).isEqualTo("\\^");
     assertThat(escapeSpecialRegexChars("$")).isEqualTo("\\$");
     assertThat(escapeSpecialRegexChars("|")).isEqualTo("\\|");
-    assertThat(escapeSpecialRegexChars("a bit of | $ .* ^ everything")).isEqualTo("a bit of \\| \\$ \\.\\* \\^ everything");
+    assertThat(escapeSpecialRegexChars("<")).isEqualTo("\\<");
+    assertThat(escapeSpecialRegexChars(">")).isEqualTo("\\>");
+    assertThat(escapeSpecialRegexChars("\"")).isEqualTo("\\\"");
+    assertThat(escapeSpecialRegexChars("#")).isEqualTo("\\#");
+    assertThat(escapeSpecialRegexChars("~")).isEqualTo("\\~");
+    assertThat(escapeSpecialRegexChars("$")).isEqualTo("\\$");
+    assertThat(escapeSpecialRegexChars("&")).isEqualTo("\\&");
+    assertThat(escapeSpecialRegexChars("?")).isEqualTo("\\?");
+    assertThat(escapeSpecialRegexChars("a bit of | & #<\"$ .* ^ everything")).isEqualTo("a bit of \\| \\& \\#\\<\\\"\\$ \\.\\* \\^ everything");
   }
 }
