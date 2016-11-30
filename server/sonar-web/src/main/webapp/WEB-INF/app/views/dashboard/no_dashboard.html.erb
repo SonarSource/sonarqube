@@ -1,13 +1,8 @@
-<div class="page">
-  <div id="source-viewer"></div>
-</div>
-
 <% content_for :extra_script do %>
   <script>
     (function () {
       jQuery('.navbar-context').remove();
       jQuery('.page-wrapper-context').addClass('page-wrapper-global').removeClass('page-wrapper-context');
-      window.sonarqube.el = '#source-viewer';
       window.sonarqube.file = {
         uuid: '<%= @resource.uuid -%>',
         key: '<%= @resource.key -%>'
@@ -16,7 +11,3 @@
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/bundles/source-viewer.js?v=<%= sonar_version -%>"></script>
 <% end %>
-
-
-
-

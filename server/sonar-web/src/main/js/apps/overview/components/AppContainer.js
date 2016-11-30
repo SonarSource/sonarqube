@@ -30,6 +30,11 @@ export default class AppContainer extends React.Component {
   }
 
   render () {
+    // workaround for the case when a file is displayed
+    if (window.sonarqube.file) {
+      return null;
+    }
+
     if (!this.state.component) {
       return null;
     }

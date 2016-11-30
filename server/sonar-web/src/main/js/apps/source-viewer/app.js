@@ -24,7 +24,7 @@ const App = new Marionette.Application();
 const init = function ({ el }) {
   const options = window.sonarqube;
 
-  this.addRegions({ mainRegion: el });
+  this.addRegions({ mainRegion: window.sonarqube.el || el });
 
   const viewer = new SourceViewer();
   this.mainRegion.show(viewer);
