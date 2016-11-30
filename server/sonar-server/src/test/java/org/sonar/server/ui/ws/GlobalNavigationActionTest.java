@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
@@ -31,10 +32,16 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MySql;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GlobalNavigationActionTest {
 
@@ -42,6 +49,9 @@ public class GlobalNavigationActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private Settings settings = new MapSettings();
+
+  private Server server = mock(Server.class);
+  private Database database = mock(Database.class);
 
   private WsActionTester ws;
 
@@ -53,7 +63,7 @@ public class GlobalNavigationActionTest {
   }
 
   @Test
-  public void with_root_qualifiers() throws Exception {
+  public void return_qualifiers() throws Exception {
     init(new View[] {}, new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
@@ -67,54 +77,88 @@ public class GlobalNavigationActionTest {
         .build()
     });
 
-    executeAndVerify("with_qualifiers.json");
+    executeAndVerify("qualifiers.json");
   }
 
   @Test
-  public void only_logo() throws Exception {
+  public void return_settings() throws Exception {
     init();
-    settings.setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png");
-    settings.setProperty("sonar.lf.logoWidthPx", "123");
+    settings.setProperty("sonar.lf.gravatarServerUrl", "http://some-server.tld/logo.png");
+    settings.setProperty("sonar.lf.enableGravatar", true);
+    settings.setProperty("sonar.updatecenter.activate", false);
+    settings.setProperty("sonar.technicalDebt.hoursInDay", "10");
+    settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
+    settings.setProperty("sonar.allowUsersToSignUp", true);
+    // This setting should be ignored as it's not needed
+    settings.setProperty("sonar.defaultGroup", "sonar-users");
 
-    executeAndVerify("only_logo.json");
+    executeAndVerify("settings.json");
   }
 
   @Test
-  public void nominal_call_for_anonymous() throws Exception {
+  public void return_global_pages_for_anonymous() throws Exception {
     init(createViews(), new ResourceTypeTree[] {});
-    addNominalSettings();
 
-    executeAndVerify("anonymous.json");
+    executeAndVerify("global_pages_for_anonymous.json");
   }
 
   @Test
-  public void nominal_call_for_user() throws Exception {
+  public void return_global_pages_for_user() throws Exception {
     init(createViews(), new ResourceTypeTree[] {});
-    addNominalSettings();
-
     userSessionRule.login("obiwan");
 
-    executeAndVerify("user.json");
+    executeAndVerify("global_pages_for_user.json");
   }
 
   @Test
-  public void nominal_call_for_admin() throws Exception {
+  public void return_global_pages_for_admin() throws Exception {
     init(createViews(), new ResourceTypeTree[] {});
-    addNominalSettings();
-
     userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    executeAndVerify("admin.json");
+    executeAndVerify("global_pages_for_admin.json");
   }
 
   @Test
-  public void nominal_call_for_user_without_configured_dashboards() throws Exception {
-    init(createViews(), new ResourceTypeTree[] {});
-    addNominalSettings();
+  public void return_sonarqube_version() throws Exception {
+    init();
+    when(server.getVersion()).thenReturn("6.2");
 
-    userSessionRule.login("anakin");
+    executeAndVerify("version.json");
+  }
 
-    executeAndVerify("anonymous.json");
+  @Test
+  public void return_if_production_database_or_not() throws Exception {
+    init();
+    when(database.getDialect()).thenReturn(new MySql());
+
+    executeAndVerify("production_database.json");
+  }
+
+  @Test
+  public void test_example_response() throws Exception {
+    init(createViews(), new ResourceTypeTree[] {
+      ResourceTypeTree.builder()
+        .addType(ResourceType.builder("POL").build())
+        .addType(ResourceType.builder("LOP").build())
+        .addRelations("POL", "LOP")
+        .build(),
+      ResourceTypeTree.builder()
+        .addType(ResourceType.builder("PAL").build())
+        .addType(ResourceType.builder("LAP").build())
+        .addRelations("PAL", "LAP")
+        .build()
+    });
+    settings.setProperty("sonar.lf.gravatarServerUrl", "http://some-server.tld/logo.png");
+    settings.setProperty("sonar.lf.enableGravatar", true);
+    settings.setProperty("sonar.updatecenter.activate", false);
+    settings.setProperty("sonar.technicalDebt.hoursInDay", "10");
+    settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
+    settings.setProperty("sonar.allowUsersToSignUp", true);
+    when(server.getVersion()).thenReturn("6.2");
+    when(database.getDialect()).thenReturn(new MySql());
+
+    String result = ws.newRequest().execute().getInput();
+    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
   private void init() {
@@ -122,16 +166,12 @@ public class GlobalNavigationActionTest {
   }
 
   private void init(View[] views, ResourceTypeTree[] resourceTypeTrees) {
-    ws = new WsActionTester(new GlobalNavigationAction(new Views(userSessionRule, views), settings, new ResourceTypes(resourceTypeTrees)));
+    when(database.getDialect()).thenReturn(new H2());
+    ws = new WsActionTester(new GlobalNavigationAction(new Views(userSessionRule, views), settings, new ResourceTypes(resourceTypeTrees), server, database));
   }
 
   private void executeAndVerify(String json) {
     JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalNavigationActionTest.class.getSimpleName() + "/" + json));
-  }
-
-  private void addNominalSettings() {
-    settings.setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png");
-    settings.setProperty("sonar.lf.logoWidthPx", "123");
   }
 
   private View[] createViews() {
