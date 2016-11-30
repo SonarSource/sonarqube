@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -219,8 +218,6 @@ public class OrganizationIt {
   }
 
   @Test
-  // FIXME disabled because Root WS are removed for release of SQ 6.2
-  @Ignore
   public void create_fails_if_user_is_not_root() {
     userRule.createUser("foo", "bar");
 

@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.Host;
@@ -58,8 +57,6 @@ public class UpdateCenterTest {
   }
 
   @Test
-  // FIXME disabled because Root WS are removed for release of SQ 6.2
-  @Ignore
   public void web_service_installed_plugins_requires_root_and_returns_installed_plugins() {
     userRule.createUser("new_root", "bar");
     userRule.setRoot("new_root");
