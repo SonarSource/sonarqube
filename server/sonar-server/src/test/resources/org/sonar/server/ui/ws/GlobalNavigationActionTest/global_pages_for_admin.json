@@ -12,7 +12,5 @@
       "name": "Admin Page",
       "url": "/plugins/home/admin_page"
     }
-  ],
-  "logoUrl": "http://some-server.tld/logo.png",
-  "logoWidth": "123"
+  ]
 }
