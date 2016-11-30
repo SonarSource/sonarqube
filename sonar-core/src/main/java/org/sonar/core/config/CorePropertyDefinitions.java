@@ -292,18 +292,15 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
-        .build()
-//       FIXME remove organization property category from UI for release 6.2
-//        ,
-//
-//      // ORGANIZATIONS
-//      PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
-//        .name("Allow any authenticated user to create organizations")
-//        .defaultValue(Boolean.toString(false))
-//        .category(CATEGORY_ORGANIZATIONS)
-//        .type(PropertyType.BOOLEAN)
-//        .build()
-    ));
+        .build(),
+
+      // ORGANIZATIONS
+      PropertyDefinition.builder(ORGANIZATIONS_ANYONE_CAN_CREATE)
+        .name("Allow any authenticated user to create organizations")
+        .defaultValue(Boolean.toString(false))
+        .category(CATEGORY_ORGANIZATIONS)
+        .type(PropertyType.BOOLEAN)
+        .build()));
     return defs;
   }
 }
