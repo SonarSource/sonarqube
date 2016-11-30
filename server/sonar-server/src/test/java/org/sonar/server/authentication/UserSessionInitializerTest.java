@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -34,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -42,6 +43,7 @@ import org.sonar.server.user.UserSession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -50,6 +52,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.*;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class UserSessionInitializerTest {
 
@@ -68,12 +72,14 @@ public class UserSessionInitializerTest {
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
   private SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
   private Settings settings = new MapSettings();
 
   private UserDto user = newUserDto();
 
-  private UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator, ssoAuthenticator, userSession, mock(AuthenticationEvent.class));
+  private UserSessionInitializer underTest = new UserSessionInitializer(dbClient, settings, jwtHttpHandler, basicAuthenticator,
+    ssoAuthenticator, userSession, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
@@ -154,16 +160,18 @@ public class UserSessionInitializerTest {
   @Test
   public void return_code_401_when_invalid_token_exception() throws Exception {
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
-    doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
+    AuthenticationException authenticationException = AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build();
+    doThrow(authenticationException).when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verify(response).setStatus(401);
-    verifyZeroInteractions(userSession);
+    verify(authenticationEvent).failure(request, authenticationException);
+    verifyZeroInteractions(response, userSession);
   }
 
   @Test
   public void return_code_401_when_not_authenticated_and_with_force_authentication() throws Exception {
+    ArgumentCaptor<AuthenticationException> exceptionArgumentCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
     when(userSession.isLoggedIn()).thenReturn(false);
     when(basicAuthenticator.authenticate(request)).thenReturn(Optional.empty());
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
@@ -172,19 +180,27 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verify(response).setStatus(401);
+    verifyZeroInteractions(response);
+    verify(authenticationEvent).failure(eq(request), exceptionArgumentCaptor.capture());
     verifyZeroInteractions(userSession);
+    AuthenticationException authenticationException = exceptionArgumentCaptor.getValue();
+    assertThat(authenticationException.getSource()).isEqualTo(Source.local(Method.BASIC));
+    assertThat(authenticationException.getLogin()).isNull();
+    assertThat(authenticationException.getMessage()).isEqualTo("User must be authenticated");
+    assertThat(authenticationException.getPublicMessage()).isNull();
   }
 
   @Test
   public void return_401_and_stop_on_ws() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/issues");
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
-    doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
+    AuthenticationException authenticationException = AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build();
+    doThrow(authenticationException).when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
+    verify(authenticationEvent).failure(request, authenticationException);
     verifyZeroInteractions(userSession);
   }
 
@@ -192,7 +208,8 @@ public class UserSessionInitializerTest {
   public void return_401_and_stop_on_batch_ws() throws Exception {
     when(request.getRequestURI()).thenReturn("/batch/global");
     when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
-    doThrow(new UnauthorizedException("invalid token")).when(jwtHttpHandler).validateToken(request, response);
+    doThrow(AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build())
+      .when(jwtHttpHandler).validateToken(request, response);
 
     assertThat(underTest.initUserSession(request, response)).isFalse();
 

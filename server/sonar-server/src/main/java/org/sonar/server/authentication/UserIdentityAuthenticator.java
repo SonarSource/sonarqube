@@ -88,16 +88,18 @@ public class UserIdentityAuthenticator {
       throw AuthenticationException.newBuilder()
         .setSource(source)
         .setLogin(user.getLogin())
-        .setMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
+        .setMessage("user signup disabled for provider '" + provider.getKey() + "'")
+        .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
         .build();
     }
 
     String email = user.getEmail();
     if (email != null && dbClient.userDao().doesEmailExist(dbSession, email)) {
       throw AuthenticationException.newBuilder()
-        .setLogin(user.getLogin())
         .setSource(source)
-        .setMessage(format(
+        .setLogin(user.getLogin())
+        .setMessage(format("email '%s' is already used", email))
+        .setPublicMessage(format(
           "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
           email))
         .build();

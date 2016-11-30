@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
 
@@ -40,6 +39,8 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.web.ServletFilter.UrlPattern;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
 import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
@@ -105,24 +106,19 @@ public class UserSessionInitializer {
         response.setStatus(HTTP_UNAUTHORIZED);
         return false;
       }
-      handleAuthenticationError(e, response);
-      return false;
-    } catch (UnauthorizedException e) {
-      response.setStatus(HTTP_UNAUTHORIZED);
-      if (isWsUrl(path)) {
+      if (isNotLocalOrJwt(e.getSource())) {
+        // redirect to Unauthorized error page
+        handleAuthenticationError(e, response);
         return false;
       }
-      // WS should stop here. Rails page should continue in order to deal with redirection
+      // Rails will redirect to login page
       return true;
     }
   }
 
-  private static boolean shouldContinueFilterOnError(String path) {
-    if (isWsUrl(path)) {
-      return false;
-    }
-    // WS should stop here. Rails page should continue in order to deal with redirection
-    return true;
+  private static boolean isNotLocalOrJwt(Source source) {
+    AuthenticationEvent.Provider provider = source.getProvider();
+    return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
   private void setUserSession(HttpServletRequest request, HttpServletResponse response) {
@@ -133,7 +129,10 @@ public class UserSessionInitializer {
       request.setAttribute(ACCESS_LOG_LOGIN, session.getLogin());
     } else {
       if (settings.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY)) {
-        throw new UnauthorizedException("User must be authenticated");
+        throw AuthenticationException.newBuilder()
+          .setSource(Source.local(Method.BASIC))
+          .setMessage("User must be authenticated")
+          .build();
       }
       threadLocalSession.set(createForAnonymous(dbClient));
       request.setAttribute(ACCESS_LOG_LOGIN, "-");

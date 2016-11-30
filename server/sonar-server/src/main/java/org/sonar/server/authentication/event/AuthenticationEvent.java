@@ -134,15 +134,15 @@ public interface AuthenticationEvent {
         requireNonNull(identityProvider, "identityProvider can't be null").getName());
     }
 
-    Method getMethod() {
+    public Method getMethod() {
       return method;
     }
 
-    Provider getProvider() {
+    public Provider getProvider() {
       return provider;
     }
 
-    String getProviderName() {
+    public String getProviderName() {
       return providerName;
     }
 
