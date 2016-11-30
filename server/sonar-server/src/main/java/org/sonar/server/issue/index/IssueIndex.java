@@ -83,6 +83,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
@@ -572,7 +573,9 @@ public class IssueIndex extends BaseIndex {
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
       .filter(facetFilter)
-      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login)));
+      .subAggregation(addEffortAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms")
+        .field(fieldName)
+        .include(escapeSpecialRegexChars(login))));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)
