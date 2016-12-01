@@ -240,7 +240,7 @@ public class LogbackHelperTest {
 
   @Test
   public void apply_sets_domain_property_over_process_and_global_property_if_all_set() {
-    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES_CLIENT).build();
+    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     props.set("sonar.log.level", "DEBUG");
     props.set("sonar.log.level.web", "DEBUG");
     props.set("sonar.log.level.web.es", "TRACE");
@@ -252,7 +252,7 @@ public class LogbackHelperTest {
 
   @Test
   public void apply_sets_domain_property_over_process_property_if_both_set() {
-    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES_CLIENT).build();
+    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     props.set("sonar.log.level.web", "DEBUG");
     props.set("sonar.log.level.web.es", "TRACE");
 
@@ -263,7 +263,7 @@ public class LogbackHelperTest {
 
   @Test
   public void apply_sets_domain_property_over_global_property_if_both_set() {
-    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES_CLIENT).build();
+    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.ES).build();
     props.set("sonar.log.level", "DEBUG");
     props.set("sonar.log.level.web.es", "TRACE");
 
@@ -299,7 +299,7 @@ public class LogbackHelperTest {
     LogLevelConfig config = LogLevelConfig.newBuilder()
         .rootLevelFor(ProcessId.WEB_SERVER)
         .levelByDomain("foo", ProcessId.WEB_SERVER, LogDomain.JMX)
-        .levelByDomain("bar", ProcessId.COMPUTE_ENGINE, LogDomain.ES_CLIENT)
+        .levelByDomain("bar", ProcessId.COMPUTE_ENGINE, LogDomain.ES)
         .immutableLevel("doh", Level.ERROR)
         .immutableLevel("pif", Level.TRACE)
         .build();

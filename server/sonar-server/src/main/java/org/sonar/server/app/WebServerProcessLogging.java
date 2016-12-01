@@ -39,7 +39,7 @@ public class WebServerProcessLogging extends ServerProcessLogging {
   @Override
   protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
     logLevelConfigBuilder.levelByDomain("sql", ProcessId.WEB_SERVER, LogDomain.SQL);
-    logLevelConfigBuilder.levelByDomain("es", ProcessId.WEB_SERVER, LogDomain.ES_CLIENT);
+    logLevelConfigBuilder.levelByDomain("es", ProcessId.WEB_SERVER, LogDomain.ES);
     JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.WEB_SERVER, LogDomain.JMX));
   }
 

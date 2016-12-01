@@ -38,7 +38,7 @@ public class CeProcessLogging extends ServerProcessLogging {
   @Override
   protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
     logLevelConfigBuilder.levelByDomain("sql", ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
-    logLevelConfigBuilder.levelByDomain("es", ProcessId.COMPUTE_ENGINE, LogDomain.ES_CLIENT);
+    logLevelConfigBuilder.levelByDomain("es", ProcessId.COMPUTE_ENGINE, LogDomain.ES);
     JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.COMPUTE_ENGINE, LogDomain.JMX));
   }
 

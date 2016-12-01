@@ -21,7 +21,7 @@ package org.sonar.process.logging;
 
 public enum LogDomain {
   SQL("sql"),
-  ES_CLIENT("es"),
+  ES("es"),
   JMX("jmx");
 
   private final String key;
