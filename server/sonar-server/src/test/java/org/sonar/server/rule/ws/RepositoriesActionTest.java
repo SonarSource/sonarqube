@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RepositoriesActionTest {
 
+  private static final String EMPTY_JSON_RESPONSE = "{\"repositories\":[]}";
   private WsTester tester;
 
   @Mock
@@ -65,18 +66,36 @@ public class RepositoriesActionTest {
   }
 
   @Test
-  public void should_list_repositories() throws Exception {
+  public void list_repositories() throws Exception {
     tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
 
     newRequest().execute().assertJson(this.getClass(), "repositories.json");
     newRequest().setParam("language", "xoo").execute().assertJson(this.getClass(), "repositories_xoo.json");
     newRequest().setParam("language", "ws").execute().assertJson(this.getClass(), "repositories_ws.json");
+    newRequest().setParam("ps", "4").execute().assertJson(this.getClass(), "repositories.json");
+    newRequest().setParam("ps", "100").execute().assertJson(this.getClass(), "repositories.json");
+  }
+
+  @Test
+  public void filter_repositories_by_name() throws Exception {
+    tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
+
     newRequest().setParam("q", "common").execute().assertJson(this.getClass(), "repositories_common.json");
     newRequest().setParam("q", "squid").execute().assertJson(this.getClass(), "repositories_squid.json");
     newRequest().setParam("q", "sonar").execute().assertJson(this.getClass(), "repositories_sonar.json");
     newRequest().setParam("q", "sonar").setParam("ps", "2").execute().assertJson(this.getClass(), "repositories_limited.json");
-    newRequest().setParam("ps", "4").execute().assertJson(this.getClass(), "repositories.json");
-    newRequest().setParam("ps", "100").execute().assertJson(this.getClass(), "repositories.json");
+  }
+
+  @Test
+  public void do_not_consider_query_as_regexp_when_filtering_repositories_by_name() throws Exception {
+    tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
+
+    // invalid regexp : do not fail. Query is not a regexp.
+    newRequest().setParam("q", "[").execute().assertJson(EMPTY_JSON_RESPONSE);
+
+    // this is not the "match all" regexp
+    newRequest().setParam("q", ".*").execute().assertJson(EMPTY_JSON_RESPONSE);
+
   }
 
   protected TestRequest newRequest() {
