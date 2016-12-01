@@ -80,7 +80,7 @@ public class ListAction implements RequestHandler {
   }
 
   private Collection<Language> listMatchingLanguages(@Nullable String query, int pageSize) {
-    Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
+    Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + Pattern.quote(query) + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
     SortedMap<String, Language> languagesByName = Maps.newTreeMap();
     for (Language lang : languages.all()) {
