@@ -51,12 +51,10 @@ public class IssueChangelog {
   private static void replacedTechnicalDebtByEffort(List<FieldDiffs> changes) {
     for (FieldDiffs fieldDiffs : changes) {
       Map<String, FieldDiffs.Diff> diffs = fieldDiffs.diffs();
-      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.entrySet()) {
-        // As "technicalDebt" couldn't been updated to "effort" in db, we need to convert it here to correctly display "effort" in WS/UI
-        if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
-          diffs.put("effort", entry.getValue());
-          diffs.remove(entry.getKey());
-        }
+      if (diffs.containsKey(IssueUpdater.TECHNICAL_DEBT)) {
+        FieldDiffs.Diff value = diffs.get(IssueUpdater.TECHNICAL_DEBT);
+        diffs.remove(IssueUpdater.TECHNICAL_DEBT);
+        diffs.put("effort", value);
       }
     }
   }
