@@ -25,12 +25,12 @@ package org.sonar.core.config;
  */
 public final class WebConstants {
 
-  private WebConstants() {
-  }
-
   public static final String SONAR_LF_ENABLE_GRAVATAR = "sonar.lf.enableGravatar";
   public static final String SONAR_LF_GRAVATAR_SERVER_URL = "sonar.lf.gravatarServerUrl";
   public static final String SONAR_LF_LOGO_URL = "sonar.lf.logoUrl";
   public static final String SONAR_LF_LOGO_WIDTH_PX = "sonar.lf.logoWidthPx";
   public static final String SONAR_UPDATECENTER_ACTIVATE = "sonar.updatecenter.activate";
+
+  private WebConstants() {
+  }
 }
