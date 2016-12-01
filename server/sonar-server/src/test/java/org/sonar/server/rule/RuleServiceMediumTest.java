@@ -108,6 +108,7 @@ public class RuleServiceMediumTest {
     assertThat(service.listTags("mis[", 10)).isEmpty();
     assertThat(service.listTags("mis\\d", 10)).isEmpty();
     assertThat(service.listTags(".*", 10)).isEmpty();
+    assertThat(service.listTags("<foo>", 10)).isEmpty();
   }
 
   @Test

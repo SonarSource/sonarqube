@@ -48,7 +48,11 @@ import static java.lang.String.format;
 public class EsUtils {
 
   public static final int SCROLL_TIME_IN_MINUTES = 3;
-  private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+
+  /**
+   * See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
+   */
+  private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[#@&~<>\"{}()\\[\\].+*?^$\\\\|]");
 
   private EsUtils() {
     // only static methods
