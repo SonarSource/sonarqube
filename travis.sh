@@ -4,7 +4,7 @@ set -euo pipefail
 
 function configureTravis {
   mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v31 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v33 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -56,7 +56,7 @@ CI)
     # in Maven local repository. Phase "verify" is enough.
 
     export MAVEN_OPTS="-Xmx1G -Xms128m"
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
         -Dclirr=true \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
