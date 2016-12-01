@@ -20,18 +20,23 @@
 package org.sonar.server.app;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.process.logging.LogLevelConfig;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogLevelConfig;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
+
+  public static final String STARTUP_LOGGER_NAME = "startup";
   protected static final Set<String> JMX_RMI_LOGGER_NAMES = ImmutableSet.of(
     "javax.management.remote.timeout",
     "javax.management.remote.misc",
@@ -80,8 +85,10 @@ public abstract class ServerProcessLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
+
     configureRootLogger(props);
     helper.apply(logLevelConfig, props);
+    configureDirectToConsoleLoggers(ctx, STARTUP_LOGGER_NAME);
 
     extendConfigure();
 
@@ -105,6 +112,25 @@ public abstract class ServerProcessLogging {
 
     helper.configureGlobalFileLog(props, config, logPattern);
     helper.configureForSubprocessGobbler(props, logPattern);
+  }
+
+  /**
+   * Setup one or more specified loggers to be non additive and to print to System.out which will be caught by the Main
+   * Process and written to sonar.log.
+   */
+  private void configureDirectToConsoleLoggers(LoggerContext context, String... loggerNames) {
+    RootLoggerConfig config = newRootLoggerConfigBuilder()
+      .setProcessId(ProcessId.APP)
+      .setThreadIdFieldPattern("")
+      .build();
+    String logPattern = helper.buildLogPattern(config);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(context, "CONSOLE", logPattern);
+
+    for (String loggerName : loggerNames) {
+      Logger consoleLogger = context.getLogger(loggerName);
+      consoleLogger.setAdditive(false);
+      consoleLogger.addAppender(consoleAppender);
+    }
   }
 
 }

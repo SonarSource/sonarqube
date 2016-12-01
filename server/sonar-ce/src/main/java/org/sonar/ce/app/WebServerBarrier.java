@@ -25,6 +25,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessId;
 
+import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
+
 /**
  * Waits for the web server to be operational (started and datastores up-to-date)
  */
@@ -47,6 +49,7 @@ class WebServerBarrier implements StartupBarrier {
         return true;
       }
 
+      Loggers.get(STARTUP_LOGGER_NAME).info("Compute Engine startup is on hold. Waiting for Web Server to be operational.");
       LOG.info("Waiting for Web Server to be operational...");
       Logger logarithmicLogger = LogarithmicLogger.from(LOG).applyingCallRatio(CALL_RATIO).build();
       while (!processCommands.isOperational()) {

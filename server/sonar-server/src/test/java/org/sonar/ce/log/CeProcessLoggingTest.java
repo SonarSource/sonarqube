@@ -25,6 +25,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import java.io.File;
@@ -72,6 +73,21 @@ public class CeProcessLoggingTest {
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
     assertThat(appender).isNull();
+  }
+
+  @Test
+  public void startup_logger_prints_to_only_to_system_out() {
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger startup = ctx.getLogger("startup");
+    assertThat(startup.isAdditive()).isFalse();
+    Appender appender = startup.getAppender("CONSOLE");
+    assertThat(appender).isInstanceOf(ConsoleAppender.class);
+    ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) appender;
+    assertThat(consoleAppender.getTarget()).isEqualTo("System.out");
+    assertThat(consoleAppender.getEncoder()).isInstanceOf(PatternLayoutEncoder.class);
+    PatternLayoutEncoder patternEncoder = (PatternLayoutEncoder) consoleAppender.getEncoder();
+    assertThat(patternEncoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level app[][%logger{20}] %msg%n");
   }
 
   @Test

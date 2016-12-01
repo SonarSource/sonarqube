@@ -23,8 +23,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.version.DatabaseVersion;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +35,8 @@ public class DatabaseServerCompatibilityTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void fail_if_requires_downgrade() {
@@ -60,8 +65,13 @@ public class DatabaseServerCompatibilityTest {
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(version.getVersion()).thenReturn(DatabaseVersion.MIN_UPGRADE_VERSION);
     new DatabaseServerCompatibility(version).start();
-    // oh well... how to simply test logging ?
-    // Let's assume that this test verifies that no error is raised.
+
+    assertThat(logTester.logs()).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+      "Database must be upgraded. Please backup database and browse /setup",
+      "\n################################################################################\n" +
+        "      Database must be upgraded. Please backup database and browse /setup\n" +
+        "################################################################################");
   }
 
   @Test
