@@ -19,8 +19,8 @@
  */
 package it.user;
 
+import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.io.IOException;
 import java.util.UUID;
@@ -29,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
@@ -43,11 +44,14 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
+import pageobjects.LoginPage;
+import pageobjects.Navigation;
 import util.user.UserRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
@@ -59,26 +63,24 @@ public class LocalAuthenticationTest {
   @ClassRule
   public static UserRule userRule = UserRule.from(ORCHESTRATOR);
 
+  @Rule
+  public Navigation nav = Navigation.get(ORCHESTRATOR);
+
   private static WsClient adminWsClient;
+
   private static UserTokensService userTokensWsClient;
 
-  private static final String PROJECT_KEY = "sample";
   private static final String LOGIN = "george.orwell";
 
   @BeforeClass
   public static void setUp() {
     ORCHESTRATOR.resetData();
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml"));
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
     userTokensWsClient = adminWsClient.userTokens();
-    removeGroupPermission("anyone", "scan");
 
     userRule.createUser(LOGIN, "123456");
     addUserPermission(LOGIN, "admin");
-    addUserPermission(LOGIN, "scan");
 
     userRule.createUser("simple-user", "password");
   }
@@ -86,13 +88,34 @@ public class LocalAuthenticationTest {
   @AfterClass
   public static void deleteAndRestoreData() {
     userRule.resetUsers();
-    addGroupPermission("anyone", "scan");
   }
 
   @After
   public void resetProperties() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", null);
-    setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", null);
+    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication", "sonar.allowUsersToSignUp");
+  }
+
+  @Test
+  public void log_in_with_correct_credentials_then_log_out() {
+    nav.shouldNotBeLoggedIn();
+
+    Navigation page = nav.logIn().submitCredentials(LOGIN, "123456");
+    page.getRightBar().shouldHave(Condition.text(LOGIN));
+    nav.shouldBeLoggedIn();
+
+    nav.logOut();
+    nav.shouldNotBeLoggedIn();
+  }
+
+  @Test
+  public void log_in_with_wrong_credentials() {
+    LoginPage page = nav
+      .logIn()
+      .submitWrongCredentials(LOGIN, "wrong");
+    page.getErrorMessage().shouldHave(Condition.text("Authentication failed"));
+
+    nav.openHomepage();
+    nav.shouldNotBeLoggedIn();
   }
 
   @Test

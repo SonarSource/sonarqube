@@ -26,8 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -36,16 +38,23 @@ import static util.ItUtils.setServerProperty;
 
 public class ForceAuthenticationTest {
 
+  private static final String LOGIN = "force-authentication-user";
+
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  static WsClient wsClient;
+  @ClassRule
+  public static UserRule userRule = UserRule.from(orchestrator);
+
+  static WsClient anonymousClient;
   static WsClient adminWsClient;
 
   @BeforeClass
   public static void setUp() throws Exception {
+    userRule.resetUsers();
+    userRule.createUser(LOGIN, LOGIN);
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
-    wsClient = newWsClient(orchestrator);
+    anonymousClient = newWsClient(orchestrator);
     adminWsClient = newAdminWsClient(orchestrator);
   }
 
@@ -56,25 +65,34 @@ public class ForceAuthenticationTest {
 
   @Test
   public void batch_ws_does_not_require_authentication() throws Exception {
-    WsResponse batchIndex = wsClient.wsConnector().call(new GetRequest("/batch/index")).failIfNotSuccessful();
+    WsResponse batchIndex = anonymousClient.wsConnector().call(new GetRequest("/batch/index")).failIfNotSuccessful();
     String batchIndexContent = batchIndex.content();
 
     assertThat(batchIndexContent).isNotEmpty();
     String jar = batchIndexContent.split("\\|")[0];
 
-    assertThat(wsClient.wsConnector().call(
+    assertThat(anonymousClient.wsConnector().call(
       new GetRequest("/batch/file").setParam("name", jar)).failIfNotSuccessful().contentStream()).isNotNull();
 
     // As sonar-runner is still using deprecated /batch/key, we have to also verify it
-    assertThat(wsClient.wsConnector().call(new GetRequest("/batch/" + jar)).failIfNotSuccessful().contentStream()).isNotNull();
+    assertThat(anonymousClient.wsConnector().call(new GetRequest("/batch/" + jar)).failIfNotSuccessful().contentStream()).isNotNull();
+  }
+
+  @Test
+  public void authentication_ws_does_not_require_authentication() throws Exception {
+    assertThat(anonymousClient.wsConnector().call(new PostRequest("/api/authentication/login")
+      .setParam("login", LOGIN)
+      .setParam("password", LOGIN)).isSuccessful()).isTrue();
+
+    assertThat(adminWsClient.wsConnector().call(new PostRequest("/api/authentication/logout")).isSuccessful()).isTrue();
   }
 
   @Test
   public void other_ws_require_authentication() throws Exception {
-    assertThat(wsClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(401);
+    assertThat(anonymousClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(401);
     assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(200);
 
-    assertThat(wsClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(401);
+    assertThat(anonymousClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(401);
     assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(200);
   }
 
