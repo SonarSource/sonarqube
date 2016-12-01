@@ -39,11 +39,12 @@ public class LanguageWsTest {
 
   private static final String CONTROLLER_LANGUAGES = "api/languages";
   private static final String ACTION_LIST = "list";
+  private static final String EMPTY_JSON_RESPONSE = "{\"languages\": []}";
 
   @Mock
   private Languages languages;
 
-  WsTester tester;
+  private WsTester tester;
 
   @Before
   public void setUp() {
@@ -77,7 +78,7 @@ public class LanguageWsTest {
   }
 
   @Test
-  public void should_list_languages() throws Exception {
+  public void list_all_languages() throws Exception {
     tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST).execute().assertJson(this.getClass(), "list.json");
 
     tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST)
@@ -89,7 +90,10 @@ public class LanguageWsTest {
     tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST)
       .setParam("ps", "10")
       .execute().assertJson(this.getClass(), "list.json");
+  }
 
+  @Test
+  public void filter_languages_by_key_or_name() throws Exception {
     tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST)
       .setParam("q", "ws")
       .execute().assertJson(this.getClass(), "list_filtered_key.json");
@@ -98,8 +102,25 @@ public class LanguageWsTest {
       .execute().assertJson(this.getClass(), "list_filtered_name.json");
   }
 
+  /**
+   * Potential vulnerability : the query provided by user must
+   * not be executed as a regexp.
+   */
+  @Test
+  public void filter_escapes_the_user_query() throws Exception {
+    // invalid regexp
+    tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST)
+      .setParam("q", "[")
+      .execute().assertJson(EMPTY_JSON_RESPONSE);
+
+    // do not consider param as a regexp
+    tester.newGetRequest(CONTROLLER_LANGUAGES, ACTION_LIST)
+      .setParam("q", ".*")
+      .execute().assertJson(EMPTY_JSON_RESPONSE);
+  }
+
   static abstract class TestLanguage extends AbstractLanguage {
-    public TestLanguage(String key, String language) {
+    TestLanguage(String key, String language) {
       super(key, language);
     }
 
