@@ -25,6 +25,7 @@
 class CleanUsurperRootComponents < ActiveRecord::Migration
 
   def self.up
+    execute_java_migration('org.sonar.db.version.v564.FixProjectUuidOfDeveloperProjects')
     execute_java_migration('org.sonar.db.version.v564.CleanUsurperRootComponents')
   end
 
