@@ -20,6 +20,7 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
+import it.analysis.AuthenticationTest;
 import it.analysis.ExtensionLifecycleTest;
 import it.analysis.FavoriteTest;
 import it.analysis.IssueJsonReportTest;
@@ -47,6 +48,7 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // analysis
+  AuthenticationTest.class,
   ExtensionLifecycleTest.class,
   LinksTest.class,
   ProjectBuilderTest.class,

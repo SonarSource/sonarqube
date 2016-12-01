@@ -20,8 +20,6 @@
 package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.io.IOException;
@@ -50,7 +48,6 @@ import util.user.UserRule;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
@@ -137,35 +134,6 @@ public class LocalAuthenticationTest {
   @Ignore
   public void web_login_form_should_support_utf8_passwords() {
     // TODO selenium
-  }
-
-  @Test
-  public void run_analysis_with_token_authentication() {
-    String tokenName = "Analyze Project";
-    WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
-      .setLogin(LOGIN)
-      .setName(tokenName));
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
-    sampleProject.setProperties(
-      "sonar.login", generateWsResponse.getToken(),
-      "sonar.password", "");
-
-    BuildResult buildResult = ORCHESTRATOR.executeBuild(sampleProject);
-
-    assertThat(buildResult.isSuccess()).isTrue();
-    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
-  }
-
-  @Test
-  public void run_analysis_with_incorrect_token() {
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
-    sampleProject.setProperties(
-      "sonar.login", "unknown-token",
-      "sonar.password", "");
-
-    BuildResult buildResult = ORCHESTRATOR.executeBuildQuietly(sampleProject);
-
-    assertThat(buildResult.isSuccess()).isFalse();
   }
 
   /**

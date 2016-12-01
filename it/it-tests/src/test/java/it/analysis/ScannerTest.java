@@ -41,10 +41,6 @@ import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import org.sonarqube.ws.WsComponents.ShowWsResponse;
-import org.sonarqube.ws.client.component.ShowWsRequest;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
-
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -256,72 +252,6 @@ public class ScannerTest {
       "sonar.verbose", "true",
       "sonar.userHome", userHome.getAbsolutePath());
     assertThat(buildResult.isSuccess()).isTrue();
-  }
-
-  @Test
-  public void should_authenticate_when_needed() {
-    try {
-      orchestrator.getServer().provisionProject("sample", "xoo-sample");
-      orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
-
-      BuildResult buildResult = scanQuietly("shared/xoo-sample",
-        "sonar.login", "",
-        "sonar.password", "");
-      assertThat(buildResult.getLastStatus()).isEqualTo(1);
-      assertThat(buildResult.getLogs()).contains(
-        "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
-
-      // SONAR-4048
-      buildResult = scanQuietly("shared/xoo-sample",
-        "sonar.login", "wrong_login",
-        "sonar.password", "wrong_password");
-      assertThat(buildResult.getLastStatus()).isEqualTo(1);
-      assertThat(buildResult.getLogs()).contains(
-        "Not authorized. Please check the properties sonar.login and sonar.password.");
-
-      buildResult = scan("shared/xoo-sample",
-        "sonar.login", "admin",
-        "sonar.password", "admin");
-      assertThat(buildResult.getLastStatus()).isEqualTo(0);
-
-    } finally {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "false"));
-    }
-  }
-
-  /**
-   * SONAR-4211 Test Sonar Runner when server requires authentication
-   */
-  @Test
-  public void sonar_scanner_with_secured_server() {
-    try {
-      orchestrator.getServer().provisionProject("sample", "xoo-sample");
-      orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
-
-      BuildResult buildResult = scanQuietly("shared/xoo-sample");
-      assertThat(buildResult.getLastStatus()).isEqualTo(1);
-      assertThat(buildResult.getLogs()).contains(
-        "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
-
-      buildResult = scanQuietly("shared/xoo-sample",
-        "sonar.login", "wrong_login",
-        "sonar.password", "wrong_password");
-      assertThat(buildResult.getLastStatus()).isEqualTo(1);
-      assertThat(buildResult.getLogs()).contains(
-        "Not authorized. Please check the properties sonar.login and sonar.password.");
-
-      buildResult = scan("shared/xoo-sample",
-        "sonar.login", "admin",
-        "sonar.password", "admin");
-      assertThat(buildResult.getLastStatus()).isEqualTo(0);
-
-    } finally {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "false"));
-    }
   }
 
   /**
