@@ -17,33 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.process.logging;
 
-import org.apache.catalina.Container;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.sonar.process.logging.LogbackHelper;
+public enum LogDomain {
+  SQL("sql"),
+  ES("es"),
+  JMX("jmx");
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+  private final String key;
 
-public class ProgrammaticLogbackValveTest {
-
-  @AfterClass
-  public static void resetLogback() throws Exception {
-    new LogbackHelper().resetFromXml("/logback-test.xml");
+  LogDomain(String key) {
+    this.key = key;
   }
 
-  @Test
-  public void startInternal() throws Exception {
-    ProgrammaticLogbackValve valve = new ProgrammaticLogbackValve();
-    valve.setContainer(mock(Container.class));
-
-    valve.start();
-    assertThat(valve.isStarted()).isTrue();
-
-    valve.stop();
-    assertThat(valve.isStarted()).isFalse();
+  public String getKey() {
+    return key;
   }
-
 }

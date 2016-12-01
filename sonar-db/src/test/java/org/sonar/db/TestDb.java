@@ -41,7 +41,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 
 /**
  * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used

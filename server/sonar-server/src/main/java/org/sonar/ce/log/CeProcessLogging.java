@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.log;
 
-import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessId;
-import org.sonar.process.Props;
+import org.sonar.process.logging.LogDomain;
+import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.server.app.ServerProcessLogging;
 
 import static org.sonar.ce.log.CeLogging.MDC_CE_TASK_UUID;
-import static org.sonar.process.LogbackHelper.LogDomain;
 
 /**
  * Configure logback for the Compute Engine process. Logs are written to file "ce.log" in SQ's log directory.
@@ -37,9 +36,14 @@ public class CeProcessLogging extends ServerProcessLogging {
   }
 
   @Override
-  protected void extendConfiguration(LogbackHelper helper, Props props) {
-    helper.configureLoggerLogLevelFromDomain("sql", props, ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
-    helper.configureLoggerLogLevelFromDomain("es", props, ProcessId.COMPUTE_ENGINE, LogDomain.ES_CLIENT);
-    helper.configureLoggersLogLevelFromDomain(JMX_RMI_LOGGER_NAMES, props, ProcessId.COMPUTE_ENGINE, LogDomain.JMX);
+  protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
+    logLevelConfigBuilder.levelByDomain("sql", ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
+    logLevelConfigBuilder.levelByDomain("es", ProcessId.COMPUTE_ENGINE, LogDomain.ES);
+    JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.COMPUTE_ENGINE, LogDomain.JMX));
+  }
+
+  @Override
+  protected void extendConfigure() {
+    // nothing to do
   }
 }

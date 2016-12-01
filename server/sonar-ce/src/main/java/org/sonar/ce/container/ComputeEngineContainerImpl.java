@@ -44,6 +44,7 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
+import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.ce.user.CeUserSession;
@@ -63,7 +64,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -212,6 +213,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ThreadLocalSettings.class,
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(ApiVersion.load(System2.INSTANCE), SonarQubeSide.COMPUTE_ENGINE),
+      CeProcessLogging.class,
       UuidFactoryImpl.INSTANCE,
       ClusterImpl.class,
       LogbackHelper.class,

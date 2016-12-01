@@ -26,7 +26,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
 
 class TomcatAccessLog {

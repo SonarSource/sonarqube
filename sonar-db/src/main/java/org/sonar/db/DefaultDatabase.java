@@ -40,7 +40,7 @@ import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.NullConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledDataSource;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 
 import static java.lang.String.format;
 

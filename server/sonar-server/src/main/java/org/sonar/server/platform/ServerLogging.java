@@ -29,8 +29,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.app.ServerProcessLogging;
 
 @ServerSide
 @ComputeEngineSide
@@ -49,10 +50,9 @@ public class ServerLogging {
     this.settings = settings;
   }
 
-  public void changeLevel(LoggerLevel level) {
+  public void changeLevel(ServerProcessLogging serverProcessLogging, LoggerLevel level) {
     Level logbackLevel = Level.toLevel(level.name());
-    helper.configureRootLogLevel(logbackLevel);
-    configureHardcodedLevels(helper);
+    helper.changeRoot(serverProcessLogging.getLogLevelConfig(), logbackLevel);
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);
   }
 
@@ -60,34 +60,11 @@ public class ServerLogging {
     return Loggers.get(Logger.ROOT_LOGGER_NAME).getLevel();
   }
 
-  public static void configureHardcodedLevels(LogbackHelper helper) {
-    helper.configureLogger("rails", Level.WARN);
-    helper.configureLogger("org.apache.ibatis", Level.WARN);
-    helper.configureLogger("java.sql", Level.WARN);
-    helper.configureLogger("java.sql.ResultSet", Level.WARN);
-    helper.configureLogger("org.sonar.MEASURE_FILTER", Level.WARN);
-    helper.configureLogger("org.elasticsearch", Level.INFO);
-    helper.configureLogger("org.elasticsearch.node", Level.INFO);
-    helper.configureLogger("org.elasticsearch.http", Level.INFO);
-    helper.configureLogger("ch.qos.logback", Level.WARN);
-    helper.configureLogger("org.apache.catalina", Level.INFO);
-    helper.configureLogger("org.apache.coyote", Level.INFO);
-    helper.configureLogger("org.apache.jasper", Level.INFO);
-    helper.configureLogger("org.apache.tomcat", Level.INFO);
-  }
-
   /**
    * The directory that contains log files. May not exist.
    */
   public File getLogsDir() {
     return new File(settings.getString(ProcessProperties.PATH_LOGS));
-  }
-
-  /**
-   * The file sonar.log, may not exist.
-   */
-  public File getCurrentLogFile() {
-    return new File(getLogsDir(), "sonar.log");
   }
 
 }

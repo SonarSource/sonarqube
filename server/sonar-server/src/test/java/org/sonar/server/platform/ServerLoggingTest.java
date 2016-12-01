@@ -20,25 +20,32 @@
 package org.sonar.server.platform;
 
 import ch.qos.logback.classic.Level;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.logging.LogLevelConfig;
+import org.sonar.process.logging.LogbackHelper;
+import org.sonar.server.app.ServerProcessLogging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class ServerLoggingTest {
 
   @Rule
@@ -68,76 +75,39 @@ public class ServerLoggingTest {
   }
 
   @Test
-  public void getCurrentLogFile() throws IOException {
-    File dir = temp.newFolder();
-    File logFile = new File(dir, "sonar.log");
-    FileUtils.touch(logFile);
-    settings.setProperty(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+  @UseDataProvider("supportedSonarApiLevels")
+  public void changeLevel_calls_changeRoot_with_LogLevelConfig_and_level_converted_to_logback_class_then_log_INFO_message(LoggerLevel level) {
+    ServerProcessLogging serverProcessLogging = mock(ServerProcessLogging.class);
+    LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder().build();
+    when(serverProcessLogging.getLogLevelConfig()).thenReturn(logLevelConfig);
 
-    assertThat(underTest.getCurrentLogFile()).isEqualTo(logFile);
+    underTest.changeLevel(serverProcessLogging, level);
+
+    verify(logbackHelper).changeRoot(logLevelConfig, Level.valueOf(level.name()));
+  }
+
+  @DataProvider
+  public static Object[][] supportedSonarApiLevels() {
+    return new Object[][] {
+      {LoggerLevel.INFO},
+      {LoggerLevel.DEBUG},
+      {LoggerLevel.TRACE}
+    };
   }
 
   @Test
-  public void configureHardcodedLevels() {
-    LogbackHelper logbackHelper = mock(LogbackHelper.class);
-    ServerLogging.configureHardcodedLevels(logbackHelper);
-
-    verifyHardcodedLevels(logbackHelper);
-  }
-
-  @Test
-  public void changeLevel_throws_IAE_if_level_is_WARN() {
+  public void changeLevel_fails_with_IAE_when_level_is_ERROR() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("WARN log level is not supported (allowed levels are [");
+    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(LoggerLevel.WARN);
+    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.ERROR);
   }
 
   @Test
-  public void changeLevel_throws_IAE_if_level_is_ERROR() {
+  public void changeLevel_fails_with_IAE_when_level_is_WARN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [");
+    expectedException.expectMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
-    underTest.changeLevel(LoggerLevel.ERROR);
-  }
-
-  @Test
-  public void changeLevel_changes_root_logger_level_to_INFO() {
-    underTest.changeLevel(LoggerLevel.INFO);
-
-    verify(logbackHelper).configureRootLogLevel(Level.INFO);
-    verifyHardcodedLevels(logbackHelper);
-  }
-
-  @Test
-  public void changeLevel_changes_root_logger_level_to_DEBUG() {
-    underTest.changeLevel(LoggerLevel.DEBUG);
-
-    verify(logbackHelper).configureRootLogLevel(Level.DEBUG);
-    verifyHardcodedLevels(logbackHelper);
-  }
-
-  @Test
-  public void changeLevel_changes_root_logger_level_to_TRACE() {
-    underTest.changeLevel(LoggerLevel.TRACE);
-
-    verify(logbackHelper).configureRootLogLevel(Level.TRACE);
-    verifyHardcodedLevels(logbackHelper);
-  }
-
-  private void verifyHardcodedLevels(LogbackHelper logbackHelper) {
-    verify(logbackHelper).configureLogger("rails", Level.WARN);
-    verify(logbackHelper).configureLogger("org.apache.ibatis", Level.WARN);
-    verify(logbackHelper).configureLogger("java.sql", Level.WARN);
-    verify(logbackHelper).configureLogger("java.sql.ResultSet", Level.WARN);
-    verify(logbackHelper).configureLogger("org.sonar.MEASURE_FILTER", Level.WARN);
-    verify(logbackHelper).configureLogger("org.elasticsearch", Level.INFO);
-    verify(logbackHelper).configureLogger("org.elasticsearch.node", Level.INFO);
-    verify(logbackHelper).configureLogger("org.elasticsearch.http", Level.INFO);
-    verify(logbackHelper).configureLogger("ch.qos.logback", Level.WARN);
-    verify(logbackHelper).configureLogger("org.apache.catalina", Level.INFO);
-    verify(logbackHelper).configureLogger("org.apache.coyote", Level.INFO);
-    verify(logbackHelper).configureLogger("org.apache.jasper", Level.INFO);
-    verify(logbackHelper).configureLogger("org.apache.tomcat", Level.INFO);
+    underTest.changeLevel(mock(ServerProcessLogging.class), LoggerLevel.WARN);
   }
 }

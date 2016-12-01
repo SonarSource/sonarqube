@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.db.dialect.PostgreSql;
-import org.sonar.process.LogbackHelper;
+import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
