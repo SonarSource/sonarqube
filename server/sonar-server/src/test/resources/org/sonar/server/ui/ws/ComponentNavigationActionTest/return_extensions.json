@@ -1,0 +1,12 @@
+{
+  "extensions": [
+    {
+      "name": "First Page",
+      "url": "/plugins/resource/polop?page=first_page"
+    },
+    {
+      "name": "Second Page",
+      "url": "/second/page?id=polop"
+    }
+  ]
+}

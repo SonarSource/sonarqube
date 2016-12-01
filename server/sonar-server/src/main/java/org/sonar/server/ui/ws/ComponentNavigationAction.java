@@ -25,7 +25,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
@@ -40,8 +39,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -55,6 +52,10 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Locale.ENGLISH;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ComponentNavigationAction implements NavigationWsAction {
@@ -102,36 +103,25 @@ public class ComponentNavigationAction implements NavigationWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
-
-    DbSession session = dbClient.openSession(false);
-
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
-
-      if (!(userSession.hasComponentUuidPermission(UserRole.USER, component.projectUuid()) || userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid()))) {
+      if (!(userSession.hasComponentUuidPermission(USER, component.projectUuid()) || userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()))) {
         throw new ForbiddenException("Insufficient privileges");
       }
-
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeComponent(json, session, component, analysis.orElse(null), userSession);
-
-      if (userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid()) || userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)) {
+      if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component, userSession);
       }
-
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
-
-    } finally {
-      session.close();
     }
   }
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis, UserSession userSession) {
-
     json.prop("key", component.key())
       .prop("uuid", component.uuid())
       .prop("name", component.name())
@@ -143,7 +133,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       json.prop("version", analysis.getVersion())
         .prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
       List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language());
-      writeExtensions(json, component, pages, userSession.locale());
+      writeExtensions(json, component, pages);
     }
   }
 
@@ -157,11 +147,11 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return componentFavourites.size() == 1;
   }
 
-  private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages, Locale locale) {
+  private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages) {
     json.name("extensions").beginArray();
     for (ViewProxy<Page> page : pages) {
       if (page.isUserAuthorized(component)) {
-        writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
+        writePage(json, getPageUrl(page, component), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle()));
       }
     }
     json.endArray();
@@ -189,8 +179,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component, UserSession userSession) {
-    boolean isAdmin = userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
-    Locale locale = userSession.locale();
+    boolean isAdmin = userSession.hasComponentUuidPermission(ADMIN, component.projectUuid());
 
     json.name("configuration").beginObject();
     writeConfigPageAccess(json, isAdmin, component);
@@ -199,7 +188,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       json.name("extensions").beginArray();
       List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language());
       for (ViewProxy<Page> page : configPages) {
-        writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
+        writePage(json, getPageUrl(page, component), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle()));
       }
       json.endArray();
     }
@@ -214,8 +203,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("showQualityProfiles", isProject);
     json.prop("showQualityGates", isProject);
     json.prop("showManualMeasures", showManualMeasures);
-    // TODO delete showActionPlans when UI is updated
-    json.prop("showActionPlans", false);
     json.prop("showLinks", isAdmin && isProject);
     json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
@@ -228,7 +215,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return resourceType != null && resourceType.getBooleanProperty(resourceTypeProperty);
   }
 
-  private void writePage(JsonWriter json, String url, String name) {
+  private static void writePage(JsonWriter json, String url, String name) {
     json.beginObject()
       .prop("url", url)
       .prop("name", name)

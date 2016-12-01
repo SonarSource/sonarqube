@@ -1,10 +1,4 @@
 {
-  "key": "polop",
-  "uuid": "abcd",
-  "name": "Polop",
-  "isComparable": false,
-  "canBeFavorite": false,
-  "isFavorite": false,
   "extensions": [
     {
       "name": "First Page",
@@ -17,13 +11,6 @@
     {
       "name": "Admin Page",
       "url": "/admin/page?id=polop"
-    }
-  ],
-  "breadcrumbs": [
-    {
-      "key": "polop",
-      "name": "Polop",
-      "qualifier": "TRK"
     }
   ]
 }

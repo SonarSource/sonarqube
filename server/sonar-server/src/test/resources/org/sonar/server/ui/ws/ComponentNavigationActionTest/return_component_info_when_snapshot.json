@@ -3,7 +3,7 @@
   "uuid": "abcd",
   "name": "Polop",
   "isComparable": false,
-  "canBeFavorite": true,
+  "canBeFavorite": false,
   "isFavorite": false,
   "snapshotDate": "2015-04-22T11:44:00+0200",
   "version": "3.14",

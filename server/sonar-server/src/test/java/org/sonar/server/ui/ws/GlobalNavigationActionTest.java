@@ -38,10 +38,10 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class GlobalNavigationActionTest {
 
@@ -171,7 +171,7 @@ public class GlobalNavigationActionTest {
     when(database.getDialect()).thenReturn(new MySql());
 
     String result = ws.newRequest().execute().getInput();
-    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
+    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
   private void init() {
@@ -184,7 +184,7 @@ public class GlobalNavigationActionTest {
   }
 
   private void executeAndVerify(String json) {
-    JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalNavigationActionTest.class.getSimpleName() + "/" + json));
+    assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalNavigationActionTest.class.getSimpleName() + "/" + json));
   }
 
   private View[] createViews() {

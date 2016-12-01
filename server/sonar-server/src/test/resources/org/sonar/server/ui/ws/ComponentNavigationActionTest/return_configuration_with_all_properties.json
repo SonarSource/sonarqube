@@ -1,27 +1,13 @@
 {
-  "key": "polop",
-  "uuid": "abcd",
-  "name": "Polop",
-  "isComparable": true,
-  "canBeFavorite": true,
-  "isFavorite": false,
   "configuration": {
     "showSettings": true,
     "showQualityProfiles": true,
     "showQualityGates": true,
     "showManualMeasures": true,
-    "showActionPlans": false,
     "showLinks": true,
     "showPermissions": true,
     "showHistory": true,
     "showUpdateKey": true,
     "extensions": []
-  },
-  "breadcrumbs": [
-    {
-      "key": "polop",
-      "name": "Polop",
-      "qualifier": "TRK"
-    }
-  ]
+  }
 }

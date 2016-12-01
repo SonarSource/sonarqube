@@ -18,7 +18,6 @@
     "showQualityProfiles": true,
     "showQualityGates": true,
     "showManualMeasures": true,
-    "showActionPlans": true,
     "showLinks": true,
     "showPermissions": true,
     "showHistory": true,

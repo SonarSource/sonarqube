@@ -100,4 +100,10 @@ public class ComponentDbTester {
     }
     db.commit();
   }
+
+  public SnapshotDto insertSnapshot(SnapshotDto snapshotDto){
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    db.commit();
+    return snapshot;
+  }
 }

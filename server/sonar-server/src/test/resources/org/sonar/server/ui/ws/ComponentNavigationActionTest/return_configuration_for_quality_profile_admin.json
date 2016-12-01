@@ -1,0 +1,12 @@
+{
+  "configuration": {
+    "showSettings": false,
+    "showQualityProfiles": true,
+    "showQualityGates": true,
+    "showManualMeasures": false,
+    "showLinks": false,
+    "showPermissions": false,
+    "showHistory": false,
+    "showUpdateKey": false
+  }
+}
