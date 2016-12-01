@@ -84,7 +84,7 @@ public class RepositoriesAction implements RulesWsAction {
   }
 
   private Collection<RuleRepositoryDto> listMatchingRepositories(@Nullable String query, @Nullable String languageKey) {
-    Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
+    Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + Pattern.quote(query) + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
     return selectFromDb(languageKey).stream()
       .filter(r -> pattern.matcher(r.getKey()).matches() || pattern.matcher(r.getName()).matches())
