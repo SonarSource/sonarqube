@@ -165,7 +165,7 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
-    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    verify(authenticationEvent).loginFailure(eq(request), authenticationExceptionCaptor.capture());
     AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
     assertThat(authenticationException).hasMessage("Email john@email.com is already used");
     assertThat(authenticationException.getSource()).isEqualTo(AuthenticationEvent.Source.external(identityProvider));

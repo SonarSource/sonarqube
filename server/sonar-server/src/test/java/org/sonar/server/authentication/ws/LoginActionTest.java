@@ -129,28 +129,28 @@ public class LoginActionTest {
   public void return_unauthorized_code_when_no_login() throws Exception {
     executeRequest(null, PASSWORD);
     verify(response).setStatus(401);
-    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
+    verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_empty_login() throws Exception {
     executeRequest("", PASSWORD);
     verify(response).setStatus(401);
-    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
+    verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_no_password() throws Exception {
     executeRequest(LOGIN, null);
     verify(response).setStatus(401);
-    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
+    verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_empty_password() throws Exception {
     executeRequest(LOGIN, "");
     verify(response).setStatus(401);
-    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
+    verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
   }
 
   private void executeRequest(String login, String password) throws IOException, ServletException {

@@ -59,7 +59,7 @@ public class CredentialsAuthenticator {
     UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     if (localUser != null && localUser.isLocal()) {
       UserDto userDto = authenticateFromDb(localUser, userPassword, method);
-      authenticationEvent.login(request, userLogin, Source.local(method));
+      authenticationEvent.loginSuccess(request, userLogin, Source.local(method));
       return userDto;
     }
     Optional<UserDto> externalUser = externalAuthenticator.authenticate(userLogin, userPassword, request, method);

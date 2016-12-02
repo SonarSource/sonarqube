@@ -99,7 +99,7 @@ public class BasicAuthenticator {
   private UserDto authenticate(String login, String password, HttpServletRequest request) {
     if (isEmpty(password)) {
       UserDto userDto = authenticateFromUserToken(login);
-      authenticationEvent.login(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
+      authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.local(Method.BASIC_TOKEN));
       return userDto;
     } else {
       return credentialsAuthenticator.authenticate(login, password, request, Method.BASIC);

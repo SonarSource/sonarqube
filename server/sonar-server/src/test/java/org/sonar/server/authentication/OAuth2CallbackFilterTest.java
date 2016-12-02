@@ -90,7 +90,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertCallbackCalled(oAuth2IdentityProvider);
-    verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
+    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
   }
 
   @Test
@@ -103,7 +103,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertCallbackCalled(identityProvider);
-    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    verify(authenticationEvent).loginFailure(eq(request), authenticationExceptionCaptor.capture());
     AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
     assertThat(authenticationException).hasMessage("Plugin did not call authenticate");
     assertThat(authenticationException.getSource()).isEqualTo(Source.oauth2(identityProvider));
@@ -119,7 +119,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertCallbackCalled(oAuth2IdentityProvider);
-    verify(authenticationEvent).login(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
+    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.oauth2(oAuth2IdentityProvider));
   }
 
   @Test
@@ -158,7 +158,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
-    verify(authenticationEvent).failure(eq(request), authenticationExceptionCaptor.capture());
+    verify(authenticationEvent).loginFailure(eq(request), authenticationExceptionCaptor.capture());
     AuthenticationException authenticationException = authenticationExceptionCaptor.getValue();
     assertThat(authenticationException).hasMessage("Email john@email.com is already used");
     assertThat(authenticationException.getSource()).isEqualTo(Source.oauth2(identityProvider));

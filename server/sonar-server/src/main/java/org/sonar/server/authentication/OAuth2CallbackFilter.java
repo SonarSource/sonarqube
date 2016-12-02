@@ -77,7 +77,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
         handleError(response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
     } catch (AuthenticationException e) {
-      authenticationEvent.failure(request, e);
+      authenticationEvent.loginFailure(request, e);
       handleAuthenticationError(e, response);
     } catch (Exception e) {
       handleError(e, response, format("Fail to callback authentication with '%s'", provider.getKey()));
@@ -96,7 +96,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
         .build();
     }
     if (context.isAuthenticated()) {
-      authenticationEvent.login(httpRequest, context.getLogin(), Source.oauth2(oAuth2Provider));
+      authenticationEvent.loginSuccess(httpRequest, context.getLogin(), Source.oauth2(oAuth2Provider));
     } else {
       throw AuthenticationException.newBuilder()
         .setSource(Source.oauth2(oAuth2Provider))

@@ -109,7 +109,7 @@ public class RealmAuthenticator implements Startable {
           .build();
       }
       UserDto userDto = synchronize(userLogin, details, request, method);
-      authenticationEvent.login(request, userLogin, realmEventSource(method));
+      authenticationEvent.loginSuccess(request, userLogin, realmEventSource(method));
       return userDto;
     } catch (AuthenticationException e) {
       throw e;

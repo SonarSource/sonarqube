@@ -102,7 +102,7 @@ public class UserSessionInitializer {
       setUserSession(request, response);
       return true;
     } catch (AuthenticationException e) {
-      authenticationEvent.failure(request, e);
+      authenticationEvent.loginFailure(request, e);
       if (isWsUrl(path)) {
         response.setStatus(HTTP_UNAUTHORIZED);
         return false;

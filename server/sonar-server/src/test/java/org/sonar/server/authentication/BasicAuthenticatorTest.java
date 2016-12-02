@@ -148,7 +148,7 @@ public class BasicAuthenticatorTest {
 
     assertThat(userDto.isPresent()).isTrue();
     assertThat(userDto.get().getLogin()).isEqualTo(LOGIN);
-    verify(authenticationEvent).login(request, LOGIN, Source.local(BASIC_TOKEN));
+    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.local(BASIC_TOKEN));
   }
 
   @Test

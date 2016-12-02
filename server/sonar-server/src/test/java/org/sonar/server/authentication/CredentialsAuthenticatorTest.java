@@ -39,9 +39,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class CredentialsAuthenticatorTest {
@@ -76,7 +76,7 @@ public class CredentialsAuthenticatorTest {
 
     UserDto userDto = executeAuthenticate(BASIC);
     assertThat(userDto.getLogin()).isEqualTo(LOGIN);
-    verify(authenticationEvent).login(request, LOGIN, Source.local(BASIC));
+    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.local(BASIC));
   }
 
   @Test

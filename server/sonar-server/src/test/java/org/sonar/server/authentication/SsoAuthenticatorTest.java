@@ -123,7 +123,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
     verifyTokenIsUpdated(NOW);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -135,7 +135,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group2);
     verifyTokenIsUpdated(NOW);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -163,7 +163,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verityUserHasNoGroup(DEFAULT_LOGIN);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -179,7 +179,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verityUserHasNoGroup(DEFAULT_LOGIN);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -192,7 +192,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verityUserGroups(DEFAULT_LOGIN, group1);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -223,7 +223,7 @@ public class SsoAuthenticatorTest {
     // User is updated
     verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
     verifyTokenIsUpdated(NOW);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -238,7 +238,7 @@ public class SsoAuthenticatorTest {
     // User is updated
     verifyUserInDb(DEFAULT_LOGIN, "new name", "new email", group2);
     verifyTokenIsUpdated(NOW);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -269,7 +269,7 @@ public class SsoAuthenticatorTest {
 
     verifyUserInDb("AnotherLogin", "Another name", "Another email", group2);
     verifyTokenIsUpdated(NOW);
-    verify(authenticationEvent).login(request, "AnotherLogin", Source.sso());
+    verify(authenticationEvent).loginSuccess(request, "AnotherLogin", Source.sso());
   }
 
   @Test
@@ -285,7 +285,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -301,7 +301,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, group1, group2);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test
@@ -313,7 +313,7 @@ public class SsoAuthenticatorTest {
     underTest.authenticate(request, response);
 
     verifyUserInDb(DEFAULT_LOGIN, DEFAULT_LOGIN, null, group1, group2);
-    verify(authenticationEvent).login(request, DEFAULT_LOGIN, Source.sso());
+    verify(authenticationEvent).loginSuccess(request, DEFAULT_LOGIN, Source.sso());
   }
 
   @Test

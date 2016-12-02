@@ -34,7 +34,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   private static final int FLOOD_THRESHOLD = 128;
 
   @Override
-  public void login(HttpServletRequest request, @Nullable String login, Source source) {
+  public void loginSuccess(HttpServletRequest request, @Nullable String login, Source source) {
     requireNonNull(request, "request can't be null");
     requireNonNull(source, "source can't be null");
     if (!LOGGER.isDebugEnabled()) {
@@ -51,7 +51,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   @Override
-  public void failure(HttpServletRequest request, AuthenticationException e) {
+  public void loginFailure(HttpServletRequest request, AuthenticationException e) {
     requireNonNull(request, "request can't be null");
     requireNonNull(e, "AuthenticationException can't be null");
     if (!LOGGER.isDebugEnabled()) {

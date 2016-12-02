@@ -142,7 +142,7 @@ public class SsoAuthenticator implements Startable {
 
     UserDto userDto = doAuthenticate(headerValuesByNames, login);
     jwtHttpHandler.generateToken(userDto, ImmutableMap.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
-    authenticationEvent.login(request, userDto.getLogin(), Source.sso());
+    authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.sso());
     return Optional.of(userDto);
   }
 

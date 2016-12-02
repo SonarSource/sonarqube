@@ -82,7 +82,7 @@ public class InitFilter extends AuthenticationFilter {
         handleError(response, format("Unsupported IdentityProvider class: %s", provider.getClass()));
       }
     } catch (AuthenticationException e) {
-      authenticationEvent.failure(request, e);
+      authenticationEvent.loginFailure(request, e);
       handleAuthenticationError(e, response);
     } catch (Exception e) {
       handleError(e, response, format("Fail to initialize authentication with provider '%s'", provider.getKey()));

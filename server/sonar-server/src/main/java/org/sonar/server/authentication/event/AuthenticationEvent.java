@@ -32,9 +32,9 @@ import static java.util.Objects.requireNonNull;
 
 public interface AuthenticationEvent {
 
-  void login(HttpServletRequest request, String login, Source source);
+  void loginSuccess(HttpServletRequest request, String login, Source source);
 
-  void failure(HttpServletRequest request, AuthenticationException e);
+  void loginFailure(HttpServletRequest request, AuthenticationException e);
 
   enum Method {
     /**

@@ -89,7 +89,7 @@ public class LoginAction extends ServletFilter {
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
       // TODO add chain.doFilter when Rack filter will not be executed after this filter (or use a Servlet)
     } catch (AuthenticationException e) {
-      authenticationEvent.failure(request, e);
+      authenticationEvent.loginFailure(request, e);
       response.setStatus(HTTP_UNAUTHORIZED);
     } catch (UnauthorizedException e) {
       response.setStatus(e.httpCode());

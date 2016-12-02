@@ -52,7 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.*;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class UserSessionInitializerTest {
@@ -166,7 +166,7 @@ public class UserSessionInitializerTest {
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
-    verify(authenticationEvent).failure(request, authenticationException);
+    verify(authenticationEvent).loginFailure(request, authenticationException);
     verifyZeroInteractions(response, userSession);
   }
 
@@ -182,7 +182,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isTrue();
 
     verifyZeroInteractions(response);
-    verify(authenticationEvent).failure(eq(request), exceptionArgumentCaptor.capture());
+    verify(authenticationEvent).loginFailure(eq(request), exceptionArgumentCaptor.capture());
     verifyZeroInteractions(userSession);
     AuthenticationException authenticationException = exceptionArgumentCaptor.getValue();
     assertThat(authenticationException.getSource()).isEqualTo(Source.local(Method.BASIC));
@@ -201,7 +201,7 @@ public class UserSessionInitializerTest {
     assertThat(underTest.initUserSession(request, response)).isFalse();
 
     verify(response).setStatus(401);
-    verify(authenticationEvent).failure(request, authenticationException);
+    verify(authenticationEvent).loginFailure(request, authenticationException);
     verifyZeroInteractions(userSession);
   }
 
