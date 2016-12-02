@@ -36,6 +36,10 @@ public interface AuthenticationEvent {
 
   void loginFailure(HttpServletRequest request, AuthenticationException e);
 
+  void logoutSuccess(HttpServletRequest request, @Nullable String login);
+
+  void logoutFailure(HttpServletRequest request, String errorMessage);
+
   enum Method {
     /**
      * HTTP basic authentication with a login and password.

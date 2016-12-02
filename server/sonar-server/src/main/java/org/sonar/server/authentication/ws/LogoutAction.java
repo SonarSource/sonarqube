@@ -21,6 +21,7 @@
 package org.sonar.server.authentication.ws;
 
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -30,8 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class LogoutAction extends ServletFilter {
@@ -39,9 +43,11 @@ public class LogoutAction extends ServletFilter {
   public static final String AUTH_LOGOUT_URL = "/api/authentication/logout";
 
   private final JwtHttpHandler jwtHttpHandler;
+  private final AuthenticationEvent authenticationEvent;
 
-  public LogoutAction(JwtHttpHandler jwtHttpHandler) {
+  public LogoutAction(JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.jwtHttpHandler = jwtHttpHandler;
+    this.authenticationEvent = authenticationEvent;
   }
 
   @Override
@@ -58,7 +64,23 @@ public class LogoutAction extends ServletFilter {
       response.setStatus(HTTP_BAD_REQUEST);
       return;
     }
-    jwtHttpHandler.removeToken(request, response);
+    logout(request, response);
+  }
+
+  private void logout(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      generateAuthenticationEvent(request, response);
+      jwtHttpHandler.removeToken(request, response);
+    } catch (AuthenticationException e) {
+      response.setStatus(HTTP_UNAUTHORIZED);
+      authenticationEvent.logoutFailure(request, e.getMessage());
+    }
+  }
+
+  private void generateAuthenticationEvent(HttpServletRequest request, HttpServletResponse response) {
+    Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
+    String userLogin = token.isPresent() ? token.get().getUserDto().getLogin() : null;
+    authenticationEvent.logoutSuccess(request, userLogin);
   }
 
   @Override

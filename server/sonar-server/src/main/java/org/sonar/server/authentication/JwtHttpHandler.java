@@ -196,7 +196,7 @@ public class JwtHttpHandler {
     private final UserDto userDto;
     private final Map<String, Object> properties;
 
-    Token(UserDto userDto, Map<String, Object> properties) {
+    public Token(UserDto userDto, Map<String, Object> properties) {
       this.userDto = userDto;
       this.properties = properties;
     }

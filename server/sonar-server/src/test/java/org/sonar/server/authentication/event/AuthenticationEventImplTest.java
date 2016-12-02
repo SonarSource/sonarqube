@@ -238,6 +238,120 @@ public class AuthenticationEventImplTest {
     verifyLog("login failure [cause|Boom!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
   }
 
+  @Test
+  public void logout_success_fails_with_NPE_if_request_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("request can't be null");
+
+    underTest.logoutSuccess(null, "foo");
+  }
+
+  @Test
+  public void logout_success_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    logTester.setLevel(LoggerLevel.INFO);
+
+    underTest.logoutSuccess(request, "foo");
+
+    verifyZeroInteractions(request);
+  }
+
+  @Test
+  public void logout_success_creates_DEBUG_log_with_empty_login_if_login_argument_is_null() {
+    underTest.logoutSuccess(mockRequest(), null);
+
+    verifyLog("logout success [IP||][login|]");
+  }
+
+  @Test
+  public void logout_success_creates_DEBUG_log_with_login() {
+    underTest.logoutSuccess(mockRequest(), "foo");
+
+    verifyLog("logout success [IP||][login|foo]");
+  }
+
+  @Test
+  public void logout_success_logs_remote_ip_from_request() {
+    underTest.logoutSuccess(mockRequest("1.2.3.4"), "foo");
+
+    verifyLog("logout success [IP|1.2.3.4|][login|foo]");
+  }
+
+  @Test
+  public void logout_success_logs_X_Forwarded_For_header_from_request() {
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    underTest.logoutSuccess(request, "foo");
+
+    verifyLog("logout success [IP|1.2.3.4|2.3.4.5][login|foo]");
+  }
+
+  @Test
+  public void logout_success_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    underTest.logoutSuccess(request, "foo");
+
+    verifyLog("logout success [IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
+  }
+
+  @Test
+  public void logout_failure_with_NPE_if_request_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("request can't be null");
+
+    underTest.logoutFailure(null, "bad csrf");
+  }
+
+  @Test
+  public void login_fails_with_NPE_if_error_message_is_null() {
+    logTester.setLevel(LoggerLevel.INFO);
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("error message can't be null");
+
+    underTest.logoutFailure(mock(HttpServletRequest.class), null);
+  }
+
+  @Test
+  public void logout_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    logTester.setLevel(LoggerLevel.INFO);
+
+    underTest.logoutFailure(request, "bad csrf");
+
+    verifyZeroInteractions(request);
+  }
+
+  @Test
+  public void logout_creates_DEBUG_log_with_error() {
+    underTest.logoutFailure(mockRequest(), "bad token");
+
+    verifyLog("logout failure [error|bad token][IP||]");
+  }
+
+  @Test
+  public void logout_logs_remote_ip_from_request() {
+    underTest.logoutFailure(mockRequest("1.2.3.4"), "bad token");
+
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|]");
+  }
+
+  @Test
+  public void logout_logs_X_Forwarded_For_header_from_request() {
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    underTest.logoutFailure(request, "bad token");
+
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5]");
+  }
+
+  @Test
+  public void logout_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
+    HttpServletRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    underTest.logoutFailure(request, "bad token");
+
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4]");
+  }
+
   private void verifyLog(String expected) {
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))

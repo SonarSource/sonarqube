@@ -35,7 +35,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
 
   @Override
   public void loginSuccess(HttpServletRequest request, @Nullable String login, Source source) {
-    requireNonNull(request, "request can't be null");
+    checkRequest(request);
     requireNonNull(source, "source can't be null");
     if (!LOGGER.isDebugEnabled()) {
       return;
@@ -52,7 +52,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
 
   @Override
   public void loginFailure(HttpServletRequest request, AuthenticationException e) {
-    requireNonNull(request, "request can't be null");
+    checkRequest(request);
     requireNonNull(e, "AuthenticationException can't be null");
     if (!LOGGER.isDebugEnabled()) {
       return;
@@ -63,6 +63,33 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
       preventLogFlood(emptyIfNull(e.getLogin())));
+  }
+
+  @Override
+  public void logoutSuccess(HttpServletRequest request, @Nullable String login) {
+    checkRequest(request);
+    if (!LOGGER.isDebugEnabled()) {
+      return;
+    }
+    LOGGER.debug("logout success [IP|{}|{}][login|{}]",
+      request.getRemoteAddr(), getAllIps(request),
+      preventLogFlood(emptyIfNull(login)));
+  }
+
+  @Override
+  public void logoutFailure(HttpServletRequest request, String errorMessage) {
+    checkRequest(request);
+    requireNonNull(errorMessage, "error message can't be null");
+    if (!LOGGER.isDebugEnabled()) {
+      return;
+    }
+    LOGGER.debug("logout failure [error|{}][IP|{}|{}]",
+      emptyIfNull(errorMessage),
+      request.getRemoteAddr(), getAllIps(request));
+  }
+
+  private static void checkRequest(HttpServletRequest request) {
+    requireNonNull(request, "request can't be null");
   }
 
   private static String emptyIfNull(@Nullable String login) {
