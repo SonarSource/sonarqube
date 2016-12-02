@@ -20,7 +20,6 @@
 package org.sonar.server.authentication;
 
 import java.io.IOException;
-import javax.annotation.CheckForNull;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -33,32 +32,27 @@ import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
-import org.sonar.api.web.ServletFilter;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
-public class InitFilter extends ServletFilter {
+public class InitFilter extends AuthenticationFilter {
 
   private static final String INIT_CONTEXT = "/sessions/init/";
 
-  private final IdentityProviderRepository identityProviderRepository;
   private final BaseContextFactory baseContextFactory;
   private final OAuth2ContextFactory oAuth2ContextFactory;
-  private final Server server;
   private final AuthenticationEvent authenticationEvent;
 
   public InitFilter(IdentityProviderRepository identityProviderRepository, BaseContextFactory baseContextFactory,
     OAuth2ContextFactory oAuth2ContextFactory, Server server, AuthenticationEvent authenticationEvent) {
-    this.identityProviderRepository = identityProviderRepository;
+    super(server, identityProviderRepository);
     this.baseContextFactory = baseContextFactory;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
-    this.server = server;
     this.authenticationEvent = authenticationEvent;
   }
 
@@ -72,37 +66,10 @@ public class InitFilter extends ServletFilter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse);
+    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse, INIT_CONTEXT);
     if (provider != null) {
       handleProvider(httpRequest, httpResponse, provider);
     }
-  }
-
-  @CheckForNull
-  private IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response) {
-    String requestURI = request.getRequestURI();
-    String providerKey = extractKeyProvider(requestURI, server.getContextPath() + INIT_CONTEXT);
-    if (providerKey == null) {
-      handleError(response, "No provider key found in URI");
-      return null;
-    }
-    try {
-      return identityProviderRepository.getEnabledByKey(providerKey);
-    } catch (Exception e) {
-      handleError(e, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
-      return null;
-    }
-  }
-
-  @CheckForNull
-  private static String extractKeyProvider(String requestUri, String context) {
-    if (requestUri.contains(context)) {
-      String key = requestUri.replace(context, "");
-      if (!isNullOrEmpty(key)) {
-        return key;
-      }
-    }
-    return null;
   }
 
   private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {

@@ -33,30 +33,23 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.web.ServletFilter;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
-public class OAuth2CallbackFilter extends ServletFilter {
+public class OAuth2CallbackFilter extends AuthenticationFilter {
 
-  public static final String CALLBACK_PATH = "/oauth2/callback/";
-
-  private final IdentityProviderRepository identityProviderRepository;
   private final OAuth2ContextFactory oAuth2ContextFactory;
-  private final Server server;
   private final AuthenticationEvent authenticationEvent;
 
   public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory,
     Server server, AuthenticationEvent authenticationEvent) {
-    this.identityProviderRepository = identityProviderRepository;
+    super(server, identityProviderRepository);
     this.oAuth2ContextFactory = oAuth2ContextFactory;
-    this.server = server;
     this.authenticationEvent = authenticationEvent;
   }
 
@@ -70,37 +63,10 @@ public class OAuth2CallbackFilter extends ServletFilter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse);
+    IdentityProvider provider = resolveProviderOrHandleResponse(httpRequest, httpResponse, CALLBACK_PATH);
     if (provider != null) {
       handleProvider(httpRequest, (HttpServletResponse) response, provider);
     }
-  }
-
-  @CheckForNull
-  private IdentityProvider resolveProviderOrHandleResponse(HttpServletRequest request, HttpServletResponse response) {
-    String requestUri = request.getRequestURI();
-    String providerKey = extractKeyProvider(requestUri, server.getContextPath() + CALLBACK_PATH);
-    if (providerKey == null) {
-      handleError(response, "No provider key found in URI");
-      return null;
-    }
-    try {
-      return identityProviderRepository.getEnabledByKey(providerKey);
-    } catch (Exception e) {
-      handleError(e, response, format("Failed to retrieve IdentityProvider for key '%s'", providerKey));
-      return null;
-    }
-  }
-
-  @CheckForNull
-  private static String extractKeyProvider(String requestUri, String context) {
-    if (requestUri.contains(context)) {
-      String key = requestUri.replace(context, "");
-      if (!isNullOrEmpty(key)) {
-        return key;
-      }
-    }
-    return null;
   }
 
   private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {

@@ -48,10 +48,9 @@ public class OAuthCsrfVerifier {
 
   public void verifyState(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider provider) {
     Cookie cookie = findCookie(CSRF_STATE_COOKIE, request)
-      .orElseThrow(() -> AuthenticationException.newBuilder()
+      .orElseThrow(AuthenticationException.newBuilder()
         .setSource(Source.oauth2(provider))
-        .setMessage(format("Cookie '%s' is missing", CSRF_STATE_COOKIE))
-        .build());
+        .setMessage(format("Cookie '%s' is missing", CSRF_STATE_COOKIE))::build);
     String hashInCookie = cookie.getValue();
 
     // remove cookie
