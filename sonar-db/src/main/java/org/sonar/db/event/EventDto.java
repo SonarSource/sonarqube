@@ -29,6 +29,7 @@ public class EventDto {
   public static final String CATEGORY_PROFILE = "Profile";
 
   private Long id;
+  private String uuid;
   private String analysisUuid;
   private String componentUuid;
   private String name;
@@ -44,6 +45,15 @@ public class EventDto {
 
   public EventDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public EventDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

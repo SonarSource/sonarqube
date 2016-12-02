@@ -1,6 +1,7 @@
 <dataset>
 
   <events id="1"
+          uuid="E1"
           name="1.0"
           category="Version"
           description="Version 1.0"
@@ -10,6 +11,7 @@
           analysis_uuid="uuid_1"
           created_at="1225630680000"/>
   <events id="2"
+          uuid="E2"
           name="Red (was Orange)"
           category="Alert"
           description="Critical issues variation > 0 since previous version (1.0 - 2015 Feb 09), Open issues > 0"
@@ -19,6 +21,7 @@
           analysis_uuid="uuid_1"
           created_at="1225630680000"/>
   <events id="3"
+          uuid="E3"
           name="Changes in 'Default' (Java)"
           category="Profile"
           description="Version 1.0"
@@ -28,6 +31,7 @@
           analysis_uuid="uuid_1"
           created_at="1225630680000"/>
   <events id="4"
+          uuid="E4"
           name="1.0"
           category="Version"
           description="Version 1.0"

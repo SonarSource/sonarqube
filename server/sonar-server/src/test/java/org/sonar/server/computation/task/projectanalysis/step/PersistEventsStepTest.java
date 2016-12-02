@@ -28,9 +28,9 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.event.Event;
 import org.sonar.server.computation.task.projectanalysis.event.EventRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -74,20 +74,21 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   private Date someDate = new Date(150000000L);
 
-  EventRepository eventRepository = mock(EventRepository.class);
-  PersistEventsStep step;
+  private EventRepository eventRepository = mock(EventRepository.class);
+
+  private PersistEventsStep underTest;
 
   @Before
   public void setup() {
     when(system2.now()).thenReturn(1225630680000L);
     analysisMetadataHolder.setAnalysisDate(someDate.getTime()).setUuid(ANALYSIS_UUID);
-    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository);
+    underTest = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 
   @Override
   protected ComputationStep step() {
-    return step;
+    return underTest;
   }
 
   @Test
@@ -96,9 +97,9 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ROOT);
 
-    step.execute();
+    underTest.execute();
 
-    dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", "events");
+    dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", new String[] {"uuid"}, "events");
   }
 
   @Test
@@ -110,9 +111,9 @@ public class PersistEventsStepTest extends BaseStepTest {
     when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
 
     treeRootHolder.setRoot(ROOT);
-    step.execute();
+    underTest.execute();
 
-    dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
+    dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", new String[] {"uuid"}, "events");
   }
 
   @Test
@@ -137,9 +138,9 @@ public class PersistEventsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    step.execute();
+    underTest.execute();
 
-    dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", "events");
+    dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", new String[] {"uuid"}, "events");
   }
 
   @Test
@@ -164,9 +165,9 @@ public class PersistEventsStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    step.execute();
+    underTest.execute();
 
-    dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", "events");
+    dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", new String[] {"uuid"}, "events");
   }
 
 }

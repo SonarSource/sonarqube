@@ -1,6 +1,7 @@
 <dataset>
 
   <events id="1"
+          uuid="E1"
           analysis_uuid="uuid_1"
           component_uuid="ABCD"
           name="1.0"
@@ -10,6 +11,7 @@
           event_date="1413407091086"
           created_at="1225630680000"/>
   <events id="2"
+          uuid="E2"
           analysis_uuid="uuid_1"
           component_uuid="ABCD"
           name="Red (was Orange)"
@@ -19,6 +21,7 @@
           event_date="1413407091086"
           created_at="1225630680000"/>
   <events id="3"
+          uuid="E3"
           analysis_uuid="uuid_1"
           component_uuid="ABCD"
           name="Changes in 'Default' (Java)"
@@ -29,6 +32,7 @@
           created_at="1225630680000"/>
 
   <events id="4"
+          uuid="E4"
           analysis_uuid="uuid_1"
           component_uuid="BCDE"
           name="1.0"

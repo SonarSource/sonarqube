@@ -57,6 +57,7 @@ Note that measures, events and reviews are not deleted.
                     measure_data="[null]"/>
 
   <events id="1"
+          uuid="E1"
           analysis_uuid="u1"
           component_uuid="1"
           category="VERSION"
@@ -116,6 +117,7 @@ Note that measures, events and reviews are not deleted.
                     measure_data="[null]"/>
 
   <events id="2"
+          uuid="E2"
           analysis_uuid="u2"
           component_uuid="2"
           category="VERSION"
