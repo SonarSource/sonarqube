@@ -37,10 +37,13 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.CredentialsAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -68,10 +71,11 @@ public class LoginActionTest {
 
   private CredentialsAuthenticator credentialsAuthenticator = mock(CredentialsAuthenticator.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
+  private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
   private UserDto user = UserTesting.newUserDto().setLogin(LOGIN);
 
-  private LoginAction underTest  = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession, mock(AuthenticationEvent.class));
+  private LoginAction underTest = new LoginAction(dbClient, credentialsAuthenticator, jwtHttpHandler, threadLocalUserSession, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {
@@ -97,6 +101,7 @@ public class LoginActionTest {
     verify(credentialsAuthenticator).authenticate(LOGIN, PASSWORD, request, FORM);
     verify(jwtHttpHandler).generateToken(user, request, response);
     verifyZeroInteractions(chain);
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -106,6 +111,7 @@ public class LoginActionTest {
     underTest.doFilter(request, response, chain);
 
     verifyZeroInteractions(credentialsAuthenticator, jwtHttpHandler, chain);
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -116,30 +122,35 @@ public class LoginActionTest {
 
     verify(response).setStatus(401);
     assertThat(threadLocalUserSession.hasSession()).isFalse();
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void return_unauthorized_code_when_no_login() throws Exception {
     executeRequest(null, PASSWORD);
     verify(response).setStatus(401);
+    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_empty_login() throws Exception {
     executeRequest("", PASSWORD);
     verify(response).setStatus(401);
+    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_no_password() throws Exception {
     executeRequest(LOGIN, null);
     verify(response).setStatus(401);
+    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
   }
 
   @Test
   public void return_unauthorized_code_when_empty_password() throws Exception {
     executeRequest(LOGIN, "");
     verify(response).setStatus(401);
+    verify(authenticationEvent).failure(eq(request), any(AuthenticationException.class));
   }
 
   private void executeRequest(String login, String password) throws IOException, ServletException {
