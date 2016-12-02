@@ -29,18 +29,22 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.ws.ServletFilterHandler;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
-public class LogoutAction extends ServletFilter {
+public class LogoutAction extends ServletFilter implements AuthenticationWsAction {
 
-  public static final String AUTH_LOGOUT_URL = "/api/authentication/logout";
+  private static final String LOGOUT_ACTION = "logout";
+  public static final String LOGOUT_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGOUT_ACTION;
 
   private final JwtHttpHandler jwtHttpHandler;
   private final AuthenticationEvent authenticationEvent;
@@ -51,8 +55,17 @@ public class LogoutAction extends ServletFilter {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    controller.createAction(LOGOUT_ACTION)
+      .setDescription("Logout a user.")
+      .setSince("6.3")
+      .setPost(true)
+      .setHandler(ServletFilterHandler.INSTANCE);
+  }
+
+  @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(AUTH_LOGOUT_URL);
+    return UrlPattern.create(LOGOUT_URL);
   }
 
   @Override

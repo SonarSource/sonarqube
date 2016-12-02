@@ -20,6 +20,7 @@
 
 package org.sonar.server.authentication.ws;
 
+import com.google.common.io.Resources;
 import java.io.IOException;
 import java.util.Optional;
 import javax.servlet.FilterChain;
@@ -30,19 +31,23 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.BasicAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.ws.ServletFilterHandler;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
+import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 
-public class ValidateAction extends ServletFilter {
+public class ValidateAction extends ServletFilter implements AuthenticationWsAction {
 
-  public static final String AUTH_VALIDATE_URL = "/api/authentication/validate";
+  private static final String VALIDATE_ACTION = "validate";
+  public static final String VALIDATE_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + VALIDATE_ACTION;
 
   private final Settings settings;
   private final JwtHttpHandler jwtHttpHandler;
@@ -55,8 +60,17 @@ public class ValidateAction extends ServletFilter {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    controller.createAction("validate")
+      .setDescription("Check credentials.")
+      .setSince("3.3")
+      .setHandler(ServletFilterHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-validate.json"));
+  }
+
+  @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(AUTH_VALIDATE_URL);
+    return UrlPattern.create(VALIDATE_URL);
   }
 
   @Override

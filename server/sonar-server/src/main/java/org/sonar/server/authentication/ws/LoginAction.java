@@ -29,6 +29,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
@@ -39,17 +40,20 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.ws.ServletFilterHandler;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
-public class LoginAction extends ServletFilter {
+public class LoginAction extends ServletFilter implements AuthenticationWsAction {
 
-  public static final String AUTH_LOGIN_URL = "/api/authentication/login";
+  private static final String LOGIN_ACTION = "login";
+  public static final String LOGIN_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + LOGIN_ACTION;
 
   private final DbClient dbClient;
   private final CredentialsAuthenticator credentialsAuthenticator;
@@ -67,8 +71,23 @@ public class LoginAction extends ServletFilter {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller.createAction(LOGIN_ACTION)
+      .setDescription("Authenticate a user.")
+      .setSince("6.0")
+      .setPost(true)
+      .setHandler(ServletFilterHandler.INSTANCE);
+    action.createParam("login")
+      .setDescription("Login of the user")
+      .setRequired(true);
+    action.createParam("password")
+      .setDescription("Password of the user")
+      .setRequired(true);
+  }
+
+  @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(AUTH_LOGIN_URL);
+    return UrlPattern.create(LOGIN_URL);
   }
 
   @Override

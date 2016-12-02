@@ -19,23 +19,11 @@
  */
 package org.sonar.server.authentication.ws;
 
-import java.util.List;
 import org.sonar.api.server.ws.WebService;
 
-public class AuthenticationWs implements WebService {
+@FunctionalInterface
+public interface AuthenticationWsAction {
+  // marker interface
 
-  public static final String AUTHENTICATION_CONTROLLER = "api/authentication";
-  private final List<AuthenticationWsAction> actions;
-
-  public AuthenticationWs(List<AuthenticationWsAction> actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(AUTHENTICATION_CONTROLLER);
-    controller.setDescription("Handle authentication.");
-    actions.forEach(action -> action.define(controller));
-    controller.done();
-  }
+  void define(WebService.NewController controller);
 }
