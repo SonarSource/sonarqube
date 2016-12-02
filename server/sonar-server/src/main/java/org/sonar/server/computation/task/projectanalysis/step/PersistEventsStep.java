@@ -23,6 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -44,14 +45,16 @@ public class PersistEventsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
+  private final UuidFactory uuidFactory;
 
   public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    EventRepository eventRepository) {
+    EventRepository eventRepository, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.eventRepository = eventRepository;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -120,6 +123,7 @@ public class PersistEventsStep implements ComputationStep {
 
     private EventDto newBaseEvent(Component component, Long analysisDate) {
       return new EventDto()
+        .setUuid(uuidFactory.create())
         .setAnalysisUuid(analysisMetadataHolder.getUuid())
         .setComponentUuid(component.getUuid())
         .setCreatedAt(system2.now())

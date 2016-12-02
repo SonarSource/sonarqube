@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -75,6 +77,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   private Date someDate = new Date(150000000L);
 
   private EventRepository eventRepository = mock(EventRepository.class);
+  private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
 
   private PersistEventsStep underTest;
 
@@ -82,7 +85,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void setup() {
     when(system2.now()).thenReturn(1225630680000L);
     analysisMetadataHolder.setAnalysisDate(someDate.getTime()).setUuid(ANALYSIS_UUID);
-    underTest = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository);
+    underTest = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository, uuidFactory);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 

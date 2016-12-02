@@ -183,6 +183,7 @@ import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
 import org.sonar.db.version.v62.UpdateQualityGateConditionsOnCoverage;
 import org.sonar.db.version.v63.AddUuidToEvents;
+import org.sonar.db.version.v63.PopulateUuidColumnOfEvents;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -388,6 +389,7 @@ public class MigrationStepModule extends Module {
       CreateTableWebhookDeliveries.class,
 
       // 6.3
-      AddUuidToEvents.class);
+      AddUuidToEvents.class,
+      PopulateUuidColumnOfEvents.class);
   }
 }

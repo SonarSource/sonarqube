@@ -28,11 +28,11 @@ import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
-public class PopulateUuidColumnOnEvents extends BaseDataChange {
+public class PopulateUuidColumnOfEvents extends BaseDataChange {
 
   private final UuidFactory uuidFactory;
 
-  public PopulateUuidColumnOnEvents(Database db, UuidFactory uuidFactory) {
+  public PopulateUuidColumnOfEvents(Database db, UuidFactory uuidFactory) {
     super(db);
     this.uuidFactory = uuidFactory;
   }
