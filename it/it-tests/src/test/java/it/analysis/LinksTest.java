@@ -19,19 +19,19 @@
  */
 package it.analysis;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.db.Database;
 import it.Category3Suite;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.WsProjectLinks;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.projectlinks.SearchWsRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,19 +41,11 @@ public class LinksTest {
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
 
-  private static String[] expectedLinks = new String[] {
-    "homepage=http://www.simplesample.org_OVERRIDDEN",
-    "ci=http://bamboo.ci.codehaus.org/browse/SIMPLESAMPLE",
-    "issue=http://jira.codehaus.org/browse/SIMPLESAMPLE",
-    "scm=https://github.com/SonarSource/simplesample",
-    "scm_dev=scm:git:git@github.com:SonarSource/simplesample.git"
-  };
+  private static final String PROJECT_KEY = "com.sonarsource.it.samples:simple-sample";
 
-  @Before
   @After
   public void cleanProjectLinksTable() {
-    // TODO should not do this and find another way without using direct db connection
-    orchestrator.getDatabase().truncate("project_links");
+    orchestrator.getServer().post("api/projects/delete", ImmutableMap.of("key", PROJECT_KEY));
   }
 
   /**
@@ -65,7 +57,7 @@ public class LinksTest {
       .setProperty("sonar.scm.disabled", "true");
     orchestrator.executeBuild(runner);
 
-    checkLinks();
+    verifyLinks();
   }
 
   /**
@@ -78,19 +70,24 @@ public class LinksTest {
       .setProperty("sonar.scm.disabled", "true");
     orchestrator.executeBuild(build);
 
-    checkLinks();
+    verifyLinks();
   }
 
-  private void checkLinks() {
-    Database db = orchestrator.getDatabase();
-    List<Map<String, String>> links = db.executeSql("select * from project_links");
-
-    assertThat(links.size()).isEqualTo(5);
-    Collection<String> linksToCheck = Lists.newArrayList();
-    for (Map<String, String> linkRow : links) {
-      linksToCheck.add(linkRow.get("LINK_TYPE") + "=" + linkRow.get("HREF"));
-    }
-    assertThat(linksToCheck).contains(expectedLinks);
+  private void verifyLinks() {
+    WsClient wsClient = ItUtils.newWsClient(orchestrator);
+    List<WsProjectLinks.Link> links = wsClient.projectLinks().search(new SearchWsRequest().setProjectKey(PROJECT_KEY)).getLinksList();
+    verifyLink(links, "homepage", "http://www.simplesample.org_OVERRIDDEN");
+    verifyLink(links, "ci", "http://bamboo.ci.codehaus.org/browse/SIMPLESAMPLE");
+    verifyLink(links, "issue", "http://jira.codehaus.org/browse/SIMPLESAMPLE");
+    verifyLink(links, "scm", "https://github.com/SonarSource/simplesample");
+    verifyLink(links, "scm_dev", "scm:git:git@github.com:SonarSource/simplesample.git");
   }
 
+  private void verifyLink(List<WsProjectLinks.Link> links, String expectedType, String expectedUrl) {
+    Optional<WsProjectLinks.Link> link = links.stream()
+      .filter(l -> l.getType().equals(expectedType))
+      .findFirst();
+    assertThat(link).isPresent();
+    assertThat(link.get().getUrl()).isEqualTo(expectedUrl);
+  }
 }
