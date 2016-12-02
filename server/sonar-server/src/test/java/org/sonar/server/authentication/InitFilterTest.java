@@ -154,7 +154,6 @@ public class InitFilterTest {
 
     assertError("Unsupported IdentityProvider class: class org.sonar.server.authentication.InitFilterTest$UnsupportedIdentityProvider");
     verifyZeroInteractions(authenticationEvent);
-
   }
 
   @Test
