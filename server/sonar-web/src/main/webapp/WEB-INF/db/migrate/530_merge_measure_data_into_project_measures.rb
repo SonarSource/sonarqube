@@ -34,7 +34,6 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
       ActiveRecord::Base.connection.commit_db_transaction
     end
     ProjectMeasure.reset_column_information
-    drop_table(:measure_data)
   end
 
 end

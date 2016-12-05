@@ -40,7 +40,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
       create_id_trigger('issues')
       create_id_trigger('loaded_templates')
       create_id_trigger('manual_measures')
-      create_id_trigger('measure_data')
       create_id_trigger('measure_filter_favourites')
       create_id_trigger('measure_filters')
       create_id_trigger('metrics')

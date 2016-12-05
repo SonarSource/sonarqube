@@ -22,7 +22,6 @@ class IncreaseMeasureIdSize < ActiveRecord::Migration
 
   def self.up
     alter_to_big_primary_key('project_measures')
-    alter_to_big_integer('measure_data', 'measure_id', 'measure_data_measure_id')
   end
 
 end
