@@ -25,7 +25,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
 
   def self.up
     if dialect()=='oracle'
-      create_id_trigger('action_plans')
       create_id_trigger('active_dashboards')
       create_id_trigger('active_rule_changes')
       create_id_trigger('active_rule_param_changes')

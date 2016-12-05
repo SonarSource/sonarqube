@@ -30,7 +30,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       # Drop them and re-create them with shorter names.
       # The triggers active_rule_param_changes_id_trg and measure_filter_favourites_id_trg
       # are not supposed to exist.
-      drop_trigger_quietly('action_plans_id_trg')
       drop_trigger_quietly('active_dashboards_id_trg')
       drop_trigger_quietly('active_rule_changes_id_trg')
       drop_trigger_quietly('active_rule_parameters_id_trg')
@@ -63,7 +62,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       drop_trigger_quietly('widget_properties_id_trg')
       drop_trigger_quietly('widgets_id_trg')
 
-      create_id_trigger('action_plans')
       create_id_trigger('active_dashboards')
       create_id_trigger('active_rule_changes')
       create_id_trigger('active_rule_param_changes')
