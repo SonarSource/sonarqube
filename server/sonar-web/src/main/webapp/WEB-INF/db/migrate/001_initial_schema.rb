@@ -61,7 +61,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :val_type, :string, :null => true, :limit => 8
       t.column :user_managed, :boolean, :null => true, :default => false
       t.column :enabled, :boolean, :null => true, :default => true
-      t.column :origin, :string, :null => true, :limit => 3
       t.column 'worst_value', :decimal, :null => true, :precision => 30, :scale => 20
       t.column 'best_value', :decimal, :null => true, :precision => 30, :scale => 20
       t.column 'optimized_best_value', :boolean, :null => true
