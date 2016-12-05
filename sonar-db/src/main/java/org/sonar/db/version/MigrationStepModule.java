@@ -35,16 +35,8 @@ import org.sonar.db.version.v54.RemovePreviewPermission;
 import org.sonar.db.version.v55.AddActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.AddIssuesType;
 import org.sonar.db.version.v55.AddRulesColumns;
-import org.sonar.db.version.v55.DeleteManualIssues;
-import org.sonar.db.version.v55.DeleteManualRules;
-import org.sonar.db.version.v55.DeleteMeasuresWithCharacteristicId;
-import org.sonar.db.version.v55.DeleteMeasuresWithRuleId;
 import org.sonar.db.version.v55.DropActiveRulesDateColumns;
 import org.sonar.db.version.v55.DropRulesDates;
-import org.sonar.db.version.v55.FeedActiveRulesLongDateColumns;
-import org.sonar.db.version.v55.FeedIssueTypes;
-import org.sonar.db.version.v55.FeedRulesLongDateColumns;
-import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty;
@@ -174,18 +166,10 @@ public class MigrationStepModule extends Module {
 
       // 5.5
       AddRulesColumns.class,
-      FeedRulesLongDateColumns.class,
-      DeleteMeasuresWithCharacteristicId.class,
       AddActiveRulesLongDateColumns.class,
-      FeedActiveRulesLongDateColumns.class,
       AddIssuesType.class,
-      FeedIssueTypes.class,
       DropRulesDates.class,
       DropActiveRulesDateColumns.class,
-      FeedRulesTypes.class,
-      DeleteMeasuresWithRuleId.class,
-      DeleteManualIssues.class,
-      DeleteManualRules.class,
 
       // 5.6
       FixTypeOfRuleTypeOnMysql.class,
