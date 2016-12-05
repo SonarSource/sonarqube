@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.db.version.v63;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.DdlChange;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(167);
+import static org.sonar.db.version.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class MakeUuidNotNullOnEvents extends DdlChange {
+
+  private static final String TABLE = "events";
+
+  public MakeUuidNotNullOnEvents(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE)
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
+      .build());
   }
 }

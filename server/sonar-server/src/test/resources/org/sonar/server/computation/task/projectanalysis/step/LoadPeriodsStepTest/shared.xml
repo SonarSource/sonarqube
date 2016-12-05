@@ -148,6 +148,7 @@
 
 
   <events id="1"
+          uuid="P1"
           analysis_uuid="u1000"
           component_uuid="ABCD"
           name="0.9"
@@ -157,6 +158,7 @@
           description=""
           event_data="[null]"/>
   <events id="2"
+          uuid="P2"
           analysis_uuid="u1001"
           component_uuid="ABCD"
           name="1.0"
@@ -166,6 +168,7 @@
           description=""
           event_data="[null]"/>
   <events id="3"
+          uuid="P3"
           analysis_uuid="u1004"
           component_uuid="ABCD"
           name="1.1"

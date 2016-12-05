@@ -92,6 +92,7 @@
 
 
   <events id="1"
+          uuid="P2"
           analysis_uuid="u1000"
           component_uuid="ABCD"
           name="0.9"
@@ -103,6 +104,7 @@
   <!-- The "1.0" version was deleted from the history :  -->
   <!--<events id="2" name="1.0" component_uuid="ABCD" snapshot_id="1001" category="Version" event_date="1226494680000" created_at="1226494680000" description="" event_data="[null]"/>-->
   <events id="3"
+          uuid="P3"
           analysis_uuid="u1004"
           component_uuid="ABCD"
           name="1.1"

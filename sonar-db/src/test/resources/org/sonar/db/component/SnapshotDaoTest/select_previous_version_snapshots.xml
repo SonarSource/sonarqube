@@ -124,6 +124,7 @@
   />
 
   <events id="1"
+          uuid="P1"
           analysis_uuid="u1000"
           component_uuid="ABCD"
           name="1.0"
@@ -133,6 +134,7 @@
           description=""
           event_data="[null]"/>
   <events id="2"
+          uuid="P2"
           analysis_uuid="u1000"
           component_uuid="ABCD"
           name="Foo"
@@ -142,6 +144,7 @@
           description=""
           event_data="[null]"/>
   <events id="3"
+          uuid="P3"
           analysis_uuid="u1001"
           component_uuid="ABCD"
           name="1.1"
@@ -151,6 +154,7 @@
           description=""
           event_data="[null]"/>
   <events id="4"
+          uuid="P4"
           analysis_uuid="u1001"
           component_uuid="ABCD"
           name="Bar"
@@ -160,6 +164,7 @@
           description=""
           event_data="[null]"/>
   <events id="5"
+          uuid="P5"
           analysis_uuid="u1002"
           component_uuid="ABCD"
           name="Uhh"
@@ -169,6 +174,7 @@
           description=""
           event_data="[null]"/>
   <events id="6"
+          uuid="P6"
           analysis_uuid="u1003"
           component_uuid="ABCD"
           name="1.2-SNAPSHOT"

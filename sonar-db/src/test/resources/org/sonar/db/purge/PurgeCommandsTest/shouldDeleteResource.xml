@@ -42,6 +42,7 @@
 />
 
   <events id="1"
+          uuid="P1"
           analysis_uuid="u1"
           component_uuid="uuid_1"
           name="Version 1.0"
@@ -52,6 +53,7 @@
           event_data="[null]"/>
 
   <events id="2"
+          uuid="P2"
           analysis_uuid="u1"
           component_uuid="[null]"
           name="Version 1.0"
@@ -62,6 +64,7 @@
           event_data="[null]"/>
 
   <events id="3"
+          uuid="P3"
           analysis_uuid="u1"
           component_uuid="[null]"
           name="Version 1.0"

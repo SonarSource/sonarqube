@@ -136,6 +136,7 @@
   />
 
   <events id="2"
+          uuid="P2"
           analysis_uuid="u5"
           component_uuid="1"
           category="Version"
