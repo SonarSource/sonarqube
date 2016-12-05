@@ -28,7 +28,7 @@ class FixOracleTriggerNames < ActiveRecord::Migration
     if dialect()=='oracle'
       # sonar 3.7 creates triggers with names longer than max allowed (30 characters)
       # Drop them and re-create them with shorter names.
-      # The triggers active_rule_param_changes_id_trg, characteristic_properties_id_trg and measure_filter_favourites_id_trg
+      # The triggers active_rule_param_changes_id_trg and measure_filter_favourites_id_trg
       # are not supposed to exist.
       drop_trigger_quietly('action_plans_id_trg')
       drop_trigger_quietly('active_dashboards_id_trg')
@@ -37,7 +37,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       drop_trigger_quietly('active_rule_parameters_id_trg')
       drop_trigger_quietly('active_rules_id_trg')
       drop_trigger_quietly('authors_id_trg')
-      drop_trigger_quietly('characteristics_id_trg')
       drop_trigger_quietly('dashboards_id_trg')
       drop_trigger_quietly('dependencies_id_trg')
       drop_trigger_quietly('duplications_index_id_trg')
@@ -57,7 +56,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       drop_trigger_quietly('project_measures_id_trg')
       drop_trigger_quietly('projects_id_trg')
       drop_trigger_quietly('properties_id_trg')
-      drop_trigger_quietly('quality_models_id_trg')
       drop_trigger_quietly('resource_index_id_trg')
       drop_trigger_quietly('rule_notes_id_trg')
       drop_trigger_quietly('rules_id_trg')
@@ -80,8 +78,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       create_id_trigger('active_rule_parameters')
       create_id_trigger('active_rules')
       create_id_trigger('authors')
-      create_id_trigger('characteristic_properties')
-      create_id_trigger('characteristics')
       create_id_trigger('dashboards')
       create_id_trigger('dependencies')
       create_id_trigger('duplications_index')
@@ -102,7 +98,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       create_id_trigger('project_measures')
       create_id_trigger('projects')
       create_id_trigger('properties')
-      create_id_trigger('quality_models')
       create_id_trigger('resource_index')
       create_id_trigger('rule_notes')
       create_id_trigger('rules')
