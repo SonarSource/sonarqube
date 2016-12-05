@@ -23,18 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.db.version.v51.AddIssuesColumns;
 import org.sonar.db.version.v51.DropIssuesColumns;
 import org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn;
-import org.sonar.db.version.v52.FeedEventsComponentUuid;
-import org.sonar.db.version.v52.FeedFileSourcesDataType;
-import org.sonar.db.version.v52.FeedManualMeasuresComponentUuid;
-import org.sonar.db.version.v52.FeedMetricsBooleans;
-import org.sonar.db.version.v52.FeedProjectLinksComponentUuid;
 import org.sonar.db.version.v52.IncreasePrecisionOfNumerics;
-import org.sonar.db.version.v52.MoveProjectProfileAssociation;
-import org.sonar.db.version.v52.RemoveAnalysisReportsFromActivities;
-import org.sonar.db.version.v52.RemoveComponentLibraries;
-import org.sonar.db.version.v52.RemoveDuplicatedComponentKeys;
-import org.sonar.db.version.v52.RemoveRuleMeasuresOnIssues;
-import org.sonar.db.version.v52.RemoveSnapshotLibraries;
 import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.AddUsersIdentityColumns;
 import org.sonar.db.version.v54.IncreaseProjectsNameColumnsSize;
@@ -171,19 +160,8 @@ public class MigrationStepModule extends Module {
       DropIssuesColumns.class,
 
       // 5.2
-      FeedProjectLinksComponentUuid.class,
-      FeedEventsComponentUuid.class,
-      MoveProjectProfileAssociation.class,
-      FeedFileSourcesDataType.class,
-      FeedMetricsBooleans.class,
       AddManualMeasuresComponentUuidColumn.class,
-      FeedManualMeasuresComponentUuid.class,
-      RemoveSnapshotLibraries.class,
-      RemoveComponentLibraries.class,
-      RemoveDuplicatedComponentKeys.class,
       IncreasePrecisionOfNumerics.class,
-      RemoveAnalysisReportsFromActivities.class,
-      RemoveRuleMeasuresOnIssues.class,
 
       // 5.3
       UpdateCustomDashboardInLoadedTemplates.class,
