@@ -22,9 +22,9 @@
 # SonarQube 5.5
 # SONAR-7330
 #
-class DropRulesDatesAndCharacteristics < ActiveRecord::Migration
+class DropRulesDates < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v55.DropRulesDatesAndCharacteristics')
+    execute_java_migration('org.sonar.db.version.v55.DropRulesDates')
   end
 end

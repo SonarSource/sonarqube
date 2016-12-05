@@ -19,33 +19,32 @@
  */
 package org.sonar.db.version.v55;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.sql.SQLException;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.db.Database;
-import org.sonar.db.version.DdlChange;
-import org.sonar.db.version.DropColumnsBuilder;
+import org.sonar.db.dialect.PostgreSql;
 
-/**
- * Drop the following columns from the rules table :
- * - created_at
- * - updated_at
- */
-public class DropRulesDatesAndCharacteristics extends DdlChange {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-  public DropRulesDatesAndCharacteristics(Database db) {
-    super(db);
+public class DropRulesDatesTest {
+
+  private DropRulesDates underTest;
+  private Database database;
+
+  @Before
+  public void setUp() {
+    database = mock(Database.class);
+    underTest = new DropRulesDates(database);
   }
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(generateSql());
-  }
-
-  @VisibleForTesting
-  String generateSql() {
-    return new DropColumnsBuilder(getDialect(), "rules",
-      "created_at", "updated_at", "characteristic_id", "default_characteristic_id")
-      .build();
+  @Test
+  public void generate_sql_on_postgresql() {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+    assertThat(underTest.generateSql()).isEqualTo(
+      "ALTER TABLE rules DROP COLUMN created_at, DROP COLUMN updated_at"
+      );
   }
 
 }

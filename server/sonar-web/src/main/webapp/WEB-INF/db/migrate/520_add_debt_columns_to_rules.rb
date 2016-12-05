@@ -25,8 +25,6 @@
 class AddDebtColumnsToRules < ActiveRecord::Migration
 
   def self.up
-    add_column 'rules', :characteristic_id,             :integer,   :null => true
-    add_column 'rules', :default_characteristic_id,     :integer,   :null => true
     add_column 'rules', :remediation_function,          :string,    :null => true,   :limit => 20
     add_column 'rules', :default_remediation_function,  :string,    :null => true,   :limit => 20
     add_column 'rules', :remediation_coeff,             :string,    :null => true,   :limit => 20
