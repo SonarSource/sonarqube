@@ -30,6 +30,6 @@ public class QualityGateModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new QualityGateModule().configure(container);
-    assertThat(container.size()).isEqualTo(22 + 2);
+    assertThat(container.size()).isEqualTo(23 + 2);
   }
 }

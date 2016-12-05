@@ -22,6 +22,8 @@ package org.sonar.db.qualitygate;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
@@ -45,5 +47,26 @@ public class QualityGateDbTester {
     QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name));
     db.commit();
     return updatedUser;
+  }
+
+  public void associateProjectToQualityGate(ComponentDto component, QualityGateDto qualityGate) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+      .setKey("sonar.qualitygate")
+      .setResourceId(component.getId())
+      .setValue(String.valueOf(qualityGate.getId())));
+    db.commit();
+  }
+
+  public QualityGateDto createDefaultQualityGate(String qualityGateName) {
+    QualityGateDto defaultQGate = insertQualityGate(qualityGateName);
+    setDefaultQualityGate(defaultQGate);
+    return defaultQGate;
+  }
+
+  public void setDefaultQualityGate(QualityGateDto qualityGate) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+      .setKey("sonar.qualitygate")
+      .setValue(String.valueOf(qualityGate.getId())));
+    db.commit();
   }
 }

@@ -31,7 +31,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
 
@@ -47,13 +48,13 @@ public class GetByProjectAction implements QualityGatesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private final QualityGates qualityGates;
+  private final QualityGateFinder qualityGateFinder;
 
-  public GetByProjectAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, QualityGates qualityGates) {
+  public GetByProjectAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.qualityGates = qualityGates;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -80,7 +81,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
-      QualityGateData data = getQualityGate(dbSession, project.getId());
+      Optional<QualityGateData> data = qualityGateFinder.getQualityGate(dbSession, project.getId());
 
       writeProtobuf(buildResponse(data), request, response);
     } finally {
@@ -99,37 +100,20 @@ public class GetByProjectAction implements QualityGatesWsAction {
     return project;
   }
 
-  private static GetByProjectWsResponse buildResponse(QualityGateData data) {
-    if (!data.qualityGate.isPresent()) {
+  private static GetByProjectWsResponse buildResponse(Optional<QualityGateData> data) {
+    if (!data.isPresent()) {
       return GetByProjectWsResponse.getDefaultInstance();
     }
 
-    QualityGateDto qualityGate = data.qualityGate.get();
+    QualityGateDto qualityGate = data.get().getQualityGate();
     GetByProjectWsResponse.Builder response = GetByProjectWsResponse.newBuilder();
 
     response.getQualityGateBuilder()
       .setId(String.valueOf(qualityGate.getId()))
       .setName(qualityGate.getName())
-      .setDefault(data.isDefault);
+      .setDefault(data.get().isDefault());
 
     return response.build();
   }
 
-  private QualityGateData getQualityGate(DbSession dbSession, long componentId) {
-    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
-
-    return qualityGateId.isPresent()
-      ? new QualityGateData(Optional.ofNullable(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get())), false)
-      : new QualityGateData(Optional.ofNullable(qualityGates.getDefault()), true);
-  }
-
-  private static class QualityGateData {
-    private final Optional<QualityGateDto> qualityGate;
-    private final boolean isDefault;
-
-    private QualityGateData(Optional<QualityGateDto> qualityGate, boolean isDefault) {
-      this.qualityGate = qualityGate;
-      this.isDefault = isDefault;
-    }
-  }
 }

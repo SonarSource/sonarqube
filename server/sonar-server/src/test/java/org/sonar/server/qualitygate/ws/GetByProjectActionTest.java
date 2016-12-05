@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -40,9 +39,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -51,7 +49,6 @@ import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
@@ -69,8 +66,7 @@ public class GetByProjectActionTest {
   DbSession dbSession = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
-    new GetByProjectAction(userSession, dbClient, new ComponentFinder(dbClient),
-      new QualityGates(dbClient, mock(MetricFinder.class), mock(UserSession.class))));
+    new GetByProjectAction(userSession, dbClient, new ComponentFinder(dbClient), new QualityGateFinder(dbClient)));
 
   @Test
   public void json_example() {
