@@ -21,20 +21,7 @@ package org.sonar.db.version;
 
 import org.sonar.core.platform.Module;
 import org.sonar.db.version.v51.AddIssuesColumns;
-import org.sonar.db.version.v51.CopyScmAccountsFromAuthorsToUsers;
 import org.sonar.db.version.v51.DropIssuesColumns;
-import org.sonar.db.version.v51.FeedAnalysisReportsLongDates;
-import org.sonar.db.version.v51.FeedEventsLongDates;
-import org.sonar.db.version.v51.FeedFileSourcesBinaryData;
-import org.sonar.db.version.v51.FeedIssueChangesLongDates;
-import org.sonar.db.version.v51.FeedIssueComponentUuids;
-import org.sonar.db.version.v51.FeedIssueTags;
-import org.sonar.db.version.v51.FeedIssuesLongDates;
-import org.sonar.db.version.v51.FeedManualMeasuresLongDates;
-import org.sonar.db.version.v51.FeedSnapshotsLongDates;
-import org.sonar.db.version.v51.FeedUsersLongDates;
-import org.sonar.db.version.v51.RenameComponentRelatedParamsInIssueFilters;
-import org.sonar.db.version.v51.UpdateProjectsModuleUuidPath;
 import org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn;
 import org.sonar.db.version.v52.FeedEventsComponentUuid;
 import org.sonar.db.version.v52.FeedFileSourcesDataType;
@@ -180,19 +167,6 @@ public class MigrationStepModule extends Module {
   protected void configureModule() {
     add(
       // 5.1
-      FeedIssueTags.class,
-      FeedUsersLongDates.class,
-      RenameComponentRelatedParamsInIssueFilters.class,
-      CopyScmAccountsFromAuthorsToUsers.class,
-      FeedIssueChangesLongDates.class,
-      FeedAnalysisReportsLongDates.class,
-      UpdateProjectsModuleUuidPath.class,
-      FeedIssueComponentUuids.class,
-      FeedSnapshotsLongDates.class,
-      FeedIssuesLongDates.class,
-      FeedFileSourcesBinaryData.class,
-      FeedManualMeasuresLongDates.class,
-      FeedEventsLongDates.class,
       AddIssuesColumns.class,
       DropIssuesColumns.class,
 
