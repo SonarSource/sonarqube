@@ -20,11 +20,6 @@
 package org.sonar.db.version;
 
 import org.sonar.core.platform.Module;
-import org.sonar.db.version.v50.FeedIssueLongDates;
-import org.sonar.db.version.v50.InsertProjectsAuthorizationUpdatedAtMigrationStep;
-import org.sonar.db.version.v50.PopulateProjectsUuidColumnsMigrationStep;
-import org.sonar.db.version.v50.RemoveSortFieldFromIssueFiltersMigrationStep;
-import org.sonar.db.version.v50.ReplaceIssueFiltersProjectKeyByUuid;
 import org.sonar.db.version.v51.AddIssuesColumns;
 import org.sonar.db.version.v51.CopyScmAccountsFromAuthorsToUsers;
 import org.sonar.db.version.v51.DropIssuesColumns;
@@ -184,13 +179,6 @@ public class MigrationStepModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // 5.0
-      InsertProjectsAuthorizationUpdatedAtMigrationStep.class,
-      PopulateProjectsUuidColumnsMigrationStep.class,
-      ReplaceIssueFiltersProjectKeyByUuid.class,
-      FeedIssueLongDates.class,
-      RemoveSortFieldFromIssueFiltersMigrationStep.class,
-
       // 5.1
       FeedIssueTags.class,
       FeedUsersLongDates.class,
