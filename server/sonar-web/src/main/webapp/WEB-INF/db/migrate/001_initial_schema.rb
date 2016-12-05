@@ -49,6 +49,21 @@ class InitialSchema < ActiveRecord::Migration
       t.column :root_project_id, :integer, :nullable => true
       t.column 'build_date', :datetime, :null => true
       t.column 'purge_status', :integer, :null => true
+      t.column :period1_mode, :string, :null => true, :limit => 100
+      t.column :period1_param, :string, :null => true, :limit => 100
+      t.column :period1_date, :datetime, :null => true
+      t.column :period2_mode, :string, :null => true, :limit => 100
+      t.column :period2_param, :string, :null => true, :limit => 100
+      t.column :period2_date, :datetime, :null => true
+      t.column :period3_mode, :string, :null => true, :limit => 100
+      t.column :period3_param, :string, :null => true, :limit => 100
+      t.column :period3_date, :datetime, :null => true
+      t.column :period4_mode, :string, :null => true, :limit => 100
+      t.column :period4_param, :string, :null => true, :limit => 100
+      t.column :period4_date, :datetime, :null => true
+      t.column :period5_mode, :string, :null => true, :limit => 100
+      t.column :period5_param, :string, :null => true, :limit => 100
+      t.column :period5_date, :datetime, :null => true
     end
 
     create_table :metrics do |t|
@@ -83,9 +98,11 @@ class InitialSchema < ActiveRecord::Migration
       t.column :url, :string, :null => true, :limit => 2000
       t.column :description, :string, :null => true, :limit => 4000
       t.column :rule_priority, :integer, :null => true
-      t.column :diff_value_1, :decimal, :null => true, :precision => 30, :scale => 20
-      t.column :diff_value_2, :decimal, :null => true, :precision => 30, :scale => 20
-      t.column :diff_value_3, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :variation_value_1, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :variation_value_2, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :variation_value_3, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :variation_value_4, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :variation_value_5, :decimal, :null => true, :precision => 30, :scale => 20
       t.column :characteristic_id, :integer, :null => true
       t.column 'person_id', :integer, :null => true
     end
