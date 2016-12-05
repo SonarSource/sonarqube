@@ -30,7 +30,6 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     add_index :issues,  :root_component_id,   :name => 'issues_root_component_id'
     add_index :issues,  :rule_id,             :name => 'issues_rule_id'
     add_index :issues,  :severity,            :name => 'issues_severity'
-    add_index :issues,  :status,              :name => 'issues_status'
     add_index :issues,  :resolution,          :name => 'issues_resolution'
     add_index :issues,  :assignee,            :name => 'issues_assignee'
     add_index :issues,  :action_plan_key,     :name => 'issues_action_plan_key'
