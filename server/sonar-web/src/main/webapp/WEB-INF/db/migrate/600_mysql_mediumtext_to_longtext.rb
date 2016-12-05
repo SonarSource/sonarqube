@@ -27,7 +27,6 @@ class MysqlMediumtextToLongtext < ActiveRecord::Migration
     if dialect()=='mysql'
       apply 'rules', 'description'
       apply 'rules', 'note_data'
-      apply 'snapshot_sources', 'data'
       apply 'properties', 'text_value'
       apply 'measure_filters', 'data'
       apply 'issue_changes', 'change_data'

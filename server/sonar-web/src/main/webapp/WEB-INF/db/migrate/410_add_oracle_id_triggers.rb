@@ -54,7 +54,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
       create_id_trigger('rules')
       create_id_trigger('rules_parameters')
       create_id_trigger('rules_profiles')
-      create_id_trigger('snapshot_sources')
       create_id_trigger('snapshots')
       create_id_trigger('user_roles')
       create_id_trigger('users')

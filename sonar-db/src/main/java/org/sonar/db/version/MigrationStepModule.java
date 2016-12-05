@@ -22,9 +22,7 @@ package org.sonar.db.version;
 import org.sonar.core.platform.Module;
 import org.sonar.db.version.v451.AddMissingCustomRuleParametersMigrationStep;
 import org.sonar.db.version.v451.DeleteUnescapedActivities;
-import org.sonar.db.version.v50.FeedFileSources;
 import org.sonar.db.version.v50.FeedIssueLongDates;
-import org.sonar.db.version.v50.FeedSnapshotSourcesUpdatedAt;
 import org.sonar.db.version.v50.InsertProjectsAuthorizationUpdatedAtMigrationStep;
 import org.sonar.db.version.v50.PopulateProjectsUuidColumnsMigrationStep;
 import org.sonar.db.version.v50.RemoveSortFieldFromIssueFiltersMigrationStep;
@@ -196,8 +194,6 @@ public class MigrationStepModule extends Module {
       InsertProjectsAuthorizationUpdatedAtMigrationStep.class,
       PopulateProjectsUuidColumnsMigrationStep.class,
       ReplaceIssueFiltersProjectKeyByUuid.class,
-      FeedSnapshotSourcesUpdatedAt.class,
-      FeedFileSources.class,
       FeedIssueLongDates.class,
       RemoveSortFieldFromIssueFiltersMigrationStep.class,
 
