@@ -42,7 +42,6 @@ import org.sonar.db.version.v51.FeedIssuesLongDates;
 import org.sonar.db.version.v51.FeedManualMeasuresLongDates;
 import org.sonar.db.version.v51.FeedSnapshotsLongDates;
 import org.sonar.db.version.v51.FeedUsersLongDates;
-import org.sonar.db.version.v51.RemovePermissionsOnModulesMigrationStep;
 import org.sonar.db.version.v51.RenameComponentRelatedParamsInIssueFilters;
 import org.sonar.db.version.v51.UpdateProjectsModuleUuidPath;
 import org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn;
@@ -216,7 +215,6 @@ public class MigrationStepModule extends Module {
       FeedFileSourcesBinaryData.class,
       FeedManualMeasuresLongDates.class,
       FeedEventsLongDates.class,
-      RemovePermissionsOnModulesMigrationStep.class,
       AddIssuesColumns.class,
       DropIssuesColumns.class,
 
