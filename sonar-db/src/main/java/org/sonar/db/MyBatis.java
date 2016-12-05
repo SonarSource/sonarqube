@@ -119,7 +119,6 @@ import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.version.SchemaMigrationDto;
 import org.sonar.db.version.SchemaMigrationMapper;
-import org.sonar.db.version.v45.Migration45Mapper;
 import org.sonar.db.version.v50.Migration50Mapper;
 import org.sonar.db.version.v53.Migration53Mapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
@@ -226,7 +225,6 @@ public class MyBatis {
       LoadedTemplateMapper.class,
       MeasureMapper.class,
       MetricMapper.class,
-      Migration45Mapper.class,
       Migration50Mapper.class,
       Migration53Mapper.class,
       NotificationQueueMapper.class,

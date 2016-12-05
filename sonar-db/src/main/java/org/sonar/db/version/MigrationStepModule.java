@@ -20,7 +20,6 @@
 package org.sonar.db.version;
 
 import org.sonar.core.platform.Module;
-import org.sonar.db.version.v451.AddMissingCustomRuleParametersMigrationStep;
 import org.sonar.db.version.v451.DeleteUnescapedActivities;
 import org.sonar.db.version.v50.FeedIssueLongDates;
 import org.sonar.db.version.v50.InsertProjectsAuthorizationUpdatedAtMigrationStep;
@@ -187,7 +186,6 @@ public class MigrationStepModule extends Module {
   protected void configureModule() {
     add(
       // 4.5.1
-      AddMissingCustomRuleParametersMigrationStep.class,
       DeleteUnescapedActivities.class,
 
       // 5.0
