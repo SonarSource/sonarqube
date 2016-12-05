@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.qualityprofile;
+package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.UtcDateUtils;
+
+import static java.util.function.Function.identity;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 
 /**
  * Represents the array of JSON objects stored in the value of the
@@ -49,7 +49,15 @@ public class QPMeasureData {
   }
 
   public static QPMeasureData fromJson(String json) {
-    return new QPMeasureData(Iterables.transform(new JsonParser().parse(json).getAsJsonArray(), JsonElementToQualityProfile.INSTANCE));
+    return new QPMeasureData(StreamSupport.stream(new JsonParser().parse(json).getAsJsonArray().spliterator(), false)
+      .map(jsonElement -> {
+        JsonObject jsonProfile = jsonElement.getAsJsonObject();
+        return new QualityProfile(
+          jsonProfile.get("key").getAsString(),
+          jsonProfile.get("name").getAsString(),
+          jsonProfile.get("language").getAsString(),
+          UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString()));
+      }).collect(Collectors.toList()));
   }
 
   public static String toJson(QPMeasureData data) {
@@ -58,12 +66,12 @@ public class QPMeasureData {
     writer.beginArray();
     for (QualityProfile profile : data.getProfiles()) {
       writer
-          .beginObject()
-          .prop("key", profile.getQpKey())
-          .prop("language", profile.getLanguageKey())
-          .prop("name", profile.getQpName())
-          .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
-          .endObject();
+        .beginObject()
+        .prop("key", profile.getQpKey())
+        .prop("language", profile.getLanguageKey())
+        .prop("name", profile.getQpName())
+        .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
+        .endObject();
     }
     writer.endArray();
     writer.close();
@@ -75,7 +83,7 @@ public class QPMeasureData {
   }
 
   public Map<String, QualityProfile> getProfilesByKey() {
-    return Maps.uniqueIndex(this.profiles, QualityProfileToKey.INSTANCE);
+    return profiles.stream().collect(uniqueIndex(QualityProfile::getQpKey, identity()));
   }
 
   private enum QualityProfileComparator implements Comparator<QualityProfile> {
@@ -88,29 +96,6 @@ public class QPMeasureData {
         c = o1.getQpName().compareTo(o2.getQpName());
       }
       return c;
-    }
-  }
-
-  private enum JsonElementToQualityProfile implements Function<JsonElement, QualityProfile> {
-    INSTANCE;
-
-    @Override
-    public QualityProfile apply(@Nonnull JsonElement jsonElt) {
-      JsonObject jsonProfile = jsonElt.getAsJsonObject();
-      return new QualityProfile(
-          jsonProfile.get("key").getAsString(),
-          jsonProfile.get("name").getAsString(),
-          jsonProfile.get("language").getAsString(),
-          UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString()));
-    }
-  }
-
-  private enum QualityProfileToKey implements Function<QualityProfile, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull QualityProfile input) {
-      return input.getQpKey();
     }
   }
 }

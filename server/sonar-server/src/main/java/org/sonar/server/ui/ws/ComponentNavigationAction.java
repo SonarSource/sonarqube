@@ -125,6 +125,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("key", component.key())
       .prop("uuid", component.uuid())
       .prop("name", component.name())
+      .prop("description", component.description())
       .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("canBeFavorite", userSession.isLoggedIn())
       .prop("isFavorite", isFavourite(session, component, userSession));

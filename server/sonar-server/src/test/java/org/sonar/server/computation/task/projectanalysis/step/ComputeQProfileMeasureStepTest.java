@@ -28,15 +28,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QPMeasureData;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QualityProfile;
+import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

@@ -24,8 +24,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QualityProfile;
 import org.sonar.server.computation.util.InitializedProperty;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;

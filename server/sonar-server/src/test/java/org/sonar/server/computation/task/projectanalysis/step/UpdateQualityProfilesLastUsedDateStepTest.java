@@ -35,14 +35,14 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QPMeasureData;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QualityProfile;
+import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;

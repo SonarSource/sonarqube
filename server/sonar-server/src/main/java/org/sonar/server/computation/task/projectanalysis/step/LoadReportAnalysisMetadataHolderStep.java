@@ -27,8 +27,8 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QualityProfile;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;

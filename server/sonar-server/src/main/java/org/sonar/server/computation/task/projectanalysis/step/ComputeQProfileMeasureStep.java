@@ -32,9 +32,9 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QPMeasureData;
-import org.sonar.server.computation.task.projectanalysis.qualityprofile.QualityProfile;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
