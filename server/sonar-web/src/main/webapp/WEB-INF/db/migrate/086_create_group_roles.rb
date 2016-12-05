@@ -25,7 +25,6 @@ class CreateGroupRoles < ActiveRecord::Migration
       t.integer :resource_id, :null => true
       t.string :role, :limit => 64, :null => false
     end
-    add_index "group_roles", "group_id", :name => 'group_roles_group'
-	  add_index "group_roles", "resource_id", :name => 'group_roles_resource'
+    add_index "group_roles", "resource_id", :name => 'group_roles_resource'
   end
 end
