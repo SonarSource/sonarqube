@@ -114,8 +114,8 @@ class InitialSchema < ActiveRecord::Migration
       t.column :plugin_name,         :string,    :null => false, :limit => 255
       t.column :description,         :text,      :null => true
       t.column :priority, :integer, :null => true
-      t.column :cardinality, :string, :null => true, :limit => 10
       t.column :parent_id, :integer, :null => true
+      t.column 'is_template', :boolean, :null => false, :default => false
       t.column 'status', :string, :null => true, :limit => 40
       t.column 'language', :string, :null => true, :limit => 20
       t.column 'created_at', :datetime, :null => true
