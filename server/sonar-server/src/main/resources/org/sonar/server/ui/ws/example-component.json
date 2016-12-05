@@ -26,6 +26,11 @@
       "url": "/plugins/resource/2865?page=my-resource-plugin"
     }
   ],
+  "qualityGate": {
+    "key": "qg",
+    "name": "Sonar way",
+    "isDefault": false
+  },
   "configuration": {
     "showSettings": true,
     "showQualityProfiles": true,

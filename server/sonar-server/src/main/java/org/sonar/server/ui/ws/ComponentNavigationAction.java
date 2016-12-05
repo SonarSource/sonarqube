@@ -26,6 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
@@ -43,13 +46,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.ce.ws.ActivityAction;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -77,15 +84,17 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final QualityGateFinder qualityGateFinder;
 
   public ComponentNavigationAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
-    ComponentFinder componentFinder) {
+    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
     this.views = views;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -117,6 +126,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, analysis.orElse(null));
       writeProfiles(json, session, component);
+      writeQualityGate(json, session, component);
       if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component);
       }
@@ -154,14 +164,36 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private void writeProfiles(JsonWriter json, DbSession session, ComponentDto component) {
     json.name("qualityProfiles").beginArray();
-    dbClient.measureDao().selectSingle(session, MeasureQuery.builder().setComponentUuid(component.projectUuid()).setMetricKey(QUALITY_PROFILES_KEY).build()).ifPresent(
-      measureDto -> QPMeasureData.fromJson(measureDto.getData()).getProfiles().forEach(
-        profile -> json.beginObject()
-          .prop("key", profile.getQpKey())
-          .prop("name", profile.getQpName())
-          .prop("language", profile.getLanguageKey())
-          .endObject()));
+    dbClient.measureDao().selectSingle(session, MeasureQuery.builder().setComponentUuid(component.projectUuid()).setMetricKey(QUALITY_PROFILES_KEY).build())
+      .ifPresent(dbMeasure -> Stream.of(dbMeasure)
+        .flatMap(toQualityProfiles())
+        .forEach(writeToJson(json)));
     json.endArray();
+  }
+
+  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
+    return profile -> json.beginObject()
+      .prop("key", profile.getQpKey())
+      .prop("name", profile.getQpName())
+      .prop("language", profile.getLanguageKey())
+      .endObject();
+  }
+
+  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
+    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
+  }
+
+  private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
+    Optional<QualityGateFinder.QualityGateData> qualityGateData = qualityGateFinder.getQualityGate(session, component.getId());
+    if (!qualityGateData.isPresent()) {
+      return;
+    }
+    QualityGateDto qualityGateDto = qualityGateData.get().getQualityGate();
+    json.name("qualityGate").beginObject()
+      .prop("key", qualityGateDto.getId())
+      .prop("name", qualityGateDto.getName())
+      .prop("isDefault", qualityGateData.get().isDefault())
+      .endObject();
   }
 
   private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages) {

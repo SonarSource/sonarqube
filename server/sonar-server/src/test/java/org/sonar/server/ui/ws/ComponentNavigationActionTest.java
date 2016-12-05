@@ -48,11 +48,13 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,6 +62,7 @@ import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Locale.ENGLISH;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -94,10 +97,10 @@ public class ComponentNavigationActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  private UserDbTester userDbTester = new UserDbTester(dbTester);
-  private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
   private DbClient dbClient = dbTester.getDbClient();
+  private ComponentDbTester componentDbTester = dbTester.components();
+  private UserDbTester userDbTester = dbTester.users();
+  private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
 
   private I18n i18n = mock(I18n.class);
 
@@ -189,6 +192,37 @@ public class ComponentNavigationActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
 
     executeAndVerify(PROJECT.key(), "return_empty_quality_profiles_when_no_measure.json");
+  }
+
+  @Test
+  public void return_quality_gate_defined_on_project() throws Exception {
+    init();
+    componentDbTester.insertComponent(PROJECT);
+    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
+    dbTester.qualityGates().associateProjectToQualityGate(PROJECT, qualityGateDto);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+
+    executeAndVerify(PROJECT.key(), "return_quality_gate.json");
+  }
+
+  @Test
+  public void return_default_quality_gate() throws Exception {
+    init();
+    componentDbTester.insertComponent(PROJECT);
+    dbTester.qualityGates().createDefaultQualityGate("Sonar way");
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+
+    executeAndVerify(PROJECT.key(), "return_default_quality_gate.json");
+  }
+
+  @Test
+  public void return_no_quality_gate_when_not_defined_on_project_and_no_default_one() throws Exception {
+    init();
+    componentDbTester.insertComponent(PROJECT);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+
+    String json = execute(PROJECT.key());
+    assertThat(json).doesNotContain("qualityGate");
   }
 
   @Test
@@ -324,7 +358,8 @@ public class ComponentNavigationActionTest {
   }
 
   private void init(View... views) {
-    ws = new WsActionTester(new ComponentNavigationAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient)));
+    ws = new WsActionTester(new ComponentNavigationAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
+      new QualityGateFinder(dbClient)));
   }
 
   private String execute(String componentKey) {
