@@ -28,10 +28,9 @@ class FixOracleTriggerNames < ActiveRecord::Migration
     if dialect()=='oracle'
       # sonar 3.7 creates triggers with names longer than max allowed (30 characters)
       # Drop them and re-create them with shorter names.
-      # The triggers active_rule_param_changes_id_trg and measure_filter_favourites_id_trg
-      # are not supposed to exist.
+      # The trigger measure_filter_favourites_id_trg
+      # is not supposed to exist.
       drop_trigger_quietly('active_dashboards_id_trg')
-      drop_trigger_quietly('active_rule_changes_id_trg')
       drop_trigger_quietly('active_rule_parameters_id_trg')
       drop_trigger_quietly('active_rules_id_trg')
       drop_trigger_quietly('authors_id_trg')
@@ -62,8 +61,6 @@ class FixOracleTriggerNames < ActiveRecord::Migration
       drop_trigger_quietly('widgets_id_trg')
 
       create_id_trigger('active_dashboards')
-      create_id_trigger('active_rule_changes')
-      create_id_trigger('active_rule_param_changes')
       create_id_trigger('active_rule_parameters')
       create_id_trigger('active_rules')
       create_id_trigger('authors')

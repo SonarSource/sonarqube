@@ -32,7 +32,6 @@ class IncreaseSizeOfUserLogin < ActiveRecord::Migration
       remove_index :issues, :name => 'issues_assignee'
     end
 
-    change_column 'active_rule_changes', 'username', :string, :limit => 255, :null => true
     change_column :authors, 'login', :string, :null => true, :limit => 255
     change_column :issues,  :reporter,             :string,    :null => true,	  :limit => 255
     change_column :issues,  :assignee,             :string,    :null => true,	  :limit => 255
