@@ -32,6 +32,7 @@ class CreateRulesProfiles < ActiveRecord::Migration
       t.column :profile_id, :integer, :null => false
       t.column :rule_id,             :integer,   :null => false
       t.column :failure_level,       :integer,   :null => false
+      t.column 'inheritance', :string, :limit => 10, :null => true
     end
 
     create_table :active_rule_parameters do |t|
