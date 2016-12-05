@@ -2,6 +2,7 @@
   "id": 2865,
   "key": "org.codehaus.sonar:sonar",
   "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+  "description": "Open source platform for continuous inspection of code quality",
   "isComparable": true,
   "canBeFavorite": true,
   "isFavorite": true,

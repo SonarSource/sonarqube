@@ -2,6 +2,7 @@
   "key": "polop",
   "uuid": "abcd",
   "name": "Polop",
+  "description": "test project",
   "isComparable": false,
   "canBeFavorite": true,
   "isFavorite": true,

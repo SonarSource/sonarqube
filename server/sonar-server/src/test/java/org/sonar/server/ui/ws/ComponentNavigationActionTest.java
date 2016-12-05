@@ -69,7 +69,11 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ComponentNavigationActionTest {
 
   private static final String PROJECT_KEY = "polop";
-  private static final ComponentDto PROJECT = newProjectDto("abcd").setKey(PROJECT_KEY).setName("Polop").setLanguage("xoo");
+  private static final ComponentDto PROJECT = newProjectDto("abcd")
+    .setKey(PROJECT_KEY)
+    .setName("Polop")
+    .setDescription("test project")
+    .setLanguage("xoo");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

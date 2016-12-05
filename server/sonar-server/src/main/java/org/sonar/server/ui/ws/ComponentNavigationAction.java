@@ -112,23 +112,23 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponent(json, session, component, analysis.orElse(null), userSession);
+      writeComponent(json, session, component, analysis.orElse(null));
       if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
-        writeConfiguration(json, component, userSession);
+        writeConfiguration(json, component);
       }
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
     }
   }
 
-  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis, UserSession userSession) {
+  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis) {
     json.prop("key", component.key())
       .prop("uuid", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("canBeFavorite", userSession.isLoggedIn())
-      .prop("isFavorite", isFavourite(session, component, userSession));
+      .prop("isFavorite", isFavourite(session, component));
 
     if (analysis != null) {
       json.prop("version", analysis.getVersion())
@@ -138,7 +138,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     }
   }
 
-  private boolean isFavourite(DbSession session, ComponentDto component, UserSession userSession) {
+  private boolean isFavourite(DbSession session, ComponentDto component) {
     PropertyQuery propertyQuery = PropertyQuery.builder()
       .setUserId(userSession.getUserId())
       .setKey("favourite")
@@ -179,7 +179,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return componentKey;
   }
 
-  private void writeConfiguration(JsonWriter json, ComponentDto component, UserSession userSession) {
+  private void writeConfiguration(JsonWriter json, ComponentDto component) {
     boolean isAdmin = userSession.hasComponentUuidPermission(ADMIN, component.projectUuid());
 
     json.name("configuration").beginObject();
