@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -43,15 +42,13 @@ public class CeActivityDao implements Dao {
   public void insert(DbSession dbSession, CeActivityDto dto) {
     dto.setCreatedAt(system2.now());
     dto.setUpdatedAt(system2.now());
-    dto.setIsLast(false);
-    mapper(dbSession).insert(dto);
+    dto.setIsLast(dto.getStatus() != CeActivityDto.Status.CANCELED);
 
-    List<String> uuids = mapper(dbSession).selectUuidsOfRecentlyCreatedByIsLastKey(dto.getIsLastKey(), new RowBounds(0, 1));
-    // should never be empty, as a row was just inserted!
-    if (!uuids.isEmpty()) {
-      mapper(dbSession).updateIsLastToFalseForLastKey(dto.getIsLastKey(), dto.getUpdatedAt());
-      mapper(dbSession).updateIsLastToTrueForUuid(uuids.get(0), dto.getUpdatedAt());
+    CeActivityMapper ceActivityMapper = mapper(dbSession);
+    if (dto.getIsLast()) {
+      ceActivityMapper.updateIsLastToFalseForLastKey(dto.getIsLastKey(), dto.getUpdatedAt());
     }
+    ceActivityMapper.insert(dto);
   }
 
   public List<CeActivityDto> selectOlderThan(DbSession dbSession, long beforeDate) {
