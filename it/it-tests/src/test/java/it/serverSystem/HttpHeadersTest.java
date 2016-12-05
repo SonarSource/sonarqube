@@ -19,7 +19,6 @@
  */
 package it.serverSystem;
 
-import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import java.io.File;
@@ -27,16 +26,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import okhttp3.CacheControl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.call;
 
 public class HttpHeadersTest {
 
@@ -155,21 +152,6 @@ public class HttpHeadersTest {
 
   private static void verifyContentType(Response httpResponse, String expectedContentType) {
     assertThat(httpResponse.headers().get("Content-Type")).isEqualTo(expectedContentType);
-  }
-
-  private static Response call(String url) {
-    Request request = new Request.Builder().get().url(url).build();
-    try {
-      // SonarQube ws-client cannot be used as it does not
-      // expose HTTP headers
-      return new OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-        .newCall(request).execute();
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
   }
 
   /**

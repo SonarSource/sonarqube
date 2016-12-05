@@ -20,6 +20,7 @@
 package util;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -37,12 +38,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -294,5 +299,26 @@ public class ItUtils {
     Type type = new TypeToken<Map<String, Object>>() {
     }.getType();
     return gson.fromJson(json, type);
+  }
+
+  public static Response call(String url, String... headers) {
+    Request.Builder requestBuilder = new Request.Builder().get().url(url);
+    for (int i = 0; i < headers.length; i += 2) {
+      String headerName = headers[i];
+      String headerValue = headers[i + 1];
+      if (headerValue != null) {
+        requestBuilder.addHeader(headerName, headerValue);
+      }
+    }
+    try {
+      return new OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+        .newCall(requestBuilder.build())
+        .execute();
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 }
