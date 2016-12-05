@@ -27,10 +27,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
@@ -67,19 +63,9 @@ public class ReportDumpTest {
   }
 
   private void verifyUrl(String url) throws IOException {
-    HttpUrl httpUrl = HttpUrl.parse(url);
-    Request request = new Request.Builder()
-      .url(httpUrl)
-      .get()
-      .build();
-    Response response = new OkHttpClient.Builder()
-      .connectTimeout(30, TimeUnit.SECONDS)
-      .readTimeout(30, TimeUnit.SECONDS)
-      .build()
-      .newCall(request)
-      .execute();
-    assertThat(response.isSuccessful()).as(httpUrl.toString()).isTrue();
-    assertThat(response.body().string()).as(httpUrl.toString()).isNotEmpty();
+    Response response = ItUtils.call(url);
+    assertThat(response.isSuccessful()).as(url).isTrue();
+    assertThat(response.body().string()).as(url).isNotEmpty();
   }
 
 }

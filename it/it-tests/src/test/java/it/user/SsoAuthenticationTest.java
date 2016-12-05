@@ -19,14 +19,9 @@
  */
 package it.user;
 
-import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -36,6 +31,7 @@ import org.junit.Test;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.call;
 
 /**
  * Test SSO authentication (using HTTP headers).
@@ -76,31 +72,31 @@ public class SsoAuthenticationTest {
 
   @Test
   public void authenticate() {
-    call(USER_LOGIN, USER_NAME, USER_EMAIL, null);
+    doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
 
     USER_RULE.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
   @Test
   public void authenticate_with_only_login() throws Exception {
-    call(USER_LOGIN, null, null, null);
+    doCall(USER_LOGIN, null, null, null);
 
     USER_RULE.verifyUserExists(USER_LOGIN, USER_LOGIN, null);
   }
 
   @Test
   public void update_user_when_headers_are_updated() {
-    call(USER_LOGIN, USER_NAME, USER_EMAIL, null);
+    doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
     USER_RULE.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
 
     // As we don't keep the JWT token is the test, the user is updated
-    call(USER_LOGIN, "new name", "new email", null);
+    doCall(USER_LOGIN, "new name", "new email", null);
     USER_RULE.verifyUserExists(USER_LOGIN, "new name", "new email");
   }
 
   @Test
   public void authenticate_with_groups() {
-    call(USER_LOGIN, null, null, GROUP_1);
+    doCall(USER_LOGIN, null, null, GROUP_1);
 
     USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_1);
   }
@@ -113,7 +109,7 @@ public class SsoAuthenticationTest {
     USER_RULE.createUser(USER_LOGIN, "password");
     USER_RULE.associateGroupsToUser(USER_LOGIN, GROUP_1, GROUP_2);
 
-    call(USER_LOGIN, null, null, GROUP_2 + "," + GROUP_3);
+    doCall(USER_LOGIN, null, null, GROUP_2 + "," + GROUP_3);
 
     USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_2, GROUP_3);
   }
@@ -141,7 +137,7 @@ public class SsoAuthenticationTest {
   public void fail_when_email_already_exists() throws Exception {
     USER_RULE.createUser("another", "Another", USER_EMAIL, "another");
 
-    Response response = call(USER_LOGIN, USER_NAME, USER_EMAIL, null);
+    Response response = doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
 
     String expectedError = "You can't sign up because email 'tester@email.com' is already used by an existing user. This means that you probably already registered with another account";
     assertThat(response.code()).isEqualTo(200);
@@ -149,31 +145,12 @@ public class SsoAuthenticationTest {
     assertThat(FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8)).doesNotContain(expectedError);
   }
 
-  private static Response call(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {
-    return doCall(login, name, email, groups);
-  }
-
   private static Response doCall(String login, @Nullable String name, @Nullable String email, @Nullable String groups) {
-    Request.Builder requestBuilder = new Request.Builder().get().url(orchestrator.getServer().getUrl())
-      .addHeader(LOGIN_HEADER, login);
-    if (name != null) {
-      requestBuilder.addHeader(NAME_HEADER, name);
-    }
-    if (email != null) {
-      requestBuilder.addHeader(EMAIL_HEADER, email);
-    }
-    if (groups != null) {
-      requestBuilder.addHeader(GROUPS_HEADER, groups);
-    }
-    try {
-      return new OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-        .newCall(requestBuilder.build()).execute();
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return call(orchestrator.getServer().getUrl(),
+      LOGIN_HEADER, login,
+      NAME_HEADER, name,
+      EMAIL_HEADER, email,
+      GROUPS_HEADER, groups);
   }
 
   private boolean checkLocalAuthentication(String login, String password) {

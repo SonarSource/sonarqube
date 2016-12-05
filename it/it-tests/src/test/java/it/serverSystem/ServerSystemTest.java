@@ -25,14 +25,10 @@ import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -50,6 +46,7 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.call;
 import static util.ItUtils.newAdminWsClient;
 import static util.selenium.Selenese.runSelenese;
 
@@ -160,24 +157,14 @@ public class ServerSystemTest {
 
   @Test
   public void http_response_should_be_gzipped() throws IOException {
-    HttpClient httpclient = new DefaultHttpClient();
-    try {
-      HttpGet get = new HttpGet(orchestrator.getServer().getUrl());
-      HttpResponse response = httpclient.execute(get);
+    String url = orchestrator.getServer().getUrl() + "/api/rules/search";
+    Response metricsResponse = call(url);
+    assertThat(metricsResponse.isSuccessful()).as("Response code is %s", metricsResponse.code()).isTrue();
+    assertThat(metricsResponse.header("Content-Encoding")).isNull();
 
-      assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-      assertThat(response.getLastHeader("Content-Encoding")).isNull();
-      EntityUtils.consume(response.getEntity());
-
-      get = new HttpGet(orchestrator.getServer().getUrl());
-      get.addHeader("Accept-Encoding", "gzip, deflate");
-      response = httpclient.execute(get);
-      assertThat(response.getLastHeader("Content-Encoding").getValue()).isEqualTo("gzip");
-      EntityUtils.consume(response.getEntity());
-
-    } finally {
-      httpclient.getConnectionManager().shutdown();
-    }
+    Response homeResponse = call(url, "Accept-Encoding", "gzip, deflate");
+    assertThat(homeResponse.isSuccessful()).as("Response code is %s", metricsResponse.code()).isTrue();
+    assertThat(homeResponse.header("Content-Encoding")).isEqualToIgnoringCase("gzip");
   }
 
   /**
@@ -198,20 +185,11 @@ public class ServerSystemTest {
   // TODO should be moved elsewhere
   @Test
   public void api_ws_shortcut() throws Exception {
-    HttpClient httpclient = new DefaultHttpClient();
-    try {
-      HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/api");
-      HttpResponse response = httpclient.execute(get);
-
-      assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-      String json = IOUtils.toString(response.getEntity().getContent());
-      Map jsonAsMap = (Map) JSONValue.parse(json);
-      assertThat(jsonAsMap.get("webServices")).isNotNull();
-      EntityUtils.consume(response.getEntity());
-
-    } finally {
-      httpclient.getConnectionManager().shutdown();
-    }
+    Response response = call(orchestrator.getServer().getUrl() + "/api");
+    assertThat(response.isSuccessful()).as("Response code is %s", response.code()).isTrue();
+    String json = IOUtils.toString(response.body().byteStream());
+    Map jsonAsMap = (Map) JSONValue.parse(json);
+    assertThat(jsonAsMap.get("webServices")).isNotNull();
   }
 
   private String getValidIpAddress() throws IOException {
@@ -221,4 +199,5 @@ public class ServerSystemTest {
     assertThat(response.getValidIpAddressesCount()).isGreaterThan(0);
     return response.getValidIpAddresses(0);
   }
+
 }
