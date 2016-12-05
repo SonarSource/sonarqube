@@ -34,8 +34,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ConsoleLoggerTest {
 
-  PrintStream stream = mock(PrintStream.class);
-  ConsoleLogger underTest = new ConsoleLogger(stream);
+  private PrintStream stream = mock(PrintStream.class);
+  private ConsoleLogger underTest = new ConsoleLogger(stream);
 
   @Rule
   public LogTester tester = new LogTester();
@@ -49,7 +49,12 @@ public class ConsoleLoggerTest {
     underTest.debug("message {}", "foo");
     underTest.debug("message {} {}", "foo", "bar");
     underTest.debug("message {} {} {}", "foo", "bar", "baz");
-    verify(stream, times(4)).println(anyString());
+    verify(stream).println("DEBUG message");
+    verify(stream).println("DEBUG message foo");
+    verify(stream).println("DEBUG message foo bar");
+    verify(stream).println("DEBUG message foo bar baz");
+    assertThat(tester.logs(LoggerLevel.DEBUG)).containsExactly(
+      "message", "message foo", "message foo bar", "message foo bar baz");
   }
 
   @Test
@@ -93,7 +98,12 @@ public class ConsoleLoggerTest {
     underTest.info("message {}", "foo");
     underTest.info("message {} {}", "foo", "bar");
     underTest.info("message {} {} {}", "foo", "bar", "baz");
-    verify(stream, times(4)).println(startsWith("INFO "));
+    verify(stream).println("INFO  message");
+    verify(stream).println("INFO  message foo");
+    verify(stream).println("INFO  message foo bar");
+    verify(stream).println("INFO  message foo bar baz");
+    assertThat(tester.logs(LoggerLevel.INFO)).containsExactly(
+      "message", "message foo", "message foo bar", "message foo bar baz");
   }
 
   @Test
@@ -104,13 +114,15 @@ public class ConsoleLoggerTest {
     underTest.warn("message {}", "foo");
     underTest.warn("message {} {}", "foo", "bar");
     underTest.warn("message {} {} {}", "foo", "bar", "baz");
-    underTest.warn("message", throwable);
+    underTest.warn("message with exception", throwable);
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
     verify(stream, times(5)).println(captor.capture());
     for (String msg : captor.getAllValues()) {
       assertThat(msg).startsWith("WARN ");
     }
     verify(throwable).printStackTrace();
+    assertThat(tester.logs(LoggerLevel.WARN)).containsExactly(
+      "message", "message foo", "message foo bar", "message foo bar baz", "message with exception");
   }
 
   @Test
@@ -119,8 +131,10 @@ public class ConsoleLoggerTest {
     underTest.error("message {}", "foo");
     underTest.error("message {} {}", "foo", "bar");
     underTest.error("message {} {} {}", "foo", "bar", "baz");
-    underTest.error("message", new IllegalArgumentException());
+    underTest.error("message with exception", new IllegalArgumentException());
     verify(stream, times(5)).println(startsWith("ERROR "));
+    assertThat(tester.logs(LoggerLevel.ERROR)).containsExactly(
+      "message", "message foo", "message foo bar", "message foo bar baz", "message with exception");
   }
 
   @Test
