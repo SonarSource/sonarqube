@@ -23,11 +23,8 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 
 public interface CeActivityMapper {
-
-  List<String> selectUuidsOfRecentlyCreatedByIsLastKey(@Param("isLastKey") String isLastKey, RowBounds rowBounds);
 
   @CheckForNull
   CeActivityDto selectByUuid(@Param("uuid") String uuid);
@@ -43,8 +40,6 @@ public interface CeActivityMapper {
   void insert(CeActivityDto dto);
 
   void updateIsLastToFalseForLastKey(@Param("isLastKey") String isLastKey, @Param("updatedAt") long updatedAt);
-
-  void updateIsLastToTrueForUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
 
   void deleteByUuids(@Param("uuids") List<String> uuids);
 }
