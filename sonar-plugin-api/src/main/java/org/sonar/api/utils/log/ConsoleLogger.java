@@ -57,21 +57,21 @@ class ConsoleLogger extends BaseLogger {
   @Override
   protected void doTrace(String pattern, @Nullable Object arg) {
     if (isTraceEnabled()) {
-      trace(format(pattern, arg));
+      doTrace(format(pattern, arg));
     }
   }
 
   @Override
   protected void doTrace(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
     if (isTraceEnabled()) {
-      trace(format(pattern, arg1, arg2));
+      doTrace(format(pattern, arg1, arg2));
     }
   }
 
   @Override
   protected void doTrace(String pattern, Object... args) {
     if (isTraceEnabled()) {
-      trace(format(pattern, args));
+      doTrace(format(pattern, args));
     }
   }
 
@@ -91,21 +91,21 @@ class ConsoleLogger extends BaseLogger {
   @Override
   protected void doDebug(String pattern, @Nullable Object arg) {
     if (isDebugEnabled()) {
-      debug(format(pattern, arg));
+      doDebug(format(pattern, arg));
     }
   }
 
   @Override
   protected void doDebug(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
     if (isDebugEnabled()) {
-      debug(format(pattern, arg1, arg2));
+      doDebug(format(pattern, arg1, arg2));
     }
   }
 
   @Override
   protected void doDebug(String pattern, Object... args) {
     if (isDebugEnabled()) {
-      debug(format(pattern, args));
+      doDebug(format(pattern, args));
     }
   }
 
@@ -116,17 +116,17 @@ class ConsoleLogger extends BaseLogger {
 
   @Override
   protected void doInfo(String pattern, @Nullable Object arg) {
-    info(format(pattern, arg));
+    doInfo(format(pattern, arg));
   }
 
   @Override
   protected void doInfo(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
-    info(format(pattern, arg1, arg2));
+    doInfo(format(pattern, arg1, arg2));
   }
 
   @Override
   protected void doInfo(String pattern, Object... args) {
-    info(format(pattern, args));
+    doInfo(format(pattern, args));
   }
 
   @Override
@@ -142,17 +142,17 @@ class ConsoleLogger extends BaseLogger {
 
   @Override
   protected void doWarn(String pattern, @Nullable Object arg) {
-    warn(format(pattern, arg));
+    doWarn(format(pattern, arg));
   }
 
   @Override
   protected void doWarn(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
-    warn(format(pattern, arg1, arg2));
+    doWarn(format(pattern, arg1, arg2));
   }
 
   @Override
   protected void doWarn(String pattern, Object... args) {
-    warn(format(pattern, args));
+    doWarn(format(pattern, args));
   }
 
   @Override
@@ -162,17 +162,17 @@ class ConsoleLogger extends BaseLogger {
 
   @Override
   protected void doError(String pattern, @Nullable Object arg) {
-    error(format(pattern, arg));
+    doError(format(pattern, arg));
   }
 
   @Override
   protected void doError(String pattern, @Nullable Object arg1, @Nullable Object arg2) {
-    error(format(pattern, arg1, arg2));
+    doError(format(pattern, arg1, arg2));
   }
 
   @Override
   protected void doError(String pattern, Object... args) {
-    error(format(pattern, args));
+    doError(format(pattern, args));
   }
 
   @Override
