@@ -38,7 +38,6 @@ public final class UuidGeneratorImpl implements UuidGenerator {
   }
 
   private static class UuidGeneratorBase {
-    private final byte[] buffer = new byte[15];
     // We only use bottom 3 bytes for the sequence number. Paranoia: init with random int so that if JVM/OS/machine goes down, clock slips
     // backwards, and JVM comes back up, we are less likely to be on the same sequenceNumber at the same time:
     private final AtomicInteger sequenceNumber = new AtomicInteger(new SecureRandom().nextInt());
@@ -46,7 +45,7 @@ public final class UuidGeneratorImpl implements UuidGenerator {
     // Used to ensure clock moves forward
     private long lastTimestamp = 0L;
 
-    void initBase(int sequenceId) {
+    void initBase(byte[] buffer, int sequenceId) {
       long timestamp = System.currentTimeMillis();
 
       synchronized (this) {
@@ -70,7 +69,7 @@ public final class UuidGeneratorImpl implements UuidGenerator {
       System.arraycopy(secureMungedAddress, 0, buffer, 6, secureMungedAddress.length);
     }
 
-    protected byte[] generate(int increment) {
+    protected byte[] generate(byte[] buffer, int increment) {
       // Sequence number adds 3 bytes
       putLong(buffer, increment, 12, 3);
 
@@ -93,21 +92,26 @@ public final class UuidGeneratorImpl implements UuidGenerator {
 
     @Override
     public byte[] get() {
+      byte[] buffer = new byte[15];
       int sequenceId = getSequenceId();
-      initBase(sequenceId);
-      return super.generate(sequenceId);
+      initBase(buffer, sequenceId);
+      return super.generate(buffer, sequenceId);
     }
   }
 
   private static class FixedBasedUuidGenerator extends UuidGeneratorBase implements WithFixedBase {
+    private final byte[] base = new byte[15];
+
     FixedBasedUuidGenerator() {
       int sequenceId = getSequenceId();
-      initBase(sequenceId);
+      initBase(base, sequenceId);
     }
 
     @Override
     public byte[] generate(int increment) {
-      return super.generate(increment);
+      byte[] buffer = new byte[15];
+      System.arraycopy(base, 0, buffer, 0, buffer.length);
+      return super.generate(buffer, increment);
     }
   }
 }
