@@ -30,7 +30,6 @@ class MysqlMediumtextToLongtext < ActiveRecord::Migration
       apply 'snapshot_sources', 'data'
       apply 'properties', 'text_value'
       apply 'measure_filters', 'data'
-      apply 'snapshot_data', 'snapshot_data'
       apply 'issue_changes', 'change_data'
       apply 'issue_filters', 'data'
       apply 'activities', 'data_field'
