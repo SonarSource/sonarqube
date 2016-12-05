@@ -21,14 +21,13 @@ class CreateEventsTable < ActiveRecord::Migration
 
   def self.up
     create_table :events do |t|
-      t.column :name,        :string,  :limit => 50, :null => true
+      t.column :name,        :string,  :limit => 400, :null => true
       t.column :resource_id,  :integer, :null => true
       t.column :snapshot_id, :integer, :null => true
       t.column :category, :string,  :limit=> 50, :null => true
       t.column :event_date, :datetime,  :null => true
       t.column :created_at, :datetime,  :null => true
-      t.column :description, :string,  :limit => 3072, :null => true
-      t.column :data, :string, :null => true, :limit => 4000
+      t.column :description, :string,  :limit => 4000, :null => true
     end
     add_index :events, :resource_id, :name => 'events_resource_id'
     add_index :events, :snapshot_id, :name => 'events_snapshot_id'
