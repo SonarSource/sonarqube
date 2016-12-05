@@ -8,6 +8,18 @@
   "isFavorite": true,
   "version": "5.2-SNAPSHOT",
   "snapshotDate": "2015-04-16T14:40:32+02:00",
+  "qualityProfiles": [
+    {
+      "key": "qp1",
+      "name": "Sonar Way Java",
+      "language": "java"
+    },
+    {
+      "key": "qp2",
+      "name": "Sonar Way Xoo",
+      "language": "xoo"
+    }
+  ],
   "extensions": [
     {
       "name": "My Resource Plugin",

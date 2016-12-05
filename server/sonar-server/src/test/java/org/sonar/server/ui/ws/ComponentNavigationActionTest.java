@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +44,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.UserDbTester;
@@ -48,6 +53,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.ws.WsActionTester;
@@ -57,6 +64,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -64,6 +72,8 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentNavigationActionTest {
@@ -157,6 +167,28 @@ public class ComponentNavigationActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
 
     executeAndVerify(PROJECT.key(), "return_component_info_when_snapshot.json");
+  }
+
+  @Test
+  public void return_quality_profiles() throws Exception {
+    init();
+    componentDbTester.insertComponent(PROJECT);
+    SnapshotDto analysis = componentDbTester.insertSnapshot(newAnalysis(PROJECT));
+    addQualityProfiles(PROJECT, analysis,
+      createQProfile("qp1", "Sonar Way Java", "java"),
+      createQProfile("qp2", "Sonar Way Xoo", "xoo"));
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+
+    executeAndVerify(PROJECT.key(), "return_quality_profiles.json");
+  }
+
+  @Test
+  public void return_empty_quality_profiles_when_no_measure() throws Exception {
+    init();
+    componentDbTester.insertComponent(PROJECT);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+
+    executeAndVerify(PROJECT.key(), "return_empty_quality_profiles_when_no_measure.json");
   }
 
   @Test
@@ -305,6 +337,24 @@ public class ComponentNavigationActionTest {
 
   private void executeAndVerify(String componentKey, String expectedJson) {
     verify(execute(componentKey), expectedJson);
+  }
+
+  private void addQualityProfiles(ComponentDto project, SnapshotDto analysis, QualityProfile... qps) {
+    MetricDto metricDto = newMetricDto().setKey(QUALITY_PROFILES_KEY);
+    dbClient.metricDao().insert(dbTester.getSession(), metricDto);
+    dbClient.measureDao().insert(dbTester.getSession(),
+      newMeasureDto(metricDto, project, analysis)
+        .setData(qualityProfilesToJson(qps)));
+    dbTester.commit();
+  }
+
+  private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
+    return new QualityProfile(qpKey, qpName, languageKey, new Date());
+  }
+
+  private static String qualityProfilesToJson(QualityProfile... qps) {
+    List<QualityProfile> qualityProfiles = Arrays.asList(qps);
+    return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
   }
 
   private View[] createViews() {

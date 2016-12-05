@@ -43,16 +43,19 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.ce.ws.ActivityAction;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Locale.ENGLISH;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
@@ -113,6 +116,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeComponent(json, session, component, analysis.orElse(null));
+      writeProfiles(json, session, component);
       if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component);
       }
@@ -146,6 +150,18 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .build();
     List<PropertyDto> componentFavourites = dbClient.propertiesDao().selectByQuery(propertyQuery, session);
     return componentFavourites.size() == 1;
+  }
+
+  private void writeProfiles(JsonWriter json, DbSession session, ComponentDto component) {
+    json.name("qualityProfiles").beginArray();
+    dbClient.measureDao().selectSingle(session, MeasureQuery.builder().setComponentUuid(component.projectUuid()).setMetricKey(QUALITY_PROFILES_KEY).build()).ifPresent(
+      measureDto -> QPMeasureData.fromJson(measureDto.getData()).getProfiles().forEach(
+        profile -> json.beginObject()
+          .prop("key", profile.getQpKey())
+          .prop("name", profile.getQpName())
+          .prop("language", profile.getLanguageKey())
+          .endObject()));
+    json.endArray();
   }
 
   private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages) {

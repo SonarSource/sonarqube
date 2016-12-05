@@ -1,0 +1,14 @@
+{
+  "qualityProfiles": [
+    {
+      "key": "qp1",
+      "name": "Sonar Way Java",
+      "language": "java"
+    },
+    {
+      "key": "qp2",
+      "name": "Sonar Way Xoo",
+      "language": "xoo"
+    }
+  ]
+}
