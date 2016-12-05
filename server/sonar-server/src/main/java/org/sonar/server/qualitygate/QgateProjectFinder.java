@@ -19,14 +19,12 @@
  */
 package org.sonar.server.qualitygate;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
@@ -36,7 +34,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
@@ -76,20 +73,17 @@ public class QgateProjectFinder {
   }
 
   private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
-    return from(projects)
-      .skip(paging.offset())
-      .limit(paging.pageSize())
-      .toList();
+    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(Collectors.toList());
   }
 
   private static List<ProjectQgateAssociation> toProjectAssociations(List<ProjectQgateAssociationDto> dtos) {
-    return from(dtos).transform(ToProjectAssociation.INSTANCE).toList();
+    return dtos.stream().map(ProjectQgateAssociationDto::toQgateAssociation).collect(Collectors.toList());
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
-    List<Long> projectIds = from(projects).transform(ToProjectId.INSTANCE).toList();
+    List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(Collectors.toList());
     Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
-    return from(projects).filter(new MatchProjectId(authorizedProjectIds)).toList();
+    return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(Collectors.toList());
   }
 
   public static class Association {
@@ -109,36 +103,4 @@ public class QgateProjectFinder {
       return hasMoreResults;
     }
   }
-
-  private enum ToProjectId implements Function<ProjectQgateAssociationDto, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull ProjectQgateAssociationDto input) {
-      return input.getId();
-    }
-  }
-
-  private static class MatchProjectId implements Predicate<ProjectQgateAssociationDto> {
-    private final Collection<Long> projectIds;
-
-    private MatchProjectId(Collection<Long> projectIds) {
-      this.projectIds = projectIds;
-    }
-
-    @Override
-    public boolean apply(@Nonnull ProjectQgateAssociationDto input) {
-      return projectIds.contains(input.getId());
-    }
-  }
-
-  private enum ToProjectAssociation implements Function<ProjectQgateAssociationDto, ProjectQgateAssociation> {
-    INSTANCE;
-
-    @Override
-    public ProjectQgateAssociation apply(@Nonnull ProjectQgateAssociationDto input) {
-      return input.toQgateAssociation();
-    }
-  }
-
 }

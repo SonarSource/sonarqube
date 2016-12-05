@@ -72,7 +72,6 @@ public class QgateProjectFinderTest {
   public void setUp() throws Exception {
     qGate = new QualityGateDto().setName("Default Quality Gate");
     dbClient.qualityGateDao().insert(dbSession, qGate);
-
     dbTester.commit();
   }
 
