@@ -24,7 +24,6 @@ import org.sonar.db.version.v51.AddIssuesColumns;
 import org.sonar.db.version.v51.DropIssuesColumns;
 import org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn;
 import org.sonar.db.version.v52.IncreasePrecisionOfNumerics;
-import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.AddUsersIdentityColumns;
 import org.sonar.db.version.v54.IncreaseProjectsNameColumnsSize;
 import org.sonar.db.version.v54.InsertGateAdminPermissionForEachProfileAdmin;
@@ -162,9 +161,6 @@ public class MigrationStepModule extends Module {
       // 5.2
       AddManualMeasuresComponentUuidColumn.class,
       IncreasePrecisionOfNumerics.class,
-
-      // 5.3
-      UpdateCustomDashboardInLoadedTemplates.class,
 
       // 5.4
       InsertGateAdminPermissionForEachProfileAdmin.class,
