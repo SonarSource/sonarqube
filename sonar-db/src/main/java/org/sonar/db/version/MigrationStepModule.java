@@ -20,7 +20,6 @@
 package org.sonar.db.version;
 
 import org.sonar.core.platform.Module;
-import org.sonar.db.version.v451.DeleteUnescapedActivities;
 import org.sonar.db.version.v50.FeedIssueLongDates;
 import org.sonar.db.version.v50.InsertProjectsAuthorizationUpdatedAtMigrationStep;
 import org.sonar.db.version.v50.PopulateProjectsUuidColumnsMigrationStep;
@@ -185,9 +184,6 @@ public class MigrationStepModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // 4.5.1
-      DeleteUnescapedActivities.class,
-
       // 5.0
       InsertProjectsAuthorizationUpdatedAtMigrationStep.class,
       PopulateProjectsUuidColumnsMigrationStep.class,
