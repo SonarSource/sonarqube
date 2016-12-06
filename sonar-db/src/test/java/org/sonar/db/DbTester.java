@@ -549,7 +549,7 @@ public class DbTester extends ExternalResource {
 
   private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
     try (Connection connection = getConnection();
-      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, true)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> onColumns = new ArrayList<>();
       while (rs.next()) {
         if (indexName.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
@@ -561,6 +561,22 @@ public class DbTester extends ExternalResource {
       assertThat(asList(expectedColumn, expectedSecondaryColumns)).isEqualTo(onColumns);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to check index", e);
+    }
+  }
+
+  /**
+   * Verify that index with name {@code indexName} does not exist on the table {@code tableName}
+   */
+  public void assertIndexDoesNotExist(String tableName, String indexName) {
+    try (Connection connection = getConnection();
+         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+      List<String> indices = new ArrayList<>();
+      while (rs.next()) {
+        indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));
+      }
+      assertThat(indices).doesNotContain(indexName);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to check existence of index", e);
     }
   }
 
