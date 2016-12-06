@@ -73,7 +73,7 @@ public class UpdateUsersExternalIdentityWhenEmptyTest {
   }
 
   private void insertUser(String login, @Nullable String externalIdentity, @Nullable String externalIdentityProvider, long updatedAt) {
-    Map<String, String> params = newHashMap(ImmutableMap.of(
+    Map<String, Object> params = newHashMap(ImmutableMap.of(
       "LOGIN", login,
       "CREATED_AT", Long.toString(PAST),
       "UPDATED_AT", Long.toString(updatedAt)));
