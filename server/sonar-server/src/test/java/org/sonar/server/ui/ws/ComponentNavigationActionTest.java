@@ -40,6 +40,7 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.ResourceScope;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
+import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -355,6 +356,30 @@ public class ComponentNavigationActionTest {
     userSessionRule.setGlobalPermissions(SYSTEM_ADMIN);
 
     execute(PROJECT.key());
+  }
+
+  @Test
+  public void test_example_response() throws Exception {
+    init(createViews());
+    ComponentDto project = newProjectDto("ABCD").setKey("org.codehaus.sonar:sonar").setName("Sonarqube").setDescription("Open source platform for continuous inspection of code quality");
+    componentDbTester.insertComponent(project);
+    SnapshotDto analysis = newAnalysis(project)
+      .setCreatedAt(DateUtils.parseDateTime("2016-12-06T11:44:00+0200").getTime())
+      .setVersion("6.3")
+      .setLast(true);
+    componentDbTester.insertSnapshot(analysis);
+    when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
+    UserDto user = userDbTester.insertUser("obiwan");
+    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
+    addQualityProfiles(project, analysis,
+      createQProfile("qp1", "Sonar Way Java", "java"),
+      createQProfile("qp2", "Sonar Way Xoo", "xoo"));
+    QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
+    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    userSessionRule.login(user).addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
+    String result = execute(project.key());
+    assertJson(ws.getDef().responseExampleAsString()).ignoreFields("snapshotDate", "key").isSimilarTo(result);
   }
 
   private void init(View... views) {

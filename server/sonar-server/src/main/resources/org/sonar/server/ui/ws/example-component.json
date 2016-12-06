@@ -1,13 +1,27 @@
 {
-  "id": 2865,
   "key": "org.codehaus.sonar:sonar",
-  "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+  "uuid": "ABCD",
+  "name": "Sonarqube",
   "description": "Open source platform for continuous inspection of code quality",
   "isComparable": true,
   "canBeFavorite": true,
   "isFavorite": true,
-  "version": "5.2-SNAPSHOT",
-  "snapshotDate": "2015-04-16T14:40:32+02:00",
+  "version": "6.3",
+  "snapshotDate": "2016-12-06T11:44:00+0200",
+  "extensions": [
+    {
+      "url": "/admin/page?id\u003dorg.codehaus.sonar%3Asonar",
+      "name": "Admin Page"
+    },
+    {
+      "url": "/plugins/resource/org.codehaus.sonar%3Asonar?page\u003dfirst_page",
+      "name": "First Page"
+    },
+    {
+      "url": "/second/page?id\u003dorg.codehaus.sonar%3Asonar",
+      "name": "Second Page"
+    }
+  ],
   "qualityProfiles": [
     {
       "key": "qp1",
@@ -20,14 +34,8 @@
       "language": "xoo"
     }
   ],
-  "extensions": [
-    {
-      "name": "My Resource Plugin",
-      "url": "/plugins/resource/2865?page=my-resource-plugin"
-    }
-  ],
   "qualityGate": {
-    "key": "qg",
+    "key": "BCDE",
     "name": "Sonar way",
     "isDefault": false
   },
@@ -40,23 +48,14 @@
     "showPermissions": true,
     "showHistory": true,
     "showUpdateKey": true,
-    "showDeletion": true,
-    "extensions": [
-      {
-        "name": "General Settings",
-        "url": "/project/settings/2865"
-      },
-      {
-        "name": "Action Plans",
-        "url": "/action_plans/index/2865"
-      }
-    ]
+    "showBackgroundTasks": true,
+    "extensions": []
   },
   "breadcrumbs": [
     {
-      "name": "SonarQube",
-      "qualifier": "TRK",
-      "key": "org.codehaus.sonar:sonar"
+      "key": "org.codehaus.sonar:sonar",
+      "name": "Sonarqube",
+      "qualifier": "TRK"
     }
   ]
 }
