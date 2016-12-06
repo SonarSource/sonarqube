@@ -21,12 +21,17 @@ package org.sonar.db.version;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import org.sonar.core.util.ProgressLogger;
 import org.sonar.db.Database;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class MassUpdate {
 
+  @FunctionalInterface
   public interface Handler {
     /**
      * Convert some column values of a given row.
@@ -36,6 +41,17 @@ public class MassUpdate {
     boolean handle(Select.Row row, SqlStatement update) throws SQLException;
   }
 
+  @FunctionalInterface
+  public interface MultiHandler {
+    /**
+     * Convert some column values of a given row.
+     *
+     * @param updateIndex 0-based
+     * @return true if the row must be updated, else false. If false, then the update parameter must not be touched.
+     */
+    boolean handle(Select.Row row, SqlStatement update, int updateIndex) throws SQLException;
+  }
+
   private final Database db;
   private final Connection readConnection;
   private final Connection writeConnection;
@@ -43,7 +59,7 @@ public class MassUpdate {
   private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   private Select select;
-  private Upsert update;
+  private List<UpsertImpl> updates = new ArrayList<>(1);
 
   MassUpdate(Database db, Connection readConnection, Connection writeConnection) {
     this.db = db;
@@ -57,7 +73,7 @@ public class MassUpdate {
   }
 
   public MassUpdate update(String sql) throws SQLException {
-    this.update = UpsertImpl.create(writeConnection, sql);
+    this.updates.add(UpsertImpl.create(writeConnection, sql));
     return this;
   }
 
@@ -66,31 +82,61 @@ public class MassUpdate {
     return this;
   }
 
-  public void execute(final Handler handler) throws SQLException {
-    if (select == null || update == null) {
-      throw new IllegalStateException("SELECT or UPDATE requests are not defined");
-    }
+  public void execute(Handler handler) throws SQLException {
+    checkState(select != null && !updates.isEmpty(), "SELECT or UPDATE requests are not defined");
+    checkState(updates.size() == 1, "There should be only one update when using a " + Handler.class.getName());
 
     progress.start();
     try {
-      select.scroll(new Select.RowHandler() {
-        @Override
-        public void handle(Select.Row row) throws SQLException {
-          if (handler.handle(row, update)) {
-            update.addBatch();
-          }
-          counter.getAndIncrement();
-        }
-      });
-      if (((UpsertImpl) update).getBatchCount() > 0L) {
-        update.execute().commit();
-      }
-      update.close();
+      select.scroll(row -> callSingleHandler(handler, updates.iterator().next(), row));
+      closeUpdates();
 
       // log the total number of processed rows
       progress.log();
     } finally {
       progress.stop();
+    }
+  }
+
+  public void execute(MultiHandler handler) throws SQLException {
+    checkState(select != null && !updates.isEmpty(), "SELECT or UPDATE(s) requests are not defined");
+
+    progress.start();
+    try {
+      select.scroll(row -> callMultiHandler(handler, updates, row));
+      closeUpdates();
+
+      // log the total number of processed rows
+      progress.log();
+    } finally {
+      progress.stop();
+    }
+  }
+
+  private void callSingleHandler(Handler handler, Upsert update, Select.Row row) throws SQLException {
+    if (handler.handle(row, update)) {
+      update.addBatch();
+    }
+    counter.getAndIncrement();
+  }
+
+  private void callMultiHandler(MultiHandler handler, List<UpsertImpl> updates, Select.Row row) throws SQLException {
+    int i = 0;
+    for (UpsertImpl update : updates) {
+      if (handler.handle(row, update, i)) {
+        update.addBatch();
+      }
+      i++;
+    }
+    counter.getAndIncrement();
+  }
+
+  private void closeUpdates() throws SQLException {
+    for (UpsertImpl update : updates) {
+      if (update.getBatchCount() > 0L) {
+        update.execute().commit();
+      }
+      update.close();
     }
   }
 

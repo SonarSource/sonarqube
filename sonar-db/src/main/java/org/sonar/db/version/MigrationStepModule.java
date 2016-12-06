@@ -84,6 +84,7 @@ import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty;
+import org.sonar.db.version.v564.CleanUsurperRootComponents;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -167,6 +168,10 @@ public class MigrationStepModule extends Module {
       // 5.6
       FixTypeOfRuleTypeOnMysql.class,
       FixLengthOfIssuesMessageOnOracle.class,
-      UpdateUsersExternalIdentityWhenEmpty.class);
+      UpdateUsersExternalIdentityWhenEmpty.class,
+
+      // 5.6.4
+      CleanUsurperRootComponents.class
+    );
   }
 }
