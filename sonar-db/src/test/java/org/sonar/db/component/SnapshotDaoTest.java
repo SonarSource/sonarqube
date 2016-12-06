@@ -35,6 +35,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
@@ -294,6 +295,18 @@ public class SnapshotDaoTest {
     verifyStatusAndIsLastFlag("A2", SnapshotDto.STATUS_PROCESSED, true);
     // other project is untouched
     verifyStatusAndIsLastFlag("A3", SnapshotDto.STATUS_PROCESSED, true);
+  }
+
+  @Test
+  public void updateVersion() {
+    insertAnalysis("P1", "A1", STATUS_PROCESSED, true);
+    db.commit();
+
+    underTest.updateVersion(dbSession, "A1", "5.6.3");
+
+    SnapshotDto result = underTest.selectByUuid(dbSession, "A1").get();
+
+    assertThat(result.getVersion()).isEqualTo("5.6.3");
   }
 
   private void insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {

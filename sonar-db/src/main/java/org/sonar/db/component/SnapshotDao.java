@@ -138,6 +138,10 @@ public class SnapshotDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
+  public void updateVersion(DbSession dbSession, String analysisUuid, String version) {
+    mapper(dbSession).updateVersion(analysisUuid, version);
+  }
+
   /**
    * Used by Governance
    */

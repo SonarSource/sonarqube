@@ -148,6 +148,7 @@ import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
+import org.sonar.server.projectanalysis.ProjectAnalysisModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateModule;
@@ -489,6 +490,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Project Links
       ProjectLinksModule.class,
+
+      // Project Analyses
+      ProjectAnalysisModule.class,
 
       // System
       ServerLogging.class,

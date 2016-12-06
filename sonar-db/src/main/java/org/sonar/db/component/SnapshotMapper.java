@@ -55,4 +55,6 @@ public interface SnapshotMapper {
   void unsetIsLastFlagForComponentUuid(@Param("componentUuid") String componentUuid);
 
   void setIsLastFlagForAnalysisUuid(@Param("analysisUuid") String analysisUuid);
+
+  void updateVersion(@Param("analysisUuid") String analysisUuid, @Param("version") String version);
 }

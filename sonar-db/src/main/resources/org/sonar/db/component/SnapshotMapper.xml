@@ -177,6 +177,12 @@
     where uuid = #{analysisUuid}
   </update>
 
+  <update id="updateVersion" parameterType="map">
+    update snapshots
+    set version = #{version, jdbcType=VARCHAR}
+    where uuid = #{analysisUuid}
+  </update>
+
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots (
     uuid,
@@ -227,6 +233,5 @@
     #{period4Date, jdbcType=BIGINT},
     #{period5Date, jdbcType=BIGINT})
   </insert>
-
 </mapper>
 

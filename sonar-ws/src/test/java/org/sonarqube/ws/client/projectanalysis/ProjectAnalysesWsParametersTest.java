@@ -17,33 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
 
-import java.util.List;
-import org.sonar.db.Dao;
-import org.sonar.db.DbSession;
+package org.sonarqube.ws.client.projectanalysis;
 
-public class EventDao implements Dao {
+import org.junit.Test;
 
-  public List<EventDto> selectByComponentUuid(DbSession session, String componentUuid) {
-    return session.getMapper(EventMapper.class).selectByComponentUuid(componentUuid);
-  }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.TestUtils.hasOnlyPrivateConstructors;
 
-  public List<EventDto> selectByAnalysisUuid(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectByAnalysisUuid(uuid);
-  }
+public class ProjectAnalysesWsParametersTest {
 
-  public EventDto insert(DbSession session, EventDto dto) {
-    session.getMapper(EventMapper.class).insert(dto);
-
-    return dto;
-  }
-
-  public void delete(DbSession session, Long id) {
-    session.getMapper(EventMapper.class).delete(id);
-  }
-
-  private static EventMapper mapper(DbSession session) {
-    return session.getMapper(EventMapper.class);
+  @Test
+  public void private_access_only() {
+    assertThat(hasOnlyPrivateConstructors(ProjectAnalysesWsParameters.class)).isTrue();
   }
 }

@@ -65,6 +65,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.event.EventDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
@@ -99,6 +100,7 @@ public class DbTester extends ExternalResource {
 
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
+  private final EventDbTester eventTester;
   private final OrganizationDbTester organizationTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
   private final QualityGateDbTester qualityGateDbTester;
@@ -110,6 +112,7 @@ public class DbTester extends ExternalResource {
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
+    this.eventTester = new EventDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
     this.qualityGateDbTester = new QualityGateDbTester(this);
@@ -175,6 +178,10 @@ public class DbTester extends ExternalResource {
 
   public ComponentDbTester components() {
     return componentTester;
+  }
+
+  public EventDbTester events() {
+    return eventTester;
   }
 
   public OrganizationDbTester organizations() {

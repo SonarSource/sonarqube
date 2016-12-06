@@ -17,33 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
 
-import java.util.List;
-import org.sonar.db.Dao;
-import org.sonar.db.DbSession;
+@ParametersAreNonnullByDefault
+package org.sonar.server.projectanalysis;
 
-public class EventDao implements Dao {
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public List<EventDto> selectByComponentUuid(DbSession session, String componentUuid) {
-    return session.getMapper(EventMapper.class).selectByComponentUuid(componentUuid);
-  }
-
-  public List<EventDto> selectByAnalysisUuid(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectByAnalysisUuid(uuid);
-  }
-
-  public EventDto insert(DbSession session, EventDto dto) {
-    session.getMapper(EventMapper.class).insert(dto);
-
-    return dto;
-  }
-
-  public void delete(DbSession session, Long id) {
-    session.getMapper(EventMapper.class).delete(id);
-  }
-
-  private static EventMapper mapper(DbSession session) {
-    return session.getMapper(EventMapper.class);
-  }
-}

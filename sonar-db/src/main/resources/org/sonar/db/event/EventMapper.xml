@@ -24,6 +24,15 @@
     </where>
   </select>
 
+  <select id="selectByAnalysisUuid" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.analysis_uuid=#{analysisUuid}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
     VALUES (
