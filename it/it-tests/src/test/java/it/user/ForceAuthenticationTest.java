@@ -100,6 +100,7 @@ public class ForceAuthenticationTest {
     verifyPathDoesNotRequiresAuthentication("/api/system/status", GET);
     verifyPathDoesNotRequiresAuthentication("/api/system/migrate_db", POST);
     verifyPathDoesNotRequiresAuthentication("/api/users/identity_providers", GET);
+    verifyPathDoesNotRequiresAuthentication("/api/l10n/index", GET);
   }
 
   @Test
