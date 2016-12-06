@@ -19,10 +19,13 @@
  */
 package org.sonar.core.util;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +34,7 @@ public class UuidGeneratorImplTest {
   private UuidGeneratorImpl underTest = new UuidGeneratorImpl();
 
   @Test
-  public void generate_returns_unique_values_without_common_initial_letter_given_more_than_one_milisecond_between_generate_calls() throws InterruptedException {
+  public void generate_returns_unique_values_without_common_initial_letter_given_more_than_one_millisecond_between_generate_calls() throws InterruptedException {
     Base64.Encoder encoder = Base64.getEncoder();
     int count = 30;
     Set<String> uuids = new HashSet<>(count);
@@ -47,6 +50,33 @@ public class UuidGeneratorImplTest {
     for (int i = 1; i < count; i++) {
       assertThat(iterator.next()).describedAs("i=" + i).doesNotStartWith(base);
     }
+  }
+
+  @Test
+  public void generate_concurrent_test() throws InterruptedException {
+    int rounds = 500;
+    List<byte[]> uuids1 = new ArrayList<>(rounds);
+    List<byte[]> uuids2 = new ArrayList<>(rounds);
+    Thread t1 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        uuids1.add(underTest.generate());
+      }
+    });
+    Thread t2 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        uuids2.add(underTest.generate());
+      }
+    });
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+
+    Base64.Encoder encoder = Base64.getEncoder();
+    Set<String> uuids = new HashSet<>(rounds * 2);
+    uuids1.forEach(bytes -> uuids.add(encoder.encodeToString(bytes)));
+    uuids2.forEach(bytes -> uuids.add(encoder.encodeToString(bytes)));
+    assertThat(uuids).hasSize(rounds * 2);
   }
 
   @Test
@@ -67,5 +97,34 @@ public class UuidGeneratorImplTest {
     while (iterator.hasNext()) {
       assertThat(iterator.next()).startsWith(base);
     }
+  }
+
+  @Test
+  public void generate_from_FixedBase_concurrent_test() throws InterruptedException {
+    UuidGenerator.WithFixedBase withFixedBase = underTest.withFixedBase();
+    int rounds = 500;
+    List<byte[]> uuids1 = new ArrayList<>(rounds);
+    List<byte[]> uuids2 = new ArrayList<>(rounds);
+    AtomicInteger cnt = new AtomicInteger();
+    Thread t1 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        uuids1.add(withFixedBase.generate(cnt.getAndIncrement()));
+      }
+    });
+    Thread t2 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        uuids2.add(withFixedBase.generate(cnt.getAndIncrement()));
+      }
+    });
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+
+    Base64.Encoder encoder = Base64.getEncoder();
+    Set<String> uuids = new HashSet<>(rounds * 2);
+    uuids1.forEach(bytes -> uuids.add(encoder.encodeToString(bytes)));
+    uuids2.forEach(bytes -> uuids.add(encoder.encodeToString(bytes)));
+    assertThat(uuids).hasSize(rounds * 2);
   }
 }

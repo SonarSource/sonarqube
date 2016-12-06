@@ -44,14 +44,6 @@
     where ca.uuid=#{uuid}
   </select>
 
-  <select id="selectUuidsOfRecentlyCreatedByIsLastKey" parameterType="String" resultType="String">
-    select uuid
-    from ce_activity
-    where is_last_key=#{isLastKey}
-      and status &lt;&gt; 'CANCELED'
-    order by id desc
-  </select>
-
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
     SELECT
     <include refid="columns"/>
@@ -179,13 +171,6 @@
     set is_last=${_false},
     updated_at=#{updatedAt,jdbcType=BIGINT}
     where is_last=${_true} and is_last_key=#{isLastKey}
-  </update>
-
-  <update id="updateIsLastToTrueForUuid" parameterType="map">
-    update ce_activity
-    set is_last=${_true},
-    updated_at=#{updatedAt,jdbcType=BIGINT}
-    where uuid=#{uuid}
   </update>
 
   <delete id="deleteByUuids" parameterType="string">
