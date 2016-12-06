@@ -24,14 +24,19 @@ import it.Category4Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
+import pageobjects.Navigation;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.WsRequest.Method.GET;
+import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newWsClient;
 import static util.ItUtils.setServerProperty;
@@ -45,6 +50,9 @@ public class ForceAuthenticationTest {
 
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   static WsClient anonymousClient;
   static WsClient adminWsClient;
@@ -83,17 +91,45 @@ public class ForceAuthenticationTest {
     assertThat(anonymousClient.wsConnector().call(new PostRequest("/api/authentication/login")
       .setParam("login", LOGIN)
       .setParam("password", LOGIN)).isSuccessful()).isTrue();
-
-    assertThat(adminWsClient.wsConnector().call(new PostRequest("/api/authentication/logout")).isSuccessful()).isTrue();
+    verifyPathDoesNotRequiresAuthentication("/api/authentication/logout", POST);
   }
 
   @Test
-  public void other_ws_require_authentication() throws Exception {
-    assertThat(anonymousClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(401);
-    assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/issues/search")).code()).isEqualTo(200);
+  public void check_ws_not_requiring_authentication() throws Exception {
+    verifyPathDoesNotRequiresAuthentication("/api/system/db_migration_status", GET);
+    verifyPathDoesNotRequiresAuthentication("/api/system/status", GET);
+    verifyPathDoesNotRequiresAuthentication("/api/system/migrate_db", POST);
+  }
 
-    assertThat(anonymousClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(401);
-    assertThat(adminWsClient.wsConnector().call(new GetRequest("/api/rules/search")).code()).isEqualTo(200);
+  @Test
+  public void check_ws_requiring_authentication() throws Exception {
+    verifyPathRequiresAuthentication("/api/issues/search", GET);
+    verifyPathRequiresAuthentication("/api/rules/search", GET);
+  }
+
+  @Test
+  public void redirect_to_login_page() {
+    Navigation page = nav.openHomepage();
+    page.shouldBeRedirectToLogin();
+    page.openLogin().submitCredentials("admin", "admin").shouldBeLoggedIn();
+    page.logOut().shouldBeRedirectToLogin();
+  }
+
+  private void verifyPathRequiresAuthentication(String path, WsRequest.Method method) {
+    assertThat(call(anonymousClient, path, method).code()).isEqualTo(401);
+    WsResponse wsResponse = call(adminWsClient, path, method);
+    assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
+  }
+
+  private void verifyPathDoesNotRequiresAuthentication(String path, WsRequest.Method method) {
+    WsResponse wsResponse = call(anonymousClient, path, method);
+    assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
+    wsResponse = call(adminWsClient, path, method);
+    assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
+  }
+
+  private WsResponse call(WsClient client, String path, WsRequest.Method method) {
+    return method.equals(GET) ? client.wsConnector().call(new GetRequest(path)) : client.wsConnector().call(new PostRequest(path));
   }
 
 }

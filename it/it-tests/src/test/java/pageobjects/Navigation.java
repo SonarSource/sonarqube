@@ -33,6 +33,7 @@ import pageobjects.licenses.LicensesPage;
 import pageobjects.projects.ProjectsPage;
 import pageobjects.settings.SettingsPage;
 
+import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
 
@@ -95,9 +96,7 @@ public class Navigation extends ExternalResource {
   }
 
   public SettingsPage openSettings(@Nullable String projectKey) throws UnsupportedEncodingException {
-    String url = projectKey != null ?
-      "/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8") :
-      "/settings";
+    String url = projectKey != null ? "/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8") : "/settings";
     return open(url, SettingsPage.class);
   }
 
@@ -111,6 +110,10 @@ public class Navigation extends ExternalResource {
 
   public ServerIdPage openServerId() {
     return open("/settings/server_id", ServerIdPage.class);
+  }
+
+  public LoginPage openLogin() {
+    return open("/sessions/login", LoginPage.class);
   }
 
   public void open(String relativeUrl) {
@@ -170,6 +173,10 @@ public class Navigation extends ExternalResource {
 
   private SelenideElement loggedInDropdown() {
     return $(".js-user-authenticated");
+  }
+
+  public void shouldBeRedirectToLogin() {
+    $("#content").should(hasText("Log In to SonarQube"));
   }
 
 }
