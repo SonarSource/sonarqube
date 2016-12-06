@@ -22,6 +22,10 @@ package org.sonar.db.event;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static org.sonar.db.event.EventValidator.checkEventCategory;
+import static org.sonar.db.event.EventValidator.checkEventDescription;
+import static org.sonar.db.event.EventValidator.checkEventName;
+
 public class EventDto {
 
   public static final String CATEGORY_VERSION = "Version";
@@ -80,7 +84,7 @@ public class EventDto {
   }
 
   public EventDto setName(String name) {
-    this.name = name;
+    this.name = checkEventName(name);
     return this;
   }
 
@@ -89,7 +93,7 @@ public class EventDto {
   }
 
   public EventDto setCategory(String category) {
-    this.category = category;
+    this.category = checkEventCategory(category);
     return this;
   }
 
@@ -127,7 +131,7 @@ public class EventDto {
   }
 
   public EventDto setDescription(@Nullable String description) {
-    this.description = description;
+    this.description = checkEventDescription(description);
     return this;
   }
 

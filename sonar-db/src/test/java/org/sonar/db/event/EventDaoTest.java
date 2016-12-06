@@ -24,9 +24,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.event.EventTesting.newEvent;
 
 public class EventDaoTest {
 
@@ -34,6 +41,8 @@ public class EventDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
 
   EventDao underTest = dbTester.getDbClient().eventDao();
 
@@ -58,6 +67,25 @@ public class EventDaoTest {
     assertThat(dto.getData()).isEqualTo("some data");
     assertThat(dto.getDate()).isEqualTo(1413407091086L);
     assertThat(dto.getCreatedAt()).isEqualTo(1225630680000L);
+  }
+
+  @Test
+  public void select_by_analysis_uuid() {
+    ComponentDto project = newProjectDto();
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
+    SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    dbTester.commit();
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
+    dbTester.events().insertEvent(newEvent(otherAnalysis).setUuid("O1"));
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
+    dbTester.events().insertEvent(newEvent(otherAnalysis).setUuid("O2"));
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A3"));
+    dbTester.events().insertEvent(newEvent(otherAnalysis).setUuid("O3"));
+
+    List<EventDto> result = underTest.selectByAnalysisUuid(dbSession, analysis.getUuid());
+
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting(EventDto::getUuid).containsOnly("A1", "A2", "A3");
   }
 
   @Test
