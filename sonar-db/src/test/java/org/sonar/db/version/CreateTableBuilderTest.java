@@ -73,7 +73,7 @@ public class CreateTableBuilderTest {
   @Test
   public void constructor_fails_with_NPE_if_tablename_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name can't be null");
+    expectedException.expectMessage("Table name cannot be null");
 
     new CreateTableBuilder(mock(Dialect.class), null);
   }
@@ -313,7 +313,7 @@ public class CreateTableBuilderTest {
   @Test
   public void withPkConstraintName_throws_NPE_if_name_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Primary key constraint name can't be null");
+    expectedException.expectMessage("Constraint name cannot be null");
 
     underTest.withPkConstraintName(null);
   }
@@ -321,7 +321,7 @@ public class CreateTableBuilderTest {
   @Test
   public void withPkConstraintName_throws_IAE_if_name_is_not_lowercase() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Primary key constraint name must be lower case and contain only alphanumeric chars or '_', got 'Too'");
+    expectedException.expectMessage("Constraint name must be lower case and contain only alphanumeric chars or '_', got 'Too'");
 
     underTest.withPkConstraintName("Too");
   }
@@ -329,7 +329,7 @@ public class CreateTableBuilderTest {
   @Test
   public void withPkConstraintName_throws_IAE_if_name_is_more_than_30_char_long() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Primary key constraint name length can't be more than 30");
+    expectedException.expectMessage("Constraint name length can't be more than 30");
 
     underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyzabcdf");
   }
@@ -337,7 +337,7 @@ public class CreateTableBuilderTest {
   @Test
   public void withPkConstraintName_throws_IAE_if_name_starts_with_underscore() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Primary key constraint name must not start by a number or '_', got '_a'");
+    expectedException.expectMessage("Constraint name must not start by a number or '_', got '_a'");
 
     underTest.withPkConstraintName("_a");
   }
@@ -346,7 +346,7 @@ public class CreateTableBuilderTest {
   @UseDataProvider("digitCharsDataProvider")
   public void withPkConstraintName_throws_IAE_if_name_starts_with_number(char number) {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Primary key constraint name must not start by a number or '_', got '" + number + "a'");
+    expectedException.expectMessage("Constraint name must not start by a number or '_', got '" + number + "a'");
 
     underTest.withPkConstraintName(number + "a");
   }

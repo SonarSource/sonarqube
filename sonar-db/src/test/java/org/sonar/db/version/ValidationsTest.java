@@ -23,7 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.version.Validations.validateColumnName;
+import static org.sonar.db.version.Validations.validateIndexName;
 
 public class ValidationsTest {
 
@@ -60,4 +62,24 @@ public class ValidationsTest {
     validateColumnName("date-in/ms");
   }
 
+  @Test
+  public void validateIndexName_throws_IAE_when_index_name_contains_invalid_characters() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Index name must be lower case and contain only alphanumeric chars or '_', got '(not/valid)'");
+
+    validateIndexName("(not/valid)");
+  }
+
+  @Test
+  public void validateIndexName_throws_NPE_when_index_name_is_null() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Index name cannot be null");
+
+    validateIndexName(null);
+  }
+
+  @Test
+  public void validateIndexName_returns_valid_name() {
+    assertThat(validateIndexName("foo")).isEqualTo("foo");
+  }
 }

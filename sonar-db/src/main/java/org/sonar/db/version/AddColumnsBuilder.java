@@ -25,6 +25,7 @@ import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.PostgreSql;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.version.Validations.validateTableName;
 
 /**
  * Generate a SQL query to add multiple columns on a table
@@ -36,7 +37,7 @@ public class AddColumnsBuilder {
   private List<ColumnDef> columnDefs = newArrayList();
 
   public AddColumnsBuilder(Dialect dialect, String tableName) {
-    this.tableName = tableName;
+    this.tableName = validateTableName(tableName);
     this.dialect = dialect;
   }
 
