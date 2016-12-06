@@ -25,7 +25,5 @@ class CreateTableWebhookDeliveries < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v62.CreateTableWebhookDeliveries')
-    add_index 'webhook_deliveries', :component_uuid, :name => 'component_uuid'
-    add_index 'webhook_deliveries', :ce_task_uuid, :name => 'ce_task_uuid'
   end
 end

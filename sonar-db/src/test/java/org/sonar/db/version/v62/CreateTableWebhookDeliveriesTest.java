@@ -59,6 +59,8 @@ public class CreateTableWebhookDeliveriesTest {
     dbTester.assertColumnDefinition(TABLE, "error_stacktrace", Types.CLOB, null, true);
     dbTester.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
     dbTester.assertPrimaryKey(TABLE, "pk_" + TABLE, "uuid");
+    dbTester.assertIndex(TABLE, "component_uuid", "component_uuid");
+    dbTester.assertIndex(TABLE, "ce_task_uuid", "ce_task_uuid");
   }
 
   @Test
