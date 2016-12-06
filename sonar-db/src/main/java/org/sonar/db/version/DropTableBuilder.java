@@ -26,8 +26,7 @@ import org.sonar.db.dialect.Oracle;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.version.Validations.TABLE_NAME_MAX_SIZE;
-import static org.sonar.db.version.Validations.checkDbIdentifier;
+import static org.sonar.db.version.Validations.validateTableName;
 
 public class DropTableBuilder {
 
@@ -36,7 +35,7 @@ public class DropTableBuilder {
 
   public DropTableBuilder(Dialect dialect, String tableName) {
     this.dialect = requireNonNull(dialect, "dialect can't be null");
-    this.tableName = checkDbIdentifier(tableName, "Table name", TABLE_NAME_MAX_SIZE);
+    this.tableName = validateTableName(tableName);
   }
 
   public List<String> build() {

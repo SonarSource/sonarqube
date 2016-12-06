@@ -30,8 +30,9 @@ import static java.util.Objects.requireNonNull;
 
 public class Validations {
 
-  static final int TABLE_NAME_MAX_SIZE = 25;
-  static final int CONSTRAINT_NAME_MAX_SIZE = 30;
+  private static final int TABLE_NAME_MAX_SIZE = 25;
+  private static final int CONSTRAINT_NAME_MAX_SIZE = 30;
+  private static final int INDEX_NAME_MAX_SIZE = 30;
 
   private static final CharMatcher DIGIT_CHAR_MATCHER = inRange('0', '9');
   private static final CharMatcher LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('a', 'z');
@@ -41,10 +42,56 @@ public class Validations {
     // Only static stuff here
   }
 
+  /**
+   * Ensure {@code columnName} is a valid name for a column.
+   * @throws NullPointerException if {@code columnName} is {@code null}
+   * @throws IllegalArgumentException if {@code columnName} is not valid
+   * @return the same {@code columnName}
+   * @see #checkDbIdentifier(String, String, int)
+   */
   static String validateColumnName(@Nullable String columnName) {
     String name = requireNonNull(columnName, "Column name cannot be null");
     checkDbIdentifierCharacters(columnName, "Column name");
     return name;
+  }
+
+  /**
+   * Ensure {@code tableName} is a valid name for a table.
+   * @throws NullPointerException if {@code tableName} is {@code null}
+   * @throws IllegalArgumentException if {@code tableName} is not valid
+   * @return the same {@code tableName}
+   * @see #checkDbIdentifier(String, String, int)
+   */
+  static String validateTableName(@Nullable String tableName) {
+    requireNonNull(tableName, "Table name cannot be null");
+    checkDbIdentifier(tableName, "Table name", TABLE_NAME_MAX_SIZE);
+    return tableName;
+  }
+
+  /**
+   * Ensure {@code constraintName} is a valid name for a constraint.
+   * @throws NullPointerException if {@code constraintName} is {@code null}
+   * @throws IllegalArgumentException if {@code constraintName} is not valid
+   * @return the same {@code constraintName}
+   * @see #checkDbIdentifier(String, String, int)
+   */
+  static String validateConstraintName(@Nullable String constraintName) {
+    requireNonNull(constraintName, "Constraint name cannot be null");
+    checkDbIdentifier(constraintName, "Constraint name", CONSTRAINT_NAME_MAX_SIZE);
+    return constraintName;
+  }
+
+  /**
+   * Ensure {@code indexName} is a valid name for an index.
+   * @throws NullPointerException if {@code indexName} is {@code null}
+   * @throws IllegalArgumentException if {@code indexName} is not valid
+   * @return the same {@code indexName}
+   * @see #checkDbIdentifier(String, String, int)
+   */
+  static String validateIndexName(@Nullable String indexName) {
+    requireNonNull(indexName, "Index name cannot be null");
+    checkDbIdentifier(indexName, "Index name", INDEX_NAME_MAX_SIZE);
+    return indexName;
   }
 
   /**

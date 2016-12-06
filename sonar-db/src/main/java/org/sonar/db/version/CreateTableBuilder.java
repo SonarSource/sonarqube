@@ -41,9 +41,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.of;
-import static org.sonar.db.version.Validations.CONSTRAINT_NAME_MAX_SIZE;
-import static org.sonar.db.version.Validations.TABLE_NAME_MAX_SIZE;
-import static org.sonar.db.version.Validations.checkDbIdentifier;
+import static org.sonar.db.version.Validations.validateConstraintName;
+import static org.sonar.db.version.Validations.validateTableName;
 
 public class CreateTableBuilder {
 
@@ -57,7 +56,7 @@ public class CreateTableBuilder {
 
   public CreateTableBuilder(Dialect dialect, String tableName) {
     this.dialect = requireNonNull(dialect, "dialect can't be null");
-    this.tableName = checkDbIdentifier(tableName, "Table name", TABLE_NAME_MAX_SIZE);
+    this.tableName = validateTableName(tableName);
   }
 
   public List<String> build() {
@@ -102,7 +101,7 @@ public class CreateTableBuilder {
   }
 
   public CreateTableBuilder withPkConstraintName(String pkConstraintName) {
-    this.pkConstraintName = checkDbIdentifier(pkConstraintName, "Primary key constraint name", CONSTRAINT_NAME_MAX_SIZE);
+    this.pkConstraintName = validateConstraintName(pkConstraintName);
     return this;
   }
 
@@ -237,8 +236,8 @@ public class CreateTableBuilder {
       return Stream.empty();
     }
     return pkColumnDefs.stream()
-        .filter(this::isAutoIncrement)
-        .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
+      .filter(this::isAutoIncrement)
+      .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
   }
 
   private static String createSequenceFor(String tableName) {
@@ -247,13 +246,13 @@ public class CreateTableBuilder {
 
   private static String createTriggerFor(String tableName) {
     return "CREATE OR REPLACE TRIGGER " + tableName + "_idt" +
-        " BEFORE INSERT ON " + tableName +
-        " FOR EACH ROW" +
-        " BEGIN" +
-        " IF :new.id IS null THEN" +
-        " SELECT " + tableName + "_seq.nextval INTO :new.id FROM dual;" +
-        " END IF;" +
-        " END;";
+      " BEFORE INSERT ON " + tableName +
+      " FOR EACH ROW" +
+      " BEGIN" +
+      " IF :new.id IS null THEN" +
+      " SELECT " + tableName + "_seq.nextval INTO :new.id FROM dual;" +
+      " END IF;" +
+      " END;";
   }
 
   public enum ColumnFlag {
