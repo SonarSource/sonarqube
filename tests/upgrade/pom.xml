@@ -54,6 +54,12 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.codeborne</groupId>
+      <artifactId>selenide</artifactId>
+      <version>3.7</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -19,6 +19,8 @@
  */
 package org.sonarsource.sonarqube.upgrade;
 
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
@@ -42,6 +44,8 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 
+import static com.codeborne.selenide.Condition.hasText;
+import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpgradeTest {
@@ -170,6 +174,7 @@ public class UpgradeTest {
       .setOrchestratorProperty("javaVersion", javaVersion)
       .addPlugin("java").build();
     orchestrator.start();
+    initSelenide(orchestrator);
   }
 
   private void startNewServer(String sqVersion, String javaVersion) {
@@ -181,6 +186,7 @@ public class UpgradeTest {
       .addPlugin("java");
     orchestrator = builder.build();
     orchestrator.start();
+    initSelenide(orchestrator);
   }
 
   private void stopServer() {
@@ -245,8 +251,7 @@ public class UpgradeTest {
   }
 
   private void checkUrlIsRedirectedToMaintenancePage(String url) {
-    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest(url)).failIfNotSuccessful();
-    assertThat(response.requestUrl()).contains("/maintenance");
+    shouldBeRedirectToMaintenance(url);
   }
 
   private static WsClient newWsClient(Orchestrator orchestrator) {
@@ -254,5 +259,18 @@ public class UpgradeTest {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(server.getUrl())
       .build());
+  }
+
+  private static void initSelenide(Orchestrator orchestrator) {
+    String browser = orchestrator.getConfiguration().getString("orchestrator.browser", "firefox");
+    SelenideConfig.INSTANCE
+      .setBrowser(browser)
+      .setBaseUrl(orchestrator.getServer().getUrl());
+    WebDriverRunner.getWebDriver().manage().deleteAllCookies();
+  }
+
+  private void shouldBeRedirectToMaintenance(String relativeUrl) {
+    Selenide.open(relativeUrl);
+    $("#content").should(hasText("SonarQube is under maintenance"));
   }
 }

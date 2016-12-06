@@ -23,6 +23,8 @@ import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.version.Version;
 import org.apache.commons.lang.StringUtils;
 
+import static java.util.Objects.requireNonNull;
+
 public class MssqlConfig {
 
   /**
@@ -31,7 +33,7 @@ public class MssqlConfig {
    * the MS URL, so it must be changed at runtime for versions < 5.2.
    */
   public static String fixUrl(Configuration conf, Version sqVersion) {
-    String jdbcUrl = conf.getString("sonar.jdbc.url");
+    String jdbcUrl = requireNonNull(conf.getString("sonar.jdbc.url"), "No JDBC url configured");
     if (jdbcUrl.startsWith("jdbc:sqlserver:") && !sqVersion.isGreaterThanOrEquals("5.2")) {
       // Job is configured with the new Microsoft driver, which is not supported by old versions of SQ
       String host = StringUtils.substringBetween(jdbcUrl, "jdbc:sqlserver://", ";databaseName=");
