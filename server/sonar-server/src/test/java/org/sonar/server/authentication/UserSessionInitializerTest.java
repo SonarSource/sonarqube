@@ -111,6 +111,7 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/server/setup");
     assertPathIsIgnored("/api/server/version");
     assertPathIsIgnored("/api/users/identity_providers");
+    assertPathIsIgnored("/api/l10n/index");
 
     // exclude static resources
     assertPathIsIgnored("/css/style.css");

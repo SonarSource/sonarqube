@@ -93,7 +93,7 @@ public class UpgradeTest {
   private void upgradeTo(String sqVersion, String javaVersion) {
     startNewServer(sqVersion, SQ_VERSION_DEV.equals(sqVersion) ? LATEST_JAVA_RELEASE : javaVersion);
     checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
-    checkUrlsBeforeUpgrade();
+    checkUrlsBeforeUpgrade(sqVersion);
 
     upgrade();
     checkSystemStatus(ServerStatusResponse.Status.UP);
@@ -106,11 +106,12 @@ public class UpgradeTest {
     assertThat(serverStatusResponse.getStatus()).isEqualTo(serverStatus);
   }
 
-  private void checkUrlsBeforeUpgrade() {
+  private void checkUrlsBeforeUpgrade(String sqVersion) {
     // These urls should be available when system requires a migration
     checkUrlIsReturningOk("/api/system/status");
     checkUrlIsReturningOk("/api/system/db_migration_status");
     checkUrlIsReturningOk("/api/webservices/list");
+    checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
 
     // These urls should not be available when system requires a migration
     checkUrlIsReturningNotFound("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
@@ -132,6 +133,7 @@ public class UpgradeTest {
     checkUrlIsReturningOk("/api/system/status");
     checkUrlIsReturningOk("/api/system/db_migration_status");
     checkUrlIsReturningOk("/api/webservices/list");
+    checkUrlIsReturningOk("/api/l10n/index");
 
     checkUrlIsReturningOk("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
     checkUrlIsReturningOk("/api/components/tree?baseComponentKey=org.apache.struts%3Astruts-core");
@@ -227,6 +229,14 @@ public class UpgradeTest {
 
   private void checkUrlIsReturningOk(String url) {
     newWsClient(orchestrator).wsConnector().call(new GetRequest(url)).failIfNotSuccessful();
+  }
+
+  // Some urls are available during migration only recently
+  private void checkUrlIsReturningOkOnlyForDevVersion(String url, String sqVersion) {
+    if (sqVersion.equals(SQ_VERSION_DEV)) {
+      WsResponse wsResponse = newWsClient(orchestrator).wsConnector().call(new GetRequest(url));
+      assertThat(wsResponse.isSuccessful()).as("SQ version %s", sqVersion).isTrue();
+    }
   }
 
   private void checkUrlIsReturningNotFound(String url) {

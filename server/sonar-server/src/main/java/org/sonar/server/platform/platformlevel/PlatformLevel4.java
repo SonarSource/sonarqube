@@ -346,6 +346,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // localization
       L10nWs.class,
+      org.sonar.server.platform.ws.IndexAction.class,
 
       // authentication
       AuthenticationModule.class,
