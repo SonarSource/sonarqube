@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Clob;
@@ -76,6 +75,7 @@ import org.sonar.db.user.UserDbTester;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Lists.asList;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.sql.ResultSetMetaData.columnNoNulls;
@@ -258,7 +258,7 @@ public class DbTester extends ExternalResource {
 
   private static Map<String, Object> mapOf(String firstColumn, Object... values) {
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-    List<Object> args = Lists.asList(firstColumn, values);
+    List<Object> args = asList(firstColumn, values);
     for (int i = 0; i < args.size(); i++) {
       String key = args.get(i).toString();
       Object value = args.get(i + 1);
@@ -530,6 +530,37 @@ public class DbTester extends ExternalResource {
       assertThat(tableExists).isFalse();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to check if table exists", e);
+    }
+  }
+
+  /**
+   * Verify that non-unique index exists on columns
+   */
+  public void assertIndex(String tableName, String indexName, String expectedColumn, String... expectedSecondaryColumns) {
+    assertIndexImpl(tableName, indexName, false, expectedColumn, expectedSecondaryColumns);
+  }
+
+  /**
+   * Verify that unique index exists on columns
+   */
+  public void assertUniqueIndex(String tableName, String indexName, String expectedColumn, String... expectedSecondaryColumns) {
+    assertIndexImpl(tableName, indexName, true, expectedColumn, expectedSecondaryColumns);
+  }
+
+  private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
+    try (Connection connection = getConnection();
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, true)) {
+      List<String> onColumns = new ArrayList<>();
+      while (rs.next()) {
+        if (indexName.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
+          assertThat(rs.getBoolean("NON_UNIQUE")).isEqualTo(!expectedUnique);
+          int position = rs.getInt("ORDINAL_POSITION");
+          onColumns.add(position - 1, rs.getString("COLUMN_NAME").toLowerCase(Locale.ENGLISH));
+        }
+      }
+      assertThat(asList(expectedColumn, expectedSecondaryColumns)).isEqualTo(onColumns);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to check index", e);
     }
   }
 
