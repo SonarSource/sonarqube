@@ -115,7 +115,8 @@ public class UpgradeTest {
     checkUrlIsReturningOk("/api/system/status");
     checkUrlIsReturningOk("/api/system/db_migration_status");
     checkUrlIsReturningOk("/api/webservices/list");
-    checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
+    // TODO Reactivate when latest Sonarqube version will be in repox
+//    checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
 
     // These urls should not be available when system requires a migration
     checkUrlIsReturningNotFound("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
