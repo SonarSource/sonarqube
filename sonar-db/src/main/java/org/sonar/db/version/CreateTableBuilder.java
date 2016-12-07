@@ -39,6 +39,7 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.of;
 import static org.sonar.db.version.Validations.validateConstraintName;
@@ -134,6 +135,7 @@ public class CreateTableBuilder {
       res.append(columnDef.getName());
       res.append(' ');
       appendDataType(res, dialect, columnDef);
+      appendDefaultValue(res, columnDef);
       appendNullConstraint(res, columnDef);
       appendColumnFlags(res, dialect, columnDef);
       if (columnDefIterator.hasNext()) {
@@ -166,6 +168,21 @@ public class CreateTableBuilder {
       res.append(" NULL");
     } else {
       res.append(" NOT NULL");
+    }
+  }
+
+  private void appendDefaultValue(StringBuilder sql, ColumnDef columnDef) {
+    Object defaultValue = columnDef.getDefaultValue();
+    if (defaultValue != null) {
+      sql.append(" DEFAULT ");
+
+      if (defaultValue instanceof String) {
+        sql.append(format("'%s'", defaultValue));
+      } else if (defaultValue instanceof Boolean) {
+        sql.append((boolean) defaultValue ? dialect.getTrueSqlValue() : dialect.getFalseSqlValue());
+      } else {
+        sql.append(defaultValue);
+      }
     }
   }
 

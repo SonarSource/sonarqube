@@ -41,20 +41,23 @@ public class BooleanColumnDefTest {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
       .setColumnName("enabled")
       .setIsNullable(false)
+      .setDefaultValue(true)
       .build();
 
     assertThat(def.getName()).isEqualTo("enabled");
     assertThat(def.isNullable()).isFalse();
+    assertThat(def.getDefaultValue()).isEqualTo(true);
   }
 
   @Test
-  public void build_column_def_with_default_values() throws Exception {
+  public void build_column_def_with_only_required_attributes() throws Exception {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
       .setColumnName("enabled")
       .build();
 
     assertThat(def.getName()).isEqualTo("enabled");
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test

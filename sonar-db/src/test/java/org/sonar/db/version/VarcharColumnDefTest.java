@@ -41,15 +41,17 @@ public class VarcharColumnDefTest {
       .setColumnName("issues")
       .setLimit(10)
       .setIsNullable(true)
+      .setDefaultValue("foo")
       .build();
 
     assertThat(def.getName()).isEqualTo("issues");
     assertThat(def.getColumnSize()).isEqualTo(10);
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isEqualTo("foo");
   }
 
   @Test
-  public void build_string_column_def_with_default_values() throws Exception {
+  public void build_string_column_def_with_only_required_attributes() throws Exception {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
@@ -58,6 +60,7 @@ public class VarcharColumnDefTest {
     assertThat(def.getName()).isEqualTo("issues");
     assertThat(def.getColumnSize()).isEqualTo(10);
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test

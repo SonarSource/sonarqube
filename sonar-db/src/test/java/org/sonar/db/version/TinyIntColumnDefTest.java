@@ -47,6 +47,7 @@ public class TinyIntColumnDefTest {
 
     assertThat(def.getName()).isEqualTo("foo");
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test

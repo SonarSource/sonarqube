@@ -25,6 +25,7 @@ import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.PostgreSql;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.sonar.db.version.Validations.validateTableName;
 
 /**
@@ -80,6 +81,18 @@ public class AddColumnsBuilder {
 
   private void addColumn(StringBuilder sql, ColumnDef columnDef) {
     sql.append(columnDef.getName()).append(" ").append(columnDef.generateSqlType(dialect));
+    Object defaultValue = columnDef.getDefaultValue();
+    if (defaultValue != null) {
+      sql.append(" DEFAULT ");
+      // TODO remove duplication with CreateTableBuilder
+      if (defaultValue instanceof String) {
+        sql.append(format("'%s'", defaultValue));
+      } else if (defaultValue instanceof Boolean) {
+        sql.append((boolean) defaultValue ? dialect.getTrueSqlValue() : dialect.getFalseSqlValue());
+      } else {
+        sql.append(defaultValue);
+      }
+    }
     sql.append(columnDef.isNullable() ? " NULL" : " NOT NULL");
   }
 

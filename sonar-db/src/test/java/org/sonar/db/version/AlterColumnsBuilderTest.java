@@ -30,12 +30,13 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AlterColumnsBuilderTest {
 
-  static final String TABLE_NAME = "issues";
+  private static final String TABLE_NAME = "issues";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -113,6 +114,25 @@ public class AlterColumnsBuilderTest {
     thrown.expectMessage("No column has been defined");
 
     new AlterColumnsBuilder(new H2(), TABLE_NAME).build();
+  }
+
+  /**
+   * As we want DEFAULT value to be removed from all tables, it is supported
+   * only on creation of tables and columns, not on alter.
+   */
+  @Test
+  public void updateColumn_throws_IAE_if_default_value_is_defined() {
+    BooleanColumnDef column = newBooleanColumnDefBuilder()
+      .setColumnName("enabled")
+      .setIsNullable(false)
+      .setDefaultValue(false)
+      .build();
+    AlterColumnsBuilder alterColumnsBuilder = new AlterColumnsBuilder(new H2(), TABLE_NAME);
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Default value is not supported on alter of column 'enabled'");
+
+    alterColumnsBuilder.updateColumn(column);
   }
 
   private AlterColumnsBuilder createSampleBuilder(Dialect dialect) {

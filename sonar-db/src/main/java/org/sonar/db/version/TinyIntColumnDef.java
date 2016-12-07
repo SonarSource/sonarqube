@@ -35,7 +35,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 public class TinyIntColumnDef extends AbstractColumnDef {
 
   private TinyIntColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
   }
 
   @Override

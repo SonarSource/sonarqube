@@ -20,6 +20,7 @@
 package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
 
@@ -42,7 +43,7 @@ public class VarcharColumnDef extends AbstractColumnDef {
   private final int columnSize;
 
   private VarcharColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, builder.defaultValue);
     this.columnSize = builder.columnSize;
   }
 
@@ -71,6 +72,9 @@ public class VarcharColumnDef extends AbstractColumnDef {
 
     private boolean isNullable = true;
 
+    @CheckForNull
+    public String defaultValue = null;
+
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);
       return this;
@@ -83,6 +87,11 @@ public class VarcharColumnDef extends AbstractColumnDef {
 
     public Builder setIsNullable(boolean isNullable) {
       this.isNullable = isNullable;
+      return this;
+    }
+
+    public Builder setDefaultValue(@Nullable String s) {
+      this.defaultValue = s;
       return this;
     }
 

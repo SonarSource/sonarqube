@@ -51,6 +51,7 @@ public class DecimalColumnDefTest {
     assertThat(def.getPrecision()).isEqualTo(30);
     assertThat(def.getScale()).isEqualTo(20);
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test
@@ -94,7 +95,7 @@ public class DecimalColumnDefTest {
   }
 
   @Test
-  public void create_builder_with_default_values() throws Exception {
+  public void create_builder_with_only_required_attributes() throws Exception {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
       .setColumnName("issues")
       .build();
@@ -102,6 +103,7 @@ public class DecimalColumnDefTest {
     assertThat(def.getPrecision()).isEqualTo(38);
     assertThat(def.getScale()).isEqualTo(20);
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test

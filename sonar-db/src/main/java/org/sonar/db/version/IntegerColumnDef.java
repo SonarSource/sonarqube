@@ -32,7 +32,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 public class IntegerColumnDef extends AbstractColumnDef {
 
   private IntegerColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
   }
 
   public static Builder newIntegerColumnDefBuilder() {
