@@ -19,13 +19,19 @@
  */
 package org.sonar.db.version;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public abstract class AbstractColumnDef implements ColumnDef {
   private final String columnName;
   private final boolean isNullable;
+  @CheckForNull
+  private final Object defaultValue;
 
-  public AbstractColumnDef(String columnName, boolean isNullable) {
+  public AbstractColumnDef(String columnName, boolean isNullable, @Nullable Object defaultValue) {
     this.columnName = columnName;
     this.isNullable = isNullable;
+    this.defaultValue = defaultValue;
   }
 
   @Override
@@ -36,5 +42,10 @@ public abstract class AbstractColumnDef implements ColumnDef {
   @Override
   public boolean isNullable() {
     return isNullable;
+  }
+
+  @Override
+  public Object getDefaultValue() {
+    return defaultValue;
   }
 }

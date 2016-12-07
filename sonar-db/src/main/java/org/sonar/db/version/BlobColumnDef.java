@@ -31,7 +31,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 
 public class BlobColumnDef extends AbstractColumnDef {
   public BlobColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
   }
 
   @Override

@@ -509,6 +509,70 @@ public class CreateTableBuilderTest {
       });
   }
 
+  @Test
+  public void build_adds_DEFAULT_clause_on_varchar_column_on_H2() {
+    verifyDefaultClauseOnVarcharColumn(H2, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_varchar_column_on_MSSQL() {
+    verifyDefaultClauseOnVarcharColumn(MS_SQL, "CREATE TABLE table_42 (status NVARCHAR (1) DEFAULT 'P' NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_varchar_column_on_MySQL() {
+    verifyDefaultClauseOnVarcharColumn(MY_SQL, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_varchar_column_on_Oracle() {
+    verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_varchar_column_on_PostgreSQL() {
+    verifyDefaultClauseOnVarcharColumn(POSTGRESQL, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL)");
+  }
+
+  private static void verifyDefaultClauseOnVarcharColumn(Dialect dialect, String expectedSql) {
+    List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("status").setLimit(1).setIsNullable(false).setDefaultValue("P").build())
+      .build();
+    assertThat(stmts).containsExactly(expectedSql);
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_boolean_column_on_H2() {
+    verifyDefaultClauseOnBooleanColumn(H2, "CREATE TABLE table_42 (enabled BOOLEAN DEFAULT true NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_boolean_column_on_MSSQL() {
+    verifyDefaultClauseOnBooleanColumn(MS_SQL, "CREATE TABLE table_42 (enabled BIT DEFAULT 1 NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_boolean_column_on_MySQL() {
+    verifyDefaultClauseOnBooleanColumn(MY_SQL, "CREATE TABLE table_42 (enabled TINYINT(1) DEFAULT true NOT NULL) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_boolean_column_on_Oracle() {
+    verifyDefaultClauseOnBooleanColumn(ORACLE, "CREATE TABLE table_42 (enabled NUMBER(1) DEFAULT 1 NOT NULL)");
+  }
+
+  @Test
+  public void build_adds_DEFAULT_clause_on_boolean_column_on_PostgreSQL() {
+    verifyDefaultClauseOnBooleanColumn(POSTGRESQL, "CREATE TABLE table_42 (enabled BOOLEAN DEFAULT true NOT NULL)");
+  }
+
+  private static void verifyDefaultClauseOnBooleanColumn(Dialect dialect, String expectedSql) {
+    List<String> stmts = new CreateTableBuilder(dialect, TABLE_NAME)
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("enabled").setIsNullable(false).setDefaultValue(true).build())
+      .build();
+    assertThat(stmts).containsExactly(expectedSql);
+  }
+
   private static String bigIntSqlType(Dialect dialect) {
     return Oracle.ID.equals(dialect.getId()) ? "NUMBER (38)" : "BIGINT";
   }

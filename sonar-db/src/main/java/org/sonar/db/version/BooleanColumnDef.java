@@ -19,6 +19,7 @@
  */
 package org.sonar.db.version;
 
+import javax.annotation.Nullable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -32,8 +33,9 @@ import static org.sonar.db.version.Validations.validateColumnName;
  * Used to define VARCHAR column
  */
 public class BooleanColumnDef extends AbstractColumnDef {
+
   private BooleanColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, builder.defaultValue);
   }
 
   public static Builder newBooleanColumnDefBuilder() {
@@ -59,7 +61,7 @@ public class BooleanColumnDef extends AbstractColumnDef {
 
   public static class Builder {
     private String columnName;
-
+    private Boolean defaultValue = null;
     private boolean isNullable = true;
 
     public Builder setColumnName(String columnName) {
@@ -69,6 +71,11 @@ public class BooleanColumnDef extends AbstractColumnDef {
 
     public Builder setIsNullable(boolean isNullable) {
       this.isNullable = isNullable;
+      return this;
+    }
+
+    public Builder setDefaultValue(@Nullable Boolean b) {
+      this.defaultValue = b;
       return this;
     }
 

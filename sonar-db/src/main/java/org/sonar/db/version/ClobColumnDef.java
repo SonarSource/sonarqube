@@ -19,7 +19,6 @@
  */
 package org.sonar.db.version;
 
-import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -31,13 +30,11 @@ import static org.sonar.db.version.Validations.validateColumnName;
 
 /**
  * Used to define CLOB columns
- *
- * Warning, for the moment it's only supporting MsSQL
  */
 public class ClobColumnDef extends AbstractColumnDef {
 
   private ClobColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
   }
 
   public static Builder newClobColumnDefBuilder() {
@@ -63,9 +60,7 @@ public class ClobColumnDef extends AbstractColumnDef {
   }
 
   public static class Builder {
-    @CheckForNull
     private String columnName;
-
     private boolean isNullable = true;
 
     public Builder setColumnName(String columnName) {

@@ -28,6 +28,7 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
@@ -54,6 +55,8 @@ public class AlterColumnsBuilder {
   }
 
   public AlterColumnsBuilder updateColumn(ColumnDef columnDef) {
+    // limitation of Oracle, only attribute changes must be defined in ALTER.
+    checkArgument(columnDef.getDefaultValue()==null, "Default value is not supported on alter of column '%s'", columnDef.getName());
     columnDefs.add(columnDef);
     return this;
   }
@@ -137,6 +140,7 @@ public class AlterColumnsBuilder {
     if (addNotNullableProperty) {
       sql.append(columnDef.isNullable() ? " NULL" : " NOT NULL");
     }
+
   }
 
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.version;
 
+import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
 
 public interface ColumnDef {
@@ -29,4 +30,6 @@ public interface ColumnDef {
 
   String generateSqlType(Dialect dialect);
 
+  @CheckForNull
+  Object getDefaultValue();
 }

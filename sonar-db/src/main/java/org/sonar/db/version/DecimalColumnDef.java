@@ -38,7 +38,7 @@ public class DecimalColumnDef extends AbstractColumnDef {
   private final int scale;
 
   private DecimalColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
     this.precision = builder.precision;
     this.scale = builder.scale;
   }

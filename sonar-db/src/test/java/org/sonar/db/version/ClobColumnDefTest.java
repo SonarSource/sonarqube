@@ -43,16 +43,18 @@ public class ClobColumnDefTest {
   public void build_string_column_def() throws Exception {
     assertThat(underTest.getName()).isEqualTo("issues");
     assertThat(underTest.isNullable()).isTrue();
+    assertThat(underTest.getDefaultValue()).isNull();
   }
 
   @Test
-  public void build_string_column_def_with_default_values() throws Exception {
+  public void build_string_column_def_with_only_required_attributes() throws Exception {
     ClobColumnDef def = new ClobColumnDef.Builder()
       .setColumnName("issues")
       .build();
 
     assertThat(def.getName()).isEqualTo("issues");
     assertThat(def.isNullable()).isTrue();
+    assertThat(def.getDefaultValue()).isNull();
   }
 
   @Test

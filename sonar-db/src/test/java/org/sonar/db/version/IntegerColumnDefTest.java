@@ -76,6 +76,11 @@ public class IntegerColumnDefTest {
   }
 
   @Test
+  public void getDefaultValue_always_returns_null() {
+    assertThat(newIntegerColumnDefBuilder().setColumnName("a").build().getDefaultValue()).isNull();
+  }
+
+  @Test
   public void generateSqlType_for_MsSql() {
     assertThat(underTest.generateSqlType(new MsSql())).isEqualTo("INT");
   }

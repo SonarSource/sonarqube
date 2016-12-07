@@ -28,7 +28,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 public class BigIntegerColumnDef extends AbstractColumnDef {
 
   private BigIntegerColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable);
+    super(builder.columnName, builder.isNullable, null);
   }
 
   public static Builder newBigIntegerColumnDefBuilder() {

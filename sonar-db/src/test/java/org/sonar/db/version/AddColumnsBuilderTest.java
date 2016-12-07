@@ -30,41 +30,44 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddColumnsBuilderTest {
 
-  static final String TABLE_NAME = "issues";
+  private static final String TABLE_NAME = "issues";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void add_columns_on_h2() {
     assertThat(createSampleBuilder(new H2()).build())
-      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL, col_with_default BOOLEAN DEFAULT false NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL)");
   }
 
   @Test
   public void add_columns_on_mysql() {
     assertThat(createSampleBuilder(new MySql()).build())
-      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL, col_with_default TINYINT(1) DEFAULT false NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL)");
   }
 
   @Test
   public void add_columns_on_oracle() {
     assertThat(createSampleBuilder(new Oracle()).build())
-      .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10) NOT NULL)");
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10) NOT NULL, col_with_default NUMBER(1) DEFAULT 0 NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL)");
   }
 
   @Test
   public void add_columns_on_postgresql() {
     assertThat(createSampleBuilder(new PostgreSql()).build())
-      .isEqualTo("ALTER TABLE issues ADD COLUMN date_in_ms BIGINT NULL, ADD COLUMN name VARCHAR (10) NOT NULL");
+      .isEqualTo("ALTER TABLE issues ADD COLUMN date_in_ms BIGINT NULL, ADD COLUMN name VARCHAR (10) NOT NULL, ADD COLUMN col_with_default BOOLEAN DEFAULT false NOT NULL, ADD COLUMN varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL");
   }
 
   @Test
   public void add_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name NVARCHAR (10) NOT NULL");
+      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name NVARCHAR (10) NOT NULL, col_with_default BIT DEFAULT 0 NOT NULL, varchar_col_with_default NVARCHAR (3) DEFAULT 'foo' NOT NULL");
   }
 
   @Test
@@ -78,6 +81,10 @@ public class AddColumnsBuilderTest {
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
     return new AddColumnsBuilder(dialect, TABLE_NAME)
       .addColumn(new BigIntegerColumnDef.Builder().setColumnName("date_in_ms").setIsNullable(true).build())
-      .addColumn(new VarcharColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build());
+      .addColumn(new VarcharColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build())
+
+      // columns with default values
+      .addColumn(newBooleanColumnDefBuilder().setColumnName("col_with_default").setDefaultValue(false).setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_with_default").setLimit(3).setDefaultValue("foo").setIsNullable(false).build());
   }
 }
