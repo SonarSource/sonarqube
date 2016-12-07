@@ -71,7 +71,7 @@ public class H2Database implements Database {
     Connection connection = null;
     try {
       connection = datasource.getConnection();
-      DdlUtils.createSchema(connection, "h2");
+      DdlUtils.createSchema(connection, "h2", true);
 
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
