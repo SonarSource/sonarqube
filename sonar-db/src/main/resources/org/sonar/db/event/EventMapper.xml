@@ -15,6 +15,15 @@
     e.created_at as "createdAt"
   </sql>
 
+  <select id="selectByUuid" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.uuid=#{uuid}
+    </where>
+  </select>
+
   <select id="selectByComponentUuid" parameterType="String" resultType="Event">
     SELECT
     <include refid="eventColumns"/>
@@ -47,8 +56,12 @@
       #{createdAt, jdbcType=BIGINT})
   </insert>
 
-  <delete id="delete">
+  <delete id="deleteById" parameterType="Long">
     DELETE FROM events WHERE id=#{id}
+  </delete>
+
+  <delete id="deleteByUuid" parameterType="String">
+    DELETE FROM events WHERE uuid=#{uuid}
   </delete>
 
 </mapper>

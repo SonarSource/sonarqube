@@ -20,6 +20,7 @@
 package org.sonar.db.event;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,6 +46,19 @@ public class EventDaoTest {
   private DbSession dbSession = dbTester.getSession();
 
   EventDao underTest = dbTester.getDbClient().eventDao();
+
+  @Test
+  public void select_by_uuid() {
+    SnapshotDto analysis = newAnalysis(newProjectDto());
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("A3"));
+
+    Optional<EventDto> result = underTest.selectByUuid(dbSession, "A2");
+
+    assertThat(result).isPresent();
+    assertThat(result.get().getUuid()).isEqualTo("A2");
+  }
 
   @Test
   public void select_by_component_uuid() {
@@ -116,11 +130,21 @@ public class EventDaoTest {
   }
 
   @Test
-  public void delete() {
+  public void delete_by_id() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 
     underTest.delete(dbTester.getSession(), 1L);
     dbTester.getSession().commit();
+
+    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
+  }
+
+  @Test
+  public void delete_by_uuid() {
+    dbTester.events().insertEvent(newEvent(newAnalysis(newProjectDto())).setUuid("E1"));
+
+    underTest.delete(dbTester.getSession(), "E1");
+    dbTester.commit();
 
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
   }

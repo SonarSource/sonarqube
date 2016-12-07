@@ -1,0 +1,122 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.projectanalysis.ws;
+
+import java.util.List;
+import javax.annotation.Nullable;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.event.EventDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.event.EventTesting.newEvent;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
+
+public class DeleteEventActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  private WsActionTester ws = new WsActionTester(new DeleteEventAction(db.getDbClient(), userSession));
+
+  @Test
+  public void delete_event() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E2"));
+
+    call("E2");
+
+    List<EventDto> events = db.getDbClient().eventDao().selectByAnalysisUuid(db.getSession(), analysis.getUuid());
+    assertThat(events).extracting(EventDto::getUuid).containsExactly("E1");
+  }
+
+  @Test
+  public void delete_event_as_project_admin() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
+
+    call("E1");
+
+    assertThat(db.countRowsOfTable("events")).isEqualTo(0);
+  }
+
+  @Test
+  public void fail_if_event_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("E42' not found");
+
+    call("E42");
+  }
+
+  @Test
+  public void fail_if_not_enough_permission() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+    userSession.anonymous();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call("E1");
+  }
+
+  @Test
+  public void fail_if_event_not_provided() {
+    expectedException.expect(IllegalArgumentException.class);
+
+    call(null);
+  }
+
+  @Test
+  public void ws_definition() {
+    WebService.Action definition = ws.getDef();
+    assertThat(definition.key()).isEqualTo("delete_event");
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.param(PARAM_EVENT).isRequired()).isTrue();
+  }
+
+  private void call(@Nullable String event) {
+    TestRequest request = ws.newRequest();
+    if (event != null) {
+      request.setParam(PARAM_EVENT, event);
+    }
+
+    request.execute();
+  }
+}
