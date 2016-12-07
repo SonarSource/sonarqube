@@ -185,7 +185,14 @@ export default class ComponentNavMenu extends React.Component {
       return null;
     }
     const url = `/project/history?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_history.page'), '/project/history');
+    // return this.renderLink(url, translate('project_history.page'), '/project/history');
+    return (
+        <li key={url}>
+          <span className="text-muted" style={{ cursor: 'not-allowed', textDecoration: 'line-through' }}>
+            {translate('project_history.page')}
+          </span>
+        </li>
+    );
   }
 
   renderBackgroundTasksLink () {

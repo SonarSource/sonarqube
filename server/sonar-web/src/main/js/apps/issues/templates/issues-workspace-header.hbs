@@ -12,7 +12,8 @@
         </div>
         {{#if subProject}}
           <div class="component-name-parent">
-            {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl subProject}}" title="{{subProjectName}}">{{subProjectName}}</a>
+            {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl subProject}}"
+                                            title="{{subProjectName}}">{{subProjectName}}</a>
           </div>
         {{/if}}
         <div class="component-name-file">
@@ -22,8 +23,9 @@
 
     {{else}}
       {{#if state.canBulkChange}}
-        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"
-            data-toggle="tooltip" title="{{t 'issues.toggle_selection_tooltip'}}"></a>
+        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if
+            someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"
+           data-toggle="tooltip" title="{{t 'issues.toggle_selection_tooltip'}}"></a>
       {{else}}
         &nbsp;
       {{/if}}
@@ -58,7 +60,9 @@
     <button id="issues-reload" class="js-reload">{{t "reload"}}</button>
     <button class="js-new-search" id="issues-new-search">{{t "issue_filter.new_search"}}</button>
     {{#if state.canBulkChange}}
-      <button id="issues-bulk-change" class="dropdown-toggle" data-toggle="dropdown">{{t "bulk_change"}}</button>
+      <button id="issues-bulk-change" class="dropdown-toggle" data-toggle="dropdown" disabled>
+        {{t "bulk_change"}}
+      </button>
       <ul class="dropdown-menu dropdown-menu-right">
         <li>
           <a class="js-bulk-change" href="#">{{tp 'issues.bulk_change' state.total}}</a>
