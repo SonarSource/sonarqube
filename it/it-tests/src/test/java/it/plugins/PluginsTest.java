@@ -29,7 +29,6 @@ import it.plugins.checks.CCheck;
 import it.plugins.checks.Check;
 import it.plugins.checks.CobolCheck;
 import it.plugins.checks.CppCheck;
-import it.plugins.checks.CssCheck;
 import it.plugins.checks.FlexCheck;
 import it.plugins.checks.GroovyCheck;
 import it.plugins.checks.JavaCheck;
@@ -65,6 +64,9 @@ public class PluginsTest {
    * Temporarily disabled plugins. To be re-enabled.
    */
   static final Set<String> DISABLED_PLUGINS = Sets.newHashSet(
+    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
+    "css",
+
     // internal plugin used for integration tests of language plugins
     "lits",
 
@@ -84,7 +86,8 @@ public class PluginsTest {
     new AbapCheck(),
     new CCheck(), new CppCheck(),
     new CobolCheck(),
-    new CssCheck(),
+    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
+//    new CssCheck(),
     new FlexCheck(),
     new GroovyCheck(),
     new JavaCheck(),
