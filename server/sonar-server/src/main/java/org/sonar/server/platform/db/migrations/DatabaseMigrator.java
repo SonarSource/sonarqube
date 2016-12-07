@@ -113,6 +113,6 @@ public class DatabaseMigrator implements Startable {
 
   @VisibleForTesting
   protected void createSchema(Connection connection, String dialectId) {
-    DdlUtils.createSchema(connection, dialectId);
+    DdlUtils.createSchema(connection, dialectId, false);
   }
 }

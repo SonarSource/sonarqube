@@ -23,13 +23,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import org.assertj.core.api.Assertions;
 import org.h2.Driver;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DdlUtilsTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void shouldSupportOnlyH2() {
@@ -40,15 +45,29 @@ public class DdlUtilsTest {
   }
 
   @Test
-  public void shouldCreateSchema() throws SQLException {
+  public void shouldCreateSchema_with_schema_migrations() throws SQLException {
     DriverManager.registerDriver(new Driver());
-    Connection connection = DriverManager.getConnection("jdbc:h2:mem:sonar_test");
-    DdlUtils.createSchema(connection, "h2");
+    try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:sonar_test");) {
+      DdlUtils.createSchema(connection, "h2", true);
 
-    int tableCount = countTables(connection);
+      int tableCount = countTables(connection);
+      assertThat(tableCount).isGreaterThan(30);
 
-    connection.close();
-    assertThat(tableCount).isGreaterThan(30);
+      verifySchemaMigrations(connection);
+    }
+  }
+
+  @Test
+  public void shouldCreateSchema_without_schema_migrations() throws SQLException {
+    DriverManager.registerDriver(new Driver());
+    try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:sonar_test2")) {
+      try (Statement statement = connection.createStatement()) {
+        statement.execute("create table schema_migrations (version varchar(255) not null)");
+      }
+      DdlUtils.createSchema(connection, "h2", false);
+
+      verifySchemaMigrations(connection);
+    }
   }
 
   static int countTables(Connection connection) throws SQLException {
@@ -59,5 +78,14 @@ public class DdlUtilsTest {
     }
     resultSet.close();
     return count;
+  }
+
+  private void verifySchemaMigrations(Connection connection) throws SQLException {
+    try (Statement statement = connection.createStatement();
+      ResultSet resultSet = statement.executeQuery("select count(*) from schema_migrations")) {
+      assertThat(resultSet.next()).isTrue();
+      assertThat(resultSet.getLong(1)).isGreaterThan(150);
+      assertThat(resultSet.next()).isFalse();
+    }
   }
 }
