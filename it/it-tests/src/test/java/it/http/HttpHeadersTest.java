@@ -22,12 +22,11 @@ package it.http;
 
 import com.google.common.base.Throwables;
 import com.sonar.orchestrator.Orchestrator;
-import com.squareup.okhttp.CacheControl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import it.Category4Suite;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import okhttp3.OkHttpClient.Builder;
+import okhttp3.Response;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,62 +40,121 @@ public class HttpHeadersTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  /**
-   * SONAR-6964
-   */
   @Test
-  public void no_browser_cache_for_pages() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/");
+  public void verify_headers_of_base_url() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/html;charset=utf-8");
+
+    // SONAR-6964
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void no_browser_cache_for_ws() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/api/issues/search");
+  public void verify_headers_of_ws() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/api/issues/search");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/json;charset=utf-8");
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void no_browser_cache_in_ruby_ws() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/api/resources/index");
+  public void verify_headers_of_ruby_ws() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/api/resources/index");
 
-    assertNoCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/json;charset=utf-8");
+    assertNoCacheInBrowser(response);
   }
 
   @Test
-  public void browser_cache_on_images() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
+  public void verify_headers_of_images() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
 
-    assertCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "image/svg+xml");
+    assertCacheInBrowser(response);
   }
 
   @Test
-  public void browser_cache_on_css() {
-    Response httpResponse = call(orchestrator.getServer().getUrl() + "/css/sonar.css");
+  public void verify_headers_of_css() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/css/sonar.css");
 
-    assertCacheInBrowser(httpResponse);
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/css");
+    assertCacheInBrowser(response);
+  }
+
+  @Test
+  public void verify_headers_of_js() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/js/bundles/sonar.js");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/javascript");
+  }
+
+  @Test
+  public void verify_headers_of_images_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/cute.jpg");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "image/jpeg");
+  }
+
+  @Test
+  public void verify_headers_of_js_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/extension.js");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "application/javascript");
+  }
+
+  @Test
+  public void verify_headers_of_html_provided_by_plugins() throws Exception {
+    Response response = call(orchestrator.getServer().getUrl() + "/static/uiextensionsplugin/file.html");
+
+    verifySecurityHeaders(response);
+    verifyContentType(response, "text/html");
   }
 
   private static void assertCacheInBrowser(Response httpResponse) {
-    CacheControl cacheControl = httpResponse.cacheControl();
+    okhttp3.CacheControl cacheControl = httpResponse.cacheControl();
     assertThat(cacheControl.mustRevalidate()).isFalse();
     assertThat(cacheControl.noCache()).isFalse();
     assertThat(cacheControl.noStore()).isFalse();
   }
 
   private static void assertNoCacheInBrowser(Response httpResponse) {
-    CacheControl cacheControl = httpResponse.cacheControl();
+    okhttp3.CacheControl cacheControl = httpResponse.cacheControl();
     assertThat(cacheControl.mustRevalidate()).isTrue();
     assertThat(cacheControl.noCache()).isTrue();
     assertThat(cacheControl.noStore()).isTrue();
   }
 
-  private static Response call(String url) {
-    Request request = new Request.Builder().get().url(url).build();
+  /**
+   * SONAR-8247
+   */
+  private static void verifySecurityHeaders(Response httpResponse) {
+    assertThat(httpResponse.isSuccessful()).as("Code is %s", httpResponse.code()).isTrue();
+    assertThat(httpResponse.headers().get("X-Frame-Options")).isEqualTo("SAMEORIGIN");
+    assertThat(httpResponse.headers().get("X-XSS-Protection")).isEqualTo("1; mode=block");
+    assertThat(httpResponse.headers().get("X-Content-Type-Options")).isEqualTo("nosniff");
+  }
+
+  private static void verifyContentType(Response httpResponse, String expectedContentType) {
+    assertThat(httpResponse.headers().get("Content-Type")).isEqualTo(expectedContentType);
+  }
+
+  public static Response call(String url) {
     try {
-      return new OkHttpClient().newCall(request).execute();
+      return new Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+        .newCall(new okhttp3.Request.Builder().get().url(url).build())
+        .execute();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

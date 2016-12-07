@@ -56,8 +56,6 @@ public class SecurityServletFilter implements Filter {
       return;
     }
 
-    chain.doFilter(httpRequest, httpResponse);
-
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
     httpResponse.addHeader("X-Frame-Options", "SAMEORIGIN");
@@ -69,6 +67,8 @@ public class SecurityServletFilter implements Filter {
     // MIME-sniffing
     // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
     httpResponse.addHeader("X-Content-Type-Options", "nosniff");
+
+    chain.doFilter(httpRequest, httpResponse);
   }
 
   @Override
