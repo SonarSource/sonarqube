@@ -119,7 +119,7 @@ public class UpdateQualityGateConditionsOnCoverage extends BaseDataChange {
           updateQualityGateCondition(conditionOnOverallCoverage.get().getId(), coverageMetricKey);
         } else if (conditionOnCoverage.isPresent()) {
           removeQualityGateCondition(conditionOnItCoverage);
-        } else {
+        } else if (conditionOnItCoverage.isPresent()) {
           updateQualityGateCondition(conditionOnItCoverage.get().getId(), coverageMetricKey);
         }
       } catch (SQLException e) {
