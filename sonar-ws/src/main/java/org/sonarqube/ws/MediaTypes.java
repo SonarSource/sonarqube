@@ -21,10 +21,9 @@ package org.sonarqube.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.FilenameUtils;
-
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * @since 5.3
@@ -36,9 +35,11 @@ public final class MediaTypes {
   public static final String TXT = "text/plain";
   public static final String PROTOBUF = "application/x-protobuf";
   public static final String ZIP = "application/zip";
+  public static final String JAVASCRIPT = "application/javascript";
   public static final String DEFAULT = "application/octet-stream";
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
+    .put("js", JAVASCRIPT)
     .put("json", JSON)
     .put("zip", "application/zip")
     .put("tgz", "application/tgz")
