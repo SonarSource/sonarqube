@@ -28,6 +28,7 @@
 
   "rules": {
     "arrow-spacing": 2,
+    "comma-dangle": 2,
     "comma-spacing": 2,
     "curly": 2,
     "eol-last": 2,

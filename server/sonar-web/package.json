@@ -129,8 +129,5 @@
     "ignore": [
       "**/libs/**"
     ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }

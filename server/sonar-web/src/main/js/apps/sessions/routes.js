@@ -27,5 +27,5 @@ export default [
   <Redirect key="login" from="/sessions/login" to="/sessions/new"/>,
   <Route key="new" path="new" component={LoginFormContainer}/>,
   <Route key="logout" path="logout" component={Logout}/>,
-  <Route key="unauthorized" path="unauthorized" component={Unauthorized}/>,
+  <Route key="unauthorized" path="unauthorized" component={Unauthorized}/>
 ];

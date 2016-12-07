@@ -23,7 +23,7 @@ import { getAppState } from '../../../app/store/rootReducer';
 import { getRootQualifiers } from '../../../app/store/appState/duck';
 
 const mapStateToProps = state => ({
-  topQualifiers: getRootQualifiers(getAppState(state)),
+  topQualifiers: getRootQualifiers(getAppState(state))
 });
 
 export default connect(
