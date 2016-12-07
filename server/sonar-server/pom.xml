@@ -69,6 +69,10 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-db-migration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-scanner-protocol</artifactId>
     </dependency>
     <dependency>

@@ -11,7 +11,7 @@
   <artifactId>sonar-db</artifactId>
 
   <name>SonarQube :: Database</name>
-  <description>Create and request SonarQube schema</description>
+  <description>Request SonarQube schema</description>
   
   <properties>
     <sonar.exclusions>target/generated-sources/**</sonar.exclusions>
