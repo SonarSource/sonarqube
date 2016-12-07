@@ -28,7 +28,7 @@ class GlobalFooter extends React.Component {
 
     return (
         <div id="footer" className="page-footer page-container">
-          {!productionDatabase && (
+          {productionDatabase === false && (
               <div className="alert alert-danger">
                 <p className="big" id="evaluation_warning">
                   Embedded database should be used for evaluation purpose only
