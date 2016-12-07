@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class CreateEventRequest {
   private final String analysis;
-  private final Category category;
+  private final EventCategory category;
   private final String name;
   private final String description;
 
@@ -42,7 +42,7 @@ public class CreateEventRequest {
     return analysis;
   }
 
-  public Category getCategory() {
+  public EventCategory getCategory() {
     return category;
   }
 
@@ -61,7 +61,7 @@ public class CreateEventRequest {
 
   public static class Builder {
     private String analysis;
-    private Category category = Category.OTHER;
+    private EventCategory category = EventCategory.OTHER;
     private String name;
     private String description;
 
@@ -74,7 +74,7 @@ public class CreateEventRequest {
       return this;
     }
 
-    public Builder setCategory(Category category) {
+    public Builder setCategory(EventCategory category) {
       this.category = category;
       return this;
     }
@@ -98,27 +98,4 @@ public class CreateEventRequest {
     }
   }
 
-  public enum Category {
-    VERSION("Version"), OTHER("Other");
-
-    private final String label;
-
-    Category(String label) {
-      this.label = label;
-    }
-
-    public String getLabel() {
-      return label;
-    }
-
-    public static Category fromLabel(String label) {
-      for (Category category : values()) {
-        if (category.getLabel().equals(label)) {
-          return category;
-        }
-      }
-
-      throw new IllegalArgumentException("Unknown event category label '" + label + "'");
-    }
-  }
 }

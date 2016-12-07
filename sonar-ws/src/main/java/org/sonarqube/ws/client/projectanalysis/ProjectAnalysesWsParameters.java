@@ -25,6 +25,7 @@ public class ProjectAnalysesWsParameters {
   public static final String PARAM_CATEGORY = "category";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_DESCRIPTION = "description";
+  public static final String PARAM_EVENT = "event";
 
   private ProjectAnalysesWsParameters() {
     // static access only

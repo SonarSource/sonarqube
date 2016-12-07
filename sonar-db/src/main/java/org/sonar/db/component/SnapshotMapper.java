@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -56,5 +57,5 @@ public interface SnapshotMapper {
 
   void setIsLastFlagForAnalysisUuid(@Param("analysisUuid") String analysisUuid);
 
-  void updateVersion(@Param("analysisUuid") String analysisUuid, @Param("version") String version);
+  void updateVersion(@Param("analysisUuid") String analysisUuid, @Param("version") @Nullable String version);
 }

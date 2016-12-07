@@ -18,19 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.projectanalysis;
+package org.sonarqube.ws.client.projectanalysis;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public enum EventCategory {
+  VERSION("Version"), OTHER("Other");
 
-import static org.assertj.core.api.Assertions.assertThat;
+  private final String label;
 
-public class ProjectAnalysisModuleTest {
+  EventCategory(String label) {
+    this.label = label;
+  }
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ProjectAnalysisModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 3);
+  public String getLabel() {
+    return label;
+  }
+
+  public static EventCategory fromLabel(String label) {
+    for (EventCategory category : values()) {
+      if (category.getLabel().equals(label)) {
+        return category;
+      }
+    }
+
+    throw new IllegalArgumentException("Unknown event category label '" + label + "'");
   }
 }

@@ -23,11 +23,15 @@ import java.util.List;
 
 public interface EventMapper {
 
+  EventDto selectByUuid(String uuid);
+
   List<EventDto> selectByComponentUuid(String componentUuid);
 
   List<EventDto> selectByAnalysisUuid(String analysisUuid);
 
   void insert(EventDto dto);
 
-  void delete(long id);
+  void deleteById(long id);
+
+  void deleteByUuid(String uuid);
 }

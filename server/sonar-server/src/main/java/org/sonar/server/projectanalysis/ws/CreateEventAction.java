@@ -42,16 +42,16 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
-import org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category;
+import org.sonarqube.ws.client.projectanalysis.EventCategory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category.OTHER;
-import static org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category.VERSION;
-import static org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category.fromLabel;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
@@ -149,7 +149,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
     return CreateEventRequest.builder()
       .setAnalysis(request.mandatoryParam(PARAM_ANALYSIS))
       .setName(request.mandatoryParam(PARAM_NAME))
-      .setCategory(request.mandatoryParamAsEnum(PARAM_CATEGORY, Category.class))
+      .setCategory(request.mandatoryParamAsEnum(PARAM_CATEGORY, EventCategory.class))
       .setDescription(request.param(PARAM_DESCRIPTION))
       .build();
   }

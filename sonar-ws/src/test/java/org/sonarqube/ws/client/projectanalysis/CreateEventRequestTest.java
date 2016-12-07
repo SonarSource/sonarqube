@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category.OTHER;
-import static org.sonarqube.ws.client.projectanalysis.CreateEventRequest.Category.VERSION;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 
 public class CreateEventRequestTest {
 

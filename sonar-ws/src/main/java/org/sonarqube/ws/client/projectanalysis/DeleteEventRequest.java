@@ -18,19 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.projectanalysis;
+package org.sonarqube.ws.client.projectanalysis;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static java.util.Objects.requireNonNull;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DeleteEventRequest {
+  private final String event;
 
-public class ProjectAnalysisModuleTest {
+  public DeleteEventRequest(String event) {
+    this.event = requireNonNull(event);
+  }
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ProjectAnalysisModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 3);
+  public String getEvent() {
+    return event;
   }
 }

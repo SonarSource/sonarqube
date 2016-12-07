@@ -20,10 +20,15 @@
 package org.sonar.db.event;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 public class EventDao implements Dao {
+
+  public Optional<EventDto> selectByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
+  }
 
   public List<EventDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(EventMapper.class).selectByComponentUuid(componentUuid);
@@ -40,7 +45,11 @@ public class EventDao implements Dao {
   }
 
   public void delete(DbSession session, Long id) {
-    session.getMapper(EventMapper.class).delete(id);
+    mapper(session).deleteById(id);
+  }
+
+  public void delete(DbSession session, String uuid) {
+    mapper(session).deleteByUuid(uuid);
   }
 
   private static EventMapper mapper(DbSession session) {

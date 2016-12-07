@@ -305,7 +305,6 @@ public class SnapshotDaoTest {
     underTest.updateVersion(dbSession, "A1", "5.6.3");
 
     SnapshotDto result = underTest.selectByUuid(dbSession, "A1").get();
-
     assertThat(result.getVersion()).isEqualTo("5.6.3");
   }
 
