@@ -20,9 +20,12 @@
 import { connect } from 'react-redux';
 import GlobalMessages from '../../components/controls/GlobalMessages';
 import { getGlobalMessages } from '../store/rootReducer';
+import { closeGlobalMessage } from '../../components/store/globalMessages';
 
 const mapStateToProps = state => ({
   messages: getGlobalMessages(state)
 });
 
-export default connect(mapStateToProps)(GlobalMessages);
+const mapDispatchToProps = { closeGlobalMessage };
+
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalMessages);

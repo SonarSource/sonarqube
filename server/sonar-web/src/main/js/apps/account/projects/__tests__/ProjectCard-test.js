@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
+import { Link } from 'react-router';
 import ProjectCard from '../ProjectCard';
 import Level from '../../../../components/ui/Level';
 
@@ -28,7 +29,7 @@ it('should render key and name', () => {
   const project = { ...BASE };
   const output = shallow(<ProjectCard project={project}/>);
   expect(output.find('.account-project-key').text()).toBe('key');
-  expect(output.find('.account-project-name').text()).toBe('name');
+  expect(output.find('.account-project-name').find(Link).prop('children')).toBe('name');
 });
 
 it('should render description', () => {

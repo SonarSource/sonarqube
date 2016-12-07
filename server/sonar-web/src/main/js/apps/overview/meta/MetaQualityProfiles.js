@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
@@ -79,9 +80,9 @@ class MetaQualityProfiles extends React.Component {
           <span className="note spacer-right">
             {'(' + languageName + ')'}
           </span>
-          <a href={getQualityProfileUrl(profile.key)}>
+          <Link to={getQualityProfileUrl(profile.key)}>
             {profile.name}
-          </a>
+          </Link>
         </div>
     );
 

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import ChangeProjectsView from '../views/ChangeProjectsView';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { ProfileType } from '../propTypes';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { getComponentUrl } from '../../../helpers/urls';
 
 export default class ProfileProjects extends React.Component {
   static propTypes = {
@@ -109,15 +109,12 @@ export default class ProfileProjects extends React.Component {
     return (
         <ul>
           {projects.map(project => (
-              <li key={project.uuid}
-                  className="spacer-top js-profile-project"
-                  data-key={project.key}>
-                <a className="link-with-icon"
-                   href={getComponentUrl(project.key)}>
+              <li key={project.uuid} className="spacer-top js-profile-project" data-key={project.key}>
+                <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-with-icon">
                   <QualifierIcon qualifier="TRK"/>
                   {' '}
                   <span>{project.name}</span>
-                </a>
+                </Link>
               </li>
           ))}
         </ul>

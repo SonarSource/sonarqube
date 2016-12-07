@@ -43,7 +43,7 @@ public class ServerIdPage {
   }
 
   public ServerIdPage assertError() {
-    $(".alert-danger").shouldBe(visible);
+    $(".process-spinner-failed").shouldBe(visible);
     return this;
   }
 

@@ -117,4 +117,10 @@ App.on('start', function (options) {
 
 export default function (el, component, currentUser) {
   App.start({ el, component, currentUser });
+
+  return () => {
+    Backbone.history.stop();
+    App.layout.destroy();
+    $('#footer').removeClass('search-navigator-footer');
+  };
 }

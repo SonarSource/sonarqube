@@ -20,7 +20,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
-import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
@@ -37,11 +36,7 @@ export default class App extends React.Component {
     return (
         <div id="projects-page" className="page page-limited">
           <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube"/>
-
-          <GlobalMessagesContainer/>
-
           <PageHeaderContainer/>
-
           {this.props.children}
         </div>
     );

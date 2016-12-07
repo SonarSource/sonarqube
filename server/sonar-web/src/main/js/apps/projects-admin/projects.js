@@ -19,10 +19,8 @@
  */
 import classNames from 'classnames';
 import React from 'react';
-import {
-    getComponentUrl,
-    getComponentPermissionsUrl
-} from '../../helpers/urls';
+import { Link } from 'react-router';
+import { getComponentPermissionsUrl } from '../../helpers/urls';
 import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/qualifier-icon';
@@ -68,11 +66,11 @@ export default class Projects extends React.Component {
                 onCheck={this.onProjectCheck.bind(this, project)}/>
           </td>
           <td className="nowrap">
-            <a className="link-with-icon" href={getComponentUrl(project.key)}>
+            <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-with-icon">
               <QualifierIcon qualifier={project.qualifier}/>
               {' '}
               <span>{project.name}</span>
-            </a>
+            </Link>
           </td>
           <td className="nowrap">
             <span className="note">{project.key}</span>
@@ -86,13 +84,12 @@ export default class Projects extends React.Component {
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 <li>
-                  <a href={permissionsUrl}>
+                  <Link to={permissionsUrl}>
                     {translate('edit_permissions')}
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href={permissionsUrl}
-                     onClick={this.onApplyTemplateClick.bind(this, project)}>
+                  <a href="#" onClick={this.onApplyTemplateClick.bind(this, project)}>
                     {translate('projects_role.apply_template')}
                   </a>
                 </li>

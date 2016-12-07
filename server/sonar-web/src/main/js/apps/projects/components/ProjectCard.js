@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import { Link } from 'react-router';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
-import { getComponentUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 export default class ProjectCard extends React.Component {
@@ -54,7 +54,9 @@ export default class ProjectCard extends React.Component {
                 <FavoriteContainer className="spacer-right" componentKey={project.key}/>
             )}
             <h2 className="project-card-name">
-              <a className="link-base-color" href={getComponentUrl(project.key)}>{project.name}</a>
+              <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-base-color">
+                {project.name}
+              </Link>
             </h2>
           </div>
           {isProjectAnalyzed ? (

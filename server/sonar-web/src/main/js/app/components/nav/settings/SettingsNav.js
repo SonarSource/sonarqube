@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import { IndexLink } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 
 export default class SettingsNav extends React.Component {
@@ -46,7 +47,7 @@ export default class SettingsNav extends React.Component {
     return this.isSomethingActive(urls);
   }
 
-  renderLink(url, title, highlightUrl = url) {
+  renderLink (url, title, highlightUrl = url) {
     const fullUrl = window.baseUrl + url;
     const isActive = typeof highlightUrl === 'string' ?
     window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
@@ -76,7 +77,11 @@ export default class SettingsNav extends React.Component {
           <div className="navbar-context-inner">
             <div className="container">
               <ul className="nav navbar-nav nav-crumbs">
-                {this.renderLink('/settings', translate('layout.settings'))}
+                <li>
+                <IndexLink to="/settings">
+                  {translate('layout.settings')}
+                </IndexLink>
+                </li>
               </ul>
 
               <ul className="nav navbar-nav nav-tabs">
@@ -85,11 +90,31 @@ export default class SettingsNav extends React.Component {
                     {translate('sidebar.project_settings')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
-                    {this.renderLink('/settings', translate('settings.page'), url => window.location.pathname === url)}
-                    {this.renderLink('/settings/licenses', translate('property.category.licenses'))}
-                    {this.renderLink('/settings/encryption', translate('property.category.security.encryption'))}
-                    {this.renderLink('/settings/server_id', translate('property.category.server_id'))}
-                    {this.renderLink('/metrics', 'Custom Metrics')}
+                    <li>
+                      <IndexLink to="/settings" activeClassName="active">
+                        {translate('settings.page')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/settings/licenses" activeClassName="active">
+                        {translate('property.category.licenses')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/settings/encryption" activeClassName="active">
+                        {translate('property.category.security.encryption')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/settings/server_id" activeClassName="active">
+                        {translate('property.category.server_id')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/metrics" activeClassName="active">
+                        Custom Metrics
+                      </IndexLink>
+                    </li>
                     {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
                   </ul>
                 </li>
@@ -99,10 +124,26 @@ export default class SettingsNav extends React.Component {
                     {translate('sidebar.security')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
-                    {this.renderLink('/users', translate('users.page'))}
-                    {this.renderLink('/groups', translate('user_groups.page'))}
-                    {this.renderLink('/roles/global', translate('global_permissions.page'))}
-                    {this.renderLink('/permission_templates', translate('permission_templates'))}
+                    <li>
+                      <IndexLink to="/users" activeClassName="active">
+                        {translate('users.page')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/groups" activeClassName="active">
+                        {translate('user_groups.page')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/roles/global" activeClassName="active">
+                        {translate('global_permissions.page')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/permission_templates" activeClassName="active">
+                        {translate('permission_templates')}
+                      </IndexLink>
+                    </li>
                   </ul>
                 </li>
 
@@ -111,8 +152,16 @@ export default class SettingsNav extends React.Component {
                     {translate('sidebar.projects')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
-                    {this.renderLink('/projects_admin', 'Management')}
-                    {this.renderLink('/background_tasks', translate('background_tasks.page'))}
+                    <li>
+                      <IndexLink to="/projects_admin" activeClassName="active">
+                        Management
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/background_tasks" activeClassName="active">
+                        {translate('background_tasks.page')}
+                      </IndexLink>
+                    </li>
                   </ul>
                 </li>
 
@@ -121,8 +170,16 @@ export default class SettingsNav extends React.Component {
                     {translate('sidebar.system')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
-                    {this.renderLink('/updatecenter', translate('update_center.page'))}
-                    {this.renderLink('/system', translate('system_info.page'))}
+                    <li>
+                      <IndexLink to="/updatecenter" activeClassName="active">
+                        {translate('update_center.page')}
+                      </IndexLink>
+                    </li>
+                    <li>
+                      <IndexLink to="/system" activeClassName="active">
+                        {translate('system_info.page')}
+                      </IndexLink>
+                    </li>
                   </ul>
                 </li>
               </ul>

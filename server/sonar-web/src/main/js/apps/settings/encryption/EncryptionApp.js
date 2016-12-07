@@ -20,7 +20,6 @@
 import React from 'react';
 import GenerateSecretKeyForm from './GenerateSecretKeyForm';
 import EncryptionForm from './EncryptionForm';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 
 export default class EncryptionApp extends React.Component {
@@ -47,8 +46,6 @@ export default class EncryptionApp extends React.Component {
             <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
             {this.props.loading && <i className="spinner"/>}
           </header>
-
-          <GlobalMessagesContainer/>
 
           {!this.props.loading && !this.props.secretKeyAvailable && (
               <GenerateSecretKeyForm

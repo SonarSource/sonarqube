@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Table from './Table';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { fetchProjectProfiles, setProjectProfile } from '../store/actions';
 import {
   getProjectAdminAllProfiles,
@@ -55,8 +54,6 @@ class QualityProfiles extends React.Component {
     return (
         <div className="page page-limited">
           <Header/>
-
-          <GlobalMessagesContainer/>
 
           {profiles.length > 0 ? (
               <Table

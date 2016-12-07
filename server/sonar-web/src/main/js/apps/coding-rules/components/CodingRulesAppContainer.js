@@ -22,10 +22,22 @@ import init from '../init';
 
 export default class CodingRulesAppContainer extends React.Component {
   componentDidMount () {
-    init(this.refs.container);
+    this.stop = init(this.refs.container);
+  }
+
+  componentWillUnmount () {
+    this.stop();
   }
 
   render () {
-    return <div ref="container"/>;
+    // placing container inside div is required,
+    // because when backbone.marionette's layout is destroyed,
+    // it also destroys the root element,
+    // but react wants it to be there to unmount it
+    return (
+        <div>
+          <div ref="container"/>
+        </div>
+    );
   }
 }

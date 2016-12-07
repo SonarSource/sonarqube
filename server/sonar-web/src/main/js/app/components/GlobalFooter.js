@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { getAppState } from '../store/rootReducer';
 
@@ -64,9 +65,9 @@ class GlobalFooter extends React.Component {
             {' - '}
             <a href="http://redirect.sonarsource.com/doc/plugin-library.html">Plugins</a>
             {' - '}
-            <a href={window.baseUrl + '/web_api'}>Web API</a>
+            <Link to="/web_api">Web API</Link>
             {' - '}
-            <a href={window.baseUrl + '/about'}>About</a>
+            <Link to="/about">About</Link>
           </div>
         </div>
     );

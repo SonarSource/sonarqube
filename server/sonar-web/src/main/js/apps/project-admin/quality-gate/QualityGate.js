@@ -22,7 +22,6 @@ import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Form from './Form';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
 import { getProjectAdminAllGates, getProjectAdminProjectGate, getComponent } from '../../../app/store/rootReducer';
 
@@ -49,7 +48,6 @@ class QualityGate extends React.Component {
     return (
         <div id="project-quality-gate" className="page page-limited">
           <Header/>
-          <GlobalMessagesContainer/>
           <Form
               allGates={this.props.allGates}
               gate={this.props.gate}

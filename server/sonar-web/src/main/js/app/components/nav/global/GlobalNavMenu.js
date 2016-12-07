@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 import { isUserAdmin } from '../../../../helpers/users';
 
@@ -36,48 +37,54 @@ export default class GlobalNavMenu extends React.Component {
   }
 
   renderProjects () {
-    const controller = this.props.currentUser.isLoggedIn ? '/projects/favorite' : '/projects';
-    const url = window.baseUrl + controller;
+    const pathname = this.props.currentUser.isLoggedIn ? '/projects/favorite' : '/projects';
     return (
-        <li className={this.activeLink('/projects')}>
-          <a href={url}>{translate('projects.page')}</a>
+        <li>
+          <Link to={{ pathname }} activeClassName="active">
+            {translate('projects.page')}
+          </Link>
         </li>
     );
   }
 
   renderIssuesLink () {
     const query = this.props.currentUser.isLoggedIn ? '#resolved=false|assigned_to_me=true' : '#resolved=false';
-    const url = window.baseUrl + '/issues' + query;
+    const url = '/issues' + query;
     return (
-        <li className={this.activeLink('/issues')}>
-          <a href={url}>{translate('issues.page')}</a>
+        <li>
+          <Link to={url} className={this.activeLink('/issues')}>
+            {translate('issues.page')}
+            </Link>
         </li>
     );
   }
 
   renderRulesLink () {
-    const url = window.baseUrl + '/coding_rules';
     return (
-        <li className={this.activeLink('/coding_rules')}>
-          <a href={url}>{translate('coding_rules.page')}</a>
+        <li>
+          <Link to="/coding_rules" className={this.activeLink('/coding_rules')}>
+            {translate('coding_rules.page')}
+          </Link>
         </li>
     );
   }
 
   renderProfilesLink () {
-    const url = window.baseUrl + '/profiles';
     return (
-        <li className={this.activeLink('/profiles')}>
-          <a href={url}>{translate('quality_profiles.page')}</a>
+        <li>
+          <Link to="/profiles" activeClassName="active">
+            {translate('quality_profiles.page')}
+          </Link>
         </li>
     );
   }
 
   renderQualityGatesLink () {
-    const url = window.baseUrl + '/quality_gates';
     return (
-        <li className={this.activeLink('/quality_gates')}>
-          <a href={url}>{translate('quality_gates.page')}</a>
+        <li>
+          <Link to="/quality_gates" activeClassName="active">
+            {translate('quality_gates.page')}
+          </Link>
         </li>
     );
   }
@@ -86,10 +93,11 @@ export default class GlobalNavMenu extends React.Component {
     if (!isUserAdmin(this.props.currentUser)) {
       return null;
     }
-    const url = window.baseUrl + '/settings';
     return (
-        <li className={this.activeLink('/settings')}>
-          <a className="navbar-admin-link" href={url}>{translate('layout.settings')}</a>
+        <li>
+          <Link to="/settings" className="navbar-admin-link" activeClassName="active">
+            {translate('layout.settings')}
+          </Link>
         </li>
     );
   }

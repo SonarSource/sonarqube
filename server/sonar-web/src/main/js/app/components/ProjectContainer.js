@@ -33,8 +33,15 @@ class ProjectContainer extends React.Component {
     this.props.fetchProject();
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.location.query.id !== this.props.location.query.id) {
+      this.props.fetchProject();
+    }
+  }
+
   render () {
-    if (!this.props.project) {
+    // check `canBeFavorite` to be sure that /api/navigation/component has been already called
+    if (!this.props.project || this.props.project.canBeFavorite == null) {
       return null;
     }
 

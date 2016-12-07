@@ -24,7 +24,6 @@ import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
 import WildcardsHelp from './WildcardsHelp';
 import { fetchSettings } from '../store/actions';
 import { getSettingsAppDefaultCategory } from '../../../app/store/rootReducer';
@@ -79,7 +78,6 @@ class App extends React.Component {
     return (
         <div id="settings-page" className="page page-limited">
           <PageHeader component={this.props.component}/>
-          <GlobalMessagesContainer/>
           <div className="settings-layout">
             <div className="settings-side">
               <AllCategoriesList

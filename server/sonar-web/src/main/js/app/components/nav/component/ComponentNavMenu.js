@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import React from 'react';
+import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
-import { getComponentUrl } from '../../../../helpers/urls';
 
 const SETTINGS_URLS = [
   '/project/settings',
@@ -50,11 +50,6 @@ export default class ComponentNavMenu extends React.Component {
     return qualifier === 'VW' || qualifier === 'SVW';
   }
 
-  isFixedDashboardActive () {
-    const path = window.location.pathname;
-    return path.indexOf(window.baseUrl + '/dashboard') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
-  }
-
   shouldShowAdministration () {
     return Object.keys(this.props.conf).some(key => this.props.conf[key]);
   }
@@ -73,12 +68,13 @@ export default class ComponentNavMenu extends React.Component {
   }
 
   renderDashboardLink () {
-    const url = getComponentUrl(this.props.component.key);
-    const name = <i className="icon-home"/>;
-    const className = classNames({ active: this.isFixedDashboardActive() });
     return (
-        <li key="overview" className={className}>
-          <a href={url}>{name}</a>
+        <li>
+          <Link
+              to={{ pathname: '/dashboard', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            <i className="icon-home"/>
+          </Link>
         </li>
     );
   }
@@ -88,19 +84,39 @@ export default class ComponentNavMenu extends React.Component {
       return null;
     }
 
-    const url = `/code/?id=${encodeURIComponent(this.props.component.key)}`;
-    const header = this.isView() ? translate('view_projects.page') : translate('code.page');
-    return this.renderLink(url, header, '/code');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/code', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {this.isView() ? translate('view_projects.page') : translate('code.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderComponentIssuesLink () {
-    const url = `/component_issues?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('issues.page'), '/component_issues');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/component_issues', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('issues.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderComponentMeasuresLink () {
-    const url = `/component_measures/?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('layout.measures'), '/component_measures');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/component_measures', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('layout.measures')}
+          </Link>
+        </li>
+    );
   }
 
   renderAdministration () {
@@ -136,48 +152,90 @@ export default class ComponentNavMenu extends React.Component {
     if (!this.props.conf.showSettings) {
       return null;
     }
-    const url = `/project/settings?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_settings.page'), '/project/settings');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/settings', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('project_settings.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderProfilesLink () {
     if (!this.props.conf.showQualityProfiles) {
       return null;
     }
-    const url = `/project/quality_profiles?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_quality_profiles.page'), '/project/quality_profiles');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('project_quality_profiles.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderQualityGateLink () {
     if (!this.props.conf.showQualityGates) {
       return null;
     }
-    const url = `/project/quality_gate?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_quality_gate.page'), '/project/quality_gate');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('project_quality_gate.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderCustomMeasuresLink () {
     if (!this.props.conf.showManualMeasures) {
       return null;
     }
-    const url = `/custom_measures?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('custom_measures.page'), '/custom_measures');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('custom_measures.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderLinksLink () {
     if (!this.props.conf.showLinks) {
       return null;
     }
-    const url = `/project/links?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('project_links.page'), '/project/links');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/links', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('project_links.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderPermissionsLink () {
     if (!this.props.conf.showPermissions) {
       return null;
     }
-    const url = `/project_roles?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('permissions.page'), '/project_roles');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('permissions.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderHistoryLink () {
@@ -199,16 +257,30 @@ export default class ComponentNavMenu extends React.Component {
     if (!this.props.conf.showBackgroundTasks) {
       return null;
     }
-    const url = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('background_tasks.page'), '/project/background_tasks');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('background_tasks.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderUpdateKeyLink () {
     if (!this.props.conf.showUpdateKey) {
       return null;
     }
-    const url = `/project/key?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('update_key.page'), '/project/key');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/key', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('update_key.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderDeletionLink () {
@@ -218,8 +290,15 @@ export default class ComponentNavMenu extends React.Component {
       return null;
     }
 
-    const url = `/project/deletion?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('deletion.page'), '/project/deletion');
+    return (
+        <li>
+          <Link
+              to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}
+              activeClassName="active">
+            {translate('deletion.page')}
+          </Link>
+        </li>
+    );
   }
 
   renderExtensions () {

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import sortBy from 'lodash/sortBy';
 import ProfileLink from '../components/ProfileLink';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
@@ -65,13 +66,12 @@ export default class EvolutionDeprecated extends React.Component {
                   <div className="note">
                     {profile.languageName}
                     {', '}
-                    <a className="text-muted"
-                       href={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}>
+                    <Link to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })} className="text-muted">
                       {translateWithParameters(
                           'quality_profile.x_rules',
                           profile.activeDeprecatedRuleCount
                       )}
-                    </a>
+                    </Link>
                   </div>
                 </li>
             ))}

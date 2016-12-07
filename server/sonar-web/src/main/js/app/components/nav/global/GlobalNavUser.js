@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
 import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
@@ -45,7 +46,7 @@ export default class GlobalNavUser extends React.Component {
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a href={`${window.baseUrl}/account/`}>{translate('my_account.page')}</a>
+              <Link to="/account">{translate('my_account.page')}</Link>
             </li>
             <li>
               <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>

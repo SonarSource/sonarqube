@@ -24,7 +24,6 @@ import Header from './Header';
 import UpdateForm from './UpdateForm';
 import BulkUpdate from './BulkUpdate';
 import FineGrainedUpdate from './FineGrainedUpdate';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { fetchProjectModules, changeKey } from '../store/actions';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -100,7 +99,6 @@ class Key extends React.Component {
 
           {noModules && (
               <div>
-                <GlobalMessagesContainer/>
                 <UpdateForm
                     component={component}
                     onKeyChange={this.handleChangeKey.bind(this)}/>
@@ -129,8 +127,6 @@ class Key extends React.Component {
                     </li>
                   </ul>
                 </div>
-
-                <GlobalMessagesContainer/>
 
                 {tab === 'bulk' && (
                     <BulkUpdate component={component}/>

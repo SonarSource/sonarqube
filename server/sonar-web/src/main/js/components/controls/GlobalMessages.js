@@ -27,16 +27,24 @@ export default class GlobalMessages extends React.Component {
       id: React.PropTypes.string.isRequired,
       message: React.PropTypes.string.isRequired,
       level: React.PropTypes.oneOf([ERROR, SUCCESS])
-    }))
+    })),
+    closeGlobalMessage: React.PropTypes.func.isRequired
   };
 
-  renderMessage (message) {
-    const className = classNames('alert', {
-      'alert-danger': message.level === ERROR,
-      'alert-success': message.level === SUCCESS
+  renderMessage = message => {
+    const className = classNames('process-spinner', 'shown', {
+      'process-spinner-failed': message.level === ERROR,
+      'process-spinner-success': message.level === SUCCESS
     });
-    return <div key={message.id} className={className}>{message.message}</div>;
-  }
+    return (
+        <div key={message.id} className={className}>
+          {message.message}
+          <button className="process-spinner-close" onClick={() => this.props.closeGlobalMessage(message.id)}>
+            <i className="icon-close"/>
+          </button>
+        </div>
+    );
+  };
 
   render () {
     const { messages } = this.props;
@@ -46,7 +54,9 @@ export default class GlobalMessages extends React.Component {
     }
 
     return (
-        <div>{messages.map(this.renderMessage)}</div>
+        <div className="processes-container">
+          {messages.map(this.renderMessage)}
+        </div>
     );
   }
 }

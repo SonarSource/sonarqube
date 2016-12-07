@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 import { getServerId, generateServerId } from '../../../api/settings';
 import { parseError } from '../../code/utils';
@@ -78,8 +77,6 @@ export default class ServerIdApp extends React.Component {
             {this.state.loading && <i className="spinner"/>}
             <div className="page-description">{translate('server_id_configuration.information')}</div>
           </header>
-
-          <GlobalMessagesContainer/>
 
           {this.state.serverId != null && (
               <div className={this.state.invalidServerId ? 'panel panel-danger' : 'panel'}>

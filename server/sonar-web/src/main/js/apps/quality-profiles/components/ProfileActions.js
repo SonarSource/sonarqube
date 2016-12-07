@@ -93,9 +93,9 @@ export default class ProfileActions extends React.Component {
         <ul className="dropdown-menu dropdown-menu-right">
           {canAdmin && (
               <li>
-                <a href={activateMoreUrl}>
+                <Link to={activateMoreUrl}>
                   {translate('quality_profiles.activate_more_rules')}
-                </a>
+                </Link>
               </li>
           )}
           <li>

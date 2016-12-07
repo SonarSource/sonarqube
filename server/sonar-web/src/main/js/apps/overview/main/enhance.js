@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
@@ -58,15 +59,15 @@ export default function enhance (ComposedComponent) {
 
     renderHeader (domain, label) {
       const { component } = this.props;
-      const domainUrl =
-          window.baseUrl +
-          `/component_measures/domain/${domain}` +
-          `?id=${encodeURIComponent(component.key)}`;
+      const domainUrl = {
+        pathname: `/component_measures/domain/${domain}`,
+        query: { id: component.key }
+      };
 
       return (
           <div className="overview-card-header">
             <div className="overview-title">
-              <a href={domainUrl}>{label}</a>
+              <Link to={domainUrl}>{label}</Link>
             </div>
           </div>
       );
@@ -167,11 +168,11 @@ export default function enhance (ComposedComponent) {
       const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
 
       return (
-          <a href={getComponentIssuesUrl(component.key, params)}>
+          <Link to={getComponentIssuesUrl(component.key, params)}>
             <span title={tooltip} data-toggle="tooltip">
               {formatMeasure(value, 'SHORT_INT')}
             </span>
-          </a>
+          </Link>
       );
     }
 

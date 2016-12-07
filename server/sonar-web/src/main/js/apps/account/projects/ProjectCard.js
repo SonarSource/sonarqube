@@ -20,8 +20,8 @@
 import React from 'react';
 import moment from 'moment';
 import sortBy from 'lodash/sortBy';
+import { Link } from 'react-router';
 import Level from '../../../components/ui/Level';
-import { getComponentUrl } from '../../../helpers/urls';
 import { projectType } from './propTypes';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
@@ -61,9 +61,9 @@ export default class ProjectCard extends React.Component {
           </aside>
 
           <h3 className="account-project-name">
-            <a href={getComponentUrl(project.key)}>
+            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
               {project.name}
-            </a>
+            </Link>
           </h3>
 
           {links.length > 0 && (

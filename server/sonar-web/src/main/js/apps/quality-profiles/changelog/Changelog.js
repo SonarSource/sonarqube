@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import moment from 'moment';
 import ChangesList from './ChangesList';
 import { translate } from '../../../helpers/l10n';
@@ -48,9 +49,9 @@ export default class Changelog extends React.Component {
           </td>
 
           <td style={{ lineHeight: '1.5' }}>
-            <a href={getRulesUrl({ 'rule_key': event.ruleKey })}>
+            <Link to={getRulesUrl({ 'rule_key': event.ruleKey })}>
               {event.ruleName}
-            </a>
+            </Link>
           </td>
 
           <td className="thin nowrap">

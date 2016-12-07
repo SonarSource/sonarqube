@@ -48,7 +48,7 @@ public class LoginPage {
   }
 
   public SelenideElement getErrorMessage() {
-    return $(By.cssSelector("#login_form .alert"));
+    return $(".process-spinner-failed");
   }
 
   private <T> T submitCredentials(String login, String password, Class<T> expectedResultPage) {

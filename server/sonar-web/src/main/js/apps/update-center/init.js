@@ -29,6 +29,7 @@ import Router from './router';
 import Plugins from './plugins';
 
 const App = new Marionette.Application();
+
 const init = function ({ el, updateCenterActive }) {
   // State
   this.state = new Backbone.Model({ updateCenterActive });
@@ -71,9 +72,14 @@ const init = function ({ el, updateCenterActive }) {
 };
 
 App.on('start', function (options) {
-  init.call(App, options);
+  return init.call(App, options);
 });
 
 export default function (el, updateCenterActive) {
   App.start({ el, updateCenterActive });
+
+  return () => {
+    Backbone.history.stop();
+    App.layout.destroy();
+  };
 }

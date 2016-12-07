@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
-import { getComponentUrl } from '../../../helpers/urls';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 const ComponentDetach = ({ component }) => (
-    <a
-        className="icon-detach"
-        title={translate('code.open_component_page')}
-        href={getComponentUrl(component.refKey || component.key)}/>
+    <Link to={{ pathname: '/dashboard', query: { id: component.refKey || component.key } }}
+          className="icon-detach"
+          title={translate('code.open_component_page')}/>
 );
 
 export default ComponentDetach;
