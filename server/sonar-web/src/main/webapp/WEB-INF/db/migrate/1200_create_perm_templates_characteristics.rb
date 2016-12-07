@@ -23,15 +23,7 @@
 class CreatePermTemplatesCharacteristics < ActiveRecord::Migration
 
   def self.up
-    create_table 'perm_tpl_characteristics' do |t|
-      t.column :template_id, :integer, :null => false
-      t.column :permission_key, :string, :null => false, :limit => 64
-      t.column :with_project_creator, :boolean, :null => false, :default => false
-      t.column :created_at, :big_integer, :null => false
-      t.column :updated_at, :big_integer, :null => false
-    end
-
-    add_index 'perm_tpl_characteristics', ['template_id','permission_key'], :name => 'uniq_perm_tpl_charac', :unique => true
+    execute_java_migration('org.sonar.db.version.v60.CreatePermTemplatesCharacteristics')
   end
 
 end

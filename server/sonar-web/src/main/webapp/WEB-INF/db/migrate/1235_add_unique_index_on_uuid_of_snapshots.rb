@@ -24,6 +24,6 @@
 class AddUniqueIndexOnUuidOfSnapshots < ActiveRecord::Migration
 
   def self.up
-    add_index :snapshots, :uuid, :name => 'analyses_uuid', :unique => true
+    execute_java_migration('org.sonar.db.version.v60.AddUniqueIndexOnUuidOfSnapshots')
   end
 end

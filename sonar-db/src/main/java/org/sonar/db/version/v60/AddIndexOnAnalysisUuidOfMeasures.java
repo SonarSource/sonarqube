@@ -21,35 +21,26 @@ package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
-import org.sonar.db.version.VarcharColumnDef;
 
-import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
+import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
+public class AddIndexOnAnalysisUuidOfMeasures extends DdlChange {
 
-  private static final String TABLE_RESOURCE_INDEX = "resource_index";
-
-  public MakeUuidColumnsNotNullOnResourceIndex(Database db) {
+  public AddIndexOnAnalysisUuidOfMeasures(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_RESOURCE_INDEX)
-      .updateColumn(componentUuid)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
-      .build());
-
+    // this index must be present for the performance of next migration
     context.execute(new CreateIndexBuilder(getDialect())
-      .setTable(TABLE_RESOURCE_INDEX)
-      .setName("resource_index_component")
-      .addColumn(componentUuid)
+      .setTable("project_measures")
+      .setName("measures_analysis_metric")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(50).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("metric_id").build())
       .build());
   }
-
 }

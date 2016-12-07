@@ -24,18 +24,7 @@
 class DropIndicesOnTreeColumnsOfSnapshots < ActiveRecord::Migration
 
   def self.up
-    remove_index_quietly 'snapshots_qualifier'
-    remove_index_quietly 'snapshots_root'
-    remove_index_quietly 'snapshots_parent'
-    remove_index_quietly 'snapshot_root_component'
+    execute_java_migration('org.sonar.db.version.v60.DropIndicesOnTreeColumnsOfSnapshots')
   end
 
-  private
-  def self.remove_index_quietly(index_name)
-    begin
-      remove_index :snapshots, :name => index_name
-    rescue
-      #ignore
-    end
-  end
 end

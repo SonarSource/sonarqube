@@ -25,6 +25,5 @@ class CreateTableProperties2 < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v61.CreateTableProperties2')
-    add_varchar_index :properties2, :prop_key, :name => 'properties2_key'
   end
 end

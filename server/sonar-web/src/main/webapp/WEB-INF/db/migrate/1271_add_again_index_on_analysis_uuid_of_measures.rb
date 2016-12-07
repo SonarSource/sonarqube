@@ -24,6 +24,6 @@
 class AddAgainIndexOnAnalysisUuidOfMeasures < ActiveRecord::Migration
 
   def self.up
-    add_index :project_measures, [:analysis_uuid, :metric_id], :name => 'measures_analysis_metric'
+    execute_java_migration('org.sonar.db.version.v60.AddIndexOnAnalysisUuidOfMeasures')
   end
 end

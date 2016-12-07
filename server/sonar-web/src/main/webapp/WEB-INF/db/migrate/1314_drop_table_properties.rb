@@ -24,8 +24,7 @@
 class DropTableProperties < ActiveRecord::Migration
 
   def self.up
-    drop_index_quietly :properties, :properties_key
-    drop_table :properties
+    execute_java_migration('org.sonar.db.version.v61.DropTableProperties')
   end
 
 end

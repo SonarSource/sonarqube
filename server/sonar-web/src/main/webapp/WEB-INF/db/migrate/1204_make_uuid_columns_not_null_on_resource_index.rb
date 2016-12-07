@@ -25,7 +25,5 @@ class MakeUuidColumnsNotNullOnResourceIndex < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex')
-
-    add_index :resource_index, :component_uuid, :name => 'resource_index_component'
   end
 end

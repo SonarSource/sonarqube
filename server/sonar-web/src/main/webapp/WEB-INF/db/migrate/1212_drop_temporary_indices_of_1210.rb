@@ -24,17 +24,7 @@
 class DropTemporaryIndicesOf1210 < ActiveRecord::Migration
 
   def self.up
-    drop_index_quietly :ce_activity, 'ce_activity_snapshot_id'
-    drop_index_quietly :duplications_index, 'dup_index_psid'
+    execute_java_migration('org.sonar.db.version.v60.DropTemporaryIndicesOf1210')
   end
 
-  private
-
-  def self.drop_index_quietly(table, index)
-    begin
-      remove_index table, :name => index
-    rescue
-      #ignore
-    end
-  end
 end

@@ -21,24 +21,30 @@ package org.sonar.db.version.v62;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.CreateTableBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.VarcharColumnDef;
 
 import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableOrganizations extends DdlChange {
+
+  private static final String TABLE_NAME = "organizations";
+
   public CreateTableOrganizations(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
+    VarcharColumnDef keeColumn = newVarcharColumnDefBuilder().setColumnName("kee").setLimit(32).setIsNullable(false).build();
     context.execute(
-      new CreateTableBuilder(getDialect(), "organizations")
+      new CreateTableBuilder(getDialect(), TABLE_NAME)
         .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(32).setIsNullable(false).build())
+        .addColumn(keeColumn)
         .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(64).setIsNullable(false).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName("description").setLimit(256).setIsNullable(true).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName("url").setLimit(256).setIsNullable(true).build())
@@ -46,5 +52,11 @@ public class CreateTableOrganizations extends DdlChange {
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());
+
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE_NAME)
+      .setName("organization_key")
+      .addColumn(keeColumn)
+      .build());
   }
 }

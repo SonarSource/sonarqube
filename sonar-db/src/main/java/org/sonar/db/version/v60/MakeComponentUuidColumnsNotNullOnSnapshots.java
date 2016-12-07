@@ -22,7 +22,9 @@ package org.sonar.db.version.v60;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.VarcharColumnDef;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -37,9 +39,22 @@ public class MakeComponentUuidColumnsNotNullOnSnapshots extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
+    VarcharColumnDef rootComponentUuid = newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .updateColumn(componentUuid)
+      .updateColumn(rootComponentUuid)
+      .build());
+
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE_SNAPSHOTS)
+      .setName("snapshot_component")
+      .addColumn(componentUuid)
+      .build());
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE_SNAPSHOTS)
+      .setName("snapshot_root_component")
+      .addColumn(rootComponentUuid)
       .build());
   }
 

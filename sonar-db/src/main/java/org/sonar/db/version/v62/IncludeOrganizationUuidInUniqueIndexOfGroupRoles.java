@@ -17,39 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v60;
+package org.sonar.db.version.v62;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
-import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.db.version.DropIndexBuilder;
 
-import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
+import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
+public class IncludeOrganizationUuidInUniqueIndexOfGroupRoles extends DdlChange {
 
-  private static final String TABLE_RESOURCE_INDEX = "resource_index";
+  private static final String TABLE_GROUP_ROLES = "group_roles";
 
-  public MakeUuidColumnsNotNullOnResourceIndex(Database db) {
+  public IncludeOrganizationUuidInUniqueIndexOfGroupRoles(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_RESOURCE_INDEX)
-      .updateColumn(componentUuid)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_GROUP_ROLES)
+      .setName("uniq_group_roles")
       .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
-      .setTable(TABLE_RESOURCE_INDEX)
-      .setName("resource_index_component")
-      .addColumn(componentUuid)
+      .setTable(TABLE_GROUP_ROLES)
+      .setName("uniq_group_roles")
+      .setUnique(true)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(40).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("group_id").build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("resource_id").build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).build())
       .build());
   }
-
 }

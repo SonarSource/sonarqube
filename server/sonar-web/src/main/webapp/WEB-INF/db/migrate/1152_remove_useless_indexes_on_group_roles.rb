@@ -25,8 +25,7 @@
 class RemoveUselessIndexesOnGroupRoles < ActiveRecord::Migration
 
   def self.up
-    remove_index :group_roles, :name => 'group_roles_group'
-    remove_index :group_roles, :name => 'group_roles_role'
+    execute_java_migration('org.sonar.db.version.v56.RemoveUselessIndexesOnGroupRoles')
   end
 
 end

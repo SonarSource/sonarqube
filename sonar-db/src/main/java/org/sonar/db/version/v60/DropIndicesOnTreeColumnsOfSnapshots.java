@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v60;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropIndexBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropIndicesOnTreeColumnsOfSnapshots extends DdlChange {
+  public DropIndicesOnTreeColumnsOfSnapshots(Database db) {
+    super(db);
+  }
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(187);
+  @Override
+  public void execute(Context context) throws SQLException {
+    dropIndex(context, "snapshots_qualifier");
+    dropIndex(context, "snapshots_root");
+    dropIndex(context, "snapshots_parent");
+    dropIndex(context, "snapshot_root_component");
+  }
+
+  private void dropIndex(Context context, String index) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("snapshots")
+      .setName(index)
+      .build());
   }
 }

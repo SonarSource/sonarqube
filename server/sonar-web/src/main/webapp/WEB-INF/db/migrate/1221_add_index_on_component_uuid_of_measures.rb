@@ -24,6 +24,7 @@
 class AddIndexOnComponentUuidOfMeasures < ActiveRecord::Migration
 
   def self.up
-    add_index :project_measures, :component_uuid, :name => 'measures_component_uuid'
+    execute_java_migration('org.sonar.db.version.v60.AddIndexOnComponentUuidOfMeasures')
   end
+
 end

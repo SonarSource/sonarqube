@@ -24,10 +24,6 @@
 class DropIndexEventsSnapshotIdFromEvents < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :events, :name => 'events_snapshot_id'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropIndexEventsSnapshotIdFromEvents')
   end
 end
