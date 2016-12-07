@@ -25,10 +25,6 @@
 class DropIndexProjectsUuidFromProjects < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :projects, :name => 'projects_uuid'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropIndexProjectsUuidFromProjects')
   end
 end

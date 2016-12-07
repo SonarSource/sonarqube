@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v56;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropIndexBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * SONAR-6613
+ */
+public class RemoveUselessIndexesOnGroupRoles extends DdlChange {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(187);
+  private static final String TABLE_NAME = "group_roles";
+
+  public RemoveUselessIndexesOnGroupRoles(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_NAME)
+      .setName("group_roles_group")
+      .build());
+
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_NAME)
+      .setName("group_roles_role")
+      .build());
   }
 }

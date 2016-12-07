@@ -24,10 +24,6 @@
 class DropResourceIndexRidFromResourceIndex < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :resource_index, :name => 'resource_index_rid'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropResourceIndexRidFromResourceIndex')
   end
 end

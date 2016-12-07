@@ -22,7 +22,9 @@ package org.sonar.db.version.v60;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.VarcharColumnDef;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -37,9 +39,18 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex extends 
 
   @Override
   public void execute(Context context) throws SQLException {
+    VarcharColumnDef analysisUuid = newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
+    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_DUPLICATIONS_INDEX)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .updateColumn(componentUuid)
+      .updateColumn(analysisUuid)
+      .build());
+
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE_DUPLICATIONS_INDEX)
+      .setName("duplication_analysis_component")
+      .addColumn(analysisUuid)
+      .addColumn(componentUuid)
       .build());
   }
 

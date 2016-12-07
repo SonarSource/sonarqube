@@ -24,10 +24,6 @@
 class DropIndexDuplicationsIndexSidFromDuplicationsIndex < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :duplications_index, :name => 'duplications_index_sid'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropIndexDuplicationsIndexSidFromDuplicationsIndex')
   end
 end

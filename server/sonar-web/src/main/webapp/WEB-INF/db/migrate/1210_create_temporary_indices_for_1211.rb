@@ -24,7 +24,6 @@
 class CreateTemporaryIndicesFor1211 < ActiveRecord::Migration
 
   def self.up
-    add_index :ce_activity, :snapshot_id, :name => 'ce_activity_snapshot_id'
-    add_index :duplications_index, :project_snapshot_id, :name => 'dup_index_psid'
+    execute_java_migration('org.sonar.db.version.v60.CreateTemporaryIndicesFor1211')
   end
 end

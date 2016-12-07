@@ -24,10 +24,6 @@
 class DropIndexProjectsRootIdFromProjects < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :projects, :name => 'projects_root_id'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropIndexProjectsRootIdFromProjects')
   end
 end

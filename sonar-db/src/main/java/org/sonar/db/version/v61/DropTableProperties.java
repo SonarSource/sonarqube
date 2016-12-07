@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v61;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.db.version.DropTableBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropTableProperties extends DdlChange {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(187);
+  private static final String TABLE_PROPERTIES = "properties";
+
+  public DropTableProperties(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_PROPERTIES)
+      .setName("properties_key")
+      .build());
+
+    context.execute(new DropTableBuilder(getDialect(), TABLE_PROPERTIES).build());
+  }
+
 }

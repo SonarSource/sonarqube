@@ -25,7 +25,5 @@ class MakeAnalysisUuidNotNullOnEvents < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v60.MakeAnalysisUuidNotNullOnEvents')
-
-    add_index :events, :analysis_uuid, :name => 'events_analysis'
   end
 end

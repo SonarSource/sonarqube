@@ -83,6 +83,7 @@ import org.sonar.db.version.v55.FeedRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
+import org.sonar.db.version.v56.RemoveUselessIndexesOnGroupRoles;
 import org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToEvents;
@@ -91,8 +92,11 @@ import org.sonar.db.version.v60.AddBColumnsToProjects;
 import org.sonar.db.version.v60.AddComponentUuidAndAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
+import org.sonar.db.version.v60.AddIndexOnAnalysisUuidOfMeasures;
+import org.sonar.db.version.v60.AddIndexOnComponentUuidOfMeasures;
 import org.sonar.db.version.v60.AddLastUsedColumnToRulesProfiles;
 import org.sonar.db.version.v60.AddProfileKeyToActivities;
+import org.sonar.db.version.v60.AddUniqueIndexOnUuidOfSnapshots;
 import org.sonar.db.version.v60.AddUserUpdatedAtToRulesProfiles;
 import org.sonar.db.version.v60.AddUuidColumnToSnapshots;
 import org.sonar.db.version.v60.AddUuidColumnsToProjects;
@@ -105,17 +109,28 @@ import org.sonar.db.version.v60.CleanOrphanRowsInProjects;
 import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInSnapshots;
 import org.sonar.db.version.v60.CleanUsurperRootComponents;
+import org.sonar.db.version.v60.CreatePermTemplatesCharacteristics;
+import org.sonar.db.version.v60.CreateTemporaryIndicesFor1211;
 import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutComponentOrAnalysis;
 import org.sonar.db.version.v60.DeleteOrphanMeasuresWithoutComponent;
 import org.sonar.db.version.v60.DropIdColumnsFromProjects;
 import org.sonar.db.version.v60.DropIdColumnsFromResourceIndex;
 import org.sonar.db.version.v60.DropIdColumnsFromSnapshots;
+import org.sonar.db.version.v60.DropIndexDuplicationsIndexSidFromDuplicationsIndex;
+import org.sonar.db.version.v60.DropIndexEventsSnapshotIdFromEvents;
+import org.sonar.db.version.v60.DropIndexOnSnapshotIdOfMeasures;
+import org.sonar.db.version.v60.DropIndexProjectsRootIdFromProjects;
+import org.sonar.db.version.v60.DropIndexProjectsUuidFromProjects;
+import org.sonar.db.version.v60.DropIndicesOnTreeColumnsOfSnapshots;
 import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
+import org.sonar.db.version.v60.DropResourceIndexRidFromResourceIndex;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromCeActivity;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromEvents;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropSnapshotIdColumnsFromDuplicationsIndex;
+import org.sonar.db.version.v60.DropSnapshotProjectIdFromSnapshots;
+import org.sonar.db.version.v60.DropTemporaryIndicesOf1210;
 import org.sonar.db.version.v60.DropTreeColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropTreesOfSnapshots;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
@@ -143,7 +158,9 @@ import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
 import org.sonar.db.version.v60.PopulateUuidPathColumnOnProjects;
+import org.sonar.db.version.v60.RecreateIndexProjectsUuidFromProjects;
 import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
+import org.sonar.db.version.v60.TemporarilyDropIndexOfAnalysisUuidOnMeasures;
 import org.sonar.db.version.v61.AddBUuidPathToProjects;
 import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
 import org.sonar.db.version.v61.CopyActivitiesToQprofileChanges;
@@ -156,6 +173,8 @@ import org.sonar.db.version.v61.CreateTableScannerContext;
 import org.sonar.db.version.v61.DeleteProjectDashboards;
 import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
 import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
+import org.sonar.db.version.v61.DropTableActivities;
+import org.sonar.db.version.v61.DropTableProperties;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
@@ -171,6 +190,7 @@ import org.sonar.db.version.v62.DeletePermissionShareDashboard;
 import org.sonar.db.version.v62.DropIssueFiltersTables;
 import org.sonar.db.version.v62.DropMeasureFiltersTables;
 import org.sonar.db.version.v62.DropRelatedDashboardTables;
+import org.sonar.db.version.v62.IncludeOrganizationUuidInUniqueIndexOfGroupRoles;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroupRoles;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroups;
 import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates;
@@ -266,6 +286,7 @@ public class MigrationStepModule extends Module {
       DeleteManualRules.class,
 
       // 5.6
+      RemoveUselessIndexesOnGroupRoles.class,
       FixTypeOfRuleTypeOnMysql.class,
       FixLengthOfIssuesMessageOnOracle.class,
       UpdateUsersExternalIdentityWhenEmpty.class,
@@ -300,6 +321,11 @@ public class MigrationStepModule extends Module {
       MakeProfileKeyNotNullOnActivities.class,
       AddUserUpdatedAtToRulesProfiles.class,
       PopulateUserUpdatedAtOfRulesProfiles.class,
+      CreateTemporaryIndicesFor1211.class,
+      AddIndexOnComponentUuidOfMeasures.class,
+      RecreateIndexProjectsUuidFromProjects.class,
+      AddUniqueIndexOnUuidOfSnapshots.class,
+      AddIndexOnAnalysisUuidOfMeasures.class,
 
       // SNAPSHOTS.UUID
       AddUuidColumnToSnapshots.class,
@@ -346,6 +372,17 @@ public class MigrationStepModule extends Module {
       DropTreeColumnsFromSnapshots.class,
       DropSnapshotIdColumnFromMeasures.class,
       AddBColumnsToProjects.class,
+      CreatePermTemplatesCharacteristics.class,
+      DropTemporaryIndicesOf1210.class,
+      DropResourceIndexRidFromResourceIndex.class,
+      DropSnapshotProjectIdFromSnapshots.class,
+      DropIndexProjectsUuidFromProjects.class,
+      DropIndexProjectsRootIdFromProjects.class,
+      DropIndexDuplicationsIndexSidFromDuplicationsIndex.class,
+      DropIndexEventsSnapshotIdFromEvents.class,
+      TemporarilyDropIndexOfAnalysisUuidOnMeasures.class,
+      DropIndexOnSnapshotIdOfMeasures.class,
+      DropIndicesOnTreeColumnsOfSnapshots.class,
 
       // 6.1
       DeleteProjectDashboards.class,
@@ -363,6 +400,8 @@ public class MigrationStepModule extends Module {
       CreateTableQprofileChanges.class,
       CopyActivitiesToQprofileChanges.class,
       CreateTableRuleRepositories.class,
+      DropTableActivities.class,
+      DropTableProperties.class,
 
       // 6.2
       CreateTableOrganizations.class,
@@ -388,6 +427,7 @@ public class MigrationStepModule extends Module {
       DropMeasureFiltersTables.class,
       DropIssueFiltersTables.class,
       CreateTableWebhookDeliveries.class,
+      IncludeOrganizationUuidInUniqueIndexOfGroupRoles.class,
 
       // 6.3
       AddUuidToEvents.class,

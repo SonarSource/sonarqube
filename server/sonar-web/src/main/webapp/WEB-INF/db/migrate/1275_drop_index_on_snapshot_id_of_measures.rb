@@ -24,11 +24,7 @@
 class DropIndexOnSnapshotIdOfMeasures < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :project_measures, :name => 'measures_sid_metric'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropIndexOnSnapshotIdOfMeasures')
   end
 
 end

@@ -25,7 +25,5 @@ class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex < ActiveRecord:
 
   def self.up
     execute_java_migration('org.sonar.db.version.v60.MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex')
-
-    add_index :duplications_index, [:analysis_uuid, :component_uuid], :name => 'duplication_analysis_component'
   end
 end

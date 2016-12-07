@@ -24,15 +24,6 @@
 class DropSnapshotProjectIdFromSnapshots < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_index :snapshots, :name => 'snapshot_project_id'
-    rescue
-      #ignore
-    end
-    begin
-      remove_index :snapshots, :name => 'snapshots_root_project_id'
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v60.DropSnapshotProjectIdFromSnapshots')
   end
 end

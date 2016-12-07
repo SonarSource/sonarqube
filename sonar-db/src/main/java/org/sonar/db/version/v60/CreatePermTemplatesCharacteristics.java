@@ -17,53 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v61;
+package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
-import java.util.List;
 import org.sonar.db.Database;
 import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.CreateTableBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.IntegerColumnDef;
 import org.sonar.db.version.VarcharColumnDef;
 
 import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
-import static org.sonar.db.version.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.db.version.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
 import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
-import static org.sonar.db.version.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateTableProperties2 extends DdlChange {
+public class CreatePermTemplatesCharacteristics extends DdlChange {
 
-  private static final String TABLE_NAME = "properties2";
+  private static final String TABLE_NAME = "perm_tpl_characteristics";
 
-  public CreateTableProperties2(Database db) {
+  public CreatePermTemplatesCharacteristics(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef propKey = newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).build();
-    List<String> stmts = new CreateTableBuilder(getDialect(), TABLE_NAME)
-      .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
-      .addColumn(propKey)
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("resource_id").setIsNullable(true).build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("user_id").setIsNullable(true).build())
-      .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("text_value").setLimit(MAX_SIZE).setIsNullable(true).build())
-      .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
-      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
-      // table with be renamed to properties in following migration, use final constraint name right away
-      .withPkConstraintName("pk_properties")
-      .build();
-    context.execute(stmts);
+    IntegerColumnDef templateIdColumn = newIntegerColumnDefBuilder().setColumnName("template_id").setIsNullable(false).build();
+    VarcharColumnDef permissionKeyColumn = newVarcharColumnDefBuilder().setColumnName("permission_key").setLimit(64).setIsNullable(false).build();
+    context.execute(
+      new CreateTableBuilder(getDialect(), TABLE_NAME)
+        .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+        .addColumn(templateIdColumn)
+        .addColumn(permissionKeyColumn)
+        .addColumn(newBooleanColumnDefBuilder().setColumnName("with_project_creator").setIsNullable(false).setDefaultValue(false).build())
+        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
+        .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
+        .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
       .setTable(TABLE_NAME)
-      .setName("properties2_key")
-      .addColumn(propKey)
+      .setName("uniq_perm_tpl_charac")
+      .setUnique(true)
+      .addColumn(templateIdColumn)
+      .addColumn(permissionKeyColumn)
       .build());
   }
 }

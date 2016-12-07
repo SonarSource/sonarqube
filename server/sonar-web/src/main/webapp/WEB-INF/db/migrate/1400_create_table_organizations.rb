@@ -25,6 +25,5 @@ class CreateTableOrganizations < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v62.CreateTableOrganizations')
-    add_index :organizations, :kee, :name => 'organization_key'
   end
 end

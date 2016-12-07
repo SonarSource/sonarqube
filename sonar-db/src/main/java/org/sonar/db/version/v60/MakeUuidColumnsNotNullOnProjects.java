@@ -22,7 +22,9 @@ package org.sonar.db.version.v60;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.VarcharColumnDef;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -37,9 +39,16 @@ public class MakeUuidColumnsNotNullOnProjects extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    VarcharColumnDef rootUuid = newVarcharColumnDefBuilder().setColumnName("root_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
     context.execute(new AlterColumnsBuilder(getDialect(), TABLE_PROJECTS)
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .updateColumn(rootUuid)
+      .build());
+
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE_PROJECTS)
+      .setName("projects_root_uuid")
+      .addColumn(rootUuid)
       .build());
   }
 

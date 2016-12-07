@@ -24,8 +24,7 @@
 class DropTableActivities < ActiveRecord::Migration
 
   def self.up
-    drop_index_quietly 'activities', 'activities_log_key'
-    drop_table 'activities'
+    execute_java_migration('org.sonar.db.version.v61.DropTableActivities')
   end
 
 end

@@ -25,8 +25,5 @@ class MakeComponentUuidColumnsNotNullOnSnapshots < ActiveRecord::Migration
 
   def self.up
     execute_java_migration('org.sonar.db.version.v60.MakeComponentUuidColumnsNotNullOnSnapshots')
-
-    add_index :snapshots, :component_uuid, :name => 'snapshot_component'
-    add_index :snapshots, :root_component_uuid, :name => 'snapshot_root_component'
   end
 end

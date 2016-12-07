@@ -25,6 +25,6 @@
 class RecreateIndexProjectsUuidFromProjects < ActiveRecord::Migration
 
   def self.up
-    add_index :projects, :uuid, :name => 'projects_uuid'
+    execute_java_migration('org.sonar.db.version.v60.RecreateIndexProjectsUuidFromProjects')
   end
 end

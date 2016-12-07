@@ -24,8 +24,6 @@
 class TemporarilyDropIndexOfAnalysisUuidOnMeasures < ActiveRecord::Migration
 
   def self.up
-    # the index must be dropped for the compatibility of migration 1270
-    # with MSSQL
-    remove_index :project_measures, :name => 'measures_analysis_metric'
+    execute_java_migration('org.sonar.db.version.v60.TemporarilyDropIndexOfAnalysisUuidOnMeasures')
   end
 end
