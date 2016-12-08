@@ -18,9 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexRoute } from 'react-router';
+import { IndexRoute, Route } from 'react-router';
 import IssuesAppContainer from './components/IssuesAppContainer';
 
-export default (
-    <IndexRoute component={IssuesAppContainer}/>
-);
+const onSearchEnter = (nextState, replace) => {
+  replace('/issues' + window.location.hash);
+};
+
+export default [
+  <IndexRoute key="index" component={IssuesAppContainer}/>,
+  <Route key="search" path="search" onEnter={onSearchEnter}/>
+];
