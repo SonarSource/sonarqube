@@ -22,8 +22,10 @@ package org.sonar.server.platform.db.migrations;
 import java.util.Date;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 import org.sonar.server.ruby.RubyRailsRoutes;
@@ -44,34 +46,20 @@ public class PlatformDatabaseMigrationTest {
   /**
    * Implementation of execute runs Runnable synchronously.
    */
-  PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       command.run();
     }
   };
-  RubyBridge rubyBridge = mock(RubyBridge.class);
-  RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
-  RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
-  Platform platform = mock(Platform.class);
-  InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
+  private RubyBridge rubyBridge = mock(RubyBridge.class);
+  private RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
+  private RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
+  private Platform platform = mock(Platform.class);
+  private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
+  private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
 
-  PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
-
-  @Test
-  public void status_is_NONE_when_component_is_created() {
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.NONE);
-  }
-
-  @Test
-  public void startedAt_is_null_when_component_is_created() {
-    assertThat(underTest.startedAt()).isNull();
-  }
-
-  @Test
-  public void failureError_is_null_when_component_is_created() {
-    assertThat(underTest.failureError()).isNull();
-  }
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform, migrationState);
 
   @Test
   public void startit_calls_databasemigration_trigger_in_a_separate_thread() {
@@ -95,9 +83,9 @@ public class PlatformDatabaseMigrationTest {
 
     underTest.startIt();
 
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.SUCCEEDED);
-    assertThat(underTest.failureError()).isNull();
-    assertThat(underTest.startedAt()).isNotNull();
+    assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
+    assertThat(migrationState.getError()).isNull();
+    assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
   @Test
@@ -106,9 +94,9 @@ public class PlatformDatabaseMigrationTest {
 
     underTest.startIt();
 
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.FAILED);
-    assertThat(underTest.failureError()).isSameAs(AN_ERROR);
-    assertThat(underTest.startedAt()).isNotNull();
+    assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
+    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
+    assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
   @Test
@@ -117,18 +105,18 @@ public class PlatformDatabaseMigrationTest {
 
     underTest.startIt();
 
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.FAILED);
-    assertThat(underTest.failureError()).isSameAs(AN_ERROR);
-    Date firstStartDate = underTest.startedAt();
+    assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
+    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
+    Date firstStartDate = migrationState.getStartedAt();
     assertThat(firstStartDate).isNotNull();
 
     mockTriggerDoesNothing();
 
     underTest.startIt();
 
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.SUCCEEDED);
-    assertThat(underTest.failureError()).isNull();
-    assertThat(underTest.startedAt()).isNotSameAs(firstStartDate);
+    assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
+    assertThat(migrationState.getError()).isNull();
+    assertThat(migrationState.getStartedAt()).isNotSameAs(firstStartDate);
   }
 
   private void mockTriggerThrowsError() {

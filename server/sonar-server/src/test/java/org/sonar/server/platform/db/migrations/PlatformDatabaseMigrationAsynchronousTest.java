@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migrations;
 
 import org.junit.Test;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,15 +34,16 @@ public class PlatformDatabaseMigrationAsynchronousTest {
    * Implementation of execute wraps specified Runnable to add a delay of 200 ms before passing it
    * to a SingleThread executor to execute asynchronously.
    */
-  PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(final Runnable command) {
       taskSuppliedForAsyncProcess = true;
     }
   };
-  RubyBridge rubyBridge = mock(RubyBridge.class);
-  Platform platform = mock(Platform.class);
-  PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
+  private RubyBridge rubyBridge = mock(RubyBridge.class);
+  private Platform platform = mock(Platform.class);
+  private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform, migrationState);
 
   @Test
   public void testName() throws Exception {

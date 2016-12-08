@@ -30,10 +30,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.base.Predicates.in;
@@ -57,18 +57,18 @@ public class StatusActionTest {
   private static final String STATUS_MIGRATION_NEEDED = "DB_MIGRATION_NEEDED";
   private static final String STATUS_MIGRATION_RUNNING = "DB_MIGRATION_RUNNING";
   private static final String STATUS_RESTARTING = "RESTARTING";
-  private static final Set<DatabaseMigration.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = of(DatabaseMigration.Status.FAILED, DatabaseMigration.Status.NONE,
-    DatabaseMigration.Status.SUCCEEDED, DatabaseMigration.Status.RUNNING);
+  private static final Set<DatabaseMigrationState.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = of(DatabaseMigrationState.Status.FAILED, DatabaseMigrationState.Status.NONE,
+    DatabaseMigrationState.Status.SUCCEEDED, DatabaseMigrationState.Status.RUNNING);
   private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.UP);
 
   private static Server server = new Dummy51Server();
-  private DatabaseMigration databaseMigration = mock(DatabaseMigration.class);
+  private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private Platform platform = mock(Platform.class);
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private IsAliveMapper isAliveMapper = mock(IsAliveMapper.class);
   private RestartFlagHolder restartFlagHolder = new RestartFlagHolderImpl();
-  private StatusAction underTest = new StatusAction(server, databaseMigration, platform, dbClient, restartFlagHolder);
+  private StatusAction underTest = new StatusAction(server, migrationState, platform, dbClient, restartFlagHolder);
 
   private Request request = mock(Request.class);
 
@@ -111,7 +111,7 @@ public class StatusActionTest {
 
   @Test
   public void status_is_UP_if_platform_is_UP_and_restartFlag_is_false_whatever_databaseMigration_status_is() throws Exception {
-    for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
+    for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_UP);
     }
   }
@@ -120,36 +120,36 @@ public class StatusActionTest {
   public void status_is_RESTARTING_if_platform_is_UP_and_restartFlag_is_true_whatever_databaseMigration_status_is() throws Exception {
     restartFlagHolder.set();
 
-    for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
+    for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_RESTARTING);
     }
   }
 
   @Test
   public void status_is_DOWN_if_platform_is_BOOTING_whatever_databaseMigration_status_is() throws Exception {
-    for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
+    for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.BOOTING, databaseMigrationStatus, STATUS_DOWN);
     }
   }
 
   @Test
   public void status_is_DB_MIGRATION_NEEDED_if_platform_is_SAFEMODE_and_databaseMigration_is_NONE() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigration.Status.NONE, STATUS_MIGRATION_NEEDED);
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.NONE, STATUS_MIGRATION_NEEDED);
   }
 
   @Test
   public void status_is_DB_MIGRATION_RUNNING_if_platform_is_SAFEMODE_and_databaseMigration_is_RUNNING() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigration.Status.RUNNING, STATUS_MIGRATION_RUNNING);
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.RUNNING, STATUS_MIGRATION_RUNNING);
   }
 
   @Test
   public void status_is_UP_if_platform_is_SAFEMODE_and_databaseMigration_is_SUCCEEDED() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigration.Status.SUCCEEDED, STATUS_UP);
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.SUCCEEDED, STATUS_UP);
   }
 
   @Test
   public void status_is_DOWN_if_platform_is_SAFEMODE_and_databaseMigration_is_FAILED() throws Exception {
-    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigration.Status.FAILED, STATUS_DOWN);
+    verifyStatus(Platform.Status.SAFEMODE, DatabaseMigrationState.Status.FAILED, STATUS_DOWN);
   }
 
   @Test
@@ -183,7 +183,7 @@ public class StatusActionTest {
   @Test
   public void safety_test_for_new_platform_status() throws Exception {
     for (Platform.Status platformStatus : filter(asList(Platform.Status.values()), not(in(SUPPORTED_PLATFORM_STATUSES)))) {
-      for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
+      for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
         verifyStatus(platformStatus, databaseMigrationStatus, STATUS_DOWN);
       }
     }
@@ -191,19 +191,19 @@ public class StatusActionTest {
 
   @Test
   public void safety_test_for_new_databaseMigration_status_when_platform_is_SAFEMODE() throws Exception {
-    for (DatabaseMigration.Status databaseMigrationStatus : filter(asList(DatabaseMigration.Status.values()), not(in(SUPPORTED_DATABASE_MIGRATION_STATUSES)))) {
+    for (DatabaseMigrationState.Status databaseMigrationStatus : filter(asList(DatabaseMigrationState.Status.values()), not(in(SUPPORTED_DATABASE_MIGRATION_STATUSES)))) {
       when(platform.status()).thenReturn(Platform.Status.SAFEMODE);
-      when(databaseMigration.status()).thenReturn(databaseMigrationStatus);
+      when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
 
       WsTester.TestResponse response = new WsTester.TestResponse();
       underTest.handle(request, response);
     }
   }
 
-  private void verifyStatus(Platform.Status platformStatus, DatabaseMigration.Status databaseMigrationStatus, String expectedStatus) throws Exception {
+  private void verifyStatus(Platform.Status platformStatus, DatabaseMigrationState.Status databaseMigrationStatus, String expectedStatus) throws Exception {
     when(isAliveMapper.isAlive()).thenReturn(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
     when(platform.status()).thenReturn(platformStatus);
-    when(databaseMigration.status()).thenReturn(databaseMigrationStatus);
+    when(migrationState.getStatus()).thenReturn(databaseMigrationStatus);
 
     WsTester.TestResponse response = new WsTester.TestResponse();
     underTest.handle(request, response);

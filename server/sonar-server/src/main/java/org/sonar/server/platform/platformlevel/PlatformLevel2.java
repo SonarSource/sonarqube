@@ -29,9 +29,9 @@ import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
+import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
-import org.sonar.server.platform.db.migrations.PlatformDatabaseMigration;
 import org.sonar.server.platform.db.migrations.PlatformDatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.platform.web.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -72,10 +72,8 @@ public class PlatformLevel2 extends PlatformLevel {
 
     // Full Java DB Migration framework and configuration
     addIfStartupLeader(MigrationHistoryTableImpl.class);
-    // platform DB migration (TODO remove call to Ruby's Active Record and use DbMigrationEngine instead)
-    add(
-      PlatformDatabaseMigrationExecutorServiceImpl.class,
-      PlatformDatabaseMigration.class);
+    add(DatabaseMigrationStateImpl.class,
+      PlatformDatabaseMigrationExecutorServiceImpl.class);
     // Ruby DB Migration
     add(
       DatabaseMigrator.class,
