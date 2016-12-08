@@ -25,6 +25,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import javax.net.ssl.SSLSocketFactory;
 
 public class OkHttpClientBuilderTest {
 
@@ -40,6 +43,16 @@ public class OkHttpClientBuilderTest {
     assertThat(okHttpClient.proxy()).isNull();
     assertThat(okHttpClient.interceptors()).hasSize(1);
     assertThat(okHttpClient.sslSocketFactory()).isNotNull();
+  }
+
+  @Test
+  public void build_with_custom_sslSocketFactory() {
+    SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
+    OkHttpClient okHttpClient = underTest
+      .setSSLSocketFactory(sslSocketFactory)
+      .build();
+
+    assertThat(okHttpClient.sslSocketFactory()).isEqualTo(sslSocketFactory);
   }
 
   @Test

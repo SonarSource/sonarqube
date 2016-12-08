@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
+
 import okhttp3.Call;
 import okhttp3.Credentials;
 import okhttp3.Headers;
@@ -77,6 +80,8 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setProxyPassword(builder.proxyPassword);
     okHttpClientBuilder.setConnectTimeoutMs(builder.connectTimeoutMs);
     okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
+    okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
+    okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
     this.okHttpClient = okHttpClientBuilder.build();
   }
 
@@ -178,6 +183,8 @@ public class HttpConnector implements WsConnector {
     private String proxyPassword;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+    private SSLSocketFactory sslSocketFactory = null;
+    private X509TrustManager sslTrustManager = null;
 
     /**
      * Private since 5.5.
@@ -226,6 +233,24 @@ public class HttpConnector implements WsConnector {
      */
     public Builder connectTimeoutMilliseconds(int i) {
       this.connectTimeoutMs = i;
+      return this;
+    }
+    
+    /**
+     * Optional SSL socket factory with which SSL sockets will be created to establish SSL connections.
+     * If not set, a default SSL socket factory will be used, base d on the JVM's default key store.
+     */
+    public Builder setSSLSocketFactory(@Nullable SSLSocketFactory sslSocketFactory) {
+      this.sslSocketFactory = sslSocketFactory;
+      return this;
+    }
+
+    /**
+     * Optional SSL trust manager used to validate certificates.
+     * If not set, a default system trust manager will be used, based on the JVM's default truststore.
+     */
+    public Builder setTrustManager(@Nullable X509TrustManager sslTrustManager) {
+      this.sslTrustManager = sslTrustManager;
       return this;
     }
 

@@ -65,6 +65,8 @@ public class OkHttpClientBuilder {
   private String proxyPassword;
   private long connectTimeoutMs = -1;
   private long readTimeoutMs = -1;
+  private SSLSocketFactory sslSocketFactory = null;
+  private X509TrustManager sslTrustManager = null;
 
   /**
    * Optional User-Agent. If set, then all the requests sent by the
@@ -72,6 +74,24 @@ public class OkHttpClientBuilder {
    */
   public OkHttpClientBuilder setUserAgent(@Nullable String s) {
     this.userAgent = s;
+    return this;
+  }
+
+  /**
+   * Optional SSL socket factory with which SSL sockets will be created to establish SSL connections.
+   * If not set, a default SSL socket factory will be used, base d on the JVM's default key store.
+   */
+  public OkHttpClientBuilder setSSLSocketFactory(@Nullable SSLSocketFactory sslSocketFactory) {
+    this.sslSocketFactory = sslSocketFactory;
+    return this;
+  }
+
+  /**
+   * Optional SSL trust manager used to validate certificates.
+   * If not set, a default system trust manager will be used, based on the JVM's default truststore.
+   */
+  public OkHttpClientBuilder setTrustManager(@Nullable X509TrustManager sslTrustManager) {
+    this.sslTrustManager = sslTrustManager;
     return this;
   }
 
@@ -144,8 +164,10 @@ public class OkHttpClientBuilder {
       .supportsTlsExtensions(true)
       .build();
     builder.connectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
-    X509TrustManager systemDefaultTrustManager = systemDefaultTrustManager();
-    builder.sslSocketFactory(systemDefaultSslSocketFactory(systemDefaultTrustManager), systemDefaultTrustManager);
+
+    X509TrustManager trustManager = sslTrustManager != null ? sslTrustManager : systemDefaultTrustManager();
+    SSLSocketFactory sslFactory = sslSocketFactory != null ? sslSocketFactory : systemDefaultSslSocketFactory(trustManager);
+    builder.sslSocketFactory(sslFactory, trustManager);
 
     return builder.build();
   }
