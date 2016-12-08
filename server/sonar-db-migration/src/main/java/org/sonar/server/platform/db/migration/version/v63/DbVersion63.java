@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.platform.db.migration.version.v63;
 
-package org.sonar.db.version.v63;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.db.version.AddColumnsBuilder;
-import org.sonar.db.version.DdlChange;
-import org.sonar.db.version.VarcharColumnDef;
-
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
-
-public class AddUuidToEvents extends DdlChange {
-
-  public AddUuidToEvents(Database db) {
-    super(db);
-  }
-
+public class DbVersion63 implements DbVersion {
   @Override
-  public void execute(Context context) throws SQLException {
-    VarcharColumnDef column = newVarcharColumnDefBuilder()
-      .setColumnName("uuid")
-      .setIsNullable(true)
-      .setLimit(40)
-      .build();
-    context.execute(new AddColumnsBuilder(getDialect(), "events").addColumn(column).build());
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(1500, "Add Events.UUID", AddUuidToEvents.class)
+      .add(1501, "Populate Events.UUID", PopulateUuidColumnOfEvents.class)
+      .add(1502, "Make Events.UUID not nullable", MakeUuidNotNullOnEvents.class);
   }
 }

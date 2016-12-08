@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrationStepModuleTest {
+public class MigrationEngineModuleTest {
+  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+
+  private MigrationEngineModule underTest = new MigrationEngineModule();
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
+  public void verify_component_count() {
     ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(123);
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+        .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 5);
   }
 }

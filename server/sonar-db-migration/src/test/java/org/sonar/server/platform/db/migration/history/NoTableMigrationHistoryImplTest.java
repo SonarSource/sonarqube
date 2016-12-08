@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.history;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class NoTableMigrationHistoryImplTest {
+  @Rule
+  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, NoTableMigrationHistoryImplTest.class, "empty.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-public class MigrationStepModuleTest {
+  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.getDbClient());
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(123);
+  public void start_fails_with_ISE_if_table_history_does_not_exist() throws SQLException {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Migration history table is missing");
+
+    underTest.start();
   }
+
+
 }

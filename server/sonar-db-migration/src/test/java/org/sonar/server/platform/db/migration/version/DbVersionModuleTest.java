@@ -17,9 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.platform.db.migration.version;
 
-@ParametersAreNonnullByDefault
-package org.sonar.db.version.v63;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import static org.assertj.core.api.Assertions.assertThat;
 
+public class DbVersionModuleTest {
+  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+
+  private DbVersionModule underTest = new DbVersionModule();
+
+  @Test
+  public void verify_component_count() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 1);
+  }
+
+}

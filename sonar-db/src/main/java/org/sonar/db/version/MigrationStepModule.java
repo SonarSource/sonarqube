@@ -141,9 +141,6 @@ import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
 import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
 import org.sonar.db.version.v62.UpdateQualityGateConditionsOnCoverage;
-import org.sonar.db.version.v63.AddUuidToEvents;
-import org.sonar.db.version.v63.MakeUuidNotNullOnEvents;
-import org.sonar.db.version.v63.PopulateUuidColumnOfEvents;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -293,11 +290,6 @@ public class MigrationStepModule extends Module {
       DropMeasureFiltersTables.class,
       DropIssueFiltersTables.class,
       CreateTableWebhookDeliveries.class,
-      IncludeOrganizationUuidInUniqueIndexOfGroupRoles.class,
-
-      // 6.3
-      AddUuidToEvents.class,
-      PopulateUuidColumnOfEvents.class,
-      MakeUuidNotNullOnEvents.class);
+      IncludeOrganizationUuidInUniqueIndexOfGroupRoles.class);
   }
 }

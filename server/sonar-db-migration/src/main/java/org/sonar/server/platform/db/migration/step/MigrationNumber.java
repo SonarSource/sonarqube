@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.step;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(123);
+public final class MigrationNumber {
+  private MigrationNumber() {
+    // prevents instantiation
   }
+
+  public static void validate(long migrationNumber) {
+    checkArgument(migrationNumber >= 0, "Migration number must be >= 0");
+  }
+
 }

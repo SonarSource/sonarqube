@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.step;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(123);
-  }
+/**
+ * Responsible for:
+ * <ul>
+ *   <li>looping over all the {@link MigrationStep} to execute</li>
+ *   <li>put INFO log between each {@link MigrationStep} for user information</li>
+ *   <li>handle errors during the execution of {@link MigrationStep}</li>
+ *   <li>update the content of table {@code SCHEMA_MIGRATION}</li>
+ * </ul>
+ */
+public interface MigrationStepsExecutor {
+  /**
+   * @throws MigrationStepExecutionException at the first failing migration step execution
+   */
+  void execute(Stream<RegisteredMigrationStep> steps);
 }

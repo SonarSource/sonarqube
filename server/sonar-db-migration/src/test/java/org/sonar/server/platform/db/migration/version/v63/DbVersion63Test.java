@@ -17,42 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.platform.db.migration.version.v63;
 
-package org.sonar.db.version.v63;
-
-import java.sql.SQLException;
-import java.sql.Types;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
 
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class AddUuidToEventsTest {
-
-  @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddUuidToEventsTest.class, "previous-events.sql");
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private AddUuidToEvents underTest = new AddUuidToEvents(dbTester.database());
+public class DbVersion63Test {
+  private DbVersion63 underTest = new DbVersion63();
 
   @Test
-  public void creates_table_on_empty_db() throws SQLException {
-    underTest.execute();
-
-    dbTester.assertColumnDefinition("events", "uuid", Types.VARCHAR, 40, true);
+  public void migrationNumber_starts_at_1500() {
+    verifyMinimumMigrationNumber(underTest, 1500);
   }
 
   @Test
-  public void migration_is_not_reentrant() throws SQLException {
-    underTest.execute();
-
-    expectedException.expect(IllegalStateException.class);
-
-    underTest.execute();
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 3);
   }
+
 
 }

@@ -23,6 +23,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 import org.sonar.server.ruby.RubyRailsRoutes;
@@ -49,14 +50,15 @@ public class DatabaseMigrationImplTest {
       command.run();
     }
   };
+  private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
   private RubyBridge rubyBridge = mock(RubyBridge.class);
   private RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
   private RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
   private Platform platform = mock(Platform.class);
-  private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
-  private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
+  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
+  private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform, migrationEngine);
 
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(rubyBridge, executorService, platform, migrationState);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, migrationEngine, platform);
 
   @Test
   public void startit_calls_databasemigration_trigger_in_a_separate_thread() {

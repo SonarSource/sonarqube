@@ -17,40 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.db.version.v63;
+package org.sonar.server.platform.db.migration.version.v63;
 
 import java.sql.SQLException;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
-import org.sonar.db.version.BaseDataChange;
-import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
+import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.CreateIndexBuilder;
+import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class PopulateUuidColumnOfEvents extends BaseDataChange {
+import static org.sonar.db.version.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-  private final UuidFactory uuidFactory;
+public class MakeUuidNotNullOnEvents extends DdlChange {
 
-  public PopulateUuidColumnOfEvents(Database db, UuidFactory uuidFactory) {
+  private static final String TABLE = "events";
+
+  public MakeUuidNotNullOnEvents(Database db) {
     super(db);
-    this.uuidFactory = uuidFactory;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT e.id from events e where e.uuid is null");
-    massUpdate.update("UPDATE events SET uuid=? WHERE id=?");
-    massUpdate.rowPluralName("events");
-    massUpdate.execute(this::handle);
-  }
+    VarcharColumnDef uuidColumn = newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).build();
+    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE)
+      .updateColumn(uuidColumn)
+      .build());
 
-  private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-    long id = row.getLong(1);
-    update.setString(1, uuidFactory.create());
-    update.setLong(2, id);
-    return true;
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable(TABLE)
+      .setName("events_uuid")
+      .setUnique(true)
+      .addColumn(uuidColumn)
+      .build());
   }
-
 }

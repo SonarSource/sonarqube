@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.engine;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ContainerPopulator;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * A dedicated container used to run DB migrations where all components are lazily instantiated.
+ * <p>
+ *   As a new container will be created for each run of DB migrations, components in this container can safely be
+ *   stateful.
+ * </p>
+ * <p>
+ *   Lazy instantiation is convenient to instantiate {@link org.sonar.server.platform.db.migration.step.MigrationStep}
+ *   classes only they really are to be executed.
+ * </p>
+ */
+public interface MigrationContainer extends ContainerPopulator.Container {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(123);
-  }
+  /**
+   * Cleans up resources after migration has run.
+   * <strong>This method must never fail.</strong>
+   */
+  void cleanup();
 }

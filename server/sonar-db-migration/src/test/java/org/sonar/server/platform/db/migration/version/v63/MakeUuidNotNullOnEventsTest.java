@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.version.v63;
+package org.sonar.server.platform.db.migration.version.v63;
 
 import java.sql.SQLException;
 import java.sql.Types;
