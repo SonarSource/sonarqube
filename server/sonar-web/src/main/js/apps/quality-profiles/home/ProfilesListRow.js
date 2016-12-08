@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import shallowCompare from 'react-addons-shallow-compare';
 import ProfileLink from '../components/ProfileLink';
 import ProfileDate from '../components/ProfileDate';
@@ -86,18 +87,18 @@ export default class ProfilesListRow extends React.Component {
         <div>
           {profile.activeDeprecatedRuleCount > 0 && (
               <span className="spacer-right">
-                <a className="badge badge-normal-size badge-danger-light"
-                   href={deprecatedRulesUrl}
-                   title={translate('quality_profiles.deprecated_rules')}
-                   data-toggle="tooltip">
+                <Link to={deprecatedRulesUrl}
+                      className="badge badge-normal-size badge-danger-light"
+                      title={translate('quality_profiles.deprecated_rules')}
+                      data-toggle="tooltip">
                   {profile.activeDeprecatedRuleCount}
-                </a>
+                </Link>
               </span>
           )}
 
-          <a href={activeRulesUrl}>
+          <Link to={activeRulesUrl}>
             {profile.activeRuleCount}
-          </a>
+          </Link>
         </div>
     );
   }

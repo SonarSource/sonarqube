@@ -170,12 +170,13 @@
     font-size: 12px;
     letter-spacing: 0.05em;
 
-    &:hover, &:focus {
+    &:hover {
       color: #fff;
     }
   }
 
   .navbar-nav > .active > a,
+  .navbar-nav > li > a.active,
   .navbar-nav > .dropdown.open > a {
     color: #fff;
   }
@@ -186,8 +187,8 @@
   }
 
   .navbar-nav > li > a:hover,
-  .navbar-nav > li > a:focus,
   .navbar-nav > .active > a,
+  .navbar-nav > li> a.active,
   .navbar-nav > .dropdown.open > a {
     background-color: @blue;
   }
@@ -197,8 +198,8 @@
   }
 
   .navbar-admin-link:hover,
-  .navbar-admin-link:focus,
-  .active > .navbar-admin-link {
+  .active > .navbar-admin-link,
+  .active.navbar-admin-link {
     background-color: @orange !important;
   }
 }

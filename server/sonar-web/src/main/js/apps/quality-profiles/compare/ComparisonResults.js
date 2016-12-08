@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import ComparisonEmpty from './ComparisonEmpty';
 import SeverityIcon from '../../../components/shared/severity-icon';
 import { translateWithParameters } from '../../../helpers/l10n';
@@ -41,9 +42,9 @@ export default class ComparisonResults extends React.Component {
         <div>
           <SeverityIcon severity={severity}/>
           {' '}
-          <a href={getRulesUrl({ 'rule_key': rule.key })}>
+          <Link to={getRulesUrl({ 'rule_key': rule.key })}>
             {rule.name}
-          </a>
+          </Link>
         </div>
     );
   }

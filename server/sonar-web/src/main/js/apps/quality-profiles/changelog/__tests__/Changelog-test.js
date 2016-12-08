@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
+import { Link } from 'react-router';
 import Changelog from '../Changelog';
 import ChangesList from '../ChangesList';
 
@@ -67,8 +68,7 @@ it('should render action', () => {
 it('should render rule', () => {
   const events = [createEvent()];
   const changelog = shallow(<Changelog events={events}/>);
-  expect(changelog.text()).toContain('Do not do this');
-  expect(changelog.find('a').prop('href')).toContain('rule_key=squid1234');
+  expect(changelog.find('Link').prop('to')).toContain('rule_key=squid1234');
 });
 
 it('should render ChangesList', () => {

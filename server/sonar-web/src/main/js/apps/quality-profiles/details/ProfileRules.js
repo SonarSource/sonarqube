@@ -18,16 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import keyBy from 'lodash/keyBy';
 import ProfileRulesRow from './ProfileRulesRow';
 import { ProfileType } from '../propTypes';
 import { searchRules, takeFacet } from '../../../api/rules';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import {
-    getRulesUrl,
-    getDeprecatedActiveRulesUrl
-} from '../../../helpers/urls';
+import { getRulesUrl, getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
@@ -123,11 +121,11 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <a href={rulesUrl}>
+        <Link to={rulesUrl}>
           <strong>
             {formatMeasure(this.state.activatedTotal, 'SHORT_INT')}
           </strong>
-        </a>
+        </Link>
     );
   }
 
@@ -146,14 +144,14 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <a href={rulesUrl} className="small text-muted">
+        <Link to={rulesUrl} className="small text-muted">
           <strong>
             {formatMeasure(
                 this.state.total - this.state.activatedTotal,
                 'SHORT_INT'
             )}
           </strong>
-        </a>
+        </Link>
     );
   }
 
@@ -181,9 +179,9 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <a href={rulesUrl}>
+        <Link to={rulesUrl}>
           {formatMeasure(count, 'SHORT_INT')}
-        </a>
+        </Link>
     );
   }
 
@@ -206,9 +204,9 @@ export default class ProfileRules extends React.Component {
     }
 
     return (
-        <a href={rulesUrl} className="small text-muted">
+        <Link to={rulesUrl} className="small text-muted">
           {formatMeasure(total - count, 'SHORT_INT')}
-        </a>
+        </Link>
     );
   }
 
@@ -227,9 +225,9 @@ export default class ProfileRules extends React.Component {
             {translate('quality_profiles.deprecated_rules')}
           </div>
           <div className="pull-right">
-            <a href={url}>
+            <Link to={url}>
               {profile.activeDeprecatedRuleCount}
-            </a>
+            </Link>
           </div>
         </div>
     );
@@ -272,10 +270,9 @@ export default class ProfileRules extends React.Component {
 
             {this.props.canAdmin && (
                 <div className="text-right big-spacer-top">
-                  <a href={activateMoreUrl}
-                     className="button js-activate-rules">
+                  <Link to={activateMoreUrl} className="button js-activate-rules">
                     {translate('quality_profiles.activate_more')}
-                  </a>
+                  </Link>
                 </div>
             )}
           </div>

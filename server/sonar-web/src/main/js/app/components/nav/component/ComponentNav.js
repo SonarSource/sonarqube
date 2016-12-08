@@ -37,7 +37,7 @@ export default React.createClass({
   },
 
   loadStatus() {
-    getTasksForComponent(this.props.component.uuid).then(r => {
+    getTasksForComponent(this.props.component.id).then(r => {
       this.setState({
         isPending: !!_.findWhere(r.queue, { status: STATUSES.PENDING }),
         isInProgress: !!_.findWhere(r.queue, { status: STATUSES.IN_PROGRESS }),

@@ -20,10 +20,8 @@
 import _ from 'underscore';
 import React from 'react';
 import { Link } from 'react-router';
-
 import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
-import { getComponentUrl } from '../../../helpers/urls';
 
 function getTooltip (component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -62,11 +60,11 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
 
   if (component.refKey) {
     inner = (
-        <a className="link-with-icon" href={getComponentUrl(component.refKey)}>
+        <Link to={{ pathname: '/dashboard', query: { id: component.refKey } }} className="link-with-icon">
           <QualifierIcon qualifier={component.qualifier}/>
           {' '}
           <span>{name}</span>
-        </a>
+        </Link>
     );
   } else {
     if (canBrowse) {

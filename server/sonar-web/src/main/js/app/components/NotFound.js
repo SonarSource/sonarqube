@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import SimpleContainer from './SimpleContainer';
 
 export default class NotFound extends React.Component {
@@ -26,7 +27,7 @@ export default class NotFound extends React.Component {
         <SimpleContainer>
           <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
           <p className="spacer-bottom">You may have mistyped the address or the page may have moved.</p>
-          <p><a href={window.baseUrl + '/'}>Go back to the homepage</a></p>
+          <p><Link to="/">Go back to the homepage</Link></p>
         </SimpleContainer>
     );
   }

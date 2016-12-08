@@ -19,6 +19,7 @@
  */
 import moment from 'moment';
 import React from 'react';
+import { Link } from 'react-router';
 import enhance from './enhance';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -47,11 +48,11 @@ class CodeSmells extends React.Component {
         formattedSnapshotDate);
 
     return (
-        <a href={getComponentIssuesUrl(component.key, params)}>
+        <Link to={getComponentIssuesUrl(component.key, params)}>
           <span title={tooltip} data-toggle="tooltip">
             {formatMeasure(value, 'SHORT_WORK_DUR')}
           </span>
-        </a>
+        </Link>
     );
   }
 

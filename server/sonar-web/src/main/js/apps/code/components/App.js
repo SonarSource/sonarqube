@@ -26,7 +26,7 @@ import SourceViewer from './../../../components/source-viewer/SourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
-import { addComponent, addComponentBreadcrumbs } from '../bucket';
+import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { getComponent } from '../../../app/store/rootReducer';
 import '../code.css';
 
@@ -56,6 +56,7 @@ class App extends React.Component {
   }
 
   componentWillUnmount () {
+    clearBucket();
     this.mounted = false;
   }
 

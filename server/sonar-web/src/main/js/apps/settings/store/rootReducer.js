@@ -24,12 +24,13 @@ import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 import licenses, * as fromLicenses from './licenses/reducer';
 import globalMessages, * as fromGlobalMessages from '../../../components/store/globalMessages';
+import type { State as GlobalMessagesState } from '../../../components/store/globalMessages';
 import encryptionPage from './encryptionPage/reducer';
 
 type State = {
   definitions: {},
   encryptionPage: {},
-  globalMessages: {},
+  globalMessages: GlobalMessagesState,
   licenses: {},
   settingsPage: {},
   values: {}

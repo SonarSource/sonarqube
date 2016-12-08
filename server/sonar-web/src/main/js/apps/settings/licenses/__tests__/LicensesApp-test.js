@@ -20,13 +20,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import LicensesApp from '../LicensesApp';
-import GlobalMessagesContainer from '../../components/GlobalMessagesContainer';
 import LicensesAppHeader from '../LicensesAppHeader';
 import LicensesListContainer from '../LicensesListContainer';
 
 it('should render', () => {
   const app = shallow(<LicensesApp/>);
-  expect(app.find(GlobalMessagesContainer).length).toBe(1);
   expect(app.find(LicensesAppHeader).length).toBe(1);
   expect(app.find(LicensesListContainer).length).toBe(1);
 });

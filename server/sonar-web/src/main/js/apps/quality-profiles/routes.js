@@ -28,7 +28,7 @@ import ComparisonContainer from './compare/ComparisonContainer';
 
 export default (
     <Route component={AppContainer}>
-      <Redirect from="/profiles/index" to="/profiles/"/>
+      <Redirect from="/profiles/index" to="/profiles"/>
 
       <IndexRoute component={HomeContainer}/>
 

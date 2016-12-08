@@ -35,7 +35,9 @@ export function getIssuesUrl (query) {
   const serializedQuery = Object.keys(query).map(criterion => (
       `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
   )).join('|');
-  return window.baseUrl + '/issues#' + serializedQuery;
+
+  // return a string (not { pathname }) to help react-router's Link handle this properly
+  return '/issues#' + serializedQuery;
 }
 
 /**
@@ -48,44 +50,57 @@ export function getComponentIssuesUrl (componentKey, query) {
   const serializedQuery = Object.keys(query).map(criterion => (
       `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
   )).join('|');
-  return window.baseUrl + '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
+
+  // return a string (not { pathname }) to help react-router's Link handle this properly
+  return '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
 }
 
 /**
  * Generate URL for a component's drilldown page
  * @param {string} componentKey
  * @param {string} metric
- * @returns {string}
+ * @returns {Object}
  */
 export function getComponentDrilldownUrl (componentKey, metric) {
-  return `${window.baseUrl}/component_measures/metric/${metric}?id=${encodeURIComponent(componentKey)}`;
+  return {
+    pathname: `/component_measures/metric/${metric}`,
+    query: { id: componentKey }
+  };
 }
 
 /**
  * Generate URL for a component's permissions page
  * @param {string} componentKey
- * @returns {string}
+ * @returns {Object}
  */
 export function getComponentPermissionsUrl (componentKey) {
-  return window.baseUrl + '/project_roles?id=' + encodeURIComponent(componentKey);
+  return {
+    pathname: '/project_roles',
+    query: { id: componentKey }
+  };
 }
 
 /**
  * Generate URL for a quality profile
  * @param {string} key
- * @returns {string}
+ * @returns {Object}
  */
 export function getQualityProfileUrl (key) {
-  return window.baseUrl + '/profiles/show?key=' + encodeURIComponent(key);
+  return {
+    pathname: '/profiles/show',
+    query: { key }
+  };
 }
 
 /**
  * Generate URL for a quality gate
  * @param {string} key
- * @returns {string}
+ * @returns {Object}
  */
 export function getQualityGateUrl (key) {
-  return window.baseUrl + '/quality_gates/show/' + encodeURIComponent(key);
+  return {
+    pathname: '/quality_gates/show/' + encodeURIComponent(key)
+  };
 }
 
 /**
@@ -99,9 +114,12 @@ export function getRulesUrl (query) {
         `${encodeURIComponent(criterion)}=${encodeURIComponent(
             query[criterion])}`
     )).join('|');
-    return window.baseUrl + '/coding_rules#' + serializedQuery;
+
+    // return a string (not { pathname }) to help react-router's Link handle this properly
+    return '/coding_rules#' + serializedQuery;
   }
-  return window.baseUrl + '/coding_rules';
+
+  return '/coding_rules';
 }
 
 /**

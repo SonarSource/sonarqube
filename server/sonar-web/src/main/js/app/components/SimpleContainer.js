@@ -23,7 +23,10 @@ import GlobalFooter from './GlobalFooter';
 
 export default class SimpleContainer extends React.Component {
   static propTypes = {
-    children: React.PropTypes.element.isRequired
+    children: React.PropTypes.oneOfType([
+      React.PropTypes.element,
+      React.PropTypes.arrayOf(React.PropTypes.element)
+    ])
   };
 
   componentDidMount () {

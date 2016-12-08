@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
@@ -30,9 +31,9 @@ export default class AboutProjects extends React.Component {
     return (
         <div className="about-page-projects">
           <div className="big-spacer-bottom">
-            <a className="about-page-projects-link" href={window.baseUrl + '/projects'}>
+            <Link to="/projects" className="about-page-projects-link">
               {formatMeasure(this.props.count, 'INT')}
-            </a>
+            </Link>
           </div>
           <div>
             {translate('about_page.projects_analyzed')}

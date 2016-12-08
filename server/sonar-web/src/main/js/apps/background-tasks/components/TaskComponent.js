@@ -19,9 +19,8 @@
  */
  /* @flow */
 import React from 'react';
-
+import { Link } from 'react-router';
 import TaskType from './TaskType';
-import { getComponentUrl } from '../../../helpers/urls';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { Task } from '../types';
 
@@ -39,12 +38,12 @@ const TaskComponent = ({ task, types }: { task: Task, types: string[] }) => {
 
   return (
       <td>
-        <a className="link-with-icon" href={getComponentUrl(task.componentKey)}>
+        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }} className="link-with-icon">
           <span className="little-spacer-right">
             <QualifierIcon qualifier={task.componentQualifier}/>
           </span>
           <span>{task.componentName}</span>
-        </a>
+        </Link>
         {types.length > 1 && (
             <TaskType task={task}/>
         )}

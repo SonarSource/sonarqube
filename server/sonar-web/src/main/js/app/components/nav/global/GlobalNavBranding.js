@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { getSettingValue, getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
@@ -40,11 +41,10 @@ class GlobalNavBranding extends React.Component {
 
   render () {
     const homeController = this.props.currentUser.isLoggedIn ? '/projects/favorite' : '/about';
-    const homeUrl = window.baseUrl + homeController;
     const homeLinkClassName = 'navbar-brand' + (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
     return (
         <div className="navbar-header">
-          <a className={homeLinkClassName} href={homeUrl}>{this.renderLogo()}</a>
+          <Link to={homeController} className={homeLinkClassName}>{this.renderLogo()}</Link>
         </div>
     );
   }

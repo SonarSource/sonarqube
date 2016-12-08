@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
+import { Link } from 'react-router';
 import ComparisonResults from '../ComparisonResults';
 import ComparisonEmpty from '../ComparisonEmpty';
 import SeverityIcon from '../../../../components/shared/severity-icon';
@@ -69,26 +70,24 @@ it('should compare', () => {
 
   const leftDiffs = output.find('.js-comparison-in-left');
   expect(leftDiffs.length).toBe(1);
-  expect(leftDiffs.find('a').length).toBe(1);
-  expect(leftDiffs.find('a').prop('href')).toContain('rule_key=rule1');
-  expect(leftDiffs.find('a').text()).toContain('rule1');
+  expect(leftDiffs.find(Link).length).toBe(1);
+  expect(leftDiffs.find(Link).prop('to')).toContain('rule_key=rule1');
+  expect(leftDiffs.find(Link).prop('children')).toContain('rule1');
   expect(leftDiffs.find(SeverityIcon).length).toBe(1);
   expect(leftDiffs.find(SeverityIcon).prop('severity')).toBe('BLOCKER');
 
   const rightDiffs = output.find('.js-comparison-in-right');
   expect(rightDiffs.length).toBe(2);
-  expect(rightDiffs.at(0).find('a').length).toBe(1);
-  expect(rightDiffs.at(0).find('a').prop('href'))
-      .toContain('rule_key=rule2');
-  expect(rightDiffs.at(0).find('a').text()).toContain('rule2');
+  expect(rightDiffs.at(0).find(Link).length).toBe(1);
+  expect(rightDiffs.at(0).find(Link).prop('to')).toContain('rule_key=rule2');
+  expect(rightDiffs.at(0).find(Link).prop('children')).toContain('rule2');
   expect(rightDiffs.at(0).find(SeverityIcon).length).toBe(1);
-  expect(rightDiffs.at(0).find(SeverityIcon).prop('severity'))
-      .toBe('CRITICAL');
+  expect(rightDiffs.at(0).find(SeverityIcon).prop('severity')).toBe('CRITICAL');
 
   const modifiedDiffs = output.find('.js-comparison-modified');
   expect(modifiedDiffs.length).toBe(1);
-  expect(modifiedDiffs.find('a').at(0).prop('href')).toContain('rule_key=rule4');
-  expect(modifiedDiffs.find('a').at(0).text()).toContain('rule4');
+  expect(modifiedDiffs.find(Link).at(0).prop('to')).toContain('rule_key=rule4');
+  expect(modifiedDiffs.find(Link).at(0).prop('children')).toContain('rule4');
   expect(modifiedDiffs.find(SeverityIcon).length).toBe(2);
   expect(modifiedDiffs.text()).toContain('bar');
   expect(modifiedDiffs.text()).toContain('qwe');

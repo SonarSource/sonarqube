@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import moment from 'moment';
 import sortBy from 'lodash/sortBy';
 import { searchRules } from '../../../api/rules';
@@ -88,11 +89,10 @@ export default class EvolutionRules extends React.Component {
             {this.state.latestRules.map(rule => (
                 <li key={rule.key} className="spacer-top">
                   <div className="text-ellipsis">
-                    <a className="link-no-underline"
-                       href={getRulesUrl({ 'rule_key': rule.key })}>
+                    <Link to={getRulesUrl({ 'rule_key': rule.key })} className="link-no-underline">
                       {' '}
                       {rule.name}
-                    </a>
+                    </Link>
                     <div className="note">
                       {rule.activations ? (
                           translateWithParameters(
@@ -113,12 +113,11 @@ export default class EvolutionRules extends React.Component {
           </ul>
           {this.state.latestRulesTotal > RULES_LIMIT && (
               <div className="spacer-top">
-                <a className="small"
-                   href={newRulesUrl}>
+                <Link to={newRulesUrl} className="small">
                   {translate('see_all')}
                   {' '}
                   {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
-                </a>
+                </Link>
               </div>
           )}
         </div>

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import LicensesAppHeader from './LicensesAppHeader';
 import LicensesListContainer from './LicensesListContainer';
 
@@ -27,7 +26,6 @@ export default class LicensesApp extends React.Component {
     return (
         <div id="licenses-page" className="page page-limited">
           <LicensesAppHeader/>
-          <GlobalMessagesContainer/>
           <LicensesListContainer/>
         </div>
     );

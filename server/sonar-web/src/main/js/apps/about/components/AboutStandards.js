@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
@@ -37,35 +38,35 @@ export default class AboutStandards extends React.Component {
             <div className="spacer-top">
               <ul className="list-inline">
                 <li>
-                  <a className="link-with-icon" href={getRulesUrl({ tags: 'misra' })}>
+                  <Link to={getRulesUrl({ tags: 'misra' })} className="link-with-icon">
                     <i className="icon-tags"/>
                     <span className="little-spacer-left">MISRA</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="link-with-icon" href={getRulesUrl({ tags: 'cert' })}>
+                  <Link to={getRulesUrl({ tags: 'cert' })} className="link-with-icon">
                     <i className="icon-tags"/>
                     <span className="little-spacer-left">CERT</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="link-with-icon" href={getRulesUrl({ tags: 'cwe' })}>
+                  <Link to={getRulesUrl({ tags: 'cwe' })} className="link-with-icon">
                     <i className="icon-tags"/>
                     <span className="little-spacer-left">CWE</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="link-with-icon" href={getRulesUrl({ tags: owaspTags })}>
+                  <Link to={getRulesUrl({ tags: owaspTags })} className="link-with-icon">
                     <i className="icon-tags"/>
                     <span className="little-spacer-left">OWASP Top 10</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="link-with-icon"
-                     href={getRulesUrl({ tags: 'sans-top25-porous,sans-top25-risky,sans-top25-insecure' })}>
+                  <Link to={getRulesUrl({ tags: 'sans-top25-porous,sans-top25-risky,sans-top25-insecure' })}
+                        className="link-with-icon">
                     <i className="icon-tags"/>
                     <span className="little-spacer-left">SANS Top 25</span>
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

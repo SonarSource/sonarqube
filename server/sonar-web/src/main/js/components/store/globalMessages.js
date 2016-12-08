@@ -17,70 +17,97 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import uniqueId from 'lodash/uniqueId';
 import { actions } from '../../app/store/appState/duck';
+
+type Level = 'ERROR' | 'SUCCESS';
+
+type Message = {
+  id: string,
+  message: string,
+  level: Level
+};
+
+export type State = Array<Message>;
+
+type Action = Object;
 
 export const ERROR = 'ERROR';
 export const SUCCESS = 'SUCCESS';
 
 /* Actions */
 const ADD_GLOBAL_MESSAGE = 'ADD_GLOBAL_MESSAGE';
-
-const addGlobalMessage = (message, level) => ({
-  type: ADD_GLOBAL_MESSAGE,
-  message,
-  level
-});
-
-export const addGlobalErrorMessage = message =>
-    addGlobalMessage(message, ERROR);
-
-export const addGlobalSuccessMessage = message =>
-    addGlobalMessage(message, SUCCESS);
-
+const CLOSE_GLOBAL_MESSAGE = 'CLOSE_GLOBAL_MESSAGE';
 const CLOSE_ALL_GLOBAL_MESSAGES = 'CLOSE_ALL_GLOBAL_MESSAGES';
 
-export const closeAllGlobalMessages = id => ({
+const addGlobalMessageActionCreator = (id: string, message: string, level: Level) => ({
+  type: ADD_GLOBAL_MESSAGE,
+  message,
+  level,
+  id
+});
+
+export const closeGlobalMessage = (id: string) => ({
+  type: CLOSE_GLOBAL_MESSAGE,
+  id
+});
+
+export const closeAllGlobalMessages = (id: string) => ({
   type: CLOSE_ALL_GLOBAL_MESSAGES,
   id
 });
 
+const addGlobalMessage = (message: string, level: Level) => (dispatch: Function) => {
+  const id = uniqueId('global-message-');
+  dispatch(addGlobalMessageActionCreator(id, message, level));
+  setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
+};
+
+export const addGlobalErrorMessage = (message: string) =>
+    addGlobalMessage(message, ERROR);
+
+export const addGlobalSuccessMessage = (message: string) =>
+    addGlobalMessage(message, SUCCESS);
+
 /* Reducer */
-const globalMessages = (state = [], action = {}) => {
-  if (action.type === ADD_GLOBAL_MESSAGE) {
-    return [{
-      id: uniqueId('global-message-'),
-      message: action.message,
-      level: action.level
-    }];
-  }
+const globalMessages = (state: State = [], action: Action = {}) => {
+  switch (action.type) {
+    case ADD_GLOBAL_MESSAGE:
+      return [{
+        id: action.id,
+        message: action.message,
+        level: action.level
+      }];
 
-  if (action.type === actions.REQUIRE_AUTHENTICATION) {
-    // FIXME l10n
-    return [{
-      id: uniqueId('global-message-'),
-      message: 'Authentication required to see this page.',
-      level: ERROR
-    }];
-  }
+    case actions.REQUIRE_AUTHENTICATION:
+      // FIXME l10n
+      return [{
+        id: uniqueId('global-message-'),
+        message: 'Authentication required to see this page.',
+        level: ERROR
+      }];
 
-  if (action.type === actions.REQUIRE_AUTHORIZATION) {
-    // FIXME l10n
-    return [{
-      id: uniqueId('global-message-'),
-      message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
-      level: ERROR
-    }];
-  }
+    case actions.REQUIRE_AUTHORIZATION:
+      // FIXME l10n
+      return [{
+        id: uniqueId('global-message-'),
+        message: 'You are not authorized to access this page. Please log in with more privileges and try again.',
+        level: ERROR
+      }];
 
-  if (action.type === CLOSE_ALL_GLOBAL_MESSAGES) {
-    return [];
-  }
+    case CLOSE_GLOBAL_MESSAGE:
+      return state.filter(message => message.id !== action.id);
 
-  return state;
+
+    case CLOSE_ALL_GLOBAL_MESSAGES:
+      return [];
+    default:
+      return state;
+  }
 };
 
 export default globalMessages;
 
 /* Selectors */
-export const getGlobalMessages = state => state;
+export const getGlobalMessages = (state: State) => state;

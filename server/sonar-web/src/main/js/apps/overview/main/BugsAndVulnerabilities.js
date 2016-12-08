@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
+import { Link } from 'react-router';
 import enhance from './enhance';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getMetricName } from '../helpers/metrics';
@@ -27,21 +27,21 @@ import { translate } from '../../../helpers/l10n';
 class BugsAndVulnerabilities extends React.Component {
   renderHeader () {
     const { component } = this.props;
-    const bugsDomainUrl = window.baseUrl + '/component_measures/domain/Reliability?id=' +
-        encodeURIComponent(component.key);
-    const vulnerabilitiesDomainUrl = window.baseUrl + '/component_measures/domain/Security?id=' +
-        encodeURIComponent(component.key);
+    const bugsDomainUrl = {
+      pathname: '/component_measures/domain/Reliability',
+      query: { id: component.key }
+    };
+    const vulnerabilitiesDomainUrl = {
+      pathname: '/component_measures/domain/Security',
+      query: { id: component.key }
+    };
 
     return (
         <div className="overview-card-header">
           <div className="overview-title">
-            <a href={bugsDomainUrl}>
-              {translate('metric.bugs.name')}
-            </a>
+            <Link to={bugsDomainUrl}>{translate('metric.bugs.name')}</Link>
             {' & '}
-            <a href={vulnerabilitiesDomainUrl}>
-              {translate('metric.vulnerabilities.name')}
-            </a>
+            <Link to={vulnerabilitiesDomainUrl}>{translate('metric.vulnerabilities.name')}</Link>
           </div>
         </div>
     );

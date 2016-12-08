@@ -48,7 +48,7 @@ export default class WebApiApp extends React.Component {
 
   componentWillUnmount () {
     this.mounted = false;
-    document.getElementById('footer').classList.delete('search-navigator-footer');
+    document.getElementById('footer').classList.remove('search-navigator-footer');
   }
 
   fetchList (cb) {
