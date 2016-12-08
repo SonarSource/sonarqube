@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migrations;
+package org.sonar.server.platform.db.migration;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,8 +26,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.db.migration.DatabaseMigration;
-import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
 
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
@@ -35,15 +33,15 @@ import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Stat
 /**
  * Handles concurrency to make sure only one DB migration can run at a time.
  */
-public class PlatformDatabaseMigration implements DatabaseMigration {
+public class DatabaseMigrationImpl implements DatabaseMigration {
 
-  private static final Logger LOGGER = Loggers.get(PlatformDatabaseMigration.class);
+  private static final Logger LOGGER = Loggers.get(DatabaseMigrationImpl.class);
 
   private final RubyBridge rubyBridge;
   /**
    * ExecutorService implements threads management.
    */
-  private final PlatformDatabaseMigrationExecutorService executorService;
+  private final DatabaseMigrationExecutorService executorService;
   private final Platform platform;
   private final MutableDatabaseMigrationState migrationState;
   /**
@@ -60,8 +58,8 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
    */
   private final AtomicBoolean running = new AtomicBoolean(false);
 
-  public PlatformDatabaseMigration(RubyBridge rubyBridge, PlatformDatabaseMigrationExecutorService executorService, Platform platform,
-    MutableDatabaseMigrationState migrationState) {
+  public DatabaseMigrationImpl(RubyBridge rubyBridge, DatabaseMigrationExecutorService executorService, Platform platform,
+                               MutableDatabaseMigrationState migrationState) {
     this.rubyBridge = rubyBridge;
     this.executorService = executorService;
     this.platform = platform;
