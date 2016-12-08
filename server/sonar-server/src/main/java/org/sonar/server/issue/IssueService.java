@@ -85,20 +85,6 @@ public class IssueService {
   }
 
   /**
-   * List of available transitions.
-   * <p>
-   * Never return null, but return an empty list if the issue does not exist.
-   */
-  public List<Transition> listTransitions(String issueKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return listTransitions(getByKeyForUpdate(session, issueKey).toDefaultIssue());
-    } finally {
-      session.close();
-    }
-  }
-
-  /**
    * Never return null, but an empty list if the issue does not exist.
    * No security check is done since it should already have been done to get the issue
    */

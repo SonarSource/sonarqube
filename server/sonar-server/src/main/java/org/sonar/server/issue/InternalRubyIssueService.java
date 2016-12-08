@@ -20,12 +20,10 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.List;
 import java.util.Map;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
@@ -40,27 +38,20 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 @ServerSide
 public class InternalRubyIssueService {
 
-  private final IssueService issueService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
-    IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService,
     IssueBulkChangeService issueBulkChangeService,
     UserSession userSession) {
-    this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.userSession = userSession;
-  }
-
-  public List<Transition> listTransitions(String issueKey) {
-    return issueService.listTransitions(issueKey);
   }
 
   public IssueChangelog changelog(String issueKey) {

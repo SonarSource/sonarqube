@@ -34,7 +34,6 @@ public class IssuesWs implements WebService {
   public static final String ADD_COMMENT_ACTION = "add_comment";
   public static final String DELETE_COMMENT_ACTION = "delete_comment";
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
-  public static final String TRANSITIONS_ACTION = "transitions";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
 
   private final IssuesWsAction[] actions;
@@ -60,7 +59,6 @@ public class IssuesWs implements WebService {
     defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
-    defineTransitionsAction(controller);
     defineBulkChangeAction(controller);
   }
 
@@ -123,19 +121,6 @@ public class IssuesWs implements WebService {
       .setDescription("New comment")
       .setExampleValue("blabla2...");
     RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineTransitionsAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(TRANSITIONS_ACTION)
-      .setDescription("Get Possible Workflow Transitions for an Issue. Requires Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(IssuesWs.class, "example-transitions.json"));
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
   }
 
   private static void defineBulkChangeAction(NewController controller) {

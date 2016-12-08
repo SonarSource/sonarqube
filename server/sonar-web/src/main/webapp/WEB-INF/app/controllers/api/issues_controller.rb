@@ -44,23 +44,6 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
-  # GET /api/issues/transitions?issue=<key>
-  #
-  # -- Example
-  # curl -v -u admin:admin 'http://localhost:9000/api/issues/transitions?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
-  #
-  def transitions
-    require_parameters :issue
-    issue_key = params[:issue]
-    transitions = Internal.issues.listTransitions(issue_key)
-    render :json => jsonp(
-      {
-        :transitions => transitions.map { |t| t.key() }
-      }
-    )
-  end
-
-  #
   # POST /api/issues/add_comment?issue=<key>&text=<text>
   #
   # -- Mandatory parameters

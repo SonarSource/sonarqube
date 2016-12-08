@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.user.User;
@@ -45,37 +44,18 @@ public class InternalRubyIssueServiceTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  IssueService issueService;
+  IssueCommentService commentService = mock(IssueCommentService.class);
+  IssueChangelogService changelogService = mock(IssueChangelogService.class);
+  IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
 
-  IssueCommentService commentService;
-
-  IssueChangelogService changelogService;
-
-  IssueBulkChangeService issueBulkChangeService;
-
-  InternalRubyIssueService service;
-
-  @Before
-  public void setUp() {
-    issueService = mock(IssueService.class);
-    commentService = mock(IssueCommentService.class);
-    changelogService = mock(IssueChangelogService.class);
-    issueBulkChangeService = mock(IssueBulkChangeService.class);
-    service = new InternalRubyIssueService(issueService, commentService, changelogService, issueBulkChangeService, userSessionRule);
-  }
-
-  @Test
-  public void list_transitions_by_issue_key() {
-    service.listTransitions("ABCD");
-    verify(issueService).listTransitions(eq("ABCD"));
-  }
+  InternalRubyIssueService underTest = new InternalRubyIssueService(commentService, changelogService, issueBulkChangeService, userSessionRule);
 
   @Test
   public void test_changelog_from_issue_key() throws Exception {
     IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
     when(changelogService.changelog(eq("ABCDE"))).thenReturn(changelog);
 
-    IssueChangelog result = service.changelog("ABCDE");
+    IssueChangelog result = underTest.changelog("ABCDE");
 
     assertThat(result).isSameAs(changelog);
   }
@@ -89,7 +69,9 @@ public class InternalRubyIssueServiceTest {
     params.put("assign.assignee", "arthur");
     params.put("set_severity.severity", "MINOR");
     params.put("plan.plan", "3.7");
-    service.bulkChange(params, "My comment", true);
+
+    underTest.bulkChange(params, "My comment", true);
+
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(ThreadLocalUserSession.class));
   }
 

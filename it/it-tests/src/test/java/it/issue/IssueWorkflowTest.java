@@ -25,10 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 
 public class IssueWorkflowTest extends AbstractIssueTest {
 
@@ -83,7 +87,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(confirmed.creationDate()).isEqualTo(issue.creationDate());
 
     // user unconfirm the issue
-    assertThat(adminIssueClient().transitions(confirmed.key())).contains("unconfirm");
+    assertThat(transitions(confirmed.key())).contains("unconfirm");
     adminIssueClient().doTransition(confirmed.key(), "unconfirm");
 
     Issue unconfirmed = searchIssueByKey(issue.key());
@@ -106,7 +110,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(confirmed.creationDate()).isEqualTo(issue.creationDate());
 
     // user mark the issue as false-positive
-    assertThat(adminIssueClient().transitions(confirmed.key())).contains("falsepositive");
+    assertThat(transitions(confirmed.key())).contains("falsepositive");
     adminIssueClient().doTransition(confirmed.key(), "falsepositive");
 
     Issue falsePositive = searchIssueByKey(issue.key());
@@ -201,7 +205,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(resolved.creationDate()).isEqualTo(issue.creationDate());
 
     // user reopens the issue
-    assertThat(adminIssueClient().transitions(resolved.key())).contains("reopen");
+    assertThat(transitions(resolved.key())).contains("reopen");
     adminIssueClient().doTransition(resolved.key(), "reopen");
 
     Issue reopened = searchIssueByKey(resolved.key());
@@ -269,7 +273,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
 
     // user reopens the issue
-    assertThat(adminIssueClient().transitions(falsePositive.key())).contains("reopen");
+    assertThat(transitions(falsePositive.key())).contains("reopen");
     adminIssueClient().doTransition(falsePositive.key(), "reopen");
 
     Issue reopened = searchIssueByKey(issue.key());
@@ -286,7 +290,17 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     analysisWithoutIssues.run();
 
     // user try to reopen the issue
-    assertThat(adminIssueClient().transitions(issue.key())).isEmpty();
+    assertThat(transitions(issue.key())).isEmpty();
+  }
+
+  private List<String> transitions(String issueKey) {
+    Issues.SearchWsResponse response = searchIssues(new SearchWsRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("transitions")));
+    assertThat(response.getTotal()).isEqualTo(1);
+    return response.getIssues(0).getTransitions().getTransitionsList();
+  }
+
+  private Issues.SearchWsResponse searchIssues(SearchWsRequest request) {
+    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
   }
 
 }

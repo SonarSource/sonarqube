@@ -112,7 +112,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
 
-    List<Transition> result = service.listTransitions(issue.getKey());
+    List<Transition> result = service.listTransitions(issue.toDefaultIssue());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("reopen");
   }
