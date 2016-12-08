@@ -254,14 +254,14 @@ public class CreateTableBuilder {
     }
     return pkColumnDefs.stream()
       .filter(this::isAutoIncrement)
-      .flatMap(columnDef -> of(createSequenceFor(tableName), createTriggerFor(tableName)));
+      .flatMap(columnDef -> of(createSequenceFor(tableName), createOracleTriggerForTable(tableName)));
   }
 
   private static String createSequenceFor(String tableName) {
     return "CREATE SEQUENCE " + tableName + "_seq START WITH 1 INCREMENT BY 1";
   }
 
-  private static String createTriggerFor(String tableName) {
+  static String createOracleTriggerForTable(String tableName) {
     return "CREATE OR REPLACE TRIGGER " + tableName + "_idt" +
       " BEFORE INSERT ON " + tableName +
       " FOR EACH ROW" +
