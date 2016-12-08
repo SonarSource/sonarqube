@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration;
 
 import org.junit.Test;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.ruby.RubyBridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +40,11 @@ public class DatabaseMigrationImplAsynchronousTest {
       taskSuppliedForAsyncProcess = true;
     }
   };
+  private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
   private RubyBridge rubyBridge = mock(RubyBridge.class);
   private Platform platform = mock(Platform.class);
-  private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(rubyBridge, executorService, platform, migrationState);
+  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, migrationEngine, platform);
 
   @Test
   public void testName() throws Exception {

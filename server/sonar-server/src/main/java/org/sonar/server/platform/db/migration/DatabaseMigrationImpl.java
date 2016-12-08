@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.ruby.RubyBridge;
 
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
@@ -37,11 +38,12 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
 
   private static final Logger LOGGER = Loggers.get(DatabaseMigrationImpl.class);
 
-  private final RubyBridge rubyBridge;
   /**
    * ExecutorService implements threads management.
    */
   private final DatabaseMigrationExecutorService executorService;
+  private final RubyBridge rubyBridge;
+  private final MigrationEngine migrationEngine;
   private final Platform platform;
   private final MutableDatabaseMigrationState migrationState;
   /**
@@ -58,12 +60,13 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
    */
   private final AtomicBoolean running = new AtomicBoolean(false);
 
-  public DatabaseMigrationImpl(RubyBridge rubyBridge, DatabaseMigrationExecutorService executorService, Platform platform,
-                               MutableDatabaseMigrationState migrationState) {
-    this.rubyBridge = rubyBridge;
+  public DatabaseMigrationImpl(DatabaseMigrationExecutorService executorService, MutableDatabaseMigrationState migrationState,
+    RubyBridge rubyBridge, MigrationEngine migrationEngine, Platform platform) {
     this.executorService = executorService;
-    this.platform = platform;
     this.migrationState = migrationState;
+    this.rubyBridge = rubyBridge;
+    this.migrationEngine = migrationEngine;
+    this.platform = platform;
   }
 
   @Override
@@ -120,6 +123,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
     Profiler profiler = Profiler.createIfTrace(LOGGER);
     profiler.startTrace("Starting DB Migration");
     rubyBridge.databaseMigration().trigger();
+    migrationEngine.execute();
     profiler.stopTrace("DB Migration ended");
   }
 
