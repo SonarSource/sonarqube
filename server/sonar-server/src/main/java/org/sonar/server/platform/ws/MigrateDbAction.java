@@ -25,8 +25,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.Database;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.db.migration.DatabaseMigration;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.NO_CONNECTION_TO_DB;
@@ -42,12 +43,15 @@ import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeNotSupport
 public class MigrateDbAction implements SystemWsAction {
 
   private final DatabaseVersion databaseVersion;
+  private final DatabaseMigrationState migrationState;
   private final DatabaseMigration databaseMigration;
   private final Database database;
 
-  public MigrateDbAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
+  public MigrateDbAction(DatabaseVersion databaseVersion, Database database,
+    DatabaseMigrationState migrationState, DatabaseMigration databaseMigration) {
     this.databaseVersion = databaseVersion;
     this.database = database;
+    this.migrationState = migrationState;
     this.databaseMigration = databaseMigration;
   }
 
@@ -74,19 +78,19 @@ public class MigrateDbAction implements SystemWsAction {
     JsonWriter json = response.newJsonWriter();
     try {
       if (currentVersion >= DatabaseVersion.LAST_VERSION) {
-        write(json, databaseMigration);
+        write(json, migrationState);
       } else if (!database.getDialect().supportsMigration()) {
         writeNotSupportedResponse(json);
       } else {
-        switch (databaseMigration.status()) {
+        switch (migrationState.getStatus()) {
           case RUNNING:
           case FAILED:
           case SUCCEEDED:
-            write(json, databaseMigration);
+            write(json, migrationState);
             break;
           case NONE:
             databaseMigration.startIt();
-            writeJustStartedResponse(json, databaseMigration);
+            writeJustStartedResponse(json, migrationState);
             break;
           default:
             throw new IllegalArgumentException(UNSUPPORTED_DATABASE_MIGRATION_STATUS);

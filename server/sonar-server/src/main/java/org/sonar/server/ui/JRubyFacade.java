@@ -49,7 +49,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
@@ -57,10 +56,12 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migrations.DatabaseMigrator;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.*;
 
 public final class JRubyFacade {
 
@@ -308,12 +309,13 @@ public final class JRubyFacade {
    */
   public boolean isSonarAccessAllowed() {
     ComponentContainer container = Platform.getInstance().getContainer();
-    DatabaseMigration databaseMigration = container.getComponentByType(DatabaseMigration.class);
-    if (databaseMigration.status() == DatabaseMigration.Status.RUNNING
-      || databaseMigration.status() == DatabaseMigration.Status.FAILED) {
+    DatabaseMigrationState databaseMigrationState = container.getComponentByType(DatabaseMigrationState.class);
+    Status status = databaseMigrationState.getStatus();
+    if (status == Status.RUNNING
+      || status == Status.FAILED) {
       return false;
     }
-    if (databaseMigration.status() == DatabaseMigration.Status.SUCCEEDED) {
+    if (status == Status.SUCCEEDED) {
       return true;
     }
 

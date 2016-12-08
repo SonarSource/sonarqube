@@ -27,6 +27,7 @@ import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerIdManager;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.StartupMetadataPersister;
+import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.startup.LogServerId;
@@ -40,6 +41,7 @@ public class PlatformLevel3 extends PlatformLevel {
   protected void configureLevel() {
     addIfStartupLeader(StartupMetadataPersister.class);
     add(
+      NoopDatabaseMigrationImpl.class,
       ServerIdManager.class,
       ServerImpl.class,
       DatabaseSettingLoader.class,

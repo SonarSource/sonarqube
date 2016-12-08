@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.organization.NoopDefaultOrganizationCache;
 import org.sonar.server.platform.ServerImpl;
+import org.sonar.server.platform.db.migrations.PlatformDatabaseMigration;
 import org.sonar.server.platform.web.WebPagesFilter;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.IndexAction;
@@ -61,5 +62,6 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       WebServiceFilter.class,
 
       NoopDefaultOrganizationCache.class);
+    add(PlatformDatabaseMigration.class);
   }
 }

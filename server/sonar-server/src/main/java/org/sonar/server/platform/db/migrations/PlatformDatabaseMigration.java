@@ -22,14 +22,15 @@ package org.sonar.server.platform.db.migrations;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.DatabaseMigration;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
+
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 
 /**
  * Handles concurrency to make sure only one DB migration can run at a time.
@@ -44,6 +45,7 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
    */
   private final PlatformDatabaseMigrationExecutorService executorService;
   private final Platform platform;
+  private final MutableDatabaseMigrationState migrationState;
   /**
    * This lock implements thread safety from concurrent calls of method {@link #startIt()}
    */
@@ -57,17 +59,13 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
    * </p>
    */
   private final AtomicBoolean running = new AtomicBoolean(false);
-  private Status status = Status.NONE;
-  @Nullable
-  private Date startDate;
-  @Nullable
-  private Throwable failureError;
 
-  public PlatformDatabaseMigration(RubyBridge rubyBridge,
-    PlatformDatabaseMigrationExecutorService executorService, Platform platform) {
+  public PlatformDatabaseMigration(RubyBridge rubyBridge, PlatformDatabaseMigrationExecutorService executorService, Platform platform,
+    MutableDatabaseMigrationState migrationState) {
     this.rubyBridge = rubyBridge;
     this.executorService = executorService;
     this.platform = platform;
+    this.migrationState = migrationState;
   }
 
   @Override
@@ -99,22 +97,22 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
   }
 
   private void doDatabaseMigration() {
-    status = Status.RUNNING;
-    startDate = new Date();
-    failureError = null;
+    migrationState.setStatus(Status.RUNNING);
+    migrationState.setStartedAt(new Date());
+    migrationState.setError(null);
     Profiler profiler = Profiler.create(LOGGER);
     try {
       profiler.startInfo("Starting DB Migration");
       doUpgradeDb();
       doRestartContainer();
       doRecreateWebRoutes();
-      status = Status.SUCCEEDED;
+      migrationState.setStatus(Status.SUCCEEDED);
       profiler.stopInfo("DB Migration ended successfully");
     } catch (Throwable t) {
       profiler.stopInfo("DB migration failed");
       LOGGER.error("DB Migration or container restart failed. Process ended with an exception", t);
-      status = Status.FAILED;
-      failureError = t;
+      migrationState.setStatus(Status.FAILED);
+      migrationState.setError(t);
     } finally {
       running.getAndSet(false);
     }
@@ -141,20 +139,4 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
     profiler.startTrace("Routes recreated successfully");
   }
 
-  @Override
-  @CheckForNull
-  public Date startedAt() {
-    return this.startDate;
-  }
-
-  @Override
-  public Status status() {
-    return this.status;
-  }
-
-  @Override
-  @CheckForNull
-  public Throwable failureError() {
-    return this.failureError;
-  }
 }

@@ -30,9 +30,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
 /**
  * Implementation of the {@code status} action for the System WebService.
@@ -42,14 +42,15 @@ public class StatusAction implements SystemWsAction {
   private static final Logger LOGGER = Loggers.get(StatusAction.class);
 
   private final Server server;
-  private final DatabaseMigration databaseMigration;
+  private final DatabaseMigrationState migrationState;
   private final Platform platform;
   private final DbClient dbClient;
   private final RestartFlagHolder restartFlagHolder;
 
-  public StatusAction(Server server, DatabaseMigration databaseMigration, Platform platform, DbClient dbClient, RestartFlagHolder restartFlagHolder) {
+  public StatusAction(Server server, DatabaseMigrationState migrationState,
+    Platform platform, DbClient dbClient, RestartFlagHolder restartFlagHolder) {
     this.server = server;
-    this.databaseMigration = databaseMigration;
+    this.migrationState = migrationState;
     this.platform = platform;
     this.dbClient = dbClient;
     this.restartFlagHolder = restartFlagHolder;
@@ -120,7 +121,7 @@ public class StatusAction implements SystemWsAction {
   }
 
   private Status computeFromDbMigrationStatus() {
-    DatabaseMigration.Status databaseMigrationStatus = databaseMigration.status();
+    DatabaseMigrationState.Status databaseMigrationStatus = migrationState.getStatus();
     switch (databaseMigrationStatus) {
       case NONE:
         return Status.DB_MIGRATION_NEEDED;

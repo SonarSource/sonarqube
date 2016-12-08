@@ -20,9 +20,9 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.version.DatabaseMigration;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
-import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.RUNNING;
 
 public class DbMigrationJsonWriter {
   static final String FIELD_STATE = "state";
@@ -49,11 +49,11 @@ public class DbMigrationJsonWriter {
     // static methods only
   }
 
-  static void write(JsonWriter json, DatabaseMigration databaseMigration) {
+  static void write(JsonWriter json, DatabaseMigrationState databaseMigrationState) {
     json.beginObject()
-      .prop(FIELD_STATE, statusToJson(databaseMigration.status()))
-      .prop(FIELD_MESSAGE, buildMessage(databaseMigration))
-      .propDateTime(FIELD_STARTED_AT, databaseMigration.startedAt())
+      .prop(FIELD_STATE, statusToJson(databaseMigrationState.getStatus()))
+      .prop(FIELD_MESSAGE, buildMessage(databaseMigrationState))
+      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
       .endObject();
   }
 
@@ -64,11 +64,11 @@ public class DbMigrationJsonWriter {
       .endObject();
   }
 
-  static void writeJustStartedResponse(JsonWriter json, DatabaseMigration databaseMigration) {
+  static void writeJustStartedResponse(JsonWriter json, DatabaseMigrationState databaseMigrationState) {
     json.beginObject()
       .prop(FIELD_STATE, statusToJson(RUNNING))
       .prop(FIELD_MESSAGE, MESSAGE_STATUS_RUNNING)
-      .propDateTime(FIELD_STARTED_AT, databaseMigration.startedAt())
+      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
       .endObject();
   }
 
@@ -79,7 +79,7 @@ public class DbMigrationJsonWriter {
       .endObject();
   }
 
-  private static String statusToJson(DatabaseMigration.Status status) {
+  private static String statusToJson(DatabaseMigrationState.Status status) {
     switch (status) {
       case NONE:
         return STATUS_NO_MIGRATION;
@@ -95,8 +95,8 @@ public class DbMigrationJsonWriter {
     }
   }
 
-  private static String buildMessage(DatabaseMigration databaseMigration) {
-    switch (databaseMigration.status()) {
+  private static String buildMessage(DatabaseMigrationState databaseMigrationState) {
+    switch (databaseMigrationState.getStatus()) {
       case NONE:
         return MESSAGE_STATUS_NONE;
       case RUNNING:
@@ -104,14 +104,14 @@ public class DbMigrationJsonWriter {
       case SUCCEEDED:
         return MESSAGE_STATUS_SUCCEEDED;
       case FAILED:
-        return String.format(MESSAGE_STATUS_FAILED, failureMessage(databaseMigration));
+        return String.format(MESSAGE_STATUS_FAILED, failureMessage(databaseMigrationState));
       default:
         return UNSUPPORTED_DATABASE_MIGRATION_STATUS;
     }
   }
 
-  private static String failureMessage(DatabaseMigration databaseMigration) {
-    Throwable failureError = databaseMigration.failureError();
+  private static String failureMessage(DatabaseMigrationState databaseMigrationState) {
+    Throwable failureError = databaseMigrationState.getError();
     if (failureError == null) {
       return "No failure error";
     }
@@ -119,8 +119,7 @@ public class DbMigrationJsonWriter {
   }
 
   static String statusDescription() {
-    return
-    "State values are:" +
+    return "State values are:" +
       "<ul>" +
       "<li>NO_MIGRATION: DB is up to date with current version of SonarQube.</li>" +
       "<li>NOT_SUPPORTED: Migration is not supported on embedded databases.</li>" +

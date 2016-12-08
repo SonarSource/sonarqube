@@ -17,21 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
-
-import java.util.Date;
-import javax.annotation.CheckForNull;
+package org.sonar.server.platform.db.migration;
 
 public interface DatabaseMigration {
-  enum Status {
-    NONE, RUNNING, FAILED, SUCCEEDED
-  }
 
   /**
    * Starts the migration status and returns immediately.
    * <p>
    * Migration can not be started twice but calling this method wont raise an error.
-   * On the other hand, calling this method when no migration is needed will start the process anyway.
    * </p>
    * <p>
    * <strong>This method should be named {@code start} but it can not be because it will be called by the pico container
@@ -39,32 +32,5 @@ public interface DatabaseMigration {
    * </p>
    */
   void startIt();
-
-  /**
-   * The time and day the last migration was started.
-   * <p>
-   * If no migration was ever started, the returned date is {@code null}. This value is reset when {@link #startIt()} is
-   * called.
-   * </p>
-   *
-   * @return a {@link Date} or {@code null}
-   */
-  @CheckForNull
-  Date startedAt();
-
-  /**
-   * Current status of the migration.
-   */
-  Status status();
-
-  /**
-   * The error of the last migration if it failed.
-   * <p>
-   * This value is reset when {@link #startIt()} is called.
-   * </p>
-   * @return a {@link Throwable} or {@code null}
-   */
-  @CheckForNull
-  Throwable failureError();
 
 }
