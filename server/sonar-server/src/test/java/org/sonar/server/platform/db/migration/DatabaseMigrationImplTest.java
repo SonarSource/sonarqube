@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migrations;
+package org.sonar.server.platform.db.migration;
 
 import java.util.Date;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.db.migration.DatabaseMigrationState;
-import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
-import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 import org.sonar.server.ruby.RubyRailsRoutes;
@@ -38,15 +35,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit test for PlatformDatabaseMigration which does not test any of its concurrency management and asynchronous execution code.
+ * Unit test for DatabaseMigrationImpl which does not test any of its concurrency management and asynchronous execution code.
  */
-public class PlatformDatabaseMigrationTest {
+public class DatabaseMigrationImplTest {
   private static final Throwable AN_ERROR = new RuntimeException("runtime exception created on purpose");
 
   /**
    * Implementation of execute runs Runnable synchronously.
    */
-  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  private DatabaseMigrationExecutorService executorService = new DatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       command.run();
@@ -59,7 +56,7 @@ public class PlatformDatabaseMigrationTest {
   private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
   private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
 
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform, migrationState);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(rubyBridge, executorService, platform, migrationState);
 
   @Test
   public void startit_calls_databasemigration_trigger_in_a_separate_thread() {

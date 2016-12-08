@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migrations;
+package org.sonar.server.platform.db.migration;
 
 import com.google.common.base.Throwables;
 import java.util.concurrent.CountDownLatch;
@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 import org.sonar.server.ruby.RubyRailsRoutes;
@@ -37,11 +36,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PlatformDatabaseMigrationConcurrentAccessTest {
+public class DatabaseMigrationImplConcurrentAccessTest {
 
   private ExecutorService pool = Executors.newFixedThreadPool(2);
   /**
-   * Latch is used to make sure both testing threads try and call {@link PlatformDatabaseMigration#startIt()} at the
+   * Latch is used to make sure both testing threads try and call {@link DatabaseMigrationImpl#startIt()} at the
    * same time
    */
   private CountDownLatch latch = new CountDownLatch(2);
@@ -49,7 +48,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
   /**
    * Implementation of execute runs Runnable synchronously
    */
-  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  private DatabaseMigrationExecutorService executorService = new DatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       command.run();
@@ -77,7 +76,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
   private Platform platform = mock(Platform.class);
   private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
   private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform, migrationState);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(rubyBridge, executorService, platform, migrationState);
 
   @After
   public void tearDown() {

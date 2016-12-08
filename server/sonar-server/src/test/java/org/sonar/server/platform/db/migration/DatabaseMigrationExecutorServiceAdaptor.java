@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migrations;
+package org.sonar.server.platform.db.migration;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Adaptor for the PlatformDatabaseMigrationExecutorService interface which implementation of methods all throw
+ * Adaptor for the DatabaseMigrationExecutorService interface which implementation of methods all throw
  * UnsupportedOperationException.
  */
-class PlatformDatabaseMigrationExecutorServiceAdaptor implements PlatformDatabaseMigrationExecutorService {
+class DatabaseMigrationExecutorServiceAdaptor implements DatabaseMigrationExecutorService {
 
   @Override
   public void execute(Runnable command) {

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migrations;
+package org.sonar.server.platform.db.migration;
 
 import java.util.concurrent.ExecutorService;
 
 /**
- * Flag interface for the ExecutorService to be used by the {@link PlatformDatabaseMigration}
+ * Flag interface for the ExecutorService to be used by the {@link DatabaseMigrationImpl}
  * component.
  */
-public interface PlatformDatabaseMigrationExecutorService extends ExecutorService {
+public interface DatabaseMigrationExecutorService extends ExecutorService {
 }
