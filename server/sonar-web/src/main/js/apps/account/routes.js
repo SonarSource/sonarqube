@@ -21,7 +21,6 @@ import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 import Account from './components/Account';
 import ProjectsContainer from './projects/ProjectsContainer';
-import NotificationsContainer from './notifications/NotificationsContainer';
 import Security from './components/Security';
 import Profile from './profile/Profile';
 
@@ -29,7 +28,6 @@ export default (
     <Route component={Account}>
       <IndexRoute component={Profile}/>
       <Route path="security" component={Security}/>
-      <Route path="notifications" component={NotificationsContainer}/>
       <Route path="projects" component={ProjectsContainer}/>
 
       <Route path="issues" onEnter={() => {
