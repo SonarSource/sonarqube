@@ -28,9 +28,11 @@ export default class GlobalContainer extends React.Component {
     return (
         <div className="global-container">
           <div className="page-wrapper page-wrapper-global" id="container">
-            <GlobalNav/>
-            <GlobalMessagesContainer/>
-            {this.props.children}
+            <div className="page-container">
+              <GlobalNav/>
+              <GlobalMessagesContainer/>
+              {this.props.children}
+            </div>
           </div>
           <GlobalFooter/>
         </div>
