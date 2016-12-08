@@ -79,20 +79,28 @@ public class EventDto {
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public EventDto setName(String name) {
+  /**
+   * The name of an event should not be null, but we must accept null values as the DB column is not nullable
+   */
+  public EventDto setName(@Nullable String name) {
     this.name = checkEventName(name);
     return this;
   }
 
+  @CheckForNull
   public String getCategory() {
     return category;
   }
 
-  public EventDto setCategory(String category) {
+  /**
+   * The category of an event should not be null, but we must accept null values as the DB column is not nullable
+   */
+  public EventDto setCategory(@Nullable String category) {
     this.category = checkEventCategory(category);
     return this;
   }

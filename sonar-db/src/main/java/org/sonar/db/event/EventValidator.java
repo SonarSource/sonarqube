@@ -34,13 +34,21 @@ public class EventValidator {
     // prevent instantiation
   }
 
-  public static String checkEventName(String name) {
+  @CheckForNull
+  public static String checkEventName(@Nullable String name) {
+    if (name == null) {
+      return null;
+    }
     checkArgument(name.length() <= MAX_NAME_LENGTH, "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       name.length(), MAX_NAME_LENGTH, name);
     return name;
   }
 
-  public static String checkEventCategory(String category) {
+  @CheckForNull
+  public static String checkEventCategory(@Nullable String category) {
+    if (category == null) {
+      return null;
+    }
     checkArgument(category.length() <= MAX_CATEGORY_LENGTH, "Event category length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       category.length(), MAX_CATEGORY_LENGTH, category);
     return category;
@@ -51,7 +59,6 @@ public class EventValidator {
     if (description == null) {
       return null;
     }
-
     checkArgument(description.length() <= MAX_DESCRIPTION_LENGTH, "Event description length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       description.length(), MAX_DESCRIPTION_LENGTH, description);
     return description;

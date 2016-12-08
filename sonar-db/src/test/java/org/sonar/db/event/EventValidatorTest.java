@@ -33,7 +33,9 @@ public class EventValidatorTest {
   @Test
   public void valid_cases() {
     EventValidator.checkEventName(repeat("a", 400));
+    EventValidator.checkEventName(null);
     EventValidator.checkEventCategory(repeat("a", 50));
+    EventValidator.checkEventCategory(null);
     EventValidator.checkEventDescription(repeat("a", 4000));
     EventValidator.checkEventDescription(null);
   }
