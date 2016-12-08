@@ -106,11 +106,6 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void list_status() {
-    assertThat(service.listStatus()).containsExactly("OPEN", "CONFIRMED", "REOPENED", "RESOLVED", "CLOSED");
-  }
-
-  @Test
   public void list_transitions() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();

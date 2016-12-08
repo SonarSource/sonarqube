@@ -20,21 +20,12 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.issue.index.IssueDoc;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.workflow.Transition;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
@@ -49,29 +40,22 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 @ServerSide
 public class InternalRubyIssueService {
 
-  private final IssueIndex issueIndex;
   private final IssueService issueService;
-  private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
   private final IssueBulkChangeService issueBulkChangeService;
-  private final ActionService actionService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
-    IssueIndex issueIndex, IssueService issueService,
-    IssueQueryService issueQueryService,
+    IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService,
     IssueBulkChangeService issueBulkChangeService,
-    ActionService actionService, UserSession userSession) {
-    this.issueIndex = issueIndex;
+    UserSession userSession) {
     this.issueService = issueService;
-    this.issueQueryService = issueQueryService;
     this.commentService = commentService;
     this.changelogService = changelogService;
     this.issueBulkChangeService = issueBulkChangeService;
-    this.actionService = actionService;
     this.userSession = userSession;
   }
 
@@ -79,32 +63,8 @@ public class InternalRubyIssueService {
     return issueService.listTransitions(issueKey);
   }
 
-  public List<Transition> listTransitions(Issue issue) {
-    return issueService.listTransitions(issue);
-  }
-
-  public List<String> listStatus() {
-    return issueService.listStatus();
-  }
-
-  public List<String> listResolutions() {
-    return Issue.RESOLUTIONS;
-  }
-
   public IssueChangelog changelog(String issueKey) {
     return changelogService.changelog(issueKey);
-  }
-
-  public IssueChangelog changelog(Issue issue) {
-    return changelogService.changelog(issue);
-  }
-
-  public List<DefaultIssueComment> findComments(String issueKey) {
-    return commentService.findComments(issueKey);
-  }
-
-  public List<DefaultIssueComment> findCommentsByIssueKeys(Collection<String> issueKeys) {
-    return commentService.findComments(issueKeys);
   }
 
   public Result<IssueComment> addComment(String issueKey, String text) {
@@ -131,38 +91,12 @@ public class InternalRubyIssueService {
     return result;
   }
 
-  public IssueComment findComment(String commentKey) {
-    return commentService.findComment(commentKey);
-  }
-
-  public List<String> listActions(String issueKey) {
-    return actionService.listAvailableActions(issueKey);
-  }
-
-  public IssueQuery emptyIssueQuery() {
-    return issueQueryService.createFromMap(Maps.<String, Object>newHashMap());
-  }
-
-  /**
-   * Execute issue filter from parameters
-   */
-  public List<IssueDoc> execute(Map<String, Object> props) {
-    return issueIndex.search(issueQueryService.createFromMap(props), toSearchOptions(props)).getDocs();
-  }
-
   /**
    * Execute a bulk change
    */
   public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment, boolean sendNotifications) {
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment, sendNotifications);
     return issueBulkChangeService.execute(issueBulkChangeQuery, userSession);
-  }
-
-  /**
-   * Do not make this method static as it's called by rails
-   */
-  public int maxPageSize() {
-    return QueryContext.MAX_LIMIT;
   }
 
   @VisibleForTesting
@@ -176,22 +110,6 @@ public class InternalRubyIssueService {
       options.setPage(pageIndex != null ? pageIndex : 1, pageSize != null ? pageSize : 100);
     }
     return options;
-  }
-
-  public Collection<String> listTags() {
-    return issueService.listTags(null, 0);
-  }
-
-  public Map<String, Long> listTagsForComponent(String componentUuid, int pageSize) {
-    IssueQuery query = issueQueryService.createFromMap(
-      ImmutableMap.<String, Object>of(
-        "componentUuids", componentUuid,
-        "resolved", false));
-    return issueService.listTagsForComponent(query, pageSize);
-  }
-
-  public boolean isUserIssueAdmin(String projectUuid) {
-    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
   }
 
 }

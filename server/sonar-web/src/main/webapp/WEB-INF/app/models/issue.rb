@@ -20,39 +20,6 @@
 
 class Issue
 
-  def self.to_hash(issue, extra_params={})
-    hash = {
-        :key => issue.key,
-        :component => issue.componentKey,
-        :componentUuid => issue.componentUuid,
-        :project => issue.projectKey,
-        :rule => issue.ruleKey.toString(),
-        :status => issue.status
-    }
-    hash[:resolution] = issue.resolution if issue.resolution
-    hash[:severity] = issue.severity if issue.severity
-    hash[:message] = issue.message if issue.message
-    hash[:line] = issue.line.to_i if issue.line
-    hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:debt] = Internal.durations.encode(issue.effort) if issue.effort
-    hash[:effort] = Internal.durations.encode(issue.effort) if issue.effort
-    hash[:assignee] = issue.assignee if issue.assignee
-    hash[:author] = issue.authorLogin if issue.authorLogin
-    hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
-    hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
-    hash[:fUpdateAge] = Api::Utils.age_from_now(issue.updateDate) if issue.updateDate
-    hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate
-    hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
-    if issue.comments.size>0
-      hash[:comments] = issue.comments.map { |c| comment_to_hash(c) }
-    end
-    unless extra_params.blank?
-      hash[:actions] = Internal.issues.listActions(issue).map { |t| t.key() } if extra_params.include? 'actions'
-      hash[:transitions] = Internal.issues.listTransitions(issue).map { |t| t.key() } if extra_params.include? 'transitions'
-    end
-    hash
-  end
-
   def self.comment_to_hash(comment)
     {
         :key => comment.key(),

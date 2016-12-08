@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -82,10 +82,6 @@ public class IssueService {
     this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userSession = userSession;
-  }
-
-  public List<String> listStatus() {
-    return workflow.statusKeys();
   }
 
   /**

@@ -60,7 +60,6 @@ public class IssueUpdater {
   public static final String RESOLUTION = "resolution";
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
-  public static final String ACTION_PLAN = "actionPlan";
   public static final String FILE = "file";
 
   /**

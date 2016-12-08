@@ -132,22 +132,6 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
-  # GET /api/issues/actions?issue=<key>
-  #
-  # -- Example
-  # curl -v -u admin:admin 'http://localhost:9000/api/issues/actions?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
-  #
-  def actions
-    require_parameters :issue
-    issue_key = params[:issue]
-    render :json => jsonp(
-      {
-        :actions => Internal.issues.listActions(issue_key)
-      }
-    )
-  end
-
-  #
   # Execute a bulk change on a list of issues
   #
   # POST /api/issues/bulk_change?issue=<key>&text=<text>
