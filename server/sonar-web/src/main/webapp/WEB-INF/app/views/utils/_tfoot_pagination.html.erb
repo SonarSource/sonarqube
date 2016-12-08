@@ -1,4 +1,0 @@
-<%
-  # this template is deprecated. Please use the method table_pagination.
-%>
-<%= table_pagination(pagination, :colspan => (colspan||1)) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
