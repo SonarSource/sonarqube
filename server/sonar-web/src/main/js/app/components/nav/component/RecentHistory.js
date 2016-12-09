@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 const STORAGE_KEY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
@@ -51,16 +49,16 @@ export default class RecentHistory {
 
     if (componentKey) {
       const newEntry = { key: componentKey, name: componentName, icon };
-      let newHistory = _.reject(sonarHistory, entry => entry.key === newEntry.key);
+      let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
       newHistory.unshift(newEntry);
-      newHistory = _.first(newHistory, HISTORY_LIMIT);
+      newHistory = newHistory.slice(0, HISTORY_LIMIT);
       RecentHistory.set(newHistory);
     }
   }
 
   static remove (componentKey) {
     const history = RecentHistory.get();
-    const newHistory = _.reject(history, entry => entry.key === componentKey);
+    const newHistory = history.filter(entry => entry.key !== componentKey);
     RecentHistory.set(newHistory);
   }
 }
