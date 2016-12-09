@@ -41,6 +41,7 @@ import it.plugins.checks.SwiftCheck;
 import it.plugins.checks.Validation;
 import it.plugins.checks.VbCheck;
 import it.plugins.checks.WebCheck;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -48,46 +49,26 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import org.sonar.updatecenter.common.Plugin;
-import org.sonar.updatecenter.common.Release;
-import org.sonar.updatecenter.common.Version;
 
+import static com.sonar.orchestrator.locator.FileLocation.byWildcardMavenFilename;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * Verify that the plugins available in update center
+ * Verify that latest releases of the plugins available in update center
  * are correctly supported.
  */
 public class PluginsTest {
 
-  /**
-   * Temporarily disabled plugins. To be re-enabled.
-   */
-  static final Set<String> DISABLED_PLUGINS = Sets.newHashSet(
-    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
-    "css",
-
-    // internal plugin used for integration tests of language plugins
-    "lits",
-
-    "citymodel",
-
-    // Waiting for new release of C# and VB.NET plugins, since fxcop was previously part of those plugins => fail with duplicate props
-    "fxcop",
-
-    // SONAR-7770 Realm plugins cannot be installed as no external configuration is used
-    "crowd", "ldap", "pam");
-
-  static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
-    "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "rpg",
+  private static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
+    "abap", "cobol", "cpp", "objc", "pli", "plsql", "rpg",
     "swift", "vb", "vbnet");
 
-  static final List<Check> CHECKS = Arrays.<Check>asList(
+  private static final List<Check> CHECKS = Arrays.asList(
     new AbapCheck(),
     new CCheck(), new CppCheck(),
     new CobolCheck(),
     // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
-//    new CssCheck(),
+    // new CssCheck(),
     new FlexCheck(),
     new GroovyCheck(),
     new JavaCheck(),
@@ -100,28 +81,79 @@ public class PluginsTest {
     new VbCheck(),
     new WebCheck());
 
-  static Orchestrator orchestrator;
+  private static Orchestrator ORCHESTRATOR;
 
   @BeforeClass
   public static void startServer() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv();
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
+      .setZipFile(byWildcardMavenFilename(new File("../../sonar-application/target"), "sonar*.zip").getFile());
 
-    // install latest compatible releases of plugins
-    org.sonar.updatecenter.common.Version sonarVersion = org.sonar.updatecenter.common.Version.create(builder.getSonarVersion());
-    Version sonarVersionWithoutPatch = Version.create(sonarVersion.getMajor() + "." + sonarVersion.getMinor());
-    builder.getUpdateCenter().setInstalledSonarVersion(sonarVersionWithoutPatch);
-    for (Plugin plugin : builder.getUpdateCenter().findAllCompatiblePlugins()) {
-      if (!DISABLED_PLUGINS.contains(plugin.getKey())) {
-        Release release = plugin.getLastCompatibleRelease(sonarVersionWithoutPatch);
-        if (release != null) {
-          builder.setOrchestratorProperty(plugin.getKey() + "Version", release.getVersion().toString());
-          builder.addPlugin(plugin.getKey());
-        }
-      }
-    }
+    installPlugin(builder, "JSON");
+    installPlugin(builder, "Sonargraph");
+    installPlugin(builder, "abap");
+    installPlugin(builder, "aemrules");
+    installPlugin(builder, "android");
+    installPlugin(builder, "authbitbucket");
+    installPlugin(builder, "authgithub");
+    installPlugin(builder, "checkstyle");
+    installPlugin(builder, "clover");
+    installPlugin(builder, "cobol");
+    installPlugin(builder, "codecrackercsharp");
+    installPlugin(builder, "cpp");
+    installPlugin(builder, "csharp");
+    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
+    installPlugin(builder, "erlang");
+    installPlugin(builder, "findbugs");
+    installPlugin(builder, "flex");
+    installPlugin(builder, "github");
+    installPlugin(builder, "googleanalytics");
+    installPlugin(builder, "groovy");
+    installPlugin(builder, "java");
+    installPlugin(builder, "javaProperties");
+    installPlugin(builder, "javascript");
+    installPlugin(builder, "jdepend");
+    installPlugin(builder, "l10nde");
+    installPlugin(builder, "l10nel");
+    installPlugin(builder, "l10nes");
+    installPlugin(builder, "l10nfr");
+    installPlugin(builder, "l10nit");
+    installPlugin(builder, "l10nja");
+    installPlugin(builder, "l10nko");
+    installPlugin(builder, "l10npt");
+    installPlugin(builder, "l10nru");
+    installPlugin(builder, "l10nzh");
+    installPlugin(builder, "ldap");
+    installPlugin(builder, "lua");
+    installPlugin(builder, "php");
+    installPlugin(builder, "pitest");
+    installPlugin(builder, "pli");
+    installPlugin(builder, "plsql");
+    installPlugin(builder, "pmd");
+    installPlugin(builder, "puppet");
+    installPlugin(builder, "python");
+    installPlugin(builder, "rci");
+    installPlugin(builder, "rpg");
+    installPlugin(builder, "scmclearcase");
+    installPlugin(builder, "scmcvs");
+    installPlugin(builder, "scmgit");
+    installPlugin(builder, "scmjazzrtc");
+    installPlugin(builder, "scmmercurial");
+    installPlugin(builder, "scmperforce");
+    installPlugin(builder, "scmsvn");
+    installPlugin(builder, "scmtfvc");
+    installPlugin(builder, "softvis3d");
+    installPlugin(builder, "sonargraphintegration");
+    installPlugin(builder, "status");
+    installPlugin(builder, "swift");
+    installPlugin(builder, "vb");
+    installPlugin(builder, "vbnet");
+    installPlugin(builder, "web");
+    installPlugin(builder, "xanitizer");
+    installPlugin(builder, "xml");
+
     activateLicenses(builder);
-    orchestrator = builder.build();
-    orchestrator.start();
+    ORCHESTRATOR = builder.build();
+    ORCHESTRATOR.start();
   }
 
   @Rule
@@ -130,13 +162,13 @@ public class PluginsTest {
   @Test
   public void analysis_of_project_with_all_supported_languages() {
     SonarScanner analysis = newAnalysis();
-    BuildResult result = orchestrator.executeBuildQuietly(analysis);
+    BuildResult result = ORCHESTRATOR.executeBuildQuietly(analysis);
     if (result.getLastStatus() != 0) {
       fail(result.getLogs());
     }
     for (Check check : CHECKS) {
       System.out.println(check.getClass().getSimpleName() + "...");
-      check.validate(new Validation(orchestrator, errorCollector));
+      check.validate(new Validation(ORCHESTRATOR, errorCollector));
     }
   }
 
@@ -144,7 +176,7 @@ public class PluginsTest {
   public void preview_analysis_of_project_with_all_supported_languages() {
     SonarScanner analysis = newAnalysis();
     analysis.setProperty("sonar.analysis.mode", "issues");
-    BuildResult result = orchestrator.executeBuildQuietly(analysis);
+    BuildResult result = ORCHESTRATOR.executeBuildQuietly(analysis);
     if (result.getLastStatus() != 0) {
       fail(result.getLogs());
     }
@@ -159,11 +191,12 @@ public class PluginsTest {
   }
 
   private static void activateLicenses(OrchestratorBuilder builder) {
-    for (String licensedPlugin : LICENSED_PLUGINS) {
-      if (!DISABLED_PLUGINS.contains(licensedPlugin)) {
-        builder.activateLicense(licensedPlugin);
-      }
-    }
+    LICENSED_PLUGINS.forEach(builder::activateLicense);
+  }
+
+  private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
+    builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
+    builder.addPlugin(pluginKey);
   }
 
 }
