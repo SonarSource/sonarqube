@@ -44,8 +44,6 @@ export const fetchLanguages = () => dispatch => {
   );
 };
 
-const mapUuidToId = project => ({ ...project, id: project.uuid });
-
 const addQualifier = project => ({
   ...project,
   qualifier: project.breadcrumbs[project.breadcrumbs.length - 1].qualifier
@@ -53,7 +51,7 @@ const addQualifier = project => ({
 
 export const fetchProject = key => dispatch => (
     getComponentNavigation(key).then(
-        component => dispatch(receiveComponents([mapUuidToId(addQualifier(component))])),
+        component => dispatch(receiveComponents([addQualifier(component)])),
         onFail(dispatch)
     )
 );
