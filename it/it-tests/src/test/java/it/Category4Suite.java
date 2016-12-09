@@ -35,6 +35,7 @@ import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.HttpHeadersTest;
 import it.serverSystem.LogsTest;
 import it.serverSystem.ServerSystemTest;
+import it.ui.SourceViewerTest;
 import it.ui.UiTest;
 import it.uiExtension.UiExtensionsTest;
 import it.user.BaseIdentityProviderTest;
@@ -85,6 +86,7 @@ import static util.ItUtils.xooPlugin;
   HttpHeadersTest.class,
   // ui
   UiTest.class,
+  SourceViewerTest.class,
   // ui extensions
   UiExtensionsTest.class,
   WsLocalCallTest.class,

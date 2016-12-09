@@ -23,6 +23,10 @@ import SourceViewer from '../../../components/source-viewer/SourceViewer';
 import { getComponentNavigation } from '../../../api/nav';
 
 export default class App extends React.Component {
+  static propTypes = {
+    location: React.PropTypes.object.isRequired
+  };
+
   state = {};
 
   componentDidMount () {
@@ -36,9 +40,11 @@ export default class App extends React.Component {
       return null;
     }
 
+    const { line } = this.props.location.query;
+
     return (
         <div className="page">
-          <SourceViewer component={{ id: this.state.component.id }}/>
+          <SourceViewer component={{ id: this.state.component.id }} line={line}/>
         </div>
     );
   }
