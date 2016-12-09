@@ -24,7 +24,6 @@ import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
-import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
@@ -51,7 +49,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UpgradeTest {
 
   private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
-  private static final String SQ_VERSION_DEV = "DEV";
   private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
 
   private Orchestrator orchestrator;
@@ -66,40 +63,56 @@ public class UpgradeTest {
 
   @Test
   public void test_upgrade_from_5_6_1() {
-    testDatabaseUpgrade("3.14", Version.create("5.6.1"));
+    testDatabaseUpgrade(Version.create("5.6.1"));
   }
 
   @Test
   public void test_upgrade_from_5_2_via_5_6() {
-    testDatabaseUpgrade("3.14", Version.create("5.2"), Version.create("5.6"));
+    testDatabaseUpgrade(Version.create("5.2"), Version.create("5.6"));
   }
 
-  private void testDatabaseUpgrade(String javaVersion, Version fromVersion, Version... intermediaryVersions) {
-    startOldServer(fromVersion, javaVersion);
+  @Test
+  public void test_upgrade_from_6_0() {
+    testDatabaseUpgrade(Version.create("6.0"));
+  }
+
+  @Test
+  public void test_upgrade_from_6_1() {
+    testDatabaseUpgrade(Version.create("6.1"));
+  }
+
+  private void testDatabaseUpgrade(Version fromVersion, Version... intermediaryVersions) {
+    startOldVersionServer(fromVersion, false);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
     stopServer();
 
-    Stream.concat(Arrays.stream(intermediaryVersions).map(Version::toString), Stream.of(SQ_VERSION_DEV))
-      .forEach((sqVersion) -> {
-        upgradeTo(sqVersion, javaVersion);
+    Arrays.stream(intermediaryVersions).forEach((sqVersion) -> {
+      startOldVersionServer(sqVersion, true);
+      upgrade();
+      verifyAnalysis(files);
+      stopServer();
+    });
 
-        assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
-        scanProject();
-        assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
-        browseWebapp();
-
-        stopServer();
-      });
+    startDevServer();
+    upgrade();
+    verifyAnalysis(files);
+    stopServer();
   }
 
-  private void upgradeTo(String sqVersion, String javaVersion) {
-    startNewServer(sqVersion, SQ_VERSION_DEV.equals(sqVersion) ? LATEST_JAVA_RELEASE : javaVersion);
-    checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
-    checkUrlsBeforeUpgrade(sqVersion);
+  private void verifyAnalysis(int expectedNumberOfFiles) {
+    assertThat(countFiles(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
+    scanProject();
+    assertThat(countFiles(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
+    browseWebapp();
+  }
 
-    upgrade();
+  private void upgrade() {
+    checkSystemStatus(ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
+    checkUrlsBeforeUpgrade();
+    ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
+    assertThat(serverMigrationResponse.getStatus()).isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
     checkSystemStatus(ServerStatusResponse.Status.UP);
     checkUrlsAfterUpgrade();
   }
@@ -110,7 +123,7 @@ public class UpgradeTest {
     assertThat(serverStatusResponse.getStatus()).isEqualTo(serverStatus);
   }
 
-  private void checkUrlsBeforeUpgrade(String sqVersion) {
+  private void checkUrlsBeforeUpgrade() {
     // These urls should be available when system requires a migration
     checkUrlIsReturningOk("/api/system/status");
     checkUrlIsReturningOk("/api/system/db_migration_status");
@@ -159,32 +172,25 @@ public class UpgradeTest {
     testUrl("/profiles");
   }
 
-  private void upgrade() {
-    ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
-
-    assertThat(serverMigrationResponse.getStatus()).isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
-  }
-
-  private void startOldServer(Version sqVersion, String javaVersion) {
-    String jdbcUrl = MssqlConfig.fixUrl(Configuration.createEnv(), sqVersion);
-    orchestrator = Orchestrator.builderEnv()
-      .setOrchestratorProperty("sonar.jdbc.url", jdbcUrl)
+  private void startOldVersionServer(Version sqVersion, boolean keepDatabase) {
+    OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setSonarVersion(sqVersion.toString())
-      .setOrchestratorProperty("orchestrator.keepDatabase", "false")
-      .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-5.1.xml"))
-      .setOrchestratorProperty("javaVersion", javaVersion)
-      .addPlugin("java").build();
+      .setOrchestratorProperty("orchestrator.keepDatabase", String.valueOf(keepDatabase))
+      .setOrchestratorProperty("javaVersion", "3.14")
+      .addPlugin("java")
+      .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
+    orchestrator = builder.build();
     orchestrator.start();
     initSelenide(orchestrator);
   }
 
-  private void startNewServer(String sqVersion, String javaVersion) {
+  private void startDevServer() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
-      .setSonarVersion(sqVersion)
+      .setZipFile(FileLocation.byWildcardMavenFilename(new File("../../sonar-application/target"), "sonar*.zip").getFile())
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
-      .setOrchestratorProperty("javaVersion", javaVersion)
-      .setStartupLogWatcher(log -> log.contains("Process[web] is up"))
-      .addPlugin("java");
+      .setOrchestratorProperty("javaVersion", LATEST_JAVA_RELEASE)
+      .addPlugin("java")
+      .setStartupLogWatcher(log -> log.contains("Process[web] is up"));
     orchestrator = builder.build();
     orchestrator.start();
     initSelenide(orchestrator);
@@ -201,8 +207,7 @@ public class UpgradeTest {
       .setCleanSonarGoals()
       .setProperty("sonar.dynamicAnalysis", "false")
       .setProperty("sonar.scm.disabled", "true")
-      .setProperty("sonar.cpd.cross_project", "true")
-      .setProperty("sonar.profile", "sonar-way-5.1");
+      .setProperty("sonar.cpd.cross_project", "true");
     orchestrator.executeBuild(build);
   }
 
@@ -236,14 +241,6 @@ public class UpgradeTest {
 
   private void checkUrlIsReturningOk(String url) {
     newWsClient(orchestrator).wsConnector().call(new GetRequest(url)).failIfNotSuccessful();
-  }
-
-  // Some urls are available during migration only recently
-  private void checkUrlIsReturningOkOnlyForDevVersion(String url, String sqVersion) {
-    if (sqVersion.equals(SQ_VERSION_DEV)) {
-      WsResponse wsResponse = newWsClient(orchestrator).wsConnector().call(new GetRequest(url));
-      assertThat(wsResponse.isSuccessful()).as("SQ version %s", sqVersion).isTrue();
-    }
   }
 
   private void checkUrlIsReturningNotFound(String url) {
