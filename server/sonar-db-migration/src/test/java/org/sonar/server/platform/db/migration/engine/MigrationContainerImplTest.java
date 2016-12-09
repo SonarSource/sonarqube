@@ -61,6 +61,13 @@ public class MigrationContainerImplTest {
     assertThat(StartCallCounter.startCalls).isEqualTo(1);
   }
 
+  @Test
+  public void cleanup_does_not_fail_even_if_stop_of_component_fails() {
+    MigrationContainerImpl underTest = new MigrationContainerImpl(parent, (container -> container.add(StopFailing.class)));
+
+    underTest.cleanup();
+  }
+
   public static final class StartCallCounter implements Startable {
     private static int startCalls = 0;
 
@@ -72,6 +79,18 @@ public class MigrationContainerImplTest {
     @Override
     public void stop() {
       // do nothing
+    }
+  }
+
+  public static final class StopFailing implements Startable {
+    @Override
+    public void start() {
+      // do nothing
+    }
+
+    @Override
+    public void stop() {
+      throw new RuntimeException("Faking stop call failing");
     }
   }
 }

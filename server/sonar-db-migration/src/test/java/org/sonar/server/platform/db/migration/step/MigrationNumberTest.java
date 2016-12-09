@@ -1,9 +1,35 @@
 package org.sonar.server.platform.db.migration.step;
 
-import static org.junit.Assert.*;
+import java.util.Random;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.test.TestUtils;
 
 public class MigrationNumberTest {
-  private MigrationNumber underTest = new MigrationNumber();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
+  @Test
+  public void constructor_is_private() {
+    TestUtils.hasOnlyPrivateConstructors(MigrationNumber.class);
+  }
 
+  @Test
+  public void validate_throws_IAE_if_argument_is_less_then_0() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Migration number must be >= 0");
+
+    MigrationNumber.validate(-(Math.abs(new Random().nextInt()) + 1));
+  }
+
+  @Test
+  public void validate_accepts_0() {
+    MigrationNumber.validate(0);
+  }
+
+  @Test
+  public void validate_accepts_any_positive_long() {
+    MigrationNumber.validate(Math.abs(new Random().nextInt()));
+  }
 }

@@ -27,7 +27,6 @@ import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
 
 import static java.util.Objects.requireNonNull;
@@ -61,11 +60,7 @@ public class MigrationContainerImpl extends ComponentContainer implements Migrat
 
   @Override
   public void cleanup() {
-    try {
-      stopComponents();
-    } catch (Throwable t) {
-      Loggers.get(MigrationContainerImpl.class).error("Cleanup of container failed", t);
-    }
+    stopComponents(true);
   }
 
   @Override
