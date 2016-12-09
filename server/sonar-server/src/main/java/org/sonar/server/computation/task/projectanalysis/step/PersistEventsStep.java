@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -115,7 +116,7 @@ public class PersistEventsStep implements ComputationStep {
 
     private void deletePreviousEventsHavingSameVersion(DbSession session, String version, Component component) {
       for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
-        if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(version)) {
+        if (Objects.equals(dto.getCategory(), EventDto.CATEGORY_VERSION) && Objects.equals(dto.getName(), version)) {
           dbClient.eventDao().delete(session, dto.getId());
         }
       }
