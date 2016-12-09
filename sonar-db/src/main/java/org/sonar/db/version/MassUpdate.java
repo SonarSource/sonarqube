@@ -61,7 +61,7 @@ public class MassUpdate {
   private Select select;
   private List<UpsertImpl> updates = new ArrayList<>(1);
 
-  MassUpdate(Database db, Connection readConnection, Connection writeConnection) {
+  public MassUpdate(Database db, Connection readConnection, Connection writeConnection) {
     this.db = db;
     this.readConnection = readConnection;
     this.writeConnection = writeConnection;

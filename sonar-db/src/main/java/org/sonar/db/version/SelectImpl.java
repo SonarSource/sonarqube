@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
 
-class SelectImpl extends BaseSqlStatement<Select>implements Select {
+public class SelectImpl extends BaseSqlStatement<Select>implements Select {
 
   private SelectImpl(PreparedStatement pstmt) {
     super(pstmt);
@@ -89,7 +89,7 @@ class SelectImpl extends BaseSqlStatement<Select>implements Select {
     return new IllegalStateException("Error during processing of row: [" + row + "]", e);
   }
 
-  static SelectImpl create(Database db, Connection connection, String sql) throws SQLException {
+  public static SelectImpl create(Database db, Connection connection, String sql) throws SQLException {
     // TODO use DbClient#newScrollingSelectStatement()
     PreparedStatement pstmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
     pstmt.setFetchSize(db.getDialect().getScrollDefaultFetchSize());

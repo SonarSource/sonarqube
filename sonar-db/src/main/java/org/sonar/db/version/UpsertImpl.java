@@ -64,7 +64,7 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
     return this;
   }
 
-  static UpsertImpl create(Connection connection, String sql) throws SQLException {
+  public static UpsertImpl create(Connection connection, String sql) throws SQLException {
     return new UpsertImpl(connection.prepareStatement(sql));
   }
 }
