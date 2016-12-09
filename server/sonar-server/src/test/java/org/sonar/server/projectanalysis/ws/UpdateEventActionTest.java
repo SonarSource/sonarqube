@@ -1,0 +1,259 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.projectanalysis.ws;
+
+import com.google.common.base.Throwables;
+import java.io.IOException;
+import javax.annotation.Nullable;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.event.EventDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.ProjectAnalyses;
+import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.event.EventTesting.newEvent;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.WsRequest.Method.POST;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
+import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
+
+public class UpdateEventActionTest {
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+
+  private WsActionTester ws = new WsActionTester(new UpdateEventAction(dbClient, userSession));
+
+  @Test
+  public void json_example() {
+    ComponentDto project = db.components().insertProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
+    db.events().insertEvent(newEvent(analysis)
+      .setUuid("E1")
+      .setCategory(OTHER.getLabel())
+      .setName("Original Name")
+      .setDescription("Original Description"));
+
+    String result = ws.newRequest()
+      .setParam(PARAM_EVENT, "E1")
+      .setParam(PARAM_NAME, "My Custom Event")
+      .setParam(PARAM_DESCRIPTION, "event description")
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo(getClass().getResource("update_event-example.json"));
+  }
+
+  @Test
+  public void update_name_and_description_in_db() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+
+    call("E1", "name", "description");
+
+    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
+    assertThat(newEvent.getName()).isEqualTo("name");
+    assertThat(newEvent.getDescription()).isEqualTo("description");
+    assertThat(newEvent.getCategory()).isEqualTo(originalEvent.getCategory());
+    assertThat(newEvent.getDate()).isEqualTo(originalEvent.getDate());
+    assertThat(newEvent.getCreatedAt()).isEqualTo(originalEvent.getCreatedAt());
+  }
+
+  @Test
+  public void ws_response_with_updated_name_and_description() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+
+    ProjectAnalyses.Event result = call("E1", "name", "description").getEvent();
+
+    assertThat(result.getName()).isEqualTo("name");
+    assertThat(result.getDescription()).isEqualTo("description");
+    assertThat(result.getCategory()).isEqualTo(OTHER.name());
+    assertThat(result.getAnalysis()).isEqualTo(originalEvent.getAnalysisUuid());
+    assertThat(result.getKey()).isEqualTo("E1");
+  }
+
+  @Test
+  public void update_VERSION_event_update_analysis_version() {
+    ComponentDto project = db.components().insertProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
+
+    call("E1", "6.3", null);
+
+    SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
+    assertThat(updatedAnalysis.getVersion()).isEqualTo("6.3");
+  }
+
+  @Test
+  public void update_OTHER_event_does_not_update_analysis_version() {
+    ComponentDto project = db.components().insertProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()));
+
+    call("E1", "6.3", null);
+
+    SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
+    assertThat(updatedAnalysis.getVersion()).isEqualTo("5.6");
+  }
+
+  @Test
+  public void update_name_only_in_db() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+
+    call("E1", "name", null);
+
+    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
+    assertThat(newEvent.getName()).isEqualTo("name");
+    assertThat(newEvent.getDescription()).isEqualTo(originalEvent.getDescription());
+  }
+
+  @Test
+  public void update_as_project_admin() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
+
+    call("E1", "name", "description");
+
+    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
+    assertThat(newEvent.getName()).isEqualTo("name");
+    assertThat(newEvent.getDescription()).isEqualTo("description");
+  }
+
+  @Test
+  public void update_description_only_in_db() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+
+    call("E1", null, "description");
+
+    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
+    assertThat(newEvent.getName()).isEqualTo(originalEvent.getName());
+    assertThat(newEvent.getDescription()).isEqualTo("description");
+  }
+
+  @Test
+  public void ws_definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("update_event");
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.since()).isEqualTo("6.3");
+    assertThat(definition.param(PARAM_EVENT).isRequired()).isTrue();
+  }
+
+  @Test
+  public void fail_if_insufficient_permissions() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+    userSession.anonymous();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call("E1", "name", "description");
+  }
+
+  @Test
+  public void fail_if_event_is_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Event 'E42' not found");
+
+    call("E42", "name", "description");
+  }
+
+  @Test
+  public void fail_if_no_name_nor_description() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    call("E1", null, null);
+  }
+
+  @Test
+  public void fail_if_category_other_than_other_or_version() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Event of category 'Profile' cannot be modified. Authorized categories: Version, Other");
+
+    call("E1", "name", "description");
+  }
+
+  @Test
+  public void fail_if_other_event_with_same_name_on_same_analysis() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()).setName("E1 name"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E2").setCategory(OTHER.getLabel()).setName("E2 name"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
+
+    call("E2", "E1 name", "description");
+  }
+
+  private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name, @Nullable String description) {
+    TestRequest request = ws.newRequest()
+      .setMethod(POST.name())
+      .setMediaType(MediaTypes.PROTOBUF);
+    setNullable(eventUuid, e -> request.setParam(PARAM_EVENT, e));
+    setNullable(name, n -> request.setParam(PARAM_NAME, n));
+    setNullable(description, d -> request.setParam(PARAM_DESCRIPTION, d));
+
+    try {
+      return UpdateEventResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+}

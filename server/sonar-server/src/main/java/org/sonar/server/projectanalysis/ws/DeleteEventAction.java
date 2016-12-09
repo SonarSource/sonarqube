@@ -20,9 +20,6 @@
 
 package org.sonar.server.projectanalysis.ws;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,14 +34,11 @@ import org.sonarqube.ws.client.projectanalysis.DeleteEventRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
+import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
 
 public class DeleteEventAction implements ProjectAnalysesWsAction {
-  private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of(VERSION.getLabel(), OTHER.getLabel());
-  private static final String AUTHORIZED_CATEGORIES_INLINED = Joiner.on(", ").join(AUTHORIZED_CATEGORIES);
-
   private final DbClient dbClient;
   private final UserSession userSession;
 
@@ -83,8 +77,7 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
       EventDto dbEvent = dbClient.eventDao().selectByUuid(dbSession, request.getEvent())
         .orElseThrow(() -> new NotFoundException(format("Event '%s' not found", request.getEvent())));
       checkPermissions(dbEvent);
-      checkArgument(AUTHORIZED_CATEGORIES.contains(dbEvent.getCategory()), "Event of category '%s' cannot be deleted. Authorized categories: %s", dbEvent.getCategory(),
-        AUTHORIZED_CATEGORIES_INLINED);
+      checkModifiable().accept(dbEvent);
 
       deleteEvent(dbSession, dbEvent);
     }

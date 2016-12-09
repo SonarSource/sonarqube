@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
 
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+package org.sonar.server.projectanalysis.ws;
 
-public interface EventMapper {
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import org.sonar.db.event.EventDto;
 
-  EventDto selectByUuid(String uuid);
+import static com.google.common.base.Preconditions.checkArgument;
 
-  List<EventDto> selectByComponentUuid(String componentUuid);
+class EventValidator {
+  private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of("Version", "Other");
+  private static final String AUTHORIZED_CATEGORIES_INLINED = Joiner.on(", ").join(AUTHORIZED_CATEGORIES);
 
-  List<EventDto> selectByAnalysisUuid(String analysisUuid);
-
-  void insert(EventDto dto);
-
-  void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);
-
-  void deleteById(long id);
-
-  void deleteByUuid(String uuid);
+  static Consumer<EventDto> checkModifiable() {
+    return event -> checkArgument(AUTHORIZED_CATEGORIES.contains(event.getCategory()),
+      "Event of category '%s' cannot be modified. Authorized categories: %s",
+      event.getCategory(), AUTHORIZED_CATEGORIES_INLINED);
+  }
 }

@@ -113,7 +113,7 @@ public class DeleteEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event of category 'Profile' cannot be deleted. Authorized categories: Version, Other");
+    expectedException.expectMessage("Event of category 'Profile' cannot be modified. Authorized categories: Version, Other");
 
     call("E1");
   }

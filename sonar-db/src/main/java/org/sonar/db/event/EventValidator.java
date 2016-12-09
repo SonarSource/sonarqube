@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class EventValidator {
+class EventValidator {
   private static final int MAX_NAME_LENGTH = 400;
   private static final int MAX_CATEGORY_LENGTH = 50;
   private static final int MAX_DESCRIPTION_LENGTH = 4000;
@@ -35,7 +35,7 @@ public class EventValidator {
   }
 
   @CheckForNull
-  public static String checkEventName(@Nullable String name) {
+  static String checkEventName(@Nullable String name) {
     if (name == null) {
       return null;
     }
@@ -45,7 +45,7 @@ public class EventValidator {
   }
 
   @CheckForNull
-  public static String checkEventCategory(@Nullable String category) {
+  static String checkEventCategory(@Nullable String category) {
     if (category == null) {
       return null;
     }
@@ -55,7 +55,7 @@ public class EventValidator {
   }
 
   @CheckForNull
-  public static String checkEventDescription(@Nullable String description) {
+  static String checkEventDescription(@Nullable String description) {
     if (description == null) {
       return null;
     }
@@ -63,5 +63,4 @@ public class EventValidator {
       description.length(), MAX_DESCRIPTION_LENGTH, description);
     return description;
   }
-
 }

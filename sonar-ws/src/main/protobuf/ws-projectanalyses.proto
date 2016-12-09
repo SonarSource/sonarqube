@@ -29,6 +29,11 @@ message CreateEventResponse {
   optional Event event = 1;
 }
 
+// WS api/project_analyses/update_event
+message UpdateEventResponse {
+  optional Event event = 1;
+}
+
 message Event {
   optional string key = 1;
   optional string analysis = 2;

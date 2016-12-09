@@ -257,7 +257,7 @@ public class CreateEventActionTest {
     call(request);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An 'other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
+    expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
 
     call(request.setName("Project Import"));
   }

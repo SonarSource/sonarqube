@@ -130,6 +130,18 @@ public class EventDaoTest {
   }
 
   @Test
+  public void update_name_and_description() {
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto());
+    dbTester.events().insertEvent(newEvent(analysis).setUuid("E1"));
+
+    underTest.update(dbSession, "E1", "New Name", "New Description");
+
+    EventDto result = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
+    assertThat(result.getName()).isEqualTo("New Name");
+    assertThat(result.getDescription()).isEqualTo("New Description");
+  }
+
+  @Test
   public void delete_by_id() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 

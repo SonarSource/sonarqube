@@ -21,6 +21,7 @@ package org.sonar.db.event;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -42,6 +43,10 @@ public class EventDao implements Dao {
     session.getMapper(EventMapper.class).insert(dto);
 
     return dto;
+  }
+
+  public void update(DbSession dbSession, String uuid, @Nullable String name, @Nullable String description) {
+    mapper(dbSession).update(uuid, name, description);
   }
 
   public void delete(DbSession session, Long id) {

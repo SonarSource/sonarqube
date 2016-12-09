@@ -56,6 +56,13 @@
       #{createdAt, jdbcType=BIGINT})
   </insert>
 
+  <update id="update" parameterType="map">
+    update events
+    set name = #{name, jdbcType=VARCHAR},
+        description = #{description, jdbcType=VARCHAR}
+    where uuid = #{uuid}
+  </update>
+
   <delete id="deleteById" parameterType="Long">
     DELETE FROM events WHERE id=#{id}
   </delete>

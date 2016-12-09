@@ -205,7 +205,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
         };
       case OTHER:
         return dbEvent -> {
-          throw new IllegalArgumentException(format("An 'other' event with the same name already exists on analysis '%s'", request.getAnalysis()));
+          throw new IllegalArgumentException(format("An '%s' event with the same name already exists on analysis '%s'", OTHER.getLabel(), request.getAnalysis()));
         };
       default:
         throw new IllegalStateException("Event category not handled: " + request.getCategory());
