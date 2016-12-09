@@ -72,7 +72,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 
-  private static final String PROPERTY_COMPARABLE = "comparable";
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
   private static final String PROPERTY_MODIFIABLE_HISTORY = "modifiable_history";
@@ -140,7 +139,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .prop("uuid", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
-      .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("isFavorite", isFavourite(session, component));
 
     if (analysis != null) {

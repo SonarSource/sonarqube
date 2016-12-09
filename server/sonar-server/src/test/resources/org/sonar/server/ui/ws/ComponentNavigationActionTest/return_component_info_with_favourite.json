@@ -3,7 +3,6 @@
   "uuid": "abcd",
   "name": "Polop",
   "description": "test project",
-  "isComparable": false,
   "isFavorite": true,
   "breadcrumbs": [
     {
