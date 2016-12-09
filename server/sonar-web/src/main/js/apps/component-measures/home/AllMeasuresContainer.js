@@ -23,7 +23,7 @@ import {
   getMeasuresAppHomeDomains,
   getMeasuresAppHomePeriods,
   getMeasuresAppComponent
-} from '../../../app/store/rootReducer';
+} from '../../../store/rootReducer';
 
 const mapStateToProps = state => {
   return {

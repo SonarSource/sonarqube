@@ -31,7 +31,7 @@ import Tasks from '../components/Tasks';
 import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
 import { updateTask, mapFiltersToParameters } from '../utils';
 import { Task } from '../types';
-import { getComponent } from '../../../app/store/rootReducer';
+import { getComponent } from '../../../store/rootReducer';
 import '../background-tasks.css';
 
 class BackgroundTasksApp extends React.Component {

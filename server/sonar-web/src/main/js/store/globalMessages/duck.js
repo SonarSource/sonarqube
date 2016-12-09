@@ -19,7 +19,7 @@
  */
 // @flow
 import uniqueId from 'lodash/uniqueId';
-import { actions } from '../../app/store/appState/duck';
+import { actions } from '../appState/duck';
 
 type Level = 'ERROR' | 'SUCCESS';
 

@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import LicensesList from './LicensesList';
 import { fetchLicenses } from '../store/licenses/actions';
-import { getSettingsAppAllLicenseKeys } from '../../../app/store/rootReducer';
+import { getSettingsAppAllLicenseKeys } from '../../../store/rootReducer';
 
 const mapStateToProps = state => ({
   licenses: getSettingsAppAllLicenseKeys(state)

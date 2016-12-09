@@ -22,7 +22,7 @@ import Handlebars from 'handlebars/runtime';
 
 function gravatarServer () {
   const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../app/store/rootReducer');
+  const { getSettingValue } = require('../../store/rootReducer');
 
   const store = getStore();
   return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;

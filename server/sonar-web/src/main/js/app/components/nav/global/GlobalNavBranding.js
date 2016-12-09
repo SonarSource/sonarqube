@@ -20,7 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { getSettingValue, getCurrentUser } from '../../../store/rootReducer';
+import { getSettingValue, getCurrentUser } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 
 class GlobalNavBranding extends React.Component {

@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
-import { getComponent } from '../../../app/store/rootReducer';
+import { getComponent } from '../../../store/rootReducer';
 
 class Deletion extends React.Component {
   static propTypes = {

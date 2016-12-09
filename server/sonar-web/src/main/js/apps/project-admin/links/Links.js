@@ -28,7 +28,7 @@ import {
     deleteProjectLink,
     createProjectLink
 } from '../store/actions';
-import { getProjectAdminProjectLinks, getComponent } from '../../../app/store/rootReducer';
+import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
 
 class Links extends React.Component {
   static propTypes = {

@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 
 import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
 import QualityGateApp from '../components/QualityGatesApp';
-import { getQualityGatesAppState } from '../../../app/store/rootReducer';
+import { getQualityGatesAppState } from '../../../store/rootReducer';
 
 const mapStateToProps = state => (
     getQualityGatesAppState(state)

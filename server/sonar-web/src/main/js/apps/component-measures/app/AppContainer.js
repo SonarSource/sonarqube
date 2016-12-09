@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import App from './App';
 import { fetchMetrics, setComponent } from './actions';
-import { getComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
+import { getComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
   component: getComponent(state, ownProps.location.query.id),

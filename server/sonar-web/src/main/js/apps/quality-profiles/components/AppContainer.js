@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getLanguages, getCurrentUser } from '../../../app/store/rootReducer';
+import { getLanguages, getCurrentUser } from '../../../store/rootReducer';
 
 export default connect(
     state => ({

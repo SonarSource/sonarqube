@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getCurrentUser } from '../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
 import { isUserAdmin } from '../../helpers/users';
 
 class AdminContainer extends React.Component {

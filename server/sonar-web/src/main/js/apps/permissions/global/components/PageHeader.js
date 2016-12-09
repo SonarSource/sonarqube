@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import { loadHolders } from '../store/actions';
-import { isPermissionsAppLoading } from '../../../../app/store/rootReducer';
+import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
 class PageHeader extends React.Component {
   static propTypes = {

@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 class Profile extends React.Component {
   render () {

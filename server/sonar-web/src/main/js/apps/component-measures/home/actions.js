@@ -21,7 +21,7 @@ import { startFetching, stopFetching } from '../store/statusActions';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { getLeakValue } from '../utils';
-import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
+import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
 
 export const RECEIVE_MEASURES = 'measuresApp/home/RECEIVE_MEASURES';
 

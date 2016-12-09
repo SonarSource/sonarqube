@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import MeasureBubbleChart from './BubbleChart';
-import { getMeasuresAppAllMetrics, getMeasuresAppComponent } from '../../../../app/store/rootReducer';
+import { getMeasuresAppAllMetrics, getMeasuresAppComponent } from '../../../../store/rootReducer';
 
 const mapStateToProps = state => {
   return {

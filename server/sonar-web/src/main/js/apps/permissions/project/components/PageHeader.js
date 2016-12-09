@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import ApplyTemplateView from '../views/ApplyTemplateView';
 import { loadHolders } from '../store/actions';
-import { isPermissionsAppLoading } from '../../../../app/store/rootReducer';
+import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 import { isUserAdmin } from '../../../../helpers/users';
 
 class PageHeader extends React.Component {

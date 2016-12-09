@@ -21,7 +21,7 @@ import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
-import { getMeasuresAppList } from '../../../app/store/rootReducer';
+import { getMeasuresAppList } from '../../../store/rootReducer';
 
 export const UPDATE_STORE = 'measuresApp/drilldown/list/UPDATE_STORE';
 

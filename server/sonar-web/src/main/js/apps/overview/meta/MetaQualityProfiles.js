@@ -24,7 +24,7 @@ import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
-import { getLanguages } from '../../../app/store/rootReducer';
+import { getLanguages } from '../../../store/rootReducer';
 
 class MetaQualityProfiles extends React.Component {
   state = {

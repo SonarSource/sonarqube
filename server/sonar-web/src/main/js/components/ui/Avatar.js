@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import md5 from 'blueimp-md5';
 import classNames from 'classnames';
-import { getSettingValue } from '../../app/store/rootReducer';
+import { getSettingValue } from '../../store/rootReducer';
 
 class Avatar extends React.Component {
   static propTypes = {

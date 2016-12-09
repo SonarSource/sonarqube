@@ -19,7 +19,7 @@
  */
 import * as api from '../../../../api/settings';
 import { parseError } from '../../../code/utils';
-import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../../components/store/globalMessages';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../../store/globalMessages/duck';
 
 export const UPDATE_ENCRYPTION = 'UPDATE_ENCRYPTION';
 

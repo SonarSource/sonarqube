@@ -35,7 +35,7 @@ import {
   getPermissionsAppQuery,
   getPermissionsAppFilter,
   getPermissionsAppSelectedPermission
-} from '../../../../app/store/rootReducer';
+} from '../../../../store/rootReducer';
 
 export const loadHolders = projectKey => (dispatch, getState) => {
   const query = getPermissionsAppQuery(getState());

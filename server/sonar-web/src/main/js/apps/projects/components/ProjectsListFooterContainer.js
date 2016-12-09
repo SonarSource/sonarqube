@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { getProjects, getProjectsAppState } from '../../../app/store/rootReducer';
+import { getProjects, getProjectsAppState } from '../../../store/rootReducer';
 import { fetchMoreProjects } from '../store/actions';
 import ProjectsListFooter from './ProjectsListFooter';
 

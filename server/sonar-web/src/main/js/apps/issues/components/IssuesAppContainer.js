@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import init from '../init';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 class IssuesAppContainer extends React.Component {
   static propTypes = {

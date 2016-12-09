@@ -22,12 +22,12 @@ import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
 import { startLoading, stopLoading } from './settingsPage/loading/actions';
 import { parseError } from '../../code/utils';
-import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../components/store/globalMessages';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
 import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
 import { cancelChange } from './settingsPage/changedValues/actions';
 import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../app/store/rootReducer';
+import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';
 
 export const fetchSettings = componentKey => dispatch => {
   return getDefinitions(componentKey)

@@ -20,7 +20,7 @@
 import React from 'react';
 import init from '../init';
 import { connect } from 'react-redux';
-import { getComponent, getCurrentUser } from '../../../app/store/rootReducer';
+import { getComponent, getCurrentUser } from '../../../store/rootReducer';
 
 class ComponentIssuesAppContainer extends React.Component {
   componentDidMount () {

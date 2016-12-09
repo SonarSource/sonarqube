@@ -30,11 +30,11 @@ import {
     addGlobalErrorMessage,
     closeAllGlobalMessages,
     addGlobalSuccessMessage
-} from '../../../components/store/globalMessages';
+} from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
-import { getProjectAdminProjectModules, getComponent } from '../../../app/store/rootReducer';
+import { getProjectAdminProjectModules, getComponent } from '../../../store/rootReducer';
 
 class Key extends React.Component {
   static propTypes = {

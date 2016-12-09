@@ -24,7 +24,7 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUser from './GlobalNavUser';
 import GlobalNavSearch from './GlobalNavSearch';
 import ShortcutsHelpView from './ShortcutsHelpView';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../../store/rootReducer';
 
 class GlobalNav extends React.Component {
   componentDidMount () {

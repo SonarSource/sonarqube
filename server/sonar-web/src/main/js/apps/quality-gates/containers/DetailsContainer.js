@@ -30,7 +30,7 @@ import {
   saveCondition
 } from '../store/actions';
 import Details from '../components/Details';
-import { getQualityGatesAppState } from '../../../app/store/rootReducer';
+import { getQualityGatesAppState } from '../../../store/rootReducer';
 
 const mapStateToProps = state => (
     getQualityGatesAppState(state)

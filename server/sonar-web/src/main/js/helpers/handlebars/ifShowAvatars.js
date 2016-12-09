@@ -19,7 +19,7 @@
  */
 function enableGravatar () {
   const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../app/store/rootReducer');
+  const { getSettingValue } = require('../../store/rootReducer');
 
   const store = getStore();
   return (getSettingValue(store.getState(), 'sonar.lf.enableGravatar') || {}).value === 'true';

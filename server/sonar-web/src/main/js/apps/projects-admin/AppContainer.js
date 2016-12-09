@@ -20,8 +20,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Main from './main';
-import { getCurrentUser, getAppState } from '../../app/store/rootReducer';
-import { getRootQualifiers } from '../../app/store/appState/duck';
+import { getCurrentUser, getAppState } from '../../store/rootReducer';
+import { getRootQualifiers } from '../../store/appState/duck';
 
 class AppContainer extends React.Component {
   render () {

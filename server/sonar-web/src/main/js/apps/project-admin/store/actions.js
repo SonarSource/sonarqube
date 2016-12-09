@@ -26,9 +26,9 @@ import {
 } from '../../../api/quality-gates';
 import { getProjectLinks, createLink } from '../../../api/projectLinks';
 import { getTree, changeKey as changeKeyApi } from '../../../api/components';
-import { addGlobalSuccessMessage } from '../../../components/store/globalMessages';
+import { addGlobalSuccessMessage } from '../../../store/globalMessages/duck';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProjectAdminProfileByKey } from '../../../app/store/rootReducer';
+import { getProjectAdminProfileByKey } from '../../../store/rootReducer';
 
 export const RECEIVE_PROFILES = 'projectAdmin/RECEIVE_PROFILES';
 export const receiveProfiles = profiles => ({

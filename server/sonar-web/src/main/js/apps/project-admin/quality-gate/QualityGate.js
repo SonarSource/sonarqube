@@ -23,7 +23,7 @@ import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Form from './Form';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
-import { getProjectAdminAllGates, getProjectAdminProjectGate, getComponent } from '../../../app/store/rootReducer';
+import { getProjectAdminAllGates, getProjectAdminProjectGate, getComponent } from '../../../store/rootReducer';
 
 class QualityGate extends React.Component {
   static propTypes = {

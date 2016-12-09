@@ -19,7 +19,7 @@
  */
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceWithLeak } from '../utils';
-import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../app/store/rootReducer';
+import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
 
 /*
  * Actions

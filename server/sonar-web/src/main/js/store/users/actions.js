@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getCurrentUser } from '../../../api/users';
+import { getCurrentUser } from '../../api/users';
 
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
 

@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import EncryptionApp from './EncryptionApp';
 import { checkSecretKey, generateSecretKey, encryptValue, startGeneration } from '../store/encryptionPage/actions';
-import { getSettingsAppEncryptionState } from '../../../app/store/rootReducer';
+import { getSettingsAppEncryptionState } from '../../../store/rootReducer';
 
 export default connect(
     state => getSettingsAppEncryptionState(state),

@@ -20,7 +20,7 @@
 // @flow
 import getStore from './getStore';
 import getHistory from './getHistory';
-import { requireAuthentication } from '../store/appState/duck';
+import { requireAuthentication } from '../../store/appState/duck';
 
 export default () => {
   const store = getStore();

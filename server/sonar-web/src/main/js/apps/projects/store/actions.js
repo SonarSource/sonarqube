@@ -19,16 +19,16 @@
  */
 import groupBy from 'lodash/groupBy';
 import { searchProjects } from '../../../api/components';
-import { addGlobalErrorMessage } from '../../../components/store/globalMessages';
+import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
-import { receiveComponents } from '../../../app/store/components/actions';
+import { receiveComponents } from '../../../store/components/actions';
 import { receiveProjects, receiveMoreProjects } from './projectsDuck';
 import { updateState } from './stateDuck';
-import { getProjectsAppState } from '../../../app/store/rootReducer';
+import { getProjectsAppState } from '../../../store/rootReducer';
 import { getMeasuresForProjects } from '../../../api/measures';
-import { receiveComponentsMeasures } from '../../../app/store/measures/actions';
+import { receiveComponentsMeasures } from '../../../store/measures/actions';
 import { convertToFilter } from './utils';
-import { receiveFavorites } from '../../../app/store/favorites/duck';
+import { receiveFavorites } from '../../../store/favorites/duck';
 
 const PAGE_SIZE = 50;
 

@@ -20,7 +20,7 @@
 // @flow
 import keyBy from 'lodash/keyBy';
 import { RECEIVE_VALUES } from './actions';
-import { actions as appStateActions } from '../../../../app/store/appState/duck';
+import { actions as appStateActions } from '../../../../store/appState/duck';
 
 type State = { [key: string]: {} };
 

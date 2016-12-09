@@ -21,7 +21,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
 
 class Landing extends React.Component {
   static propTypes = {

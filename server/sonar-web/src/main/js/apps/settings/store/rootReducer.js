@@ -23,8 +23,8 @@ import definitions, * as fromDefinitions from './definitions/reducer';
 import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
 import licenses, * as fromLicenses from './licenses/reducer';
-import globalMessages, * as fromGlobalMessages from '../../../components/store/globalMessages';
-import type { State as GlobalMessagesState } from '../../../components/store/globalMessages';
+import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages/duck';
+import type { State as GlobalMessagesState } from '../../../store/globalMessages/duck';
 import encryptionPage from './encryptionPage/reducer';
 
 type State = {

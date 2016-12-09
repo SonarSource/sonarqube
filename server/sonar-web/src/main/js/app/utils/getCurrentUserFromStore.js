@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getCurrentUser } from '../store/rootReducer';
+import { getCurrentUser } from '../../store/rootReducer';
 
 // TODO remove my usages
 const getCurrentUserFromStore = () => {

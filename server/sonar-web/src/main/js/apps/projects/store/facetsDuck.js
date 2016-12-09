@@ -19,7 +19,7 @@
  */
 import flatMap from 'lodash/flatMap';
 import sumBy from 'lodash/sumBy';
-import { createMap } from '../../../components/store/generalReducers';
+import { createMap } from '../../../store/utils/generalReducers';
 import { actions } from './projectsDuck';
 import { mapMetricToProperty } from './utils';
 

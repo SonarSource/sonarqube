@@ -38,7 +38,7 @@ import {
   getPermissionsAppQuery,
   getPermissionsAppFilter,
   getPermissionsAppSelectedPermission
-} from '../../../../app/store/rootReducer';
+} from '../../../../store/rootReducer';
 
 const PERMISSIONS_ORDER = [
   'admin',

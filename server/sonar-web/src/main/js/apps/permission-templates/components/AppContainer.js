@@ -19,8 +19,8 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getAppState } from '../../../app/store/rootReducer';
-import { getRootQualifiers } from '../../../app/store/appState/duck';
+import { getAppState } from '../../../store/rootReducer';
+import { getRootQualifiers } from '../../../store/appState/duck';
 
 const mapStateToProps = state => ({
   topQualifiers: getRootQualifiers(getAppState(state))

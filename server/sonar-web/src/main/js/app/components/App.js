@@ -21,8 +21,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import GlobalLoading from './GlobalLoading';
-import { fetchCurrentUser } from '../store/users/actions';
-import { fetchLanguages, fetchAppState } from '../store/rootActions';
+import { fetchCurrentUser } from '../../store/users/actions';
+import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 
 class App extends React.Component {
   mounted: bool;

@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import ProjectsList from './ProjectsList';
-import { getProjects, getProjectsAppState } from '../../../app/store/rootReducer';
+import { getProjects, getProjectsAppState } from '../../../store/rootReducer';
 
 export default connect(
     state => ({

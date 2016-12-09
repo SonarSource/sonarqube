@@ -20,7 +20,7 @@
 import React from 'react';
 import sortBy from 'lodash/sortBy';
 import { connect } from 'react-redux';
-import { getLanguages } from '../../../app/store/rootReducer';
+import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
 class ProjectCardLanguages extends React.Component {

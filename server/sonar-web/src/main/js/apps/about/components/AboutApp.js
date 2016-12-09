@@ -31,7 +31,7 @@ import AboutScanners from './AboutScanners';
 import { translate } from '../../../helpers/l10n';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import { getSettingValue } from '../../../app/store/rootReducer';
+import { getSettingValue } from '../../../store/rootReducer';
 import * as settingsAPI from '../../../api/settings';
 import '../styles.css';
 

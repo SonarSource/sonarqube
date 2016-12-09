@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { getPermissionsAppError } from '../../../../app/store/rootReducer';
+import { getPermissionsAppError } from '../../../../store/rootReducer';
 
 class PageError extends React.Component {
   static propTypes = {

@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import MeasureHistory from './MeasureHistory';
-import { getMeasuresAppDetailsMetric, getMeasuresAppComponent } from '../../../../app/store/rootReducer';
+import { getMeasuresAppDetailsMetric, getMeasuresAppComponent } from '../../../../store/rootReducer';
 
 const mapStateToProps = state => {
   return {

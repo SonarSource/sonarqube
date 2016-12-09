@@ -23,7 +23,7 @@ import Helmet from 'react-helmet';
 import Password from './Password';
 import Tokens from './Tokens';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 class Security extends React.Component {
   render () {

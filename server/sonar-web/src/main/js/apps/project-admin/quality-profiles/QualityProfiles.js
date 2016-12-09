@@ -27,7 +27,7 @@ import {
   getProjectAdminAllProfiles,
   getProjectAdminProjectProfiles,
   getComponent
-} from '../../../app/store/rootReducer';
+} from '../../../store/rootReducer';
 
 class QualityProfiles extends React.Component {
   static propTypes = {

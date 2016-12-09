@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import FavoriteFilter from './FavoriteFilter';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 const mapStateToProps = state => ({
   user: getCurrentUser(state)

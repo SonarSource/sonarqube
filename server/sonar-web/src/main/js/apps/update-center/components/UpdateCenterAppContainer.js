@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import init from '../init';
-import { getSettingValue } from '../../../app/store/rootReducer';
+import { getSettingValue } from '../../../store/rootReducer';
 
 class UpdateCenterAppContainer extends React.Component {
   componentDidMount () {

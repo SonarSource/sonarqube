@@ -35,7 +35,7 @@ import modulesByProject, {
 } from './modulesByProject';
 import globalMessages, {
     getGlobalMessages as nextGetGlobalMessages
-} from '../../../components/store/globalMessages';
+} from '../../../store/globalMessages/duck';
 
 const rootReducer = combineReducers({
   profiles,

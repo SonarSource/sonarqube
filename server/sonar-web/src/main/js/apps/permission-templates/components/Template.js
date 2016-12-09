@@ -27,7 +27,7 @@ import SearchForm from '../../permissions/shared/components/SearchForm';
 import { PERMISSIONS_ORDER_FOR_PROJECT } from '../../permissions/project/constants';
 import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
-import withStore from '../../../components/store/withStore';
+import withStore from '../../../store/utils/withStore';
 
 class Template extends React.Component {
   static propTypes = {

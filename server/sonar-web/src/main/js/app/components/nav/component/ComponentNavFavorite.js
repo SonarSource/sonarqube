@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../../store/rootReducer';
 
 class ComponentNavFavorite extends React.Component {
   static propTypes = {

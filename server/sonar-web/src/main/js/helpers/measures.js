@@ -305,7 +305,7 @@ function formatDurationShort (isNegative, days, hours, minutes) {
 function getHoursInDay () {
   // workaround cyclic dependencies
   const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../app/store/rootReducer');
+  const { getSettingValue } = require('../store/rootReducer');
 
   const store = getStore();
   const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.hoursInDay');
@@ -360,7 +360,7 @@ function shortDurationVariationFormatter (value) {
 function getRatingGrid () {
   // workaround cyclic dependencies
   const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../app/store/rootReducer');
+  const { getSettingValue } = require('../store/rootReducer');
 
   const store = getStore();
   const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');

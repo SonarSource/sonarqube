@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import AllHoldersList from './AllHoldersList';
 import PageError from '../../shared/components/PageError';
-import { getComponent, getCurrentUser } from '../../../../app/store/rootReducer';
+import { getComponent, getCurrentUser } from '../../../../store/rootReducer';
 import '../../styles.css';
 
 // TODO helmet

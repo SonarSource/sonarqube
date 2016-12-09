@@ -20,8 +20,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ComponentNav from './nav/component/ComponentNav';
-import { fetchProject } from '../store/rootActions';
-import { getComponent } from '../store/rootReducer';
+import { fetchProject } from '../../store/rootActions';
+import { getComponent } from '../../store/rootReducer';
 
 class ProjectContainer extends React.Component {
   static propTypes = {

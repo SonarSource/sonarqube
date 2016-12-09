@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import ProjectCard from './ProjectCard';
-import { getComponent, getComponentMeasures } from '../../../app/store/rootReducer';
+import { getComponent, getComponentMeasures } from '../../../store/rootReducer';
 
 export default connect(
     (state, ownProps) => ({

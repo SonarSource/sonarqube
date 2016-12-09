@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getLanguages } from '../../api/languages';
-import { getGlobalNavigation, getComponentNavigation } from '../../api/nav';
-import * as auth from '../../api/auth';
+import { getLanguages } from '../api/languages';
+import { getGlobalNavigation, getComponentNavigation } from '../api/nav';
+import * as auth from '../api/auth';
 import { receiveLanguages } from './languages/actions';
 import { receiveComponents } from './components/actions';
-import { addGlobalErrorMessage } from '../../components/store/globalMessages';
-import { parseError } from '../../apps/code/utils';
+import { addGlobalErrorMessage } from './globalMessages/duck';
+import { parseError } from '../apps/code/utils';
 import { setAppState } from './appState/duck';
 
 const onFail = dispatch => error => (

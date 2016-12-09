@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import { ERROR, SUCCESS } from '../store/globalMessages';
+import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
 
 export default class GlobalMessages extends React.Component {
   static propTypes = {

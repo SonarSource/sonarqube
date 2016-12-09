@@ -19,7 +19,7 @@
  */
 import * as licenses from '../../../../api/licenses';
 import { parseError } from '../../../code/utils';
-import { addGlobalSuccessMessage, addGlobalErrorMessage } from '../../../../components/store/globalMessages';
+import { addGlobalSuccessMessage, addGlobalErrorMessage } from '../../../../store/globalMessages/duck';
 import { translate } from '../../../../helpers/l10n';
 import { isLicenseFromListInvalid, isLicenseInvalid } from '../../licenses/licenseUtils';
 

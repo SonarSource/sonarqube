@@ -19,10 +19,10 @@
  */
 import { connect } from 'react-redux';
 import FavoriteBaseStateless from './FavoriteBaseStateless';
-import { isFavorite } from '../../app/store/rootReducer';
-import * as actionCreators from '../../app/store/favorites/duck';
+import { isFavorite } from '../../store/rootReducer';
+import * as actionCreators from '../../store/favorites/duck';
 import * as api from '../../api/favorites';
-import { addGlobalErrorMessage } from '../store/globalMessages';
+import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
 import { parseError } from '../../apps/code/utils';
 
 const addFavorite = componentKey => dispatch => {

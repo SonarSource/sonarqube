@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
-import { doLogout } from '../../../app/store/rootActions';
+import { doLogout } from '../../../store/rootActions';
 
 class Logout extends React.Component {
   componentDidMount () {

@@ -20,7 +20,7 @@
 import { connect } from 'react-redux';
 import AllProjects from './AllProjects';
 import { fetchProjects } from '../store/actions';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 const mapStateToProps = state => ({
   user: getCurrentUser(state),

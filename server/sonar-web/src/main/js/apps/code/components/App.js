@@ -27,7 +27,7 @@ import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentChildren, retrieveComponent, loadMoreChildren, parseError } from '../utils';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import { getComponent } from '../../../app/store/rootReducer';
+import { getComponent } from '../../../store/rootReducer';
 import '../code.css';
 
 class App extends React.Component {

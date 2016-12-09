@@ -23,7 +23,7 @@ import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
-import { getMeasuresAppTree } from '../../../app/store/rootReducer';
+import { getMeasuresAppTree } from '../../../store/rootReducer';
 
 /*
  * Actions

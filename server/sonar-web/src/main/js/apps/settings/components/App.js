@@ -26,7 +26,7 @@ import CategoryDefinitionsList from './CategoryDefinitionsList';
 import AllCategoriesList from './AllCategoriesList';
 import WildcardsHelp from './WildcardsHelp';
 import { fetchSettings } from '../store/actions';
-import { getSettingsAppDefaultCategory } from '../../../app/store/rootReducer';
+import { getSettingsAppDefaultCategory } from '../../../store/rootReducer';
 import '../styles.css';
 
 type Props = {

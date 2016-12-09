@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { getAppState } from '../store/rootReducer';
+import { getAppState } from '../../store/rootReducer';
 
 class GlobalFooter extends React.Component {
   render () {

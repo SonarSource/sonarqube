@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import CategoriesList from './CategoriesList';
-import { getSettingsAppAllCategories } from '../../../app/store/rootReducer';
+import { getSettingsAppAllCategories } from '../../../store/rootReducer';
 
 class AllCategoriesList extends React.Component {
   render () {

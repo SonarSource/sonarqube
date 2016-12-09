@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
-import { getSettingsAppSettingsForCategory } from '../../../app/store/rootReducer';
+import { getSettingsAppSettingsForCategory } from '../../../store/rootReducer';
 
 
 class CategoryDefinitionsList extends React.Component {

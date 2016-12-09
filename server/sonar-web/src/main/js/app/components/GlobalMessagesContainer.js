@@ -19,8 +19,8 @@
  */
 import { connect } from 'react-redux';
 import GlobalMessages from '../../components/controls/GlobalMessages';
-import { getGlobalMessages } from '../store/rootReducer';
-import { closeGlobalMessage } from '../../components/store/globalMessages';
+import { getGlobalMessages } from '../../store/rootReducer';
+import { closeGlobalMessage } from '../../store/globalMessages/duck';
 
 const mapStateToProps = state => ({
   messages: getGlobalMessages(state)

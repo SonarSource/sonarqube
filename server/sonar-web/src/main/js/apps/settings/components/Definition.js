@@ -35,7 +35,7 @@ import {
   getSettingsAppChangedValue,
   isSettingsAppLoading,
   getSettingsAppValidationMessage
-} from '../../../app/store/rootReducer';
+} from '../../../store/rootReducer';
 
 class Definition extends React.Component {
   mounted: boolean;

@@ -28,7 +28,7 @@ import {
     addGlobalErrorMessage,
     addGlobalSuccessMessage,
     closeAllGlobalMessages
-} from '../../../components/store/globalMessages';
+} from '../../../store/globalMessages/duck';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 

@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import ServerIdApp from './ServerIdApp';
-import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../components/store/globalMessages';
+import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
 
 export default connect(
     () => ({}),

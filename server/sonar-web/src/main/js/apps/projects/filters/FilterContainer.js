@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import omitBy from 'lodash/omitBy';
 import isNil from 'lodash/isNil';
-import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../app/store/rootReducer';
+import { getProjectsAppFacetByProperty, getProjectsAppMaxFacetValue } from '../../../store/rootReducer';
 
 const mapStateToProps = (state, ownProps) => ({
   value: ownProps.query[ownProps.property],

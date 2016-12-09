@@ -39,7 +39,7 @@ import {
   getPermissionsAppQuery,
   getPermissionsAppFilter,
   getPermissionsAppSelectedPermission
-} from '../../../../app/store/rootReducer';
+} from '../../../../store/rootReducer';
 
 class AllHoldersList extends React.Component {
   static propTypes = {

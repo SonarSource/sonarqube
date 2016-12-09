@@ -20,7 +20,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import init from '../init';
-import { getComponent } from '../../../app/store/rootReducer';
+import { getComponent } from '../../../store/rootReducer';
 
 class CustomMeasuresAppContainer extends React.Component {
   componentDidMount () {

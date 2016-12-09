@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Nav from './Nav';
 import UserCard from './UserCard';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 import '../account.css';
 
 class Account extends React.Component {

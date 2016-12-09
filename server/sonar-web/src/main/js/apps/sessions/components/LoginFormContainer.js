@@ -21,8 +21,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
-import { doLogin } from '../../../app/store/rootActions';
-import { getAppState } from '../../../app/store/rootReducer';
+import { doLogin } from '../../../store/rootActions';
+import { getAppState } from '../../../store/rootReducer';
 import { getIdentityProviders } from '../../../api/users';
 
 class LoginFormContainer extends React.Component {

@@ -24,14 +24,14 @@ import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
-import globalMessages, * as fromGlobalMessages from '../../components/store/globalMessages';
+import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 
-import measuresApp, * as fromMeasuresApp from '../../apps/component-measures/store/rootReducer';
-import permissionsApp, * as fromPermissionsApp from '../../apps/permissions/shared/store/rootReducer';
-import projectAdminApp, * as fromProjectAdminApp from '../../apps/project-admin/store/rootReducer';
-import projectsApp, * as fromProjectsApp from '../../apps/projects/store/reducer';
-import qualityGatesApp from '../../apps/quality-gates/store/rootReducer';
-import settingsApp, * as fromSettingsApp from '../../apps/settings/store/rootReducer';
+import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
+import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
+import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
+import projectsApp, * as fromProjectsApp from '../apps/projects/store/reducer';
+import qualityGatesApp from '../apps/quality-gates/store/rootReducer';
+import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 
 export default combineReducers({
   appState,

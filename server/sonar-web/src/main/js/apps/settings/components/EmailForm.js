@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../code/utils';
-import { getCurrentUser } from '../../../app/store/rootReducer';
+import { getCurrentUser } from '../../../store/rootReducer';
 
 class EmailForm extends React.Component {
   constructor (props) {

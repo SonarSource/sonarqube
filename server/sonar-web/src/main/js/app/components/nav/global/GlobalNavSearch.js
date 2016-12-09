@@ -21,7 +21,7 @@ import Backbone from 'backbone';
 import React from 'react';
 import { connect } from 'react-redux';
 import SearchView from './SearchView';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser } from '../../../../store/rootReducer';
 
 function contains (root, node) {
   while (node) {
