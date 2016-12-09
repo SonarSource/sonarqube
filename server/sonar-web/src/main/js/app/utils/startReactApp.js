@@ -29,6 +29,7 @@ import SimpleContainer from '../components/SimpleContainer';
 import Landing from '../components/Landing';
 import ProjectContainer from '../components/ProjectContainer';
 import AdminContainer from '../components/AdminContainer';
+import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
@@ -69,6 +70,8 @@ const startReactApp = () => {
   render((
       <Provider store={store}>
         <Router history={history}>
+          <Route path="markdown/help" component={MarkdownHelp}/>
+
           <Route component={LocalizationContainer}>
             <Route component={SimpleContainer}>
               <Route path="maintenance">{maintenanceRoutes}</Route>
