@@ -12,6 +12,10 @@
   <artifactId>upgrade</artifactId>
   <name>SonarQube :: Upgrade Tests</name>
 
+  <properties>
+    <sqZipDir>../../sonar-application/target</sqZipDir>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
