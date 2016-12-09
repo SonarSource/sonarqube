@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import _ from 'underscore';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { STATUSES } from '../../../../apps/background-tasks/constants';
-import { getTasksForComponent } from '../../../../api/ce';
 import ComponentNavFavorite from './ComponentNavFavorite';
 import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import RecentHistory from './RecentHistory';
+import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
+import { getTasksForComponent } from '../../../../api/ce';
+import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
 export default React.createClass({
@@ -39,27 +37,19 @@ export default React.createClass({
   loadStatus() {
     getTasksForComponent(this.props.component.id).then(r => {
       this.setState({
-        isPending: !!_.findWhere(r.queue, { status: STATUSES.PENDING }),
-        isInProgress: !!_.findWhere(r.queue, { status: STATUSES.IN_PROGRESS }),
+        isPending: r.queue.some(task => task.status === STATUSES.PENDING),
+        isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
         isFailed: r.current && r.current.status === STATUSES.FAILED
-      }, this.initTooltips);
+      });
     });
   },
 
   populateRecentHistory() {
-    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
+    const { breadcrumbs } = this.props.component;
+    const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
       RecentHistory.add(this.props.component.key, this.props.component.name, qualifier.toLowerCase());
     }
-  },
-
-  initTooltips() {
-    $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip({
-      container: 'body',
-      placement: 'bottom',
-      delay: { show: 0, hide: 2000 },
-      html: true
-    });
   },
 
   render() {
@@ -74,11 +64,13 @@ export default React.createClass({
               <ComponentNavBreadcrumbs
                   breadcrumbs={this.props.component.breadcrumbs}/>
 
-              <ComponentNavMeta
-                  {...this.props}
-                  {...this.state}
-                  version={this.props.component.version}
-                  snapshotDate={this.props.component.snapshotDate}/>
+              <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
+                <ComponentNavMeta
+                    {...this.props}
+                    {...this.state}
+                    version={this.props.component.version}
+                    snapshotDate={this.props.component.snapshotDate}/>
+              </TooltipsContainer>
 
               <ComponentNavMenu
                   component={this.props.component}
