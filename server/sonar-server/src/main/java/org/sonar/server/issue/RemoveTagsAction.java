@@ -20,17 +20,16 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
-
 import java.util.Collection;
 import java.util.Set;
+import org.sonar.api.server.ServerSide;
 
 @ServerSide
 public class RemoveTagsAction extends AbstractChangeTagsAction {
 
   public static final String KEY = "remove_tags";
 
-  public RemoveTagsAction(IssueUpdater issueUpdater) {
+  public RemoveTagsAction(IssueFieldsSetter issueUpdater) {
     super(KEY, issueUpdater);
   }
 

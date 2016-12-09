@@ -20,21 +20,21 @@
 package org.sonar.server.issue.workflow;
 
 import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 @ServerSide
 @ComputeEngineSide
 public class FunctionExecutor {
 
-  private final IssueUpdater updater;
+  private final IssueFieldsSetter updater;
 
-  public FunctionExecutor(IssueUpdater updater) {
+  public FunctionExecutor(IssueFieldsSetter updater) {
     this.updater = updater;
   }
 
@@ -48,11 +48,11 @@ public class FunctionExecutor {
   }
 
   static class FunctionContext implements Function.Context {
-    private final IssueUpdater updater;
+    private final IssueFieldsSetter updater;
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
 
-    FunctionContext(IssueUpdater updater, DefaultIssue issue, IssueChangeContext changeContext) {
+    FunctionContext(IssueFieldsSetter updater, DefaultIssue issue, IssueChangeContext changeContext) {
       this.updater = updater;
       this.issue = issue;
       this.changeContext = changeContext;

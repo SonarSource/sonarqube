@@ -38,7 +38,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -108,7 +108,7 @@ public class NewEffortCalculator {
   }
 
   private static FieldDiffs.Diff debtDiff(FieldDiffs diffs) {
-    return diffs.diffs().get(IssueUpdater.TECHNICAL_DEBT);
+    return diffs.diffs().get(IssueFieldsSetter.TECHNICAL_DEBT);
   }
 
   private enum ToFieldDiffs implements Function<IssueChangeDto, FieldDiffs> {
@@ -123,7 +123,7 @@ public class NewEffortCalculator {
     INSTANCE;
     @Override
     public boolean apply(@Nonnull FieldDiffs diffs) {
-      return diffs.diffs().containsKey(IssueUpdater.TECHNICAL_DEBT);
+      return diffs.diffs().containsKey(IssueFieldsSetter.TECHNICAL_DEBT);
     }
   }
 }

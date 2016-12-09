@@ -35,10 +35,10 @@ public class SetSeverityAction extends Action {
 
   public static final String SET_SEVERITY_KEY = "set_severity";
 
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
   private final UserSession userSession;
 
-  public SetSeverityAction(IssueUpdater issueUpdater, UserSession userSession) {
+  public SetSeverityAction(IssueFieldsSetter issueUpdater, UserSession userSession) {
     super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;

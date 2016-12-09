@@ -61,7 +61,7 @@ public class IssueService {
   private final IssueIndex issueIndex;
 
   private final IssueWorkflow workflow;
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final UserFinder userFinder;
@@ -70,7 +70,7 @@ public class IssueService {
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
     IssueWorkflow workflow,
     IssueStorage issueStorage,
-    IssueUpdater issueUpdater,
+    IssueFieldsSetter issueUpdater,
     NotificationManager notificationService,
     UserFinder userFinder,
     UserSession userSession) {

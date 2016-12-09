@@ -33,9 +33,9 @@ public class CommentAction extends Action {
   public static final String COMMENT_KEY = "comment";
   public static final String COMMENT_PROPERTY = "comment";
 
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
 
-  public CommentAction(IssueUpdater issueUpdater) {
+  public CommentAction(IssueFieldsSetter issueUpdater) {
     super(COMMENT_KEY);
     this.issueUpdater = issueUpdater;
   }

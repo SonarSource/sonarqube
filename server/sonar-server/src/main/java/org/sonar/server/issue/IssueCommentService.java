@@ -45,10 +45,10 @@ public class IssueCommentService {
 
   private final DbClient dbClient;
   private final IssueService issueService;
-  private final IssueUpdater updater;
+  private final IssueFieldsSetter updater;
   private final UserSession userSession;
 
-  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater, UserSession userSession) {
+  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueFieldsSetter updater, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.updater = updater;

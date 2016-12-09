@@ -51,7 +51,7 @@ public class SetSeverityActionTest {
 
   private SetSeverityAction action;
 
-  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
+  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
 
   @Before
   public void before() {

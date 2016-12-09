@@ -35,9 +35,9 @@ public class SetTypeAction extends Action {
   private static final String SET_TYPE_KEY = "set_type";
   private static final String TYPE_PARAMETER = "type";
 
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
 
-  public SetTypeAction(IssueUpdater issueUpdater) {
+  public SetTypeAction(IssueFieldsSetter issueUpdater) {
     super(SET_TYPE_KEY);
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());

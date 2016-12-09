@@ -64,8 +64,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.Props;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -76,7 +76,7 @@ import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
@@ -345,7 +345,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // issues
       IssueIndexer.class,
       PermissionIndexer.class,
-      IssueUpdater.class, // used in Web Services and CE's DebtCalculator
+      IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
       FunctionExecutor.class, // used by IssueWorkflow
       IssueWorkflow.class, // used in Web Services and CE's DebtCalculator
       NewIssuesEmailTemplate.class,

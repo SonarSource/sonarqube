@@ -20,17 +20,16 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
-
 import java.util.Collection;
 import java.util.Set;
+import org.sonar.api.server.ServerSide;
 
 @ServerSide
 public class AddTagsAction extends AbstractChangeTagsAction {
 
   public static final String KEY = "add_tags";
 
-  public AddTagsAction(IssueUpdater issueUpdater) {
+  public AddTagsAction(IssueFieldsSetter issueUpdater) {
     super(KEY, issueUpdater);
   }
 

@@ -37,9 +37,9 @@ public class AssignAction extends Action {
   public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
 
   private final UserFinder userFinder;
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
 
-  public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
+  public AssignAction(UserFinder userFinder, IssueFieldsSetter issueUpdater) {
     super(ASSIGN_KEY);
     this.userFinder = userFinder;
     this.issueUpdater = issueUpdater;

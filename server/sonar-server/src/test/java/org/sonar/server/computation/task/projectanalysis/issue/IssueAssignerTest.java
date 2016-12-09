@@ -28,7 +28,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public class IssueAssignerTest {
   ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
   DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
 
-  IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueUpdater());
+  IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueFieldsSetter());
 
   @Test
   public void nothing_to_do_if_no_changeset() throws Exception {

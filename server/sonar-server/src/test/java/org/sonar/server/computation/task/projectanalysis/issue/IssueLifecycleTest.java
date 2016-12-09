@@ -27,7 +27,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,7 +52,7 @@ public class IssueLifecycleTest {
 
   IssueWorkflow workflow = mock(IssueWorkflow.class);
 
-  IssueUpdater updater = mock(IssueUpdater.class);
+  IssueFieldsSetter updater = mock(IssueFieldsSetter.class);
 
   DebtCalculator debtCalculator = mock(DebtCalculator.class);
 

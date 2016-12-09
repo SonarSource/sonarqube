@@ -31,7 +31,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -53,7 +53,7 @@ public class MovedIssueVisitorTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
-  private MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueUpdater());
+  private MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueFieldsSetter());
 
   @Before
   public void setUp() throws Exception {

@@ -20,6 +20,8 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,9 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Matchers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-
-import java.util.Collection;
-import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.mockito.Matchers.any;
@@ -42,7 +41,7 @@ public class AddTagsActionTest {
 
   private AddTagsAction action;
 
-  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
+  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();

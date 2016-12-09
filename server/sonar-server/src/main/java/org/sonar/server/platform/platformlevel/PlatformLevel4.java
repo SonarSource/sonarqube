@@ -65,9 +65,9 @@ import org.sonar.server.issue.InternalRubyIssueService;
 import org.sonar.server.issue.IssueBulkChangeService;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.SetSeverityAction;
@@ -398,7 +398,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueIndexer.class,
       PermissionIndexer.class,
       ServerIssueStorage.class,
-      IssueUpdater.class,
+      IssueFieldsSetter.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
       IssueCommentService.class,

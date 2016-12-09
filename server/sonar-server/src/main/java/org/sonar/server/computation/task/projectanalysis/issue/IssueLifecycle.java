@@ -26,7 +26,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
 /**
@@ -41,15 +41,15 @@ public class IssueLifecycle {
 
   private final IssueWorkflow workflow;
   private final IssueChangeContext changeContext;
-  private final IssueUpdater updater;
+  private final IssueFieldsSetter updater;
   private final DebtCalculator debtCalculator;
 
-  public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueUpdater updater, DebtCalculator debtCalculator) {
+  public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueFieldsSetter updater, DebtCalculator debtCalculator) {
     this(IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator);
   }
 
   @VisibleForTesting
-  IssueLifecycle(IssueChangeContext changeContext, IssueWorkflow workflow, IssueUpdater updater, DebtCalculator debtCalculator) {
+  IssueLifecycle(IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater, DebtCalculator debtCalculator) {
     this.workflow = workflow;
     this.updater = updater;
     this.debtCalculator = debtCalculator;

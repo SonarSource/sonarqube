@@ -22,25 +22,24 @@ package org.sonar.server.issue;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.IsUnResolved;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.server.rule.RuleTagFormat;
-import org.sonar.server.user.UserSession;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.rule.RuleTagFormat;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public abstract class AbstractChangeTagsAction extends Action {
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
 
-  protected AbstractChangeTagsAction(String key, IssueUpdater issueUpdater) {
+  protected AbstractChangeTagsAction(String key, IssueFieldsSetter issueUpdater) {
     super(key);
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());

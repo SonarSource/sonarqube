@@ -39,9 +39,10 @@ public class RuleTagFormat {
     return StringUtils.isNotBlank(tag) && tag.matches(VALID_CHARACTERS_REGEX);
   }
 
-  public static void validate(String tag) {
+  public static String validate(String tag) {
     if (!isValid(tag)) {
       throw new IllegalArgumentException(String.format("Tag '%s' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'", tag));
     }
+    return tag;
   }
 }

@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,14 +34,14 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.user.DefaultUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.IssueUpdater.ASSIGNEE;
-import static org.sonar.server.issue.IssueUpdater.RESOLUTION;
-import static org.sonar.server.issue.IssueUpdater.SEVERITY;
-import static org.sonar.server.issue.IssueUpdater.STATUS;
-import static org.sonar.server.issue.IssueUpdater.TECHNICAL_DEBT;
-import static org.sonar.server.issue.IssueUpdater.UNUSED;
+import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
+import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
+import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
+import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
+import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
+import static org.sonar.server.issue.IssueFieldsSetter.UNUSED;
 
-public class IssueUpdaterTest {
+public class IssueFieldsSetterTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -50,12 +49,7 @@ public class IssueUpdaterTest {
   DefaultIssue issue = new DefaultIssue();
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
 
-  IssueUpdater updater;
-
-  @Before
-  public void setUp() {
-    updater = new IssueUpdater();
-  }
+  IssueFieldsSetter updater = new IssueFieldsSetter();
 
   @Test
   public void assign() {

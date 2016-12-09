@@ -19,12 +19,9 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
@@ -32,7 +29,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -42,6 +38,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -51,7 +48,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 @ServerSide
 @ComputeEngineSide
-public class IssueUpdater {
+public class IssueFieldsSetter {
 
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
@@ -253,7 +250,7 @@ public class IssueUpdater {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    Date dateWithoutMilliseconds = d == null ? null : DateUtils.truncate(d, Calendar.SECOND);
+    Date dateWithoutMilliseconds = d == null ? null : Date.from(d.toInstant().truncatedTo(ChronoUnit.SECONDS));
     if (!Objects.equals(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
@@ -310,23 +307,13 @@ public class IssueUpdater {
   }
 
   public boolean setTags(DefaultIssue issue, Collection<String> tags, IssueChangeContext context) {
-    Set<String> newTags = Sets.newHashSet(Collections2.transform(
-      Collections2.filter(tags, new Predicate<String>() {
-        @Override
-        public boolean apply(@Nullable String tag) {
-          return tag != null && !tag.isEmpty();
-        }
-      }), new Function<String, String>() {
-        @Override
-        public String apply(String tag) {
-          String lowerCaseTag = tag.toLowerCase(Locale.ENGLISH);
-          RuleTagFormat.validate(lowerCaseTag);
-          return lowerCaseTag;
-        }
-      }));
+    Set<String> newTags = tags.stream()
+      .filter(Objects::nonNull)
+      .filter(tag -> !tag.isEmpty())
+      .map(tag -> RuleTagFormat.validate(tag.toLowerCase(Locale.ENGLISH)))
+      .collect(Collectors.toSet());
 
     Set<String> oldTags = Sets.newHashSet(issue.tags());
-
     if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
         oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),

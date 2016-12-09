@@ -33,11 +33,11 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -68,7 +68,7 @@ public class IssueCommentServiceTest {
   private IssueService issueService;
 
   @Mock
-  private IssueUpdater updater;
+  private IssueFieldsSetter updater;
 
   @Mock
   private IssueChangeDao changeDao;

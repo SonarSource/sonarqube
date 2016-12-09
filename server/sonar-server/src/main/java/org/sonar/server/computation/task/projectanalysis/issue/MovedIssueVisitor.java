@@ -27,16 +27,16 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.server.computation.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class MovedIssueVisitor extends IssueVisitor {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MovedFilesRepository movedFilesRepository;
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
 
-  public MovedIssueVisitor(AnalysisMetadataHolder analysisMetadataHolder, MovedFilesRepository movedFilesRepository, IssueUpdater issueUpdater) {
+  public MovedIssueVisitor(AnalysisMetadataHolder analysisMetadataHolder, MovedFilesRepository movedFilesRepository, IssueFieldsSetter issueUpdater) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.movedFilesRepository = movedFilesRepository;
     this.issueUpdater = issueUpdater;

@@ -32,7 +32,7 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.core.issue.IssueChangeContext.createScan;
@@ -52,7 +52,7 @@ public class IssueAssigner extends IssueVisitor {
 
   private final ScmInfoRepository scmInfoRepository;
   private final DefaultAssignee defaultAssignee;
-  private final IssueUpdater issueUpdater;
+  private final IssueFieldsSetter issueUpdater;
   private final ScmAccountToUser scmAccountToUser;
   private final IssueChangeContext changeContext;
 
@@ -60,7 +60,7 @@ public class IssueAssigner extends IssueVisitor {
   private ScmInfo scmChangesets = null;
 
   public IssueAssigner(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssignee,
-    IssueUpdater issueUpdater) {
+    IssueFieldsSetter issueUpdater) {
     this.scmInfoRepository = scmInfoRepository;
     this.scmAccountToUser = scmAccountToUser;
     this.defaultAssignee = defaultAssignee;

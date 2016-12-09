@@ -51,9 +51,9 @@ public class IssueChangelog {
   private static void replacedTechnicalDebtByEffort(List<FieldDiffs> changes) {
     for (FieldDiffs fieldDiffs : changes) {
       Map<String, FieldDiffs.Diff> diffs = fieldDiffs.diffs();
-      if (diffs.containsKey(IssueUpdater.TECHNICAL_DEBT)) {
-        FieldDiffs.Diff value = diffs.get(IssueUpdater.TECHNICAL_DEBT);
-        diffs.remove(IssueUpdater.TECHNICAL_DEBT);
+      if (diffs.containsKey(IssueFieldsSetter.TECHNICAL_DEBT)) {
+        FieldDiffs.Diff value = diffs.get(IssueFieldsSetter.TECHNICAL_DEBT);
+        diffs.remove(IssueFieldsSetter.TECHNICAL_DEBT);
         diffs.put("effort", value);
       }
     }

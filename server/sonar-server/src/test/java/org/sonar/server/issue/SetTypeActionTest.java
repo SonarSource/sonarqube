@@ -48,7 +48,7 @@ public class SetTypeActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   UserSession userSessionMock = mock(UserSession.class);
-  IssueUpdater issueUpdater = mock(IssueUpdater.class);
+  IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
   SetTypeAction underTest;
 
   @Before

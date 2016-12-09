@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 @ServerSide
 @ComputeEngineSide
@@ -38,10 +38,10 @@ public class IssueWorkflow implements Startable {
 
   public static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
   private final FunctionExecutor functionExecutor;
-  private final IssueUpdater updater;
+  private final IssueFieldsSetter updater;
   private StateMachine machine;
 
-  public IssueWorkflow(FunctionExecutor functionExecutor, IssueUpdater updater) {
+  public IssueWorkflow(FunctionExecutor functionExecutor, IssueFieldsSetter updater) {
     this.functionExecutor = functionExecutor;
     this.updater = updater;
   }

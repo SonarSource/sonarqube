@@ -32,7 +32,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -47,7 +47,7 @@ import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 
 public class IssueWorkflowTest {
 
-  IssueUpdater updater = new IssueUpdater();
+  IssueFieldsSetter updater = new IssueFieldsSetter();
   IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
 
   @Test
