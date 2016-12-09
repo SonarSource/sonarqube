@@ -113,6 +113,16 @@ public class UiTest {
       .shouldHave(text("1 active rules"));
   }
 
+  @Test
+  public void markdown_help() {
+    String tags[] = {"strong", "a", "ul", "ol", "h1", "code", "pre", "blockquote"};
+
+    nav.open("/markdown/help");
+    for (String tag : tags) {
+      $(tag).shouldBe(visible);
+    }
+  }
+
   private static void analyzeSampleProject() {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
