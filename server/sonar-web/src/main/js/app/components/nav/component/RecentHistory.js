@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 const STORAGE_KEY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
+type History = Array<{
+  key: string,
+  name: string,
+  icon: string
+}>;
+
 export default class RecentHistory {
-  static get () {
+  static get (): History {
     let history = localStorage.getItem(STORAGE_KEY);
     if (history == null) {
       history = [];
@@ -36,27 +43,24 @@ export default class RecentHistory {
     return history;
   }
 
-  static set (newHistory) {
+  static set (newHistory: History): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
   }
 
-  static clear () {
+  static clear (): void {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  static add (componentKey, componentName, icon) {
+  static add (componentKey: string, componentName: string, icon: string): void {
     const sonarHistory = RecentHistory.get();
-
-    if (componentKey) {
-      const newEntry = { key: componentKey, name: componentName, icon };
-      let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
-      newHistory.unshift(newEntry);
-      newHistory = newHistory.slice(0, HISTORY_LIMIT);
-      RecentHistory.set(newHistory);
-    }
+    const newEntry = { key: componentKey, name: componentName, icon };
+    let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
+    newHistory.unshift(newEntry);
+    newHistory = newHistory.slice(0, HISTORY_LIMIT);
+    RecentHistory.set(newHistory);
   }
 
-  static remove (componentKey) {
+  static remove (componentKey: string): void {
     const history = RecentHistory.get();
     const newHistory = history.filter(entry => entry.key !== componentKey);
     RecentHistory.set(newHistory);
