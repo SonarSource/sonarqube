@@ -19,94 +19,103 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import java.util.Map;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
+import static org.sonar.server.issue.IssueTesting.newDto;
 
 public class TransitionActionTest {
+
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private TransitionAction action;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private IssueWorkflow workflow = mock(IssueWorkflow.class);
+  private IssueFieldsSetter updater = new IssueFieldsSetter();
+  private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
+  private TransitionService transitionService = new TransitionService(userSession, workflow);
+
+  private Action.Context context = mock(Action.Context.class);
+  private DefaultIssue issue = newIssue().toDefaultIssue();
+
+  private TransitionAction action = new TransitionAction(transitionService);
 
   @Before
-  public void before() {
-    action = new TransitionAction(workflow, userSessionRule);
-  }
-
-  @Test
-  public void should_execute() {
-    String transition = "reopen";
-    Map<String, Object> properties = newHashMap();
-    properties.put("transition", transition);
-    DefaultIssue issue = mock(DefaultIssue.class);
-
-    Action.Context context = mock(Action.Context.class);
+  public void setUp() throws Exception {
+    workflow.start();
     when(context.issue()).thenReturn(issue);
-
-    when(workflow.outTransitions(context.issue())).thenReturn(newArrayList(Transition.create(transition, "REOPEN", "CONFIRMED")));
-
-    action.execute(properties, context);
-    verify(workflow).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
+    when(context.issueChangeContext()).thenReturn(IssueChangeContext.createUser(new Date(), "john"));
   }
 
   @Test
-  public void should_not_execute_if_transition_is_not_available() {
-    String transition = "reopen";
-    Map<String, Object> properties = newHashMap();
-    properties.put("transition", transition);
-    DefaultIssue issue = mock(DefaultIssue.class);
+  public void execute() {
+    userSession.addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    issue.setStatus(Issue.STATUS_RESOLVED);
+    issue.setResolution(Issue.RESOLUTION_FIXED);
 
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
+    action.execute(ImmutableMap.of("transition", "reopen"), context);
 
-    // Do not contain reopen, transition is not possible
-    when(workflow.outTransitions(context.issue())).thenReturn(newArrayList(Transition.create("resolve", "OPEN", "RESOLVED")));
-
-    assertThat(action.execute(properties, context)).isFalse();
-    verify(workflow, never()).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_REOPENED);
+    assertThat(issue.resolution()).isNull();
   }
 
   @Test
-  public void should_verify_fail_if_parameter_not_found() {
-    String transition = "reopen";
-    Map<String, Object> properties = newHashMap();
-    properties.put("unknwown", transition);
-    try {
-      action.verify(properties, Lists.<Issue>newArrayList(), userSessionRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'transition'");
-    }
-    verifyZeroInteractions(workflow);
+  public void does_not_execute_if_transition_is_not_available() {
+    userSession.addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    issue.setStatus(Issue.STATUS_CLOSED);
+
+    action.execute(ImmutableMap.of("transition", "reopen"), context);
+
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+  }
+
+  @Test
+  public void test_verify() throws Exception {
+    assertThat(action.verify(ImmutableMap.of("transition", "reopen"), emptyList(), userSession)).isTrue();
+    assertThat(action.verify(ImmutableMap.of("transition", "close"), emptyList(), userSession)).isTrue();
+  }
+
+  @Test
+  public void fail_to_verify_when_parameter_not_found() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing parameter : 'transition'");
+    action.verify(ImmutableMap.of("unknwown", "reopen"), Lists.<Issue>newArrayList(), userSession);
   }
 
   @Test
   public void should_support_all_issues() {
     assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isTrue();
+  }
+
+  private IssueDto newIssue() {
+    RuleDto rule = newRuleDto().setId(10);
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = (newFileDto(project));
+    return newDto(rule, file, project);
   }
 
 }

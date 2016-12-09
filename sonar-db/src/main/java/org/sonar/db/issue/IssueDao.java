@@ -20,7 +20,6 @@
 package org.sonar.db.issue;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,12 +37,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
 
-  public Optional<IssueDto> selectByKey(DbSession session, String key) {
-    return Optional.fromNullable(mapper(session).selectByKey(key));
+  public java.util.Optional<IssueDto> selectByKey(DbSession session, String key) {
+    return java.util.Optional.ofNullable(mapper(session).selectByKey(key));
   }
 
   public IssueDto selectOrFailByKey(DbSession session, String key) {
-    Optional<IssueDto> issue = selectByKey(session, key);
+    java.util.Optional<IssueDto> issue = selectByKey(session, key);
     if (!issue.isPresent()) {
       throw new RowNotFoundException(String.format("Issue with key '%s' does not exist", key));
     }

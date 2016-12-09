@@ -21,14 +21,11 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -48,8 +45,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
-import org.sonar.server.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.user.UserSession;
 
@@ -60,7 +55,6 @@ public class IssueService {
   private final DbClient dbClient;
   private final IssueIndex issueIndex;
 
-  private final IssueWorkflow workflow;
   private final IssueFieldsSetter issueUpdater;
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
@@ -68,7 +62,6 @@ public class IssueService {
   private final UserSession userSession;
 
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
-    IssueWorkflow workflow,
     IssueStorage issueStorage,
     IssueFieldsSetter issueUpdater,
     NotificationManager notificationService,
@@ -76,59 +69,11 @@ public class IssueService {
     UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
-    this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userSession = userSession;
-  }
-
-  /**
-   * Never return null, but an empty list if the issue does not exist.
-   * No security check is done since it should already have been done to get the issue
-   */
-  public List<Transition> listTransitions(@Nullable Issue issue) {
-    if (issue == null) {
-      return Collections.emptyList();
-    }
-    List<Transition> outTransitions = workflow.outTransitions(issue);
-    List<Transition> allowedTransitions = new ArrayList<>();
-    for (Transition transition : outTransitions) {
-      String projectUuid = issue.projectUuid();
-      if (userSession.isLoggedIn() && StringUtils.isBlank(transition.requiredProjectPermission()) ||
-        (projectUuid != null && userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))) {
-        allowedTransitions.add(transition);
-      }
-    }
-    return allowedTransitions;
-  }
-
-  public void doTransition(String issueKey, String transitionKey) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue defaultIssue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      checkTransitionPermission(transitionKey, userSession, defaultIssue);
-      if (workflow.doTransition(defaultIssue, transitionKey, context)) {
-        saveIssue(session, defaultIssue, context, null);
-      }
-
-    } finally {
-      session.close();
-    }
-  }
-
-  private void checkTransitionPermission(String transitionKey, UserSession userSession, DefaultIssue defaultIssue) {
-    List<Transition> outTransitions = workflow.outTransitions(defaultIssue);
-    for (Transition transition : outTransitions) {
-      String projectKey = defaultIssue.projectKey();
-      if (transition.key().equals(transitionKey) && StringUtils.isNotBlank(transition.requiredProjectPermission()) && projectKey != null) {
-        userSession.checkComponentPermission(transition.requiredProjectPermission(), projectKey);
-      }
-    }
   }
 
   public void assign(String issueKey, @Nullable String assignee) {
@@ -192,12 +137,16 @@ public class IssueService {
     return issueIndex.getByKey(key);
   }
 
+  // TODO Either use IssueFinder or remove it
+  @Deprecated
   IssueDto getByKeyForUpdate(DbSession session, String key) {
     // Load from index to check permission : if the user has no permission to see the issue an exception will be generated
     Issue authorizedIssueIndex = getByKey(key);
     return dbClient.issueDao().selectOrFailByKey(session, authorizedIssueIndex.key());
   }
 
+  // TODO Either use IssueUpdater or remove it
+  @Deprecated
   void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
     String projectKey = issue.projectKey();
     if (projectKey == null) {

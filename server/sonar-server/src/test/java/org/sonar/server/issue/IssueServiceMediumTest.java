@@ -21,13 +21,11 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -47,7 +45,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -103,34 +100,6 @@ public class IssueServiceMediumTest {
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     assertThat(service.getByKey(issue.getKey())).isNotNull();
-  }
-
-  @Test
-  public void list_transitions() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
-
-    List<Transition> result = service.listTransitions(issue.toDefaultIssue());
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).key()).isEqualTo("reopen");
-  }
-
-  @Test
-  public void do_transition() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john");
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
-
-    service.doTransition(issue.getKey(), DefaultTransitions.CONFIRM);
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_CONFIRMED);
   }
 
   @Test

@@ -19,28 +19,28 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 @ServerSide
 public class TransitionAction extends Action {
 
   public static final String DO_TRANSITION_KEY = "do_transition";
 
-  private final IssueWorkflow workflow;
-  private final UserSession userSession;
+  private final TransitionService transitionService;
 
-  public TransitionAction(IssueWorkflow workflow, UserSession userSession) {
+  public TransitionAction(TransitionService transitionService) {
     super(DO_TRANSITION_KEY);
-    this.workflow = workflow;
-    this.userSession = userSession;
+    this.transitionService = transitionService;
   }
 
   @Override
@@ -53,26 +53,20 @@ public class TransitionAction extends Action {
   public boolean execute(Map<String, Object> properties, Context context) {
     DefaultIssue issue = (DefaultIssue) context.issue();
     String transition = transition(properties);
-    if (canExecuteTransition(issue, transition)) {
-      return workflow.doTransition((DefaultIssue) context.issue(), transition(properties), context.issueChangeContext());
-    }
-    return false;
+    return canExecuteTransition(issue, transition) && transitionService.doTransition((DefaultIssue) context.issue(), context.issueChangeContext(), transition(properties));
   }
 
-  private boolean canExecuteTransition(Issue issue, final String transition) {
-    final DefaultIssue defaultIssue = (DefaultIssue) issue;
-    return workflow.outTransitions(issue).stream()
-      .filter(input -> input.key().equals(transition) &&
-        (StringUtils.isBlank(input.requiredProjectPermission()) ||
-          userSession.hasComponentPermission(input.requiredProjectPermission(), defaultIssue.projectKey())))
-      .findFirst().orElseGet(() -> null) != null;
+  private boolean canExecuteTransition(DefaultIssue issue, String transitionKey) {
+    return transitionService.listTransitions(issue)
+      .stream()
+      .map(Transition::key)
+      .collect(Collectors.toSet())
+      .contains(transitionKey);
   }
 
   private static String transition(Map<String, Object> properties) {
     String param = (String) properties.get("transition");
-    if (Strings.isNullOrEmpty(param)) {
-      throw new IllegalArgumentException("Missing parameter : 'transition'");
-    }
+    checkArgument(!isNullOrEmpty(param), "Missing parameter : 'transition'");
     return param;
   }
 

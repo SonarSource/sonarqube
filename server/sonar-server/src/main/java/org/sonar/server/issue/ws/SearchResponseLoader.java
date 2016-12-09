@@ -39,7 +39,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueCommentService;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.TransitionService;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -55,15 +55,15 @@ import static org.sonar.server.issue.ws.SearchAdditionalField.USERS;
 public class SearchResponseLoader {
 
   private final DbClient dbClient;
-  private final IssueService issueService;
   private final ActionService actionService;
   private final IssueCommentService commentService;
+  private final TransitionService transitionService;
 
-  public SearchResponseLoader(DbClient dbClient, IssueService issueService, ActionService actionService, IssueCommentService commentService) {
+  public SearchResponseLoader(DbClient dbClient, ActionService actionService, IssueCommentService commentService, TransitionService transitionService) {
     this.dbClient = dbClient;
-    this.issueService = issueService;
     this.actionService = actionService;
     this.commentService = commentService;
+    this.transitionService = transitionService;
   }
 
   /**
@@ -136,13 +136,13 @@ public class SearchResponseLoader {
         if (collector.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
           DefaultIssue issue = dto.toDefaultIssue();
-          result.addTransitions(issue.key(), issueService.listTransitions(issue));
+          result.addTransitions(issue.key(), transitionService.listTransitions(issue));
         }
       }
     }
   }
 
-  private void completeTotalEffortFromFacet(@Nullable Facets facets, SearchResponseData result) {
+  private static void completeTotalEffortFromFacet(@Nullable Facets facets, SearchResponseData result) {
     if (facets != null) {
       Map<String, Long> effortFacet = facets.get(IssuesWsParameters.FACET_MODE_EFFORT);
       if (effortFacet != null) {

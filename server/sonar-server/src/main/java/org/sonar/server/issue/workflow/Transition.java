@@ -19,14 +19,16 @@
  */
 package org.sonar.server.issue.workflow;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class Transition {
   private final String key;
@@ -80,6 +82,7 @@ public class Transition {
     return true;
   }
 
+  @CheckForNull
   public String requiredProjectPermission() {
     return requiredProjectPermission;
   }
@@ -167,10 +170,10 @@ public class Transition {
     }
 
     public Transition build() {
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Transition key must be set");
-      Preconditions.checkArgument(StringUtils.isAllLowerCase(key), "Transition key must be lower-case");
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(from), "Originating status must be set");
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(to), "Destination status must be set");
+      checkArgument(!Strings.isNullOrEmpty(key), "Transition key must be set");
+      checkArgument(StringUtils.isAllLowerCase(key), "Transition key must be lower-case");
+      checkArgument(!Strings.isNullOrEmpty(from), "Originating status must be set");
+      checkArgument(!Strings.isNullOrEmpty(to), "Destination status must be set");
       return new Transition(this);
     }
   }

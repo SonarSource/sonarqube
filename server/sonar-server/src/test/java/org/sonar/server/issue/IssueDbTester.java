@@ -17,32 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.TransitionService;
+package org.sonar.server.issue;
 
-public class IssueWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      IssueUpdater.class,
-      IssueFinder.class,
-      TransitionService.class,
-      IssuesWs.class,
-      SearchResponseLoader.class,
-      SearchResponseFormat.class,
-      OperationResponseWriter.class,
-      AssignAction.class,
-      DoTransitionAction.class,
-      SearchAction.class,
-      SetSeverityAction.class,
-      TagsAction.class,
-      SetTagsAction.class,
-      SetTypeAction.class,
-      ComponentTagsAction.class,
-      AuthorsAction.class);
+import org.sonar.db.DbTester;
+import org.sonar.db.issue.IssueDto;
+
+public class IssueDbTester {
+
+  private final DbTester db;
+
+  public IssueDbTester(DbTester db) {
+    this.db = db;
+  }
+
+  public IssueDto insertIssue(IssueDto issueDto) {
+    db.getDbClient().issueDao().insert(db.getSession(), issueDto);
+    db.commit();
+    return issueDto;
   }
 }

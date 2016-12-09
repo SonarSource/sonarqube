@@ -28,6 +28,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDto.Format;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+
 /**
  * Utility class for tests involving rules
  */
@@ -84,6 +86,10 @@ public class RuleTesting {
       .setType(RuleType.CODE_SMELL)
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
+  }
+
+  public static RuleDto newRuleDto() {
+    return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
   }
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {

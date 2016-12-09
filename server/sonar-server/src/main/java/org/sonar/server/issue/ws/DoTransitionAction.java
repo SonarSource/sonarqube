@@ -19,21 +19,39 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Date;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.issue.IssueService;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.TransitionService;
+import org.sonar.server.user.UserSession;
 
 public class DoTransitionAction implements IssuesWsAction {
 
   public static final String ACTION = "do_transition";
 
-  private final IssueService issueService;
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final IssueFinder issueFinder;
+  private final IssueUpdater issueUpdater;
+  private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
 
-  public DoTransitionAction(IssueService issueService, OperationResponseWriter responseWriter) {
-    this.issueService = issueService;
+  public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
+    OperationResponseWriter responseWriter) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.issueFinder = issueFinder;
+    this.issueUpdater = issueUpdater;
+    this.transitionService = transitionService;
     this.responseWriter = responseWriter;
   }
 
@@ -58,9 +76,20 @@ public class DoTransitionAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String key = request.mandatoryParam("issue");
-    issueService.doTransition(key, request.mandatoryParam("transition"));
+    userSession.checkLoggedIn();
+    String issue = request.mandatoryParam("issue");
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
+      doTransition(dbSession, issueDto.toDefaultIssue(), request.mandatoryParam("transition"));
+      responseWriter.write(issue, request, response);
+    }
+  }
 
-    responseWriter.write(key, request, response);
+  private void doTransition(DbSession session, DefaultIssue defaultIssue, String transitionKey) {
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+    transitionService.checkTransitionPermission(transitionKey, defaultIssue);
+    if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
+      issueUpdater.saveIssue(session, defaultIssue, context, null);
+    }
   }
 }

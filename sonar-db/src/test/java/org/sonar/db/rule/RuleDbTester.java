@@ -17,32 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.TransitionService;
+package org.sonar.db.rule;
 
-public class IssueWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      IssueUpdater.class,
-      IssueFinder.class,
-      TransitionService.class,
-      IssuesWs.class,
-      SearchResponseLoader.class,
-      SearchResponseFormat.class,
-      OperationResponseWriter.class,
-      AssignAction.class,
-      DoTransitionAction.class,
-      SearchAction.class,
-      SetSeverityAction.class,
-      TagsAction.class,
-      SetTagsAction.class,
-      SetTypeAction.class,
-      ComponentTagsAction.class,
-      AuthorsAction.class);
+import org.sonar.db.DbTester;
+
+public class RuleDbTester {
+
+  private final DbTester db;
+
+  public RuleDbTester(DbTester db) {
+    this.db = db;
+  }
+
+  public RuleDto insertRule(RuleDto ruleDto) {
+    db.getDbClient().ruleDao().insert(db.getSession(), ruleDto);
+    db.commit();
+    return ruleDto;
   }
 }

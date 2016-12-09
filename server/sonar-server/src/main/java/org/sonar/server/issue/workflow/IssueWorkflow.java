@@ -32,6 +32,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 @ServerSide
 @ComputeEngineSide
 public class IssueWorkflow implements Startable {
@@ -167,7 +170,7 @@ public class IssueWorkflow implements Startable {
 
   public boolean doTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).transition(transitionKey);
-    if (transition != null && !transition.automatic()) {
+    if (!transition.automatic()) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
       return true;
@@ -177,9 +180,7 @@ public class IssueWorkflow implements Startable {
 
   public List<Transition> outTransitions(Issue issue) {
     State state = machine.state(issue.status());
-    if (state == null) {
-      throw new IllegalArgumentException("Unknown status: " + issue.status());
-    }
+    checkArgument(state != null, "Unknown status: %s", issue.status());
     return state.outManualTransitions(issue);
   }
 
@@ -197,9 +198,7 @@ public class IssueWorkflow implements Startable {
 
   private State stateOf(DefaultIssue issue) {
     State state = machine.state(issue.status());
-    if (state == null) {
-      throw new IllegalStateException("Unknown status: " + issue.status() + " [issue=" + issue.key() + "]");
-    }
+    checkState(state != null, "Unknown status: %s [issue=%s]", issue.status(), issue.key());
     return state;
   }
 
