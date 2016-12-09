@@ -18,15 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-export default class ComponentNavFavorite extends React.Component {
+class ComponentNavFavorite extends React.Component {
   static propTypes = {
-    canBeFavorite: React.PropTypes.bool.isRequired
+    currentUser: React.PropTypes.object.isRequired
   };
 
   render () {
-    if (!this.props.canBeFavorite) {
+    if (!this.props.currentUser.isLoggedIn) {
       return null;
     }
 
@@ -39,3 +41,9 @@ export default class ComponentNavFavorite extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(ComponentNavFavorite);

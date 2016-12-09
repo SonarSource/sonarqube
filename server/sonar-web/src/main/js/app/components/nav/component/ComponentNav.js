@@ -69,8 +69,7 @@ export default React.createClass({
             <div className="container">
               <ComponentNavFavorite
                   component={this.props.component.key}
-                  favorite={this.props.component.isFavorite}
-                  canBeFavorite={this.props.component.canBeFavorite}/>
+                  favorite={this.props.component.isFavorite}/>
 
               <ComponentNavBreadcrumbs
                   breadcrumbs={this.props.component.breadcrumbs}/>

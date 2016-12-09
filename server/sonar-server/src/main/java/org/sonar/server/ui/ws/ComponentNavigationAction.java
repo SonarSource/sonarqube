@@ -141,7 +141,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
-      .prop("canBeFavorite", userSession.isLoggedIn())
       .prop("isFavorite", isFavourite(session, component));
 
     if (analysis != null) {

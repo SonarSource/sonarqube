@@ -4,7 +4,6 @@
   "name": "Sonarqube",
   "description": "Open source platform for continuous inspection of code quality",
   "isComparable": true,
-  "canBeFavorite": true,
   "isFavorite": true,
   "version": "6.3",
   "snapshotDate": "2016-12-06T11:44:00+0200",
