@@ -4,7 +4,6 @@
   "name": "Polop",
   "description": "test project",
   "isComparable": false,
-  "canBeFavorite": false,
   "isFavorite": false,
   "breadcrumbs": [
     {

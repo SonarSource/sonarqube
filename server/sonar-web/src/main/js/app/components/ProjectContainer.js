@@ -40,8 +40,8 @@ class ProjectContainer extends React.Component {
   }
 
   render () {
-    // check `canBeFavorite` to be sure that /api/navigation/component has been already called
-    if (!this.props.project || this.props.project.canBeFavorite == null) {
+    // check `breadcrumbs` to be sure that /api/navigation/component has been already called
+    if (!this.props.project || this.props.project.breadcrumbs == null) {
       return null;
     }
 
