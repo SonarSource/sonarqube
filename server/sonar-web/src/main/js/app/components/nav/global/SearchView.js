@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import _ from 'underscore';
+// @flow
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
+import debounce from 'lodash/debounce';
+import sortBy from 'lodash/sortBy';
 import SelectableCollectionView from '../../../../components/common/selectable-collection-view';
 import SearchItemTemplate from '../templates/nav-search-item.hbs';
 import EmptySearchTemplate from '../templates/nav-search-empty.hbs';
@@ -29,6 +30,14 @@ import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../../helpers/path';
 import { isUserAdmin } from '../../../../helpers/users';
+import { getFavorites } from '../../../../api/favorites';
+import { getSuggestions } from '../../../../api/components';
+
+type Finding = {
+  name: string,
+  url: string,
+  extra?: string
+};
 
 const SearchItemView = Marionette.ItemView.extend({
   tagName: 'li',
@@ -60,9 +69,10 @@ const SearchItemView = Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       index: this.options.index
-    });
+    };
   }
 });
 
@@ -94,18 +104,18 @@ export default Marionette.LayoutView.extend({
   },
 
   initialize () {
-    const that = this;
     this.results = new Backbone.Collection();
     this.favorite = [];
     if (this.model.get('currentUser').isLoggedIn) {
-      this.fetchFavorite().always(function () {
-        that.resetResultsToDefault();
-      });
+      this.fetchFavorite().then(
+          () => this.resetResultsToDefault(),
+          () => this.resetResultsToDefault()
+      );
     } else {
       this.resetResultsToDefault();
     }
     this.resultsView = new SearchResultsView({ collection: this.results });
-    this.debouncedSearch = _.debounce(this.search, 250);
+    this.debouncedSearch = debounce(this.search, 250);
     this._bufferedValue = '';
   },
 
@@ -150,10 +160,9 @@ export default Marionette.LayoutView.extend({
     return false;
   },
 
-  fetchFavorite () {
-    const that = this;
-    return $.get(window.baseUrl + '/api/favourites').done(function (r) {
-      that.favorite = r.map(function (f) {
+  fetchFavorite (): Promise<*> {
+    return getFavorites().then(r => {
+      this.favorite = r.map(f => {
         const isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
         return {
           url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
@@ -161,7 +170,7 @@ export default Marionette.LayoutView.extend({
           icon: 'favorite'
         };
       });
-      that.favorite = _.sortBy(that.favorite, 'name');
+      this.favorite = sortBy(this.favorite, 'name');
     });
   },
 
@@ -177,8 +186,8 @@ export default Marionette.LayoutView.extend({
         extra: index === 0 ? translate('browsed_recently') : null
       };
     });
-    const favorite = _.first(this.favorite, 6).map(function (f, index) {
-      return _.extend(f, { extra: index === 0 ? translate('favorite') : null });
+    const favorite = this.favorite.slice(0, 6).map(function (f, index) {
+      return { ...f, extra: index === 0 ? translate('favorite') : null };
     });
     this.results.reset([].concat(history, favorite));
   },
@@ -188,33 +197,31 @@ export default Marionette.LayoutView.extend({
       this.resetResultsToDefault();
       return;
     }
-    const that = this;
-    const url = window.baseUrl + '/api/components/suggestions';
-    const options = { s: q };
-    return $.get(url, options).done(function (r) {
+    return getSuggestions(q).then(r => {
       // if the input value has changed since we sent the request,
       // just ignore the output, because another request already sent
-      if (q !== that._bufferedValue) {
+      if (q !== this._bufferedValue) {
         return;
       }
 
       const collection = [];
-      r.results.forEach(function (domain) {
-        domain.items.forEach(function (item, index) {
-          collection.push(_.extend(item, {
+      r.results.forEach(domain => {
+        domain.items.forEach((item, index) => {
+          collection.push({
+            ...item,
             q: domain.q,
             extra: index === 0 ? domain.name : null,
             url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) +
             window.dashboardParameters(true)
-          }));
+          });
         });
       });
-      that.results.reset([].concat(
-          that.getNavigationFindings(q),
-          that.getGlobalDashboardFindings(q),
-          that.getFavoriteFindings(q),
-          collection
-      ));
+      this.results.reset([
+        ...this.getNavigationFindings(q),
+        ...this.getGlobalDashboardFindings(q),
+        ...this.getFavoriteFindings(q),
+        ...collection
+      ]);
     });
   },
 
@@ -226,7 +233,7 @@ export default Marionette.LayoutView.extend({
       { name: translate('quality_profiles.page'), url: window.baseUrl + '/profiles' },
       { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' }
     ];
-    const customItems = [];
+    const customItems: Array<Finding> = [];
     if (isUserAdmin(this.model.get('currentUser'))) {
       customItems.push({ name: translate('layout.settings'), url: window.baseUrl + '/settings' });
     }
@@ -236,7 +243,7 @@ export default Marionette.LayoutView.extend({
     if (findings.length > 0) {
       findings[0].extra = translate('navigation');
     }
-    return _.first(findings, 6);
+    return findings.slice(0, 6);
   },
 
   getGlobalDashboardFindings (q) {
@@ -250,7 +257,7 @@ export default Marionette.LayoutView.extend({
     if (findings.length > 0) {
       findings[0].extra = translate('dashboard.global_dashboards');
     }
-    return _.first(findings, 6);
+    return findings.slice(0, 6);
   },
 
   getFavoriteFindings (q) {
@@ -260,6 +267,6 @@ export default Marionette.LayoutView.extend({
     if (findings.length > 0) {
       findings[0].extra = translate('favorite');
     }
-    return _.first(findings, 6);
+    return findings.slice(0, 6);
   }
 });
