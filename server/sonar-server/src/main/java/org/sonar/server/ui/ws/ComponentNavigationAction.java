@@ -136,7 +136,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis) {
     json.prop("key", component.key())
-      .prop("uuid", component.uuid())
+      .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));

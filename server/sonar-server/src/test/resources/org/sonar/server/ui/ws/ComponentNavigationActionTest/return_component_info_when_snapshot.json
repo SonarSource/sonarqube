@@ -1,6 +1,6 @@
 {
   "key": "polop",
-  "uuid": "abcd",
+  "id": "abcd",
   "name": "Polop",
   "description": "test project",
   "isFavorite": false,

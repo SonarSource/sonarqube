@@ -1,6 +1,6 @@
 {
   "key": "org.codehaus.sonar:sonar",
-  "uuid": "ABCD",
+  "id": "ABCD",
   "name": "Sonarqube",
   "description": "Open source platform for continuous inspection of code quality",
   "isFavorite": true,

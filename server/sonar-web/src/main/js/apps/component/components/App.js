@@ -38,7 +38,7 @@ export default class App extends React.Component {
 
     return (
         <div className="page">
-          <SourceViewer component={{ id: this.state.component.uuid }}/>
+          <SourceViewer component={{ id: this.state.component.id }}/>
         </div>
     );
   }
