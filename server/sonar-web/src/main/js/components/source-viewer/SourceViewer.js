@@ -27,7 +27,8 @@ export default class SourceViewer extends React.Component {
     component: React.PropTypes.shape({
       id: React.PropTypes.string.isRequired
     }).isRequired,
-    period: React.PropTypes.object
+    period: React.PropTypes.object,
+    line: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string])
   };
 
   componentDidMount () {
@@ -62,12 +63,16 @@ export default class SourceViewer extends React.Component {
   }
 
   handleLoad () {
-    const { period } = this.props;
+    const { period, line } = this.props;
 
     if (period) {
       const periodDate = getPeriodDate(period);
       const periodLabel = getPeriodLabel(period);
       this.sourceViewer.filterLinesByDate(periodDate, periodLabel);
+    }
+
+    if (line) {
+      this.sourceViewer.highlightLine(line);
     }
   }
 
