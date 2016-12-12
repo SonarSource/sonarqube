@@ -38,7 +38,7 @@ public class MakeProfileKeyNotNullOnActivities extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_ACTIVITIES)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("profile_key").setLimit(255).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("profile_key").setLimit(255).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .build());
   }
 

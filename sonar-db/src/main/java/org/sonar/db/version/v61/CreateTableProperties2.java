@@ -45,14 +45,14 @@ public class CreateTableProperties2 extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef propKey = newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).build();
+    VarcharColumnDef propKey = newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).setIgnoreOracleUnit(true).build();
     List<String> stmts = new CreateTableBuilder(getDialect(), TABLE_NAME)
       .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
       .addColumn(propKey)
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("resource_id").setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("user_id").setIsNullable(true).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("text_value").setLimit(MAX_SIZE).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("text_value").setLimit(MAX_SIZE).setIgnoreOracleUnit(true).build())
       .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
       // table with be renamed to properties in following migration, use final constraint name right away

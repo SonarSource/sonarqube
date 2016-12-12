@@ -38,7 +38,7 @@ public class AddProfileKeyToActivities extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_ACTIVITIES)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("profile_key").setLimit(255).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("profile_key").setLimit(255).setIgnoreOracleUnit(true).build())
       .build());
   }
 

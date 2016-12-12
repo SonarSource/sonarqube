@@ -37,7 +37,7 @@ public class MakeUuidPathColumnNotNullOnProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDialect(), TABLE_PROJECTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(1500).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid_path").setLimit(1500).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .build());
   }
 

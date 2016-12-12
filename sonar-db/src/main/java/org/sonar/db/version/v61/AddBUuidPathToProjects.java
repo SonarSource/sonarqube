@@ -37,7 +37,7 @@ public class AddBUuidPathToProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_PROJECTS)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_uuid_path").setLimit(1500).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_uuid_path").setLimit(1500).setIgnoreOracleUnit(true).build())
       .build());
   }
 

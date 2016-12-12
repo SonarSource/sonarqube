@@ -38,6 +38,7 @@ public class AddOrganizationUuidToUserRoles extends DdlChange {
     VarcharColumnDef column = newVarcharColumnDefBuilder()
       .setColumnName("organization_uuid")
       .setIsNullable(true)
+      .setIgnoreOracleUnit(true)
       .setLimit(40)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), "user_roles").addColumn(column).build());

@@ -43,16 +43,16 @@ public class CreateTableWebhookDeliveries extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef componentUuidColumn = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_SIZE).setIsNullable(false).build();
-    VarcharColumnDef ceTaskUuidColumn = newVarcharColumnDefBuilder().setColumnName("ce_task_uuid").setLimit(UUID_SIZE).setIsNullable(false).build();
+    VarcharColumnDef componentUuidColumn = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
+    VarcharColumnDef ceTaskUuidColumn = newVarcharColumnDefBuilder().setColumnName("ce_task_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
 
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
         .addColumn(componentUuidColumn)
         .addColumn(ceTaskUuidColumn)
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(100).setIsNullable(false).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("url").setLimit(2000).setIsNullable(false).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(100).setIsNullable(false).setIgnoreOracleUnit(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("url").setLimit(2000).setIsNullable(false).setIgnoreOracleUnit(true).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("success").setIsNullable(false).build())
         .addColumn(newIntegerColumnDefBuilder().setColumnName("http_status").setIsNullable(true).build())
         .addColumn(newIntegerColumnDefBuilder().setColumnName("duration_ms").setIsNullable(true).build())

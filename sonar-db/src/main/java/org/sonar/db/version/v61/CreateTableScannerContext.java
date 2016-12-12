@@ -38,7 +38,7 @@ public class CreateTableScannerContext extends DdlChange {
   public void execute(Context context) throws SQLException {
     context.execute(
       new CreateTableBuilder(getDialect(), "ce_scanner_context")
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("task_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("task_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
         .addColumn(newBlobColumnDefBuilder().setColumnName("context_data").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())

@@ -40,15 +40,15 @@ public class CreateTableOrganizations extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef keeColumn = newVarcharColumnDefBuilder().setColumnName("kee").setLimit(32).setIsNullable(false).build();
+    VarcharColumnDef keeColumn = newVarcharColumnDefBuilder().setColumnName("kee").setLimit(32).setIsNullable(false).setIgnoreOracleUnit(true).build();
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
         .addColumn(keeColumn)
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(64).setIsNullable(false).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("description").setLimit(256).setIsNullable(true).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("url").setLimit(256).setIsNullable(true).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("avatar_url").setLimit(256).setIsNullable(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(64).setIsNullable(false).setIgnoreOracleUnit(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("description").setLimit(256).setIsNullable(true).setIgnoreOracleUnit(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("url").setLimit(256).setIsNullable(true).setIgnoreOracleUnit(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("avatar_url").setLimit(256).setIsNullable(true).setIgnoreOracleUnit(true).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
         .build());

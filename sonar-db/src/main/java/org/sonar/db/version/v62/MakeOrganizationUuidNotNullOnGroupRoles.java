@@ -38,7 +38,7 @@ public class MakeOrganizationUuidNotNullOnGroupRoles extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .build());
   }
 

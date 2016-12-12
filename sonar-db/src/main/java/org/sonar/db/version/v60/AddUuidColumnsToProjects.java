@@ -38,9 +38,9 @@ public class AddUuidColumnsToProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDialect(), TABLE_PROJECTS)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("copy_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("developer_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_uuid").setLimit(UUID_VARCHAR_SIZE).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("copy_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("developer_uuid").setLimit(UUID_VARCHAR_SIZE).setIgnoreOracleUnit(true).build())
       .build());
   }
 

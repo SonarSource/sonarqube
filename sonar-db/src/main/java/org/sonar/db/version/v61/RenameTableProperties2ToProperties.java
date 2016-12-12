@@ -49,7 +49,7 @@ public class RenameTableProperties2ToProperties extends DdlChange {
     context.execute(new CreateIndexBuilder(getDialect())
       .setTable("properties")
       .setName("properties_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .build());
   }
 
