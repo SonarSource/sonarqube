@@ -20,6 +20,7 @@
 package org.sonar.db.version;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -32,6 +33,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 /**
  * Used to define VARCHAR column
  */
+@Immutable
 public class BooleanColumnDef extends AbstractColumnDef {
 
   private BooleanColumnDef(Builder builder) {

@@ -20,6 +20,7 @@
 package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -29,6 +30,7 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static org.sonar.db.version.Validations.validateColumnName;
 
+@Immutable
 public class BlobColumnDef extends AbstractColumnDef {
   public BlobColumnDef(Builder builder) {
     super(builder.columnName, builder.isNullable, null);

@@ -20,11 +20,13 @@
 package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
 
 import static org.sonar.db.version.Validations.validateColumnName;
 
+@Immutable
 public class BigIntegerColumnDef extends AbstractColumnDef {
 
   private BigIntegerColumnDef(Builder builder) {

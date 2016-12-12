@@ -19,6 +19,7 @@
  */
 package org.sonar.db.version;
 
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -35,6 +36,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
  * must be used for storing datetimes as bigints (no problems regarding timezone
  * nor MySQL precision).
  */
+@Immutable
 @Deprecated
 public class TimestampColumnDef extends AbstractColumnDef {
 
