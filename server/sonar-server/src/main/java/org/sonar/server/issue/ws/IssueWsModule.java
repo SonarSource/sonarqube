@@ -20,21 +20,45 @@
 package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.issue.ActionFinder;
+import org.sonar.server.issue.InternalRubyIssueService;
+import org.sonar.server.issue.IssueBulkChangeService;
+import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueQueryService;
+import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class IssueWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ActionFinder.class,
       IssueUpdater.class,
       IssueFinder.class,
       TransitionService.class,
+      ServerIssueStorage.class,
+      IssueFieldsSetter.class,
+      FunctionExecutor.class,
+      IssueWorkflow.class,
+      IssueCommentService.class,
+      InternalRubyIssueService.class,
+      IssueChangelogService.class,
+      IssueBulkChangeService.class,
+      IssueService.class,
+      IssueQueryService.class,
       IssuesWs.class,
       SearchResponseLoader.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
+      WsResponseCommonFormat.class,
       AssignAction.class,
       DoTransitionAction.class,
       SearchAction.class,

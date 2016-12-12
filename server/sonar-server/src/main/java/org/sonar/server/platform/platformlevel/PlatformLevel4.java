@@ -57,19 +57,10 @@ import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
-import org.sonar.server.issue.InternalRubyIssueService;
-import org.sonar.server.issue.IssueBulkChangeService;
-import org.sonar.server.issue.IssueChangelogService;
-import org.sonar.server.issue.IssueCommentService;
-import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.IssueQueryService;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RemoveTagsAction;
-import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
@@ -83,8 +74,6 @@ import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
-import org.sonar.server.issue.workflow.FunctionExecutor;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.license.ws.LicensesWsModule;
@@ -233,7 +222,6 @@ import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.WebServiceFilter;
 import org.sonar.server.ws.WebServicesWs;
-import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -397,19 +385,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueIndexDefinition.class,
       IssueIndexer.class,
       PermissionIndexer.class,
-      ServerIssueStorage.class,
-      IssueFieldsSetter.class,
-      FunctionExecutor.class,
-      IssueWorkflow.class,
-      IssueCommentService.class,
-      InternalRubyIssueService.class,
-      IssueChangelogService.class,
-      ActionFinder.class,
-      IssueBulkChangeService.class,
-      WsResponseCommonFormat.class,
       IssueWsModule.class,
-      IssueService.class,
-      IssueQueryService.class,
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
       IssueChangesEmailTemplate.class,
