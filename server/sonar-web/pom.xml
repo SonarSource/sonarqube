@@ -17,7 +17,7 @@
     <sonar.tests>src/main/js</sonar.tests>
     <sonar.test.inclusions>src/main/js/**/__tests__/**</sonar.test.inclusions>
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js,src/main/js/**/__tests__/**</sonar.exclusions>
-    <npm.script>build</npm.script>
+    <yarn.script>build</yarn.script>
   </properties>
   
   <build>
@@ -89,34 +89,29 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>install node and npm</id>
+            <id>install node and yarn</id>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>install-node-and-yarn</goal>
             </goals>
             <configuration>
-              <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
-              <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
               <nodeVersion>v6.9.2</nodeVersion>
-              <npmVersion>3.5.2</npmVersion>
+              <yarnVersion>v0.17.10</yarnVersion>
             </configuration>
           </execution>
           <execution>
-            <id>npm install</id>
+            <id>yarn install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>yarn</goal>
             </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
           </execution>
           <execution>
             <phase>generate-resources</phase>
-            <id>npm script</id>
+            <id>yarn run script</id>
             <goals>
-              <goal>npm</goal>
+              <goal>yarn</goal>
             </goals>
             <configuration>
-              <arguments>run-script ${npm.script}</arguments>
+              <arguments>run ${yarn.script}</arguments>
             </configuration>
           </execution>
         </executions>
@@ -238,7 +233,7 @@
     <profile>
       <id>dev</id>
       <properties>
-        <npm.script>build-fast</npm.script>
+        <yarn.script>build-fast</yarn.script>
       </properties>
     </profile>
   </profiles>
