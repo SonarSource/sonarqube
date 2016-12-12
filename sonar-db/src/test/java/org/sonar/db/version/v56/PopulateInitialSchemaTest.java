@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v55;
+package org.sonar.db.version.v56;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class PopulateInitialSchemaTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateInitialSchemaTest.class, "v55.sql");
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateInitialSchemaTest.class, "v56.sql");
 
   private PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2);
 

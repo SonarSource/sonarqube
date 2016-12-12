@@ -25,7 +25,7 @@
 class UpdateUsersExternalIdentityWhenEmpty < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty')
+    execute_java_migration('org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty')
   end
 
 end

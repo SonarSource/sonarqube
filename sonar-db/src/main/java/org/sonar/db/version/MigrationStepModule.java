@@ -20,12 +20,9 @@
 package org.sonar.db.version;
 
 import org.sonar.core.platform.Module;
-import org.sonar.db.version.v55.CreateInitialSchema;
-import org.sonar.db.version.v55.PopulateInitialSchema;
-import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
-import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
-import org.sonar.db.version.v56.RemoveUselessIndexesOnGroupRoles;
-import org.sonar.db.version.v56.UpdateUsersExternalIdentityWhenEmpty;
+import org.sonar.db.version.v56.CreateInitialSchema;
+import org.sonar.db.version.v56.PopulateInitialSchema;
+import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToEvents;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToMeasures;
@@ -152,14 +149,11 @@ public class MigrationStepModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // 5.5
+      // 5.6
       CreateInitialSchema.class,
       PopulateInitialSchema.class,
 
-      // 5.6
-      RemoveUselessIndexesOnGroupRoles.class,
-      FixTypeOfRuleTypeOnMysql.class,
-      FixLengthOfIssuesMessageOnOracle.class,
+      // 5.6.1
       UpdateUsersExternalIdentityWhenEmpty.class,
 
       // 6.0
