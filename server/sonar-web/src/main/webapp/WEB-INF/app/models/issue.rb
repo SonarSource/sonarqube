@@ -29,39 +29,4 @@ class Issue
     }
   end
 
-  def self.changelog_to_hash(changelog)
-    hash = []
-    changelog.changes.each do |change|
-      user = changelog.user(change)
-
-      hash_change = {}
-      if user
-        hash_change[:user] = user.login()
-        hash_change[:userName] = user.name()
-        hash_change[:email] = user.email()
-      end
-      hash_change[:creationDate] = Api::Utils.format_datetime(change.creationDate()) if change.creationDate()
-      hash_change[:diffs] = []
-
-      change.diffs.entrySet().each do |entry|
-        key = entry.getKey()
-        diff = entry.getValue()
-        hash_diff = {}
-        hash_diff[:key] = key
-        if key == 'effort'
-          # effort is store as a number of minutes in the changelog, so we first create a Duration from the value then we decode it
-          hash_diff[:newValue] = Internal.durations.encode(Internal.durations.create(diff.newValue().to_i)) if diff.newValue.present?
-          hash_diff[:oldValue] = Internal.durations.encode(Internal.durations.create(diff.oldValue().to_i)) if diff.oldValue.present?
-        else
-          hash_diff[:newValue] = diff.newValue() if diff.newValue.present?
-          hash_diff[:oldValue] = diff.oldValue() if diff.oldValue.present?
-        end
-        hash_change[:diffs] << hash_diff
-      end
-
-      hash << hash_change
-    end
-    hash
-  end
-
 end

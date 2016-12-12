@@ -39,23 +39,16 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 public class InternalRubyIssueService {
 
   private final IssueCommentService commentService;
-  private final IssueChangelogService changelogService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
     IssueCommentService commentService,
-    IssueChangelogService changelogService,
     IssueBulkChangeService issueBulkChangeService,
     UserSession userSession) {
     this.commentService = commentService;
-    this.changelogService = changelogService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.userSession = userSession;
-  }
-
-  public IssueChangelog changelog(String issueKey) {
-    return changelogService.changelog(issueKey);
   }
 
   public Result<IssueComment> addComment(String issueKey, String text) {
