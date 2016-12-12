@@ -197,13 +197,13 @@ public class CreateTableBuilder {
           // no specific clause on PostgreSQL but a specific type
           break;
         case MsSql.ID:
-          res.append(" IDENTITY (0,1)");
+          res.append(" IDENTITY (1,1)");
           break;
         case MySql.ID:
           res.append(" AUTO_INCREMENT");
           break;
         case H2.ID:
-          res.append(" AUTO_INCREMENT (0,1)");
+          res.append(" AUTO_INCREMENT (1,1)");
           break;
         default:
           throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());

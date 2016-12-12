@@ -275,7 +275,7 @@ public class CreateTableBuilderTest {
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
       .isEqualTo(
-        "CREATE TABLE table_42 (id INT NOT NULL IDENTITY (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+        "CREATE TABLE table_42 (id INT NOT NULL IDENTITY (1,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
@@ -286,7 +286,7 @@ public class CreateTableBuilderTest {
     assertThat(stmts).hasSize(1);
     assertThat(stmts.iterator().next())
       .isEqualTo(
-        "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (0,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+        "CREATE TABLE table_42 (id INTEGER NOT NULL AUTO_INCREMENT (1,1), CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test
@@ -526,7 +526,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_adds_DEFAULT_clause_on_varchar_column_on_Oracle() {
-    verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL)");
+    verifyDefaultClauseOnVarcharColumn(ORACLE, "CREATE TABLE table_42 (status VARCHAR (1 CHAR) DEFAULT 'P' NOT NULL)");
   }
 
   @Test
