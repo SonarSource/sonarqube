@@ -20,6 +20,7 @@
 package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -32,7 +33,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 public class IntegerColumnDef extends AbstractColumnDef {
 
   private IntegerColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable, null);
+    super(builder.columnName, builder.isNullable, builder.defaultValue);
   }
 
   public static Builder newIntegerColumnDefBuilder() {
@@ -57,8 +58,9 @@ public class IntegerColumnDef extends AbstractColumnDef {
   public static class Builder {
     @CheckForNull
     private String columnName;
-
     private boolean isNullable = true;
+    @CheckForNull
+    private Integer defaultValue = null;
 
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);
@@ -67,6 +69,11 @@ public class IntegerColumnDef extends AbstractColumnDef {
 
     public Builder setIsNullable(boolean isNullable) {
       this.isNullable = isNullable;
+      return this;
+    }
+
+    public Builder setDefaultValue(@Nullable Integer i) {
+      this.defaultValue = i;
       return this;
     }
 
