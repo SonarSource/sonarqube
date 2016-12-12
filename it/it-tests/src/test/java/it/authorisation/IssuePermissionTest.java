@@ -33,6 +33,7 @@ import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
@@ -40,6 +41,7 @@ import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 
 public class IssuePermissionTest {
@@ -122,14 +124,14 @@ public class IssuePermissionTest {
 
       // Without user permission, a user cannot see issue changelog on the project
       try {
-        orchestrator.getServer().wsClient(withoutBrowsePermission, "password").issueClient().changes(issue.key());
+        changelog(issue.key(), withoutBrowsePermission, "password");
         fail();
       } catch (Exception e) {
-        assertThat(e).isInstanceOf(HttpException.class).describedAs("404");
+        assertThat(e).isInstanceOf(org.sonarqube.ws.client.HttpException.class).describedAs("403");
       }
 
       // Without user permission, a user cannot see issues on the project
-      assertThat(orchestrator.getServer().wsClient(withBrowsePermission, "password").issueClient().changes(issue.key())).isNotEmpty();
+      assertThat(changelog(issue.key(), withBrowsePermission, "password").getChangelogList()).isNotEmpty();
 
     } finally {
       client.userClient().deactivate(withBrowsePermission);
@@ -241,5 +243,9 @@ public class IssuePermissionTest {
       .setGroupName(groupName)
       .setProjectKey(projectKey)
       .setPermission(permission));
+  }
+
+  private static Issues.ChangelogWsResponse changelog(String issueKey, String login, String password) {
+    return newUserWsClient(orchestrator, login, password).issues().changelog(issueKey);
   }
 }

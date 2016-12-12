@@ -25,9 +25,9 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
-public class IssuesWs implements WebService {
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 
-  public static final String API_ENDPOINT = "api/issues";
+public class IssuesWs implements WebService {
 
   public static final String ADD_COMMENT_ACTION = "add_comment";
   public static final String DELETE_COMMENT_ACTION = "delete_comment";
@@ -42,7 +42,7 @@ public class IssuesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController(API_ENDPOINT);
+    NewController controller = context.createController(CONTROLLER_ISSUES);
     controller.setDescription("Read and update issues.");
     controller.setSince("3.6");
     for (IssuesWsAction action : actions) {

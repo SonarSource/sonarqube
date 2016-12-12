@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.issue;
 
+import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -34,6 +35,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_ROOTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_ROOT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_BEFORE;
@@ -61,7 +63,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.TYPES;
 public class IssuesService extends BaseService {
 
   public IssuesService(WsConnector wsConnector) {
-    super(wsConnector, "api/issues");
+    super(wsConnector, CONTROLLER_ISSUES);
   }
 
   public SearchWsResponse search(SearchWsRequest request) {
@@ -105,5 +107,9 @@ public class IssuesService extends BaseService {
         .setParam(TAGS, inlineMultipleParamValue(request.getTags()))
         .setParam(TYPES, inlineMultipleParamValue(request.getTypes())),
       SearchWsResponse.parser());
+  }
+
+  public ChangelogWsResponse changelog(String issueKey) {
+    return call(new GetRequest(path("changelog")).setParam(IssuesWsParameters.PARAM_ISSUE, issueKey), ChangelogWsResponse.parser());
   }
 }

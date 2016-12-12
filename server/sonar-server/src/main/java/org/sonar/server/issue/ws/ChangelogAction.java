@@ -45,11 +45,11 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class ChangelogAction implements IssuesWsAction {
 
-  private static final String ACTION_CHANGELOG = "changelog";
   private static final String EFFORT_CHANGELOG_KEY = "effort";
 
   private final DbClient dbClient;

@@ -24,12 +24,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueChange;
-import org.sonar.wsclient.issue.IssueChangeDiff;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static util.ItUtils.newAdminWsClient;
 
 public class IssueChangelogTest extends AbstractIssueTest {
 
@@ -54,16 +56,14 @@ public class IssueChangelogTest extends AbstractIssueTest {
 
     adminIssueClient().assign(issue.key(), "admin");
 
-    List<IssueChange> changes = retrieveChangeForIssue(issue.key());
+    List<Changelog> changes = changelog(issue.key()).getChangelogList();
     assertThat(changes).hasSize(1);
-    IssueChange change = changes.get(0);
-    assertThat(change.user()).isEqualTo("admin");
-    assertThat(change.creationDate()).isNotNull();
-    assertThat(change.diffs()).hasSize(1);
-    IssueChangeDiff changeDiff = change.diffs().get(0);
-    assertThat(changeDiff.key()).isEqualTo("assignee");
-    assertThat(changeDiff.oldValue()).isNull();
-    assertThat(changeDiff.newValue()).isEqualTo("Administrator");
+    Changelog change = changes.get(0);
+    assertThat(change.getUser()).isEqualTo("admin");
+    assertThat(change.getCreationDate()).isNotNull();
+    assertThat(change.getDiffsList())
+      .extracting(Changelog.Diff::getKey, Changelog.Diff::hasOldValue, Changelog.Diff::getNewValue)
+      .containsOnly(tuple("assignee", false, "Administrator"));
   }
 
   @Test
@@ -74,48 +74,32 @@ public class IssueChangelogTest extends AbstractIssueTest {
     adminIssueClient().doTransition(issue.key(), "resolve");
     xooSampleAnalysis.run();
 
-    List<IssueChange> changes = retrieveChangeForIssue(issue.key());
+    List<Changelog> changes = changelog(issue.key()).getChangelogList();
     assertThat(changes).hasSize(2);
 
     // Change done by the user (first change is be the oldest one)
-    IssueChange change1 = changes.get(0);
-    assertThat(change1.user()).isEqualTo("admin");
-    assertThat(change1.creationDate()).isNotNull();
-    assertThat(change1.diffs()).hasSize(2);
-
-    IssueChangeDiff change1Diff1 = change1.diffs().get(0);
-    assertThat(change1Diff1.key()).isEqualTo("resolution");
-    assertThat(change1Diff1.oldValue()).isNull();
-    assertThat(change1Diff1.newValue()).isEqualTo("FIXED");
-
-    IssueChangeDiff change1Diff2 = change1.diffs().get(1);
-    assertThat(change1Diff2.key()).isEqualTo("status");
-    assertThat(change1Diff2.oldValue()).isEqualTo("OPEN");
-    assertThat(change1Diff2.newValue()).isEqualTo("RESOLVED");
+    Changelog change1 = changes.get(0);
+    assertThat(change1.getUser()).isEqualTo("admin");
+    assertThat(change1.getCreationDate()).isNotNull();
+    assertThat(change1.getDiffsList())
+      .extracting(Changelog.Diff::getKey, Changelog.Diff::getOldValue, Changelog.Diff::getNewValue)
+      .containsOnly(tuple("resolution", "", "FIXED"), tuple("status", "OPEN", "RESOLVED"));
 
     // Change done by scan
-    IssueChange change2 = changes.get(1);
-    assertThat(change2.user()).isNull();
-    assertThat(change2.creationDate()).isNotNull();
-    assertThat(change2.diffs()).hasSize(2);
-
-    IssueChangeDiff changeDiff1 = change2.diffs().get(0);
-    assertThat(changeDiff1.key()).isEqualTo("resolution");
-    assertThat(changeDiff1.oldValue()).isNull();
-    assertThat(changeDiff1.newValue()).isNull();
-
-    IssueChangeDiff changeDiff2 = change2.diffs().get(1);
-    assertThat(changeDiff2.key()).isEqualTo("status");
-    assertThat(changeDiff2.oldValue()).isEqualTo("RESOLVED");
-    assertThat(changeDiff2.newValue()).isEqualTo("REOPENED");
+    Changelog change2 = changes.get(1);
+    assertThat(change2.hasUser()).isFalse();
+    assertThat(change2.getCreationDate()).isNotNull();
+    assertThat(change2.getDiffsList())
+      .extracting(Changelog.Diff::getKey, Changelog.Diff::getOldValue, Changelog.Diff::getNewValue)
+      .containsOnly(tuple("resolution", "", ""), tuple("status", "RESOLVED", "REOPENED"));
   }
 
   private void assertIssueHasNoChange(String issueKey) {
-    assertThat(retrieveChangeForIssue(issueKey)).isEmpty();
+    assertThat(changelog(issueKey).getChangelogList()).isEmpty();
   }
 
-  private List<IssueChange> retrieveChangeForIssue(String issueKey) {
-    return issueClient().changes(issueKey);
+  private static Issues.ChangelogWsResponse changelog(String issueKey) {
+    return newAdminWsClient(ORCHESTRATOR).issues().changelog(issueKey);
   }
 
 }
