@@ -17,35 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v60;
+package org.sonar.db.version.v61;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.db.version.RenameTableBuilder;
 
-import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateTemporaryIndicesFor1211 extends DdlChange {
+public class RenameTableProperties2ToProperties extends DdlChange {
 
-  static final String INDEX_ON_CE_ACTIVITY = "ce_activity_snapshot_id";
-  static final String INDEX_ON_DUPLICATIONS_INDEX = "dup_index_psid";
-
-  public CreateTemporaryIndicesFor1211(Database db) {
+  public RenameTableProperties2ToProperties(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new CreateIndexBuilder(getDialect())
-      .setTable("ce_activity")
-      .setName(INDEX_ON_CE_ACTIVITY)
-      .addColumn(newIntegerColumnDefBuilder().setColumnName("snapshot_id").build())
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("properties2")
+      .setName("properties2_key")
       .build());
+
+    context.execute(new RenameTableBuilder(getDialect())
+      .setName("properties2")
+      .setNewName("properties")
+      .build());
+
     context.execute(new CreateIndexBuilder(getDialect())
-      .setTable("duplications_index")
-      .setName(INDEX_ON_DUPLICATIONS_INDEX)
-      .addColumn(newIntegerColumnDefBuilder().setColumnName("project_snapshot_id").build())
+      .setTable("properties")
+      .setName("properties_key")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("prop_key").setLimit(512).setIsNullable(false).build())
       .build());
   }
+
 }

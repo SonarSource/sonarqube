@@ -44,6 +44,7 @@ public class MakeUuidColumnsNotNullOnResourceIndexTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
   }
 
   @Test
@@ -54,6 +55,7 @@ public class MakeUuidColumnsNotNullOnResourceIndexTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
   }
 
   @Test
@@ -69,6 +71,10 @@ public class MakeUuidColumnsNotNullOnResourceIndexTest {
   private void verifyColumnDefinitions() {
     db.assertColumnDefinition("resource_index", "component_uuid", Types.VARCHAR, 50, false);
     db.assertColumnDefinition("resource_index", "root_component_uuid", Types.VARCHAR, 50, false);
+  }
+
+  private void verifyIndex() {
+    db.assertIndex("resource_index", "resource_index_component", "component_uuid");
   }
 
   private void insertResourceIndex(long id, boolean hasComponentUiid, boolean hasRootComponentUuid) {

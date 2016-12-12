@@ -46,6 +46,7 @@ public class MakeComponentUuidColumnsNotNullOnSnapshotsTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndices();
   }
 
   @Test
@@ -56,6 +57,7 @@ public class MakeComponentUuidColumnsNotNullOnSnapshotsTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndices();
   }
 
   @Test
@@ -71,6 +73,11 @@ public class MakeComponentUuidColumnsNotNullOnSnapshotsTest {
   private void verifyColumnDefinitions() {
     db.assertColumnDefinition(SNAPSHOTS_TABLE, "component_uuid", Types.VARCHAR, 50, false);
     db.assertColumnDefinition(SNAPSHOTS_TABLE, "root_component_uuid", Types.VARCHAR, 50, false);
+  }
+
+  private void verifyIndices() {
+    db.assertIndex(SNAPSHOTS_TABLE, "snapshot_component", "component_uuid");
+    db.assertIndex(SNAPSHOTS_TABLE, "snapshot_root_component", "root_component_uuid");
   }
 
   private void insertSnapshots(long id, boolean hasComponentUiid, boolean hasRootComponentUuid) {

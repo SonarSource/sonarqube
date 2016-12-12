@@ -46,6 +46,7 @@ public class MakeUuidColumnsNotNullOnProjectsTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
   }
 
   @Test
@@ -56,6 +57,7 @@ public class MakeUuidColumnsNotNullOnProjectsTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
   }
 
   @Test
@@ -81,6 +83,10 @@ public class MakeUuidColumnsNotNullOnProjectsTest {
   private void verifyColumnDefinitions() {
     db.assertColumnDefinition(PROJECTS_TABLE, "uuid", Types.VARCHAR, 50, false);
     db.assertColumnDefinition(PROJECTS_TABLE, "root_uuid", Types.VARCHAR, 50, false);
+  }
+
+  private void verifyIndex() {
+    db.assertIndex(PROJECTS_TABLE, "projects_root_uuid", "root_uuid");
   }
 
   private String insertComponent(long id, boolean hasUuid, boolean hasRootUuid) {
