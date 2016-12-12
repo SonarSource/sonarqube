@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration.version.v61;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+public class ShrinkModuleUuidPathOfProjects extends DdlChange {
 
-  private DbVersionModule underTest = new DbVersionModule();
+  private static final String TABLE_PROJECTS = "projects";
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public ShrinkModuleUuidPathOfProjects(Database db) {
+    super(db);
+  }
 
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_PROJECTS)
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("module_uuid_path").setLimit(1500).setIsNullable(true).setIgnoreOracleUnit(true).build())
+      .build());
   }
 
 }

@@ -99,24 +99,6 @@ import org.sonar.db.version.v60.PopulateUuidPathColumnOnProjects;
 import org.sonar.db.version.v60.RecreateIndexProjectsUuidFromProjects;
 import org.sonar.db.version.v60.RemoveUsersPasswordWhenNotLocal;
 import org.sonar.db.version.v60.TemporarilyDropIndexOfAnalysisUuidOnMeasures;
-import org.sonar.db.version.v61.AddBUuidPathToProjects;
-import org.sonar.db.version.v61.AddErrorColumnsToCeActivity;
-import org.sonar.db.version.v61.CopyActivitiesToQprofileChanges;
-import org.sonar.db.version.v61.CreateTableCeTaskInput;
-import org.sonar.db.version.v61.CreateTableInternalProperties;
-import org.sonar.db.version.v61.CreateTableProperties2;
-import org.sonar.db.version.v61.CreateTableQprofileChanges;
-import org.sonar.db.version.v61.CreateTableRuleRepositories;
-import org.sonar.db.version.v61.CreateTableScannerContext;
-import org.sonar.db.version.v61.DeleteProjectDashboards;
-import org.sonar.db.version.v61.DeleteReportsFromCeQueue;
-import org.sonar.db.version.v61.DropIsGlobalFromDashboards;
-import org.sonar.db.version.v61.DropTableActivities;
-import org.sonar.db.version.v61.DropTableProperties;
-import org.sonar.db.version.v61.PopulateTableProperties2;
-import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
-import org.sonar.db.version.v61.RenameTableProperties2ToProperties;
-import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -220,26 +202,6 @@ public class MigrationStepModule extends Module {
       DropIndexEventsSnapshotIdFromEvents.class,
       TemporarilyDropIndexOfAnalysisUuidOnMeasures.class,
       DropIndexOnSnapshotIdOfMeasures.class,
-      DropIndicesOnTreeColumnsOfSnapshots.class,
-
-      // 6.1
-      DeleteProjectDashboards.class,
-      DropIsGlobalFromDashboards.class,
-      CreateTableCeTaskInput.class,
-      DeleteReportsFromCeQueue.class,
-      ShrinkModuleUuidPathOfProjects.class,
-      AddBUuidPathToProjects.class,
-      AddErrorColumnsToCeActivity.class,
-      CreateTableScannerContext.class,
-      CreateTableInternalProperties.class,
-      CreateTableProperties2.class,
-      PopulateTableProperties2.class,
-      RemoveViewsDefinitionFromProperties.class,
-      CreateTableQprofileChanges.class,
-      CopyActivitiesToQprofileChanges.class,
-      CreateTableRuleRepositories.class,
-      DropTableActivities.class,
-      DropTableProperties.class,
-      RenameTableProperties2ToProperties.class);
+      DropIndicesOnTreeColumnsOfSnapshots.class);
   }
 }

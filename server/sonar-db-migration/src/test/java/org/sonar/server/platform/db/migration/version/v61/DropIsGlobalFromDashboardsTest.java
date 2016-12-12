@@ -17,26 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
 
+package org.sonar.server.platform.db.migration.version.v61;
+
+import java.sql.SQLException;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+public class DropIsGlobalFromDashboardsTest {
 
-  private DbVersionModule underTest = new DbVersionModule();
+  Database database = mock(Database.class);
+
+  DropIsGlobalFromDashboards underTest = new DropIsGlobalFromDashboards(database);
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void verify_generated_sql_on_postgresql() throws SQLException {
+    when(database.getDialect()).thenReturn(new PostgreSql());
 
-    underTest.configure(container);
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    underTest.execute(context);
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+    verify(context).execute("ALTER TABLE dashboards DROP COLUMN is_global");
   }
-
 }

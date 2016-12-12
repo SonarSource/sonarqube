@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration.version.v61;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.db.version.DropTableBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropTableProperties extends DdlChange {
 
-public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+  private static final String TABLE_PROPERTIES = "properties";
 
-  private DbVersionModule underTest = new DbVersionModule();
+  public DropTableProperties(Database db) {
+    super(db);
+  }
 
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_PROPERTIES)
+      .setName("properties_key")
+      .build());
 
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+    context.execute(new DropTableBuilder(getDialect(), TABLE_PROPERTIES).build());
   }
 
 }

@@ -17,26 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration.version.v61;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
-
-  private DbVersionModule underTest = new DbVersionModule();
+public class DbVersion61Test {
+  private DbVersion61 underTest = new DbVersion61();
 
   @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
+  public void verify_support_components() {
+    assertThat(underTest.getSupportComponents())
+      .containsExactly(ShrinkModuleUuidPathOfProjects.class, AddBUuidPathToProjects.class);
+  }
 
-    underTest.configure(container);
+  @Test
+  public void migrationNumber_starts_at_1300() {
+    verifyMinimumMigrationNumber(underTest, 1300);
+  }
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 17);
   }
 
 }

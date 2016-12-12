@@ -17,26 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration.version.v61;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * SONAR-7903 - in version 6.1 analysis reports are not persisted on FS anymore
+ * but in DB. For simplicity of migration report files are not copied to DB.
+ * To avoid failures on missing reports, tasks are simply ignored and removed from
+ * queue.
+ */
+public class DeleteReportsFromCeQueue extends DataChange {
 
-public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
+  public DeleteReportsFromCeQueue(Database db) {
+    super(db);
+  }
 
-  private DbVersionModule underTest = new DbVersionModule();
-
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context
+      .prepareUpsert("delete from ce_queue where task_type=?")
+      .setString(1, CeTaskTypes.REPORT)
+      .execute()
+      .commit();
   }
 
 }
