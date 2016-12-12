@@ -25,9 +25,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,6 +43,31 @@ public class MigrationContainerPopulatorImplTest {
   @Before
   public void setUp() throws Exception {
     migrationContainer.add(migrationSteps);
+  }
+
+  @Test
+  public void populateContainer_adds_components_of_DbVersion_getSupportComponents() {
+    MigrationContainerPopulatorImpl underTest = new MigrationContainerPopulatorImpl(
+      new NoRegistryDbVersion() {
+        @Override
+        public Stream<Object> getSupportComponents() {
+          return Stream.of(Clazz2.class);
+        }
+      },
+      new NoRegistryDbVersion(),
+      new NoRegistryDbVersion() {
+        @Override
+        public Stream<Object> getSupportComponents() {
+          return Stream.of(Clazz1.class, Clazz3.class);
+        }
+      });
+    when(migrationSteps.readAll()).thenReturn(Stream.empty());
+
+    underTest.populateContainer(migrationContainer);
+
+    assertThat(migrationContainer.getComponentsByType(Clazz1.class)).isNotNull();
+    assertThat(migrationContainer.getComponentsByType(Clazz2.class)).isNotNull();
+    assertThat(migrationContainer.getComponentsByType(Clazz3.class)).isNotNull();
   }
 
   @Test
@@ -58,10 +85,25 @@ public class MigrationContainerPopulatorImplTest {
   @Test
   public void populateContainer_adds_classes_of_all_steps_defined_in_MigrationSteps() {
     when(migrationSteps.readAll()).thenReturn(Stream.of(
-        new RegisteredMigrationStep(1, "foo", MigrationStep1.class),
-        new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
-        new RegisteredMigrationStep(3, "dor", MigrationStep3.class)
-    ));
+      new RegisteredMigrationStep(1, "foo", MigrationStep1.class),
+      new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
+      new RegisteredMigrationStep(3, "dor", MigrationStep3.class)));
+
+    underTest.populateContainer(migrationContainer);
+
+    assertThat(migrationContainer.getComponentsByType(MigrationStep1.class)).isNotNull();
+    assertThat(migrationContainer.getComponentsByType(MigrationStep2.class)).isNotNull();
+    assertThat(migrationContainer.getComponentsByType(MigrationStep3.class)).isNotNull();
+  }
+
+  @Test
+  public void populateCotnainer_does_not_fail_if_same_class_is_used_for_more_than_one_migration() {
+    when(migrationSteps.readAll()).thenReturn(Stream.of(
+      new RegisteredMigrationStep(1, "foo", MigrationStep1.class),
+      new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
+      new RegisteredMigrationStep(3, "bar2", MigrationStep2.class),
+      new RegisteredMigrationStep(4, "foo2", MigrationStep1.class),
+      new RegisteredMigrationStep(5, "dor", MigrationStep3.class)));
 
     underTest.populateContainer(migrationContainer);
 
@@ -89,4 +131,27 @@ public class MigrationContainerPopulatorImplTest {
 
   }
 
+  public static final class Clazz1 {
+
+  }
+
+  public static final class Clazz2 {
+
+  }
+
+  public static final class Clazz3 {
+
+  }
+
+  /**
+   * An implementation of DbVersion to be passed to {@link MigrationContainerPopulatorImpl}'s constructor which is
+   * not supposed to call the {@link DbVersion#addSteps(MigrationStepRegistry)} method and therefor has an
+   * implementation that throws a {@link UnsupportedOperationException} when called.
+   */
+  private static class NoRegistryDbVersion implements DbVersion {
+    @Override
+    public void addSteps(MigrationStepRegistry registry) {
+      throw new UnsupportedOperationException("addSteps is not supposed to be called");
+    }
+  }
 }

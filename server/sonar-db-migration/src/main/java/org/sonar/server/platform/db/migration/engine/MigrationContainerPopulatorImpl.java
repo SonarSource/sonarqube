@@ -19,27 +19,52 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
 /**
  * Responsible for:
  * <ul>
  *   <li>adding all the {@link MigrationStep} classes to the container after building it</li>
- *   <li>adding dependencies for them to the container if there aren't already available in parent container</li>
+ *   <li>adding dependencies for them to the container if there aren't already available in parent container
+ *   (see {@link DbVersion#getSupportComponents()})</li>
  *   <li>adding the {@link MigrationStepsExecutorImpl} to the container</li>
  * </ul>
  */
 public class MigrationContainerPopulatorImpl implements MigrationContainerPopulator {
+  private final DbVersion[] dbVersions;
+
+  public MigrationContainerPopulatorImpl(DbVersion... dbVersions) {
+    this.dbVersions = dbVersions;
+  }
+
   @Override
   public void populateContainer(MigrationContainer container) {
     container.add(MigrationStepsExecutorImpl.class);
+    populateFromDbVersion(container);
     populateFromMigrationSteps(container);
+  }
+
+  private void populateFromDbVersion(MigrationContainer container) {
+    Arrays.stream(dbVersions)
+      .flatMap(DbVersion::getSupportComponents)
+      .forEach(container::add);
   }
 
   private static void populateFromMigrationSteps(MigrationContainer container) {
     MigrationSteps migrationSteps = container.getComponentByType(MigrationSteps.class);
-    migrationSteps.readAll().forEach(step -> container.add(step.getStepClass()));
+    Set<Class<? extends MigrationStep>> classes = new HashSet<>();
+    migrationSteps.readAll().forEach(step -> {
+      Class<? extends MigrationStep> stepClass = step.getStepClass();
+      if (!classes.contains(stepClass)) {
+        container.add(stepClass);
+        classes.add(stepClass);
+      }
+    });
   }
 }

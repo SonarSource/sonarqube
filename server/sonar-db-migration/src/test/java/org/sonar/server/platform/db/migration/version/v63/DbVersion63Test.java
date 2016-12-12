@@ -21,11 +21,17 @@ package org.sonar.server.platform.db.migration.version.v63;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
 public class DbVersion63Test {
   private DbVersion63 underTest = new DbVersion63();
+
+  @Test
+  public void verify_no_support_component() {
+    assertThat(underTest.getSupportComponents()).isEmpty();
+  }
 
   @Test
   public void migrationNumber_starts_at_1500() {
