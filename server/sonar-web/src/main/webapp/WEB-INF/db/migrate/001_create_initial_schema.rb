@@ -19,6 +19,6 @@
  #
 class CreateInitialSchema < ActiveRecord::Migration
   def self.up
-    execute_java_migration('org.sonar.db.version.v55.CreateInitialSchema')
+    execute_java_migration('org.sonar.db.version.v56.CreateInitialSchema')
   end
 end

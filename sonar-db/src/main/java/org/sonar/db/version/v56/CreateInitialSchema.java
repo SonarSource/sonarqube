@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v55;
+package org.sonar.db.version.v56;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -762,9 +762,7 @@ public class CreateInitialSchema extends DdlChange {
         .addColumn(resourceIdCol)
         .addColumn(roleCol)
         .build());
-    addIndex(context, "group_roles", "group_roles_group", false, groupIdCol);
     addIndex(context, "group_roles", "group_roles_resource", false, resourceIdCol);
-    addIndex(context, "group_roles", "group_roles_role", false, roleCol);
     addIndex(context, "group_roles", "uniq_group_roles", true, groupIdCol, resourceIdCol, roleCol);
   }
 
