@@ -38,7 +38,8 @@
 }
 
 .project-activity-analysis:last-child .project-activity-time::before {
-  bottom: 12px;
+  height: 10px;
+  bottom: auto;
 }
 
 .project-activity-time {
@@ -55,8 +56,8 @@
 .project-activity-time::before {
   position: absolute;
   z-index: 20;
-  top: -8px;
-  bottom: -9px;
+  top: 0;
+  bottom: -1px;
   left: 104px;
   display: block;
   width: 0;
@@ -79,6 +80,31 @@
   content: "";
 }
 
-.project-activity-event {
+.project-activity-events {
   overflow: hidden;
+}
+
+.project-activity-events-primary {
+  float: left;
+  min-width: 240px;
+}
+
+.project-activity-events-secondary {
+  float: left;
+}
+
+.project-activity-event {
+
+}
+
+.project-activity-event + .project-activity-event {
+  margin-top: 8px;
+}
+
+.project-activity-version-badge {
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0;
 }

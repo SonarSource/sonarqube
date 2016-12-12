@@ -22,9 +22,17 @@ import { combineReducers } from 'redux';
 import analyses from './analyses';
 import paging from './paging';
 
+export type Event = {|
+  key: string,
+  name: string;
+  category: string;
+  description?: string;
+|};
+
 export type Analysis = {
   key: string;
   date: string;
+  events: Array<Event>
 };
 
 export type Paging = {
