@@ -94,7 +94,7 @@ CI)
 
 WEB)
   set +eu
-  source ~/.nvm/nvm.sh && nvm install 4
+  source ~/.nvm/nvm.sh && nvm install 6
   npm install -g npm@3.5.2
   cd server/sonar-web && npm install && npm test
   ;;
