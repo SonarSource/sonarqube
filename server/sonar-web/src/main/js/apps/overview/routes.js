@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexRoute, Route } from 'react-router';
+import { IndexRoute, Redirect } from 'react-router';
 import AppContainer from './components/AppContainer';
 
 export default [
-  <IndexRoute key="index" component={AppContainer}/>,
-  <Route key="1" path="index" component={AppContainer}/>,
-  <Route key="2" path="index/:projectKey" component={AppContainer}/>
+  <Redirect key="redirect" from="/dashboard/index" to="/dashboard"/>,
+  <IndexRoute key="index" component={AppContainer}/>
 ];

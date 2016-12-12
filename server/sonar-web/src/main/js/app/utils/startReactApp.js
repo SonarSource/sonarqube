@@ -70,6 +70,10 @@ const startReactApp = () => {
   render((
       <Provider store={store}>
         <Router history={history}>
+          <Route path="/dashboard/index/:key" onEnter={(nextState, replace) => {
+            replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
+          }}/>
+
           <Route path="markdown/help" component={MarkdownHelp}/>
 
           <Route component={LocalizationContainer}>
