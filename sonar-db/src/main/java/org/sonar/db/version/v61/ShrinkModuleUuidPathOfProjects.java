@@ -37,7 +37,7 @@ public class ShrinkModuleUuidPathOfProjects extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_PROJECTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("module_uuid_path").setLimit(1500).setIsNullable(true).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("module_uuid_path").setLimit(1500).setIsNullable(true).setIgnoreOracleUnit(true).build())
       .build());
   }
 

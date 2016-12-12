@@ -39,6 +39,7 @@ public class AddOrganizationUuidToGroupRoles extends DdlChange {
       .setColumnName("organization_uuid")
       .setIsNullable(true)
       .setLimit(40)
+      .setIgnoreOracleUnit(true)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), "group_roles").addColumn(column).build());
   }

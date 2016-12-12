@@ -37,10 +37,10 @@ public class CreateTableQprofileChanges extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     List<String> stmts = new CreateTableBuilder(getDialect(), "qprofile_changes")
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(40).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("qprofile_key").setLimit(255).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("change_type").setLimit(20).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_login").setLimit(255).setIsNullable(true).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(40).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("qprofile_key").setLimit(255).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("change_type").setLimit(20).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("user_login").setLimit(255).setIsNullable(true).setIgnoreOracleUnit(true).build())
       .addColumn(newClobColumnDefBuilder().setColumnName("change_data").setIsNullable(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
       .build();

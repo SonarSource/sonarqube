@@ -44,7 +44,7 @@ public class CreatePermTemplatesCharacteristics extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     IntegerColumnDef templateIdColumn = newIntegerColumnDefBuilder().setColumnName("template_id").setIsNullable(false).build();
-    VarcharColumnDef permissionKeyColumn = newVarcharColumnDefBuilder().setColumnName("permission_key").setLimit(64).setIsNullable(false).build();
+    VarcharColumnDef permissionKeyColumn = newVarcharColumnDefBuilder().setColumnName("permission_key").setLimit(64).setIsNullable(false).setIgnoreOracleUnit(true).build();
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
         .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)

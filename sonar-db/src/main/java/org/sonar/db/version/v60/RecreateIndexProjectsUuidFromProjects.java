@@ -37,7 +37,7 @@ public class RecreateIndexProjectsUuidFromProjects extends DdlChange {
     context.execute(new CreateIndexBuilder(getDialect())
       .setTable("projects")
       .setName("projects_uuid")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(50).setIgnoreOracleUnit(true).build())
       .build());
   }
 }

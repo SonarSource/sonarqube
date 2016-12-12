@@ -41,7 +41,7 @@ public class MakeUuidColumnsNotNullOnProjects extends DdlChange {
   public void execute(Context context) throws SQLException {
     VarcharColumnDef rootUuid = newVarcharColumnDefBuilder().setColumnName("root_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build();
     context.execute(new AlterColumnsBuilder(getDialect(), TABLE_PROJECTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .updateColumn(rootUuid)
       .build());
 

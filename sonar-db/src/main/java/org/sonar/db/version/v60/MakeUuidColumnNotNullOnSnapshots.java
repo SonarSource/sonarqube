@@ -38,7 +38,7 @@ public class MakeUuidColumnNotNullOnSnapshots extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+      .updateColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .build());
   }
 

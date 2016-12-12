@@ -36,9 +36,9 @@ public class CreateTableRuleRepositories extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     List<String> stmts = new CreateTableBuilder(getDialect(), "rule_repositories")
-      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(200).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("language").setLimit(20).setIsNullable(false).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(4000).setIsNullable(false).build())
+      .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(200).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("language").setLimit(20).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(4000).setIsNullable(false).setIgnoreOracleUnit(true).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
       .build();
     context.execute(stmts);

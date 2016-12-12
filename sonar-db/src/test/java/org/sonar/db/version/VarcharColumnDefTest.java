@@ -75,6 +75,18 @@ public class VarcharColumnDefTest {
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new MySql())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (10)");
+    assertThat(def.generateSqlType(new Oracle())).isEqualTo("VARCHAR (10 CHAR)");
+  }
+
+  @Test
+  public void generateSqlType_does_not_set_unit_on_oracle_if_legacy_mode() throws Exception {
+    VarcharColumnDef def = new VarcharColumnDef.Builder()
+      .setColumnName("issues")
+      .setLimit(10)
+      .setIsNullable(true)
+      .setIgnoreOracleUnit(true)
+      .build();
+
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("VARCHAR (10)");
   }
 

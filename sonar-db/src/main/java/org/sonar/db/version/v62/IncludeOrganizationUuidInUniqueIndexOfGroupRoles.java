@@ -47,10 +47,10 @@ public class IncludeOrganizationUuidInUniqueIndexOfGroupRoles extends DdlChange 
       .setTable(TABLE_GROUP_ROLES)
       .setName("uniq_group_roles")
       .setUnique(true)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(40).setIgnoreOracleUnit(true).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName("group_id").build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName("resource_id").build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).setIgnoreOracleUnit(true).build())
       .build());
   }
 }

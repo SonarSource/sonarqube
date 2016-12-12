@@ -38,8 +38,8 @@ public class AddComponentUuidColumnsToSnapshots extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIgnoreOracleUnit(true).build())
       .build());
   }
 

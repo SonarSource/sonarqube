@@ -39,9 +39,9 @@ public class CreateTableInternalProperties extends DdlChange {
   public void execute(Context context) throws SQLException {
     context.execute(
       new CreateTableBuilder(getDialect(), "internal_properties")
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(20).setIsNullable(false).build())
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(20).setIsNullable(false).setIgnoreOracleUnit(true).build())
         .addColumn(newBooleanColumnDefBuilder().setColumnName("is_empty").setIsNullable(false).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("text_value").setLimit(MAX_SIZE).setIsNullable(true).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("text_value").setLimit(MAX_SIZE).setIgnoreOracleUnit(true).build())
         .addColumn(newClobColumnDefBuilder().setColumnName("clob_value").setIsNullable(true).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .build());

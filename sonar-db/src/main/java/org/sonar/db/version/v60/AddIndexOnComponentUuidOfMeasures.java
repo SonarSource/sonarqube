@@ -37,7 +37,7 @@ public class AddIndexOnComponentUuidOfMeasures extends DdlChange {
     context.execute(new CreateIndexBuilder(getDialect())
       .setTable("project_measures")
       .setName("measures_component_uuid")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIgnoreOracleUnit(true).build())
       .build());
   }
 

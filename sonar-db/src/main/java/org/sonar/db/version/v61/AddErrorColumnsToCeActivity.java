@@ -38,7 +38,7 @@ public class AddErrorColumnsToCeActivity extends DdlChange {
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_CE_ACTIVITY)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("error_message").setLimit(1000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("error_message").setLimit(1000).setIgnoreOracleUnit(true).build())
       .addColumn(newClobColumnDefBuilder().setColumnName("error_stacktrace").setIsNullable(true).build())
       .build());
   }

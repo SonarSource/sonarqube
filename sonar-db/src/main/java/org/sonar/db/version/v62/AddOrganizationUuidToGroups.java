@@ -38,6 +38,7 @@ public class AddOrganizationUuidToGroups extends DdlChange {
     VarcharColumnDef column = newVarcharColumnDefBuilder()
       .setColumnName("organization_uuid")
       .setIsNullable(true)
+      .setIgnoreOracleUnit(true)
       .setLimit(40)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), "groups").addColumn(column).build());

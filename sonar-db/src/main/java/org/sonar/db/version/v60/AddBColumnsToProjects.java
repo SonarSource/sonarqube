@@ -39,16 +39,16 @@ public class AddBColumnsToProjects extends DdlChange {
   public void execute(Context context) throws SQLException {
     context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_PROJECTS)
       .addColumn(newBooleanColumnDefBuilder().setColumnName("b_changed").build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_copy_component_uuid").setLimit(50).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_description").setLimit(2000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_copy_component_uuid").setLimit(50).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_description").setLimit(2000).setIgnoreOracleUnit(true).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName("b_enabled").build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_language").setLimit(20).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_long_name").setLimit(500).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid").setLimit(50).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid_path").setLimit(1500).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_name").setLimit(500).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_path").setLimit(2000).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_qualifier").setLimit(10).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_language").setLimit(20).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_long_name").setLimit(500).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid").setLimit(50).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_module_uuid_path").setLimit(1500).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_name").setLimit(500).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_path").setLimit(2000).setIgnoreOracleUnit(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("b_qualifier").setLimit(10).setIgnoreOracleUnit(true).build())
       .build());
   }
 
