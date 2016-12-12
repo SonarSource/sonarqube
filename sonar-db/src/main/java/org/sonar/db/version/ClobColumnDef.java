@@ -19,6 +19,7 @@
  */
 package org.sonar.db.version;
 
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -31,6 +32,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 /**
  * Used to define CLOB columns
  */
+@Immutable
 public class ClobColumnDef extends AbstractColumnDef {
 
   private ClobColumnDef(Builder builder) {

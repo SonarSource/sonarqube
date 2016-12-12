@@ -21,6 +21,7 @@ package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
 
@@ -31,6 +32,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 /**
  * Used to define VARCHAR column
  */
+@Immutable
 public class VarcharColumnDef extends AbstractColumnDef {
   public static final int MAX_SIZE = 4_000;
   /**
@@ -66,14 +68,11 @@ public class VarcharColumnDef extends AbstractColumnDef {
   public static class Builder {
     @CheckForNull
     private Integer columnSize;
-
     @CheckForNull
     private String columnName;
-
-    private boolean isNullable = true;
-
     @CheckForNull
-    public String defaultValue = null;
+    private String defaultValue = null;
+    private boolean isNullable = true;
 
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);

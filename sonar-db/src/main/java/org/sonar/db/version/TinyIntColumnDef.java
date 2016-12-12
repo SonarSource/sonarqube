@@ -20,6 +20,7 @@
 package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -32,6 +33,7 @@ import static org.sonar.db.version.Validations.validateColumnName;
 /**
  * Integer that supports at least range [0..128]. Full range depends on database vendor.
  */
+@Immutable
 public class TinyIntColumnDef extends AbstractColumnDef {
 
   private TinyIntColumnDef(Builder builder) {
