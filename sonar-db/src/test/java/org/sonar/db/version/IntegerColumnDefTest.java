@@ -76,7 +76,12 @@ public class IntegerColumnDefTest {
   }
 
   @Test
-  public void getDefaultValue_always_returns_null() {
+  public void builder_setDefaultValue_sets_default_value_field_of_IntegerColumnDef() {
+    assertThat(newIntegerColumnDefBuilder().setColumnName("a").setDefaultValue(42).build().getDefaultValue()).isEqualTo(42);
+  }
+
+  @Test
+  public void default_value_is_null_by_default() {
     assertThat(newIntegerColumnDefBuilder().setColumnName("a").build().getDefaultValue()).isNull();
   }
 
