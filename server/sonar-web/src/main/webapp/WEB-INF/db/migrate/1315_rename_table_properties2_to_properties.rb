@@ -24,19 +24,7 @@
 class RenameTableProperties2ToProperties < ActiveRecord::Migration
 
   def self.up
-    drop_index_quietly :properties2, :properties2_key
-    rename_table_quietly :properties2, :properties
-    add_varchar_index :properties, :prop_key, :name => 'properties_key'
-  end
-
-  private
-
-  def self.rename_table_quietly(oldName, newName)
-    begin
-      rename_table oldName, newName
-    rescue
-      #ignore
-    end
+    execute_java_migration('org.sonar.db.version.v61.RenameTableProperties2ToProperties')
   end
 
 end

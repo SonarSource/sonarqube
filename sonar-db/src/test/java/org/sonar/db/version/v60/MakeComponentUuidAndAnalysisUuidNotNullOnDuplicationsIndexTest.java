@@ -47,6 +47,7 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
   }
 
   @Test
@@ -57,6 +58,7 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest {
     underTest.execute();
 
     verifyColumnDefinitions();
+    verifyIndex();
     assertThat(idsOfRowsInDuplicationsIndex()).containsOnly(1L, 2L);
   }
 
@@ -83,6 +85,10 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndexTest {
   private void verifyColumnDefinitions() {
     db.assertColumnDefinition("duplications_index", "component_uuid", Types.VARCHAR, 50, false);
     db.assertColumnDefinition("duplications_index", "analysis_uuid", Types.VARCHAR, 50, false);
+  }
+
+  private void verifyIndex() {
+    db.assertIndex("duplications_index", "duplication_analysis_component", "analysis_uuid", "component_uuid");
   }
 
   private List<Long> idsOfRowsInDuplicationsIndex() {

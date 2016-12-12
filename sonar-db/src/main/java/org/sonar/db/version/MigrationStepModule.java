@@ -177,6 +177,7 @@ import org.sonar.db.version.v61.DropTableActivities;
 import org.sonar.db.version.v61.DropTableProperties;
 import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
+import org.sonar.db.version.v61.RenameTableProperties2ToProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
 import org.sonar.db.version.v62.AddIsRootColumnOnTableUsers;
 import org.sonar.db.version.v62.AddOrganizationUuidToGroupRoles;
@@ -402,6 +403,7 @@ public class MigrationStepModule extends Module {
       CreateTableRuleRepositories.class,
       DropTableActivities.class,
       DropTableProperties.class,
+      RenameTableProperties2ToProperties.class,
 
       // 6.2
       CreateTableOrganizations.class,
