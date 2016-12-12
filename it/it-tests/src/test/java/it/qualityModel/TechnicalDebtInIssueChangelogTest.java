@@ -79,39 +79,8 @@ public class TechnicalDebtInIssueChangelogTest {
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
     assertThat(changeDiff.key()).isEqualTo("effort");
-    assertThat(changeDiff.oldValue()).isEqualTo("10min");
-    assertThat(changeDiff.newValue()).isEqualTo("1h40min");
-  }
-
-  @Test
-  public void use_hours_in_day_property_to_display_debt_in_issue_changelog() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml"));
-    orchestrator.getServer().provisionProject("sample", "sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
-
-    // Execute a first analysis to have a past snapshot
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-
-    // One day -> 10 hours
-    debtConfiguration.updateHoursInDay(10);
-
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
-      // As OneIssuePerFile has a debt of 10 minutes, we multiply it by 72 to have 1 day and 2 hours of technical debtn
-      .setProperties("sonar.oneIssuePerFile.effortToFix", "72")
-      );
-
-    IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
-    Issue issue = issueClient.find(IssueQuery.create()).list().get(0);
-    List<IssueChange> changes = issueClient.changes(issue.key());
-
-    assertThat(changes).hasSize(1);
-    IssueChange change = changes.get(0);
-
-    assertThat(change.diffs()).hasSize(1);
-    IssueChangeDiff changeDiff = change.diffs().get(0);
-    assertThat(changeDiff.key()).isEqualTo("effort");
-    assertThat(changeDiff.oldValue()).isEqualTo("10min");
-    assertThat(changeDiff.newValue()).isEqualTo("1d2h");
+    assertThat(changeDiff.oldValue()).isEqualTo("10");
+    assertThat(changeDiff.newValue()).isEqualTo("100");
   }
 
 }
