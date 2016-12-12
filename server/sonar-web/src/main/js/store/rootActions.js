@@ -26,7 +26,7 @@ import { addGlobalErrorMessage } from './globalMessages/duck';
 import { parseError } from '../apps/code/utils';
 import { setAppState } from './appState/duck';
 
-const onFail = dispatch => error => (
+export const onFail = dispatch => error => (
     parseError(error).then(message => dispatch(addGlobalErrorMessage(message)))
 );
 

@@ -93,7 +93,7 @@
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
     "lint": "eslint src/main/js",
-    "typecheck": "flow check src/main/js"
+    "typecheck": "flow src/main/js"
   },
   "engines": {
     "node": ">=4"

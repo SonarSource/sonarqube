@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
+  '/project/activity',
   '/project/settings',
   '/project/quality_profiles',
   '/project/quality_gate',
@@ -242,13 +243,12 @@ export default class ComponentNavMenu extends React.Component {
     if (!this.props.conf.showHistory) {
       return null;
     }
-    const url = `/project/history?id=${encodeURIComponent(this.props.component.key)}`;
-    // return this.renderLink(url, translate('project_history.page'), '/project/history');
     return (
-        <li key={url}>
-          <span className="text-muted" style={{ cursor: 'not-allowed', textDecoration: 'line-through' }}>
-            {translate('project_history.page')}
-          </span>
+        <li>
+          <Link to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
+                activeClassName="active">
+            {translate('project_activity.page')}
+          </Link>
         </li>
     );
   }

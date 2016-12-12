@@ -1,0 +1,84 @@
+.project-activity-days-list {
+
+}
+
+.project-activity-day {
+  margin-bottom: 30px;
+}
+
+.project-activity-date {
+  margin-bottom: 10px;
+  padding-left: 130px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.project-activity-analyses-list {
+
+}
+
+.project-activity-analysis {
+  position: relative;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.project-activity-analysis:hover {
+  background-color: #ecf6fe;
+}
+
+.project-activity-analysis + .project-activity-analysis {
+  border-top: none;
+}
+
+.project-activity-analysis:first-child .project-activity-time::before {
+  top: 10px;
+}
+
+.project-activity-analysis:last-child .project-activity-time::before {
+  bottom: 12px;
+}
+
+.project-activity-time {
+  float: left;
+  width: 130px;
+  line-height: 16px;
+  padding-right: 50px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.project-activity-time::before {
+  position: absolute;
+  z-index: 20;
+  top: -8px;
+  bottom: -9px;
+  left: 104px;
+  display: block;
+  width: 0;
+  border-left: 2px solid #4b9fd5;
+  content: "";
+}
+
+.project-activity-time::after {
+  position: absolute;
+  z-index: 21;
+  top: 10px;
+  left: 100px;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #4b9fd5;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: #fff;
+  content: "";
+}
+
+.project-activity-event {
+  overflow: hidden;
+}
