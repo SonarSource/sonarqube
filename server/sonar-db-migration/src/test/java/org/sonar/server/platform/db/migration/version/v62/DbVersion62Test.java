@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v62;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class MigrationStepModuleTest {
+public class DbVersion62Test {
+  private DbVersion62 underTest = new DbVersion62();
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(99);
+  public void migrationNumber_starts_at_1400() {
+    verifyMinimumMigrationNumber(underTest, 1400);
   }
+
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationCount(underTest, 24);
+  }
+
 }

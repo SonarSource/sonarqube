@@ -117,30 +117,6 @@ import org.sonar.db.version.v61.PopulateTableProperties2;
 import org.sonar.db.version.v61.RemoveViewsDefinitionFromProperties;
 import org.sonar.db.version.v61.RenameTableProperties2ToProperties;
 import org.sonar.db.version.v61.ShrinkModuleUuidPathOfProjects;
-import org.sonar.db.version.v62.AddIsRootColumnOnTableUsers;
-import org.sonar.db.version.v62.AddOrganizationUuidToGroupRoles;
-import org.sonar.db.version.v62.AddOrganizationUuidToGroups;
-import org.sonar.db.version.v62.AddOrganizationUuidToPermissionTemplates;
-import org.sonar.db.version.v62.AddOrganizationUuidToUserRoles;
-import org.sonar.db.version.v62.CreateDefaultOrganization;
-import org.sonar.db.version.v62.CreateTableOrganizations;
-import org.sonar.db.version.v62.CreateTableWebhookDeliveries;
-import org.sonar.db.version.v62.DeletePermissionShareDashboard;
-import org.sonar.db.version.v62.DropIssueFiltersTables;
-import org.sonar.db.version.v62.DropMeasureFiltersTables;
-import org.sonar.db.version.v62.DropRelatedDashboardTables;
-import org.sonar.db.version.v62.IncludeOrganizationUuidInUniqueIndexOfGroupRoles;
-import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroupRoles;
-import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnGroups;
-import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnPermissionTemplates;
-import org.sonar.db.version.v62.MakeOrganizationUuidNotNullOnUserRoles;
-import org.sonar.db.version.v62.MakeRootColumnNotNullOnTableUsers;
-import org.sonar.db.version.v62.PopulateIsRootColumnOnTableUsers;
-import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroupRoles;
-import org.sonar.db.version.v62.PopulateOrganizationUuidOfGroups;
-import org.sonar.db.version.v62.PopulateOrganizationUuidOfPermissionTemplates;
-import org.sonar.db.version.v62.PopulateOrganizationUuidOfUserRoles;
-import org.sonar.db.version.v62.UpdateQualityGateConditionsOnCoverage;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -264,32 +240,6 @@ public class MigrationStepModule extends Module {
       CreateTableRuleRepositories.class,
       DropTableActivities.class,
       DropTableProperties.class,
-      RenameTableProperties2ToProperties.class,
-
-      // 6.2
-      CreateTableOrganizations.class,
-      CreateDefaultOrganization.class,
-      DeletePermissionShareDashboard.class,
-      AddIsRootColumnOnTableUsers.class,
-      PopulateIsRootColumnOnTableUsers.class,
-      MakeRootColumnNotNullOnTableUsers.class,
-      AddOrganizationUuidToGroups.class,
-      PopulateOrganizationUuidOfGroups.class,
-      MakeOrganizationUuidNotNullOnGroups.class,
-      AddOrganizationUuidToUserRoles.class,
-      AddOrganizationUuidToPermissionTemplates.class,
-      PopulateOrganizationUuidOfUserRoles.class,
-      MakeOrganizationUuidNotNullOnUserRoles.class,
-      PopulateOrganizationUuidOfPermissionTemplates.class,
-      MakeOrganizationUuidNotNullOnPermissionTemplates.class,
-      AddOrganizationUuidToGroupRoles.class,
-      PopulateOrganizationUuidOfGroupRoles.class,
-      MakeOrganizationUuidNotNullOnGroupRoles.class,
-      UpdateQualityGateConditionsOnCoverage.class,
-      DropRelatedDashboardTables.class,
-      DropMeasureFiltersTables.class,
-      DropIssueFiltersTables.class,
-      CreateTableWebhookDeliveries.class,
-      IncludeOrganizationUuidInUniqueIndexOfGroupRoles.class);
+      RenameTableProperties2ToProperties.class);
   }
 }

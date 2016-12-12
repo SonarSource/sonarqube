@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration.version.v62;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.platform.db.migration.version.v62.DbVersion62;
-import org.sonar.server.platform.db.migration.version.v63.DbVersion63;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      DbVersion62.class,
-      DbVersion63.class);
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class AddOrganizationUuidToGroups extends DdlChange {
+
+  public AddOrganizationUuidToGroups(Database db) {
+    super(db);
   }
 
+  @Override
+  public void execute(Context context) throws SQLException {
+    VarcharColumnDef column = newVarcharColumnDefBuilder()
+      .setColumnName("organization_uuid")
+      .setIsNullable(true)
+      .setIgnoreOracleUnit(true)
+      .setLimit(40)
+      .build();
+    context.execute(new AddColumnsBuilder(getDialect(), "groups").addColumn(column).build());
+  }
 }
