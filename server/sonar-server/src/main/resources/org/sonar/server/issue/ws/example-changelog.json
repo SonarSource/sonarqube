@@ -3,14 +3,15 @@
     {
       "user": "john.smith",
       "userName": "John Smith",
+      "email": "john@smith.com",
       "creationDate": "2014-03-04T23:03:44+0100",
       "diffs": [
         {
-          "key": "effort",
-          "newValue": "2min"
+          "key": "severity",
+          "newValue": "BLOCKER",
+          "oldValue": "MAJOR"
         }
       ]
     }
   ]
-
 }

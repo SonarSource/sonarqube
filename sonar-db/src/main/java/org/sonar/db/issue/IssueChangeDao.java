@@ -25,11 +25,12 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueChangeDao implements Dao {
@@ -48,17 +49,11 @@ public class IssueChangeDao implements Dao {
     return comments;
   }
 
-  public List<FieldDiffs> selectChangelogByIssue(String issueKey) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      List<FieldDiffs> result = Lists.newArrayList();
-      for (IssueChangeDto dto : selectByTypeAndIssueKeys(session, asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
-        result.add(dto.toFieldDiffs());
-      }
-      return result;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<FieldDiffs> selectChangelogByIssue(DbSession session, String issueKey) {
+    return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
+      .stream()
+      .map(IssueChangeDto::toFieldDiffs)
+      .collect(Collectors.toList());
   }
 
   public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(String componentUuid) {

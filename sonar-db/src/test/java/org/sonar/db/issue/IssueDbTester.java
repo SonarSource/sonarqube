@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue;
+package org.sonar.db.issue;
 
+import java.util.Arrays;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
-import org.sonar.db.issue.IssueDto;
 
 public class IssueDbTester {
 
@@ -35,5 +36,10 @@ public class IssueDbTester {
     db.getDbClient().issueDao().insert(db.getSession(), issueDto);
     db.commit();
     return issueDto;
+  }
+
+  public void insertIssueChanges(IssueDto issueDto, FieldDiffs... diffs) {
+    Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff)));
+    db.commit();
   }
 }

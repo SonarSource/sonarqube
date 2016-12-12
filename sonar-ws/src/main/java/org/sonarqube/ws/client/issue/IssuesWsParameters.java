@@ -29,6 +29,8 @@ import java.util.List;
  */
 public class IssuesWsParameters {
 
+  public static final String PARAM_ISSUE = "issue";
+
   public static final String ISSUES = "issues";
   public static final String SEVERITIES = "severities";
   public static final String STATUSES = "statuses";

@@ -181,3 +181,24 @@ message Component {
   optional int64 projectId = 9;
   optional int64 subProjectId = 10;
 }
+
+// Response of GET api/issues/changelog
+message ChangelogWsResponse {
+  repeated Changelog changelog = 1;
+
+  message Changelog {
+    optional string user = 1;
+    optional string userName = 2;
+    optional string email = 3;
+    optional string creationDate = 4;
+    repeated Diff diffs = 5;
+
+    message Diff {
+      optional string key = 1;
+      optional string newValue = 2;
+      optional string oldValue = 3;
+    }
+  }
+}
+
+

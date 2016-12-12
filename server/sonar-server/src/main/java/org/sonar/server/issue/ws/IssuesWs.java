@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -30,7 +29,6 @@ public class IssuesWs implements WebService {
 
   public static final String API_ENDPOINT = "api/issues";
 
-  public static final String CHANGELOG_ACTION = "changelog";
   public static final String ADD_COMMENT_ACTION = "add_comment";
   public static final String DELETE_COMMENT_ACTION = "delete_comment";
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
@@ -55,25 +53,10 @@ public class IssuesWs implements WebService {
   }
 
   private static void defineRailsActions(NewController controller) {
-    defineChangelogAction(controller);
     defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
     defineBulkChangeAction(controller);
-  }
-
-  private static void defineChangelogAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(CHANGELOG_ACTION)
-      .setDescription("Display changelog of an issue")
-      .setSince("4.1")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(IssuesWs.class, "example-changelog.json"));
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    RailsHandler.addFormatParam(action);
   }
 
   private static void defineAddCommentAction(NewController controller) {

@@ -39,15 +39,15 @@ import static org.mockito.Mockito.mock;
 public class IssueChangeDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  IssueChangeDao dao = dbTester.getDbClient().issueChangeDao();
+  private IssueChangeDao underTest = db.getDbClient().issueChangeDao();
 
   @Test
   public void select_comments_by_issues() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(dbTester.getSession(), Arrays.asList("1000"));
+    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(db.getSession(), Arrays.asList("1000"));
     assertThat(comments).hasSize(2);
 
     // chronological order
@@ -62,13 +62,13 @@ public class IssueChangeDaoTest {
 
   @Test
   public void select_comments_by_issues_on_huge_number_of_issues() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<String> hugeNbOfIssues = newArrayList();
     for (int i = 0; i < 4500; i++) {
       hugeNbOfIssues.add("ABCD" + i);
     }
-    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(dbTester.getSession(), hugeNbOfIssues);
+    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(db.getSession(), hugeNbOfIssues);
 
     // The goal of this test is only to check that the query do no fail, not to check the number of results
     assertThat(comments).isEmpty();
@@ -76,22 +76,22 @@ public class IssueChangeDaoTest {
 
   @Test
   public void select_comment_by_key() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    DefaultIssueComment comment = dao.selectCommentByKey("FGHIJ");
+    DefaultIssueComment comment = underTest.selectCommentByKey("FGHIJ");
     assertThat(comment).isNotNull();
     assertThat(comment.key()).isEqualTo("FGHIJ");
     assertThat(comment.key()).isEqualTo("FGHIJ");
     assertThat(comment.userLogin()).isEqualTo("arthur");
 
-    assertThat(dao.selectCommentByKey("UNKNOWN")).isNull();
+    assertThat(underTest.selectCommentByKey("UNKNOWN")).isNull();
   }
 
   @Test
   public void select_issue_changelog_from_issue_key() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<FieldDiffs> changelog = dao.selectChangelogByIssue("1000");
+    List<FieldDiffs> changelog = underTest.selectChangelogByIssue(db.getSession(), "1000");
     assertThat(changelog).hasSize(1);
     assertThat(changelog.get(0).diffs()).hasSize(1);
     assertThat(changelog.get(0).diffs().get("severity").newValue()).isEqualTo("BLOCKER");
@@ -100,9 +100,9 @@ public class IssueChangeDaoTest {
 
   @Test
   public void selectChangelogOfNonClosedIssuesByComponent() {
-    dbTester.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
+    db.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
 
-    List<IssueChangeDto> dtos = dao.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
+    List<IssueChangeDto> dtos = underTest.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
     // no need to have ordered results (see NewDebtCalculator)
     assertThat(dtos).extracting("id").containsOnly(100L, 103L);
   }
@@ -111,25 +111,25 @@ public class IssueChangeDaoTest {
   public void select_comments_by_issues_empty_input() {
     // no need to connect to db
     DbSession session = mock(DbSession.class);
-    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
+    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(session, Collections.<String>emptyList());
 
     assertThat(comments).isEmpty();
   }
 
   @Test
   public void delete() {
-    dbTester.prepareDbUnit(getClass(), "delete.xml");
+    db.prepareDbUnit(getClass(), "delete.xml");
 
-    assertThat(dao.delete("COMMENT-2")).isTrue();
+    assertThat(underTest.delete("COMMENT-2")).isTrue();
 
-    dbTester.assertDbUnit(getClass(), "delete-result.xml", "issue_changes");
+    db.assertDbUnit(getClass(), "delete-result.xml", "issue_changes");
   }
 
   @Test
   public void delete_unknown_key() {
-    dbTester.prepareDbUnit(getClass(), "delete.xml");
+    db.prepareDbUnit(getClass(), "delete.xml");
 
-    assertThat(dao.delete("UNKNOWN")).isFalse();
+    assertThat(underTest.delete("UNKNOWN")).isFalse();
   }
 
   @Test
@@ -144,15 +144,15 @@ public class IssueChangeDaoTest {
       .setUpdatedAt(1_501_000_000_000L)
       .setIssueChangeCreationDate(1_502_000_000_000L);
 
-    dao.insert(dbTester.getSession(), changeDto);
-    dbTester.getSession().commit();
+    underTest.insert(db.getSession(), changeDto);
+    db.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "issue_changes");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "issue_changes");
   }
 
   @Test
   public void update() {
-    dbTester.prepareDbUnit(getClass(), "update.xml");
+    db.prepareDbUnit(getClass(), "update.xml");
 
     IssueChangeDto change = new IssueChangeDto();
     change.setKey("COMMENT-2");
@@ -161,14 +161,14 @@ public class IssueChangeDaoTest {
     change.setChangeData("new comment");
     change.setUpdatedAt(1_500_000_000_000L);
 
-    assertThat(dao.update(change)).isTrue();
+    assertThat(underTest.update(change)).isTrue();
 
-    dbTester.assertDbUnit(getClass(), "update-result.xml", "issue_changes");
+    db.assertDbUnit(getClass(), "update-result.xml", "issue_changes");
   }
 
   @Test
   public void update_unknown_key() {
-    dbTester.prepareDbUnit(getClass(), "update.xml");
+    db.prepareDbUnit(getClass(), "update.xml");
 
     IssueChangeDto change = new IssueChangeDto();
     change.setKey("UNKNOWN");
@@ -177,6 +177,6 @@ public class IssueChangeDaoTest {
     change.setChangeData("new comment");
     change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
 
-    assertThat(dao.update(change)).isFalse();
+    assertThat(underTest.update(change)).isFalse();
   }
 }

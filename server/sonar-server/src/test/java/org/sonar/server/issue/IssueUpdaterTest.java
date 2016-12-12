@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;

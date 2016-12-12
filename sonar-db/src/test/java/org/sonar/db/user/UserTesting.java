@@ -19,6 +19,8 @@
  */
 package org.sonar.db.user;
 
+import javax.annotation.Nullable;
+
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
@@ -29,7 +31,7 @@ public class UserTesting {
     return newUserDto(randomAlphanumeric(30), randomAlphanumeric(30), randomAlphanumeric(30));
   }
 
-  public static UserDto newUserDto(String login, String name, String email) {
+  public static UserDto newUserDto(String login, String name, @Nullable String email) {
     return new UserDto()
       .setActive(true)
       .setLocal(true)
@@ -45,7 +47,7 @@ public class UserTesting {
       .setUpdatedAt(nextLong());
   }
 
-  public static UserDto newLocalUser(String login, String name, String email) {
+  public static UserDto newLocalUser(String login, String name, @Nullable String email) {
     return new UserDto()
       .setActive(true)
       .setLocal(true)
@@ -61,7 +63,7 @@ public class UserTesting {
       .setUpdatedAt(nextLong());
   }
 
-  public static UserDto newExternalUser(String login, String name, String email) {
+  public static UserDto newExternalUser(String login, String name, @Nullable String email) {
     return new UserDto()
       .setActive(true)
       .setLocal(false)

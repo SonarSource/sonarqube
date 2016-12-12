@@ -65,11 +65,13 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
+import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
+import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
 
@@ -104,6 +106,8 @@ public class DbTester extends ExternalResource {
   private final OrganizationDbTester organizationTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
   private final QualityGateDbTester qualityGateDbTester;
+  private final IssueDbTester issueDbTester;
+  private final RuleDbTester ruleDbTester;
   private final RootFlagAssertions rootFlagAssertions;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
@@ -116,6 +120,8 @@ public class DbTester extends ExternalResource {
     this.organizationTester = new OrganizationDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
     this.qualityGateDbTester = new QualityGateDbTester(this);
+    this.issueDbTester = new IssueDbTester(this);
+    this.ruleDbTester = new RuleDbTester(this);
     this.rootFlagAssertions = new RootFlagAssertions(this);
   }
 
@@ -202,6 +208,14 @@ public class DbTester extends ExternalResource {
 
   public RootFlagAssertions rootFlag() {
     return rootFlagAssertions;
+  }
+
+  public IssueDbTester issues() {
+    return issueDbTester;
+  }
+
+  public RuleDbTester rules() {
+    return ruleDbTester;
   }
 
   @Override

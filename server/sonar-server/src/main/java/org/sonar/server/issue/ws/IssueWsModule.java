@@ -65,6 +65,7 @@ public class IssueWsModule extends Module {
       SetTagsAction.class,
       SetTypeAction.class,
       ComponentTagsAction.class,
-      AuthorsAction.class);
+      AuthorsAction.class,
+      ChangelogAction.class);
   }
 }
