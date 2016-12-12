@@ -1,0 +1,42 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
+  "analyses": [
+    {
+      "key": "A2",
+      "date": "2016-12-12T17:12:45+0100",
+      "events": [
+        {
+          "key": "E21",
+          "category": "QUALITY_PROFILE",
+          "name": "Quality Profile changed to Sonar Way",
+        },
+        {
+          "key": "E22",
+          "category": "OTHER",
+          "name": "6.3",
+        }
+      ]
+    },
+    {
+      "key": "A1",
+      "date": "2016-12-11T17:12:45+0100",
+      "events": [
+        {
+          "key": "E11",
+          "category": "QUALITY_GATE",
+          "name": "Quality Gate is Red (was Orange)",
+          "description": "Coverage is \u003c 80%"
+        },
+        {
+          "key": "E12",
+          "category": "VERSION",
+          "name": "6.3",
+        }
+      ]
+    }
+  ]
+}

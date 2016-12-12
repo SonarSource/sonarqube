@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.projectanalysis;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "ProjectAnalyses";
 option optimize_for = SPEED;
@@ -34,10 +36,22 @@ message UpdateEventResponse {
   optional Event event = 1;
 }
 
+// WS api/project_analyses/search
+message SearchResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Analysis analyses = 2;
+}
+
 message Event {
   optional string key = 1;
   optional string analysis = 2;
   optional string category = 3;
   optional string name = 4;
   optional string description = 5;
+}
+
+message Analysis {
+  optional string key = 1;
+  optional string date = 2;
+  repeated Event events = 3;
 }

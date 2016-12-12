@@ -42,6 +42,15 @@
     </where>
   </select>
 
+  <select id="selectByAnalysisUuids" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.analysis_uuid in <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">#{analysisUuid}</foreach>
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
     VALUES (

@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 public class EventDao implements Dao {
 
   public Optional<EventDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -37,6 +39,10 @@ public class EventDao implements Dao {
 
   public List<EventDto> selectByAnalysisUuid(DbSession dbSession, String uuid) {
     return mapper(dbSession).selectByAnalysisUuid(uuid);
+  }
+
+  public List<EventDto> selectByAnalysisUuids(DbSession dbSession, List<String> analyses) {
+    return executeLargeInputs(analyses, mapper(dbSession)::selectByAnalysisUuids);
   }
 
   public EventDto insert(DbSession session, EventDto dto) {

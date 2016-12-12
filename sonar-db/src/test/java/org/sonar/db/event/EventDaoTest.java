@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -100,6 +101,29 @@ public class EventDaoTest {
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting(EventDto::getUuid).containsOnly("A1", "A2", "A3");
+  }
+
+  @Test
+  public void select_by_analysis_uuids() {
+    ComponentDto project = dbTester.components().insertProject();
+    SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project));
+    SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project));
+    SnapshotDto a42 = dbTester.components().insertSnapshot(newAnalysis(project));
+    dbTester.events().insertEvent(newEvent(newAnalysis(project)));
+    dbTester.events().insertEvent(newEvent(a1).setUuid("A11"));
+    dbTester.events().insertEvent(newEvent(a1).setUuid("A12"));
+    dbTester.events().insertEvent(newEvent(a1).setUuid("A13"));
+    dbTester.events().insertEvent(newEvent(a2).setUuid("A21"));
+    dbTester.events().insertEvent(newEvent(a2).setUuid("A22"));
+    dbTester.events().insertEvent(newEvent(a2).setUuid("A23"));
+    dbTester.events().insertEvent(newEvent(a42).setUuid("AO1"));
+    dbTester.events().insertEvent(newEvent(a42).setUuid("AO2"));
+    dbTester.events().insertEvent(newEvent(a42).setUuid("AO3"));
+
+    List<EventDto> result = underTest.selectByAnalysisUuids(dbSession, newArrayList(a1.getUuid(), a2.getUuid()));
+
+    assertThat(result).hasSize(6);
+    assertThat(result).extracting(EventDto::getUuid).containsOnly("A11", "A12", "A13", "A21", "A22", "A23");
   }
 
   @Test

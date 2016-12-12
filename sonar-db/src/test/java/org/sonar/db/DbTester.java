@@ -119,6 +119,10 @@ public class DbTester extends ExternalResource {
     this.rootFlagAssertions = new RootFlagAssertions(this);
   }
 
+  public static DbTester create() {
+    return new DbTester(System2.INSTANCE, null);
+  }
+
   public static DbTester create(System2 system2) {
     return new DbTester(system2, null);
   }
