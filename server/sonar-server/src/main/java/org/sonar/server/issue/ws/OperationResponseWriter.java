@@ -37,12 +37,12 @@ public class OperationResponseWriter {
     this.format = format;
   }
 
-  public void write(String issueKey, Request request, Response response) throws Exception {
+  public void write(String issueKey, Request request, Response response) {
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(
       ALL_ADDITIONAL_FIELDS, singletonList(issueKey));
     SearchResponseData data = loader.load(collector, null);
 
-    Issues.Operation responseBody = this.format.formatOperation(data);
+    Issues.Operation responseBody = format.formatOperation(data);
 
     WsUtils.writeProtobuf(responseBody, request, response);
   }

@@ -37,9 +37,9 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.es.Facets;
-import org.sonar.server.issue.ActionService;
-import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -54,15 +54,15 @@ import static org.sonar.server.issue.ws.SearchAdditionalField.USERS;
  */
 public class SearchResponseLoader {
 
+  private final UserSession userSession;
   private final DbClient dbClient;
-  private final ActionService actionService;
-  private final IssueCommentService commentService;
+  private final ActionFinder actionService;
   private final TransitionService transitionService;
 
-  public SearchResponseLoader(DbClient dbClient, ActionService actionService, IssueCommentService commentService, TransitionService transitionService) {
+  public SearchResponseLoader(UserSession userSession, DbClient dbClient, ActionFinder actionService, TransitionService transitionService) {
+    this.userSession = userSession;
     this.dbClient = dbClient;
     this.actionService = actionService;
-    this.commentService = commentService;
     this.transitionService = transitionService;
   }
 
@@ -101,11 +101,15 @@ public class SearchResponseLoader {
       result.setComments(comments);
       for (IssueChangeDto comment : comments) {
         collector.add(USERS, comment.getUserLogin());
-        if (commentService.canEditOrDelete(comment)) {
+        if (canEditOrDelete(comment)) {
           result.addUpdatableComment(comment.getKey());
         }
       }
     }
+  }
+
+  private boolean canEditOrDelete(IssueChangeDto dto) {
+    return userSession.isLoggedIn() && userSession.getLogin().equals(dto.getUserLogin());
   }
 
   private void loadRules(Collector collector, DbSession dbSession, SearchResponseData result) {
@@ -131,7 +135,7 @@ public class SearchResponseLoader {
       for (IssueDto dto : result.getIssues()) {
         // so that IssueDto can be used.
         if (collector.contains(ACTIONS)) {
-          result.addActions(dto.getKey(), actionService.listAvailableActions(dto.toDefaultIssue()));
+          result.addActions(dto.getKey(), actionService.listAvailableActions(dto));
         }
         if (collector.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface

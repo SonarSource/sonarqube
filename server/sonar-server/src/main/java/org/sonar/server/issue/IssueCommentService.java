@@ -144,10 +144,6 @@ public class IssueCommentService {
     return comment;
   }
 
-  public boolean canEditOrDelete(IssueChangeDto dto) {
-    return userSession.isLoggedIn() && userSession.getLogin().equals(dto.getUserLogin());
-  }
-
   private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn()) {
       throw new UnauthorizedException("User is not logged in");

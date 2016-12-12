@@ -20,10 +20,7 @@
 package org.sonar.server.issue;
 
 import java.util.List;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -32,41 +29,27 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 /**
  * @since 3.6
  */
-@ServerSide
-public class ActionService {
+public class ActionFinder {
 
-  private final DbClient dbClient;
   private final UserSession userSession;
-  private final IssueService issueService;
 
-  public ActionService(DbClient dbClient, UserSession userSession, IssueService issueService) {
-    this.dbClient = dbClient;
+  public ActionFinder(UserSession userSession) {
     this.userSession = userSession;
-    this.issueService = issueService;
   }
 
-  public List<String> listAvailableActions(String issueKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return listAvailableActions(issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue());
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
-  public List<String> listAvailableActions(Issue issue) {
+  public List<String> listAvailableActions(IssueDto issue) {
     List<String> availableActions = newArrayList();
     String login = userSession.getLogin();
     if (login != null) {
       availableActions.add("comment");
-      if (issue.resolution() == null) {
+      if (issue.getResolution() == null) {
         availableActions.add("assign");
         availableActions.add("set_tags");
         availableActions.add("set_type");
-        if (!login.equals(issue.assignee())) {
+        if (!login.equals(issue.getAssignee())) {
           availableActions.add("assign_to_me");
         }
-        String projectUuid = issue.projectUuid();
+        String projectUuid = issue.getProjectUuid();
         if (projectUuid != null && userSession.hasComponentUuidPermission(ISSUE_ADMIN, projectUuid)) {
           availableActions.add("set_severity");
         }

@@ -57,7 +57,7 @@ import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -404,7 +404,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueCommentService.class,
       InternalRubyIssueService.class,
       IssueChangelogService.class,
-      ActionService.class,
+      ActionFinder.class,
       IssueBulkChangeService.class,
       WsResponseCommonFormat.class,
       IssueWsModule.class,
