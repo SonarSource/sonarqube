@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.ProjectAnalyses.Analysis;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
@@ -204,14 +205,16 @@ public class SearchActionTest {
     // Analysis A42 doesn't have a quality gate event
     db.events().insertEvent(newEvent(a42).setCategory(OTHER.getLabel()));
 
-    List<Analysis> result = call(SearchRequest.builder()
+    SearchResponse result = call(SearchRequest.builder()
       .setProject("P1")
       .setCategory(QUALITY_GATE)
       .setPage(1)
       .setPageSize(1)
-      .build()).getAnalysesList();
+      .build());
 
-    assertThat(result).extracting(Analysis::getKey).containsOnly("A2");
+    assertThat(result.getAnalysesList()).extracting(Analysis::getKey).containsOnly("A2");
+    assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
+      .containsExactly(1, 1, 1);
   }
 
   @Test
