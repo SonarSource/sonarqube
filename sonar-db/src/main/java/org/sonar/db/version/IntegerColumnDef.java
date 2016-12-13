@@ -46,12 +46,13 @@ public class IntegerColumnDef extends AbstractColumnDef {
   public String generateSqlType(Dialect dialect) {
     switch (dialect.getId()) {
       case PostgreSql.ID:
-      case Oracle.ID:
       case MySql.ID:
       case H2.ID:
         return "INTEGER";
       case MsSql.ID:
         return "INT";
+      case Oracle.ID:
+        return "NUMBER(38,0)";
       default:
         throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
     }
