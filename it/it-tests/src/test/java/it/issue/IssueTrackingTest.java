@@ -19,19 +19,22 @@
  */
 package it.issue;
 
-import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
+import static util.ItUtils.toDate;
 
 public class IssueTrackingTest extends AbstractIssueTest {
 
@@ -41,12 +44,15 @@ public class IssueTrackingTest extends AbstractIssueTest {
   private static final Date NEW_DATE = new Date();
   private static final String NEW_DATE_STR = new SimpleDateFormat("yyyy-MM-dd").format(NEW_DATE);
 
+  private static WsClient adminClient;
+
   @Before
   public void prepareData() {
     ORCHESTRATOR.resetData();
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/issue-on-tag-foobar.xml"));
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/IssueTrackingTest/one-issue-per-module-profile.xml"));
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    adminClient = newAdminWsClient(ORCHESTRATOR);
   }
 
   @Test
@@ -65,10 +71,10 @@ public class IssueTrackingTest extends AbstractIssueTest {
       "sonar.projectDate", NEW_DATE_STR,
       "sonar.exclusions", "**/*.xoo");
 
-    issues = searchIssuesByProject("sample");
+    issues = searchIssues(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList();
     assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).status()).isEqualTo("CLOSED");
-    assertThat(issues.get(0).resolution()).isEqualTo("FIXED");
+    assertThat(issues.get(0).getStatus()).isEqualTo("CLOSED");
+    assertThat(issues.get(0).getResolution()).isEqualTo("FIXED");
   }
 
   /**
@@ -85,7 +91,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     List<Issue> issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
     assertThat(issues).hasSize(1);
-    Date issueDate = issues.iterator().next().creationDate();
+    Date issueDate = toDate(issues.iterator().next().getCreationDate());
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v2",
@@ -95,11 +101,11 @@ public class IssueTrackingTest extends AbstractIssueTest {
     assertThat(issues).hasSize(3);
 
     // issue created during the first scan and moved during the second scan
-    assertThat(getIssueOnLine(6, "xoo", "HasTag", issues).creationDate()).isEqualTo(issueDate);
+    assertThat(toDate(getIssueOnLine(6, "xoo:HasTag", issues).getCreationDate())).isEqualTo(issueDate);
 
     // issues created during the second scan
-    assertThat(getIssueOnLine(10, "xoo", "HasTag", issues).creationDate()).isAfter(issueDate);
-    assertThat(getIssueOnLine(14, "xoo", "HasTag", issues).creationDate()).isAfter(issueDate);
+    assertThat(toDate(getIssueOnLine(10, "xoo:HasTag", issues).getCreationDate())).isAfter(issueDate);
+    assertThat(toDate(getIssueOnLine(14, "xoo:HasTag", issues).getCreationDate())).isAfter(issueDate);
   }
 
   /**
@@ -113,20 +119,20 @@ public class IssueTrackingTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
     // Only one issue is created
-    assertThat(search(IssueQuery.create()).list()).hasSize(1);
-    Issue issue = searchRandomIssue();
+    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
+    Issue issue = getRandomIssue();
 
     // Re analysis of the same project
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
     // No new issue should be created
-    assertThat(search(IssueQuery.create()).list()).hasSize(1);
+    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
 
     // The issue on module should stay open and be the same from the first analysis
-    Issue reloadIssue = searchIssueByKey(issue.key());
-    assertThat(reloadIssue.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(reloadIssue.status()).isEqualTo("OPEN");
-    assertThat(reloadIssue.resolution()).isNull();
+    Issue reloadIssue = getIssueByKey(issue.getKey());
+    assertThat(reloadIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+    assertThat(reloadIssue.getStatus()).isEqualTo("OPEN");
+    assertThat(reloadIssue.hasResolution()).isFalse();
   }
 
   /**
@@ -140,22 +146,22 @@ public class IssueTrackingTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
     // One issue by module are created
-    List<Issue> issues = search(IssueQuery.create()).list();
+    List<Issue> issues = searchIssues(new SearchWsRequest()).getIssuesList();
     assertThat(issues).hasSize(4);
 
     // Re analysis of the same project
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
     // No new issue should be created
-    assertThat(search(IssueQuery.create()).list()).hasSize(issues.size());
+    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(issues.size());
 
     // Issues on modules should stay open and be the same from the first analysis
     for (Issue issue : issues) {
-      Issue reloadIssue = searchIssueByKey(issue.key());
-      assertThat(reloadIssue.status()).isEqualTo("OPEN");
-      assertThat(reloadIssue.resolution()).isNull();
-      assertThat(reloadIssue.creationDate()).isEqualTo(issue.creationDate());
-      assertThat(reloadIssue.updateDate()).isEqualTo(issue.updateDate());
+      Issue reloadIssue = getIssueByKey(issue.getKey());
+      assertThat(reloadIssue.getStatus()).isEqualTo("OPEN");
+      assertThat(reloadIssue.hasResolution()).isFalse();
+      assertThat(reloadIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+      assertThat(reloadIssue.getUpdateDate()).isEqualTo(issue.getUpdateDate());
     }
   }
 
@@ -180,20 +186,35 @@ public class IssueTrackingTest extends AbstractIssueTest {
     issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample2.xoo");
     assertThat(issues).hasSize(1);
     Issue issueOnSample2 = issues.get(0);
-    assertThat(issueOnSample2.key()).isEqualTo(issueOnSample.key());
-    assertThat(issueOnSample2.creationDate()).isEqualTo(issueOnSample.creationDate());
-    assertThat(issueOnSample2.updateDate()).isNotEqualTo(issueOnSample.updateDate());
-    assertThat(issueOnSample2.status()).isEqualTo("OPEN");
+    assertThat(issueOnSample2.getKey()).isEqualTo(issueOnSample.getKey());
+    assertThat(issueOnSample2.getCreationDate()).isEqualTo(issueOnSample.getCreationDate());
+    assertThat(issueOnSample2.getUpdateDate()).isNotEqualTo(issueOnSample.getUpdateDate());
+    assertThat(issueOnSample2.getStatus()).isEqualTo("OPEN");
   }
 
-  private Issue getIssueOnLine(final Integer line, final String repoKey, final String ruleKey, List<Issue> issues) {
-    return Iterables.find(
-      issues,
-      issue -> Objects.equals(issue.line(), line) && Objects.equals(issue.ruleKey(), repoKey + ":" + ruleKey));
+  private Issue getIssueOnLine(int line, String rule, List<Issue> issues) {
+    return issues.stream()
+      .filter(issue -> issue.getRule().equals(rule))
+      .filter(issue -> issue.getLine() == line)
+      .findFirst().orElseThrow(IllegalArgumentException::new);
   }
 
   private List<Issue> searchUnresolvedIssuesByComponent(String componentKey) {
-    return search(IssueQuery.create().components(componentKey).resolved(false)).list();
+    return searchIssues(new SearchWsRequest().setComponentKeys(singletonList(componentKey)).setResolved(false)).getIssuesList();
+  }
+
+  private static Issue getRandomIssue() {
+    return searchIssues(new SearchWsRequest()).getIssues(0);
+  }
+
+  private static Issue getIssueByKey(String issueKey) {
+    SearchWsResponse search = searchIssues(new SearchWsRequest().setIssues(singletonList(issueKey)));
+    assertThat(search.getTotal()).isEqualTo(1);
+    return search.getIssues(0);
+  }
+
+  private static SearchWsResponse searchIssues(SearchWsRequest request) {
+    return adminClient.issues().search(request);
   }
 
 }
