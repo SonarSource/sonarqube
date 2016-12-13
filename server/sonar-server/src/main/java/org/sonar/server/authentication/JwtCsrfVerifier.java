@@ -51,7 +51,6 @@ public class JwtCsrfVerifier {
     "/api/issues/bulk_change",
     "/api/projects/create",
     "/api/properties/create",
-    "/api/server",
     "/api/user_properties");
 
   public String generateState(HttpServletRequest request, HttpServletResponse response, int timeoutInSeconds) {

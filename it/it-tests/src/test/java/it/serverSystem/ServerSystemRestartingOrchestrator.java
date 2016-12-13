@@ -22,17 +22,19 @@ package it.serverSystem;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.wsclient.services.Server;
-import org.sonar.wsclient.services.ServerQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newWsClient;
 
 /**
  * This class start a new orchestrator on each test case
@@ -77,8 +79,9 @@ public class ServerSystemRestartingOrchestrator {
       .build();
     orchestrator.start();
 
-    Server.Status status = orchestrator.getServer().getAdminWsClient().find(new ServerQuery()).getStatus();
-    assertThat(status).isEqualTo(Server.Status.UP);
+    WsResponse statusResponse = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/system/status"));
+    Map<String, Object> json = ItUtils.jsonToMap(statusResponse.content());
+    assertThat(json.get("status")).isEqualTo("UP");
   }
 
   // SONAR-4748

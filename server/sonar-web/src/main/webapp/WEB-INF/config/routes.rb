@@ -8,7 +8,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'api', :controller => 'api/java_ws', :action => 'redirect_to_ws_listing'
 
-  map.connect 'api/server/:action', :controller => 'api/server'
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
 
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }

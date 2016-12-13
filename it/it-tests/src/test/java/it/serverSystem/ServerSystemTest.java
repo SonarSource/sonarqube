@@ -28,13 +28,10 @@ import java.util.Map;
 import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Server;
-import org.sonar.wsclient.services.ServerQuery;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ServerId.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
@@ -44,10 +41,12 @@ import pageobjects.Navigation;
 import pageobjects.ServerIdPage;
 import util.ItUtils;
 
+import static org.apache.commons.lang.StringUtils.startsWithAny;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.call;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newWsClient;
 import static util.selenium.Selenese.runSelenese;
 
 public class ServerSystemTest {
@@ -62,15 +61,18 @@ public class ServerSystemTest {
 
   @Test
   public void get_sonarqube_version() {
-    String version = orchestrator.getServer().getWsClient().find(new ServerQuery()).getVersion();
-    if (!StringUtils.startsWithAny(version, new String[] {"5.", "6."})) {
+    Map<String, Object> json = callStatus();
+
+    String version = (String)json.get("version");
+    if (!startsWithAny(version, new String[] {"6."})) {
       fail("Bad version: " + version);
     }
   }
 
   @Test
   public void get_server_status() {
-    assertThat(orchestrator.getServer().getWsClient().find(new ServerQuery()).getStatus()).isEqualTo(Server.Status.UP);
+    Map<String, Object> json = callStatus();
+    assertThat(json.get("status")).isEqualTo("UP");
   }
 
   @Test
@@ -97,6 +99,11 @@ public class ServerSystemTest {
 
     String serverId = page.serverIdInput().val();
     assertThat(serverId).isNotEmpty();
+  }
+
+  private Map<String, Object> callStatus() {
+    WsResponse statusResponse = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/system/status"));
+    return ItUtils.jsonToMap(statusResponse.content());
   }
 
   @Test

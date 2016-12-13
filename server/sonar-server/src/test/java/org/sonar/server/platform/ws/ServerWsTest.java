@@ -20,45 +20,40 @@
 package org.sonar.server.platform.ws;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerWsTest {
 
-  WsTester tester = new WsTester(new ServerWs());
+  private Server server = mock(Server.class);
+  private WsTester tester = new WsTester(new ServerWs(server));
 
   @Test
-  public void define_controller() {
+  public void define_version_action() {
     WebService.Controller controller = tester.controller("api/server");
-    assertThat(controller).isNotNull();
-    assertThat(controller.since()).isEqualTo("2.10");
-    assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(1);
+
+    WebService.Action versionAction = controller.action("version");
+    assertThat(versionAction.since()).isEqualTo("2.10");
+    assertThat(versionAction.description()).isNotEmpty();
+    assertThat(versionAction.isPost()).isFalse();
   }
 
   @Test
-  public void define_index_action() {
-    WebService.Controller controller = tester.controller("api/server");
-
-    WebService.Action action = controller.action("index");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+  public void returns_version_as_plain_text() throws Exception {
+    when(server.getVersion()).thenReturn("6.4-SNAPSHOT");
+    WsTester.Result result = tester.newGetRequest("api/server", "version").execute();
+    assertThat(result.outputAsString()).isEqualTo("6.4-SNAPSHOT");
   }
 
   @Test
-  public void define_setup_action() {
-    WebService.Controller controller = tester.controller("api/server");
-
-    WebService.Action action = controller.action("setup");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+  public void test_example_of_version() throws Exception {
+    WebService.Action versionAction = tester.action("api/server", "version");
+    assertThat(versionAction.responseExampleAsString()).isEqualTo("6.3.0.1234");
   }
-
 }
