@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import * as api from '../../api/projectActivity';
-import { receiveProjectActivity } from '../../store/projectActivity/duck';
-import { onFail } from '../../store/rootActions';
+import type { Action } from './duck';
 
-const PAGE_SIZE = 5;
+type State = ?string;
 
-export const fetchRecentProjectActivity = (project: string) => (dispatch: Function) => (
-    api.getProjectActivity(project, { pageSize: PAGE_SIZE }).then(
-        ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-        onFail(dispatch)
-    )
-);
+export default (state: State = null, action: Action): State => {
+  if (action.type === 'CHANGE_PROJECT_ACTIVITY_FILTER') {
+    return action.filter;
+  }
+
+  return state;
+};
+

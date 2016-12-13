@@ -41,7 +41,7 @@ class ProjectActivityPageFooter extends React.Component {
   render () {
     const { analyses, paging } = this.props;
 
-    if (!paging) {
+    if (!paging || analyses.length === 0) {
       return null;
     }
 

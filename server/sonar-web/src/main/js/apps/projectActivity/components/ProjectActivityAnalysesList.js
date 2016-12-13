@@ -26,6 +26,7 @@ import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { getProjectActivity } from '../../../store/rootReducer';
 import { getAnalyses } from '../../../store/projectActivity/duck';
+import { translate } from '../../../helpers/l10n';
 
 class ProjectActivityAnalysesList extends React.Component {
   props: {
@@ -39,6 +40,12 @@ class ProjectActivityAnalysesList extends React.Component {
   render () {
     if (!this.props.analyses) {
       return null;
+    }
+
+    if (this.props.analyses.length === 0) {
+      return (
+          <div className="note">{translate('no_results')}</div>
+      );
     }
 
     const byDay = groupBy(this.props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());

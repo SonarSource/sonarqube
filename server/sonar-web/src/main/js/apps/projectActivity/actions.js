@@ -19,23 +19,37 @@
  */
 // @flow
 import * as api from '../../api/projectActivity';
-import { receiveProjectActivity, getPaging } from '../../store/projectActivity/duck';
+import {
+  receiveProjectActivity,
+  changeProjectActivityFilter,
+  getPaging,
+  getFilter
+} from '../../store/projectActivity/duck';
 import { onFail } from '../../store/rootActions';
 import { getProjectActivity } from '../../store/rootReducer';
 
-export const fetchProjectActivity = (project: string) => (dispatch: Function) => (
-    api.getProjectActivity(project).then(
-        ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-        onFail(dispatch)
-    )
-);
-
-export const fetchMoreProjectActivity = (project: string) => (dispatch: Function, getState: Function) => {
+export const fetchProjectActivity = (project: string) => (dispatch: Function, getState: Function) => {
   const state = getState();
-  const { pageIndex } = getPaging(getProjectActivity(state), project);
+  const filter = getFilter(getProjectActivity(state), project);
 
-  api.getProjectActivity(project, pageIndex + 1).then(
+  api.getProjectActivity(project, { category: filter }).then(
       ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
       onFail(dispatch)
   );
+};
+
+export const fetchMoreProjectActivity = (project: string) => (dispatch: Function, getState: Function) => {
+  const projectActivity = getProjectActivity(getState());
+  const filter = getFilter(projectActivity, project);
+  const { pageIndex } = getPaging(projectActivity, project);
+
+  api.getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 }).then(
+      ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
+      onFail(dispatch)
+  );
+};
+
+export const changeFilter = (project: string, filter: ?string) => (dispatch: Function) => {
+  dispatch(changeProjectActivityFilter(project, filter));
+  dispatch(fetchProjectActivity(project));
 };

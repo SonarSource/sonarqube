@@ -30,20 +30,39 @@ import { getAnalyses } from '../../../store/projectActivity/duck';
 type Props = {
   analyses?: Array<*>,
   project: string;
-  fetchRecentProjectActivity: (project: string) => void;
+  fetchRecentProjectActivity: (project: string) => Promise<*>;
 }
 
 class AnalysesList extends React.Component {
+  mounted: boolean;
   props: Props;
 
+  state = {
+    loading: true
+  };
+
   componentDidMount () {
-    this.props.fetchRecentProjectActivity(this.props.project);
+    this.mounted = true;
+    this.fetchData();
   }
 
   componentDidUpdate (prevProps: Props) {
     if (prevProps.project !== this.props.project) {
-      this.props.fetchRecentProjectActivity(this.props.project);
+      this.fetchData();
     }
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  fetchData () {
+    this.setState({ loading: true });
+    this.props.fetchRecentProjectActivity(this.props.project).then(() => {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    });
   }
 
   renderList (analyses) {
@@ -66,8 +85,9 @@ class AnalysesList extends React.Component {
 
   render () {
     const { analyses } = this.props;
+    const { loading } = this.state;
 
-    if (!analyses) {
+    if (loading || !analyses) {
       return null;
     }
 

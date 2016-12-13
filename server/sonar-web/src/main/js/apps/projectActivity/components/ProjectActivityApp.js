@@ -23,32 +23,47 @@ import { connect } from 'react-redux';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityPageFooter from './ProjectActivityPageFooter';
-import { fetchProjectActivity } from '../actions';
+import { fetchProjectActivity, changeFilter } from '../actions';
+import { getFilter } from '../../../store/projectActivity/duck';
+import { getProjectActivity } from '../../../store/rootReducer';
 import './projectActivity.css';
 
+type Props = {
+  changeFilter: (project: string, filter: ?string) => void,
+  location: { query: { id: string } },
+  fetchProjectActivity: (project: string) => void,
+  filter: ?string
+};
+
 class ProjectActivityApp extends React.Component {
-  props: {
-    location: { query: { id: string } },
-    fetchProjectActivity: (project: string) => void
-  };
+  props: Props;
 
   componentDidMount () {
-    this.props.fetchProjectActivity(this.props.location.query.id);
+    // reset filter when opening the page
+    if (this.props.filter) {
+      this.props.changeFilter(this.props.location.query.id, null);
+    } else {
+      this.props.fetchProjectActivity(this.props.location.query.id);
+    }
   }
 
   render () {
+    const project = this.props.location.query.id;
+
     return (
         <div className="page page-limited">
-          <ProjectActivityPageHeader/>
-          <ProjectActivityAnalysesList project={this.props.location.query.id}/>
-          <ProjectActivityPageFooter project={this.props.location.query.id}/>
+          <ProjectActivityPageHeader project={project}/>
+          <ProjectActivityAnalysesList project={project}/>
+          <ProjectActivityPageFooter project={project}/>
         </div>
     );
   }
 }
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state, ownProps: Props) => ({
+  filter: getFilter(getProjectActivity(state), ownProps.location.query.id)
+});
 
-const mapDispatchToProps = { fetchProjectActivity };
+const mapDispatchToProps = { fetchProjectActivity, changeFilter };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectActivityApp);

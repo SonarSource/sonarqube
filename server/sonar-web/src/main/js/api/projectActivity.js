@@ -29,10 +29,28 @@ type GetProjectActivityResponse = {
   }
 };
 
+type Options = {
+  category?: ?string,
+  pageIndex?: ?number,
+  pageSize?: ?number
+};
+
 export const getProjectActivity = (
     project: string,
-    pageIndex: number = 1,
-    pageSize: number = 100
-): Promise<GetProjectActivityResponse> => (
-    getJSON('/api/project_analyses/search', { project, p: pageIndex, ps: pageSize })
-);
+    options?: Options
+): Promise<GetProjectActivityResponse> => {
+  const data: Object = { project };
+  if (options) {
+    if (options.category) {
+      data.category = options.category;
+    }
+    if (options.pageIndex) {
+      data.p = options.pageIndex;
+    }
+    if (options.pageSize) {
+      data.ps = options.pageSize;
+    }
+  }
+
+  return getJSON('/api/project_analyses/search', data);
+};

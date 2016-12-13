@@ -20,6 +20,7 @@
 // @flow
 import { combineReducers } from 'redux';
 import analyses from './analyses';
+import filter from './filter';
 import paging from './paging';
 
 export type Event = {|
@@ -27,7 +28,7 @@ export type Event = {|
   name: string;
   category: string;
   description?: string;
-|};
+  |};
 
 export type Analysis = {
   key: string;
@@ -48,6 +49,14 @@ export type ReceiveProjectActivityAction = {
   paging: Paging
 };
 
+export type ChangeProjectActivityFilter = {
+  type: 'CHANGE_PROJECT_ACTIVITY_FILTER',
+  project: string,
+  filter: ?string
+};
+
+export type Action = ReceiveProjectActivityAction | ChangeProjectActivityFilter;
+
 export const receiveProjectActivity = (
     project: string,
     analyses: Array<Analysis>,
@@ -59,19 +68,24 @@ export const receiveProjectActivity = (
   paging
 });
 
-const byProject = combineReducers({ analyses, paging });
+export const changeProjectActivityFilter = (project: string, filter: ?string): ChangeProjectActivityFilter => ({
+  type: 'CHANGE_PROJECT_ACTIVITY_FILTER',
+  project,
+  filter
+});
+
+const byProject = combineReducers({ analyses, filter, paging });
 
 type State = {
   [key: string]: {
     analyses: Array<Analysis>,
+    filter: ?string,
     paging: Paging
   }
 };
 
-type Action = ReceiveProjectActivityAction;
-
 const reducer = (state: State = {}, action: Action): State => {
-  if (action.type === 'RECEIVE_PROJECT_ACTIVITY') {
+  if (action.type === 'RECEIVE_PROJECT_ACTIVITY' || action.type === 'CHANGE_PROJECT_ACTIVITY_FILTER') {
     return { ...state, [action.project]: byProject(state[action.project], action) };
   }
   return state;
@@ -82,6 +96,11 @@ export default reducer;
 export const getAnalyses = (state: State, project: string) => (
     state[project] && state[project].analyses
 );
+
+export const getFilter = (state: State, project: string) => (
+    state[project] && state[project].filter
+);
+
 
 export const getPaging = (state: State, project: string) => (
     state[project] && state[project].paging
