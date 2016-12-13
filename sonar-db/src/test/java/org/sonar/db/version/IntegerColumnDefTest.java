@@ -97,7 +97,7 @@ public class IntegerColumnDefTest {
 
   @Test
   public void generateSqlType_for_Oracle() {
-    assertThat(underTest.generateSqlType(new Oracle())).isEqualTo("INTEGER");
+    assertThat(underTest.generateSqlType(new Oracle())).isEqualTo("NUMBER(38,0)");
   }
 
   @Test
