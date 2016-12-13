@@ -93,14 +93,6 @@
   float: left;
 }
 
-.project-activity-event {
-
-}
-
-.project-activity-event + .project-activity-event {
-  margin-top: 8px;
-}
-
 .project-activity-version-badge {
   padding: 4px 8px;
   border-radius: 2px;

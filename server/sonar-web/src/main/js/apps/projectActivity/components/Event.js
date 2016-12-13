@@ -23,6 +23,7 @@ import VersionEvent from './VersionEvent';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
+import './Event.css';
 
 export default class Event extends React.Component {
   props: {

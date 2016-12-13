@@ -17,36 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Select from 'react-select';
-import { translate } from '../../../helpers/l10n';
+// @flow
+import * as api from '../../api/projectActivity';
+import { receiveProjectActivity } from '../../store/projectActivity/duck';
+import { onFail } from '../../store/rootActions';
 
-const TYPES = ['All', 'Version', 'Alert', 'Profile', 'Other'];
+const PAGE_SIZE = 5;
 
-const EventsListFilter = ({ currentFilter, onFilter }) => {
-  const handleChange = selected => onFilter(selected.value);
-
-  const options = TYPES.map(type => {
-    return {
-      value: type,
-      label: translate('event.category', type)
-    };
-  });
-
-  return (
-      <Select
-          value={currentFilter}
-          options={options}
-          clearable={false}
-          searchable={false}
-          onChange={handleChange}
-          style={{ width: '125px' }}/>
-  );
-};
-
-EventsListFilter.propTypes = {
-  onFilter: React.PropTypes.func.isRequired,
-  currentFilter: React.PropTypes.string.isRequired
-};
-
-export default EventsListFilter;
+export const fetchRecentProjectActivity = (project: string) => (dispatch: Function) => (
+    api.getProjectActivity(project, 1, PAGE_SIZE).then(
+        ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
+        onFail(dispatch)
+    )
+);

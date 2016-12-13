@@ -23,7 +23,7 @@ import MetaKey from './MetaKey';
 import MetaLinks from './MetaLinks';
 import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
-import EventsList from './../events/EventsList';
+import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
 
 const Meta = ({ component, measures }) => {
@@ -40,7 +40,7 @@ const Meta = ({ component, measures }) => {
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
 
-  const showShowEvents = isProject || isView || isDeveloper;
+  const showShowAnalyses = isProject || isView || isDeveloper;
 
   return (
       <div className="overview-meta">
@@ -64,8 +64,8 @@ const Meta = ({ component, measures }) => {
 
         <MetaKey component={component}/>
 
-        {showShowEvents && (
-            <EventsList component={component}/>
+        {showShowAnalyses && (
+            <AnalysesList project={component.key}/>
         )}
       </div>
   );
