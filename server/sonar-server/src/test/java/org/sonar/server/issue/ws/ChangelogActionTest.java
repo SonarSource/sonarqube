@@ -87,6 +87,38 @@ public class ChangelogActionTest {
   }
 
   @Test
+  public void changelog_of_file_move_contains_file_names() throws Exception {
+    RuleDto rule = db.rules().insertRule(newRuleDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
+    IssueDto issueDto = db.issues().insertIssue(newDto(rule, file2, project));
+    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setDiff("file", file1.uuid(), file2.uuid()));
+
+    ChangelogWsResponse result = call(issueDto.getKey());
+
+    assertThat(result.getChangelogList()).hasSize(1);
+    assertThat(result.getChangelogList().get(0).hasUser()).isFalse();
+    assertThat(result.getChangelogList().get(0).getCreationDate()).isNotEmpty();
+    assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::getOldValue, Diff::getNewValue)
+      .containsOnly(tuple("file", file1.longName(), file2.longName()));
+  }
+
+  @Test
+  public void changelog_of_file_move_is_empty_when_files_does_not_exists() throws Exception {
+    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setDiff("file", "UNKNOWN_1", "UNKNOWN_2"));
+
+    ChangelogWsResponse result = call(issueDto.getKey());
+
+    assertThat(result.getChangelogList()).hasSize(1);
+    assertThat(result.getChangelogList().get(0).getDiffsList()).extracting(Diff::getKey, Diff::hasOldValue, Diff::hasNewValue)
+      .containsOnly(tuple("file", false, false));
+  }
+
+  @Test
   public void return_changelog_on_user_without_email() throws Exception {
     UserDto user = db.users().insertUser(UserTesting.newUserDto("john", "John", null));
     IssueDto issueDto = db.issues().insertIssue(newIssue());
