@@ -18,17 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import getStore from './getStore';
 import getHistory from './getHistory';
 import { requireAuthorization } from '../../store/appState/duck';
 
 export default () => {
-  const store = getStore();
   const history = getHistory();
 
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
 
-  store.dispatch(requireAuthorization());
+  window.store.dispatch(requireAuthorization());
   history.replace({
     pathname: '/sessions/new',
     query: { 'return_to': returnTo }

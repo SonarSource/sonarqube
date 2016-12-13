@@ -58,14 +58,12 @@ import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
-import getStore from './getStore';
 import getHistory from './getHistory';
 
-const startReactApp = () => {
+const startReactApp = store => {
   const el = document.getElementById('content');
 
   const history = getHistory();
-  const store = getStore();
 
   render((
       <Provider store={store}>

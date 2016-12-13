@@ -18,48 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import initial from 'lodash/initial';
-
 import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 import { getMeasuresAppTree } from '../../../store/rootReducer';
-
-/*
- * Actions
- */
-
-export const UPDATE_STORE = 'measuresApp/drilldown/tree/UPDATE_STORE';
-export const INIT = 'measuresApp/drilldown/tree/INIT';
-
-/*
- * Action Creators
- */
-
-/**
- * Internal
- * Update store
- * @param state
- * @returns {{type: string, state: *}}
- */
-function updateStore (state) {
-  return { type: UPDATE_STORE, state };
-}
-
-/**
- * Init tree view drilldown for the given root component and given metric
- * @param rootComponent
- * @param metric
- * @param periodIndex
- * @returns {{type: string, rootComponent: *, metric: *}}
- */
-function init (rootComponent, metric, periodIndex = 1) {
-  return { type: INIT, rootComponent, metric, periodIndex };
-}
-
-/*
- * Workflow
- */
+import { updateStore, init } from './treeViewDuck';
 
 function getComplementary (metric) {
   const comp = complementary[metric] || [];

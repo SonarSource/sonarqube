@@ -22,12 +22,7 @@ import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 import { getMeasuresAppList } from '../../../store/rootReducer';
-
-export const UPDATE_STORE = 'measuresApp/drilldown/list/UPDATE_STORE';
-
-function updateStore (state) {
-  return { type: UPDATE_STORE, state };
-}
+import { updateStore } from './listViewDuck';
 
 function getComplementary (metric) {
   const comp = complementary[metric] || [];

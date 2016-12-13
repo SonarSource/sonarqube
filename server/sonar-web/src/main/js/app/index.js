@@ -22,6 +22,8 @@ import exposeLibraries from './utils/exposeLibraries';
 import startAjaxMonitoring from './utils/startAjaxMonitoring';
 import startReactApp from './utils/startReactApp';
 import { installGlobal } from '../helpers/l10n';
+import configureStore from '../store/utils/configureStore';
+import rootReducer from '../store/rootReducer';
 import './styles/index';
 
 require('script!../libs/third-party/jquery-ui.js');
@@ -34,8 +36,10 @@ require('script!../libs/inputs.js');
 require('script!../libs/jquery-isolated-scroll.js');
 require('script!../libs/application.js');
 
+const store = window.store = configureStore(rootReducer);
+
 configureLocale();
 startAjaxMonitoring();
 installGlobal();
-startReactApp();
+startReactApp(store);
 exposeLibraries();

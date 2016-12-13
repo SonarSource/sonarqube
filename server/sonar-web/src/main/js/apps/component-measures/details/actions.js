@@ -20,29 +20,7 @@
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { enhanceWithLeak } from '../utils';
 import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
-
-/*
- * Actions
- */
-
-export const REQUEST_MEASURE = 'measuresApp/details/REQUEST_MEASURE';
-export const RECEIVE_MEASURE = 'measuresApp/details/RECEIVE_MEASURE';
-
-/*
- * Action Creators
- */
-
-function requestMeasure (metric) {
-  return { type: REQUEST_MEASURE, metric };
-}
-
-function receiveMeasure (measure, secondaryMeasure, periods) {
-  return { type: RECEIVE_MEASURE, measure, secondaryMeasure, periods };
-}
-
-/*
- * Workflow
- */
+import { requestMeasure, receiveMeasure } from './actionCreators';
 
 export function fetchMeasure (metricKey, periodIndex = 1) {
   return (dispatch, getState) => {

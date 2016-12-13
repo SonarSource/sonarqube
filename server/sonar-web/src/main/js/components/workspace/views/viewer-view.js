@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable dependencies/no-cycles */
 import BaseView from './base-viewer-view';
 import SourceViewer from '../../source-viewer/main';
 import Template from '../templates/workspace-viewer.hbs';

@@ -19,7 +19,7 @@
  */
 import keyBy from 'lodash/keyBy';
 import omit from 'lodash/omit';
-import { RECEIVE_PROJECT_MODULES, CHANGE_KEY } from './actions';
+import { RECEIVE_PROJECT_MODULES, CHANGE_KEY } from './actionCreators';
 
 const components = (state = {}, action = {}) => {
   if (action.type === RECEIVE_PROJECT_MODULES) {

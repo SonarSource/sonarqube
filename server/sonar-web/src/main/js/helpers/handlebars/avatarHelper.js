@@ -19,13 +19,10 @@
  */
 import md5 from 'blueimp-md5';
 import Handlebars from 'handlebars/runtime';
+import { getSettingValue } from '../../store/rootReducer';
 
 function gravatarServer () {
-  const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../store/rootReducer');
-
-  const store = getStore();
-  return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
+  return (getSettingValue(window.store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
 }
 
 module.exports = function (email, size) {

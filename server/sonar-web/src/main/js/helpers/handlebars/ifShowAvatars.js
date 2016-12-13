@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-function enableGravatar () {
-  const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../store/rootReducer');
+import { getSettingValue } from '../../store/rootReducer';
 
-  const store = getStore();
-  return (getSettingValue(store.getState(), 'sonar.lf.enableGravatar') || {}).value === 'true';
+function enableGravatar () {
+  return (getSettingValue(window.store.getState(), 'sonar.lf.enableGravatar') || {}).value === 'true';
 }
 
 module.exports = function (options) {

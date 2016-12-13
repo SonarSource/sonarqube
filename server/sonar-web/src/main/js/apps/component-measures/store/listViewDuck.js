@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import pick from 'lodash/pick';
-
 import { DISPLAY_HOME } from './../app/actions';
-import { UPDATE_STORE, INIT } from './treeViewActions';
+
+export const UPDATE_STORE = 'measuresApp/drilldown/list/UPDATE_STORE';
+
+export const updateStore = state => ({
+  type: UPDATE_STORE,
+  state
+});
 
 const initialState = {
   components: [],
-  breadcrumbs: [],
   total: 0
 };
 
@@ -34,8 +37,6 @@ export default function drilldownReducer (state = initialState, action = {}) {
       return initialState;
     case UPDATE_STORE:
       return { ...state, ...action.state };
-    case INIT:
-      return { ...state, ...pick(action, ['rootComponent', 'metric', 'periodIndex']) };
     default:
       return state;
   }

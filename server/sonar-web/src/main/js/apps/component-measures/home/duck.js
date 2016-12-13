@@ -21,9 +21,13 @@ import groupBy from 'lodash/groupBy';
 import partition from 'lodash/partition';
 import sortBy from 'lodash/sortBy';
 import toPairs from 'lodash/toPairs';
-
-import { RECEIVE_MEASURES } from './actions';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
+
+export const RECEIVE_MEASURES = 'measuresApp/home/RECEIVE_MEASURES';
+
+export function receiveMeasures (measures, periods) {
+  return { type: RECEIVE_MEASURES, measures, periods };
+}
 
 const initialState = {
   measures: undefined,

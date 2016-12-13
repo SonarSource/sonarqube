@@ -19,9 +19,9 @@
  */
 import bubbles from './config/bubbles';
 import {
-    formatMeasure,
-    formatMeasureVariation,
-    getRatingTooltip as nextGetRatingTooltip
+  formatMeasure,
+  formatMeasureVariation,
+  getRatingTooltip as nextGetRatingTooltip
 } from '../../helpers/measures';
 
 export function isDiffMetric (metric) {

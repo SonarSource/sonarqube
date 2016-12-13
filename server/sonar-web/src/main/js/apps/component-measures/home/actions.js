@@ -22,12 +22,7 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { getLeakValue } from '../utils';
 import { getMeasuresAppComponent, getMeasuresAppAllMetrics } from '../../../store/rootReducer';
-
-export const RECEIVE_MEASURES = 'measuresApp/home/RECEIVE_MEASURES';
-
-export function receiveMeasures (measures, periods) {
-  return { type: RECEIVE_MEASURES, measures, periods };
-}
+import { receiveMeasures } from './duck';
 
 function banQualityGate (component, measures) {
   if (['VW', 'SVW'].includes(component.qualifier)) {

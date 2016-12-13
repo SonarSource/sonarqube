@@ -19,7 +19,7 @@
  */
 import keyBy from 'lodash/keyBy';
 import values from 'lodash/values';
-import { RECEIVE_GATES } from './actions';
+import { RECEIVE_GATES } from './actionCreators';
 
 const gates = (state = {}, action = {}) => {
   if (action.type === RECEIVE_GATES) {

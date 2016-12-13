@@ -20,6 +20,7 @@
 import numeral from 'numeral';
 import _ from 'underscore';
 import { translate, translateWithParameters } from './l10n';
+import { getSettingValue } from '../store/rootReducer';
 
 /**
  * Format a measure value for a given type
@@ -303,12 +304,11 @@ function formatDurationShort (isNegative, days, hours, minutes) {
 }
 
 function getHoursInDay () {
-  // workaround cyclic dependencies
-  const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../store/rootReducer');
-
-  const store = getStore();
-  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.hoursInDay');
+  if (!window.store) {
+    // for unit tests
+    return 8;
+  }
+  const settingValue = getSettingValue(window.store.getState(), 'sonar.technicalDebt.hoursInDay');
   return settingValue ? settingValue.value : 8;
 }
 
@@ -358,12 +358,7 @@ function shortDurationVariationFormatter (value) {
 }
 
 function getRatingGrid () {
-  // workaround cyclic dependencies
-  const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../store/rootReducer');
-
-  const store = getStore();
-  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');
+  const settingValue = getSettingValue(window.store.getState(), 'sonar.technicalDebt.ratingGrid');
   return settingValue ? settingValue.value : '';
 }
 

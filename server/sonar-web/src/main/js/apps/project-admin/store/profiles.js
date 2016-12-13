@@ -19,7 +19,7 @@
  */
 import keyBy from 'lodash/keyBy';
 import values from 'lodash/values';
-import { RECEIVE_PROFILES } from './actions';
+import { RECEIVE_PROFILES } from './actionCreators';
 
 const profiles = (state = {}, action = {}) => {
   if (action.type === RECEIVE_PROFILES) {
