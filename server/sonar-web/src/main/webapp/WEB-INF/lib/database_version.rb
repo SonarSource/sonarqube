@@ -72,15 +72,6 @@ class DatabaseVersion
     ActionController::Routing::Routes.add_java_ws_routes
   end
 
-  def self.automatic_setup
-    if current_version<=0
-      upgrade_and_start()
-    else
-      load_java_web_services
-    end
-    uptodate?
-  end
-
   def self.connected?
     ActiveRecord::Base.connected?
   end

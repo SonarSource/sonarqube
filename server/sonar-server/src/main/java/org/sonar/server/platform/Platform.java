@@ -31,7 +31,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.platform.platformlevel.PlatformLevel1;
 import org.sonar.server.platform.platformlevel.PlatformLevel2;
@@ -39,8 +38,6 @@ import org.sonar.server.platform.platformlevel.PlatformLevel3;
 import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * @since 2.2
@@ -97,12 +94,6 @@ public class Platform {
     }
   }
 
-  public void upgradeDb() {
-    checkState(isInSafeMode(), "Must be in safe mode");
-    MigrationEngine migrationEngine = currentLevel.getContainer().getComponentByType(MigrationEngine.class);
-    migrationEngine.execute();
-  }
-
   // Platform is injected in Pico, so do not rename this method "start"
   public void doStart() {
     doStart(Startup.ALL);
@@ -113,12 +104,19 @@ public class Platform {
       return;
     }
 
+    boolean wentToSafemode = false;
     if (requireSafeMode()) {
       LOGGER.info("DB needs migration, entering safe mode");
+      wentToSafemode = true;
       startSafeModeContainer();
       currentLevel = levelSafeMode;
       started = true;
-    } else {
+    }
+    // if AutoDbMigration kicked in, safe mode is not required anymore
+    if (!requireSafeMode()) {
+      if (wentToSafemode) {
+        LOGGER.info("DB has been updated, exiting safe mode");
+      }
       startLevel34Containers();
       executeStartupTasks(startup);
       // switch current container last to avoid giving access to a partially initialized container

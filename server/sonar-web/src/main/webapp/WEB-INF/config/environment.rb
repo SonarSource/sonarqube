@@ -127,25 +127,43 @@ class ActionView::Base
   alias j json_escape
 end
 
+class Bootstrap
+
+  def self.load_java_web_services
+    ActionController::Routing::Routes.add_java_ws_routes
+  end
+
+  def self.dbUpgradeRequired?
+    !Java::OrgSonarServerUi::JRubyFacade.getInstance().isDbUptodate()
+  end
+
+  def self.safe_mode_start
+    load_java_web_services
+  end
+
+  def self.regular_start
+    Java::OrgSonarServerPlatform::Platform.getInstance().doStart()
+    load_java_web_services
+  end
+
+  def self.boostrap
+    if dbUpgradeRequired?
+      safe_mode_start()
+    else
+      regular_start()
+    end
+  end
+
+end
 
 #
 # other patches :
-# - activerecord : fix Oracle bug when more than 1000 elements in IN clause. See lib/active_record/association_preload.rb
-#   See https://github.com/rails/rails/issues/585
 # - actionview NumberHelper, patch for number_with_precision()
 
 require File.dirname(__FILE__) + '/../lib/java_ws_routing.rb'
 require File.dirname(__FILE__) + '/../lib/database_version.rb'
-DatabaseVersion.automatic_setup
+Bootstrap.boostrap
 
-
-#
-#
-# IMPORTANT NOTE
-# Some changes have been done in activerecord-jdbc-adapter. Most of them relate to column types.
-# All these changes are prefixed by the comment #sonar
-#
-#
 
 # Increase size of form parameters
 # See http://jira.sonarsource.com/browse/SONAR-5577

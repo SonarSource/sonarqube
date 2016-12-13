@@ -31,7 +31,6 @@ import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
-import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.web.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerPluginJarExploder;
@@ -69,12 +68,10 @@ public class PlatformLevel2 extends PlatformLevel {
       DefaultI18n.class,
       RuleI18nManager.class);
 
-    // Full Java DB Migration framework and configuration
+    // DB Migration framework dependencies required at level2
     addIfStartupLeader(MigrationHistoryTableImpl.class);
     add(DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
-    // Ruby DB Migration
-    add(DatabaseMigrator.class);
 
     addIfStartupLeader(
       DatabaseCharsetChecker.class,

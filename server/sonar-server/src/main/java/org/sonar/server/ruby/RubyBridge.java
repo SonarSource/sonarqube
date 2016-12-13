@@ -24,12 +24,6 @@ package org.sonar.server.ruby;
  * Java object which an underlying Ruby implementation.
  */
 public interface RubyBridge {
-  /**
-   * Returns a wrapper class that allows calling the database migration in Ruby.
-   *
-   * @return a  {@link RubyDatabaseMigration}
-   */
-  RubyDatabaseMigration databaseMigration();
 
   /**
    * Returns a class that allows calling the (re)creation of web routes in Rails.

@@ -24,9 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
 import org.sonar.server.ruby.RubyBridge;
 
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
@@ -103,26 +104,33 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
     migrationState.setError(null);
     Profiler profiler = Profiler.create(LOGGER);
     try {
-      profiler.startInfo("Starting DB Migration");
+      profiler.startInfo("Starting DB Migration and container restart");
       doUpgradeDb();
       doRestartContainer();
       doRecreateWebRoutes();
       migrationState.setStatus(Status.SUCCEEDED);
-      profiler.stopInfo("DB Migration ended successfully");
+      profiler.stopInfo("DB Migration and container restart: success");
+    } catch (MigrationStepExecutionException e) {
+      profiler.stopError("DB migration failed");
+      LOGGER.error("DB migration ended with an exception", e);
+      saveStatus(e);
     } catch (Throwable t) {
-      profiler.stopInfo("DB migration failed");
-      LOGGER.error("DB Migration or container restart failed. Process ended with an exception", t);
-      migrationState.setStatus(Status.FAILED);
-      migrationState.setError(t);
+      profiler.stopError("Container restart failed");
+      LOGGER.error("Container restart failed", t);
+      saveStatus(t);
     } finally {
       running.getAndSet(false);
     }
   }
 
+  private void saveStatus(Throwable e) {
+    migrationState.setStatus(Status.FAILED);
+    migrationState.setError(e);
+  }
+
   private void doUpgradeDb() {
     Profiler profiler = Profiler.createIfTrace(LOGGER);
     profiler.startTrace("Starting DB Migration");
-    rubyBridge.databaseMigration().trigger();
     migrationEngine.execute();
     profiler.stopTrace("DB Migration ended");
   }

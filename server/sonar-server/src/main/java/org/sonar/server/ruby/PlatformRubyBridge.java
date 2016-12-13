@@ -30,7 +30,6 @@ import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class PlatformRubyBridge implements RubyBridge {
-  private static final String CALL_UPGRADE_AND_START_RB_FILENAME = "call_databaseversion_upgrade.rb";
   private static final String CALL_LOAD_JAVA_WEB_SERVICES_RB_FILENAME = "call_load_java_web_services.rb";
   private static final String CALL_INVALIDATE_METRIC_CACHE_RB_FILENAME = "call_invalidate_metric_cache.rb";
 
@@ -38,15 +37,6 @@ public class PlatformRubyBridge implements RubyBridge {
 
   public PlatformRubyBridge(RackBridge rackBridge) {
     this.rackBridge = rackBridge;
-  }
-
-  @Override
-  public RubyDatabaseMigration databaseMigration() {
-    CallDatabaseVersionUpgrade callDatabaseVersionUpgrade = parseMethodScriptToInterface(
-      CALL_UPGRADE_AND_START_RB_FILENAME, CallDatabaseVersionUpgrade.class
-      );
-
-    return callDatabaseVersionUpgrade::callUpgrade;
   }
 
   @Override

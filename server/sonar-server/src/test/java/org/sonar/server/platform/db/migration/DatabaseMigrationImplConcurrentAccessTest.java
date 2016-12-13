@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import com.google.common.base.Throwables;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +29,6 @@ import org.junit.Test;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.ruby.RubyBridge;
-import org.sonar.server.ruby.RubyDatabaseMigration;
 import org.sonar.server.ruby.RubyRailsRoutes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,24 +53,6 @@ public class DatabaseMigrationImplConcurrentAccessTest {
       command.run();
     }
   };
-  /**
-   * thread-safe counter of calls to the trigger method of {@link #rubyDatabaseMigration}
-   */
-  private AtomicInteger triggerCount = new AtomicInteger();
-  /**
-   * Implementation of RubyDatabaseMigration which trigger method increments a thread-safe counter and add a delay of 200ms
-   */
-  private RubyDatabaseMigration rubyDatabaseMigration = new RubyDatabaseMigration() {
-    @Override
-    public void trigger() {
-      triggerCount.incrementAndGet();
-      try {
-        Thread.currentThread().sleep(1000);
-      } catch (InterruptedException e) {
-        Throwables.propagate(e);
-      }
-    }
-  };
   private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
   private RubyBridge rubyBridge = mock(RubyBridge.class);
   private Platform platform = mock(Platform.class);
@@ -87,11 +67,20 @@ public class DatabaseMigrationImplConcurrentAccessTest {
 
   @Test
   public void two_concurrent_calls_to_startit_call_trigger_only_once() throws Exception {
-    when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
+    AtomicInteger triggerCount = new AtomicInteger();
+    MigrationEngine incrementingMigrationEngine = new MigrationEngine() {
+
+      @Override
+      public void execute() {
+        triggerCount.incrementAndGet();
+      }
+    };
     when(rubyBridge.railsRoutes()).thenReturn(railsRoutes);
 
-    pool.submit(new CallStartit());
-    pool.submit(new CallStartit());
+    DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, incrementingMigrationEngine, platform);
+
+    pool.submit(new CallStartit(underTest));
+    pool.submit(new CallStartit(underTest));
 
     pool.awaitTermination(2, TimeUnit.SECONDS);
 
@@ -99,6 +88,12 @@ public class DatabaseMigrationImplConcurrentAccessTest {
   }
 
   private class CallStartit implements Runnable {
+    private final DatabaseMigrationImpl underTest;
+
+    private CallStartit(DatabaseMigrationImpl underTest) {
+      this.underTest = underTest;
+    }
+
     @Override
     public void run() {
       latch.countDown();
