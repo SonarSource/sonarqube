@@ -36,6 +36,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
+import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
@@ -298,22 +299,29 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void updateVersion() {
-    insertAnalysis("P1", "A1", STATUS_PROCESSED, true);
+  public void update() {
+    SnapshotDto analysis = insertAnalysis("P1", "A1", STATUS_PROCESSED, false);
     db.commit();
+    analysis
+      .setComponentUuid("P42")
+      .setVersion("5.6.3")
+      .setStatus(STATUS_UNPROCESSED);
 
-    underTest.updateVersion(dbSession, "A1", "5.6.3");
+    underTest.update(dbSession, analysis);
 
     SnapshotDto result = underTest.selectByUuid(dbSession, "A1").get();
     assertThat(result.getVersion()).isEqualTo("5.6.3");
+    assertThat(result.getStatus()).isEqualTo(STATUS_UNPROCESSED);
+    assertThat(result.getComponentUuid()).isEqualTo("P1");
   }
 
-  private void insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {
+  private SnapshotDto insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {
     SnapshotDto snapshot = SnapshotTesting.newAnalysis(ComponentTesting.newProjectDto(projectUuid))
       .setLast(isLastFlag)
       .setStatus(status)
       .setUuid(uuid);
     underTest.insert(db.getSession(), snapshot);
+    return snapshot;
   }
 
   private void verifyStatusAndIsLastFlag(String uuid, String expectedStatus, boolean expectedLastFlag) {

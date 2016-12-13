@@ -22,6 +22,7 @@ package org.sonar.server.projectanalysis;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.projectanalysis.ws.CreateEventAction;
+import org.sonar.server.projectanalysis.ws.DeleteAction;
 import org.sonar.server.projectanalysis.ws.DeleteEventAction;
 import org.sonar.server.projectanalysis.ws.ProjectAnalysesWs;
 import org.sonar.server.projectanalysis.ws.SearchAction;
@@ -37,6 +38,7 @@ public class ProjectAnalysisModule extends Module {
       CreateEventAction.class,
       UpdateEventAction.class,
       DeleteEventAction.class,
+      DeleteAction.class,
       SearchAction.class);
   }
 

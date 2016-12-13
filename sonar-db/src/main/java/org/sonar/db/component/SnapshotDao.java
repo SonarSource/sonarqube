@@ -138,8 +138,8 @@ public class SnapshotDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
-  public void updateVersion(DbSession dbSession, String analysisUuid, @Nullable String version) {
-    mapper(dbSession).updateVersion(analysisUuid, version);
+  public void update(DbSession dbSession, SnapshotDto analysis) {
+    mapper(dbSession).update(analysis);
   }
 
   /**
@@ -151,6 +151,7 @@ public class SnapshotDao implements Dao {
       .first()
       .orNull();
   }
+
 
   private static SnapshotMapper mapper(DbSession session) {
     return session.getMapper(SnapshotMapper.class);

@@ -177,10 +177,11 @@
     where uuid = #{analysisUuid}
   </update>
 
-  <update id="updateVersion" parameterType="map">
+  <update id="update" parameterType="Snapshot">
     update snapshots
-    set version = #{version, jdbcType=VARCHAR}
-    where uuid = #{analysisUuid}
+    set version = #{version, jdbcType=VARCHAR},
+        status = #{status, jdbcType=VARCHAR}
+    where uuid = #{uuid}
   </update>
 
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

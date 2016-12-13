@@ -113,7 +113,8 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
       dbClient.eventDao().update(dbSession, event.getUuid(), event.getName(), event.getDescription());
       if (VERSION.getLabel().equals(event.getCategory())) {
         SnapshotDto analysis = getAnalysis(dbSession, event);
-        dbClient.snapshotDao().updateVersion(dbSession, analysis.getUuid(), event.getName());
+        analysis.setVersion(event.getName());
+        dbClient.snapshotDao().update(dbSession, analysis);
       }
       dbSession.commit();
     };
