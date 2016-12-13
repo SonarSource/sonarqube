@@ -55,8 +55,8 @@ public class LogListenerTest {
   private Pattern simpleTimePattern = Pattern.compile("\\d{2}:\\d{2}:\\d{2}");
   private List<LogEvent> logOutput;
   private StringBuilder logOutputStr;
-  private ByteArrayOutputStream stdOutTarget = new ByteArrayOutputStream();
-  private ByteArrayOutputStream stdErrTarget = new ByteArrayOutputStream();
+  private ByteArrayOutputStream stdOutTarget;
+  private ByteArrayOutputStream stdErrTarget;
   private static PrintStream savedStdOut;
   private static PrintStream savedStdErr;
 
@@ -88,6 +88,8 @@ public class LogListenerTest {
 
   @Before
   public void prepare() throws IOException {
+    stdOutTarget = new ByteArrayOutputStream();
+    stdErrTarget = new ByteArrayOutputStream();
     System.setOut(new PrintStream(stdOutTarget));
     System.setErr(new PrintStream(stdErrTarget));
     // logger from the batch might write to it asynchronously
