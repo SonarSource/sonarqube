@@ -29,8 +29,7 @@ import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class PopulateProfileKeyOfActivities extends BaseDataChange {
 
@@ -45,6 +44,11 @@ public class PopulateProfileKeyOfActivities extends BaseDataChange {
     massUpdate.update("update activities set profile_key=?, data_field=? where id=?");
     massUpdate.rowPluralName("activities");
     massUpdate.execute(PopulateProfileKeyOfActivities::handle);
+
+    // SONAR-8534 delete orphans
+    context.prepareUpsert("delete from activities where profile_key is null")
+      .execute()
+      .commit();
   }
 
   private static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
@@ -52,12 +56,12 @@ public class PopulateProfileKeyOfActivities extends BaseDataChange {
     String data = row.getString(2);
     Map<String, String> fields = KeyValueFormat.parse(data);
     String profileKey = fields.remove("profileKey");
-    checkState(isNotBlank(profileKey), "No profile key found in db row of activities.data_field", id);
-
+    if (isBlank(profileKey)) {
+      return false;
+    }
     update.setString(1, profileKey);
     update.setString(2, KeyValueFormat.format(fields));
     update.setInt(3, id);
-
     return true;
   }
 }

@@ -72,13 +72,30 @@ public class PopulateProfileKeyOfActivitiesTest {
   }
 
   @Test
-  public void fail_if_activity_data_is_not_well_formatted() throws SQLException {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Error during processing of row: ");
-
+  public void delete_the_rows_of_ACTIVITIES_that_do_not_have_profileKey() throws SQLException {
     db.executeInsert(ACTIVITIES_TABLE, "data_field", "key=fakeKey");
 
     underTest.execute();
+
+    assertThat(db.countRowsOfTable(ACTIVITIES_TABLE)).isEqualTo(0);
+  }
+
+  @Test
+  public void delete_the_rows_of_ACTIVITIES_that_have_empty_profileKey() throws SQLException {
+    insertActivity("");
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable(ACTIVITIES_TABLE)).isEqualTo(0);
+  }
+
+  @Test
+  public void delete_the_rows_of_ACTIVITIES_that_have_blank_profileKey() throws SQLException {
+    insertActivity("    ");
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable(ACTIVITIES_TABLE)).isEqualTo(0);
   }
 
   private void assertCountActivitiesWithProfile(String profileKey, int expectedNumberOfActivities) {
