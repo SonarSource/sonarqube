@@ -36,7 +36,7 @@ public class DbVersionModuleTest {
     underTest.configure(container);
 
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 5);
   }
 
 }

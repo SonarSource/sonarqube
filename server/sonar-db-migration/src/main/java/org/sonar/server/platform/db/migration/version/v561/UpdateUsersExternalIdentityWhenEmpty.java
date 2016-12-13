@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v561;
+package org.sonar.server.platform.db.migration.version.v561;
 
 import java.sql.SQLException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
-import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
 /**
  * Update USERS.EXTERNAL_IDENTITY_PROVIDER to 'sonarqube' and USERS.EXTERNAL_IDENTITY to user's login when one of this 2 columns is null
  */
-public class UpdateUsersExternalIdentityWhenEmpty extends BaseDataChange {
+public class UpdateUsersExternalIdentityWhenEmpty extends DataChange {
 
   private final System2 system2;
 

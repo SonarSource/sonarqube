@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.db.version.v561;
+package org.sonar.server.platform.db.migration.version.v561;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
+public class DbVersion561 implements DbVersion {
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry.add(1153, "Populate columns USERS.EXTERNAL_IDENTITY_*", UpdateUsersExternalIdentityWhenEmpty.class);
+  }
+}

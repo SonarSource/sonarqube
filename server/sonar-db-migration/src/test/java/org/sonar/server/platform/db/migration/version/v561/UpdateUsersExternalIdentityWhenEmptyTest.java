@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v561;
+package org.sonar.server.platform.db.migration.version.v561;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.version.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,15 +34,15 @@ import static org.mockito.Mockito.when;
 
 public class UpdateUsersExternalIdentityWhenEmptyTest {
 
+  private static final long PAST = 1_000_000_000_000L;
+  private static final long NOW = 1_500_000_000_000L;
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, UpdateUsersExternalIdentityWhenEmptyTest.class, "schema.sql");
 
-  static final long PAST = 1_000_000_000_000L;
-  static final long NOW = 1_500_000_000_000L;
+  private System2 system = mock(System2.class);
 
-  System2 system = mock(System2.class);
-
-  MigrationStep underTest = new UpdateUsersExternalIdentityWhenEmpty(db.database(), system);
+  private UpdateUsersExternalIdentityWhenEmpty underTest = new UpdateUsersExternalIdentityWhenEmpty(db.database(), system);
 
   @Before
   public void setUp() throws Exception {

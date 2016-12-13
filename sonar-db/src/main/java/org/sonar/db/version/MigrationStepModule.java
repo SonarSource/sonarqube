@@ -22,7 +22,6 @@ package org.sonar.db.version;
 import org.sonar.core.platform.Module;
 import org.sonar.db.version.v56.CreateInitialSchema;
 import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -30,9 +29,6 @@ public class MigrationStepModule extends Module {
     add(
       // 5.6
       CreateInitialSchema.class,
-      PopulateInitialSchema.class,
-
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+      PopulateInitialSchema.class);
   }
 }
