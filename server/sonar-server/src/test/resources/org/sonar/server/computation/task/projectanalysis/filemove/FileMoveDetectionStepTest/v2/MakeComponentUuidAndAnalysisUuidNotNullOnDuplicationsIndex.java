@@ -22,7 +22,6 @@ package org.sonar.db.version.v60;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AlterColumnsBuilder;
-import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;

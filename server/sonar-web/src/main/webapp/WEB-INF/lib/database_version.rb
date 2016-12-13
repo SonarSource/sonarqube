@@ -53,7 +53,7 @@ class DatabaseVersion
 
   def self.uptodate?
     unless $uptodate
-      $uptodate = (current_version>=target_version)
+      $uptodate = Java::OrgSonarServerUi::JRubyFacade.getInstance().isDbUptodate()
     end
     $uptodate
   end
@@ -63,7 +63,6 @@ class DatabaseVersion
   end
 
   def self.upgrade_and_start
-    ActiveRecord::Migrator.migrate(migrations_path)
     Java::OrgSonarServerPlatform::Platform.getInstance().upgradeDb()
     Java::OrgSonarServerPlatform::Platform.getInstance().doStart()
     load_java_web_services

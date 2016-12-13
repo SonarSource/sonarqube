@@ -21,7 +21,6 @@ package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 
 public class DeleteOrphanDuplicationsIndexRowsWithoutComponent extends BaseDataChange {

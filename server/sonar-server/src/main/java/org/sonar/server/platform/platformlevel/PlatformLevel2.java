@@ -25,7 +25,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.db.charset.DatabaseCharsetChecker;
-import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
@@ -75,9 +74,7 @@ public class PlatformLevel2 extends PlatformLevel {
     add(DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
     // Ruby DB Migration
-    add(
-      DatabaseMigrator.class,
-      MigrationStepModule.class);
+    add(DatabaseMigrator.class);
 
     addIfStartupLeader(
       DatabaseCharsetChecker.class,

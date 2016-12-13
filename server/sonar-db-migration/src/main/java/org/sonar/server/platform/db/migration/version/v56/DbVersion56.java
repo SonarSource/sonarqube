@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v56;
 
-import java.sql.SQLException;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link MigrationStepModule}
- * @since 3.7
- */
-public interface MigrationStep {
-
-  void execute() throws SQLException;
-
+public class DbVersion56 implements DbVersion {
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(1, "Create initial schema", CreateInitialSchema.class)
+      .add(2, "Populate initial schema", PopulateInitialSchema.class);
+  }
 }

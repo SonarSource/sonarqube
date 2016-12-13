@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v56;
+package org.sonar.server.platform.db.migration.version.v56;
 
 import java.sql.SQLException;
 import java.util.Date;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
-import org.sonar.db.version.BaseDataChange;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class PopulateInitialSchema extends BaseDataChange {
+public class PopulateInitialSchema extends DataChange {
 
   private static final String ADMINS_GROUP = "sonar-administrators";
   private static final String USERS_GROUP = "sonar-users";

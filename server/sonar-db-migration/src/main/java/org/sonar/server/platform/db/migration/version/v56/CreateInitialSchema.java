@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version.v56;
+package org.sonar.server.platform.db.migration.version.v56;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -26,10 +26,10 @@ import org.sonar.db.version.BooleanColumnDef;
 import org.sonar.db.version.ColumnDef;
 import org.sonar.db.version.CreateIndexBuilder;
 import org.sonar.db.version.CreateTableBuilder;
-import org.sonar.db.version.DdlChange;
 import org.sonar.db.version.IntegerColumnDef;
 import org.sonar.db.version.TinyIntColumnDef;
 import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.db.version.BlobColumnDef.newBlobColumnDefBuilder;

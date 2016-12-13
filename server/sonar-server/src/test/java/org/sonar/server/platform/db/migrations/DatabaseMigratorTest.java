@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
-import org.sonar.db.version.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
@@ -45,14 +44,13 @@ public class DatabaseMigratorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  MigrationStep[] migrations = new MigrationStep[] {new FakeMigrationStep()};
-  ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-  DatabaseMigrator migrator;
+  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  private DatabaseMigrator migrator;
 
   @Before
   public void setUp() {
-    migrator = new DatabaseMigrator(dbClient, migrations, serverUpgradeStatus, null);
+    migrator = new DatabaseMigrator(dbClient, serverUpgradeStatus, null);
   }
 
   @Test
@@ -61,21 +59,6 @@ public class DatabaseMigratorTest {
 
     assertThat(migrator.createDatabase()).isFalse();
     verify(dbClient, never()).openSession(anyBoolean());
-  }
-
-  @Test
-  public void fail_if_execute_unknown_migration() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Database migration not found: org.xxx.UnknownMigration");
-
-    migrator.executeMigration("org.xxx.UnknownMigration");
-  }
-
-  @Test
-  public void execute_migration() {
-    assertThat(FakeMigrationStep.executed).isFalse();
-    migrator.executeMigration(FakeMigrationStep.class.getName());
-    assertThat(FakeMigrationStep.executed).isTrue();
   }
 
   @Test
@@ -88,7 +71,7 @@ public class DatabaseMigratorTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
 
-    DatabaseMigrator databaseMigrator = new DatabaseMigrator(dbClient, migrations, serverUpgradeStatus, null) {
+    DatabaseMigrator databaseMigrator = new DatabaseMigrator(dbClient, serverUpgradeStatus, null) {
       @Override
       protected void createSchema(Connection connection, String dialectId) {
       }
@@ -97,12 +80,4 @@ public class DatabaseMigratorTest {
     assertThat(databaseMigrator.createDatabase()).isTrue();
   }
 
-  public static class FakeMigrationStep implements MigrationStep {
-    static boolean executed = false;
-
-    @Override
-    public void execute() {
-      executed = true;
-    }
-  }
 }

@@ -55,13 +55,12 @@ import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.platform.db.migration.DatabaseMigrationState.*;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 
 public final class JRubyFacade {
 
@@ -153,9 +152,8 @@ public final class JRubyFacade {
     return get(Database.class);
   }
 
-  // Only used by Java migration
-  public DatabaseMigrator databaseMigrator() {
-    return get(DatabaseMigrator.class);
+  public boolean isDbUptodate() {
+    return getContainer().getComponentByType(DatabaseVersion.class).getStatus() == DatabaseVersion.Status.UP_TO_DATE;
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
