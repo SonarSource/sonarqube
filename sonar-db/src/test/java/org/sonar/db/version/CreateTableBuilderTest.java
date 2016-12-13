@@ -253,7 +253,7 @@ public class CreateTableBuilderTest {
       .build();
     assertThat(stmts).hasSize(3);
     assertThat(stmts.get(0))
-      .isEqualTo("CREATE TABLE table_42 (id INTEGER NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+      .isEqualTo("CREATE TABLE table_42 (id NUMBER(38,0) NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
     assertThat(stmts.get(1))
       .isEqualTo("CREATE SEQUENCE table_42_seq START WITH 1 INCREMENT BY 1");
     assertThat(stmts.get(2))
