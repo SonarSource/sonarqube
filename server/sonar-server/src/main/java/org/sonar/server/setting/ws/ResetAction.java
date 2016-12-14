@@ -98,7 +98,7 @@ public class ResetAction implements SettingsWsAction {
       resetRequest.getKeys().forEach(key -> {
         SettingData data = new SettingData(key, emptyList(), component.orElse(null));
         ImmutableList.of(validations.scope(), validations.qualifier())
-          .forEach(validation -> validation.validate(data));
+          .forEach(validation -> validation.accept(data));
       });
 
       List<String> keys = getKeys(resetRequest);

@@ -22,6 +22,7 @@ package org.sonar.server.setting.ws;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -51,7 +52,7 @@ public class SettingValidations {
     this.i18n = i18n;
   }
 
-  public SettingValidation scope() {
+  public Consumer<SettingData> scope() {
     return data -> {
       PropertyDefinition definition = definitions.get(data.key);
       checkRequest(data.component != null || definition == null || definition.global() || isGlobal(definition),
@@ -59,7 +60,7 @@ public class SettingValidations {
     };
   }
 
-  public SettingValidation qualifier() {
+  public Consumer<SettingData> qualifier() {
     return data -> {
       String qualifier = data.component == null ? "" : data.component.qualifier();
       PropertyDefinition definition = definitions.get(data.key);
@@ -68,17 +69,12 @@ public class SettingValidations {
     };
   }
 
-  public SettingValidation valueType() {
+  public Consumer<SettingData> valueType() {
     return new ValueTypeValidation();
   }
 
   private static boolean isGlobal(PropertyDefinition definition) {
     return !definition.global() && definition.qualifiers().isEmpty();
-  }
-
-  @FunctionalInterface
-  public interface SettingValidation {
-    void validate(SettingData data);
   }
 
   public static class SettingData {
@@ -94,10 +90,9 @@ public class SettingValidations {
     }
   }
 
-  private class ValueTypeValidation implements SettingValidation {
-
+  private class ValueTypeValidation implements Consumer<SettingData> {
     @Override
-    public void validate(SettingData data) {
+    public void accept(SettingData data) {
       PropertyDefinition definition = definitions.get(data.key);
       if (definition == null) {
         return;

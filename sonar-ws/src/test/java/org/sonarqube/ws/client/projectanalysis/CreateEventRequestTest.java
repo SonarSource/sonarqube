@@ -49,7 +49,7 @@ public class CreateEventRequestTest {
   public void other_category_by_default() {
     CreateEventRequest result = underTest.setAnalysis("P1").setName("name").build();
 
-    assertThat(OTHER.equals(result.getCategory()));
+    assertThat(OTHER).isEqualTo(result.getCategory());
   }
 
   @Test

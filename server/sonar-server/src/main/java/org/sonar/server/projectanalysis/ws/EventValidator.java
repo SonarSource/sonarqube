@@ -32,6 +32,10 @@ class EventValidator {
   private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of("Version", "Other");
   private static final String AUTHORIZED_CATEGORIES_INLINED = Joiner.on(", ").join(AUTHORIZED_CATEGORIES);
 
+  private EventValidator() {
+    // prevent instantiation
+  }
+
   static Consumer<EventDto> checkModifiable() {
     return event -> checkArgument(AUTHORIZED_CATEGORIES.contains(event.getCategory()),
       "Event of category '%s' cannot be modified. Authorized categories: %s",

@@ -206,10 +206,10 @@ public class SetAction implements SettingsWsAction {
     checkValueIsSet(request);
     SettingData settingData = new SettingData(request.getKey(), valuesFromRequest(request), component.orElse(null));
     ImmutableList.of(validations.scope(), validations.qualifier(), validations.valueType())
-      .forEach(validation -> validation.validate(settingData));
+      .forEach(validation -> validation.accept(settingData));
   }
 
-  private void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
+  private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
     checkRequest(definition != null, "Setting '%s' is undefined", request.getKey());
     checkRequest(PropertyType.PROPERTY_SET.equals(definition.type()), "Parameter '%s' is used for setting of property set type only", PARAM_FIELD_VALUES);
 
