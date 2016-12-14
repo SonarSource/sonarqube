@@ -45,7 +45,7 @@ public class IssueCommentService {
   }
 
   public IssueComment deleteComment(String commentKey) {
-    DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
+    DefaultIssueComment comment = dbClient.issueChangeDao().selectDefaultCommentByKey(commentKey);
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
@@ -61,7 +61,7 @@ public class IssueCommentService {
   }
 
   public IssueComment editComment(String commentKey, String text) {
-    DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
+    DefaultIssueComment comment = dbClient.issueChangeDao().selectDefaultCommentByKey(commentKey);
     if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
     }

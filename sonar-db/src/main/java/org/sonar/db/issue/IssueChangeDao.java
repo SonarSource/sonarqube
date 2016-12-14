@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -68,7 +69,7 @@ public class IssueChangeDao implements Dao {
   }
 
   @CheckForNull
-  public DefaultIssueComment selectCommentByKey(String commentKey) {
+  public DefaultIssueComment selectDefaultCommentByKey(String commentKey) {
     DbSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = mapper(session);
@@ -82,6 +83,10 @@ public class IssueChangeDao implements Dao {
 
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {
     return executeLargeInputs(issueKeys, issueKeys1 -> mapper(session).selectByIssuesAndType(issueKeys1, changeType));
+  }
+
+  public Optional<IssueChangeDto> selectCommentByKey(DbSession session, String commentKey) {
+    return Optional.ofNullable(mapper(session).selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT));
   }
 
   public void insert(DbSession session, IssueChangeDto change) {

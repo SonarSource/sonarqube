@@ -76,7 +76,7 @@ public class IssueCommentServiceTest {
 
   @Test
   public void should_delete_comment() {
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("admin").setIssueKey("EFGH"));
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("admin").setIssueKey("EFGH"));
 
     issueCommentService.deleteComment("ABCD");
 
@@ -88,7 +88,7 @@ public class IssueCommentServiceTest {
   public void should_not_delete_not_found_comment() {
     throwable.expect(NotFoundException.class);
 
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(null);
 
     issueCommentService.deleteComment("ABCD");
 
@@ -99,7 +99,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_delete_others_comment() {
     throwable.expect(ForbiddenException.class);
 
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
 
     issueCommentService.deleteComment("ABCD");
 
@@ -108,7 +108,7 @@ public class IssueCommentServiceTest {
 
   @Test
   public void should_update_comment() {
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setIssueKey("EFGH").setUserLogin("admin"));
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setIssueKey("EFGH").setUserLogin("admin"));
 
     issueCommentService.editComment("ABCD", "updated comment");
 
@@ -120,7 +120,7 @@ public class IssueCommentServiceTest {
   public void should_not_update_not_found_comment() {
     throwable.expect(NotFoundException.class);
 
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(null);
 
     issueCommentService.editComment("ABCD", "updated comment");
 
@@ -149,7 +149,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_updating_others_comment() {
     throwable.expect(ForbiddenException.class);
 
-    when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
+    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
 
     issueCommentService.editComment("ABCD", "updated comment");
 

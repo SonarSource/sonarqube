@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -34,7 +35,6 @@ import org.sonar.db.DbTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
 
 public class IssueChangeDaoTest {
 
@@ -75,16 +75,16 @@ public class IssueChangeDaoTest {
   }
 
   @Test
-  public void select_comment_by_key() {
+  public void select_default_comment_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    DefaultIssueComment comment = underTest.selectCommentByKey("FGHIJ");
+    DefaultIssueComment comment = underTest.selectDefaultCommentByKey("FGHIJ");
     assertThat(comment).isNotNull();
     assertThat(comment.key()).isEqualTo("FGHIJ");
     assertThat(comment.key()).isEqualTo("FGHIJ");
     assertThat(comment.userLogin()).isEqualTo("arthur");
 
-    assertThat(underTest.selectCommentByKey("UNKNOWN")).isNull();
+    assertThat(underTest.selectDefaultCommentByKey("UNKNOWN")).isNull();
   }
 
   @Test
@@ -114,6 +114,23 @@ public class IssueChangeDaoTest {
     List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(session, Collections.<String>emptyList());
 
     assertThat(comments).isEmpty();
+  }
+
+  @Test
+  public void select_comment_by_key() {
+    IssueDto issueDto = db.issues().insertIssue();
+    IssueChangeDto comment = db.issues().insertComment(issueDto, "john", "some comment");
+
+    Optional<IssueChangeDto> issueChangeDto = underTest.selectCommentByKey(db.getSession(), comment.getKey());
+
+    assertThat(issueChangeDto).isPresent();
+    assertThat(issueChangeDto.get().getKey()).isEqualTo(comment.getKey());
+    assertThat(issueChangeDto.get().getChangeType()).isEqualTo(IssueChangeDto.TYPE_COMMENT);
+    assertThat(issueChangeDto.get().getUserLogin()).isEqualTo("john");
+    assertThat(issueChangeDto.get().getChangeData()).isEqualTo("some comment");
+    assertThat(issueChangeDto.get().getIssueChangeCreationDate()).isNotNull();
+    assertThat(issueChangeDto.get().getCreatedAt()).isNotNull();
+    assertThat(issueChangeDto.get().getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -147,7 +164,7 @@ public class IssueChangeDaoTest {
     underTest.insert(db.getSession(), changeDto);
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "issue_changes");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "issue_changes");
   }
 
   @Test
@@ -179,4 +196,5 @@ public class IssueChangeDaoTest {
 
     assertThat(underTest.update(change)).isFalse();
   }
+
 }

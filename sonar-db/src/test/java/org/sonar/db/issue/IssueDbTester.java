@@ -21,8 +21,16 @@
 package org.sonar.db.issue;
 
 import java.util.Arrays;
+import javax.annotation.Nullable;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.rule.RuleDto;
+
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class IssueDbTester {
 
@@ -38,8 +46,27 @@ public class IssueDbTester {
     return issueDto;
   }
 
-  public void insertIssueChanges(IssueDto issueDto, FieldDiffs... diffs) {
+  public IssueDto insertIssue() {
+    RuleDto rule = db.rules().insertRule(newRuleDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    return insertIssue(newDto(rule, file, project));
+  }
+
+  public IssueChangeDto insertChange(IssueChangeDto issueChangeDto) {
+    db.getDbClient().issueChangeDao().insert(db.getSession(), issueChangeDto);
+    db.commit();
+    return issueChangeDto;
+  }
+
+  public IssueChangeDto insertComment(IssueDto issueDto, @Nullable String login, String text) {
+    IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), login, text));
+    return insertChange(issueChangeDto);
+  }
+
+  public void insertFieldDiffs(IssueDto issueDto, FieldDiffs... diffs) {
     Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff)));
     db.commit();
   }
+
 }
