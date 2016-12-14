@@ -64,7 +64,7 @@ public class UserSessionInitializer {
     "/setup/*",
     "/sessions/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
-    "/api/server/index", "/api/server/setup", "/api/server/version",
+    "/api/server/version",
     "/api/users/identity_providers", "/api/l10n/index",
     LOGIN_URL, LOGOUT_URL, VALIDATE_URL);
 

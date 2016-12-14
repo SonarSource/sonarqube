@@ -156,7 +156,6 @@ public class JwtCsrfVerifierTest {
     executeVerifyStateDoesNotFailOnRequest("/api/issues/bulk_change?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/projects/create?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/properties/create?key=ABCD", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/server", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/user_properties", "POST");
   }
 

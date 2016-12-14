@@ -20,52 +20,38 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonarqube.ws.MediaTypes;
 
-public class ServerWs implements WebService {
+public class ServerWs implements WebService, RequestHandler {
+
+  private final Server server;
+
+  public ServerWs(Server server) {
+    this.server = server;
+  }
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/server")
-      .setDescription("Get system properties and upgrade db")
-      .setSince("2.10");
+    NewController controller = context.createController("api/server");
 
-    defineIndexAction(controller);
-    defineSetupAction(controller);
+    controller.createAction("version")
+      .setDescription("Version of SonarQube in plain text")
+      .setSince("2.10")
+      .setResponseExample(Resources.getResource(this.getClass(), "example-server-version.txt"))
+      .setHandler(this);
 
     controller.done();
   }
 
-  private void defineIndexAction(NewController controller) {
-    NewAction action = controller.createAction("index")
-      .setDescription("Get the server status:" +
-        "<ul>" +
-        "<li>UP</li>" +
-        "<li>DOWN (generally for database connection failures)</li>" +
-        "<li>SETUP (if the server must be upgraded)</li>" +
-        "<li>MIGRATION_RUNNING (the upgrade process is currently running)</li>" +
-        "</ul>")
-      .setSince("2.10")
-      .setHandler(RailsHandler.INSTANCE)
-      .setInternal(true)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
-
-    RailsHandler.addFormatParam(action);
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    response.stream().setMediaType(MediaTypes.TXT);
+    IOUtils.write(server.getVersion(), response.stream().output());
   }
-
-  private void defineSetupAction(NewController controller) {
-    NewAction action = controller.createAction("setup")
-      .setDescription("Upgrade the SonarQube database")
-      .setSince("2.10")
-      .setPost(true)
-      .setInternal(true)
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-setup.json"));
-
-    action.createParam("format")
-      .setDescription("Response format")
-      .setPossibleValues("json", "csv", "text");
-  }
-
 }

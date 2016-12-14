@@ -107,8 +107,6 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/system/db_migration_status");
     assertPathIsIgnored("/api/system/status");
     assertPathIsIgnored("/api/system/migrate_db");
-    assertPathIsIgnored("/api/server/index");
-    assertPathIsIgnored("/api/server/setup");
     assertPathIsIgnored("/api/server/version");
     assertPathIsIgnored("/api/users/identity_providers");
     assertPathIsIgnored("/api/l10n/index");
