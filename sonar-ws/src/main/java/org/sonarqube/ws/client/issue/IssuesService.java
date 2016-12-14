@@ -19,12 +19,16 @@
  */
 package org.sonarqube.ws.client.issue;
 
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ADD_COMMENT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASC;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNED;
@@ -48,6 +52,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECT_UUIDS;
@@ -110,6 +116,15 @@ public class IssuesService extends BaseService {
   }
 
   public ChangelogWsResponse changelog(String issueKey) {
-    return call(new GetRequest(path("changelog")).setParam(IssuesWsParameters.PARAM_ISSUE, issueKey), ChangelogWsResponse.parser());
+    return call(new GetRequest(path(ACTION_CHANGELOG))
+      .setParam(PARAM_ISSUE, issueKey),
+      ChangelogWsResponse.parser());
+  }
+
+  public Issues.Operation addComment(String issueKey, String commentText) {
+    return call(new PostRequest(path(ACTION_ADD_COMMENT))
+      .setParam(PARAM_ISSUE, issueKey)
+      .setParam(PARAM_TEXT, commentText),
+      Issues.Operation.parser());
   }
 }

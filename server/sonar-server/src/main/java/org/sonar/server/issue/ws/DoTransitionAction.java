@@ -75,7 +75,7 @@ public class DoTransitionAction implements IssuesWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
     String issue = request.mandatoryParam("issue");
     try (DbSession dbSession = dbClient.openSession(false)) {

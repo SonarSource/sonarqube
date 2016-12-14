@@ -32,8 +32,10 @@ public class IssuesWsParameters {
   public static final String CONTROLLER_ISSUES = "api/issues";
 
   public static final String ACTION_CHANGELOG = "changelog";
+  public static final String ACTION_ADD_COMMENT = "add_comment";
 
   public static final String PARAM_ISSUE = "issue";
+  public static final String PARAM_TEXT = "text";
 
   public static final String ISSUES = "issues";
   public static final String SEVERITIES = "severities";

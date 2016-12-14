@@ -20,89 +20,28 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueCommentService {
 
   private final DbClient dbClient;
   private final IssueService issueService;
-  private final IssueFieldsSetter updater;
   private final UserSession userSession;
 
-  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueFieldsSetter updater, UserSession userSession) {
+  public IssueCommentService(DbClient dbClient, IssueService issueService, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
-    this.updater = updater;
     this.userSession = userSession;
-  }
-
-  public List<DefaultIssueComment> findComments(String issueKey) {
-    return findComments(newArrayList(issueKey));
-  }
-
-  public List<DefaultIssueComment> findComments(DbSession dbSession, String issueKey) {
-    return findComments(dbSession, newArrayList(issueKey));
-  }
-
-  public List<DefaultIssueComment> findComments(Collection<String> issueKeys) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return findComments(session, issueKeys);
-    } finally {
-      session.close();
-    }
-  }
-
-  public List<DefaultIssueComment> findComments(DbSession session, Collection<String> issueKeys) {
-    return dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
-  }
-
-  public IssueComment findComment(String commentKey) {
-    return dbClient.issueChangeDao().selectCommentByKey(commentKey);
-  }
-
-  public IssueComment addComment(String issueKey, String text) {
-    verifyLoggedIn(userSession);
-    if (StringUtils.isBlank(text)) {
-      throw new BadRequestException("Cannot add empty comments to an issue");
-    }
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      updater.addComment(issue, text, context);
-
-      issueService.saveIssue(session, issue, context, text);
-      session.commit();
-
-      List<DefaultIssueComment> comments = findComments(issueKey);
-      if (comments.isEmpty()) {
-        throw new BadRequestException(String.format("Fail to add a comment on issue %s", issueKey));
-      }
-      return comments.get(comments.size() - 1);
-    } finally {
-      session.close();
-    }
   }
 
   public IssueComment deleteComment(String commentKey) {
@@ -142,11 +81,5 @@ public class IssueCommentService {
     dbClient.issueChangeDao().update(dto);
 
     return comment;
-  }
-
-  private void verifyLoggedIn(UserSession userSession) {
-    if (!userSession.isLoggedIn()) {
-      throw new UnauthorizedException("User is not logged in");
-    }
   }
 }

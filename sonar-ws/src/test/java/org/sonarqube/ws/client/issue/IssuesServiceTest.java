@@ -24,12 +24,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
 
 public class IssuesServiceTest {
 
@@ -47,6 +49,19 @@ public class IssuesServiceTest {
     assertThat(serviceTester.getGetParser()).isSameAs(Issues.ChangelogWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_ISSUE, "ABCD")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void add_comment() {
+    underTest.addComment("ABCD", "Please help me to fix this issue");
+
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam(PARAM_ISSUE, "ABCD")
+      .hasParam(PARAM_TEXT, "Please help me to fix this issue")
       .andNoOtherParam();
   }
 

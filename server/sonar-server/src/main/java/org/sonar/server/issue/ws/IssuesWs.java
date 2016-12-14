@@ -29,7 +29,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES
 
 public class IssuesWs implements WebService {
 
-  public static final String ADD_COMMENT_ACTION = "add_comment";
   public static final String DELETE_COMMENT_ACTION = "delete_comment";
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
@@ -53,27 +52,9 @@ public class IssuesWs implements WebService {
   }
 
   private static void defineRailsActions(NewController controller) {
-    defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
     defineBulkChangeAction(controller);
-  }
-
-  private static void defineAddCommentAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(ADD_COMMENT_ACTION)
-      .setDescription("Add a comment. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("text")
-      .setDescription("Comment")
-      .setExampleValue("blabla...");
-    RailsHandler.addFormatParam(action);
   }
 
   private static void defineDeleteCommentAction(NewController controller) {

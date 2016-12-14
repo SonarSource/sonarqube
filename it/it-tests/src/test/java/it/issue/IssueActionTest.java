@@ -22,18 +22,24 @@ package it.issue;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueComment;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.issue.Issues;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.issue.IssuesService;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.issue.IssueRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonarqube.ws.Common.Severity.BLOCKER;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.toDatetime;
 import static util.ItUtils.verifyHttpException;
 
 public class IssueActionTest extends AbstractIssueTest {
@@ -41,8 +47,13 @@ public class IssueActionTest extends AbstractIssueTest {
   @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
 
-  Issue issue;
-  ProjectAnalysis projectAnalysis;
+  @ClassRule
+  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+
+  private ProjectAnalysis projectAnalysis;
+  private IssuesService issuesService;
+
+  private Issue randomIssue;
 
   @Before
   public void setup() {
@@ -51,29 +62,31 @@ public class IssueActionTest extends AbstractIssueTest {
 
     this.projectAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey);
     this.projectAnalysis.run();
-    this.issue = searchRandomIssue();
+    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    this.randomIssue = issueRule.getRandomIssue();
   }
 
   @Test
   public void no_comments_by_default() throws Exception {
-    assertThat(issue.comments()).isEmpty();
+    assertThat(randomIssue.getComments().getCommentsList()).isEmpty();
   }
 
   @Test
   public void add_comment() throws Exception {
-    IssueComment comment = adminIssueClient().addComment(issue.key(), "this is my *comment*");
-    assertThat(comment.key()).isNotNull();
-    assertThat(comment.htmlText()).isEqualTo("this is my <strong>comment</strong>");
-    assertThat(comment.login()).isEqualTo("admin");
-    assertThat(comment.createdAt()).isNotNull();
+    Issues.Comment comment = issuesService.addComment(randomIssue.getKey(), "this is my *comment*").getIssue().getComments().getComments(0);
+
+    assertThat(comment.getKey()).isNotNull();
+    assertThat(comment.getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
+    assertThat(comment.getLogin()).isEqualTo("admin");
+    assertThat(comment.getCreatedAt()).isNotNull();
 
     // reload issue
-    Issue reloaded = searchIssue(issue.key(), true);
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
 
-    assertThat(reloaded.comments()).hasSize(1);
-    assertThat(reloaded.comments().get(0).key()).isEqualTo(comment.key());
-    assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("this is my <strong>comment</strong>");
-    assertThat(reloaded.updateDate().before(issue.creationDate())).isFalse();
+    assertThat(reloaded.getComments().getCommentsList()).hasSize(1);
+    assertThat(reloaded.getComments().getComments(0).getKey()).isEqualTo(comment.getKey());
+    assertThat(reloaded.getComments().getComments(0).getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
+    assertThat(toDatetime(reloaded.getUpdateDate())).isAfter(toDatetime(randomIssue.getUpdateDate()));
   }
 
   /**
@@ -82,14 +95,14 @@ public class IssueActionTest extends AbstractIssueTest {
   @Test
   public void should_reject_blank_comment() throws Exception {
     try {
-      adminIssueClient().addComment(issue.key(), "  ");
+      issuesService.addComment(randomIssue.getKey(), "  ");
       fail();
-    } catch (HttpException ex) {
-      assertThat(ex.status()).isEqualTo(400);
+    } catch (org.sonarqube.ws.client.HttpException ex) {
+      assertThat(ex.code()).isEqualTo(400);
     }
 
-    Issue reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.comments()).hasSize(0);
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.getComments().getCommentsList()).isEmpty();
   }
 
   /**
@@ -103,17 +116,17 @@ public class IssueActionTest extends AbstractIssueTest {
     assertThat(searchIssuesBySeverities(componentKey, "BLOCKER")).isEmpty();
 
     // increase the severity of an issue
-    adminIssueClient().setSeverity(issue.key(), "BLOCKER");
+    adminIssueClient().setSeverity(randomIssue.getKey(), "BLOCKER");
 
     assertThat(searchIssuesBySeverities(componentKey, "BLOCKER")).hasSize(1);
 
     projectAnalysis.run();
-    Issue reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.severity()).isEqualTo("BLOCKER");
-    assertThat(reloaded.status()).isEqualTo("OPEN");
-    assertThat(reloaded.resolution()).isNull();
-    assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(reloaded.creationDate().before(reloaded.updateDate())).isTrue();
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(reloaded.getStatus()).isEqualTo("OPEN");
+    assertThat(reloaded.hasResolution()).isFalse();
+    assertThat(reloaded.getCreationDate()).isEqualTo(randomIssue.getCreationDate());
+    assertThat(toDatetime(reloaded.getCreationDate())).isBefore(toDatetime(reloaded.getUpdateDate()));
   }
 
   /**
@@ -121,26 +134,26 @@ public class IssueActionTest extends AbstractIssueTest {
    */
   @Test
   public void assign() {
-    assertThat(issue.assignee()).isNull();
-    Issues issues = search(IssueQuery.create().issues(issue.key()));
-    assertThat(issues.users()).isEmpty();
+    assertThat(randomIssue.hasAssignee()).isFalse();
+    Issues.SearchWsResponse response = issueRule.search(new SearchWsRequest().setIssues(singletonList(randomIssue.getKey())));
+    assertThat(response.getUsers().getUsersList()).isEmpty();
 
-    adminIssueClient().assign(issue.key(), "admin");
-    Assertions.assertThat(searchIssues(IssueQuery.create().assignees("admin"))).hasSize(1);
+    adminIssueClient().assign(randomIssue.getKey(), "admin");
+    assertThat(issueRule.search(new SearchWsRequest().setAssignees(singletonList("admin"))).getIssuesList()).hasSize(1);
 
     projectAnalysis.run();
-    Issue reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.assignee()).isEqualTo("admin");
-    assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.getAssignee()).isEqualTo("admin");
+    assertThat(reloaded.getCreationDate()).isEqualTo(randomIssue.getCreationDate());
 
-    issues = search(IssueQuery.create().issues(issue.key()));
-    assertThat(issues.user("admin")).isNotNull();
-    assertThat(issues.user("admin").name()).isEqualTo("Administrator");
+    response = issueRule.search(new SearchWsRequest().setIssues(singletonList(randomIssue.getKey())).setAdditionalFields(singletonList("users")));
+    assertThat(response.getUsers().getUsersList().stream().filter(user -> "admin".equals(user.getLogin())).findFirst()).isPresent();
+    assertThat(response.getUsers().getUsersList().stream().filter(user -> "Administrator".equals(user.getName())).findFirst()).isPresent();
 
     // unassign
-    adminIssueClient().assign(issue.key(), null);
-    reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.assignee()).isNull();
+    adminIssueClient().assign(randomIssue.getKey(), null);
+    reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.hasAssignee()).isFalse();
     Assertions.assertThat(searchIssues(IssueQuery.create().assignees("admin"))).isEmpty();
   }
 
@@ -149,17 +162,17 @@ public class IssueActionTest extends AbstractIssueTest {
    */
   @Test
   public void fail_assign_if_assignee_does_not_exist() {
-    assertThat(issue.assignee()).isNull();
+    assertThat(randomIssue.hasAssignee()).isFalse();
     try {
-      adminIssueClient().assign(issue.key(), "unknown");
+      adminIssueClient().assign(randomIssue.getKey(), "unknown");
       fail();
     } catch (Exception e) {
       verifyHttpException(e, 400);
     }
   }
 
-  private static List<Issue> searchIssuesBySeverities(String componentKey, String... severities) {
-    return searchIssues(IssueQuery.create().componentRoots(componentKey).severities(severities));
+  private static List<Issue> searchIssuesBySeverities(String projectKey, String severity) {
+    return issueRule.search(new SearchWsRequest().setProjectKeys(singletonList(projectKey)).setSeverities(singletonList(severity))).getIssuesList();
   }
 
 }

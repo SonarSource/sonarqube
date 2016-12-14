@@ -51,16 +51,6 @@ public class InternalRubyIssueService {
     this.userSession = userSession;
   }
 
-  public Result<IssueComment> addComment(String issueKey, String text) {
-    Result<IssueComment> result = Result.of();
-    try {
-      result.set(commentService.addComment(issueKey, text));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
   public IssueComment deleteComment(String commentKey) {
     return commentService.deleteComment(commentKey);
   }

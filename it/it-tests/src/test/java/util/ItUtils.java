@@ -275,6 +275,15 @@ public class ItUtils {
     }
   }
 
+  public static Date toDatetime(String sDate) {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+      return sdf.parse(sDate);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static String formatDate(Date d) {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     return sdf.format(d);

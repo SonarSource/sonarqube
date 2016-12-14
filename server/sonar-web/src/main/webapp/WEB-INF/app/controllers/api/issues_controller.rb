@@ -22,34 +22,6 @@
 class Api::IssuesController < Api::ApiController
 
   #
-  # POST /api/issues/add_comment?issue=<key>&text=<text>
-  #
-  # -- Mandatory parameters
-  # 'issue' is the key of an existing issue
-  # 'text' is the markdown message. It can be set as an URL parameter or as the post request body.
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/add_comment?issue=4a2881e7-825e-4140-a154-01f420c43d11&text=foooo'
-  #
-  def add_comment
-    verify_post_request
-    require_parameters :issue, :text
-
-    text = Api::Utils.read_post_request_param(params[:text])
-    result = Internal.issues.addComment(params[:issue], text)
-
-    http_status = (result.ok ? 200 : 400)
-    hash = result_to_hash(result)
-    hash[:comment] = Issue.comment_to_hash(result.get) if result.get
-
-    respond_to do |format|
-      # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
-    end
-  end
-
-  #
   # POST /api/issues/delete_comment?key=<key>
   #
   # -- Mandatory parameters
