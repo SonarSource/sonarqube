@@ -3,13 +3,12 @@
 }
 
 .project-activity-day {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .project-activity-date {
-  margin-bottom: 10px;
-  padding-left: 130px;
-  font-size: 12px;
+  margin-bottom: 16px;
+  font-size: 15px;
   font-weight: bold;
 }
 
@@ -33,15 +32,6 @@
   border-top: none;
 }
 
-.project-activity-analysis:first-child .project-activity-time::before {
-  top: 10px;
-}
-
-.project-activity-analysis:last-child .project-activity-time::before {
-  height: 10px;
-  bottom: auto;
-}
-
 .project-activity-time {
   float: left;
   width: 130px;
@@ -51,18 +41,6 @@
   font-size: 12px;
   font-weight: bold;
   text-align: right;
-}
-
-.project-activity-time::before {
-  position: absolute;
-  z-index: 20;
-  top: 0;
-  bottom: -1px;
-  left: 104px;
-  display: block;
-  width: 0;
-  border-left: 2px solid #4b9fd5;
-  content: "";
 }
 
 .project-activity-time::after {
@@ -76,7 +54,6 @@
   border: 2px solid #4b9fd5;
   border-radius: 10px;
   box-sizing: border-box;
-  background-color: #fff;
   content: "";
 }
 
@@ -94,7 +71,7 @@
 }
 
 .project-activity-version-badge {
-  padding: 4px 8px;
+  padding: 2px 8px;
   border-radius: 2px;
   font-weight: bold;
   font-size: 12px;

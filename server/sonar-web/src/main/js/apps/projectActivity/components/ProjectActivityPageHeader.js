@@ -47,10 +47,6 @@ class ProjectActivityPageHeader extends React.Component {
 
     return (
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('project_activity.page')}
-          </h1>
-
           <div className="page-actions">
             <Select
                 className="input-medium"
@@ -60,6 +56,10 @@ class ProjectActivityPageHeader extends React.Component {
                 value={this.props.filter}
                 options={selectOptions}
                 onChange={this.handleChange}/>
+          </div>
+
+          <div className="page-description">
+            {translate('project_activity.page.description')}
           </div>
         </header>
     );

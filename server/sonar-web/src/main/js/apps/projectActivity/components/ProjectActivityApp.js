@@ -39,12 +39,18 @@ class ProjectActivityApp extends React.Component {
   props: Props;
 
   componentDidMount () {
+    document.querySelector('html').classList.add('dashboard-page');
+
     // reset filter when opening the page
     if (this.props.filter) {
       this.props.changeFilter(this.props.location.query.id, null);
     } else {
       this.props.fetchProjectActivity(this.props.location.query.id);
     }
+  }
+
+  componentWillUnmount () {
+    document.querySelector('html').classList.remove('dashboard-page');
   }
 
   render () {

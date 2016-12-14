@@ -19,11 +19,9 @@
  */
 // @flow
 import React from 'react';
-import partition from 'lodash/partition';
 import Events from './Events';
 import FormattedDate from '../../../components/ui/FormattedDate';
-import type { Analysis, Event } from '../../../store/projectActivity/duck';
-import { translate } from '../../../helpers/l10n';
+import type { Analysis } from '../../../store/projectActivity/duck';
 
 export default class ProjectActivityAnalysis extends React.Component {
   props: {
@@ -32,7 +30,6 @@ export default class ProjectActivityAnalysis extends React.Component {
 
   render () {
     const { date, events } = this.props.analysis;
-    const [versions, other] = partition(events, (event: Event) => event.category === 'VERSION');
 
     return (
         <li className="project-activity-analysis">
@@ -41,19 +38,10 @@ export default class ProjectActivityAnalysis extends React.Component {
           </div>
 
           <div className="project-activity-events">
-            <div className="project-activity-events-primary">
-              {translate('project_activity.project_analyzed')}
-              {versions.length > 0 && (
-                  <div className="spacer-top">
-                    <Events events={versions}/>
-                  </div>
-              )}
-            </div>
-
-            {other.length > 0 && (
-                <div className="project-activity-events-secondary">
-                  <Events events={other}/>
-                </div>
+            {events.length > 0 ? (
+                <Events events={events}/>
+            ) : (
+                <span>&nbsp;</span>
             )}
           </div>
         </li>

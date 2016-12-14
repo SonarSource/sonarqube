@@ -51,21 +51,23 @@ class ProjectActivityAnalysesList extends React.Component {
     const byDay = groupBy(this.props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
 
     return (
-        <ul className="project-activity-days-list">
-          {Object.keys(byDay).map(day => (
-              <li key={day} className="project-activity-day">
-                <div className="project-activity-date">
-                  <FormattedDate date={Number(day)} format="LL"/>
-                </div>
+        <div className="boxed-group boxed-group-inner">
+          <ul className="project-activity-days-list">
+            {Object.keys(byDay).map(day => (
+                <li key={day} className="project-activity-day">
+                  <div className="project-activity-date">
+                    <FormattedDate date={Number(day)} format="LL"/>
+                  </div>
 
-                <ul className="project-activity-analyses-list">
-                  {byDay[day].map(analysis => (
-                      <ProjectActivityAnalysis key={analysis.key} analysis={analysis}/>
-                  ))}
-                </ul>
-              </li>
-          ))}
-        </ul>
+                  <ul className="project-activity-analyses-list">
+                    {byDay[day].map(analysis => (
+                        <ProjectActivityAnalysis key={analysis.key} analysis={analysis}/>
+                    ))}
+                  </ul>
+                </li>
+            ))}
+          </ul>
+        </div>
     );
   }
 }

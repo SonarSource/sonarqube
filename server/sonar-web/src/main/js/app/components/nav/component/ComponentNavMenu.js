@@ -23,7 +23,6 @@ import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
-  '/project/activity',
   '/project/settings',
   '/project/quality_profiles',
   '/project/quality_gate',
@@ -96,6 +95,17 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
+  renderActivityLink () {
+    return (
+        <li>
+          <Link to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
+                activeClassName="active">
+            {translate('project_activity.page')}
+          </Link>
+        </li>
+    );
+  }
+
   renderComponentIssuesLink () {
     return (
         <li>
@@ -139,7 +149,6 @@ export default class ComponentNavMenu extends React.Component {
             {this.renderCustomMeasuresLink()}
             {this.renderLinksLink()}
             {this.renderPermissionsLink()}
-            {this.renderHistoryLink()}
             {this.renderBackgroundTasksLink()}
             {this.renderUpdateKeyLink()}
             {this.renderExtensions()}
@@ -239,20 +248,6 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
-  renderHistoryLink () {
-    if (!this.props.conf.showHistory) {
-      return null;
-    }
-    return (
-        <li>
-          <Link to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
-                activeClassName="active">
-            {translate('project_activity.page')}
-          </Link>
-        </li>
-    );
-  }
-
   renderBackgroundTasksLink () {
     if (!this.props.conf.showBackgroundTasks) {
       return null;
@@ -336,6 +331,7 @@ export default class ComponentNavMenu extends React.Component {
           {this.renderComponentIssuesLink()}
           {this.renderComponentMeasuresLink()}
           {this.renderCodeLink()}
+          {this.renderActivityLink()}
           {this.renderTools()}
           {this.renderAdministration()}
         </ul>
