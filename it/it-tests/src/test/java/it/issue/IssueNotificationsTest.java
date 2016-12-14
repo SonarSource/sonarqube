@@ -27,7 +27,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.BulkChangeQuery;
@@ -37,7 +36,6 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
-import util.NetworkUtils;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 import util.user.UserRule;
@@ -115,7 +113,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
 
   @Test
   public void notifications_for_new_issues_and_issue_changes() throws Exception {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.projectDate", "2011-12-15");
+    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.projectDate", "2015-12-15");
 
     // change assignee
     Issues issues = issueClient.find(IssueQuery.create().componentRoots(PROJECT_KEY));
@@ -134,7 +132,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat((String) message.getContent()).contains("Severity");
     assertThat((String) message.getContent()).contains("One Issue Per Line (xoo): 17");
     assertThat((String) message.getContent()).contains(
-      "See it in SonarQube: http://localhost:9000/component_issues?id=sample#createdAt=2011-12-15T00%3A00%3A00%2B");
+      "See it in SonarQube: http://localhost:9000/component_issues?id=sample#createdAt=2015-12-15T00%3A00%3A00%2B");
 
     assertThat(emails.hasNext()).isTrue();
     message = emails.next().getMimeMessage();
@@ -167,7 +165,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
    */
   @Test
   public void notifications_for_bulk_change_ws() throws Exception {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.projectDate", "2011-12-15");
+    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.projectDate", "2015-12-15");
 
     Issues issues = issueClient.find(IssueQuery.create().componentRoots(PROJECT_KEY));
     Issue issue = issues.list().get(0);
