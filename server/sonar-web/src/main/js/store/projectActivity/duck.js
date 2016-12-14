@@ -23,12 +23,12 @@ import analyses from './analyses';
 import filter from './filter';
 import paging from './paging';
 
-export type Event = {|
+export type Event = {
   key: string,
   name: string;
   category: string;
   description?: string;
-  |};
+};
 
 export type Analysis = {
   key: string;
@@ -55,7 +55,14 @@ export type ChangeProjectActivityFilter = {
   filter: ?string
 };
 
-export type Action = ReceiveProjectActivityAction | ChangeProjectActivityFilter;
+export type AddEventAction = {
+  type: 'ADD_PROJECT_ACTIVITY_EVENT',
+  project: string,
+  analysis: string,
+  event: Event
+};
+
+export type Action = ReceiveProjectActivityAction | ChangeProjectActivityFilter | AddEventAction;
 
 export const receiveProjectActivity = (
     project: string,
@@ -74,6 +81,13 @@ export const changeProjectActivityFilter = (project: string, filter: ?string): C
   filter
 });
 
+export const addEvent = (project: string, analysis: string, event: Event): AddEventAction => ({
+  type: 'ADD_PROJECT_ACTIVITY_EVENT',
+  project,
+  analysis,
+  event
+});
+
 const byProject = combineReducers({ analyses, filter, paging });
 
 type State = {
@@ -85,7 +99,9 @@ type State = {
 };
 
 const reducer = (state: State = {}, action: Action): State => {
-  if (action.type === 'RECEIVE_PROJECT_ACTIVITY' || action.type === 'CHANGE_PROJECT_ACTIVITY_FILTER') {
+  if (action.type === 'RECEIVE_PROJECT_ACTIVITY' ||
+      action.type === 'CHANGE_PROJECT_ACTIVITY_FILTER' ||
+      action.type === 'ADD_PROJECT_ACTIVITY_EVENT') {
     return { ...state, [action.project]: byProject(state[action.project], action) };
   }
   return state;

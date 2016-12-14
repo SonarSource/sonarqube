@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import type { Analysis, ReceiveProjectActivityAction } from './duck';
+import type { Analysis, Action } from './duck';
 
 type State = ?Array<Analysis>;
 
-export default (state: State = null, action: ReceiveProjectActivityAction): State => {
+export default (state: State = null, action: Action): State => {
   if (action.type === 'RECEIVE_PROJECT_ACTIVITY') {
     // if first page, or state is empty
     if (action.paging.pageIndex === 1 || !state) {
@@ -30,6 +30,22 @@ export default (state: State = null, action: ReceiveProjectActivityAction): Stat
     } else {
       return [...state, ...action.analyses];
     }
+  }
+
+  if (action.type === 'ADD_PROJECT_ACTIVITY_EVENT') {
+    if (!state) {
+      return null;
+    }
+    return state.map(analysis => {
+      // $FlowFixMe
+      if (analysis.key === action.analysis) {
+        // $FlowFixMe
+        const events = [...analysis.events, action.event];
+        return { ...analysis, events };
+      } else {
+        return analysis;
+      }
+    });
   }
 
   return state;

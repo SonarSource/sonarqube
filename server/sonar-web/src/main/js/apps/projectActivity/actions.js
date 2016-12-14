@@ -22,13 +22,19 @@ import * as api from '../../api/projectActivity';
 import {
   receiveProjectActivity,
   changeProjectActivityFilter,
+  addEvent,
   getPaging,
   getFilter
 } from '../../store/projectActivity/duck';
 import { onFail } from '../../store/rootActions';
 import { getProjectActivity } from '../../store/rootReducer';
 
-export const fetchProjectActivity = (project: string) => (dispatch: Function, getState: Function) => {
+const rejectOnFail = (dispatch: Function) => (error: any) => {
+  onFail(dispatch)(error);
+  return Promise.reject();
+};
+
+export const fetchProjectActivity = (project: string) => (dispatch: Function, getState: Function): void => {
   const state = getState();
   const filter = getFilter(getProjectActivity(state), project);
 
@@ -38,7 +44,7 @@ export const fetchProjectActivity = (project: string) => (dispatch: Function, ge
   );
 };
 
-export const fetchMoreProjectActivity = (project: string) => (dispatch: Function, getState: Function) => {
+export const fetchMoreProjectActivity = (project: string) => (dispatch: Function, getState: Function): void => {
   const projectActivity = getProjectActivity(getState());
   const filter = getFilter(projectActivity, project);
   const { pageIndex } = getPaging(projectActivity, project);
@@ -49,7 +55,14 @@ export const fetchMoreProjectActivity = (project: string) => (dispatch: Function
   );
 };
 
-export const changeFilter = (project: string, filter: ?string) => (dispatch: Function) => {
+export const changeFilter = (project: string, filter: ?string) => (dispatch: Function): void => {
   dispatch(changeProjectActivityFilter(project, filter));
   dispatch(fetchProjectActivity(project));
+};
+
+export const addVersion = (project: string, analysis: string, version: string) => (dispatch: Function): Promise<*> => {
+  return api.createEvent(analysis, version, 'VERSION').then(
+      ({ analysis, ...event }) => dispatch(addEvent(project, analysis, event)),
+      rejectOnFail(dispatch)
+  );
 };

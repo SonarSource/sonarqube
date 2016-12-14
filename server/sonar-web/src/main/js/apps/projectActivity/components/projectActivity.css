@@ -18,6 +18,7 @@
 
 .project-activity-analysis {
   position: relative;
+  min-height: 16px;
   padding-top: 8px;
   padding-bottom: 8px;
   border-top: 1px solid #e6e6e6;
@@ -30,6 +31,10 @@
 
 .project-activity-analysis + .project-activity-analysis {
   border-top: none;
+}
+
+.project-activity-analysis-actions {
+  margin-top: 10px;
 }
 
 .project-activity-time {

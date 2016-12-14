@@ -61,7 +61,7 @@ class ProjectActivityAnalysesList extends React.Component {
 
                   <ul className="project-activity-analyses-list">
                     {byDay[day].map(analysis => (
-                        <ProjectActivityAnalysis key={analysis.key} analysis={analysis}/>
+                        <ProjectActivityAnalysis key={analysis.key} analysis={analysis} project={this.props.project}/>
                     ))}
                   </ul>
                 </li>

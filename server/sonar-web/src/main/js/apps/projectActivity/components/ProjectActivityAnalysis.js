@@ -20,12 +20,14 @@
 // @flow
 import React from 'react';
 import Events from './Events';
+import AddVersionForm from './AddVersionForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
 
 export default class ProjectActivityAnalysis extends React.Component {
   props: {
-    analysis: Analysis
+    analysis: Analysis,
+    project: string
   };
 
   render () {
@@ -38,11 +40,13 @@ export default class ProjectActivityAnalysis extends React.Component {
           </div>
 
           <div className="project-activity-events">
-            {events.length > 0 ? (
+            {events.length > 0 && (
                 <Events events={events}/>
-            ) : (
-                <span>&nbsp;</span>
             )}
+
+            <div className="project-activity-analysis-actions">
+              <AddVersionForm analysis={this.props.analysis} project={this.props.project}/>
+            </div>
           </div>
         </li>
     );

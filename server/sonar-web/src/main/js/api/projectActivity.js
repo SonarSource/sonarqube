@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON } from '../helpers/request';
+import { getJSON, postJSON } from '../helpers/request';
 
 type GetProjectActivityResponse = {
   analyses: Array<Object>,
@@ -29,7 +29,7 @@ type GetProjectActivityResponse = {
   }
 };
 
-type Options = {
+type GetProjectActivityOptions = {
   category?: ?string,
   pageIndex?: ?number,
   pageSize?: ?number
@@ -37,7 +37,7 @@ type Options = {
 
 export const getProjectActivity = (
     project: string,
-    options?: Options
+    options?: GetProjectActivityOptions
 ): Promise<GetProjectActivityResponse> => {
   const data: Object = { project };
   if (options) {
@@ -53,4 +53,28 @@ export const getProjectActivity = (
   }
 
   return getJSON('/api/project_analyses/search', data);
+};
+
+type CreateEventResponse = {
+  analysis: string,
+  key: string,
+  name: string,
+  category: string,
+  description?: string
+};
+
+export const createEvent = (
+    analysis: string,
+    name: string,
+    category?: string,
+    description?: string
+): Promise<CreateEventResponse> => {
+  const data: Object = { analysis, name };
+  if (category) {
+    data.category = category;
+  }
+  if (description) {
+    data.description = description;
+  }
+  return postJSON('/api/project_analyses/create_event', data).then(r => r.event);
 };
