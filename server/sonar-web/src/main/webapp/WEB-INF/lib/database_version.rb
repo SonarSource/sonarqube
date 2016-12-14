@@ -17,37 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-
 class DatabaseVersion
-
-  class DeprecatedSchemaInfo < ActiveRecord::Base
-    set_table_name 'schema_info'
-  end
-
-  def self.current_version
-    begin
-      result=ActiveRecord::Migrator.current_version
-    rescue
-      result=0
-    end
-
-    if result==0
-      begin
-        result=DeprecatedSchemaInfo.find(:first).version
-      rescue
-      end
-    end
-    result
-  end
-
-  def self.target_version
-    files = Dir["#{migrations_path}/[0-9]*_*.rb"].sort
-    files.last.scan(/([0-9]+)_[_a-z0-9]*.rb/).first[0].to_i
-  end
-
-  def self.migrations_path
-    File.dirname(__FILE__).to_s + "/../db/migrate/"
-  end
 
   $uptodate = false
 
@@ -58,32 +28,4 @@ class DatabaseVersion
     $uptodate
   end
 
-  def self.upgrade
-    ActiveRecord::Migrator.migrate(migrations_path)
-  end
-
-  def self.upgrade_and_start
-    Java::OrgSonarServerPlatform::Platform.getInstance().upgradeDb()
-    Java::OrgSonarServerPlatform::Platform.getInstance().doStart()
-    load_java_web_services
-  end
-
-  def self.load_java_web_services
-    ActionController::Routing::Routes.add_java_ws_routes
-  end
-
-  def self.connected?
-    ActiveRecord::Base.connected?
-  end
-
-  def self.dialect
-    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
-  end
-
-  def self.production?
-    @@production ||=
-      begin
-        dialect()!='.h2.'
-      end
-  end
 end
