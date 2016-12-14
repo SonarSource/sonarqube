@@ -41,7 +41,7 @@ public interface MigrationHistory extends Startable {
   /**
    * Returns the last execute migration number according to the persistence information.
    *
-   * @return a long >= 0.
+   * @return a long >= 0 or empty if the migration history is empty.
    */
   Optional<Long> getLastMigrationNumber();
 

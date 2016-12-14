@@ -45,15 +45,6 @@ public abstract class AbstractStoppableExecutorService<T extends ExecutorService
 
   @Override
   public void stop() {
-    try {
-      stopIt();
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  private void stopIt() {
     // Disable new tasks from being submitted
     delegate.shutdown();
     try {
