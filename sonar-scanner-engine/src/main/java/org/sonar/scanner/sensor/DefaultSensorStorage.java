@@ -24,8 +24,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +33,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -54,6 +52,8 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
@@ -118,7 +118,7 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 public class DefaultSensorStorage implements SensorStorage {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
+  private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
 
   private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.asList(
     DEPENDENCY_MATRIX_KEY,
@@ -153,7 +153,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ContextPropertiesCache contextPropertiesCache;
   private final Settings settings;
   private final ScannerMetrics scannerMetrics;
-  private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new IdentityHashMap<>();
+  private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
   private Set<String> alreadyLogged = new HashSet<>();
@@ -233,8 +233,15 @@ public class DefaultSensorStorage implements SensorStorage {
       logOnce(measure.metric().key(), "Metric '{}' is an internal metric computed by SonarQube. Provided value is ignored.", measure.metric().key());
       return;
     }
+    DefaultMeasure measureToSave;
     if (deprecatedCoverageMetricMapping.containsKey(metric)) {
       metric = deprecatedCoverageMetricMapping.get(metric);
+      measureToSave = new DefaultMeasure<>()
+        .forMetric((Metric) metric)
+        .on(measure.inputComponent())
+        .withValue(measure.value());
+    } else {
+      measureToSave = measure;
     }
     if (!scannerMetrics.getMetrics().contains(metric)) {
       throw new UnsupportedOperationException("Metric '" + metric.key() + "' should not be computed by a Sensor");
@@ -249,12 +256,12 @@ public class DefaultSensorStorage implements SensorStorage {
       if (coverageExclusions.isExcluded((InputFile) component)) {
         return;
       }
-      saveCoverageMetricInternal((InputFile) component, metric, measure);
+      saveCoverageMetricInternal((InputFile) component, metric, measureToSave);
     } else {
       if (measureCache.contains(component.key(), metric.key())) {
         throw new UnsupportedOperationException("Can not add the same measure twice on " + component + ": " + measure);
       }
-      measureCache.put(component.key(), metric.key(), measure);
+      measureCache.put(component.key(), metric.key(), measureToSave);
     }
   }
 

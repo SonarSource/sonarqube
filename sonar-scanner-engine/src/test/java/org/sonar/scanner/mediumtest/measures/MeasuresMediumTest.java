@@ -27,9 +27,12 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.BatchMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure;
@@ -37,10 +40,14 @@ import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assert.fail;
 
 public class MeasuresMediumTest {
 
-  @org.junit.Rule
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private File baseDir;
@@ -62,8 +69,8 @@ public class MeasuresMediumTest {
   }
 
   @Before
-  public void setUp() {
-    baseDir = temp.getRoot();
+  public void setUp() throws Exception {
+    baseDir = temp.newFolder();
     srcDir = new File(baseDir, "src");
     srcDir.mkdir();
   }
@@ -123,6 +130,108 @@ public class MeasuresMediumTest {
       .contains(tuple("lines", 3));
     assertThat(allMeasures.get("com.foo.project:src/sample.other")).extracting("metricKey", "intValue.value")
       .contains(tuple("lines", 3), tuple("ncloc", 2));
+  }
+
+  @Test
+  public void applyExclusionsOnCoverageMeasures() throws IOException {
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+
+    File measures = new File(srcDir, "sample.xoo.measures");
+    FileUtils.write(measures, "lines_to_cover:2");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
+      .containsOnly(tuple("lines", 3),
+        tuple("lines_to_cover", 2));
+
+    result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.coverage.exclusions", "src/sample.xoo")
+        .build())
+      .start();
+
+    allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
+      .containsOnly(tuple("lines", 3));
+  }
+
+  @Test
+  public void deprecatedCoverageMeasuresAreConverted() throws IOException {
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+
+    File measures = new File(srcDir, "sample.xoo.measures");
+    FileUtils.write(measures, "it_lines_to_cover:2");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
+      .containsOnly(tuple("lines", 3),
+        tuple("lines_to_cover", 2));
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Coverage measure for metric 'lines_to_cover' should not be saved directly by a Sensor. Plugin should be updated to use SensorContext::newCoverage instead.");
+  }
+
+  @Test
+  public void failIfTryingToSaveServerSideMeasure() throws IOException {
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
+
+    File measures = new File(srcDir, "sample.xoo.measures");
+    FileUtils.write(measures, "new_lines:2");
+
+    try {
+      tester.newTask()
+        .properties(ImmutableMap.<String, String>builder()
+          .put("sonar.task", "scan")
+          .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+          .put("sonar.projectKey", "com.foo.project")
+          .put("sonar.projectName", "Foo Project")
+          .put("sonar.projectVersion", "1.0-SNAPSHOT")
+          .put("sonar.projectDescription", "Description of Foo Project")
+          .put("sonar.sources", "src")
+          .build())
+        .start();
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e)
+        .hasCauseInstanceOf(UnsupportedOperationException.class)
+        .hasStackTraceContaining("Metric 'new_lines' should not be computed by a Sensor");
+    }
   }
 
   @Test
