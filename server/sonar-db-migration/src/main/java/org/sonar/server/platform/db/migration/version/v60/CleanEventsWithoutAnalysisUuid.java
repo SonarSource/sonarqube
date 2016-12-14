@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.MassUpdate;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class MigrationStepModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
+public class CleanEventsWithoutAnalysisUuid extends DataChange {
 
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+  public CleanEventsWithoutAnalysisUuid(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT distinct snapshot_id from events e where e.snapshot_id is not null and e.analysis_uuid is null");
+    massUpdate.update("DELETE from events WHERE snapshot_id=?");
+    massUpdate.rowPluralName("no analysis uuid events");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
+  }
+
 }

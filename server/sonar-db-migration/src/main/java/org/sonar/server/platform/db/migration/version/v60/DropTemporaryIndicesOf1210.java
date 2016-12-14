@@ -17,22 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class MigrationStepModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
+public class DropTemporaryIndicesOf1210 extends DdlChange {
 
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+  public DropTemporaryIndicesOf1210(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("ce_activity")
+      .setName(CreateTemporaryIndicesFor1211.INDEX_ON_CE_ACTIVITY)
+      .build());
+
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("duplications_index")
+      .setName(CreateTemporaryIndicesFor1211.INDEX_ON_DUPLICATIONS_INDEX)
+      .build());
+  }
+
 }

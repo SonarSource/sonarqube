@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class MigrationStepModule extends Module {
+/**
+ * the index must be dropped for the compatibility of migration 1270
+ * with MSSQL
+ */
+public class TemporarilyDropIndexOfAnalysisUuidOnMeasures extends DdlChange {
+
+  public TemporarilyDropIndexOfAnalysisUuidOnMeasures(Database db) {
+    super(db);
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
-
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("project_measures")
+      .setName("measures_analysis_metric")
+      .build());
   }
 }

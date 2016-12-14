@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class MigrationStepModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
+public class DropProjectIdColumnFromMeasures extends DdlChange {
 
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+  private static final String TABLE_MEASURES = "project_measures";
+
+  public DropProjectIdColumnFromMeasures(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(
+      new DropColumnsBuilder(getDatabase().getDialect(), TABLE_MEASURES, "project_id").build());
+  }
+
 }

@@ -17,22 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
-
-public class MigrationStepModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
-
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

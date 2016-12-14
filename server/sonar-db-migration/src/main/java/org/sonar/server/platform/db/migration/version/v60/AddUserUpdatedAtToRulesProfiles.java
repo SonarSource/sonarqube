@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+package org.sonar.server.platform.db.migration.version.v60;
 
-public class MigrationStepModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+
+public class AddUserUpdatedAtToRulesProfiles extends DdlChange {
+
+  private static final String TABLE_QUALITY_PROFILES = "rules_profiles";
+
+  public AddUserUpdatedAtToRulesProfiles(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_QUALITY_PROFILES)
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("user_updated_at").setIsNullable(true).build())
+      .build());
+  }
+
 }

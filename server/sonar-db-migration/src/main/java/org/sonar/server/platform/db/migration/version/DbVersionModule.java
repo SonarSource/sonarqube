@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.platform.db.migration.version.v60.DbVersion60;
 import org.sonar.server.platform.db.migration.version.v61.DbVersion61;
 import org.sonar.server.platform.db.migration.version.v62.DbVersion62;
 import org.sonar.server.platform.db.migration.version.v63.DbVersion63;
@@ -28,6 +29,7 @@ public class DbVersionModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      DbVersion60.class,
       DbVersion61.class,
       DbVersion62.class,
       DbVersion63.class);

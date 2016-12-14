@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(5);
+public class DropUnusedMeasuresColumnsTest {
+
+  DropUnusedMeasuresColumns underTest;
+  Database database;
+
+  @Before
+  public void setUp() {
+    database = mock(Database.class);
+    underTest = new DropUnusedMeasuresColumns(database);
   }
+
+  @Test
+  public void generate_sql_on_postgresql() {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+    assertThat(underTest.generateSql())
+      .isEqualTo(
+        "ALTER TABLE project_measures DROP COLUMN rules_category_id, DROP COLUMN tendency, DROP COLUMN measure_date, DROP COLUMN url, DROP COLUMN rule_priority, DROP COLUMN characteristic_id, DROP COLUMN rule_id");
+  }
+
 }

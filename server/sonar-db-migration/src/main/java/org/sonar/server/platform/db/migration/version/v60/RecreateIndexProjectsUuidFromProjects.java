@@ -17,22 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version.v60;
 
-import org.sonar.core.platform.Module;
-import org.sonar.db.version.v56.CreateInitialSchema;
-import org.sonar.db.version.v56.PopulateInitialSchema;
-import org.sonar.db.version.v561.UpdateUsersExternalIdentityWhenEmpty;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class MigrationStepModule extends Module {
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class RecreateIndexProjectsUuidFromProjects extends DdlChange {
+
+  public RecreateIndexProjectsUuidFromProjects(Database db) {
+    super(db);
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // 5.6
-      CreateInitialSchema.class,
-      PopulateInitialSchema.class,
-
-      // 5.6.1
-      UpdateUsersExternalIdentityWhenEmpty.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable("projects")
+      .setName("projects_uuid")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(50).setIgnoreOracleUnit(true).build())
+      .build());
   }
 }
