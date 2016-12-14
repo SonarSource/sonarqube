@@ -35,6 +35,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ADD_COMMEN
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_EDIT_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
@@ -47,6 +48,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOTS;
@@ -88,7 +90,7 @@ public class IssuesService extends BaseService {
   public Issues.Operation addComment(AddCommentRequest request) {
     return call(new PostRequest(path(ACTION_ADD_COMMENT))
       .setParam(PARAM_ISSUE, request.getIssue())
-      .setParam(PARAM_TEXT, request.getComment()),
+      .setParam(PARAM_TEXT, request.getText()),
       Issues.Operation.parser());
   }
 
@@ -109,6 +111,13 @@ public class IssuesService extends BaseService {
     return call(new PostRequest(path(ACTION_DO_TRANSITION))
       .setParam(PARAM_ISSUE, request.getIssue())
       .setParam(PARAM_TRANSITION, request.getTransition()),
+      Issues.Operation.parser());
+  }
+
+  public Issues.Operation editComment(EditCommentRequest request) {
+    return call(new PostRequest(path(ACTION_EDIT_COMMENT))
+        .setParam(PARAM_COMMENT, request.getComment())
+        .setParam(PARAM_TEXT, request.getText()),
       Issues.Operation.parser());
   }
 

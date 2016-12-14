@@ -92,15 +92,15 @@ public class AddCommentAction implements IssuesWsAction {
       IssueDto issueDto = issueFinder.getByKey(dbSession, wsRequest.getIssue());
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-      issueFieldsSetter.addComment(defaultIssue, wsRequest.getComment(), context);
-      issueUpdater.saveIssue(dbSession, defaultIssue, context, wsRequest.getComment());
+      issueFieldsSetter.addComment(defaultIssue, wsRequest.getText(), context);
+      issueUpdater.saveIssue(dbSession, defaultIssue, context, wsRequest.getText());
       responseWriter.write(defaultIssue.key(), request, response);
     }
   }
 
   private static AddCommentRequest toWsRequest(Request request) {
     AddCommentRequest wsRequest = new AddCommentRequest(request.mandatoryParam(PARAM_ISSUE), request.mandatoryParam(PARAM_TEXT));
-    checkArgument(!isNullOrEmpty(wsRequest.getComment()), "Cannot add empty comment to an issue");
+    checkArgument(!isNullOrEmpty(wsRequest.getText()), "Cannot add empty comment to an issue");
     return wsRequest;
   }
 

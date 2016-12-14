@@ -39,32 +39,6 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
-  # POST /api/issues/edit_comment?key=<key>&text=<new text>
-  #
-  # -- Mandatory parameters
-  # 'key' is the comment key
-  # 'text' is the new value
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/edit_comment?key=392160d3-a4f2-4c52-a565-e4542cfa2096&text=foo'
-  #
-  def edit_comment
-    verify_post_request
-    require_parameters :key, :text
-
-    text = Api::Utils.read_post_request_param(params[:text])
-    result = Internal.issues.editComment(params[:key], text)
-    hash = result_to_hash(result)
-    hash[:comment] = Issue.comment_to_hash(result.get) if result.get
-
-    respond_to do |format|
-      # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => result.httpStatus) }
-    end
-  end
-
-  #
   # Execute a bulk change on a list of issues
   #
   # POST /api/issues/bulk_change?issue=<key>&text=<text>

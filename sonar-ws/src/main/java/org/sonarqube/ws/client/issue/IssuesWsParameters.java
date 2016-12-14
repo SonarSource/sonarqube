@@ -32,6 +32,7 @@ public class IssuesWsParameters {
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_CHANGELOG = "changelog";
   public static final String ACTION_ADD_COMMENT = "add_comment";
+  public static final String ACTION_EDIT_COMMENT = "edit_comment";
   public static final String ACTION_ASSIGN = "assign";
   public static final String ACTION_AUTHORS = "authors";
   public static final String ACTION_DO_TRANSITION = "do_transition";
@@ -41,6 +42,7 @@ public class IssuesWsParameters {
   public static final String ACTION_SET_TYPE = "set_type";
 
   public static final String PARAM_ISSUE = "issue";
+  public static final String PARAM_COMMENT = "comment";
   public static final String PARAM_TEXT = "text";
   public static final String PARAM_ASSIGNEE = "assignee";
   public static final String PARAM_TRANSITION = "transition";

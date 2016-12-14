@@ -58,6 +58,7 @@ public class IssueWsModule extends Module {
       OperationResponseWriter.class,
       WsResponseCommonFormat.class,
       AddCommentAction.class,
+      EditCommentAction.class,
       AssignAction.class,
       DoTransitionAction.class,
       SearchAction.class,

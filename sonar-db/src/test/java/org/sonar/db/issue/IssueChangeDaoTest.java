@@ -178,7 +178,8 @@ public class IssueChangeDaoTest {
     change.setChangeData("new comment");
     change.setUpdatedAt(1_500_000_000_000L);
 
-    assertThat(underTest.update(change)).isTrue();
+    assertThat(underTest.update(db.getSession(), change)).isTrue();
+    db.commit();
 
     db.assertDbUnit(getClass(), "update-result.xml", "issue_changes");
   }
@@ -189,12 +190,10 @@ public class IssueChangeDaoTest {
 
     IssueChangeDto change = new IssueChangeDto();
     change.setKey("UNKNOWN");
-
-    // Only the following fields can be updated:
     change.setChangeData("new comment");
     change.setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime());
 
-    assertThat(underTest.update(change)).isFalse();
+    assertThat(underTest.update(db.getSession(), change)).isFalse();
   }
 
 }

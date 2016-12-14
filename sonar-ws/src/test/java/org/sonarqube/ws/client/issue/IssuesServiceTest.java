@@ -86,6 +86,18 @@ public class IssuesServiceTest {
   }
 
   @Test
+  public void edit_comment() {
+    underTest.editComment(new EditCommentRequest("ABCD", "Please help me to fix this issue"));
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("comment", "ABCD")
+      .hasParam("text", "Please help me to fix this issue")
+      .andNoOtherParam();
+  }
+
+  @Test
   public void set_severity() {
     underTest.setSeverity(new SetSeverityRequest("ABCD", "confirm"));
     PostRequest request = serviceTester.getPostRequest();

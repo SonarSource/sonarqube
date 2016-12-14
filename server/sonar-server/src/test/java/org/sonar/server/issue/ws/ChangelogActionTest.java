@@ -74,7 +74,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -94,7 +94,7 @@ public class ChangelogActionTest {
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(newDto(rule, file2, project));
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setDiff("file", file1.uuid(), file2.uuid()));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setDiff("file", file1.uuid(), file2.uuid()));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -109,7 +109,7 @@ public class ChangelogActionTest {
   public void changelog_of_file_move_is_empty_when_files_does_not_exists() throws Exception {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setDiff("file", "UNKNOWN_1", "UNKNOWN_2"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setDiff("file", "UNKNOWN_1", "UNKNOWN_2"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -123,7 +123,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser(UserTesting.newUserDto("john", "John", null));
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -137,7 +137,7 @@ public class ChangelogActionTest {
   public void return_changelog_not_having_user() throws Exception {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(null).setDiff("severity", "MAJOR", "BLOCKER"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(null).setDiff("severity", "MAJOR", "BLOCKER"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -152,7 +152,7 @@ public class ChangelogActionTest {
   public void return_changelog_on_none_existing_user() throws Exception {
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin("UNKNOWN").setDiff("severity", "MAJOR", "BLOCKER"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin("UNKNOWN").setDiff("severity", "MAJOR", "BLOCKER"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -168,7 +168,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER").setDiff("status", "RESOLVED", "CLOSED"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER").setDiff("status", "RESOLVED", "CLOSED"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -182,7 +182,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", null, "BLOCKER"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", null, "BLOCKER"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -195,7 +195,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", null));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", null));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -208,7 +208,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto,
+    db.issues().insertFieldDiffs(issueDto,
       new FieldDiffs().setUserLogin(user.getLogin()).setDiff("severity", "MAJOR", "BLOCKER"),
       new FieldDiffs().setDiff("status", "RESOLVED", "CLOSED"));
 
@@ -222,7 +222,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("technicalDebt", "10", "20"));
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserLogin(user.getLogin()).setDiff("technicalDebt", "10", "20"));
 
     ChangelogWsResponse result = call(issueDto.getKey());
 
@@ -254,7 +254,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser(newUserDto("john.smith", "John Smith", "john@smith.com"));
     IssueDto issueDto = db.issues().insertIssue(newIssue());
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
-    db.issues().insertIssueChanges(issueDto, new FieldDiffs()
+    db.issues().insertFieldDiffs(issueDto, new FieldDiffs()
       .setUserLogin(user.getLogin())
       .setDiff("severity", "MAJOR", "BLOCKER")
       .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));

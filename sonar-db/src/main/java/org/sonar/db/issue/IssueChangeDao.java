@@ -106,17 +106,9 @@ public class IssueChangeDao implements Dao {
     }
   }
 
-  public boolean update(IssueChangeDto change) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      IssueChangeMapper mapper = mapper(session);
-      int count = mapper.update(change);
-      session.commit();
-      return count == 1;
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public boolean update(DbSession dbSession, IssueChangeDto change) {
+    int count = mapper(dbSession).update(change);
+    return count == 1;
   }
 
   private static IssueChangeMapper mapper(DbSession session) {

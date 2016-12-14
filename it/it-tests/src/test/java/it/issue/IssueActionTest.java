@@ -28,6 +28,7 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issue.AddCommentRequest;
 import org.sonarqube.ws.client.issue.AssignRequest;
+import org.sonarqube.ws.client.issue.EditCommentRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.issue.SetSeverityRequest;
@@ -74,7 +75,6 @@ public class IssueActionTest extends AbstractIssueTest {
   @Test
   public void add_comment() throws Exception {
     Issues.Comment comment = issuesService.addComment(new AddCommentRequest(randomIssue.getKey(), "this is my *comment*")).getIssue().getComments().getComments(0);
-
     assertThat(comment.getKey()).isNotNull();
     assertThat(comment.getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
     assertThat(comment.getLogin()).isEqualTo("admin");
@@ -82,7 +82,6 @@ public class IssueActionTest extends AbstractIssueTest {
 
     // reload issue
     Issue reloaded = issueRule.getByKey(randomIssue.getKey());
-
     assertThat(reloaded.getComments().getCommentsList()).hasSize(1);
     assertThat(reloaded.getComments().getComments(0).getKey()).isEqualTo(comment.getKey());
     assertThat(reloaded.getComments().getComments(0).getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
@@ -103,6 +102,18 @@ public class IssueActionTest extends AbstractIssueTest {
 
     Issue reloaded = issueRule.getByKey(randomIssue.getKey());
     assertThat(reloaded.getComments().getCommentsList()).isEmpty();
+  }
+
+  @Test
+  public void edit_comment() throws Exception {
+    Issues.Comment comment = issuesService.addComment(new AddCommentRequest(randomIssue.getKey(), "this is my *comment*")).getIssue().getComments().getComments(0);
+    Issues.Comment editedComment = issuesService.editComment(new EditCommentRequest(comment.getKey(), "new *comment*")).getIssue().getComments().getComments(0);
+    assertThat(editedComment.getHtmlText()).isEqualTo("new <strong>comment</strong>");
+
+    // reload issue
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.getComments().getCommentsList()).hasSize(1);
+    assertThat(reloaded.getComments().getComments(0).getHtmlText()).isEqualTo("new <strong>comment</strong>");
   }
 
   /**

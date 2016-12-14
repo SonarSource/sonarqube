@@ -21,13 +21,9 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.db.DbClient;
-import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -60,26 +56,4 @@ public class IssueCommentService {
     return comment;
   }
 
-  public IssueComment editComment(String commentKey, String text) {
-    DefaultIssueComment comment = dbClient.issueChangeDao().selectDefaultCommentByKey(commentKey);
-    if (StringUtils.isBlank(text)) {
-      throw new BadRequestException("Cannot add empty comments to an issue");
-    }
-    if (comment == null) {
-      throw new NotFoundException("Comment not found: " + commentKey);
-    }
-    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equals(comment.userLogin(), userSession.getLogin())) {
-      throw new ForbiddenException("You can only edit your own comments");
-    }
-
-    // check authorization
-    issueService.getByKey(comment.issueKey());
-
-    IssueChangeDto dto = IssueChangeDto.of(comment);
-    dto.setUpdatedAt(System2.INSTANCE.now());
-    dto.setChangeData(text);
-    dbClient.issueChangeDao().update(dto);
-
-    return comment;
-  }
 }

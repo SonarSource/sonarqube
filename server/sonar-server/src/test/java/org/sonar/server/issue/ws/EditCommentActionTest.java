@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -35,24 +34,15 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.ServerIssueStorage;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -62,9 +52,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 
-public class AddCommentActionTest {
+public class EditCommentActionTest {
 
   private static final long NOW = 10_000_000_000L;
 
@@ -72,10 +61,7 @@ public class AddCommentActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public DbTester dbTester = DbTester.create();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -86,12 +72,10 @@ public class AddCommentActionTest {
 
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
 
-  private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, esTester.client())), mock(NotificationManager.class));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
 
   private WsActionTester tester = new WsActionTester(
-    new AddCommentAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), issueUpdater, new IssueFieldsSetter(), responseWriter));
+    new EditCommentAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), responseWriter));
 
   @Before
   public void setUp() throws Exception {
@@ -99,29 +83,57 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void add_comment() throws Exception {
+  public void edit_comment() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
-    call(issueDto.getKey(), "please fix it");
+    call(commentDto.getKey(), "please have a look");
 
     verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
-    IssueChangeDto issueComment = dbClient.issueChangeDao().selectByTypeAndIssueKeys(dbTester.getSession(), singletonList(issueDto.getKey()), TYPE_COMMENT).get(0);
-    assertThat(issueComment.getKey()).isNotNull();
-    assertThat(issueComment.getUserLogin()).isEqualTo("john");
-    assertThat(issueComment.getChangeType()).isEqualTo(TYPE_COMMENT);
-    assertThat(issueComment.getChangeData()).isEqualTo("please fix it");
-    assertThat(issueComment.getCreatedAt()).isNotNull();
-    assertThat(issueComment.getUpdatedAt()).isNotNull();
-    assertThat(issueComment.getIssueKey()).isEqualTo(issueDto.getKey());
-    assertThat(issueComment.getIssueChangeCreationDate()).isNotNull();
-
-    IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
-    assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
+    IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
+    assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
+    assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
   }
 
   @Test
-  public void fail_when_missing_issue_key() throws Exception {
+  public void edit_comment_using_deprecated_key_parameter() throws Exception {
+    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
+    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+
+    tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
+
+    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
+    assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
+    assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void fail_when_comment_does_not_belong_to_current_user() throws Exception {
+    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
+    userSession.login("another").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("You can only edit your own comments");
+    call(commentDto.getKey(), "please have a look");
+  }
+
+  @Test
+  public void fail_when_comment_has_not_user() throws Exception {
+    IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
+    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("You can only edit your own comments");
+    call(commentDto.getKey(), "please have a look");
+  }
+
+  @Test
+  public void fail_when_missing_comment_key() throws Exception {
     userSession.login("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -129,7 +141,7 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void fail_when_issue_does_not_exist() throws Exception {
+  public void fail_when_comment_does_not_exist() throws Exception {
     userSession.login("john");
 
     expectedException.expect(NotFoundException.class);
@@ -147,10 +159,11 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_empty_comment_text() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(IllegalArgumentException.class);
-    call(issueDto.getKey(), "");
+    call(commentDto.getKey(), "");
   }
 
   @Test
@@ -162,27 +175,27 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
+    IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
     userSession.login("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), "please fix it");
+    call(commentDto.getKey(), "please have a look");
   }
 
   @Test
   public void test_definition() {
     WebService.Action action = tester.getDef();
-    assertThat(action.key()).isEqualTo("add_comment");
+    assertThat(action.key()).isEqualTo("edit_comment");
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.params()).hasSize(2);
     assertThat(action.responseExample()).isNull();
   }
 
-  private TestResponse call(@Nullable String issueKey, @Nullable String commentText) {
+  private TestResponse call(@Nullable String commentKey, @Nullable String commentText) {
     TestRequest request = tester.newRequest();
-    setNullable(issueKey, issue -> request.setParam("issue", issue));
-    setNullable(commentText, text -> request.setParam("text", text));
+    setNullable(commentKey, comment -> request.setParam("comment", comment));
+    setNullable(commentText, comment -> request.setParam("text", comment));
     return request.execute();
   }
-
 }

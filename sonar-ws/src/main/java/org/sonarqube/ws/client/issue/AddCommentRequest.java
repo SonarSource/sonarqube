@@ -25,18 +25,18 @@ import static java.util.Objects.requireNonNull;
 public class AddCommentRequest {
 
   private final String issue;
-  private final String comment;
+  private final String text;
 
-  public AddCommentRequest(String issue, String comment) {
+  public AddCommentRequest(String issue, String text) {
     this.issue = requireNonNull(issue, "Issue key cannot be null");
-    this.comment = requireNonNull(comment, "Comment cannot be null");
+    this.text = requireNonNull(text, "Text cannot be null");
   }
 
   public String getIssue() {
     return issue;
   }
 
-  public String getComment() {
-    return comment;
+  public String getText() {
+    return text;
   }
 }

@@ -31,13 +31,10 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDao;
-import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -106,53 +103,4 @@ public class IssueCommentServiceTest {
     verify(changeDao, never()).delete(anyString());
   }
 
-  @Test
-  public void should_update_comment() {
-    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setIssueKey("EFGH").setUserLogin("admin"));
-
-    issueCommentService.editComment("ABCD", "updated comment");
-
-    verify(changeDao).update(any(IssueChangeDto.class));
-    verify(issueService).getByKey("EFGH");
-  }
-
-  @Test
-  public void should_not_update_not_found_comment() {
-    throwable.expect(NotFoundException.class);
-
-    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(null);
-
-    issueCommentService.editComment("ABCD", "updated comment");
-
-    verify(changeDao, never()).update(any(IssueChangeDto.class));
-  }
-
-  @Test
-  public void should_prevent_updating_empty_comment() {
-    throwable.expect(BadRequestException.class);
-
-    issueCommentService.editComment("ABCD", "");
-
-    verify(changeDao, never()).update(any(IssueChangeDto.class));
-  }
-
-  @Test
-  public void should_prevent_updating_null_comment() {
-    throwable.expect(BadRequestException.class);
-
-    issueCommentService.editComment("ABCD", null);
-
-    verify(changeDao, never()).update(any(IssueChangeDto.class));
-  }
-
-  @Test
-  public void should_prevent_updating_others_comment() {
-    throwable.expect(ForbiddenException.class);
-
-    when(changeDao.selectDefaultCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
-
-    issueCommentService.editComment("ABCD", "updated comment");
-
-    verify(changeDao, never()).update(any(IssueChangeDto.class));
-  }
 }

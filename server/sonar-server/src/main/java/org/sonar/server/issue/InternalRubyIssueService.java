@@ -55,16 +55,6 @@ public class InternalRubyIssueService {
     return commentService.deleteComment(commentKey);
   }
 
-  public Result<IssueComment> editComment(String commentKey, String newText) {
-    Result<IssueComment> result = Result.of();
-    try {
-      result.set(commentService.editComment(commentKey, newText));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
   /**
    * Execute a bulk change
    */

@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonarqube.ws.client.issue;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Objects.requireNonNull;
 
-public class IssueWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 30);
+public class EditCommentRequest {
+
+  private final String comment;
+  private final String text;
+
+  public EditCommentRequest(String comment, String text) {
+    this.comment = requireNonNull(comment, "Comment key cannot be null");
+    this.text = requireNonNull(text, "Text cannot be null");
+  }
+
+  public String getComment() {
+    return comment;
+  }
+
+  public String getText() {
+    return text;
   }
 }

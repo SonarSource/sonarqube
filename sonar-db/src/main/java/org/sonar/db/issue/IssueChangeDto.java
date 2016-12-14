@@ -110,6 +110,7 @@ public final class IssueChangeDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String getUserLogin() {
     return userLogin;
   }
