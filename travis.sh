@@ -95,8 +95,6 @@ CI)
 WEB)
   set +eu
   source ~/.nvm/nvm.sh && nvm install 6
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  export PATH=$HOME/.yarn/bin:$PATH
   cd server/sonar-web && yarn && yarn test
   ;;
 
