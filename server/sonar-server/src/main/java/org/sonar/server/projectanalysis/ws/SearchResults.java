@@ -22,7 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 
 import com.google.common.collect.ListMultimap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.Collectors;
@@ -111,14 +111,13 @@ class SearchResults {
     private void filterByCategory() {
       ListMultimap<String, String> eventCategoriesByAnalysisUuid = events.stream()
         .collect(Collectors.index(EventDto::getAnalysisUuid, EventDto::getCategory));
-      AtomicInteger count = new AtomicInteger();
+      Predicate<SnapshotDto> byCategory = a -> eventCategoriesByAnalysisUuid.get(a.getUuid()).contains(request.getCategory().getLabel());
+      this.countAnalyses = (int) analyses.stream().filter(byCategory).count();
       this.analyses = analyses.stream()
-        .filter(a -> eventCategoriesByAnalysisUuid.get(a.getUuid()).contains(request.getCategory().getLabel()))
-        .peek(a -> count.incrementAndGet())
+        .filter(byCategory)
         .skip(Paging.offset(request.getPage(), request.getPageSize()))
         .limit(request.getPageSize())
         .collect(Collectors.toList());
-      this.countAnalyses = count.get();
     }
 
     SearchResults build() {

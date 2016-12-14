@@ -198,23 +198,25 @@ public class SearchActionTest {
     userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
     SnapshotDto a1 = db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setCreatedAt(1_000_000L));
     SnapshotDto a2 = db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setCreatedAt(2_000_000L));
+    SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(project).setUuid("A3").setCreatedAt(3_000_000L));
     SnapshotDto a42 = db.components().insertSnapshot(newAnalysis(project).setUuid("A42"));
     db.events().insertEvent(newEvent(a1).setUuid("E11").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a1).setUuid("E12").setCategory(QUALITY_GATE.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21").setCategory(QUALITY_GATE.getLabel()));
+    db.events().insertEvent(newEvent(a3).setUuid("E31").setCategory(QUALITY_GATE.getLabel()));
     // Analysis A42 doesn't have a quality gate event
     db.events().insertEvent(newEvent(a42).setCategory(OTHER.getLabel()));
 
     SearchResponse result = call(SearchRequest.builder()
       .setProject("P1")
       .setCategory(QUALITY_GATE)
-      .setPage(1)
+      .setPage(2)
       .setPageSize(1)
       .build());
 
     assertThat(result.getAnalysesList()).extracting(Analysis::getKey).containsOnly("A2");
     assertThat(result.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal)
-      .containsExactly(1, 1, 1);
+      .containsExactly(2, 1, 3);
   }
 
   @Test
