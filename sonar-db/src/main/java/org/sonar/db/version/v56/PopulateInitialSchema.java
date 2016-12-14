@@ -66,7 +66,7 @@ public class PopulateInitialSchema extends BaseDataChange {
       .commit();
   }
 
-  private void insertGroupRoles(Context context) throws SQLException {
+  private static void insertGroupRoles(Context context) throws SQLException {
     truncateTable(context, "group_roles");
 
     // admin group
@@ -92,8 +92,10 @@ public class PopulateInitialSchema extends BaseDataChange {
 
     long now = system2.now();
     context.prepareUpsert("insert into users " +
-      "(login, name, email, external_identity, external_identity_provider, user_local, crypted_password, salt, created_at, updated_at, remember_token, remember_token_expires_at) " +
-      "values ('" + ADMIN_USER + "', 'Administrator', '', 'admin', 'sonarqube', ?, 'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', ?, ?, null, null)")
+      "(login, name, email, external_identity, external_identity_provider, user_local, crypted_password, salt, " +
+      "created_at, updated_at, remember_token, remember_token_expires_at) " +
+      "values ('" + ADMIN_USER + "', 'Administrator', '', 'admin', 'sonarqube', ?, " +
+      "'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', ?, ?, null, null)")
       .setBoolean(1, true)
       .setLong(2, now)
       .setLong(3, now)
@@ -101,10 +103,11 @@ public class PopulateInitialSchema extends BaseDataChange {
       .commit();
   }
 
-  private void insertGroupMemberships(Context context) throws SQLException {
+  private static void insertGroupMemberships(Context context) throws SQLException {
     truncateTable(context, "groups_users");
 
-    context.prepareUpsert("insert into groups_users (user_id, group_id) values ((select id from users where login='" + ADMIN_USER + "'), (select id from groups where name=?))")
+    context.prepareUpsert("insert into groups_users (user_id, group_id) values " +
+      "((select id from users where login='" + ADMIN_USER + "'), (select id from groups where name=?))")
       .setString(1, ADMINS_GROUP).addBatch()
       .setString(1, USERS_GROUP).addBatch()
       .execute()

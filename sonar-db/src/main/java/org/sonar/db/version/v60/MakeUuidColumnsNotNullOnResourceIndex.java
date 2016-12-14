@@ -39,10 +39,10 @@ public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
+    VarcharColumnDef componentUuid = newUuidColumn("component_uuid");
     context.execute(new AlterColumnsBuilder(getDialect(), TABLE_RESOURCE_INDEX)
       .updateColumn(componentUuid)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
+      .updateColumn(newUuidColumn("root_component_uuid"))
       .build());
 
     context.execute(new CreateIndexBuilder(getDialect())
@@ -50,6 +50,15 @@ public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
       .setName("resource_index_component")
       .addColumn(componentUuid)
       .build());
+  }
+
+  private static VarcharColumnDef newUuidColumn(String columnName) {
+    return newVarcharColumnDefBuilder()
+      .setColumnName(columnName)
+      .setLimit(UUID_VARCHAR_SIZE)
+      .setIsNullable(false)
+      .setIgnoreOracleUnit(true)
+      .build();
   }
 
 }

@@ -39,8 +39,8 @@ public class MakeComponentUuidColumnsNotNullOnSnapshots extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
-    VarcharColumnDef rootComponentUuid = newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
+    VarcharColumnDef componentUuid = newUuidColumn("component_uuid");
+    VarcharColumnDef rootComponentUuid = newUuidColumn("root_component_uuid");
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
       .updateColumn(componentUuid)
       .updateColumn(rootComponentUuid)
@@ -56,6 +56,15 @@ public class MakeComponentUuidColumnsNotNullOnSnapshots extends DdlChange {
       .setName("snapshot_root_component")
       .addColumn(rootComponentUuid)
       .build());
+  }
+
+  private static VarcharColumnDef newUuidColumn(String columnName) {
+    return newVarcharColumnDefBuilder()
+      .setColumnName(columnName)
+      .setLimit(UUID_VARCHAR_SIZE)
+      .setIsNullable(false)
+      .setIgnoreOracleUnit(true)
+      .build();
   }
 
 }

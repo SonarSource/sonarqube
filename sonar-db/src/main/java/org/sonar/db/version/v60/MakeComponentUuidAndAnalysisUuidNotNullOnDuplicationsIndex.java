@@ -39,8 +39,8 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex extends 
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef analysisUuid = newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
-    VarcharColumnDef componentUuid = newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
+    VarcharColumnDef analysisUuid = newUuidColumn("analysis_uuid");
+    VarcharColumnDef componentUuid = newUuidColumn("component_uuid");
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_DUPLICATIONS_INDEX)
       .updateColumn(componentUuid)
       .updateColumn(analysisUuid)
@@ -52,6 +52,15 @@ public class MakeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex extends 
       .addColumn(analysisUuid)
       .addColumn(componentUuid)
       .build());
+  }
+
+  private static VarcharColumnDef newUuidColumn(String columnName) {
+    return newVarcharColumnDefBuilder()
+      .setColumnName(columnName)
+      .setLimit(UUID_VARCHAR_SIZE)
+      .setIsNullable(false)
+      .setIgnoreOracleUnit(true)
+      .build();
   }
 
 }

@@ -39,7 +39,12 @@ public class MakeAnalysisUuidNotNullOnEvents extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef analysisUuidColumn = newVarcharColumnDefBuilder().setColumnName("analysis_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build();
+    VarcharColumnDef analysisUuidColumn = newVarcharColumnDefBuilder()
+      .setColumnName("analysis_uuid")
+      .setLimit(UUID_VARCHAR_SIZE)
+      .setIsNullable(false)
+      .setIgnoreOracleUnit(true)
+      .build();
     context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_EVENTS)
       .updateColumn(analysisUuidColumn)
       .build());
