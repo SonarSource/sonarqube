@@ -34,7 +34,11 @@ class SessionsController < ApplicationController
     end
     cookies.delete 'JWT-SESSION'
     cookies.delete 'XSRF-TOKEN'
-    redirect_to(home_path)
+    if Api::Utils.java_facade.getConfigurationValue('sonar.forceAuthentication')=='true'
+      redirect_to(home_path + 'sessions/new')
+    else
+      redirect_to(home_path)
+    end
   end
 
   def new
