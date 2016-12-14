@@ -190,8 +190,8 @@ public class SensorContextTester implements SensorContext {
     return sensorStorage.measuresByComponentAndMetric.row(componentKey).values();
   }
 
-  public <G extends Serializable> Measure<G> measure(String componetKey, Metric<G> metric) {
-    return measure(componetKey, metric.key());
+  public <G extends Serializable> Measure<G> measure(String componentKey, Metric<G> metric) {
+    return measure(componentKey, metric.key());
   }
 
   public <G extends Serializable> Measure<G> measure(String componentKey, String metricKey) {
