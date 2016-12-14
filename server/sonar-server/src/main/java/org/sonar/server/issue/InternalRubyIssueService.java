@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
@@ -38,21 +37,14 @@ import org.sonarqube.ws.client.issue.IssuesWsParameters;
 @ServerSide
 public class InternalRubyIssueService {
 
-  private final IssueCommentService commentService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
-    IssueCommentService commentService,
     IssueBulkChangeService issueBulkChangeService,
     UserSession userSession) {
-    this.commentService = commentService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.userSession = userSession;
-  }
-
-  public IssueComment deleteComment(String commentKey) {
-    return commentService.deleteComment(commentKey);
   }
 
   /**

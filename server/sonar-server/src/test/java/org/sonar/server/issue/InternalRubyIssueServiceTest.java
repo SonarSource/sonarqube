@@ -39,10 +39,9 @@ public class InternalRubyIssueServiceTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  IssueCommentService commentService = mock(IssueCommentService.class);
   IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
 
-  InternalRubyIssueService underTest = new InternalRubyIssueService(commentService, issueBulkChangeService, userSessionRule);
+  InternalRubyIssueService underTest = new InternalRubyIssueService(issueBulkChangeService, userSessionRule);
 
   @Test
   public void execute_bulk_change() {

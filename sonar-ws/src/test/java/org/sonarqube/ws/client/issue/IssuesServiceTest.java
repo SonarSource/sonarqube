@@ -86,6 +86,17 @@ public class IssuesServiceTest {
   }
 
   @Test
+  public void delete_comment() {
+    underTest.deleteComment("ABCD");
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("comment", "ABCD")
+      .andNoOtherParam();
+  }
+
+  @Test
   public void edit_comment() {
     underTest.editComment(new EditCommentRequest("ABCD", "Please help me to fix this issue"));
     PostRequest request = serviceTester.getPostRequest();

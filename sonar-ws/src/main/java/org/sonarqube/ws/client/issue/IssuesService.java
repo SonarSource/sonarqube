@@ -34,6 +34,7 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ADD_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DELETE_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_EDIT_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
@@ -114,10 +115,16 @@ public class IssuesService extends BaseService {
       Issues.Operation.parser());
   }
 
+  public Issues.Operation deleteComment(String commentKey) {
+    return call(new PostRequest(path(ACTION_DELETE_COMMENT))
+        .setParam(PARAM_COMMENT, commentKey),
+      Issues.Operation.parser());
+  }
+
   public Issues.Operation editComment(EditCommentRequest request) {
     return call(new PostRequest(path(ACTION_EDIT_COMMENT))
-        .setParam(PARAM_COMMENT, request.getComment())
-        .setParam(PARAM_TEXT, request.getText()),
+      .setParam(PARAM_COMMENT, request.getComment())
+      .setParam(PARAM_TEXT, request.getText()),
       Issues.Operation.parser());
   }
 

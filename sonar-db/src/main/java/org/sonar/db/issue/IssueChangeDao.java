@@ -93,17 +93,11 @@ public class IssueChangeDao implements Dao {
     mapper(session).insert(change);
   }
 
-  public boolean delete(String key) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      IssueChangeMapper mapper = mapper(session);
-      int count = mapper.delete(key);
-      session.commit();
-      return count == 1;
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public boolean delete(DbSession session, String key) {
+    IssueChangeMapper mapper = mapper(session);
+    int count = mapper.delete(key);
+    session.commit();
+    return count == 1;
   }
 
   public boolean update(DbSession dbSession, IssueChangeDto change) {

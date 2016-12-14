@@ -116,6 +116,17 @@ public class IssueActionTest extends AbstractIssueTest {
     assertThat(reloaded.getComments().getComments(0).getHtmlText()).isEqualTo("new <strong>comment</strong>");
   }
 
+  @Test
+  public void delete_comment() throws Exception {
+    Issues.Comment comment = issuesService.addComment(new AddCommentRequest(randomIssue.getKey(), "this is my *comment*")).getIssue().getComments().getComments(0);
+    Issue issue = issuesService.deleteComment(comment.getKey()).getIssue();
+    assertThat(issue.getComments().getCommentsList()).isEmpty();
+
+    // reload issue
+    Issue reloaded = issueRule.getByKey(randomIssue.getKey());
+    assertThat(reloaded.getComments().getCommentsList()).isEmpty();
+  }
+
   /**
    * SONAR-4352
    */

@@ -22,23 +22,6 @@
 class Api::IssuesController < Api::ApiController
 
   #
-  # POST /api/issues/delete_comment?key=<key>
-  #
-  # -- Mandatory parameters
-  # 'key' is the comment key
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/delete_comment?key=392160d3-a4f2-4c52-a565-e4542cfa2096'
-  #
-  def delete_comment
-    verify_post_request
-    require_parameters :key
-
-    comment = Internal.issues.deleteComment(params[:key])
-    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
-  end
-
-  #
   # Execute a bulk change on a list of issues
   #
   # POST /api/issues/bulk_change?issue=<key>&text=<text>

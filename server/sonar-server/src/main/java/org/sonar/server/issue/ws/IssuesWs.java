@@ -52,21 +52,7 @@ public class IssuesWs implements WebService {
   }
 
   private static void defineRailsActions(NewController controller) {
-    defineDeleteCommentAction(controller);
     defineBulkChangeAction(controller);
-  }
-
-  private static void defineDeleteCommentAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(DELETE_COMMENT_ACTION)
-      .setDescription("Delete a comment. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("key")
-      .setDescription("Key of the comment")
-      .setRequired(true)
-      .setExampleValue("392160d3-a4f2-4c52-a565-e4542cfa2096");
   }
 
   private static void defineBulkChangeAction(NewController controller) {

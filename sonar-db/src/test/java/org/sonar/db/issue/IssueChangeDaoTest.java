@@ -137,7 +137,8 @@ public class IssueChangeDaoTest {
   public void delete() {
     db.prepareDbUnit(getClass(), "delete.xml");
 
-    assertThat(underTest.delete("COMMENT-2")).isTrue();
+    assertThat(underTest.delete(db.getSession(), "COMMENT-2")).isTrue();
+    db.commit();
 
     db.assertDbUnit(getClass(), "delete-result.xml", "issue_changes");
   }
@@ -146,7 +147,7 @@ public class IssueChangeDaoTest {
   public void delete_unknown_key() {
     db.prepareDbUnit(getClass(), "delete.xml");
 
-    assertThat(underTest.delete("UNKNOWN")).isFalse();
+    assertThat(underTest.delete(db.getSession(), "UNKNOWN")).isFalse();
   }
 
   @Test

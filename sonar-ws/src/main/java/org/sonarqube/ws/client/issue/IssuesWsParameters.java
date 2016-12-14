@@ -33,6 +33,7 @@ public class IssuesWsParameters {
   public static final String ACTION_CHANGELOG = "changelog";
   public static final String ACTION_ADD_COMMENT = "add_comment";
   public static final String ACTION_EDIT_COMMENT = "edit_comment";
+  public static final String ACTION_DELETE_COMMENT = "delete_comment";
   public static final String ACTION_ASSIGN = "assign";
   public static final String ACTION_AUTHORS = "authors";
   public static final String ACTION_DO_TRANSITION = "do_transition";
