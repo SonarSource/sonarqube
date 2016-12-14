@@ -6,7 +6,6 @@ ENV['GEM_HOME'] = $servlet_context.getRealPath('/WEB-INF/gems')
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
-require 'color'
 
 # Disable all the warnings :
 # Gem::SourceIndex#initialize called from /.../web/WEB-INF/gems/gems/rails-2.3.15/lib/rails/vendor_gem_source_index.rb:100.

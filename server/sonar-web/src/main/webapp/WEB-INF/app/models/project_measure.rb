@@ -166,13 +166,6 @@ class ProjectMeasure < ActiveRecord::Base
     Internal.i18n.formatLongDuration(value.to_i, 'SHORT')
   end
 
-  def color
-    @color ||=
-      begin
-        MeasureColor.color(self)
-      end
-  end
-
   def leading_zero( value )
     if ( value < 10 )
       return "0" + value.to_s

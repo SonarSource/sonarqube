@@ -250,10 +250,6 @@ class Metric < ActiveRecord::Base
       'direction' => direction.to_i, 'val_type' => val_type.to_s, 'hidden' => hidden}
   end
 
-  def treemap_color?
-    enabled && !hidden && ((numeric? && worst_value && best_value) || val_type==Metric::VALUE_TYPE_LEVEL)
-  end
-
   def treemap_size?
     enabled && !hidden && numeric? && !domain.blank?
   end
