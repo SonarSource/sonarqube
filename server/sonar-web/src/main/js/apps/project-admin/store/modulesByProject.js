@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RECEIVE_PROJECT_MODULES, CHANGE_KEY } from './actions';
+import { RECEIVE_PROJECT_MODULES, CHANGE_KEY } from './actionCreators';
 
 const modulesByProject = (state = {}, action = {}) => {
   if (action.type === RECEIVE_PROJECT_MODULES) {

@@ -22,9 +22,7 @@ import { getCurrentUser } from '../../store/rootReducer';
 
 // TODO remove my usages
 const getCurrentUserFromStore = () => {
-  const getStore = require('./getStore').default;
-  const store = getStore();
-  return getCurrentUser(store.getState());
+  return getCurrentUser(window.store.getState());
 };
 
 export default getCurrentUserFromStore;

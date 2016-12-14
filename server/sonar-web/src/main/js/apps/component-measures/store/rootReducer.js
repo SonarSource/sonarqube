@@ -21,10 +21,10 @@ import { combineReducers } from 'redux';
 
 import appReducer from './../app/reducer';
 import statusReducer from './statusReducer';
-import homeReducer from '../home/reducer';
+import homeReducer from '../home/duck';
 import detailsReducer from '../details/reducer';
-import listViewReducer from './listViewReducer';
-import treeViewReducer from './treeViewReducer';
+import listViewReducer from './listViewDuck';
+import treeViewReducer from './treeViewDuck';
 
 export default combineReducers({
   app: appReducer,

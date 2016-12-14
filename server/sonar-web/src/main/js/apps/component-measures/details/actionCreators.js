@@ -17,21 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DISPLAY_HOME } from './../app/actions';
-import { UPDATE_STORE } from './listViewActions';
+export const REQUEST_MEASURE = 'measuresApp/details/REQUEST_MEASURE';
+export const RECEIVE_MEASURE = 'measuresApp/details/RECEIVE_MEASURE';
 
-const initialState = {
-  components: [],
-  total: 0
+export const requestMeasure = metric => {
+  return { type: REQUEST_MEASURE, metric };
 };
 
-export default function drilldownReducer (state = initialState, action = {}) {
-  switch (action.type) {
-    case DISPLAY_HOME:
-      return initialState;
-    case UPDATE_STORE:
-      return { ...state, ...action.state };
-    default:
-      return state;
-  }
-}
+export const receiveMeasure = (measure, secondaryMeasure, periods) => {
+  return { type: RECEIVE_MEASURE, measure, secondaryMeasure, periods };
+};

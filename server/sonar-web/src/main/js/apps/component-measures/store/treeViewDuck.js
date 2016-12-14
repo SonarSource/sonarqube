@@ -17,17 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import configureStore from '../../store/utils/configureStore';
-import rootReducer from '../../store/rootReducer';
+import pick from 'lodash/pick';
+import { DISPLAY_HOME } from './../app/actions';
 
-let store;
+export const UPDATE_STORE = 'measuresApp/drilldown/tree/UPDATE_STORE';
+export const INIT = 'measuresApp/drilldown/tree/INIT';
 
-const createStore = () => {
-  store = configureStore(rootReducer);
-  return store;
+export const updateStore = state => ({
+  type: UPDATE_STORE,
+  state
+});
+
+export const init = (rootComponent, metric, periodIndex = 1) => ({
+  type: INIT,
+  rootComponent,
+  metric,
+  periodIndex
+});
+
+const initialState = {
+  components: [],
+  breadcrumbs: [],
+  total: 0
 };
 
-export default () => (
-    store ? store : createStore()
-);
+export default function drilldownReducer (state = initialState, action = {}) {
+  switch (action.type) {
+    case DISPLAY_HOME:
+      return initialState;
+    case UPDATE_STORE:
+      return { ...state, ...action.state };
+    case INIT:
+      return { ...state, ...pick(action, ['rootComponent', 'metric', 'periodIndex']) };
+    default:
+      return state;
+  }
+}

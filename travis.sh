@@ -44,11 +44,11 @@ CI)
 
     # Fetch all commit history so that SonarQube has exact blame information
     # for issue auto-assignment
-    # This command can fail with "fatal: --unshallow on a complete repository does not make sense" 
+    # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
     # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
-  
+
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
           $MAVEN_OPTIONS \
           -Pdeploy-sonarsource \
@@ -97,7 +97,7 @@ WEB)
   source ~/.nvm/nvm.sh && nvm install 6
   curl -o- -L https://yarnpkg.com/install.sh | bash
   export PATH=$HOME/.yarn/bin:$PATH
-  cd server/sonar-web && yarn && yarn test
+  cd server/sonar-web && yarn && npm test
   ;;
 
 *)

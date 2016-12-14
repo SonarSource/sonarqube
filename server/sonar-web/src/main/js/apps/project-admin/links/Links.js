@@ -23,11 +23,8 @@ import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
 import DeletionModal from './views/DeletionModal';
-import {
-    fetchProjectLinks,
-    deleteProjectLink,
-    createProjectLink
-} from '../store/actions';
+import { fetchProjectLinks, createProjectLink } from '../store/actions';
+import { deleteProjectLink } from '../store/actionCreators';
 import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
 
 class Links extends React.Component {
