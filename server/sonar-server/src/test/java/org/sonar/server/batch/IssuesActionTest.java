@@ -38,7 +38,7 @@ import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -99,7 +99,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", file)
+    indexIssues(IssueDocTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
@@ -137,7 +137,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", file)
+    indexIssues(IssueDocTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
@@ -175,7 +175,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", file)
+    indexIssues(IssueDocTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
@@ -213,7 +213,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", file)
+    indexIssues(IssueDocTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
@@ -250,7 +250,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", module)
+    indexIssues(IssueDocTesting.newDoc("EFGH", module)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
@@ -289,7 +289,7 @@ public class IssuesActionTest {
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
-    indexIssues(IssueTesting.newDoc("EFGH", file)
+    indexIssues(IssueDocTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")

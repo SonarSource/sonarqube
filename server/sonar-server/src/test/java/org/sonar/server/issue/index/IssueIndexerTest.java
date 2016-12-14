@@ -38,7 +38,7 @@ import org.sonar.server.es.EsTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.IssueTesting.newDoc;
+import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
 public class IssueIndexerTest {
 

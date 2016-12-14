@@ -28,7 +28,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.es.ProjectMeasuresDoc;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -66,7 +66,7 @@ public class BackendCleanupTest {
 
   @Test
   public void clear_indexes() throws Exception {
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
+    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
 
     backendCleanup.clearIndexes();
@@ -77,7 +77,7 @@ public class BackendCleanupTest {
   @Test
   public void clear_all() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
+    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
 
     backendCleanup.clearAll();
@@ -94,7 +94,7 @@ public class BackendCleanupTest {
   @Test
   public void reset_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
+    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
     esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
     esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, new ProjectMeasuresDoc()

@@ -40,6 +40,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
@@ -47,7 +48,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -223,7 +224,7 @@ public class BulkDeleteActionTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
+    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueDocTesting.newDoc("issue-key-" + suffix, project));
     es.putDocuments(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());

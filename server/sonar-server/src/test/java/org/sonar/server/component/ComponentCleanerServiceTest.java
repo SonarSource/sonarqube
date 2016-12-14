@@ -36,13 +36,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.index.PermissionIndexer;
@@ -226,7 +227,7 @@ public class ComponentCleanerServiceTest {
     permissionIndexer.index(dbSession, project.uuid());
 
     String issueKey = "issue-key-" + suffix;
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc(issueKey, project));
+    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueDocTesting.newDoc(issueKey, project));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);

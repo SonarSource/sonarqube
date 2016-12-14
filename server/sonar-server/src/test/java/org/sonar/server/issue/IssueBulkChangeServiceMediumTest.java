@@ -41,6 +41,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;

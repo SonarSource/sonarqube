@@ -51,9 +51,9 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.issue.IssueTesting.newDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ChangelogActionTest {
