@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -34,9 +35,11 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
 
-public class DoTransitionAction implements IssuesWsAction {
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
 
-  public static final String ACTION = "do_transition";
+public class DoTransitionAction implements IssuesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -57,18 +60,18 @@ public class DoTransitionAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ACTION)
+    WebService.NewAction action = controller.createAction(ACTION_DO_TRANSITION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
         "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.")
       .setSince("3.6")
       .setHandler(this)
       .setPost(true);
 
-    action.createParam("issue")
-      .setDescription("Key of the issue")
+    action.createParam(PARAM_ISSUE)
+      .setDescription("Issue key")
       .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("transition")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+    action.createParam(PARAM_TRANSITION)
       .setDescription("Transition")
       .setRequired(true)
       .setPossibleValues(DefaultTransitions.ALL);
@@ -77,10 +80,10 @@ public class DoTransitionAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
-    String issue = request.mandatoryParam("issue");
+    String issue = request.mandatoryParam(PARAM_ISSUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
-      doTransition(dbSession, issueDto.toDefaultIssue(), request.mandatoryParam("transition"));
+      doTransition(dbSession, issueDto.toDefaultIssue(), request.mandatoryParam(PARAM_TRANSITION));
       responseWriter.write(issue, request, response);
     }
   }

@@ -23,14 +23,18 @@ import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class AssignAction implements IssuesWsAction {
 
-  public static final String ASSIGN_ACTION = "assign";
+  private static final String DEPRECATED_PARAM_ME = "me";
 
   private final UserSession userSession;
   private final IssueService issueService;
@@ -44,36 +48,37 @@ public class AssignAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ASSIGN_ACTION)
+    WebService.NewAction action = controller.createAction(ACTION_ASSIGN)
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(this)
       .setPost(true);
     // TODO add example of response
 
-    action.createParam("issue")
-      .setDescription("Key of the issue")
+    action.createParam(PARAM_ISSUE)
+      .setDescription("Issue key")
       .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("assignee")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+    action.createParam(PARAM_ASSIGNEE)
       // TODO document absent value for unassign, and "_me" for assigning to me
       .setDescription("Login of the assignee")
       .setExampleValue("admin");
-    action.createParam("me")
+    action.createParam(DEPRECATED_PARAM_ME)
       .setDescription("(deprecated) Assign the issue to the logged-in user. Replaced by the parameter assignee=_me")
+      .setDeprecatedSince("5.2")
       .setBooleanPossibleValues();
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String assignee = emptyToNull(request.param("assignee"));
-    if ("_me".equals(assignee) || BooleanUtils.isTrue(request.paramAsBoolean("me"))) {
+    String assignee = emptyToNull(request.param(PARAM_ASSIGNEE));
+    if ("_me".equals(assignee) || BooleanUtils.isTrue(request.paramAsBoolean(DEPRECATED_PARAM_ME))) {
       // Permission is currently checked by IssueService. We still
       // check that user is authenticated in order to get his login.
       userSession.checkLoggedIn();
       assignee = userSession.getLogin();
     }
-    String key = request.mandatoryParam("issue");
+    String key = request.mandatoryParam(PARAM_ISSUE);
     issueService.assign(key, assignee);
 
     responseWriter.write(key, request, response);

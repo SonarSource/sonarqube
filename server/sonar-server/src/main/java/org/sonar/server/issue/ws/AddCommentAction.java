@@ -34,6 +34,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.issue.AddCommentRequest;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -86,16 +87,21 @@ public class AddCommentAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) {
     userSession.checkLoggedIn();
-    String issueKey = request.mandatoryParam(PARAM_ISSUE);
-    String commentText = request.mandatoryParam(PARAM_TEXT);
-    checkArgument(!isNullOrEmpty(commentText), "Cannot add empty comment to an issue");
+    AddCommentRequest wsRequest = toWsRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
+      IssueDto issueDto = issueFinder.getByKey(dbSession, wsRequest.getIssue());
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       DefaultIssue defaultIssue = issueDto.toDefaultIssue();
-      issueFieldsSetter.addComment(defaultIssue, commentText, context);
-      issueUpdater.saveIssue(dbSession, defaultIssue, context, commentText);
-      responseWriter.write(issueKey, request, response);
+      issueFieldsSetter.addComment(defaultIssue, wsRequest.getComment(), context);
+      issueUpdater.saveIssue(dbSession, defaultIssue, context, wsRequest.getComment());
+      responseWriter.write(defaultIssue.key(), request, response);
     }
   }
+
+  private static AddCommentRequest toWsRequest(Request request) {
+    AddCommentRequest wsRequest = new AddCommentRequest(request.mandatoryParam(PARAM_ISSUE), request.mandatoryParam(PARAM_TEXT));
+    checkArgument(!isNullOrEmpty(wsRequest.getComment()), "Cannot add empty comment to an issue");
+    return wsRequest;
+  }
+
 }

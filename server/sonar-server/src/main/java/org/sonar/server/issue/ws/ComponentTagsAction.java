@@ -33,15 +33,17 @@ import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_COMPONENT_TAGS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUID;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
+
 /**
  * List issue tags matching a given query.
  * @since 5.1
  */
 public class ComponentTagsAction implements IssuesWsAction {
 
-  private static final String PARAM_COMPONENT_UUID = "componentUuid";
-  private static final String PARAM_CREATED_AT = "createdAfter";
-  private static final String PARAM_PAGE_SIZE = "ps";
   private final IssueService service;
   private final IssueQueryService queryService;
 
@@ -52,7 +54,7 @@ public class ComponentTagsAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("component_tags")
+    NewAction action = controller.createAction(ACTION_COMPONENT_TAGS)
       .setHandler(this)
       .setSince("5.1")
       .setInternal(true)
@@ -62,10 +64,10 @@ public class ComponentTagsAction implements IssuesWsAction {
       .setDescription("A component UUID")
       .setRequired(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
-    action.createParam(PARAM_CREATED_AT)
+    action.createParam(PARAM_CREATED_AFTER)
       .setDescription("To retrieve tags on issues created after the given date (inclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam(PARAM_PAGE_SIZE)
+    action.createParam(PAGE_SIZE)
       .setDescription("The maximum size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");
@@ -74,13 +76,13 @@ public class ComponentTagsAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Builder<String, Object> paramBuilder = ImmutableMap.<String, Object>builder()
-      .put(IssuesWsParameters.COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
-      .put(IssuesWsParameters.RESOLVED, false);
-    if (request.hasParam(PARAM_CREATED_AT)) {
-      paramBuilder.put(IssuesWsParameters.CREATED_AFTER, request.param(PARAM_CREATED_AT));
+      .put(IssuesWsParameters.PARAM_COMPONENT_UUIDS, request.mandatoryParam(PARAM_COMPONENT_UUID))
+      .put(IssuesWsParameters.PARAM_RESOLVED, false);
+    if (request.hasParam(PARAM_CREATED_AFTER)) {
+      paramBuilder.put(PARAM_CREATED_AFTER, request.param(PARAM_CREATED_AFTER));
     }
     IssueQuery query = queryService.createFromMap(paramBuilder.build());
-    int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
+    int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
       json.beginObject()

@@ -28,6 +28,8 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_AUTHORS;
+
 public class AuthorsAction implements IssuesWsAction {
 
   private final IssueService service;
@@ -55,7 +57,7 @@ public class AuthorsAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("authors")
+    NewAction action = controller.createAction(ACTION_AUTHORS)
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query")
       .setResponseExample(Resources.getResource(this.getClass(), "example-authors.json"))

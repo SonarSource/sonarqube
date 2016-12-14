@@ -30,8 +30,6 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
 
 public class IssuesServiceTest {
 
@@ -41,27 +39,73 @@ public class IssuesServiceTest {
   private IssuesService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
-  public void changelog() {
-    underTest.changelog("ABCD");
-
-    GetRequest getRequest = serviceTester.getGetRequest();
-
-    assertThat(serviceTester.getGetParser()).isSameAs(Issues.ChangelogWsResponse.parser());
-    serviceTester.assertThat(getRequest)
-      .hasParam(PARAM_ISSUE, "ABCD")
-      .andNoOtherParam();
-  }
-
-  @Test
   public void add_comment() {
-    underTest.addComment("ABCD", "Please help me to fix this issue");
-
+    underTest.addComment(new AddCommentRequest("ABCD", "Please help me to fix this issue"));
     PostRequest request = serviceTester.getPostRequest();
 
     assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
     serviceTester.assertThat(request)
-      .hasParam(PARAM_ISSUE, "ABCD")
-      .hasParam(PARAM_TEXT, "Please help me to fix this issue")
+      .hasParam("issue", "ABCD")
+      .hasParam("text", "Please help me to fix this issue")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void assign() {
+    underTest.assign(new AssignRequest("ABCD", "teryk"));
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("issue", "ABCD")
+      .hasParam("assignee", "teryk")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void changelog() {
+    underTest.changelog("ABCD");
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(Issues.ChangelogWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam("issue", "ABCD")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void do_transition() {
+    underTest.doTransition(new DoTransitionRequest("ABCD", "confirm"));
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("issue", "ABCD")
+      .hasParam("transition", "confirm")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void set_severity() {
+    underTest.setSeverity(new SetSeverityRequest("ABCD", "confirm"));
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("issue", "ABCD")
+      .hasParam("severity", "confirm")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void set_type() {
+    underTest.setType(new SetTypeRequest("ABCD", "bugs"));
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.Operation.parser());
+    serviceTester.assertThat(request)
+      .hasParam("issue", "ABCD")
+      .hasParam("type", "bugs")
       .andNoOtherParam();
   }
 

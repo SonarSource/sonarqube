@@ -58,16 +58,16 @@ import org.sonar.server.ws.WsTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.ws.SearchAction.SEARCH_ACTION;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.HIDE_COMMENTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PAGE_INDEX;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PAGE_SIZE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_INDEX;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_SIZE;
 
 public class SearchActionMediumTest {
 
@@ -112,7 +112,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void empty_search() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
@@ -143,7 +143,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION).execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     result.assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
   }
 
@@ -177,7 +177,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "comments,users")
       .execute();
     result.assertJson(this.getClass(), "issue_with_comments.json");
@@ -213,7 +213,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION).setParam(HIDE_COMMENTS, "true").execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.outputAsString()).doesNotContain("fabrice");
   }
@@ -235,7 +235,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "_all").execute();
     result.assertJson(this.getClass(), "load_additional_fields.json");
   }
@@ -260,7 +260,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .execute();
     result.assertJson(this.getClass(), "issue_on_removed_file.json");
   }
@@ -275,7 +275,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION).execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
   }
 
@@ -292,7 +292,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION).setParam(COMPONENTS, file.getKey()).execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_COMPONENTS, file.getKey()).execute();
     result.assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
@@ -307,7 +307,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION).setParam(ADDITIONAL_FIELDS, "_all").execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_ADDITIONAL_FIELDS, "_all").execute();
     result.assertJson(this.getClass(), "components_contains_sub_projects.json");
   }
 
@@ -328,7 +328,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
       .execute();
@@ -352,7 +352,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .setParam("facetMode", FACET_MODE_EFFORT)
@@ -377,7 +377,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
@@ -392,7 +392,7 @@ public class SearchActionMediumTest {
     userSessionRule.login("foo[");
 
     // should not fail
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(WebService.Param.FACETS, "assigned_to_me")
       .execute()
       .assertJson(this.getClass(), "assignedToMe_facet_must_escape_login_of_authenticated_user.json");
@@ -435,7 +435,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
@@ -466,7 +466,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
       .execute()
@@ -509,7 +509,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john-bob.polop");
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
@@ -535,7 +535,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
       .setParam("asc", "false")
       .execute();
@@ -555,7 +555,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     request.setParam(WebService.Param.PAGE, "2");
     request.setParam(WebService.Param.PAGE_SIZE, "9");
 
@@ -576,7 +576,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
     request.setParam(WebService.Param.PAGE, "1");
     request.setParam(WebService.Param.PAGE_SIZE, "-1");
 
@@ -597,9 +597,9 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION);
-    request.setParam(PAGE_INDEX, "2");
-    request.setParam(PAGE_SIZE, "9");
+    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
+    request.setParam(PARAM_PAGE_INDEX, "2");
+    request.setParam(PARAM_PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "deprecated_paging.json");
@@ -607,7 +607,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void default_page_size_is_100() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH);
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json");
@@ -630,7 +630,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "severities")
       .setParam("facetMode", DEPRECATED_FACET_MODE_DEBT)
@@ -643,8 +643,8 @@ public class SearchActionMediumTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SEARCH_ACTION)
-      .setParam(CREATED_AFTER, "wrong-date-input")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(PARAM_CREATED_AFTER, "wrong-date-input")
       .execute();
   }
 

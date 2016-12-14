@@ -21,37 +21,47 @@ package it.issue;
 
 import java.util.List;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.issue.DoTransitionRequest;
+import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.issue.IssueRule;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.toDatetime;
 
 public class IssueWorkflowTest extends AbstractIssueTest {
 
   @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
 
+  @ClassRule
+  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+
   private ProjectAnalysis analysisWithIssues;
   private ProjectAnalysis analysisWithoutIssues;
+  private IssuesService issuesService;
+
   private Issue issue;
 
   @Before
   public void before() {
+    issuesService = newAdminWsClient(ORCHESTRATOR).issues();
     String oneIssuePerFileProfileKey = projectAnalysisRule.registerProfile("/issue/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml");
     String analyzedProjectKey = projectAnalysisRule.registerProject("issue/workflow");
     analysisWithIssues = projectAnalysisRule.newProjectAnalysis(analyzedProjectKey).withQualityProfile(oneIssuePerFileProfileKey);
     analysisWithoutIssues = analysisWithIssues.withXooEmptyProfile();
     analysisWithIssues.run();
 
-    issue = searchRandomIssue();
+    issue = issueRule.getRandomIssue();
   }
 
   /**
@@ -60,16 +70,17 @@ public class IssueWorkflowTest extends AbstractIssueTest {
    */
   @Test
   public void issue_is_closed_as_removed_when_rule_is_disabled() throws Exception {
-    List<Issue> issues = searchIssues(IssueQuery.create().rules("xoo:OneIssuePerLine"));
+    SearchWsRequest ruleSearchRequest = new SearchWsRequest().setRules(singletonList("xoo:OneIssuePerLine"));
+    List<Issue> issues = issueRule.search(ruleSearchRequest).getIssuesList();
     assertThat(issues).isNotEmpty();
 
     // re-analyze with profile "empty". The rule is disabled so the issues must be closed
     analysisWithoutIssues.run();
-    issues = searchIssues(IssueQuery.create().rules("xoo:OneIssuePerLine"));
+    issues = issueRule.search(ruleSearchRequest).getIssuesList();
     assertThat(issues).isNotEmpty();
     for (Issue issue : issues) {
-      assertThat(issue.status()).isEqualTo("CLOSED");
-      assertThat(issue.resolution()).isEqualTo("REMOVED");
+      assertThat(issue.getStatus()).isEqualTo("CLOSED");
+      assertThat(issue.getResolution()).isEqualTo("REMOVED");
     }
   }
 
@@ -79,21 +90,21 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_confirm_issue() {
     // mark as confirmed
-    adminIssueClient().doTransition(issue.key(), "confirm");
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
 
-    Issue confirmed = searchIssueByKey(issue.key());
-    assertThat(confirmed.status()).isEqualTo("CONFIRMED");
-    assertThat(confirmed.resolution()).isNull();
-    assertThat(confirmed.creationDate()).isEqualTo(issue.creationDate());
+    Issue confirmed = issueRule.getByKey(issue.getKey());
+    assertThat(confirmed.getStatus()).isEqualTo("CONFIRMED");
+    assertThat(confirmed.hasResolution()).isFalse();
+    assertThat(confirmed.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // user unconfirm the issue
-    assertThat(transitions(confirmed.key())).contains("unconfirm");
-    adminIssueClient().doTransition(confirmed.key(), "unconfirm");
+    assertThat(transitions(confirmed.getKey())).contains("unconfirm");
+    issuesService.doTransition(new DoTransitionRequest(confirmed.getKey(), "unconfirm"));
 
-    Issue unconfirmed = searchIssueByKey(issue.key());
-    assertThat(unconfirmed.status()).isEqualTo("REOPENED");
-    assertThat(unconfirmed.resolution()).isNull();
-    assertThat(unconfirmed.creationDate()).isEqualTo(confirmed.creationDate());
+    Issue unconfirmed = issueRule.getByKey(issue.getKey());
+    assertThat(unconfirmed.getStatus()).isEqualTo("REOPENED");
+    assertThat(unconfirmed.hasResolution()).isFalse();
+    assertThat(unconfirmed.getCreationDate()).isEqualTo(confirmed.getCreationDate());
   }
 
   /**
@@ -102,21 +113,21 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_mark_as_false_positive_confirmed_issue() {
     // mark as confirmed
-    adminIssueClient().doTransition(issue.key(), "confirm");
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
 
-    Issue confirmed = searchIssueByKey(issue.key());
-    assertThat(confirmed.status()).isEqualTo("CONFIRMED");
-    assertThat(confirmed.resolution()).isNull();
-    assertThat(confirmed.creationDate()).isEqualTo(issue.creationDate());
+    Issue confirmed = issueRule.getByKey(issue.getKey());
+    assertThat(confirmed.getStatus()).isEqualTo("CONFIRMED");
+    assertThat(confirmed.hasResolution()).isFalse();
+    assertThat(confirmed.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // user mark the issue as false-positive
-    assertThat(transitions(confirmed.key())).contains("falsepositive");
-    adminIssueClient().doTransition(confirmed.key(), "falsepositive");
+    assertThat(transitions(confirmed.getKey())).contains("falsepositive");
+    issuesService.doTransition(new DoTransitionRequest(confirmed.getKey(), "falsepositive"));
 
-    Issue falsePositive = searchIssueByKey(issue.key());
-    assertThat(falsePositive.status()).isEqualTo("RESOLVED");
-    assertThat(falsePositive.resolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(falsePositive.creationDate()).isEqualTo(confirmed.creationDate());
+    Issue falsePositive = issueRule.getByKey(issue.getKey());
+    assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
+    assertThat(falsePositive.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(falsePositive.getCreationDate()).isEqualTo(confirmed.getCreationDate());
   }
 
   /**
@@ -125,18 +136,18 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_no_more_existing_confirmed() {
     // mark as confirmed
-    adminIssueClient().doTransition(issue.key(), "confirm");
-    Issue falsePositive = searchIssueByKey(issue.key());
-    assertThat(falsePositive.status()).isEqualTo("CONFIRMED");
-    assertThat(falsePositive.resolution()).isNull();
-    assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
+    Issue falsePositive = issueRule.getByKey(issue.getKey());
+    assertThat(falsePositive.getStatus()).isEqualTo("CONFIRMED");
+    assertThat(falsePositive.hasResolution()).isFalse();
+    assertThat(falsePositive.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // scan without any rules -> confirmed is closed
     analysisWithoutIssues.run();
-    Issue closed = searchIssueByKey(issue.key());
-    assertThat(closed.status()).isEqualTo("CLOSED");
-    assertThat(closed.resolution()).isEqualTo("REMOVED");
-    assertThat(closed.creationDate()).isEqualTo(issue.creationDate());
+    Issue closed = issueRule.getByKey(issue.getKey());
+    assertThat(closed.getStatus()).isEqualTo("CLOSED");
+    assertThat(closed.getResolution()).isEqualTo("REMOVED");
+    assertThat(closed.getCreationDate()).isEqualTo(issue.getCreationDate());
   }
 
   /**
@@ -145,25 +156,25 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_reopen_unresolved_issue_but_marked_as_resolved() {
     // mark as resolved
-    adminIssueClient().doTransition(issue.key(), "resolve");
-    Issue resolvedIssue = searchIssueByKey(issue.key());
-    assertThat(resolvedIssue.status()).isEqualTo("RESOLVED");
-    assertThat(resolvedIssue.resolution()).isEqualTo("FIXED");
-    assertThat(resolvedIssue.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(resolvedIssue.updateDate().before(resolvedIssue.creationDate())).isFalse();
-    assertThat(resolvedIssue.updateDate().before(issue.updateDate())).isFalse();
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    Issue resolvedIssue = issueRule.getByKey(issue.getKey());
+    assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
+    assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
+    assertThat(resolvedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(resolvedIssue.getCreationDate()));
+    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(issue.getUpdateDate()));
 
     // re-execute scan, with the same Q profile -> the issue has not been fixed
     analysisWithIssues.run();
 
     // reload issue
-    Issue reopenedIssue = searchIssueByKey(issue.key());
+    Issue reopenedIssue = issueRule.getByKey(issue.getKey());
 
     // the issue has been reopened
-    assertThat(reopenedIssue.status()).isEqualTo("REOPENED");
-    assertThat(reopenedIssue.resolution()).isNull();
-    assertThat(reopenedIssue.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(reopenedIssue.updateDate().before(issue.updateDate())).isFalse();
+    assertThat(reopenedIssue.getStatus()).isEqualTo("REOPENED");
+    assertThat(reopenedIssue.hasResolution()).isFalse();
+    assertThat(reopenedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+    assertThat(toDatetime(reopenedIssue.getUpdateDate())).isAfter(toDatetime(issue.getUpdateDate()));
   }
 
   /**
@@ -172,24 +183,24 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_resolved_issue() {
     // mark as resolved
-    adminIssueClient().doTransition(issue.key(), "resolve");
-    Issue resolvedIssue = searchIssueByKey(issue.key());
-    assertThat(resolvedIssue.status()).isEqualTo("RESOLVED");
-    assertThat(resolvedIssue.resolution()).isEqualTo("FIXED");
-    assertThat(resolvedIssue.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(resolvedIssue.closeDate()).isNull();
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    Issue resolvedIssue = issueRule.getByKey(issue.getKey());
+    assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
+    assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
+    assertThat(resolvedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+    assertThat(resolvedIssue.hasCloseDate()).isFalse();
 
     // re-execute scan without rules -> the issue is removed with resolution "REMOVED"
     analysisWithoutIssues.run();
 
     // reload issue
-    Issue closedIssue = searchIssueByKey(issue.key());
-    assertThat(closedIssue.status()).isEqualTo("CLOSED");
-    assertThat(closedIssue.resolution()).isEqualTo("REMOVED");
-    assertThat(closedIssue.creationDate()).isEqualTo(issue.creationDate());
-    assertThat(closedIssue.updateDate().before(resolvedIssue.updateDate())).isFalse();
-    assertThat(closedIssue.closeDate()).isNotNull();
-    assertThat(closedIssue.closeDate().before(closedIssue.creationDate())).isFalse();
+    Issue closedIssue = issueRule.getByKey(issue.getKey());
+    assertThat(closedIssue.getStatus()).isEqualTo("CLOSED");
+    assertThat(closedIssue.getResolution()).isEqualTo("REMOVED");
+    assertThat(closedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
+    assertThat(toDatetime(closedIssue.getUpdateDate())).isAfter(toDatetime(resolvedIssue.getUpdateDate()));
+    assertThat(closedIssue.hasCloseDate()).isTrue();
+    assertThat(toDatetime(closedIssue.getCloseDate())).isAfter(toDatetime(closedIssue.getCreationDate()));
   }
 
   /**
@@ -198,21 +209,21 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_reopen_issue_marked_as_resolved() {
     // user marks issue as resolved
-    adminIssueClient().doTransition(issue.key(), "resolve");
-    Issue resolved = searchIssueByKey(issue.key());
-    assertThat(resolved.status()).isEqualTo("RESOLVED");
-    assertThat(resolved.resolution()).isEqualTo("FIXED");
-    assertThat(resolved.creationDate()).isEqualTo(issue.creationDate());
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    Issue resolved = issueRule.getByKey(issue.getKey());
+    assertThat(resolved.getStatus()).isEqualTo("RESOLVED");
+    assertThat(resolved.getResolution()).isEqualTo("FIXED");
+    assertThat(resolved.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // user reopens the issue
-    assertThat(transitions(resolved.key())).contains("reopen");
-    adminIssueClient().doTransition(resolved.key(), "reopen");
+    assertThat(transitions(resolved.getKey())).contains("reopen");
+    adminIssueClient().doTransition(resolved.getKey(), "reopen");
 
-    Issue reopened = searchIssueByKey(resolved.key());
-    assertThat(reopened.status()).isEqualTo("REOPENED");
-    assertThat(reopened.resolution()).isNull();
-    assertThat(reopened.creationDate()).isEqualTo(resolved.creationDate());
-    assertThat(reopened.updateDate().before(resolved.updateDate())).isFalse();
+    Issue reopened = issueRule.getByKey(resolved.getKey());
+    assertThat(reopened.getStatus()).isEqualTo("REOPENED");
+    assertThat(reopened.hasResolution()).isFalse();
+    assertThat(reopened.getCreationDate()).isEqualTo(resolved.getCreationDate());
+    assertThat(toDatetime(reopened.getUpdateDate())).isAfterOrEqualsTo(toDatetime(resolved.getUpdateDate()));
   }
 
   /**
@@ -221,21 +232,21 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_not_reopen_or_close_false_positives() {
     // user marks issue as false-positive
-    adminIssueClient().doTransition(issue.key(), "falsepositive");
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
 
-    Issue falsePositive = searchIssueByKey(issue.key());
-    assertThat(falsePositive.status()).isEqualTo("RESOLVED");
-    assertThat(falsePositive.resolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
+    Issue falsePositive = issueRule.getByKey(issue.getKey());
+    assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
+    assertThat(falsePositive.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(falsePositive.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // re-execute the same scan
     analysisWithIssues.run();
 
     // refresh
-    Issue reloaded = searchIssueByKey(falsePositive.key());
-    assertThat(reloaded.status()).isEqualTo("RESOLVED");
-    assertThat(reloaded.resolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
+    Issue reloaded = issueRule.getByKey(falsePositive.getKey());
+    assertThat(reloaded.getStatus()).isEqualTo("RESOLVED");
+    assertThat(reloaded.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(reloaded.getCreationDate()).isEqualTo(issue.getCreationDate());
     // TODO check that update date has not been changed
   }
 
@@ -245,18 +256,18 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_no_more_existing_false_positive() {
     // user marks as false-positive
-    adminIssueClient().doTransition(issue.key(), "falsepositive");
-    Issue falsePositive = searchIssueByKey(issue.key());
-    assertThat(falsePositive.status()).isEqualTo("RESOLVED");
-    assertThat(falsePositive.resolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
+    Issue falsePositive = issueRule.getByKey(issue.getKey());
+    assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
+    assertThat(falsePositive.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(falsePositive.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // scan without any rules -> false-positive is closed
     analysisWithoutIssues.run();
-    Issue closed = searchIssueByKey(issue.key());
-    assertThat(closed.status()).isEqualTo("CLOSED");
-    assertThat(closed.resolution()).isEqualTo("REMOVED");
-    assertThat(closed.creationDate()).isEqualTo(issue.creationDate());
+    Issue closed = issueRule.getByKey(issue.getKey());
+    assertThat(closed.getStatus()).isEqualTo("CLOSED");
+    assertThat(closed.getResolution()).isEqualTo("REMOVED");
+    assertThat(closed.getCreationDate()).isEqualTo(issue.getCreationDate());
   }
 
   /**
@@ -265,32 +276,32 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_reopen_false_positive() {
     // user marks as false-positive
-    adminIssueClient().doTransition(issue.key(), "falsepositive");
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
 
-    Issue falsePositive = searchIssueByKey(issue.key());
-    assertThat(falsePositive.status()).isEqualTo("RESOLVED");
-    assertThat(falsePositive.resolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
+    Issue falsePositive = issueRule.getByKey(issue.getKey());
+    assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
+    assertThat(falsePositive.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(falsePositive.getCreationDate()).isEqualTo(issue.getCreationDate());
 
     // user reopens the issue
-    assertThat(transitions(falsePositive.key())).contains("reopen");
-    adminIssueClient().doTransition(falsePositive.key(), "reopen");
+    assertThat(transitions(falsePositive.getKey())).contains("reopen");
+    adminIssueClient().doTransition(falsePositive.getKey(), "reopen");
 
-    Issue reopened = searchIssueByKey(issue.key());
-    assertThat(reopened.status()).isEqualTo("REOPENED");
-    assertThat(reopened.resolution()).isNull();
-    assertThat(reopened.creationDate()).isEqualTo(falsePositive.creationDate());
+    Issue reopened = issueRule.getByKey(issue.getKey());
+    assertThat(reopened.getStatus()).isEqualTo("REOPENED");
+    assertThat(reopened.hasResolution()).isFalse();
+    assertThat(reopened.getCreationDate()).isEqualTo(falsePositive.getCreationDate());
   }
 
   @Test
   public void user_should_not_reopen_closed_issue() {
-    adminIssueClient().doTransition(issue.key(), "resolve");
+    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
 
     // re-execute scan without rules -> the issue is closed
     analysisWithoutIssues.run();
 
     // user try to reopen the issue
-    assertThat(transitions(issue.key())).isEmpty();
+    assertThat(transitions(issue.getKey())).isEmpty();
   }
 
   private List<String> transitions(String issueKey) {

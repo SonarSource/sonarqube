@@ -76,8 +76,8 @@ public class InternalRubyIssueService {
   @VisibleForTesting
   static SearchOptions toSearchOptions(Map<String, Object> props) {
     SearchOptions options = new SearchOptions();
-    Integer pageIndex = RubyUtils.toInteger(props.get(IssuesWsParameters.PAGE_INDEX));
-    Integer pageSize = RubyUtils.toInteger(props.get(IssuesWsParameters.PAGE_SIZE));
+    Integer pageIndex = RubyUtils.toInteger(props.get(IssuesWsParameters.PARAM_PAGE_INDEX));
+    Integer pageSize = RubyUtils.toInteger(props.get(IssuesWsParameters.PARAM_PAGE_SIZE));
     if (pageSize != null && pageSize < 0) {
       options.setLimit(SearchOptions.MAX_LIMIT);
     } else {

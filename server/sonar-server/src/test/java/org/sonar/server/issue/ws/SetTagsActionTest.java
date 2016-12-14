@@ -59,7 +59,7 @@ public class SetTagsActionTest {
     assertThat(action.handler()).isEqualTo(sut);
     assertThat(action.params()).hasSize(2);
 
-    Param query = action.param("key");
+    Param query = action.param("issue");
     assertThat(query.isRequired()).isTrue();
     assertThat(query.description()).isNotEmpty();
     assertThat(query.exampleValue()).isNotEmpty();
@@ -73,8 +73,17 @@ public class SetTagsActionTest {
   @Test
   public void should_set_tags() throws Exception {
     when(service.setTags("polop", ImmutableList.of("palap"))).thenReturn(ImmutableSet.of("palap"));
+    tester.newPostRequest("api/issues", "set_tags").setParam("issue", "polop").setParam("tags", "palap").execute()
+      .assertJson("{\"tags\":[\"palap\"]}");
+    verify(service).setTags("polop", ImmutableList.of("palap"));
+  }
+
+  @Test
+  public void should_set_tags_with_deprecated_key() throws Exception {
+    when(service.setTags("polop", ImmutableList.of("palap"))).thenReturn(ImmutableSet.of("palap"));
     tester.newPostRequest("api/issues", "set_tags").setParam("key", "polop").setParam("tags", "palap").execute()
       .assertJson("{\"tags\":[\"palap\"]}");
     verify(service).setTags("polop", ImmutableList.of("palap"));
   }
+
 }

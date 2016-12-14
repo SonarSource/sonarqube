@@ -89,25 +89,25 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNEES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.AUTHORS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FILE_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.LANGUAGES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.MODULE_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.REPORTERS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.RESOLUTIONS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.RULES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.STATUSES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.TAGS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.TYPES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 /**
  * The unique entry-point to interact with Elasticsearch index "issues".
@@ -118,23 +118,23 @@ public class IssueIndex extends BaseIndex {
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
-    SEVERITIES,
-    STATUSES,
-    RESOLUTIONS,
-    DEPRECATED_ACTION_PLANS,
-    PROJECT_UUIDS,
-    RULES,
-    ASSIGNEES,
+    PARAM_SEVERITIES,
+    PARAM_STATUSES,
+    PARAM_RESOLUTIONS,
+    DEPRECATED_PARAM_ACTION_PLANS,
+    PARAM_PROJECT_UUIDS,
+    PARAM_RULES,
+    PARAM_ASSIGNEES,
     FACET_ASSIGNED_TO_ME,
-    REPORTERS,
-    AUTHORS,
-    MODULE_UUIDS,
-    FILE_UUIDS,
-    DIRECTORIES,
-    LANGUAGES,
-    TAGS,
-    TYPES,
-    CREATED_AT);
+    PARAM_REPORTERS,
+    PARAM_AUTHORS,
+    PARAM_MODULE_UUIDS,
+    PARAM_FILE_UUIDS,
+    PARAM_DIRECTORIES,
+    PARAM_LANGUAGES,
+    PARAM_TAGS,
+    PARAM_TYPES,
+    PARAM_CREATED_AT);
 
   // TODO to be documented
   // TODO move to Facets ?
@@ -386,39 +386,39 @@ public class IssueIndex extends BaseIndex {
       StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, filters, esQuery);
       // Execute Term aggregations
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        SEVERITIES, IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
+        PARAM_SEVERITIES, IssueIndexDefinition.FIELD_ISSUE_SEVERITY);
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        STATUSES, IssueIndexDefinition.FIELD_ISSUE_STATUS);
+        PARAM_STATUSES, IssueIndexDefinition.FIELD_ISSUE_STATUS);
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        PROJECT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids().toArray());
+        PARAM_PROJECT_UUIDS, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        MODULE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids().toArray());
+        PARAM_MODULE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        DIRECTORIES, IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories().toArray());
+        PARAM_DIRECTORIES, IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        FILE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids().toArray());
+        PARAM_FILE_UUIDS, IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
+        PARAM_LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
+        PARAM_RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
 
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
+        PARAM_AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());
 
-      if (options.getFacets().contains(TAGS)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, TAGS, query.tags().toArray()));
+      if (options.getFacets().contains(PARAM_TAGS)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, PARAM_TAGS, query.tags().toArray()));
       }
-      if (options.getFacets().contains(TYPES)) {
-        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TYPE, TYPES, query.types().toArray()));
+      if (options.getFacets().contains(PARAM_TYPES)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TYPE, PARAM_TYPES, query.types().toArray()));
       }
-      if (options.getFacets().contains(RESOLUTIONS)) {
+      if (options.getFacets().contains(PARAM_RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }
-      if (options.getFacets().contains(ASSIGNEES)) {
+      if (options.getFacets().contains(PARAM_ASSIGNEES)) {
         esSearch.addAggregation(createAssigneesFacet(query, filters, esQuery));
       }
       addAssignedToMeFacetIfNeeded(esSearch, options, query, filters, esQuery);
-      if (options.getFacets().contains(CREATED_AT)) {
+      if (options.getFacets().contains(PARAM_CREATED_AT)) {
         getCreatedAtFacet(query, filters, esQuery).ifPresent(esSearch::addAggregation);
       }
     }
@@ -481,7 +481,7 @@ public class IssueIndex extends BaseIndex {
     // from GMT to server TZ
     int offsetInSeconds = -system.getDefaultTimeZone().getRawOffset() / 1_000;
 
-    AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(CREATED_AT)
+    AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(PARAM_CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .interval(bucketSize)
       .minDocCount(0L)
@@ -519,7 +519,7 @@ public class IssueIndex extends BaseIndex {
 
   private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
-    String facetName = ASSIGNEES;
+    String facetName = PARAM_ASSIGNEES;
 
     // Same as in super.stickyFacetBuilder
     Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
@@ -580,7 +580,7 @@ public class IssueIndex extends BaseIndex {
 
   private static AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
-    String facetName = RESOLUTIONS;
+    String facetName = PARAM_RESOLUTIONS;
 
     // Same as in super.stickyFacetBuilder
     Map<String, QueryBuilder> resolutionFilters = Maps.newHashMap(filters);

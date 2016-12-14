@@ -23,11 +23,14 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.issue.IssueService;
 
-public class SetSeverityAction implements IssuesWsAction {
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITY;
 
-  public static final String ACTION = "set_severity";
+public class SetSeverityAction implements IssuesWsAction {
 
   private final IssueService issueService;
   private final OperationResponseWriter responseWriter;
@@ -39,17 +42,17 @@ public class SetSeverityAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ACTION)
+    WebService.NewAction action = controller.createAction(ACTION_SET_SEVERITY)
       .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(this)
       .setPost(true);
 
-    action.createParam("issue")
-      .setDescription("Key of the issue")
+    action.createParam(PARAM_ISSUE)
+      .setDescription("Issue key")
       .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("severity")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+    action.createParam(PARAM_SEVERITY)
       .setDescription("New severity")
       .setRequired(true)
       .setPossibleValues(Severity.ALL);
@@ -57,8 +60,8 @@ public class SetSeverityAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String key = request.mandatoryParam("issue");
-    issueService.setSeverity(key, request.mandatoryParam("severity"));
+    String key = request.mandatoryParam(PARAM_ISSUE);
+    issueService.setSeverity(key, request.mandatoryParam(PARAM_SEVERITY));
 
     responseWriter.write(key, request, response);
   }

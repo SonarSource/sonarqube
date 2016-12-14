@@ -69,6 +69,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 
 public class SearchActionComponentsMediumTest {
@@ -123,7 +124,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION).execute();
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
     result.assertJson(this.getClass(), "issues_on_different_projects.json");
   }
 
@@ -167,23 +168,23 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.PROJECT_UUIDS, project.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_PROJECT_UUIDS, project.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_project_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.PROJECT_UUIDS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_PROJECT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, project.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_project_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -209,9 +210,9 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, project.uuid())
-      .setParam(IssuesWsParameters.SINCE_LEAK_PERIOD, "true")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
   }
@@ -237,10 +238,10 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, project.uuid())
-      .setParam(IssuesWsParameters.FILE_UUIDS, file.uuid())
-      .setParam(IssuesWsParameters.SINCE_LEAK_PERIOD, "true")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file.uuid())
+      .setParam(IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
   }
@@ -264,8 +265,8 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.PROJECT_UUIDS, project1.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_PROJECT_UUIDS, project1.uuid())
       .setParam(WebService.Param.FACETS, "projectUuids")
       .execute()
       .assertJson(this.getClass(), "display_sticky_project_facet.json");
@@ -281,23 +282,23 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.FILE_UUIDS, file.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.FILE_UUIDS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, file.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, file.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -315,13 +316,13 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENTS, file.key())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENTS, file.key())
       .execute()
       .assertJson(this.getClass(), "search_by_file_key.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENTS, unitTest.key())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENTS, unitTest.key())
       .execute()
       .assertJson(this.getClass(), "search_by_test_key.json");
   }
@@ -340,9 +341,9 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, project.uuid())
-      .setParam(IssuesWsParameters.FILE_UUIDS, file1.uuid() + "," + file3.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file1.uuid() + "," + file3.uuid())
       .setParam(WebService.Param.FACETS, "fileUuids")
       .execute()
       .assertJson(this.getClass(), "display_file_facet.json");
@@ -359,23 +360,23 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, directory.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, directory.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java/dir")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -397,35 +398,35 @@ public class SearchActionComponentsMediumTest {
 
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, directory1.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, directory1.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, directory2.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, directory2.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.MODULE_UUIDS, module1.uuid())
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java/dir")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_MODULE_UUIDS, module1.uuid())
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.MODULE_UUIDS, module2.uuid())
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java/dir")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_MODULE_UUIDS, module2.uuid())
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java/dir")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.DIRECTORIES, "src/main/java")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -447,9 +448,9 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, module.uuid())
-      .setParam(IssuesWsParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, module.uuid())
+      .setParam(IssuesWsParameters.PARAM_MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
       .setParam(WebService.Param.FACETS, "moduleUuids")
       .execute()
       .assertJson(this.getClass(), "display_module_facet.json");
@@ -467,7 +468,7 @@ public class SearchActionComponentsMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
       .execute();
@@ -487,8 +488,8 @@ public class SearchActionComponentsMediumTest {
     setAnyoneProjectPermission(view, UserRole.USER);
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, view.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
@@ -507,8 +508,8 @@ public class SearchActionComponentsMediumTest {
     // User has wrong permission on the view, no issue will be returned
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, view.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -528,8 +529,8 @@ public class SearchActionComponentsMediumTest {
     setAnyoneProjectPermission(view, UserRole.USER);
     userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, subView.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
@@ -550,8 +551,8 @@ public class SearchActionComponentsMediumTest {
     // User has wrong permission on the view, no issue will be returned
     userSessionRule.login("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, subView.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -569,14 +570,14 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.AUTHORS, "leia")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_AUTHORS, "leia")
       .setParam(WebService.Param.FACETS, "authors")
       .execute()
       .assertJson(this.getClass(), "search_by_authors.json");
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.AUTHORS, "unknown")
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_AUTHORS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
@@ -598,8 +599,8 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, developer.uuid())
+    wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, developer.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_developer.json");
   }
@@ -630,8 +631,8 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, SearchAction.SEARCH_ACTION)
-      .setParam(IssuesWsParameters.COMPONENT_UUIDS, technicalProject.uuid())
+    Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, technicalProject.uuid())
       .execute();
     result
       .assertJson(this.getClass(), "search_by_developer.json");

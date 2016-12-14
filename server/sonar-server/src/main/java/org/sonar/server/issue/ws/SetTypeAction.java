@@ -26,9 +26,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.issue.IssueService;
 
-public class SetTypeAction implements IssuesWsAction {
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPE;
 
-  public static final String ACTION = "set_type";
+public class SetTypeAction implements IssuesWsAction {
 
   private final IssueService issueService;
   private final OperationResponseWriter responseWriter;
@@ -40,17 +42,17 @@ public class SetTypeAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ACTION)
+    WebService.NewAction action = controller.createAction(ACTION_SET_TYPE)
       .setDescription("Change type of issue, for instance from 'code smell' to 'bug'. Requires authentication and Browse permission on project.")
       .setSince("5.5")
       .setHandler(this)
       .setPost(true);
 
-    action.createParam("issue")
-      .setDescription("Key of the issue")
+    action.createParam(PARAM_ISSUE)
+      .setDescription("Issue key")
       .setRequired(true)
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
-    action.createParam("type")
+    action.createParam(PARAM_TYPE)
       .setDescription("New type")
       .setRequired(true)
       .setPossibleValues(RuleType.names());
@@ -58,8 +60,8 @@ public class SetTypeAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String key = request.mandatoryParam("issue");
-    issueService.setType(key, RuleType.valueOf(request.mandatoryParam("type")));
+    String key = request.mandatoryParam(PARAM_ISSUE);
+    issueService.setType(key, RuleType.valueOf(request.mandatoryParam(PARAM_TYPE)));
 
     responseWriter.write(key, request, response);
   }

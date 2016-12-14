@@ -27,44 +27,57 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.FACETS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ADD_COMMENT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_CHANGELOG;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASC;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNED;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ASSIGNEES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.AUTHORS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_ROOTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_ROOT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.COMPONENT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AFTER;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_AT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_BEFORE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CREATED_IN_LAST;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_ACTION_PLANS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FILE_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ISSUES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.LANGUAGES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.MODULE_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASC;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHORS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_ROOT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEFORE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PROJECT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.RESOLUTIONS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.RESOLVED;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.RULES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.SINCE_LEAK_PERIOD;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.STATUSES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.TAGS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.TYPES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
 public class IssuesService extends BaseService {
 
@@ -72,47 +85,18 @@ public class IssuesService extends BaseService {
     super(wsConnector, CONTROLLER_ISSUES);
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
-    return call(
-      new GetRequest(path("search"))
-        .setParam(DEPRECATED_ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))
-        .setParam(ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
-        .setParam(ASC, request.getAsc())
-        .setParam(ASSIGNED, request.getAssigned())
-        .setParam(ASSIGNEES, inlineMultipleParamValue(request.getAssignees()))
-        .setParam(AUTHORS, inlineMultipleParamValue(request.getAuthors()))
-        .setParam(COMPONENT_KEYS, inlineMultipleParamValue(request.getComponentKeys()))
-        .setParam(COMPONENT_ROOT_UUIDS, inlineMultipleParamValue(request.getComponentRootUuids()))
-        .setParam(COMPONENT_ROOTS, inlineMultipleParamValue(request.getComponentRoots()))
-        .setParam(COMPONENT_UUIDS, inlineMultipleParamValue(request.getComponentUuids()))
-        .setParam(COMPONENTS, inlineMultipleParamValue(request.getComponents()))
-        .setParam(CREATED_AFTER, request.getCreatedAfter())
-        .setParam(CREATED_AT, request.getCreatedAt())
-        .setParam(CREATED_BEFORE, request.getCreatedBefore())
-        .setParam(CREATED_IN_LAST, request.getCreatedInLast())
-        .setParam(DIRECTORIES, inlineMultipleParamValue(request.getDirectories()))
-        .setParam(FACET_MODE, request.getFacetMode())
-        .setParam("facets", inlineMultipleParamValue(request.getFacets()))
-        .setParam(FILE_UUIDS, inlineMultipleParamValue(request.getFileUuids()))
-        .setParam(ISSUES, inlineMultipleParamValue(request.getIssues()))
-        .setParam(LANGUAGES, inlineMultipleParamValue(request.getLanguages()))
-        .setParam(MODULE_UUIDS, inlineMultipleParamValue(request.getModuleUuids()))
-        .setParam(ON_COMPONENT_ONLY, request.getOnComponentOnly())
-        .setParam("p", request.getPage())
-        .setParam("ps", request.getPageSize())
-        .setParam(PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
-        .setParam(PROJECT_UUIDS, inlineMultipleParamValue(request.getProjectUuids()))
-        .setParam(PROJECTS, inlineMultipleParamValue(request.getProjects()))
-        .setParam(RESOLUTIONS, inlineMultipleParamValue(request.getResolutions()))
-        .setParam(RESOLVED, request.getResolved())
-        .setParam(RULES, inlineMultipleParamValue(request.getRules()))
-        .setParam("s", request.getSort())
-        .setParam(SEVERITIES, inlineMultipleParamValue(request.getSeverities()))
-        .setParam(SINCE_LEAK_PERIOD, request.getSinceLeakPeriod())
-        .setParam(STATUSES, inlineMultipleParamValue(request.getStatuses()))
-        .setParam(TAGS, inlineMultipleParamValue(request.getTags()))
-        .setParam(TYPES, inlineMultipleParamValue(request.getTypes())),
-      SearchWsResponse.parser());
+  public Issues.Operation addComment(AddCommentRequest request) {
+    return call(new PostRequest(path(ACTION_ADD_COMMENT))
+      .setParam(PARAM_ISSUE, request.getIssue())
+      .setParam(PARAM_TEXT, request.getComment()),
+      Issues.Operation.parser());
+  }
+
+  public Issues.Operation assign(AssignRequest request) {
+    return call(new PostRequest(path(ACTION_ASSIGN))
+      .setParam(PARAM_ISSUE, request.getIssue())
+      .setParam(PARAM_ASSIGNEE, request.getAssignee()),
+      Issues.Operation.parser());
   }
 
   public ChangelogWsResponse changelog(String issueKey) {
@@ -121,10 +105,68 @@ public class IssuesService extends BaseService {
       ChangelogWsResponse.parser());
   }
 
-  public Issues.Operation addComment(String issueKey, String commentText) {
-    return call(new PostRequest(path(ACTION_ADD_COMMENT))
-      .setParam(PARAM_ISSUE, issueKey)
-      .setParam(PARAM_TEXT, commentText),
+  public Issues.Operation doTransition(DoTransitionRequest request) {
+    return call(new PostRequest(path(ACTION_DO_TRANSITION))
+      .setParam(PARAM_ISSUE, request.getIssue())
+      .setParam(PARAM_TRANSITION, request.getTransition()),
       Issues.Operation.parser());
   }
+
+  public SearchWsResponse search(SearchWsRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH))
+        .setParam(DEPRECATED_PARAM_ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))
+        .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
+        .setParam(PARAM_ASC, request.getAsc())
+        .setParam(PARAM_ASSIGNED, request.getAssigned())
+        .setParam(PARAM_ASSIGNEES, inlineMultipleParamValue(request.getAssignees()))
+        .setParam(PARAM_AUTHORS, inlineMultipleParamValue(request.getAuthors()))
+        .setParam(PARAM_COMPONENT_KEYS, inlineMultipleParamValue(request.getComponentKeys()))
+        .setParam(PARAM_COMPONENT_ROOT_UUIDS, inlineMultipleParamValue(request.getComponentRootUuids()))
+        .setParam(PARAM_COMPONENT_ROOTS, inlineMultipleParamValue(request.getComponentRoots()))
+        .setParam(PARAM_COMPONENT_UUIDS, inlineMultipleParamValue(request.getComponentUuids()))
+        .setParam(PARAM_COMPONENTS, inlineMultipleParamValue(request.getComponents()))
+        .setParam(PARAM_CREATED_AFTER, request.getCreatedAfter())
+        .setParam(PARAM_CREATED_AT, request.getCreatedAt())
+        .setParam(PARAM_CREATED_BEFORE, request.getCreatedBefore())
+        .setParam(PARAM_CREATED_IN_LAST, request.getCreatedInLast())
+        .setParam(PARAM_DIRECTORIES, inlineMultipleParamValue(request.getDirectories()))
+        .setParam(FACET_MODE, request.getFacetMode())
+        .setParam(FACETS, inlineMultipleParamValue(request.getFacets()))
+        .setParam(PARAM_FILE_UUIDS, inlineMultipleParamValue(request.getFileUuids()))
+        .setParam(PARAM_ISSUES, inlineMultipleParamValue(request.getIssues()))
+        .setParam(PARAM_LANGUAGES, inlineMultipleParamValue(request.getLanguages()))
+        .setParam(PARAM_MODULE_UUIDS, inlineMultipleParamValue(request.getModuleUuids()))
+        .setParam(PARAM_ON_COMPONENT_ONLY, request.getOnComponentOnly())
+        .setParam(PAGE, request.getPage())
+        .setParam(PAGE_SIZE, request.getPageSize())
+        .setParam(PARAM_PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
+        .setParam(PARAM_PROJECT_UUIDS, inlineMultipleParamValue(request.getProjectUuids()))
+        .setParam(PARAM_PROJECTS, inlineMultipleParamValue(request.getProjects()))
+        .setParam(PARAM_RESOLUTIONS, inlineMultipleParamValue(request.getResolutions()))
+        .setParam(PARAM_RESOLVED, request.getResolved())
+        .setParam(PARAM_RULES, inlineMultipleParamValue(request.getRules()))
+        .setParam(SORT, request.getSort())
+        .setParam(PARAM_SEVERITIES, inlineMultipleParamValue(request.getSeverities()))
+        .setParam(PARAM_SINCE_LEAK_PERIOD, request.getSinceLeakPeriod())
+        .setParam(PARAM_STATUSES, inlineMultipleParamValue(request.getStatuses()))
+        .setParam(PARAM_TAGS, inlineMultipleParamValue(request.getTags()))
+        .setParam(PARAM_TYPES, inlineMultipleParamValue(request.getTypes())),
+      SearchWsResponse.parser());
+  }
+
+  public Issues.Operation setSeverity(SetSeverityRequest request) {
+    return call(new PostRequest(path(ACTION_SET_SEVERITY))
+      .setParam(PARAM_ISSUE, request.getIssue())
+      .setParam(PARAM_SEVERITY, request.getSeverity()),
+      Issues.Operation.parser());
+  }
+
+  public Issues.Operation setType(SetTypeRequest request) {
+    return call(new PostRequest(path(ACTION_SET_TYPE))
+      .setParam(PARAM_ISSUE, request.getIssue())
+      .setParam(PARAM_TYPE, request.getType()),
+      Issues.Operation.parser());
+  }
+
 }

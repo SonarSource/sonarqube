@@ -20,16 +20,17 @@
 package it.issue;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.issue.AddCommentRequest;
+import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SetSeverityRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.issue.IssueRule;
@@ -40,7 +41,6 @@ import static org.junit.Assert.fail;
 import static org.sonarqube.ws.Common.Severity.BLOCKER;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.toDatetime;
-import static util.ItUtils.verifyHttpException;
 
 public class IssueActionTest extends AbstractIssueTest {
 
@@ -73,7 +73,7 @@ public class IssueActionTest extends AbstractIssueTest {
 
   @Test
   public void add_comment() throws Exception {
-    Issues.Comment comment = issuesService.addComment(randomIssue.getKey(), "this is my *comment*").getIssue().getComments().getComments(0);
+    Issues.Comment comment = issuesService.addComment(new AddCommentRequest(randomIssue.getKey(), "this is my *comment*")).getIssue().getComments().getComments(0);
 
     assertThat(comment.getKey()).isNotNull();
     assertThat(comment.getHtmlText()).isEqualTo("this is my <strong>comment</strong>");
@@ -95,7 +95,7 @@ public class IssueActionTest extends AbstractIssueTest {
   @Test
   public void should_reject_blank_comment() throws Exception {
     try {
-      issuesService.addComment(randomIssue.getKey(), "  ");
+      issuesService.addComment(new AddCommentRequest(randomIssue.getKey(), "  "));
       fail();
     } catch (org.sonarqube.ws.client.HttpException ex) {
       assertThat(ex.code()).isEqualTo(400);
@@ -116,7 +116,7 @@ public class IssueActionTest extends AbstractIssueTest {
     assertThat(searchIssuesBySeverities(componentKey, "BLOCKER")).isEmpty();
 
     // increase the severity of an issue
-    adminIssueClient().setSeverity(randomIssue.getKey(), "BLOCKER");
+    issuesService.setSeverity(new SetSeverityRequest(randomIssue.getKey(), "BLOCKER"));
 
     assertThat(searchIssuesBySeverities(componentKey, "BLOCKER")).hasSize(1);
 
@@ -138,7 +138,7 @@ public class IssueActionTest extends AbstractIssueTest {
     Issues.SearchWsResponse response = issueRule.search(new SearchWsRequest().setIssues(singletonList(randomIssue.getKey())));
     assertThat(response.getUsers().getUsersList()).isEmpty();
 
-    adminIssueClient().assign(randomIssue.getKey(), "admin");
+    issuesService.assign(new AssignRequest(randomIssue.getKey(), "admin"));
     assertThat(issueRule.search(new SearchWsRequest().setAssignees(singletonList("admin"))).getIssuesList()).hasSize(1);
 
     projectAnalysis.run();
@@ -151,10 +151,10 @@ public class IssueActionTest extends AbstractIssueTest {
     assertThat(response.getUsers().getUsersList().stream().filter(user -> "Administrator".equals(user.getName())).findFirst()).isPresent();
 
     // unassign
-    adminIssueClient().assign(randomIssue.getKey(), null);
+    issuesService.assign(new AssignRequest(randomIssue.getKey(), null));
     reloaded = issueRule.getByKey(randomIssue.getKey());
     assertThat(reloaded.hasAssignee()).isFalse();
-    Assertions.assertThat(searchIssues(IssueQuery.create().assignees("admin"))).isEmpty();
+    assertThat(issueRule.search(new SearchWsRequest().setAssignees(singletonList("admin"))).getIssuesList()).isEmpty();
   }
 
   /**
@@ -164,10 +164,10 @@ public class IssueActionTest extends AbstractIssueTest {
   public void fail_assign_if_assignee_does_not_exist() {
     assertThat(randomIssue.hasAssignee()).isFalse();
     try {
-      adminIssueClient().assign(randomIssue.getKey(), "unknown");
+      issuesService.assign(new AssignRequest(randomIssue.getKey(), "unknown"));
       fail();
-    } catch (Exception e) {
-      verifyHttpException(e, 400);
+    } catch (org.sonarqube.ws.client.HttpException ex) {
+      assertThat(ex.code()).isEqualTo(400);
     }
   }
 
