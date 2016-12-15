@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v60;
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 /**

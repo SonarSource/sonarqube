@@ -22,10 +22,10 @@ package org.sonar.server.platform.db.migration.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 
 public class AddLastUsedColumnToRulesProfiles extends DdlChange {
 

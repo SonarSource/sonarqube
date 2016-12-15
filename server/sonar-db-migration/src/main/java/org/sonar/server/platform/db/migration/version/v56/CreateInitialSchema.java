@@ -21,24 +21,24 @@ package org.sonar.server.platform.db.migration.version.v56;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.BigIntegerColumnDef;
-import org.sonar.db.version.BooleanColumnDef;
-import org.sonar.db.version.ColumnDef;
-import org.sonar.db.version.CreateIndexBuilder;
-import org.sonar.db.version.CreateTableBuilder;
-import org.sonar.db.version.IntegerColumnDef;
-import org.sonar.db.version.TinyIntColumnDef;
-import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.def.ColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
+import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
+import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.db.version.BlobColumnDef.newBlobColumnDefBuilder;
-import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
-import static org.sonar.db.version.ClobColumnDef.newClobColumnDefBuilder;
-import static org.sonar.db.version.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
-import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
-import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
-import static org.sonar.db.version.TimestampColumnDef.newTimestampColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BlobColumnDef.newBlobColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
+import static org.sonar.server.platform.db.migration.def.DecimalColumnDef.newDecimalColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.TimestampColumnDef.newTimestampColumnDefBuilder;
 
 public class CreateInitialSchema extends DdlChange {
 

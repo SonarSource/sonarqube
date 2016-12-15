@@ -21,11 +21,11 @@ package org.sonar.server.platform.db.migration.version.v62;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AddColumnsBuilder;
-import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddOrganizationUuidToGroupRoles extends DdlChange {
 

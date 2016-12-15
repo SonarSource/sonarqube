@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.db.version.DropTableBuilder;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.core.util.stream.Collectors.toList;

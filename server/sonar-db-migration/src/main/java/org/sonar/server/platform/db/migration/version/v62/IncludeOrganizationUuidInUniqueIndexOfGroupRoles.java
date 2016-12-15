@@ -21,12 +21,12 @@ package org.sonar.server.platform.db.migration.version.v62;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.CreateIndexBuilder;
-import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.IntegerColumnDef.newIntegerColumnDefBuilder;
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class IncludeOrganizationUuidInUniqueIndexOfGroupRoles extends DdlChange {
 

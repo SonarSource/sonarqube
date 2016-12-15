@@ -21,7 +21,7 @@ package org.sonar.server.platform.db.migration.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropIndexDuplicationsIndexSidFromDuplicationsIndex extends DdlChange {

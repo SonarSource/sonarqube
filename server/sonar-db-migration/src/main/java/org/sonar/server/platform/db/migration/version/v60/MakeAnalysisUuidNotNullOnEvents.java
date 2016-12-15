@@ -21,13 +21,13 @@ package org.sonar.server.platform.db.migration.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsBuilder;
-import org.sonar.db.version.CreateIndexBuilder;
-import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_VARCHAR_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class MakeAnalysisUuidNotNullOnEvents extends DdlChange {
 

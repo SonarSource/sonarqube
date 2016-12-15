@@ -21,12 +21,12 @@ package org.sonar.server.platform.db.migration.version.v61;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.db.version.DropIndexBuilder;
-import org.sonar.db.version.RenameTableBuilder;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.RenameTableBuilder;
 
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class RenameTableProperties2ToProperties extends DdlChange {
 

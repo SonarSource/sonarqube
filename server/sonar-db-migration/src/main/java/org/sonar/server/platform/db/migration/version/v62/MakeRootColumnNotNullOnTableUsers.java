@@ -21,10 +21,10 @@ package org.sonar.server.platform.db.migration.version.v62;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
 public class MakeRootColumnNotNullOnTableUsers extends DdlChange {
   public MakeRootColumnNotNullOnTableUsers(Database db) {

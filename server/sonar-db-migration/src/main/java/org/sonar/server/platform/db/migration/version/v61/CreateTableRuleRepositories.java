@@ -22,11 +22,11 @@ package org.sonar.server.platform.db.migration.version.v61;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.db.Database;
-import org.sonar.db.version.CreateTableBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableRuleRepositories extends DdlChange {
   public CreateTableRuleRepositories(Database db) {

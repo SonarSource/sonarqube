@@ -23,7 +23,7 @@ package org.sonar.server.platform.db.migration.version.v61;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.db.version.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 
 public class DropIsGlobalFromDashboards extends DdlChange {
 

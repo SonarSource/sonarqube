@@ -21,13 +21,13 @@ package org.sonar.server.platform.db.migration.version.v61;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.CreateTableBuilder;
+import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.db.version.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.db.version.BlobColumnDef.newBlobColumnDefBuilder;
-import static org.sonar.db.version.VarcharColumnDef.UUID_SIZE;
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.BlobColumnDef.newBlobColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableCeTaskInput extends DdlChange {
   public CreateTableCeTaskInput(Database db) {

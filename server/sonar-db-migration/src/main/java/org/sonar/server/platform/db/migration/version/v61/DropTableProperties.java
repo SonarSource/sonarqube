@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.version.v61;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.db.version.DropIndexBuilder;
-import org.sonar.db.version.DropTableBuilder;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
 
 public class DropTableProperties extends DdlChange {
 

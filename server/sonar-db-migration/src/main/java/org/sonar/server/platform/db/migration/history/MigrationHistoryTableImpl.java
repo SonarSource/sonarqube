@@ -26,8 +26,8 @@ import java.util.List;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
-import org.sonar.db.version.CreateTableBuilder;
-import org.sonar.db.version.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
 public class MigrationHistoryTableImpl implements MigrationHistoryTable {
   private static final String VERSION_COLUMN_NAME = "version";
