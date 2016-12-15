@@ -24,15 +24,17 @@ import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
+import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
+import org.sonar.server.platform.db.migration.history.MigrationHistoryTable;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.web.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerPluginJarExploder;
@@ -49,6 +51,7 @@ public class PlatformLevel2 extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
+      MigrationConfigurationModule.class,
       DatabaseVersion.class,
       DatabaseServerCompatibility.class,
 
@@ -75,12 +78,20 @@ public class PlatformLevel2 extends PlatformLevel {
 
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
     // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail
-    add(DatabaseMigrationStateImpl.class,
+    add(
+      MigrationHistoryTableImpl.class,
+      DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 
     addIfStartupLeader(
-      MigrationHistoryTableImpl.class,
       DatabaseCharsetChecker.class,
       CheckDatabaseCharsetAtStartup.class);
+  }
+
+  @Override
+  public PlatformLevel start() {
+    // ensuring the HistoryTable exists must be the first thing done when this level is started
+    getOptional(MigrationHistoryTable.class).ifPresent(MigrationHistoryTable::start);
+    return super.start();
   }
 }

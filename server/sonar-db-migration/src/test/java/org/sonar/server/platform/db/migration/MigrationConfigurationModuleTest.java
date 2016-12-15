@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version;
+package org.sonar.server.platform.db.migration;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.platform.db.migration.version.v56.DbVersion56;
-import org.sonar.server.platform.db.migration.version.v561.DbVersion561;
-import org.sonar.server.platform.db.migration.version.v60.DbVersion60;
-import org.sonar.server.platform.db.migration.version.v61.DbVersion61;
-import org.sonar.server.platform.db.migration.version.v62.DbVersion62;
-import org.sonar.server.platform.db.migration.version.v63.DbVersion63;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class DbVersionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      DbVersion56.class,
-      DbVersion561.class,
-      DbVersion60.class,
-      DbVersion61.class,
-      DbVersion62.class,
-      DbVersion63.class);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+
+public class MigrationConfigurationModuleTest {
+  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
+
+  @Test
+  public void verify_component_count() {
+    ComponentContainer container = new ComponentContainer();
+
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
+        // DbVersion classes
+        + 6
+        // Others
+        + 3);
   }
 
 }

@@ -19,63 +19,50 @@
  */
 package org.sonar.server.platform.db.migration.version;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
+import java.util.Optional;
+import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
 public class DatabaseVersion {
-
-  public static final int LAST_VERSION = 1_502;
 
   /**
    * The minimum supported version which can be upgraded. Lower
    * versions must be previously upgraded to LTS version.
    * Note that the value can't be less than current LTS version.
    */
-  public static final int MIN_UPGRADE_VERSION = 1_152;
+  public static final long MIN_UPGRADE_VERSION = 1_152;
 
-  private final DbClient dbClient;
+  private final MigrationSteps migrationSteps;
+  private final MigrationHistory migrationHistory;
 
-  public DatabaseVersion(DbClient dbClient) {
-    this.dbClient = dbClient;
-  }
-
-  @VisibleForTesting
-  static Status getStatus(@Nullable Integer currentVersion, int lastVersion) {
-    Status status = Status.FRESH_INSTALL;
-    if (currentVersion != null) {
-      if (currentVersion == lastVersion) {
-        status = Status.UP_TO_DATE;
-      } else if (currentVersion > lastVersion) {
-        status = Status.REQUIRES_DOWNGRADE;
-      } else {
-        status = Status.REQUIRES_UPGRADE;
-      }
-    }
-    return status;
+  public DatabaseVersion(MigrationSteps migrationSteps, MigrationHistory migrationHistory) {
+    this.migrationSteps = migrationSteps;
+    this.migrationHistory = migrationHistory;
   }
 
   public Status getStatus() {
-    return getStatus(getVersion(), LAST_VERSION);
+    return getStatus(migrationHistory.getLastMigrationNumber(), migrationSteps.getMaxMigrationNumber());
   }
 
-  public Integer getVersion() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", dbSession.getConnection())) {
-        return null;
-      }
+  /**
+   * Convenience method to retrieve the value of {@link MigrationHistory#getLastMigrationNumber()}.
+   */
+  public Optional<Long> getVersion() {
+    return migrationHistory.getLastMigrationNumber();
+  }
 
-      List<Integer> versions = dbClient.schemaMigrationDao().selectVersions(dbSession);
-      if (!versions.isEmpty()) {
-        Collections.sort(versions);
-        return versions.get(versions.size() - 1);
-      }
-      return null;
+  private static Status getStatus(Optional<Long> currentVersion, long lastVersion) {
+    if (!currentVersion.isPresent()) {
+      return Status.FRESH_INSTALL;
     }
+    Long aLong = currentVersion.get();
+    if (aLong == lastVersion) {
+      return Status.UP_TO_DATE;
+    }
+    if (aLong > lastVersion) {
+      return Status.REQUIRES_DOWNGRADE;
+    }
+    return Status.REQUIRES_UPGRADE;
   }
 
   public enum Status {

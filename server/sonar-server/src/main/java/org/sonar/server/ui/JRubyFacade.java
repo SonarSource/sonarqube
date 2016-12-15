@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
@@ -308,21 +309,21 @@ public final class JRubyFacade {
   public boolean isSonarAccessAllowed() {
     ComponentContainer container = Platform.getInstance().getContainer();
     DatabaseMigrationState databaseMigrationState = container.getComponentByType(DatabaseMigrationState.class);
-    Status status = databaseMigrationState.getStatus();
-    if (status == Status.RUNNING
-      || status == Status.FAILED) {
+    Status migrationStatus = databaseMigrationState.getStatus();
+    if (migrationStatus == Status.RUNNING || migrationStatus == Status.FAILED) {
       return false;
     }
-    if (status == Status.SUCCEEDED) {
+    if (migrationStatus == Status.SUCCEEDED) {
       return true;
     }
 
     DatabaseVersion databaseVersion = container.getComponentByType(DatabaseVersion.class);
-    Integer currentVersion = databaseVersion.getVersion();
-    if (currentVersion == null) {
+    Optional<Long> currentVersion = databaseVersion.getVersion();
+    if (!currentVersion.isPresent()) {
       throw new IllegalStateException("Version can not be retrieved from Database. Database is either blank or corrupted");
     }
-    if (currentVersion >= DatabaseVersion.LAST_VERSION) {
+    DatabaseVersion.Status status = databaseVersion.getStatus();
+    if (status == DatabaseVersion.Status.UP_TO_DATE || status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
       return true;
     }
 

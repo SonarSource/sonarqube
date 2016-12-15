@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -72,12 +73,13 @@ public class MigrateDbAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Integer currentVersion = databaseVersion.getVersion();
-    checkState(currentVersion != null, NO_CONNECTION_TO_DB);
+    Optional<Long> currentVersion = databaseVersion.getVersion();
+    checkState(currentVersion.isPresent(), NO_CONNECTION_TO_DB);
 
     JsonWriter json = response.newJsonWriter();
     try {
-      if (currentVersion >= DatabaseVersion.LAST_VERSION) {
+      DatabaseVersion.Status status = databaseVersion.getStatus();
+      if (status == DatabaseVersion.Status.UP_TO_DATE || status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
         write(json, migrationState);
       } else if (!database.getDialect().supportsMigration()) {
         writeNotSupportedResponse(json);

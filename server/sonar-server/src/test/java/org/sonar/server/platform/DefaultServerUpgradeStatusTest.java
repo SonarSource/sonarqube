@@ -19,52 +19,58 @@
  */
 package org.sonar.server.platform;
 
+import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultServerUpgradeStatusTest {
+  private static final long LAST_VERSION = 150;
+  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private DatabaseVersion dbVersion = mock(DatabaseVersion.class);
+  private DefaultServerUpgradeStatus underTest = new DefaultServerUpgradeStatus(dbVersion, migrationSteps);
+
+  @Before
+  public void setUp() throws Exception {
+    when(migrationSteps.getMaxMigrationNumber()).thenReturn(LAST_VERSION);
+  }
 
   @Test
   public void shouldBeFreshInstallation() {
-    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
-    when(dbVersion.getVersion()).thenReturn(null);
+    when(migrationSteps.getMaxMigrationNumber()).thenReturn(150L);
+    when(dbVersion.getVersion()).thenReturn(Optional.empty());
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
-    status.start();
+    underTest.start();
 
-    assertThat(status.isFreshInstall(), is(true));
-    assertThat(status.isUpgraded(), is(false));
-    assertThat(status.getInitialDbVersion(), is(-1));
+    assertThat(underTest.isFreshInstall()).isTrue();
+    assertThat(underTest.isUpgraded()).isFalse();
+    assertThat(underTest.getInitialDbVersion()).isEqualTo(-1);
   }
 
   @Test
   public void shouldBeUpgraded() {
-    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
-    when(dbVersion.getVersion()).thenReturn(50);
+    when(dbVersion.getVersion()).thenReturn(Optional.of(50L));
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
-    status.start();
+    underTest.start();
 
-    assertThat(status.isFreshInstall(), is(false));
-    assertThat(status.isUpgraded(), is(true));
-    assertThat(status.getInitialDbVersion(), is(50));
+    assertThat(underTest.isFreshInstall()).isFalse();
+    assertThat(underTest.isUpgraded()).isTrue();
+    assertThat(underTest.getInitialDbVersion()).isEqualTo(50);
   }
 
   @Test
   public void shouldNotBeUpgraded() {
-    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
-    when(dbVersion.getVersion()).thenReturn(DatabaseVersion.LAST_VERSION);
+    when(dbVersion.getVersion()).thenReturn(Optional.of(LAST_VERSION));
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
-    status.start();
+    underTest.start();
 
-    assertThat(status.isFreshInstall(), is(false));
-    assertThat(status.isUpgraded(), is(false));
-    assertThat(status.getInitialDbVersion(), is(DatabaseVersion.LAST_VERSION));
+    assertThat(underTest.isFreshInstall()).isFalse();
+    assertThat(underTest.isUpgraded()).isFalse();
+    assertThat(underTest.getInitialDbVersion()).isEqualTo((int) LAST_VERSION);
   }
 }

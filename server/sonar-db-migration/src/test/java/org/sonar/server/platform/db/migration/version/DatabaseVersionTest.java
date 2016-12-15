@@ -19,50 +19,62 @@
  */
 package org.sonar.server.platform.db.migration.version;
 
-import org.junit.Rule;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
+import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.FRESH_INSTALL;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.REQUIRES_DOWNGRADE;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.REQUIRES_UPGRADE;
+import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.UP_TO_DATE;
 
 public class DatabaseVersionTest {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private DatabaseVersion underTest = new DatabaseVersion(dbClient);
+  private MigrationHistory migrationHistory = mock(MigrationHistory.class);
+  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private DatabaseVersion underTest = new DatabaseVersion(migrationSteps, migrationHistory);
 
   @Test
-  public void getVersion() {
-    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "1");
-    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "2");
-    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "4");
-    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "123");
-    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "50");
-    dbSession.commit();
-
-    Integer version = underTest.getVersion();
-
-    assertThat(version).isEqualTo(123);
+  public void getStatus_returns_FRESH_INSTALL_when_table_is_empty() {
+    mockMaxMigrationNumberInDb(null);
+    mockMaxMigrationNumberInConfig(150L);
+    assertThat(underTest.getStatus()).isEqualTo(FRESH_INSTALL);
   }
 
   @Test
-  public void getVersion_no_rows() {
-    Integer version = underTest.getVersion();
+  public void getStatus_returns_REQUIRES_UPGRADE_when_max_migration_number_in_table_is_less_than_max_migration_number_in_configuration() {
+    mockMaxMigrationNumberInDb(123L);
+    mockMaxMigrationNumberInConfig(150L);
 
-    assertThat(version).isNull();
+    assertThat(underTest.getStatus()).isEqualTo(REQUIRES_UPGRADE);
   }
 
   @Test
-  public void getStatus() {
-    assertThat(DatabaseVersion.getStatus(null, 150)).isEqualTo(DatabaseVersion.Status.FRESH_INSTALL);
-    assertThat(DatabaseVersion.getStatus(123, 150)).isEqualTo(DatabaseVersion.Status.REQUIRES_UPGRADE);
-    assertThat(DatabaseVersion.getStatus(150, 150)).isEqualTo(DatabaseVersion.Status.UP_TO_DATE);
-    assertThat(DatabaseVersion.getStatus(200, 150)).isEqualTo(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
+  public void getStatus_returns_UP_TO_DATE_when_max_migration_number_in_table_is_equal_to_max_migration_number_in_configuration() {
+    mockMaxMigrationNumberInDb(150L);
+    mockMaxMigrationNumberInConfig(150L);
+
+    assertThat(underTest.getStatus()).isEqualTo(UP_TO_DATE);
+  }
+
+  @Test
+  public void getStatus_returns_REQUIRES_DOWNGRADE_when_max_migration_number_in_table_is_greater_than_max_migration_number_in_configuration() {
+    mockMaxMigrationNumberInDb(200L);
+    mockMaxMigrationNumberInConfig(150L);
+
+    assertThat(underTest.getStatus()).isEqualTo(REQUIRES_DOWNGRADE);
+  }
+
+  private void mockMaxMigrationNumberInDb(@Nullable Long value1) {
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(value1));
+  }
+
+  private void mockMaxMigrationNumberInConfig(long value) {
+    when(migrationSteps.getMaxMigrationNumber()).thenReturn(value);
   }
 }

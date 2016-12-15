@@ -19,10 +19,12 @@
  */
 package org.sonar.server.platform;
 
+import java.util.Optional;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 /**
@@ -31,18 +33,20 @@ import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startable {
 
   private final DatabaseVersion dbVersion;
+  private final MigrationSteps migrationSteps;
 
   // available when connected to db
-  private int initialDbVersion;
+  private long initialDbVersion;
 
-  public DefaultServerUpgradeStatus(DatabaseVersion dbVersion) {
+  public DefaultServerUpgradeStatus(DatabaseVersion dbVersion, MigrationSteps migrationSteps) {
     this.dbVersion = dbVersion;
+    this.migrationSteps = migrationSteps;
   }
 
   @Override
   public void start() {
-    Integer v = dbVersion.getVersion();
-    this.initialDbVersion = v != null ? v : -1;
+    Optional<Long> v = dbVersion.getVersion();
+    this.initialDbVersion = v.orElse(-1L);
   }
 
   @Override
@@ -52,7 +56,7 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
 
   @Override
   public boolean isUpgraded() {
-    return !isFreshInstall() && (initialDbVersion < DatabaseVersion.LAST_VERSION);
+    return !isFreshInstall() && (initialDbVersion < migrationSteps.getMaxMigrationNumber());
   }
 
   @Override
@@ -62,7 +66,7 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
 
   @Override
   public int getInitialDbVersion() {
-    return initialDbVersion;
+    return (int) initialDbVersion;
   }
 
   @Override

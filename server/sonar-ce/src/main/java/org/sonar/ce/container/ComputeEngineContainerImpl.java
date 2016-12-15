@@ -63,7 +63,6 @@ import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.component.ComponentCleanerService;
@@ -114,6 +113,8 @@ import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.cluster.ClusterImpl;
 import org.sonar.server.platform.cluster.ClusterProperties;
+import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
@@ -251,6 +252,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] level2Components() {
     return new Object[] {
+      MigrationConfigurationModule.class,
       DatabaseVersion.class,
       DatabaseServerCompatibility.class,
 

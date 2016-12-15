@@ -30,13 +30,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static com.google.common.base.Preconditions.checkState;
 
-/**
- * TODO make {@link DatabaseVersion} use this class
- */
 public class MigrationHistoryImpl implements MigrationHistory {
   private final DbClient dbClient;
 

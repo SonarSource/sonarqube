@@ -22,27 +22,14 @@ package org.sonar.server.platform.db.migration;
 import org.sonar.core.platform.Module;
 import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulatorImpl;
 import org.sonar.server.platform.db.migration.engine.MigrationEngineImpl;
-import org.sonar.server.platform.db.migration.history.MigrationHistoryImpl;
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
-import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 
 /**
- * Defines the components for the migration engine. This does not include the
- * {@link org.sonar.server.platform.db.migration.version.DbVersion} classes which are bundled together in
- * {@link org.sonar.server.platform.db.migration.version.DbVersionModule}.
+ * Defines the components for the migration engine.
  */
 public class MigrationEngineModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // migration steps
-      MigrationStepRegistryImpl.class,
-      new MigrationStepsProvider(),
-
-      // history
-      MigrationHistoryImpl.class,
-
-      // engine
       MigrationContainerPopulatorImpl.class,
       MigrationEngineImpl.class);
   }

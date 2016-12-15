@@ -20,6 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -27,13 +28,21 @@ import org.sonar.db.DbTester;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DatabaseMonitorTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DatabaseMonitor underTest = new DatabaseMonitor(new DatabaseVersion(dbTester.getDbClient()), dbTester.getDbClient());
+  private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
+  private DatabaseMonitor underTest = new DatabaseMonitor(databaseVersion, dbTester.getDbClient());
+
+  @Before
+  public void setUp() throws Exception {
+    when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
+  }
 
   @Test
   public void name_is_not_empty() {

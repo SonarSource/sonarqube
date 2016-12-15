@@ -52,10 +52,10 @@ public class PlatformLevel2Test {
   @Test
   public void add_all_components_by_default() {
     PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
-    level1.configureLevel();
+    level1.configure();
 
     PlatformLevel2 underTest = new PlatformLevel2(level1);
-    underTest.configureLevel();
+    underTest.configure();
 
     // some level1 components
     assertThat(underTest.getOptional(Cluster.class)).isPresent();
@@ -72,10 +72,10 @@ public class PlatformLevel2Test {
   public void do_not_add_all_components_when_startup_follower() {
     props.setProperty("sonar.cluster.enabled", "true");
     PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
-    level1.configureLevel();
+    level1.configure();
 
     PlatformLevel2 underTest = new PlatformLevel2(level1);
-    underTest.configureLevel();
+    underTest.configure();
 
     assertThat(underTest.get(Cluster.class).isStartupLeader()).isFalse();
 
