@@ -19,30 +19,31 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import { changeVersion } from '../actions';
-import type { Analysis, Event } from '../../../store/projectActivity/duck';
-import { translate } from '../../../helpers/l10n';
+import type { Analysis, Event } from '../../../../store/projectActivity/duck';
+import { translate } from '../../../../helpers/l10n';
 
+type Props = {
+  analysis: Analysis,
+  deleteEvent: () => Promise<*>,
+  event: Event,
+  project: string,
+  removeEventButtonText: string,
+  removeEventQuestion: string
+};
 
-class ChangeVersionForm extends React.Component {
+type State = {
+  open: boolean,
+  processing: boolean
+}
+
+export default class RemoveVersionForm extends React.Component {
   mounted: boolean;
-  props: {
-    analysis: Analysis,
-    changeVersion: () => Promise<*>,
-    event: Event,
-    project: string
-  };
-  state: Object;
+  props: Props;
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      open: false,
-      processing: false,
-      version: props.event.name
-    };
-  }
+  state: State = {
+    open: false,
+    processing: false
+  };
 
   componentDidMount () {
     this.mounted = true;
@@ -60,13 +61,7 @@ class ChangeVersionForm extends React.Component {
 
   closeForm = () => {
     if (this.mounted) {
-      this.setState({ open: false, version: this.props.event.name });
-    }
-  };
-
-  changeInput = e => {
-    if (this.mounted) {
-      this.setState({ version: e.target.value });
+      this.setState({ open: false });
     }
   };
 
@@ -82,15 +77,11 @@ class ChangeVersionForm extends React.Component {
     }
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.changeVersion(
-        this.props.project,
-        this.props.analysis.key,
-        this.props.event.key,
-        this.state.version
-    ).then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props.deleteEvent(this.props.project, this.props.analysis, this.props.event.key)
+        .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
   render () {
@@ -98,18 +89,14 @@ class ChangeVersionForm extends React.Component {
         <div className="project-activity-analysis-form">
           {this.state.open ? (
                   <form onSubmit={this.handleSubmit}>
-                    <input
-                        value={this.state.version}
-                        autoFocus={true}
-                        disabled={this.state.processing}
-                        className="input-medium little-spacer-right"
-                        type="text"
-                        onChange={this.changeInput}/>
+                    <span className="spacer-right">
+                      {translate(this.props.removeEventQuestion)}
+                    </span>
                     {this.state.processing ? (
                             <i className="spinner"/>
                         ) : (
                             <span>
-                              <button type="submit">{translate('save')}</button>
+                              <button type="submit" className="button-red">{translate('remove')}</button>
                               <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
                                 {translate('cancel')}
                               </button>
@@ -117,15 +104,11 @@ class ChangeVersionForm extends React.Component {
                         )}
                   </form>
               ) : (
-                  <button onClick={this.openForm}>{translate('project_activity.change_version')}</button>
+                  <button className="button-clean" onClick={this.openForm}>
+                    <i className="icon-delete"/>
+                  </button>
               )}
         </div>
     );
   }
 }
-
-const mapStateToProps = null;
-
-const mapDispatchToProps = { changeVersion };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChangeVersionForm);

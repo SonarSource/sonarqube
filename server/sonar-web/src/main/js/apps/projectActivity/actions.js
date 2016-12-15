@@ -23,8 +23,8 @@ import {
   receiveProjectActivity,
   changeProjectActivityFilter,
   addEvent,
-  deleteEvent,
-  changeEvent,
+  deleteEvent as deleteEventAction,
+  changeEvent as changeEventAction,
   getPaging,
   getFilter
 } from '../../store/projectActivity/duck';
@@ -62,28 +62,37 @@ export const changeFilter = (project: string, filter: ?string) => (dispatch: Fun
   dispatch(fetchProjectActivity(project));
 };
 
-export const addVersion = (project: string, analysis: string, version: string) => (dispatch: Function): Promise<*> => {
-  return api.createEvent(analysis, version, 'VERSION').then(
+export const addCustomEvent = (
+    project: string,
+    analysis: string,
+    name: string,
+    category?: string
+) => (dispatch: Function): Promise<*> => {
+  return api.createEvent(analysis, name, category).then(
       ({ analysis, ...event }) => dispatch(addEvent(project, analysis, event)),
       rejectOnFail(dispatch)
   );
 };
 
-export const removeVersion = (project: string, analysis: string, event: string) => (dispatch: Function): Promise<*> => {
+export const deleteEvent = (project: string, analysis: string, event: string) => (dispatch: Function): Promise<*> => {
   return api.deleteEvent(event).then(
-      () => dispatch(deleteEvent(project, analysis, event)),
+      () => dispatch(deleteEventAction(project, analysis, event)),
       rejectOnFail(dispatch)
   );
 };
 
-export const changeVersion = (
+export const addVersion = (project: string, analysis: string, version: string) => (dispatch: Function): Promise<*> => {
+  return dispatch(addCustomEvent(project, analysis, version, 'VERSION'));
+};
+
+export const changeEvent = (
     project: string,
     analysis: string,
     event: string,
-    newVersion: string
+    newName: string
 ) => (dispatch: Function): Promise<*> => {
-  return api.changeEvent(event, newVersion).then(
-      () => dispatch(changeEvent(project, analysis, event, { name: newVersion })),
+  return api.changeEvent(event, newName).then(
+      () => dispatch(changeEventAction(project, analysis, event, { name: newName })),
       rejectOnFail(dispatch)
   );
 };

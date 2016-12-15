@@ -19,32 +19,18 @@
  */
 // @flow
 import React from 'react';
-import ChangeVersionForm from './forms/ChangeVersionForm';
-import RemoveVersionForm from './forms/RemoveVersionForm';
-import type { Event } from '../../../store/projectActivity/duck';
+import { connect } from 'react-redux';
+import ChangeEventForm from './ChangeEventForm';
+import { changeEvent } from '../../actions';
 
-export default class VersionEvent extends React.Component {
-  props: {
-    analysis: string,
-    event: Event,
-    project: string
-  };
+const ChangeCustomEventForm = props => (
+    <ChangeEventForm
+        {...props}
+        changeEventButtonText="project_activity.change_custom_event"/>
+);
 
-  render () {
-    return (
-        <div className="project-activity-event">
-          <span className="badge project-activity-version-badge">{this.props.event.name}</span>
+const mapStateToProps = null;
 
-          <ChangeVersionForm
-              analysis={this.props.analysis}
-              event={this.props.event}
-              project={this.props.project}/>
+const mapDispatchToProps = { changeEvent };
 
-          <RemoveVersionForm
-              analysis={this.props.analysis}
-              event={this.props.event}
-              project={this.props.project}/>
-        </div>
-    );
-  }
-}
+export default connect(mapStateToProps, mapDispatchToProps)(ChangeCustomEventForm);

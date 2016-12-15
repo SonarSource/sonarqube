@@ -25,7 +25,9 @@ import type { Event as EventType } from '../../../store/projectActivity/duck';
 
 export default class Events extends React.Component {
   props: {
-    events: Array<EventType>
+    analysis: string,
+    events: Array<EventType>,
+    project: string
   };
 
   render () {
@@ -40,7 +42,11 @@ export default class Events extends React.Component {
     return (
         <div>
           {sortedEvents.map(event => (
-              <Event key={event.key} event={event}/>
+              <Event
+                  key={event.key}
+                  analysis={this.props.analysis}
+                  event={event}
+                  project={this.props.project}/>
           ))}
         </div>
     );

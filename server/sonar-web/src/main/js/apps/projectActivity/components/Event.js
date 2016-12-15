@@ -20,6 +20,8 @@
 // @flow
 import React from 'react';
 import VersionEvent from './VersionEvent';
+import ChangeCustomEventForm from './forms/ChangeCustomEventForm';
+import RemoveCustomEventForm from './forms/RemoveCustomEventForm';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
@@ -27,14 +29,16 @@ import './Event.css';
 
 export default class Event extends React.Component {
   props: {
-    event: EventType
+    analysis: string,
+    event: EventType,
+    project: string
   };
 
   render () {
     const { event } = this.props;
 
     if (event.category === 'VERSION') {
-      return <VersionEvent event={event}/>;
+      return <VersionEvent {...this.props}/>;
     }
 
     return (
@@ -43,6 +47,20 @@ export default class Event extends React.Component {
             <span className="note">{translate('event.category', event.category)}:</span>
             {' '}
             <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+
+            {event.category === 'OTHER' && (
+                <ChangeCustomEventForm
+                    analysis={this.props.analysis}
+                    event={event}
+                    project={this.props.project}/>
+            )}
+
+            {event.category === 'OTHER' && (
+                <RemoveCustomEventForm
+                    analysis={this.props.analysis}
+                    event={event}
+                    project={this.props.project}/>
+            )}
           </div>
         </TooltipsContainer>
     );

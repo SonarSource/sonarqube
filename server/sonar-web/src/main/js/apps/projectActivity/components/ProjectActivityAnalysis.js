@@ -20,9 +20,8 @@
 // @flow
 import React from 'react';
 import Events from './Events';
-import AddVersionForm from './AddVersionForm';
-import RemoveVersionForm from './RemoveVersionForm';
-import ChangeVersionForm from './ChangeVersionForm';
+import AddVersionForm from './forms/AddVersionForm';
+import AddCustomEventForm from './forms/AddCustomEventForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
 
@@ -46,29 +45,23 @@ export default class ProjectActivityAnalysis extends React.Component {
 
           <div className="project-activity-events">
             {events.length > 0 && (
-                <Events events={events}/>
+                <Events
+                    analysis={this.props.analysis.key}
+                    events={events}
+                    project={this.props.project}/>
             )}
 
             <div className="project-activity-analysis-actions">
-              {version != null && (
-                  <ChangeVersionForm
-                      analysis={this.props.analysis}
-                      event={version}
-                      project={this.props.project}/>
-              )}
-
-              {version != null && !this.props.isFirst && (
-                  <RemoveVersionForm
-                      analysis={this.props.analysis}
-                      event={version}
-                      project={this.props.project}/>
-              )}
 
               {version == null && (
                   <AddVersionForm
                       analysis={this.props.analysis}
                       project={this.props.project}/>
               )}
+
+              <AddCustomEventForm
+                  analysis={this.props.analysis}
+                  project={this.props.project}/>
             </div>
           </div>
         </li>

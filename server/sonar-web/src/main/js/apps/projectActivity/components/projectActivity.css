@@ -43,6 +43,7 @@
 }
 
 .project-activity-analysis-form {
+  display: inline-block;
   line-height: 24px;
 }
 

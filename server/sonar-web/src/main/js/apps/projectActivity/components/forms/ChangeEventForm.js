@@ -19,25 +19,36 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import { removeVersion } from '../actions';
-import type { Analysis, Event } from '../../../store/projectActivity/duck';
-import { translate } from '../../../helpers/l10n';
+import type { Event } from '../../../../store/projectActivity/duck';
+import { translate } from '../../../../helpers/l10n';
 
-class RemoveVersionForm extends React.Component {
+type Props = {
+  analysis: string,
+  changeEvent: () => Promise<*>,
+  changeEventButtonText: string,
+  event: Event,
+  project: string
+};
+
+type State = {
+  open: boolean,
+  processing: boolean,
+  name: string
+}
+
+export default class ChangeEventForm extends React.Component {
   mounted: boolean;
-  props: {
-    removeVersion: () => Promise<*>,
-    analysis: Analysis,
-    event: Event,
-    project: string
-  };
+  props: Props;
+  state: State;
 
-  state = {
-    open: false,
-    processing: false,
-    version: ''
-  };
+  constructor (props: Props) {
+    super(props);
+    this.state = {
+      open: false,
+      processing: false,
+      name: props.event.name
+    };
+  }
 
   componentDidMount () {
     this.mounted = true;
@@ -55,7 +66,13 @@ class RemoveVersionForm extends React.Component {
 
   closeForm = () => {
     if (this.mounted) {
-      this.setState({ open: false, version: '' });
+      this.setState({ open: false, name: this.props.event.name });
+    }
+  };
+
+  changeInput = (e: Object) => {
+    if (this.mounted) {
+      this.setState({ name: e.target.value });
     }
   };
 
@@ -71,11 +88,15 @@ class RemoveVersionForm extends React.Component {
     }
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.removeVersion(this.props.project, this.props.analysis.key, this.props.event.key)
-        .then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props.changeEvent(
+        this.props.project,
+        this.props.analysis,
+        this.props.event.key,
+        this.state.name
+    ).then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
   render () {
@@ -83,14 +104,18 @@ class RemoveVersionForm extends React.Component {
         <div className="project-activity-analysis-form">
           {this.state.open ? (
                   <form onSubmit={this.handleSubmit}>
-                    <span className="spacer-right">
-                      {translate('project_activity.remove_version.question')}
-                    </span>
+                    <input
+                        value={this.state.name}
+                        autoFocus={true}
+                        disabled={this.state.processing}
+                        className="input-medium little-spacer-right"
+                        type="text"
+                        onChange={this.changeInput}/>
                     {this.state.processing ? (
                             <i className="spinner"/>
                         ) : (
                             <span>
-                              <button type="submit" className="button-red">{translate('remove')}</button>
+                              <button type="submit">{translate('save')}</button>
                               <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
                                 {translate('cancel')}
                               </button>
@@ -98,17 +123,11 @@ class RemoveVersionForm extends React.Component {
                         )}
                   </form>
               ) : (
-                  <button className="button-red" onClick={this.openForm}>
-                    {translate('project_activity.remove_version')}
+                  <button className="button-clean" onClick={this.openForm}>
+                    <i className="icon-edit"/>
                   </button>
               )}
         </div>
     );
   }
 }
-
-const mapStateToProps = null;
-
-const mapDispatchToProps = { removeVersion };
-
-export default connect(mapStateToProps, mapDispatchToProps)(RemoveVersionForm);

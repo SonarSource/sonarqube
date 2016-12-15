@@ -19,23 +19,30 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
-import { addVersion } from '../actions';
-import type { Analysis } from '../../../store/projectActivity/duck';
-import { translate } from '../../../helpers/l10n';
+import type { Analysis } from '../../../../store/projectActivity/duck';
+import { translate } from '../../../../helpers/l10n';
 
-class AddVersionForm extends React.Component {
+type Props = {
+  addEvent: () => Promise<*>,
+  analysis: Analysis,
+  project: string,
+  addEventButtonText: string
+};
+
+type State = {
+  open: boolean,
+  processing: boolean;
+  name: string;
+}
+
+export default class AddEventForm extends React.Component {
   mounted: boolean;
-  props: {
-    addVersion: () => Promise<*>,
-    analysis: Analysis,
-    project: string
-  };
+  props: Props;
 
-  state = {
+  state: State = {
     open: false,
     processing: false,
-    version: ''
+    name: ''
   };
 
   componentDidMount () {
@@ -54,13 +61,13 @@ class AddVersionForm extends React.Component {
 
   closeForm = () => {
     if (this.mounted) {
-      this.setState({ open: false, version: '' });
+      this.setState({ open: false, name: '' });
     }
   };
 
-  changeInput = e => {
+  changeInput = (e: Object) => {
     if (this.mounted) {
-      this.setState({ version: e.target.value });
+      this.setState({ name: e.target.value });
     }
   };
 
@@ -72,14 +79,14 @@ class AddVersionForm extends React.Component {
 
   stopProcessingAndClose = () => {
     if (this.mounted) {
-      this.setState({ open: false, processing: false });
+      this.setState({ open: false, processing: false, name: '' });
     }
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.addVersion(this.props.project, this.props.analysis.key, this.state.version)
+    this.props.addEvent(this.props.project, this.props.analysis.key, this.state.name)
         .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
@@ -89,7 +96,7 @@ class AddVersionForm extends React.Component {
           {this.state.open ? (
                   <form onSubmit={this.handleSubmit}>
                     <input
-                        value={this.state.version}
+                        value={this.state.name}
                         autoFocus={true}
                         disabled={this.state.processing}
                         className="input-medium little-spacer-right"
@@ -107,15 +114,9 @@ class AddVersionForm extends React.Component {
                         )}
                   </form>
               ) : (
-                  <button onClick={this.openForm}>{translate('project_activity.add_version')}</button>
+                  <button onClick={this.openForm}>{translate(this.props.addEventButtonText)}</button>
               )}
         </div>
     );
   }
 }
-
-const mapStateToProps = null;
-
-const mapDispatchToProps = { addVersion };
-
-export default connect(mapStateToProps, mapDispatchToProps)(AddVersionForm);
