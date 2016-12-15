@@ -48,5 +48,21 @@ export default (state: State = null, action: Action): State => {
     });
   }
 
+  if (action.type === 'DELETE_PROJECT_ACTIVITY_EVENT') {
+    if (!state) {
+      return null;
+    }
+    return state.map(analysis => {
+      // $FlowFixMe
+      if (analysis.key === action.analysis) {
+        // $FlowFixMe
+        const events = analysis.events.filter(event => event.key !== action.event);
+        return { ...analysis, events };
+      } else {
+        return analysis;
+      }
+    });
+  }
+
   return state;
 };

@@ -48,6 +48,8 @@ class ProjectActivityAnalysesList extends React.Component {
       );
     }
 
+    const firstAnalysis = this.props.analyses[0];
+
     const byDay = groupBy(this.props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
 
     return (
@@ -61,7 +63,11 @@ class ProjectActivityAnalysesList extends React.Component {
 
                   <ul className="project-activity-analyses-list">
                     {byDay[day].map(analysis => (
-                        <ProjectActivityAnalysis key={analysis.key} analysis={analysis} project={this.props.project}/>
+                        <ProjectActivityAnalysis
+                            key={analysis.key}
+                            analysis={analysis}
+                            isFirst={analysis === firstAnalysis}
+                            project={this.props.project}/>
                     ))}
                   </ul>
                 </li>

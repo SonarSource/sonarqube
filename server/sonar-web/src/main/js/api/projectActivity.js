@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON, postJSON } from '../helpers/request';
+import { getJSON, postJSON, post } from '../helpers/request';
 
 type GetProjectActivityResponse = {
   analyses: Array<Object>,
@@ -78,3 +78,7 @@ export const createEvent = (
   }
   return postJSON('/api/project_analyses/create_event', data).then(r => r.event);
 };
+
+export const deleteEvent = (event: string): Promise<*> => (
+    post('/api/project_analyses/delete_event', { event })
+);

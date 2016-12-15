@@ -21,17 +21,21 @@
 import React from 'react';
 import Events from './Events';
 import AddVersionForm from './AddVersionForm';
+import RemoveVersionForm from './RemoveVersionForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
 
 export default class ProjectActivityAnalysis extends React.Component {
   props: {
     analysis: Analysis,
+    isFirst: boolean,
     project: string
   };
 
   render () {
     const { date, events } = this.props.analysis;
+
+    const version = events.find(event => event.category === 'VERSION');
 
     return (
         <li className="project-activity-analysis">
@@ -45,7 +49,18 @@ export default class ProjectActivityAnalysis extends React.Component {
             )}
 
             <div className="project-activity-analysis-actions">
-              <AddVersionForm analysis={this.props.analysis} project={this.props.project}/>
+              {version != null && !this.props.isFirst && (
+                  <RemoveVersionForm
+                      analysis={this.props.analysis}
+                      event={version}
+                      project={this.props.project}/>
+              )}
+
+              {version == null && (
+                  <AddVersionForm
+                      analysis={this.props.analysis}
+                      project={this.props.project}/>
+              )}
             </div>
           </div>
         </li>

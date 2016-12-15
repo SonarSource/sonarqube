@@ -23,6 +23,7 @@ import {
   receiveProjectActivity,
   changeProjectActivityFilter,
   addEvent,
+  deleteEvent,
   getPaging,
   getFilter
 } from '../../store/projectActivity/duck';
@@ -63,6 +64,13 @@ export const changeFilter = (project: string, filter: ?string) => (dispatch: Fun
 export const addVersion = (project: string, analysis: string, version: string) => (dispatch: Function): Promise<*> => {
   return api.createEvent(analysis, version, 'VERSION').then(
       ({ analysis, ...event }) => dispatch(addEvent(project, analysis, event)),
+      rejectOnFail(dispatch)
+  );
+};
+
+export const removeVersion = (project: string, analysis: string, event: string) => (dispatch: Function): Promise<*> => {
+  return api.deleteEvent(event).then(
+      () => dispatch(deleteEvent(project, analysis, event)),
       rejectOnFail(dispatch)
   );
 };

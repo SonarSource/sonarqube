@@ -37,6 +37,15 @@
   margin-top: 10px;
 }
 
+.project-activity-analysis-actions:first-child,
+.project-activity-analysis-actions:empty {
+  margin-top: 0;
+}
+
+.project-activity-analysis-form {
+  line-height: 24px;
+}
+
 .project-activity-time {
   float: left;
   width: 130px;
