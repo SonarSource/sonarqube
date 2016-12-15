@@ -21,13 +21,13 @@ package org.sonar.scanner.scan.measure;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonar.api.measures.MetricFinder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
 
 public final class DeprecatedMetricFinder implements MetricFinder {
 
@@ -36,7 +36,7 @@ public final class DeprecatedMetricFinder implements MetricFinder {
 
   public DeprecatedMetricFinder(GlobalRepositories globalReferentials) {
     for (org.sonar.scanner.protocol.input.Metric metric : globalReferentials.metrics()) {
-      Metric hibernateMetric = new org.sonar.api.measures.Metric.Builder(metric.key(), metric.name(), ValueType.valueOf(metric.valueType()))
+      Metric hibernateMetric = new Metric.Builder(metric.key(), metric.name(), ValueType.valueOf(metric.valueType()))
         .create()
         .setDirection(metric.direction())
         .setQualitative(metric.isQualitative())
@@ -47,7 +47,7 @@ public final class DeprecatedMetricFinder implements MetricFinder {
         .setWorstValue(metric.worstValue())
         .setId(metric.id());
       metricsByKey.put(metric.key(), hibernateMetric);
-      metricsById.put(metric.id(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
+      metricsById.put(metric.id(), new Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
     }
   }
 

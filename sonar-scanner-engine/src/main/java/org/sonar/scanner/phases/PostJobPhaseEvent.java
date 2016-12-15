@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.phases;
 
+import java.util.List;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.events.PostJobsPhaseHandler;
 
-import java.util.List;
-
 class PostJobPhaseEvent extends AbstractPhaseEvent<PostJobsPhaseHandler>
-    implements org.sonar.api.batch.events.PostJobsPhaseHandler.PostJobsPhaseEvent {
+  implements PostJobsPhaseHandler.PostJobsPhaseEvent {
 
   private final List<PostJob> postJobs;
 

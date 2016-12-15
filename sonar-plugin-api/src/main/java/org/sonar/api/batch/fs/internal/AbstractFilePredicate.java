@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
@@ -36,12 +35,7 @@ public abstract class AbstractFilePredicate implements OptimizedFilePredicate {
 
   @Override
   public Iterable<InputFile> filter(Iterable<InputFile> target) {
-    return Iterables.filter(target, new Predicate<InputFile>() {
-      @Override
-      public boolean apply(InputFile input) {
-        return AbstractFilePredicate.this.apply(input);
-      }
-    });
+    return Iterables.filter(target, this::apply);
   }
 
   @Override

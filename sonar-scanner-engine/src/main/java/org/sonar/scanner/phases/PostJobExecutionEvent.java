@@ -23,7 +23,7 @@ import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
 
 class PostJobExecutionEvent extends AbstractPhaseEvent<PostJobExecutionHandler>
-    implements org.sonar.api.batch.events.PostJobExecutionHandler.PostJobExecutionEvent {
+  implements PostJobExecutionHandler.PostJobExecutionEvent {
 
   private final PostJob postJob;
 

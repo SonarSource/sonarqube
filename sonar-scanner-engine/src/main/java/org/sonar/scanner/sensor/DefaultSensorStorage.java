@@ -20,8 +20,6 @@
 package org.sonar.scanner.sensor;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -43,7 +40,6 @@ import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -70,6 +66,7 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
+import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
@@ -361,8 +358,20 @@ public class DefaultSensorStorage implements SensorStorage {
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());
     }
+    final ScannerReport.SyntaxHighlightingRule.Builder builder = ScannerReport.SyntaxHighlightingRule.newBuilder();
+    final ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
+
     writer.writeComponentSyntaxHighlighting(componentRef,
-      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new BuildSyntaxHighlighting()));
+      highlighting.getSyntaxHighlightingRuleSet().stream()
+        .map(input -> {
+          builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
+            .setStartOffset(input.range().start().lineOffset())
+            .setEndLine(input.range().end().line())
+            .setEndOffset(input.range().end().lineOffset())
+            .build());
+          builder.setType(ScannerReportUtils.toProtocolType(input.getTextType()));
+          return builder.build();
+        }).collect(toList()));
   }
 
   @Override
@@ -372,13 +381,11 @@ public class DefaultSensorStorage implements SensorStorage {
     if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().absolutePath());
     }
+    final ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder();
+    final ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
     writer.writeComponentSymbols(componentRef,
-      Iterables.transform(symbolTable.getReferencesBySymbol().entrySet(), new Function<Map.Entry<TextRange, Set<TextRange>>, ScannerReport.Symbol>() {
-        private ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder();
-        private ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
-
-        @Override
-        public ScannerReport.Symbol apply(Map.Entry<TextRange, Set<TextRange>> input) {
+      symbolTable.getReferencesBySymbol().entrySet().stream()
+        .map(input -> {
           builder.clear();
           rangeBuilder.clear();
           TextRange declaration = input.getKey();
@@ -395,9 +402,7 @@ public class DefaultSensorStorage implements SensorStorage {
               .build());
           }
           return builder.build();
-        }
-
-      }));
+        }).collect(Collectors.toList()));
   }
 
   @Override
@@ -421,22 +426,6 @@ public class DefaultSensorStorage implements SensorStorage {
         new DefaultMeasure<String>().forMetric(COVERED_CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
       saveCoverageMetricInternal(defaultCoverage.inputFile(), CONDITIONS_BY_LINE,
         new DefaultMeasure<String>().forMetric(CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
-    }
-  }
-
-  private static class BuildSyntaxHighlighting implements Function<SyntaxHighlightingRule, ScannerReport.SyntaxHighlightingRule> {
-    private ScannerReport.SyntaxHighlightingRule.Builder builder = ScannerReport.SyntaxHighlightingRule.newBuilder();
-    private ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
-
-    @Override
-    public ScannerReport.SyntaxHighlightingRule apply(@Nonnull SyntaxHighlightingRule input) {
-      builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
-        .setStartOffset(input.range().start().lineOffset())
-        .setEndLine(input.range().end().line())
-        .setEndOffset(input.range().end().lineOffset())
-        .build());
-      builder.setType(ScannerReportUtils.toProtocolType(input.getTextType()));
-      return builder.build();
     }
   }
 

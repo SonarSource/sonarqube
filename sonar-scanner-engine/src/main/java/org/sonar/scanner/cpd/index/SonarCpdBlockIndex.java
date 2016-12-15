@@ -19,12 +19,11 @@
  */
 package org.sonar.scanner.cpd.index;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
@@ -62,18 +61,15 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
         throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + inputFile.absolutePath());
       }
       final ScannerReport.CpdTextBlock.Builder builder = ScannerReport.CpdTextBlock.newBuilder();
-      publisher.getWriter().writeCpdTextBlocks(id, Iterables.transform(blocks, new Function<Block, ScannerReport.CpdTextBlock>() {
-        @Override
-        public ScannerReport.CpdTextBlock apply(Block input) {
-          builder.clear();
-          builder.setStartLine(input.getStartLine());
-          builder.setEndLine(input.getEndLine());
-          builder.setStartTokenIndex(input.getStartUnit());
-          builder.setEndTokenIndex(input.getEndUnit());
-          builder.setHash(input.getBlockHash().toHexString());
-          return builder.build();
-        }
-      }));
+      publisher.getWriter().writeCpdTextBlocks(id, blocks.stream().map(block -> {
+        builder.clear();
+        builder.setStartLine(block.getStartLine());
+        builder.setEndLine(block.getEndLine());
+        builder.setStartTokenIndex(block.getStartUnit());
+        builder.setEndTokenIndex(block.getEndUnit());
+        builder.setHash(block.getBlockHash().toHexString());
+        return builder.build();
+      }).collect(Collectors.toList()));
     }
     for (Block block : blocks) {
       mem.insert(block);

@@ -21,10 +21,10 @@ package org.sonar.scanner;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,16 +35,9 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
-import static com.google.common.collect.Maps.filterValues;
+import static java.util.stream.Collectors.toMap;
 
 public class DefaultFileLinesContext implements FileLinesContext {
-
-  private static final Predicate<Object> LINES_WITH_NON_ZERO_VALUE = new Predicate<Object>() {
-    @Override
-    public boolean apply(Object input) {
-      return !input.equals(0);
-    }
-  };
 
   private final SensorContext context;
   private final InputFile inputFile;
@@ -146,7 +139,9 @@ public class DefaultFileLinesContext implements FileLinesContext {
   private static Map optimizeStorage(String metricKey, Map<Integer, Object> lines) {
     // SONAR-7464 Don't store 0 because this is default value anyway
     if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.COMMENT_LINES_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
-      return filterValues(lines, LINES_WITH_NON_ZERO_VALUE);
+      return lines.entrySet().stream()
+        .filter(entry -> !entry.getValue().equals(0))
+        .collect(toMap(Entry<Integer, Object>::getKey, Entry<Integer, Object>::getValue));
     }
     return lines;
   }

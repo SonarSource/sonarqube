@@ -25,17 +25,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.bootstrap.BatchWsClient;
 import org.sonar.scanner.util.BatchUtils;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.Rules.ActiveList;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
@@ -112,7 +112,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
 
       Map<String, String> params = new HashMap<>();
 
-      for (org.sonarqube.ws.Rules.Rule.Param param : r.getParams().getParamsList()) {
+      for (Rules.Rule.Param param : r.getParams().getParamsList()) {
         params.put(param.getKey(), param.getDefaultValue());
       }
 

@@ -23,7 +23,7 @@ import org.sonar.api.batch.events.ProjectAnalysisHandler;
 import org.sonar.api.resources.Project;
 
 class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
-    implements org.sonar.api.batch.events.ProjectAnalysisHandler.ProjectAnalysisEvent {
+  implements ProjectAnalysisHandler.ProjectAnalysisEvent {
 
   private final Project project;
 

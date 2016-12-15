@@ -21,7 +21,6 @@ package org.sonar.api.batch.sensor.symbol.internal;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -86,12 +85,7 @@ public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTabl
   @Override
   public NewSymbol newSymbol(TextRange range) {
     checkInputFileNotNull();
-    TreeSet<TextRange> references = new TreeSet<>(new Comparator<TextRange>() {
-      @Override
-      public int compare(TextRange o1, TextRange o2) {
-        return o1.start().compareTo(o2.start());
-      }
-    });
+    TreeSet<TextRange> references = new TreeSet<>((o1, o2) -> o1.start().compareTo(o2.start()));
     referencesBySymbol.put(range, references);
     return new DefaultSymbol(inputFile, range, references);
   }

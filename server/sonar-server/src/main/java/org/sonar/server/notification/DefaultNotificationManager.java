@@ -20,7 +20,6 @@
 package org.sonar.server.notification;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -78,12 +77,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
   @Override
   public void scheduleForSending(List<Notification> notification) {
-    notificationQueueDao.insert(Lists.transform(notification, new Function<Notification, NotificationQueueDto>() {
-      @Override
-      public NotificationQueueDto apply(Notification notification) {
-        return NotificationQueueDto.toNotificationQueueDto(notification);
-      }
-    }));
+    notificationQueueDao.insert(Lists.transform(notification, NotificationQueueDto::toNotificationQueueDto));
   }
 
   /**
@@ -130,7 +124,7 @@ public class DefaultNotificationManager implements NotificationManager {
    */
   @Override
   public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher,
-                                                                                     @Nullable String projectUuid) {
+    @Nullable String projectUuid) {
     String dispatcherKey = dispatcher.getKey();
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();

@@ -19,14 +19,12 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import javax.annotation.Nonnull;
-import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+
+import static java.util.stream.Collectors.toList;
 
 public class ActiveRulesPublisher implements ReportPublisherStep {
 
@@ -38,21 +36,16 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    Iterable<ScannerReport.ActiveRule> activeRuleMessages = FluentIterable.from(activeRules.findAll()).transform(new ToMessage());
-    writer.writeActiveRules(activeRuleMessages);
+    final ScannerReport.ActiveRule.Builder builder = ScannerReport.ActiveRule.newBuilder();
+    writer.writeActiveRules(activeRules.findAll().stream()
+      .map(input -> {
+        builder.clear();
+        builder.setRuleRepository(input.ruleKey().repository());
+        builder.setRuleKey(input.ruleKey().rule());
+        builder.setSeverity(Constants.Severity.valueOf(input.severity()));
+        builder.getMutableParamsByKey().putAll(input.params());
+        return builder.build();
+      }).collect(toList()));
   }
 
-  private static class ToMessage implements Function<ActiveRule, ScannerReport.ActiveRule> {
-    private final ScannerReport.ActiveRule.Builder builder = ScannerReport.ActiveRule.newBuilder();
-
-    @Override
-    public ScannerReport.ActiveRule apply(@Nonnull ActiveRule input) {
-      builder.clear();
-      builder.setRuleRepository(input.ruleKey().repository());
-      builder.setRuleKey(input.ruleKey().rule());
-      builder.setSeverity(Constants.Severity.valueOf(input.severity()));
-      builder.getMutableParamsByKey().putAll(input.params());
-      return builder.build();
-    }
-  }
 }

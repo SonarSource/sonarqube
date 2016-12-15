@@ -19,18 +19,13 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
-
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Collection;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 
 /**
  * Wraps a {@link Sequence} to assign hash codes to elements.
@@ -57,13 +52,8 @@ public final class FileHashes {
 
   public static FileHashes create(DefaultInputFile f) {
     final byte[][] hashes = new byte[f.lines()][];
-    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
-
-      @Override
-      public void consume(int lineIdx, @Nullable byte[] hash) {
-        hashes[lineIdx - 1] = hash;
-      }
-    });
+    FileMetadata.computeLineHashesForIssueTracking(f,
+      (lineIdx, hash) -> hashes[lineIdx - 1] = hash);
 
     int size = hashes.length;
     Multimap<String, Integer> linesByHash = LinkedHashMultimap.create();
@@ -84,7 +74,7 @@ public final class FileHashes {
   public Collection<Integer> getLinesForHash(String hash) {
     return linesByHash.get(hash);
   }
-  
+
   public String[] hashes() {
     return hashes;
   }

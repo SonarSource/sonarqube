@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -160,22 +159,19 @@ public class FileIndexer {
   private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
     final Progress status, final DefaultInputFile inputFile, final InputFile.Type type) {
 
-    tasks.add(executorService.submit(new Callable<Void>() {
-      @Override
-      public Void call() {
-        DefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
-        if (completedInputFile != null && accept(completedInputFile)) {
-          fs.add(completedInputFile);
-          status.markAsIndexed(completedInputFile);
-          File parentDir = completedInputFile.file().getParentFile();
-          String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
-          if (relativePath != null) {
-            DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);
-            fs.add(inputDir);
-          }
+    tasks.add(executorService.submit(() -> {
+      DefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
+      if (completedInputFile != null && accept(completedInputFile)) {
+        fs.add(completedInputFile);
+        status.markAsIndexed(completedInputFile);
+        File parentDir = completedInputFile.file().getParentFile();
+        String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
+        if (relativePath != null) {
+          DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);
+          fs.add(inputDir);
         }
-        return null;
       }
+      return null;
     }));
 
   }

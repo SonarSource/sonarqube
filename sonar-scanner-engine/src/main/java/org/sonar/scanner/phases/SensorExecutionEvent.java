@@ -23,7 +23,7 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.events.SensorExecutionHandler;
 
 class SensorExecutionEvent extends AbstractPhaseEvent<SensorExecutionHandler>
-    implements org.sonar.api.batch.events.SensorExecutionHandler.SensorExecutionEvent {
+  implements SensorExecutionHandler.SensorExecutionEvent {
 
   private final Sensor sensor;
 
