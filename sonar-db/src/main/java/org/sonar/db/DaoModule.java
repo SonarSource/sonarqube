@@ -70,12 +70,18 @@ import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
+    // =====================================================================
+    // for readability and easier merge, keep list ordered alphabetically
+    // =====================================================================
+    ActiveRuleDao.class,
     AuthorDao.class,
     AuthorizationDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
+    CeScannerContextDao.class,
     CeTaskInputDao.class,
     ComponentDao.class,
+    ComponentKeyUpdaterDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,
     DuplicationDao.class,
@@ -83,38 +89,36 @@ public class DaoModule extends Module {
     FileSourceDao.class,
     GroupDao.class,
     GroupMembershipDao.class,
+    GroupPermissionDao.class,
     InternalPropertiesDao.class,
-    IssueDao.class,
     IssueChangeDao.class,
+    IssueDao.class,
     LoadedTemplateDao.class,
     MeasureDao.class,
     MetricDao.class,
     NotificationQueueDao.class,
     OrganizationDao.class,
-    GroupPermissionDao.class,
-    PermissionTemplateDao.class,
     PermissionTemplateCharacteristicDao.class,
-    PropertiesDao.class,
+    PermissionTemplateDao.class,
     ProjectQgateAssociationDao.class,
+    PropertiesDao.class,
     PurgeDao.class,
-    QualityGateDao.class,
-    QualityGateConditionDao.class,
-    QualityProfileDao.class,
     QProfileChangeDao.class,
-    CeScannerContextDao.class,
+    QualityGateConditionDao.class,
+    QualityGateDao.class,
+    QualityProfileDao.class,
+    ResourceDao.class,
+    ResourceIndexDao.class,
+    RoleDao.class,
     RuleDao.class,
     RuleRepositoryDao.class,
-    ActiveRuleDao.class,
-    ResourceIndexDao.class,
-    ResourceDao.class,
-    ComponentKeyUpdaterDao.class,
-    RoleDao.class,
     SnapshotDao.class,
     UserDao.class,
     UserGroupDao.class,
     UserPermissionDao.class,
     UserTokenDao.class,
-    WebhookDeliveryDao.class).build();
+    WebhookDeliveryDao.class)
+    .build();
 
   @Override
   protected void configureModule() {
