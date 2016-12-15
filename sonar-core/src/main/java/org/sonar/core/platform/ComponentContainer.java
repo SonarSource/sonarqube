@@ -50,6 +50,7 @@ import static java.util.Objects.requireNonNull;
 @ServerSide
 @ComputeEngineSide
 public class ComponentContainer implements ContainerPopulator.Container {
+  public static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
 
   private static final class ExtendedDefaultPicoContainer extends DefaultPicoContainer {
     private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy, PicoContainer parent) {

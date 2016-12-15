@@ -23,10 +23,9 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class HttpRequestIdModuleTest {
-  private static final int COMPONENTS_HARDCODED_IN_CONTAINER = 2;
-
   private HttpRequestIdModule underTest = new HttpRequestIdModule();
 
   @Test
@@ -35,6 +34,6 @@ public class HttpRequestIdModuleTest {
     underTest.configure(container);
 
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_HARDCODED_IN_CONTAINER + 3);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 3);
   }
 }

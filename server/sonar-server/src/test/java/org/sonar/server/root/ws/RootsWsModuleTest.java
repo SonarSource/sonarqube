@@ -23,10 +23,9 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class RootsWsModuleTest {
-  private static final int ADAPTERS_IN_EMPTY_CONTAINER = 2;
-
   private RootWsModule underTest = new RootWsModule();
 
   @Test
@@ -35,6 +34,7 @@ public class RootsWsModuleTest {
 
     underTest.configure(container);
 
-    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(ADAPTERS_IN_EMPTY_CONTAINER + 4);
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
   }
 }

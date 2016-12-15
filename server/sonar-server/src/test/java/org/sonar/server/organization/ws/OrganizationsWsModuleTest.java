@@ -23,18 +23,17 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class OrganizationsWsModuleTest {
-  private static final int CONTAINER_ITSELF = 1;
-  private static final int PROPERTY_DEFINITION = 1;
-
   private OrganizationsWsModule underTest = new OrganizationsWsModule();
 
   @Test
   public void verify_component_count() {
     ComponentContainer container = new ComponentContainer();
     underTest.configure(container);
-    assertThat(container.getPicoContainer().getComponentAdapters()).hasSize(CONTAINER_ITSELF + PROPERTY_DEFINITION + 6);
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 6);
   }
 
 }

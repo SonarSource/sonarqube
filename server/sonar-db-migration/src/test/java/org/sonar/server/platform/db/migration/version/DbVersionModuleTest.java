@@ -23,10 +23,9 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class DbVersionModuleTest {
-  private static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
-
   private DbVersionModule underTest = new DbVersionModule();
 
   @Test
