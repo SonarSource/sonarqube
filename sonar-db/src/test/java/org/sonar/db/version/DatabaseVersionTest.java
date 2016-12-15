@@ -22,30 +22,38 @@ package org.sonar.db.version;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class DatabaseVersionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private DatabaseVersion underTest = new DatabaseVersion(dbClient);
+
   @Test
   public void getVersion() {
-    dbTester.prepareDbUnit(getClass(), "getVersion.xml");
+    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "1");
+    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "2");
+    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "4");
+    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "123");
+    dbTester.getDbClient().schemaMigrationDao().insert(dbSession, "50");
+    dbSession.commit();
 
-    Integer version = new DatabaseVersion(dbTester.myBatis()).getVersion();
+    Integer version = underTest.getVersion();
 
     assertThat(version).isEqualTo(123);
   }
 
   @Test
   public void getVersion_no_rows() {
-    dbTester.prepareDbUnit(getClass(), "getVersion_no_rows.xml");
-
-    Integer version = new DatabaseVersion(dbTester.myBatis()).getVersion();
+    Integer version = underTest.getVersion();
 
     assertThat(version).isNull();
   }

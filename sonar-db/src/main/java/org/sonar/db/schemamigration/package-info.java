@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+@ParametersAreNonnullByDefault
+package org.sonar.db.schemamigration;
 
-import java.util.List;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public interface SchemaMigrationMapper {
-  List<Integer> selectVersions();
-
-  void insert(String version);
-}

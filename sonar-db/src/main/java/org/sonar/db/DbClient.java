@@ -58,6 +58,7 @@ import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
+import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.GroupDao;
@@ -72,6 +73,7 @@ public class DbClient {
 
   private final Database database;
   private final MyBatis myBatis;
+  private final SchemaMigrationDao schemaMigrationDao;
   private final AuthorizationDao authorizationDao;
   private final OrganizationDao organizationDao;
   private final QualityProfileDao qualityProfileDao;
@@ -126,6 +128,7 @@ public class DbClient {
     for (Dao dao : daos) {
       map.put(dao.getClass(), dao);
     }
+    schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     organizationDao = getDao(map, OrganizationDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
@@ -183,6 +186,10 @@ public class DbClient {
 
   public Database getDatabase() {
     return database;
+  }
+
+  public SchemaMigrationDao schemaMigrationDao() {
+    return schemaMigrationDao;
   }
 
   public AuthorizationDao authorizationDao() {

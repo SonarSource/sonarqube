@@ -25,8 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 
 public class DatabaseVersion {
 
@@ -108,10 +109,10 @@ public class DatabaseVersion {
     "user_tokens",
     "webhook_deliveries");
 
-  private MyBatis mybatis;
+  private final DbClient dbClient;
 
-  public DatabaseVersion(MyBatis mybatis) {
-    this.mybatis = mybatis;
+  public DatabaseVersion(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @VisibleForTesting
@@ -134,21 +135,17 @@ public class DatabaseVersion {
   }
 
   public Integer getVersion() {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      List<Integer> versions = session.getMapper(SchemaMigrationMapper.class).selectVersions();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", dbSession.getConnection())) {
+        return null;
+      }
+
+      List<Integer> versions = dbClient.schemaMigrationDao().selectVersions(dbSession);
       if (!versions.isEmpty()) {
         Collections.sort(versions);
         return versions.get(versions.size() - 1);
       }
       return null;
-    } catch (RuntimeException e) {
-      // The table SCHEMA_MIGRATIONS does not exist.
-      // Ignore this exception -> it will be created by MigrationHistoryTable class.
-      return null;
-
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

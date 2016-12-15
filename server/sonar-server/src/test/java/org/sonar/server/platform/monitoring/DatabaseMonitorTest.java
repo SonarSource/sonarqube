@@ -20,7 +20,6 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -34,13 +33,7 @@ public class DatabaseMonitorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DatabaseMonitor underTest;
-
-  @Before
-  public void setUp() {
-    DatabaseVersion dbVersion = new DatabaseVersion(dbTester.myBatis());
-    underTest = new DatabaseMonitor(dbVersion, dbTester.getDbClient());
-  }
+  private DatabaseMonitor underTest = new DatabaseMonitor(new DatabaseVersion(dbTester.getDbClient()), dbTester.getDbClient());
 
   @Test
   public void name_is_not_empty() {

@@ -17,16 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.schemamigration;
 
-/**
- * Maps the table SCHEMA_MIGRATIONS that is fed by Ruby on Rails Migrations
- * @since 3.0
- */
-public class SchemaMigrationDto {
-  private String version;// NOSONAR this field is assigned by MyBatis
+import java.util.List;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-  public String getVersion() {
-    return version;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
+public class SchemaMigrationDao implements Dao {
+  public List<Integer> selectVersions(DbSession dbSession) {
+    return getMapper(dbSession).selectVersions();
+  }
+
+  public void insert(DbSession dbSession, String version) {
+    requireNonNull(version, "version can't be null");
+    checkArgument(!version.isEmpty(), "version can't be empty");
+    getMapper(dbSession).insert(version);
+  }
+
+  private static SchemaMigrationMapper getMapper(DbSession dbSession) {
+    return dbSession.getMapper(SchemaMigrationMapper.class);
   }
 }

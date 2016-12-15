@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.version.SchemaMigrationMapper;
+import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 

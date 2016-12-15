@@ -28,7 +28,7 @@ import java.util.Optional;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.version.SchemaMigrationMapper;
+import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static com.google.common.base.Preconditions.checkState;

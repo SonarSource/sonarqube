@@ -117,8 +117,8 @@ import org.sonar.db.user.UserMapper;
 import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
-import org.sonar.db.version.SchemaMigrationDto;
-import org.sonar.db.version.SchemaMigrationMapper;
+import org.sonar.db.schemamigration.SchemaMigrationDto;
+import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 
 public class MyBatis {
