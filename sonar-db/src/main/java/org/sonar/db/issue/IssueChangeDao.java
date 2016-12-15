@@ -19,12 +19,9 @@
  */
 package org.sonar.db.issue;
 
-import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
@@ -42,14 +39,6 @@ public class IssueChangeDao implements Dao {
     this.mybatis = mybatis;
   }
 
-  public List<DefaultIssueComment> selectCommentsByIssues(DbSession session, Collection<String> issueKeys) {
-    List<DefaultIssueComment> comments = Lists.newArrayList();
-    for (IssueChangeDto dto : selectByTypeAndIssueKeys(session, issueKeys, IssueChangeDto.TYPE_COMMENT)) {
-      comments.add(dto.toComment());
-    }
-    return comments;
-  }
-
   public List<FieldDiffs> selectChangelogByIssue(DbSession session, String issueKey) {
     return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
       .stream()
@@ -62,19 +51,6 @@ public class IssueChangeDao implements Dao {
     try {
       IssueChangeMapper mapper = mapper(session);
       return mapper.selectChangelogOfNonClosedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  public DefaultIssueComment selectDefaultCommentByKey(String commentKey) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      IssueChangeMapper mapper = mapper(session);
-      IssueChangeDto dto = mapper.selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT);
-      return dto != null ? dto.toComment() : null;
 
     } finally {
       MyBatis.closeQuietly(session);

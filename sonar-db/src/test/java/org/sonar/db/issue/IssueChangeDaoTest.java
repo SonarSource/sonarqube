@@ -19,22 +19,16 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class IssueChangeDaoTest {
 
@@ -42,50 +36,6 @@ public class IssueChangeDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private IssueChangeDao underTest = db.getDbClient().issueChangeDao();
-
-  @Test
-  public void select_comments_by_issues() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(db.getSession(), Arrays.asList("1000"));
-    assertThat(comments).hasSize(2);
-
-    // chronological order
-    DefaultIssueComment first = comments.get(0);
-    assertThat(first.markdownText()).isEqualTo("old comment");
-
-    DefaultIssueComment second = comments.get(1);
-    assertThat(second.userLogin()).isEqualTo("arthur");
-    assertThat(second.key()).isEqualTo("FGHIJ");
-    assertThat(second.markdownText()).isEqualTo("recent comment");
-  }
-
-  @Test
-  public void select_comments_by_issues_on_huge_number_of_issues() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    List<String> hugeNbOfIssues = newArrayList();
-    for (int i = 0; i < 4500; i++) {
-      hugeNbOfIssues.add("ABCD" + i);
-    }
-    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(db.getSession(), hugeNbOfIssues);
-
-    // The goal of this test is only to check that the query do no fail, not to check the number of results
-    assertThat(comments).isEmpty();
-  }
-
-  @Test
-  public void select_default_comment_by_key() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    DefaultIssueComment comment = underTest.selectDefaultCommentByKey("FGHIJ");
-    assertThat(comment).isNotNull();
-    assertThat(comment.key()).isEqualTo("FGHIJ");
-    assertThat(comment.key()).isEqualTo("FGHIJ");
-    assertThat(comment.userLogin()).isEqualTo("arthur");
-
-    assertThat(underTest.selectDefaultCommentByKey("UNKNOWN")).isNull();
-  }
 
   @Test
   public void select_issue_changelog_from_issue_key() {
@@ -105,15 +55,6 @@ public class IssueChangeDaoTest {
     List<IssueChangeDto> dtos = underTest.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
     // no need to have ordered results (see NewDebtCalculator)
     assertThat(dtos).extracting("id").containsOnly(100L, 103L);
-  }
-
-  @Test
-  public void select_comments_by_issues_empty_input() {
-    // no need to connect to db
-    DbSession session = mock(DbSession.class);
-    List<DefaultIssueComment> comments = underTest.selectCommentsByIssues(session, Collections.<String>emptyList());
-
-    assertThat(comments).isEmpty();
   }
 
   @Test
