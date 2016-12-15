@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 class AddVersionForm extends React.Component {
   mounted: boolean;
   props: {
-    addVersion: (analysis: string, version: string) => Promise<*>,
+    addVersion: () => Promise<*>,
     analysis: Analysis,
     project: string
   };
