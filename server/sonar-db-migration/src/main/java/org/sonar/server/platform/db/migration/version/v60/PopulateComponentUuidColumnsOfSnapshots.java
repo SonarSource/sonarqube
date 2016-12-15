@@ -23,9 +23,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.db.Database;
-import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.step.Select;
+import org.sonar.server.platform.db.migration.step.SqlStatement;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class PopulateComponentUuidColumnsOfSnapshots extends DataChange {

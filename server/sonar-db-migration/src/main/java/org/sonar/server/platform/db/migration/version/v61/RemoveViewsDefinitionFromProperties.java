@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.db.version.Upsert;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
 public class RemoveViewsDefinitionFromProperties extends DataChange {
 

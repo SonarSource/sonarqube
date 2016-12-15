@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v62;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.db.version.MassUpdate;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class DeletePermissionShareDashboard extends DataChange {
 

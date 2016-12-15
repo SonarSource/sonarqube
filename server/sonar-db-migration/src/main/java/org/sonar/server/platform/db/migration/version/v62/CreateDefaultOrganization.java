@@ -24,7 +24,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.db.version.Select;
+import org.sonar.server.platform.db.migration.step.Select;
 
 public class CreateDefaultOrganization extends DataChange {
   private static final String KEY_DEFAULT_ORGANIZATION = "default-organization";

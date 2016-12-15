@@ -32,7 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.db.version.Select;
+import org.sonar.server.platform.db.migration.step.Select;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.Collectors.uniqueIndex;

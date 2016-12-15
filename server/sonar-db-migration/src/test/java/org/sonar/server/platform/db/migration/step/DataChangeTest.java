@@ -30,12 +30,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.Select.Row;
-import org.sonar.db.version.Select.RowReader;
-import org.sonar.db.version.SqlStatement;
-import org.sonar.db.version.Upsert;
+import org.sonar.server.platform.db.migration.step.Select.Row;
+import org.sonar.server.platform.db.migration.step.Select.RowReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Database;
-import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SqlStatement;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.step.Select;
+import org.sonar.server.platform.db.migration.step.SqlStatement;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class PopulateUserUpdatedAtOfRulesProfiles extends DataChange {

@@ -22,11 +22,6 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.MassUpdate;
-import org.sonar.db.version.Select;
-import org.sonar.db.version.SelectImpl;
-import org.sonar.db.version.Upsert;
-import org.sonar.db.version.UpsertImpl;
 
 public abstract class DataChange implements MigrationStep {
 
