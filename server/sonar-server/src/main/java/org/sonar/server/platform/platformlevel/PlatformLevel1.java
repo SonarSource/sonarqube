@@ -36,13 +36,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
-import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.app.WebServerProcessLogging;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -94,8 +92,6 @@ public class PlatformLevel1 extends PlatformLevel {
       // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
       // to avoid having two SqlSessionFactory instances
       org.sonar.core.persistence.MyBatis.class,
-      DatabaseServerCompatibility.class,
-      DatabaseVersion.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       SemaphoresImpl.class,

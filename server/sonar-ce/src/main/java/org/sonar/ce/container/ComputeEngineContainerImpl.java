@@ -222,8 +222,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
       // to avoid having two SqlSessionFactory instances
       org.sonar.core.persistence.MyBatis.class,
-      DatabaseServerCompatibility.class,
-      DatabaseVersion.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       new TempFolderProvider(),
@@ -253,6 +251,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] level2Components() {
     return new Object[] {
+      DatabaseVersion.class,
+      DatabaseServerCompatibility.class,
+
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UrlSettings.class,

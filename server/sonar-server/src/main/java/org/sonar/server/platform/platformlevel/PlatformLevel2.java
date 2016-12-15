@@ -24,6 +24,8 @@ import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
+import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.StartupMetadataProvider;
 import org.sonar.server.platform.db.CheckDatabaseCharsetAtStartup;
@@ -47,6 +49,9 @@ public class PlatformLevel2 extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
+      DatabaseVersion.class,
+      DatabaseServerCompatibility.class,
+
       new StartupMetadataProvider(),
       DefaultServerUpgradeStatus.class,
       Durations.class,
@@ -68,12 +73,13 @@ public class PlatformLevel2 extends PlatformLevel {
       DefaultI18n.class,
       RuleI18nManager.class);
 
-    // DB Migration framework dependencies required at level2
-    addIfStartupLeader(MigrationHistoryTableImpl.class);
+    // Migration state must be kept at level2 to survive moving in and then out of safe mode
+    // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail
     add(DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 
     addIfStartupLeader(
+      MigrationHistoryTableImpl.class,
       DatabaseCharsetChecker.class,
       CheckDatabaseCharsetAtStartup.class);
   }
