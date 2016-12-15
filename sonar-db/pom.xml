@@ -206,6 +206,10 @@
       </activation>
       <dependencies>
         <dependency>
+          <groupId>com.microsoft.sqlserver</groupId>
+          <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
         </dependency>
@@ -216,14 +220,6 @@
         <dependency>
           <groupId>com.oracle</groupId>
           <artifactId>ojdbc6</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.microsoft.sqljdbc</groupId>
-          <artifactId>sqljdbc</artifactId>
-          <version>4.2</version>
-          <scope>system</scope>
-          <systemPath>${project.basedir}/../sonar-application/src/main/assembly/lib/jdbc/mssql/sqljdbc42.jar
-          </systemPath>
         </dependency>
       </dependencies>
     </profile>
