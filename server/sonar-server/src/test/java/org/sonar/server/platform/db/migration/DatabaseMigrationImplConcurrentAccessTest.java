@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.db.migration;
 
+import com.google.common.base.Throwables;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,10 +54,24 @@ public class DatabaseMigrationImplConcurrentAccessTest {
       command.run();
     }
   };
+  private AtomicInteger triggerCount = new AtomicInteger();
+  private MigrationEngine incrementingMigrationEngine = new MigrationEngine() {
+    @Override
+    public void execute() {
+      // need execute to consume some time to avoid UT to fail because it ran too fast and threads never executed concurrently
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException e) {
+        Throwables.propagate(e);
+      }
+      triggerCount.incrementAndGet();
+    }
+  };
   private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
   private RubyBridge rubyBridge = mock(RubyBridge.class);
   private Platform platform = mock(Platform.class);
   private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, incrementingMigrationEngine, platform);
 
   @After
   public void tearDown() {
@@ -65,19 +80,10 @@ public class DatabaseMigrationImplConcurrentAccessTest {
 
   @Test
   public void two_concurrent_calls_to_startit_call_migration_engine_only_once() throws Exception {
-    AtomicInteger triggerCount = new AtomicInteger();
-    MigrationEngine incrementingMigrationEngine = new MigrationEngine() {
-      @Override
-      public void execute() {
-        triggerCount.incrementAndGet();
-      }
-    };
     when(rubyBridge.railsRoutes()).thenReturn(railsRoutes);
 
-    DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, incrementingMigrationEngine, platform);
-
-    pool.submit(new CallStartit(underTest));
-    pool.submit(new CallStartit(underTest));
+    pool.submit(new CallStartit());
+    pool.submit(new CallStartit());
 
     pool.awaitTermination(2, TimeUnit.SECONDS);
 
@@ -85,12 +91,6 @@ public class DatabaseMigrationImplConcurrentAccessTest {
   }
 
   private class CallStartit implements Runnable {
-    private final DatabaseMigrationImpl underTest;
-
-    private CallStartit(DatabaseMigrationImpl underTest) {
-      this.underTest = underTest;
-    }
-
     @Override
     public void run() {
       latch.countDown();
