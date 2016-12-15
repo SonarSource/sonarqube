@@ -17,20 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.charset;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.charset;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-public class PostgresMetadataReader {
-
-  private final SqlExecutor sqlExecutor;
-
-  public PostgresMetadataReader(SqlExecutor sqlExecutor) {
-    this.sqlExecutor = sqlExecutor;
-  }
-
-  public String getDefaultCharset(Connection connection) throws SQLException {
-    return sqlExecutor.selectSingleString(connection, "select pg_encoding_to_char(encoding) from pg_database where datname = current_database()");
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

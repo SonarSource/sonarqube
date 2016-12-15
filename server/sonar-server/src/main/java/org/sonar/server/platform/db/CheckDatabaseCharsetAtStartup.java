@@ -21,7 +21,7 @@ package org.sonar.server.platform.db;
 
 import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.db.charset.DatabaseCharsetChecker;
+import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 
 /**
  * Checks charset of all existing database columns at startup, before executing db migrations. This requires

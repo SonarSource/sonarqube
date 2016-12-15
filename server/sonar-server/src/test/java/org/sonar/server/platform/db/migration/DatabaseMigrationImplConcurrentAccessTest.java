@@ -57,8 +57,6 @@ public class DatabaseMigrationImplConcurrentAccessTest {
   private RubyBridge rubyBridge = mock(RubyBridge.class);
   private Platform platform = mock(Platform.class);
   private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
-  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, migrationEngine, platform);
 
   @After
   public void tearDown() {
@@ -66,10 +64,9 @@ public class DatabaseMigrationImplConcurrentAccessTest {
   }
 
   @Test
-  public void two_concurrent_calls_to_startit_call_trigger_only_once() throws Exception {
+  public void two_concurrent_calls_to_startit_call_migration_engine_only_once() throws Exception {
     AtomicInteger triggerCount = new AtomicInteger();
     MigrationEngine incrementingMigrationEngine = new MigrationEngine() {
-
       @Override
       public void execute() {
         triggerCount.incrementAndGet();

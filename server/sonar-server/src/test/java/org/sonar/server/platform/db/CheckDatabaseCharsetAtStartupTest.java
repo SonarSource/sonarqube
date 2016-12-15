@@ -22,7 +22,7 @@ package org.sonar.server.platform.db;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.db.charset.DatabaseCharsetChecker;
+import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

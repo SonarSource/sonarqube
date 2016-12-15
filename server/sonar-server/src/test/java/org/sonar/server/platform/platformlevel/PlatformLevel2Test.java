@@ -26,10 +26,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.db.charset.DatabaseCharsetChecker;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.cluster.Cluster;
+import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
