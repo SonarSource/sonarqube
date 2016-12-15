@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.phases;
 
+import java.util.List;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
 
-import java.util.List;
-
 class InitializersPhaseEvent extends AbstractPhaseEvent<InitializersPhaseHandler>
-    implements org.sonar.api.batch.events.InitializersPhaseHandler.InitializersPhaseEvent {
+  implements InitializersPhaseHandler.InitializersPhaseEvent {
 
   private final List<Initializer> initializers;
 

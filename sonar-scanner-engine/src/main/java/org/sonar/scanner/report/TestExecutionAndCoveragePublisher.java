@@ -19,11 +19,10 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import java.util.stream.StreamSupport;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
@@ -38,69 +37,9 @@ import org.sonar.scanner.protocol.output.ScannerReport.Test;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
+import static java.util.stream.Collectors.toList;
+
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
-
-  private static final class TestConverter implements Function<MutableTestCase, ScannerReport.Test> {
-    private final Set<String> testNamesWithCoverage;
-    private ScannerReport.Test.Builder builder = ScannerReport.Test.newBuilder();
-
-    private TestConverter(Set<String> testNamesWithCoverage) {
-      this.testNamesWithCoverage = testNamesWithCoverage;
-    }
-
-    @Override
-    public Test apply(@Nonnull MutableTestCase testCase) {
-      builder.clear();
-      builder.setName(testCase.name());
-      if (testCase.doesCover()) {
-        testNamesWithCoverage.add(testCase.name());
-      }
-      Long durationInMs = testCase.durationInMs();
-      if (durationInMs != null) {
-        builder.setDurationInMs(durationInMs.longValue());
-      }
-      String msg = testCase.message();
-      if (msg != null) {
-        builder.setMsg(msg);
-      }
-      String stack = testCase.stackTrace();
-      if (stack != null) {
-        builder.setStacktrace(stack);
-      }
-      TestCase.Status status = testCase.status();
-      if (status != null) {
-        builder.setStatus(TestStatus.valueOf(status.name()));
-      }
-      return builder.build();
-    }
-  }
-
-  private final class TestCoverageConverter implements Function<String, CoverageDetail> {
-    private final MutableTestPlan testPlan;
-    private ScannerReport.CoverageDetail.Builder builder = ScannerReport.CoverageDetail.newBuilder();
-    private ScannerReport.CoverageDetail.CoveredFile.Builder coveredBuilder = ScannerReport.CoverageDetail.CoveredFile.newBuilder();
-
-    private TestCoverageConverter(MutableTestPlan testPlan) {
-      this.testPlan = testPlan;
-    }
-
-    @Override
-    public CoverageDetail apply(@Nonnull String testName) {
-      // Take first test with provided name
-      MutableTestCase testCase = testPlan.testCasesByName(testName).iterator().next();
-      builder.clear();
-      builder.setTestName(testName);
-      for (CoverageBlock block : testCase.coverageBlocks()) {
-        coveredBuilder.clear();
-        coveredBuilder.setFileRef(componentCache.get(((DefaultTestable) block.testable()).inputFile().key()).batchId());
-        for (int line : block.lines()) {
-          coveredBuilder.addCoveredLine(line);
-        }
-        builder.addCoveredFile(coveredBuilder.build());
-      }
-      return builder.build();
-    }
-  }
 
   private final BatchComponentCache componentCache;
   private final TestPlanBuilder testPlanBuilder;
@@ -112,6 +51,9 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
+    final ScannerReport.Test.Builder testBuilder = ScannerReport.Test.newBuilder();
+    final ScannerReport.CoverageDetail.Builder builder = ScannerReport.CoverageDetail.newBuilder();
+    final ScannerReport.CoverageDetail.CoveredFile.Builder coveredBuilder = ScannerReport.CoverageDetail.CoveredFile.newBuilder();
     for (final BatchComponent component : componentCache.all()) {
       final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component.inputComponent());
       if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
@@ -120,9 +62,56 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
       final Set<String> testNamesWithCoverage = new HashSet<>();
 
-      writer.writeTests(component.batchId(), Iterables.transform(testPlan.testCases(), new TestConverter(testNamesWithCoverage)));
+      writer.writeTests(component.batchId(),
+        StreamSupport.stream(testPlan.testCases().spliterator(), false)
+          .map(testCase -> toProtobufTest(testBuilder, testNamesWithCoverage, testCase))
+          .collect(toList()));
 
-      writer.writeCoverageDetails(component.batchId(), Iterables.transform(testNamesWithCoverage, new TestCoverageConverter(testPlan)));
+      writer.writeCoverageDetails(component.batchId(), testNamesWithCoverage.stream()
+        .map(testName -> toProtobufCoverageDetails(builder, coveredBuilder, testPlan, testName))
+        .collect(toList()));
     }
+  }
+
+  private CoverageDetail toProtobufCoverageDetails(final ScannerReport.CoverageDetail.Builder builder, final ScannerReport.CoverageDetail.CoveredFile.Builder coveredBuilder,
+    final MutableTestPlan testPlan, String testName) {
+    // Take first test with provided name
+    MutableTestCase testCase = testPlan.testCasesByName(testName).iterator().next();
+    builder.clear();
+    builder.setTestName(testName);
+    for (CoverageBlock block : testCase.coverageBlocks()) {
+      coveredBuilder.clear();
+      coveredBuilder.setFileRef(componentCache.get(((DefaultTestable) block.testable()).inputFile().key()).batchId());
+      for (int line : block.lines()) {
+        coveredBuilder.addCoveredLine(line);
+      }
+      builder.addCoveredFile(coveredBuilder.build());
+    }
+    return builder.build();
+  }
+
+  private static Test toProtobufTest(final ScannerReport.Test.Builder testBuilder, final Set<String> testNamesWithCoverage, MutableTestCase testCase) {
+    testBuilder.clear();
+    testBuilder.setName(testCase.name());
+    if (testCase.doesCover()) {
+      testNamesWithCoverage.add(testCase.name());
+    }
+    Long durationInMs = testCase.durationInMs();
+    if (durationInMs != null) {
+      testBuilder.setDurationInMs(durationInMs.longValue());
+    }
+    String msg = testCase.message();
+    if (msg != null) {
+      testBuilder.setMsg(msg);
+    }
+    String stack = testCase.stackTrace();
+    if (stack != null) {
+      testBuilder.setStacktrace(stack);
+    }
+    TestCase.Status status = testCase.status();
+    if (status != null) {
+      testBuilder.setStatus(TestStatus.valueOf(status.name()));
+    }
+    return testBuilder.build();
   }
 }

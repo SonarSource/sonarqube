@@ -19,10 +19,8 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,20 +35,9 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
-
-  private static final class ToFlow implements Function<List<IssueLocation>, Flow> {
-    @Override
-    public Flow apply(final List<IssueLocation> input) {
-      return new Flow() {
-        @Override
-        public List<IssueLocation> locations() {
-          return ImmutableList.copyOf(input);
-        }
-      };
-    }
-  }
 
   private RuleKey ruleKey;
   private Double gap;
@@ -147,7 +134,9 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public List<Flow> flows() {
-    return Lists.transform(this.flows, new ToFlow());
+    return this.flows.stream()
+      .<Flow>map(l -> () -> ImmutableList.copyOf(l))
+      .collect(toList());
   }
 
   @Override

@@ -23,7 +23,7 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 
 class InitializerExecutionEvent extends AbstractPhaseEvent<InitializerExecutionHandler>
-    implements org.sonar.api.batch.events.InitializerExecutionHandler.InitializerExecutionEvent {
+  implements InitializerExecutionHandler.InitializerExecutionEvent {
 
   private final Initializer initializer;
 

@@ -22,7 +22,6 @@ package org.sonar.api.batch.sensor.highlighting.internal;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
@@ -109,15 +108,12 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   protected void doSave() {
     checkInputFileNotNull();
     // Sort rules to avoid variation during consecutive runs
-    Collections.sort(syntaxHighlightingRules, new Comparator<SyntaxHighlightingRule>() {
-      @Override
-      public int compare(SyntaxHighlightingRule left, SyntaxHighlightingRule right) {
-        int result = left.range().start().compareTo(right.range().start());
-        if (result == 0) {
-          result = right.range().end().compareTo(left.range().end());
-        }
-        return result;
+    Collections.sort(syntaxHighlightingRules, (left, right) -> {
+      int result = left.range().start().compareTo(right.range().start());
+      if (result == 0) {
+        result = right.range().end().compareTo(left.range().end());
       }
+      return result;
     });
     checkOverlappingBoudaries();
     storage.store(this);

@@ -28,15 +28,19 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -65,22 +69,25 @@ public class CpdExecutorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  // private AbstractCpdEngine engine;
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private ScannerReportReader reader;
   private BatchComponent batchComponent1;
   private BatchComponent batchComponent2;
   private BatchComponent batchComponent3;
+  private File baseDir;
 
   @Before
   public void setUp() throws IOException {
     File outputDir = temp.newFolder();
+    baseDir = temp.newFolder();
 
     settings = new MapSettings();
-    index = mock(SonarCpdBlockIndex.class);
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
     componentCache = new BatchComponentCache();
+    index = new SonarCpdBlockIndex(publisher, componentCache, settings);
     executor = new CpdExecutor(settings, index, publisher, componentCache);
     reader = new ScannerReportReader(outputDir);
 
@@ -94,7 +101,10 @@ public class CpdExecutorTest {
 
   private BatchComponent createComponent(String relativePath, int lines) {
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("relativePath").setEffectiveKey("foo:" + relativePath);
-    return componentCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", relativePath).setLines(lines));
+    return componentCache.add(sampleFile, null)
+      .setInputComponent(new DefaultInputFile("foo", relativePath)
+        .setModuleBaseDir(baseDir.toPath())
+        .setLines(lines));
   }
 
   @Test
@@ -195,6 +205,39 @@ public class CpdExecutorTest {
     Duplication[] dups = readDuplications(2);
     assertDuplication(dups[0], 5, 204, batchComponent2.batchId(), 15, 214);
     assertDuplication(dups[1], 15, 214, batchComponent3.batchId(), 15, 214);
+  }
+
+  @Test
+  public void failOnMissingComponent() {
+    executor.runCpdAnalysis(null, "unknown", Collections.emptyList(), 1);
+    readDuplications(0);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Resource not found in component cache: unknown. Skipping CPD computation for it");
+  }
+
+  @Test
+  public void timeout() {
+    for (int i = 1; i <= 2; i++) {
+      BatchComponent component = createComponent("src/Foo" + i + ".php", 100);
+      List<Block> blocks = new ArrayList<>();
+      for (int j = 1; j <= 100000; j++) {
+        blocks.add(Block.builder()
+          .setResourceId(component.key())
+          .setIndexInFile(j)
+          .setLines(j, j + 1)
+          .setUnit(j, j + 1)
+          .setBlockHash(new ByteArray("abcd1234".getBytes()))
+          .build());
+      }
+      index.insert((InputFile) component.inputComponent(), blocks);
+    }
+    executor.execute(1);
+
+    readDuplications(0);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .usingElementComparator((l, r) -> l.matches(r) ? 0 : 1)
+      .containsOnly(
+        "Timeout during detection of duplications for .*Foo1.php",
+        "Timeout during detection of duplications for .*Foo2.php");
   }
 
   private Duplication[] readDuplications(int expected) {

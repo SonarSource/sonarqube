@@ -166,7 +166,7 @@ public class DefaultIndex {
   }
 
   private static Measure toDeprecated(org.sonar.api.batch.sensor.measure.Measure<?> measure) {
-    org.sonar.api.measures.Measure deprecatedMeasure = new org.sonar.api.measures.Measure((Metric<?>) measure.metric());
+    Measure deprecatedMeasure = new Measure((Metric<?>) measure.metric());
     setValueAccordingToMetricType(measure, deprecatedMeasure);
     return deprecatedMeasure;
   }

@@ -22,7 +22,6 @@ package org.sonar.scanner.profiling;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,14 +71,8 @@ public abstract class AbstractTimeProfiling {
   }
 
   static <G extends AbstractTimeProfiling> Map<Object, G> sortByDescendingTotalTime(Map<?, G> unsorted) {
-    List<Map.Entry<?, G>> entries =
-        new ArrayList<Map.Entry<?, G>>(unsorted.entrySet());
-    Collections.sort(entries, new Comparator<Map.Entry<?, G>>() {
-      @Override
-      public int compare(Map.Entry<?, G> o1, Map.Entry<?, G> o2) {
-        return Long.valueOf(o2.getValue().totalTime()).compareTo(o1.getValue().totalTime());
-      }
-    });
+    List<Map.Entry<?, G>> entries = new ArrayList<>(unsorted.entrySet());
+    Collections.sort(entries, (o1, o2) -> Long.valueOf(o2.getValue().totalTime()).compareTo(o1.getValue().totalTime()));
     Map<Object, G> sortedMap = new LinkedHashMap<>();
     for (Map.Entry<?, G> entry : entries) {
       sortedMap.put(entry.getKey(), entry.getValue());

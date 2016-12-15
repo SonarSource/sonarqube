@@ -58,7 +58,7 @@ import static com.google.common.collect.FluentIterable.from;
 public class CpdExecutor {
   private static final Logger LOG = Loggers.get(CpdExecutor.class);
   // timeout for the computation of duplicates in a file (seconds)
-  private static final int TIMEOUT = 5 * 60;
+  private static final int TIMEOUT = 5 * 60 * 1000;
   static final int MAX_CLONE_GROUP_PER_FILE = 100;
   static final int MAX_CLONE_PART_PER_GROUP = 100;
 
@@ -66,7 +66,6 @@ public class CpdExecutor {
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
   private final Settings settings;
-  private final ExecutorService executorService;
   private final ProgressReport progressReport;
   private int count;
   private int total;
@@ -76,50 +75,54 @@ public class CpdExecutor {
     this.index = index;
     this.publisher = publisher;
     this.batchComponentCache = batchComponentCache;
-    this.executorService = Executors.newSingleThreadExecutor();
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
   public void execute() {
+    execute(TIMEOUT);
+  }
+
+  @VisibleForTesting
+  void execute(long timeout) {
     total = index.noResources();
     progressReport.start(String.format("Calculating CPD for %d files", total));
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       Iterator<ResourceBlocks> it = index.iterator();
 
       while (it.hasNext()) {
         ResourceBlocks resourceBlocks = it.next();
-        runCpdAnalysis(resourceBlocks.resourceId(), resourceBlocks.blocks());
+        runCpdAnalysis(executorService, resourceBlocks.resourceId(), resourceBlocks.blocks(), timeout);
         count++;
       }
       progressReport.stop("CPD calculation finished");
     } catch (Exception e) {
       progressReport.stop("");
       throw e;
+    } finally {
+      executorService.shutdown();
     }
   }
 
-  private void runCpdAnalysis(String resource, final Collection<Block> fileBlocks) {
-    LOG.debug("Detection of duplications for {}", resource);
-
-    BatchComponent component = batchComponentCache.get(resource);
+  @VisibleForTesting
+  void runCpdAnalysis(ExecutorService executorService, String componentKey, final Collection<Block> fileBlocks, long timeout) {
+    BatchComponent component = batchComponentCache.get(componentKey);
     if (component == null) {
-      LOG.error("Resource not found in component cache: {}. Skipping CPD computation for it", resource);
+      LOG.error("Resource not found in component cache: {}. Skipping CPD computation for it", componentKey);
       return;
     }
 
     InputFile inputFile = (InputFile) component.inputComponent();
+    LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
     List<CloneGroup> duplications;
-    Future<List<CloneGroup>> futureResult = null;
+    Future<List<CloneGroup>> futureResult = executorService.submit(() -> SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks));
     try {
-      futureResult = executorService.submit(() -> SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks));
-      duplications = futureResult.get(TIMEOUT, TimeUnit.SECONDS);
+      duplications = futureResult.get(timeout, TimeUnit.MILLISECONDS);
     } catch (TimeoutException e) {
       LOG.warn("Timeout during detection of duplications for " + inputFile.absolutePath());
-      if (futureResult != null) {
-        futureResult.cancel(true);
-      }
+      futureResult.cancel(true);
       return;
     } catch (Exception e) {
       throw new IllegalStateException("Fail during detection of duplication for " + inputFile.absolutePath(), e);
@@ -158,7 +161,7 @@ public class CpdExecutor {
       LOG.warn("Too many duplication groups on file " + component.inputComponent() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
         " groups.");
     }
-    Iterable<org.sonar.scanner.protocol.output.ScannerReport.Duplication> reportDuplications = from(duplications)
+    Iterable<ScannerReport.Duplication> reportDuplications = from(duplications)
       .limit(MAX_CLONE_GROUP_PER_FILE)
       .transform(
         new Function<CloneGroup, ScannerReport.Duplication>() {

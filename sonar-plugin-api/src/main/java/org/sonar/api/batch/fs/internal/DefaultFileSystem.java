@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -172,12 +170,7 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<File> files(FilePredicate predicate) {
     doPreloadFiles();
-    return Iterables.transform(inputFiles(predicate), new Function<InputFile, File>() {
-      @Override
-      public File apply(InputFile input) {
-        return input.file();
-      }
-    });
+    return Iterables.transform(inputFiles(predicate), InputFile::file);
   }
 
   @Override
@@ -249,16 +242,6 @@ public class DefaultFileSystem implements FileSystem {
   }
 
   public abstract static class Cache implements Index {
-    @Override
-    public abstract Iterable<InputFile> inputFiles();
-
-    @Override
-    @CheckForNull
-    public abstract InputFile inputFile(String relativePath);
-
-    @Override
-    @CheckForNull
-    public abstract InputDir inputDir(String relativePath);
 
     protected abstract void doAdd(InputFile inputFile);
 

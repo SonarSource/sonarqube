@@ -20,22 +20,20 @@
 package org.sonar.scanner.repository;
 
 import com.google.common.base.Throwables;
-
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.BatchWsClient;
 import org.sonar.scanner.util.BatchUtils;
+import org.sonarqube.ws.WsBatch;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
@@ -109,7 +107,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
       Map<String, FileDataByPath> fileDataByModuleAndPath = response.getFileDataByModuleAndPath();
       for (Map.Entry<String, FileDataByPath> e1 : fileDataByModuleAndPath.entrySet()) {
-        for (Map.Entry<String, org.sonarqube.ws.WsBatch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
+        for (Map.Entry<String, WsBatch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
           FileData fd = new FileData(e2.getValue().getHash(), e2.getValue().getRevision());
           fileDataTable.put(e1.getKey(), e2.getKey(), fd);
         }

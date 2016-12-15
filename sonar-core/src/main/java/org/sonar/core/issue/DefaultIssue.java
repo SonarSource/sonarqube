@@ -26,8 +26,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -41,7 +42,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -306,7 +306,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return effort;
   }
 
-
   @CheckForNull
   public Long effortInMinutes() {
     return effort != null ? effort.toMinutes() : null;
@@ -366,9 +365,18 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setCreationDate(Date d) {
-    // d is not marked as Nullable but we still allow null parameter for unit testing.
-    this.creationDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
+    this.creationDate = truncateToSeconds(d);
     return this;
+  }
+
+  @CheckForNull
+  private static Date truncateToSeconds(@Nullable Date d) {
+    if (d == null) {
+      return null;
+    }
+    Instant instant = d.toInstant();
+    instant = instant.truncatedTo(ChronoUnit.SECONDS);
+    return Date.from(instant);
   }
 
   @Override
@@ -378,7 +386,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setUpdateDate(@Nullable Date d) {
-    this.updateDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
+    this.updateDate = truncateToSeconds(d);
     return this;
   }
 
@@ -389,7 +397,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setCloseDate(@Nullable Date d) {
-    this.closeDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
+    this.closeDate = truncateToSeconds(d);
     return this;
   }
 
@@ -580,7 +588,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   @CheckForNull
   public <T> T getLocations() {
-    return (T)locations;
+    return (T) locations;
   }
 
   public DefaultIssue setLocations(@Nullable Object locations) {
