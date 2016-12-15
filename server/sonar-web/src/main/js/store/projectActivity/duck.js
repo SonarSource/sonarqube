@@ -69,7 +69,20 @@ export type DeleteEventAction = {
   event: string
 };
 
-export type Action = ReceiveProjectActivityAction | ChangeProjectActivityFilter | AddEventAction | DeleteEventAction;
+export type ChangeEventAction = {
+  type: 'CHANGE_PROJECT_ACTIVITY_EVENT',
+  project: string,
+  analysis: string,
+  event: string,
+  changes: Object
+};
+
+export type Action =
+    ReceiveProjectActivityAction |
+        ChangeProjectActivityFilter |
+        AddEventAction |
+        DeleteEventAction |
+        ChangeEventAction;
 
 export const receiveProjectActivity = (
     project: string,
@@ -102,6 +115,14 @@ export const deleteEvent = (project: string, analysis: string, event: string): D
   event
 });
 
+export const changeEvent = (project: string, analysis: string, event: string, changes: Object): ChangeEventAction => ({
+  type: 'CHANGE_PROJECT_ACTIVITY_EVENT',
+  project,
+  analysis,
+  event,
+  changes
+});
+
 const byProject = combineReducers({ analyses, filter, paging });
 
 type State = {
@@ -113,10 +134,15 @@ type State = {
 };
 
 const reducer = (state: State = {}, action: Action): State => {
-  if (action.type === 'RECEIVE_PROJECT_ACTIVITY' ||
-      action.type === 'CHANGE_PROJECT_ACTIVITY_FILTER' ||
-      action.type === 'ADD_PROJECT_ACTIVITY_EVENT' ||
-      action.type === 'DELETE_PROJECT_ACTIVITY_EVENT') {
+  const actions = [
+    'RECEIVE_PROJECT_ACTIVITY',
+    'CHANGE_PROJECT_ACTIVITY_FILTER',
+    'ADD_PROJECT_ACTIVITY_EVENT',
+    'DELETE_PROJECT_ACTIVITY_EVENT',
+    'CHANGE_PROJECT_ACTIVITY_EVENT'
+  ];
+
+  if (actions.includes(action.type)) {
     return { ...state, [action.project]: byProject(state[action.project], action) };
   }
   return state;

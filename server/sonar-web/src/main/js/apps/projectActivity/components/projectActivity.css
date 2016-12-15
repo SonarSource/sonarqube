@@ -46,6 +46,10 @@
   line-height: 24px;
 }
 
+.project-activity-analysis-form + .project-activity-analysis-form {
+  margin-top: 6px;
+}
+
 .project-activity-time {
   float: left;
   width: 130px;

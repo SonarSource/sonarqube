@@ -82,3 +82,14 @@ export const createEvent = (
 export const deleteEvent = (event: string): Promise<*> => (
     post('/api/project_analyses/delete_event', { event })
 );
+
+export const changeEvent = (event: string, name: ?string, description: ?string): Promise<CreateEventResponse> => {
+  const data: Object = { event };
+  if (name) {
+    data.name = name;
+  }
+  if (description) {
+    data.description = description;
+  }
+  return postJSON('/api/project_analyses/update_event', data).then(r => r.event);
+};

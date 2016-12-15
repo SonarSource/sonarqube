@@ -22,6 +22,7 @@ import React from 'react';
 import Events from './Events';
 import AddVersionForm from './AddVersionForm';
 import RemoveVersionForm from './RemoveVersionForm';
+import ChangeVersionForm from './ChangeVersionForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
 
@@ -49,6 +50,13 @@ export default class ProjectActivityAnalysis extends React.Component {
             )}
 
             <div className="project-activity-analysis-actions">
+              {version != null && (
+                  <ChangeVersionForm
+                      analysis={this.props.analysis}
+                      event={version}
+                      project={this.props.project}/>
+              )}
+
               {version != null && !this.props.isFirst && (
                   <RemoveVersionForm
                       analysis={this.props.analysis}

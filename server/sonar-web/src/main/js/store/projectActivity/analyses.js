@@ -64,5 +64,23 @@ export default (state: State = null, action: Action): State => {
     });
   }
 
+  if (action.type === 'CHANGE_PROJECT_ACTIVITY_EVENT') {
+    if (!state) {
+      return null;
+    }
+    return state.map(analysis => {
+      // $FlowFixMe
+      if (analysis.key === action.analysis) {
+        const events = analysis.events.map(event => (
+            // $FlowFixMe
+            event.key === action.event ? { ...event, ...action.changes } : event
+        ));
+        return { ...analysis, events };
+      } else {
+        return analysis;
+      }
+    });
+  }
+
   return state;
 };
