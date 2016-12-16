@@ -51,7 +51,7 @@ export default Marionette.ItemView.extend({
       });
     } else {
       $.ajax({
-        url: API_FAVORITE,
+        url: API_FAVORITE + '/add',
         type: 'POST',
         data: {
           component: this.model.get('key')

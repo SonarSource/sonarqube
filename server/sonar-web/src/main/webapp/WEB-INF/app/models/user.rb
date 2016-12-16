@@ -116,14 +116,6 @@ class User < ActiveRecord::Base
     favourite_ids.size==0 ? [] : Project.find(:all, :conditions => ['id in (?) and enabled=?', favourite_ids, true])
   end
 
-  def add_favourite(resource_key)
-    favourite=Project.by_key(resource_key)
-    if favourite
-      Api::Utils.java_facade.saveProperty(FAVOURITE_PROPERTY_KEY, favourite.id, id, '')
-    end
-    favourite
-  end
-
   def delete_favourite(resource_key)
     rid=resource_key
     if resource_key.is_a?(String)

@@ -37,23 +37,6 @@ class Api::FavouritesController < Api::ApiController
   end
 
   #
-  # POST /api/favourites?key=<key>
-  # curl -X POST http://localhost:9000/api/favourites?key=org.apache.struts:struts -v -u admin:admin
-  #
-  def create
-    favourite=current_user.add_favourite(params[:key])
-    if favourite
-      respond_to do |format|
-        format.json { render :json => jsonp(favourites_to_json([favourite])) }
-        format.xml  { render :xml => favourites_to_xml([favourite]) }
-        format.text { render :text => text_not_supported }
-      end
-    else
-      render_error('Favourite not found', 404)
-    end
-  end
-
-  #
   # DELETE /api/favourites/<key>
   # curl -X DELETE  http://localhost:9000/api/favourites/org.apache.struts:struts -v -u admin:admin
   #

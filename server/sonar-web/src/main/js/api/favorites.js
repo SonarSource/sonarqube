@@ -24,10 +24,8 @@ export const getFavorites = (): Promise<Object> => (
     getJSON('/api/favourites')
 );
 
-export function addFavorite (componentKey: string) {
-  const url = '/api/favorites';
-  const data = { component: componentKey };
-  return post(url, data);
+export function addFavorite (component: string) {
+  return post('/api/favorites/add', { component});
 }
 
 export function removeFavorite (componentKey: string) {
