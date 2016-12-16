@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -216,12 +215,11 @@ public class CpdExecutorTest {
   }
 
   @Test
-  @Ignore("Causes memory leak")
   public void timeout() {
     for (int i = 1; i <= 2; i++) {
       BatchComponent component = createComponent("src/Foo" + i + ".php", 100);
       List<Block> blocks = new ArrayList<>();
-      for (int j = 1; j <= 100000; j++) {
+      for (int j = 1; j <= 10000; j++) {
         blocks.add(Block.builder()
           .setResourceId(component.key())
           .setIndexInFile(j)
