@@ -19,18 +19,30 @@
  */
 // @flow
 import React from 'react';
-import type { Event } from '../../../store/projectActivity/duck';
+import type { Event as EventType } from '../../../store/projectActivity/duck';
+import { translate } from '../../../helpers/l10n';
+import './Event.css';
 
-export default class VersionEvent extends React.Component {
+export default class EventInner extends React.Component {
   props: {
-    event: Event
+    event: EventType
   };
 
   render () {
-    return (
-        <div className="project-activity-event">
+    const { event } = this.props;
+
+    if (event.category === 'VERSION') {
+      return (
           <span className="badge project-activity-version-badge">{this.props.event.name}</span>
-        </div>
+      );
+    }
+
+    return (
+        <span>
+          <span className="note">{translate('event.category', event.category)}:</span>
+          {' '}
+          <strong title={event.description}>{event.name}</strong>
+        </span>
     );
   }
 }

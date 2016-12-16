@@ -19,32 +19,113 @@
  */
 // @flow
 import React from 'react';
-import VersionEvent from './VersionEvent';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import EventInner from './EventInner';
+import ChangeCustomEventForm from './forms/ChangeCustomEventForm';
+import RemoveCustomEventForm from './forms/RemoveCustomEventForm';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
-import './Event.css';
+
+type Props = {
+  analysis: string,
+  event: EventType,
+  project: string,
+  isFirst: boolean,
+  canAdmin: boolean
+};
+
+type State = {
+  changing: boolean,
+  deleting: boolean
+};
 
 export default class Event extends React.Component {
-  props: {
-    event: EventType
+  mounted: boolean;
+  props: Props;
+
+  state: State = {
+    changing: false,
+    deleting: false
+  };
+
+  componentDidMount () {
+    this.mounted = true;
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  startChanging = () => {
+    this.setState({ changing: true });
+  };
+
+  stopChanging = () => {
+    if (this.mounted) {
+      this.setState({ changing: false });
+    }
+  };
+
+  startDeleting = () => {
+    this.setState({ deleting: true });
+  };
+
+  stopDeleting = () => {
+    if (this.mounted) {
+      this.setState({ deleting: false });
+    }
   };
 
   render () {
-    const { event } = this.props;
-
-    if (event.category === 'VERSION') {
-      return <VersionEvent {...this.props}/>;
+    if (this.state.changing) {
+      return (
+          <div className="project-activity-event">
+            <ChangeCustomEventForm
+                analysis={this.props.analysis}
+                event={this.props.event}
+                project={this.props.project}
+                onClose={this.stopChanging}/>
+          </div>
+      );
     }
 
-    return (
-        <TooltipsContainer>
+    if (this.state.deleting) {
+      return (
           <div className="project-activity-event">
-            <span className="note">{translate('event.category', event.category)}:</span>
-            {' '}
-            <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+            <RemoveCustomEventForm
+                analysis={this.props.analysis}
+                event={this.props.event}
+                project={this.props.project}
+                onClose={this.stopDeleting}/>
           </div>
-        </TooltipsContainer>
+      );
+    }
+
+    const { event, canAdmin } = this.props;
+    const canChange = ['OTHER', 'VERSION'].includes(event.category);
+    const canDelete = event.category === 'OTHER' || (event.category === 'VERSION' && !this.props.isFirst);
+    const showActions = canAdmin && (canChange || canDelete);
+
+    return (
+        <div className="project-activity-event">
+          {showActions && (
+              <div className="project-activity-event-actions">
+                <div className="button-group">
+                  {canChange && (
+                      <button className="button-small" onClick={this.startChanging}>
+                        {translate('change_verb')}
+                      </button>
+                  )}
+                  {canDelete && (
+                      <button className="button-small button-red" onClick={this.startDeleting}>
+                        {translate('delete')}
+                      </button>
+                  )}
+                </div>
+              </div>
+          )}
+
+          <EventInner event={this.props.event}/>
+        </div>
     );
   }
 }

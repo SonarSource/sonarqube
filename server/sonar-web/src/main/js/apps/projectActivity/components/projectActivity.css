@@ -43,22 +43,26 @@
   margin-top: 0;
 }
 
+.project-activity-analysis-actions > button + button,
+.project-activity-analysis-actions > button + form,
+.project-activity-analysis-actions > form + button,
+.project-activity-analysis-actions > form + form {
+  margin-left: 8px;
+}
+
 .project-activity-analysis-form {
   display: inline-block;
   vertical-align: top;
   line-height: 20px;
-}
-
-.project-activity-analysis-form + .project-activity-analysis-form {
-  margin-left: 8px;
-}
-
-.project-activity-analysis-form > form {
   margin-bottom: 10px;
   padding: 9px;
   border: 1px solid #faebcc;
   border-radius: 2px;
   background-color: #fcf8e3;
+}
+
+.project-activity-analysis-form + .project-activity-analysis-form {
+  margin-left: 8px;
 }
 
 .project-activity-time {
@@ -75,7 +79,7 @@
 .project-activity-time::after {
   position: absolute;
   z-index: 21;
-  top: 10px;
+  top: 11px;
   left: 100px;
   display: block;
   width: 10px;
@@ -94,29 +98,14 @@
   line-height: 20px;
 }
 
-.project-activity-editable-event {
-
-}
-
-.project-activity-editable-event .project-activity-event {
+.project-activity-event-actions {
   display: inline-block;
-  vertical-align: top;
-}
-
-.project-activity-event + .project-activity-event,
-.project-activity-editable-event + .project-activity-event,
-.project-activity-event + .project-activity-editable-event,
-.project-activity-editable-event + .project-activity-editable-event {
-  margin-top: 10px;
-}
-
-.project-activity-editable-event-actions {
-  display: inline-block;
-  vertical-align: top;
+  vertical-align: middle;
   margin-right: 8px;
 }
 
 .project-activity-version-badge {
+  vertical-align: middle;
   padding: 4px 8px;
   border-radius: 2px;
   font-weight: bold;

@@ -21,7 +21,6 @@
 import React from 'react';
 import sortBy from 'lodash/sortBy';
 import Event from './Event';
-import EditableEvent from './EditableEvent';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 
 export default class Events extends React.Component {
@@ -29,23 +28,8 @@ export default class Events extends React.Component {
     analysis: string,
     events: Array<EventType>,
     project: string,
+    isFirst: boolean,
     canAdmin: boolean
-  };
-
-  renderEvent = (event: EventType) => {
-    if (this.props.canAdmin) {
-      return (
-          <EditableEvent
-              key={event.key}
-              analysis={this.props.analysis}
-              event={event}
-              project={this.props.project}/>
-      );
-    } else {
-      return (
-          <Event key={event.key} event={event}/>
-      );
-    }
   };
 
   render () {
@@ -58,8 +42,16 @@ export default class Events extends React.Component {
     );
 
     return (
-        <div>
-          {sortedEvents.map(this.renderEvent)}
+        <div className="project-activity-events">
+          {sortedEvents.map(event => (
+              <Event
+                  key={event.key}
+                  analysis={this.props.analysis}
+                  event={event}
+                  project={this.props.project}
+                  isFirst={this.props.isFirst}
+                  canAdmin={this.props.canAdmin}/>
+          ))}
         </div>
     );
   }

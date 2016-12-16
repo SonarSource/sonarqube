@@ -59,15 +59,14 @@ export default class ProjectActivityAnalysis extends React.Component {
             <FormattedDate date={date} format="LT" tooltipFormat="LTS"/>
           </div>
 
-          <div className="project-activity-events">
-            {events.length > 0 && (
-                <Events
-                    analysis={this.props.analysis.key}
-                    events={events}
-                    project={this.props.project}
-                    canAdmin={canAdmin}/>
-            )}
-          </div>
+          {events.length > 0 && (
+              <Events
+                  analysis={this.props.analysis.key}
+                  events={events}
+                  project={this.props.project}
+                  isFirst={this.props.isFirst}
+                  canAdmin={canAdmin}/>
+          )}
         </li>
     );
   }

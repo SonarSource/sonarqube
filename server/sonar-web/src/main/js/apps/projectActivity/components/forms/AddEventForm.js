@@ -91,36 +91,36 @@ export default class AddEventForm extends React.Component {
   };
 
   render () {
+    if (!this.state.open) {
+      return (
+          <button className="button-small" onClick={this.openForm}>
+            {translate(this.props.addEventButtonText)}
+          </button>
+      );
+    }
+
     return (
-        <div className="project-activity-analysis-form">
-          {this.state.open ? (
-                  <form onSubmit={this.handleSubmit}>
-                    <div className="spacer-bottom">
-                      <input
-                          value={this.state.name}
-                          autoFocus={true}
-                          disabled={this.state.processing}
-                          className="input-medium"
-                          type="text"
-                          onChange={this.changeInput}/>
-                    </div>
-                    {this.state.processing ? (
-                            <i className="spinner"/>
-                        ) : (
-                            <span>
-                              <button type="submit">{translate('save')}</button>
-                              <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
-                                {translate('cancel')}
-                              </button>
-                            </span>
-                        )}
-                  </form>
+        <form className="project-activity-analysis-form" onSubmit={this.handleSubmit}>
+          <div className="spacer-bottom">
+            <input
+                value={this.state.name}
+                autoFocus={true}
+                disabled={this.state.processing}
+                className="input-medium"
+                type="text"
+                onChange={this.changeInput}/>
+          </div>
+          {this.state.processing ? (
+                  <i className="spinner"/>
               ) : (
-                  <button className="button-small" onClick={this.openForm}>
-                    {translate(this.props.addEventButtonText)}
-                  </button>
+                  <div className="display-inline-block">
+                    <button type="submit">{translate('save')}</button>
+                    <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
+                      {translate('cancel')}
+                    </button>
+                  </div>
               )}
-        </div>
+        </form>
     );
   }
 }
