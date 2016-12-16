@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Modal from 'react-modal';
 import type { Analysis } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
@@ -90,37 +91,56 @@ export default class AddEventForm extends React.Component {
         .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
-  render () {
-    if (!this.state.open) {
-      return (
-          <button className="button-small" onClick={this.openForm}>
-            {translate(this.props.addEventButtonText)}
-          </button>
-      );
-    }
-
+  renderModal () {
     return (
-        <form className="project-activity-analysis-form" onSubmit={this.handleSubmit}>
-          <div className="spacer-bottom">
-            <input
-                value={this.state.name}
-                autoFocus={true}
-                disabled={this.state.processing}
-                className="input-medium"
-                type="text"
-                onChange={this.changeInput}/>
-          </div>
-          {this.state.processing ? (
-                  <i className="spinner"/>
-              ) : (
-                  <div className="display-inline-block">
-                    <button type="submit">{translate('save')}</button>
-                    <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
-                      {translate('cancel')}
-                    </button>
-                  </div>
-              )}
-        </form>
+        <Modal isOpen={true}
+               contentLabel="add event form"
+               className="modal"
+               overlayClassName="modal-overlay"
+               onRequestClose={this.closeForm}>
+
+          <header className="modal-head">
+            <h2>{translate(this.props.addEventButtonText)}</h2>
+          </header>
+
+          <form onSubmit={this.handleSubmit}>
+            <div className="modal-body">
+              <div className="modal-field">
+                <label>{translate('name')}</label>
+                <input
+                    value={this.state.name}
+                    autoFocus={true}
+                    disabled={this.state.processing}
+                    className="input-medium"
+                    type="text"
+                    onChange={this.changeInput}/>
+              </div>
+            </div>
+
+            <footer className="modal-foot">
+              {this.state.processing ? (
+                      <i className="spinner"/>
+                  ) : (
+                      <div>
+                        <button type="submit">{translate('save')}</button>
+                        <button type="reset" className="button-link" onClick={this.closeForm}>
+                          {translate('cancel')}
+                        </button>
+                      </div>
+                  )}
+            </footer>
+          </form>
+
+        </Modal>
+    );
+  }
+
+  render () {
+    return (
+        <button className="button-small" onClick={this.openForm}>
+          {translate(this.props.addEventButtonText)}
+          {this.state.open && this.renderModal()}
+        </button>
     );
   }
 }

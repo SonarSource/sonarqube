@@ -20,7 +20,8 @@
 @import (reference) "../mixins";
 @import (reference) "../variables";
 
-.modal {
+.modal,
+.ReactModal__Content {
   position: fixed;
   z-index: @modal-z-index;
   top: 0;
@@ -32,7 +33,8 @@
   transition: all 0.2s ease;
 }
 
-.modal.in {
+.modal.in,
+.ReactModal__Content--after-open {
   top: 15%;
   opacity: 1;
 }
@@ -42,20 +44,26 @@
   margin-left: -45vw;
 }
 
-.modal-overlay {
+.modal-overlay,
+.ReactModal__Overlay {
   position: fixed;
   z-index: @modal-overlay-z-index;
-  top: 0; bottom: 0; left: 0; right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
   transition: all 0.2s ease;
 }
 
-.modal-overlay.in {
+.modal-overlay.in,
+.ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
-.modal-open {
+.modal-open,
+.ReactModal__Body--open {
   overflow: hidden;
 }
 
@@ -69,8 +77,8 @@
 
 .modal-head {
   padding: 0 10px;
-  background-color: #EFEFEF;
-  border-bottom: 1px solid #DDD;
+  background-color: #efefef;
+  border-bottom: 1px solid #ddd;
 }
 
 .modal-head h1, .modal-head h2 {
@@ -167,9 +175,9 @@ ul.modal-head-metadata li {
 .modal-foot {
   text-align: right;
   padding: 8px 10px;
-  border-top: 1px solid #CCC;
+  border-top: 1px solid #ccc;
   line-height: 30px;
-  background-color: #EFEFEF;
+  background-color: #efefef;
 
   button,
   .button,

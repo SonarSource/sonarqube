@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Modal from 'react-modal';
 import type { Analysis, Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
@@ -78,23 +79,36 @@ export default class RemoveVersionForm extends React.Component {
 
   render () {
     return (
-        <div className="project-activity-analysis-form">
+        <Modal isOpen={true}
+               contentLabel="add event form"
+               className="modal"
+               overlayClassName="modal-overlay"
+               onRequestClose={this.closeForm}>
+
+          <header className="modal-head">
+            <h2>{translate(this.props.removeEventButtonText)}</h2>
+          </header>
+
           <form onSubmit={this.handleSubmit}>
-            <div className="spacer-bottom">
+            <div className="modal-body">
               {translate(this.props.removeEventQuestion)}
             </div>
-            {this.state.processing ? (
-                    <i className="spinner"/>
-                ) : (
-                    <span>
-                      <button type="submit" className="button-red">{translate('remove')}</button>
-                      <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
-                        {translate('cancel')}
-                      </button>
-                    </span>
-                )}
+
+            <footer className="modal-foot">
+              {this.state.processing ? (
+                      <i className="spinner"/>
+                  ) : (
+                      <div>
+                        <button type="submit" className="button-red" autoFocus={true}>{translate('remove')}</button>
+                        <button type="reset" className="button-link" onClick={this.closeForm}>
+                          {translate('cancel')}
+                        </button>
+                      </div>
+                  )}
+            </footer>
           </form>
-        </div>
+
+        </Modal>
     );
   }
 }

@@ -76,30 +76,6 @@ export default class Event extends React.Component {
   };
 
   render () {
-    if (this.state.changing) {
-      return (
-          <div className="project-activity-event">
-            <ChangeCustomEventForm
-                analysis={this.props.analysis}
-                event={this.props.event}
-                project={this.props.project}
-                onClose={this.stopChanging}/>
-          </div>
-      );
-    }
-
-    if (this.state.deleting) {
-      return (
-          <div className="project-activity-event">
-            <RemoveCustomEventForm
-                analysis={this.props.analysis}
-                event={this.props.event}
-                project={this.props.project}
-                onClose={this.stopDeleting}/>
-          </div>
-      );
-    }
-
     const { event, canAdmin } = this.props;
     const canChange = ['OTHER', 'VERSION'].includes(event.category);
     const canDelete = event.category === 'OTHER' || (event.category === 'VERSION' && !this.props.isFirst);
@@ -125,6 +101,22 @@ export default class Event extends React.Component {
           )}
 
           <EventInner event={this.props.event}/>
+
+          {this.state.changing && (
+              <ChangeCustomEventForm
+                  analysis={this.props.analysis}
+                  event={this.props.event}
+                  project={this.props.project}
+                  onClose={this.stopChanging}/>
+          )}
+
+          {this.state.deleting && (
+              <RemoveCustomEventForm
+                  analysis={this.props.analysis}
+                  event={this.props.event}
+                  project={this.props.project}
+                  onClose={this.stopDeleting}/>
+          )}
         </div>
     );
   }
