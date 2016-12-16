@@ -65,6 +65,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
+import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -102,6 +103,7 @@ public class DbTester extends ExternalResource {
 
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
+  private final FavoriteDbTester favoriteTester;
   private final EventDbTester eventTester;
   private final OrganizationDbTester organizationTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
@@ -116,6 +118,7 @@ public class DbTester extends ExternalResource {
     initDbClient();
     this.userTester = new UserDbTester(this);
     this.componentTester = new ComponentDbTester(this);
+    this.favoriteTester = new FavoriteDbTester(this);
     this.eventTester = new EventDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
@@ -188,6 +191,10 @@ public class DbTester extends ExternalResource {
 
   public ComponentDbTester components() {
     return componentTester;
+  }
+
+  public FavoriteDbTester favorites() {
+    return favoriteTester;
   }
 
   public EventDbTester events() {
@@ -587,7 +594,7 @@ public class DbTester extends ExternalResource {
    */
   public void assertIndexDoesNotExist(String tableName, String indexName) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+      ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> indices = new ArrayList<>();
       while (rs.next()) {
         indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));

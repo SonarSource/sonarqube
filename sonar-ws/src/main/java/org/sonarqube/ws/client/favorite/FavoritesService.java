@@ -25,16 +25,23 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_ADD;
+import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_REMOVE;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.CONTROLLER_FAVORITES;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.PARAM_COMPONENT;
 
-public class FavoritesService extends BaseService{
+public class FavoritesService extends BaseService {
   public FavoritesService(WsConnector wsConnector) {
     super(wsConnector, CONTROLLER_FAVORITES);
   }
 
   public void add(String component) {
     PostRequest post = new PostRequest(path(ACTION_ADD)).setParam(PARAM_COMPONENT, component);
+
+    call(post);
+  }
+
+  public void remove(String component) {
+    PostRequest post = new PostRequest(path(ACTION_REMOVE)).setParam(PARAM_COMPONENT, component);
 
     call(post);
   }

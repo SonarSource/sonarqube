@@ -18,55 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.favorite;
+package org.sonar.db.favorite;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.property.PropertyQuery;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
-
-public class FavoriteUpdater {
+public class FavoriteDbTester {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
+  private final DbTester db;
   private final DbClient dbClient;
-  private final UserSession userSession;
+  private final DbSession dbSession;
 
-  public FavoriteUpdater(DbClient dbClient, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
+  public FavoriteDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
   }
 
-  /**
-   * Set favorite to the logged in user. If no user is logged, no action is done
-   */
-  public void add(DbSession dbSession, long componentDtoId) {
-    if (!userSession.isLoggedIn()) {
-      return;
-    }
-
+  public void add(ComponentDto componentDto, long userId) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
-      .setResourceId(componentDtoId)
-      .setUserId(Long.valueOf(userSession.getUserId())));
+      .setUserId(userId)
+      .setResourceId(componentDto.getId()));
+    dbSession.commit();
   }
 
-  /**
-   * Remove a favorite to the logged in user.
-   * @throws BadRequestException if the component is not a favorite
-   */
-  public void remove(DbSession dbSession, ComponentDto component) {
-    if (!userSession.isLoggedIn()) {
-      return;
-    }
-
-    int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
+  public boolean hasFavorite(ComponentDto componentDto, long userId) {
+    List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
-      .setResourceId(component.getId())
-      .setUserId(Long.valueOf(userSession.getUserId())));
-    checkRequest(result == 1, "Component '%s' is not a favorite", component.key());
+      .setComponentId(componentDto.getId())
+      .setUserId((int) userId)
+      .build(), dbSession);
+
+    return !result.isEmpty();
   }
 }

@@ -28,7 +28,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Favourite;
-import org.sonar.wsclient.services.FavouriteDeleteQuery;
 import org.sonar.wsclient.services.FavouriteQuery;
 import org.sonarqube.ws.client.WsClient;
 
@@ -69,7 +68,7 @@ public class FavoritesWsTest {
     assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample", "sample:src/main/xoo/sample/Sample.xoo");
 
     // DELETE (a favorite)
-    oldWsClient.delete(new FavouriteDeleteQuery("sample"));
+    adminClient.favorites().remove("sample");
     favourites = oldWsClient.findAll(new FavouriteQuery());
     assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample:src/main/xoo/sample/Sample.xoo");
   }

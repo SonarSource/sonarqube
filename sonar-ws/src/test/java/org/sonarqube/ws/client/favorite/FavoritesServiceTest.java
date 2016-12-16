@@ -43,4 +43,14 @@ public class FavoritesServiceTest {
       .hasParam(PARAM_COMPONENT, "my_project")
       .andNoOtherParam();
   }
+
+  @Test
+  public void remove() {
+    underTest.remove("my_project");
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("remove")
+      .hasParam(PARAM_COMPONENT, "my_project")
+      .andNoOtherParam();
+  }
 }

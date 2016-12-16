@@ -23,6 +23,7 @@ package org.sonar.server.favorite;
 import org.sonar.core.platform.Module;
 import org.sonar.server.favorite.ws.AddAction;
 import org.sonar.server.favorite.ws.FavoritesWs;
+import org.sonar.server.favorite.ws.RemoveAction;
 
 public class FavoriteModule extends Module {
 
@@ -31,7 +32,8 @@ public class FavoriteModule extends Module {
     add(
       FavoriteUpdater.class,
       FavoritesWs.class,
-      AddAction.class);
+      AddAction.class,
+      RemoveAction.class);
   }
 
 }
