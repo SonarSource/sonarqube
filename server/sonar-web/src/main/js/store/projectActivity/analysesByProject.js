@@ -34,10 +34,11 @@ const receiveProjectActivity = (state: State, action: ReceiveProjectActivityActi
 };
 
 const deleteAnalysis = (state: State, action: DeleteAnalysisAction): State => {
-  // FIXME
-  const newState = { ...state };
-  delete newState[action.analysis];
-  return newState;
+  const analyses = state[action.project];
+  return {
+    ...state,
+    [action.project]: analyses.filter(key => key !== action.analysis)
+  };
 };
 
 export default (state: State = {}, action: Action): State => {

@@ -49,7 +49,7 @@ const addEvent = (state: State, action: AddEventAction): State => {
   const analysis = state[action.analysis];
   const newAnalysis = {
     ...analysis,
-    events: [...analysis.events, action.event]
+    events: [...analysis.events, action.event.key]
   };
   return { ...state, [action.analysis]: newAnalysis };
 };
