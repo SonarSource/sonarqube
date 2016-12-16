@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* @flow */
-import { post, requestDelete, getJSON } from '../helpers/request';
+import { post, getJSON } from '../helpers/request';
 
 export const getFavorites = (): Promise<Object> => (
     getJSON('/api/favourites')
 );
 
 export function addFavorite (component: string) {
-  return post('/api/favorites/add', { component});
+  return post('/api/favorites/add', { component });
 }
 
-export function removeFavorite (componentKey: string) {
-  const url = '/api/favourites/' + encodeURIComponent(componentKey);
-  return requestDelete(url);
+export function removeFavorite (component: string) {
+  return post('/api/favorites/remove', { component });
 }

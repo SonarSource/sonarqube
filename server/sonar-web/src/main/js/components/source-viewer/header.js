@@ -25,7 +25,6 @@ import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
 import Template from './templates/source-viewer-header.hbs';
 
-const API_FAVOURITE: string = window.baseUrl + '/api/favourites';
 const API_FAVORITE: string = window.baseUrl + '/api/favorites';
 
 export default Marionette.ItemView.extend({
@@ -43,8 +42,11 @@ export default Marionette.ItemView.extend({
     const that = this;
     if (this.model.get('fav')) {
       $.ajax({
-        url: API_FAVOURITE + '/' + this.model.get('key'),
-        type: 'DELETE'
+        url: API_FAVORITE + '/remove',
+        type: 'POST',
+        data: {
+          component: this.model.get('key')
+        }
       }).done(function () {
         that.model.set('fav', false);
         that.render();

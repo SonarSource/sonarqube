@@ -36,15 +36,6 @@ class Api::FavouritesController < Api::ApiController
     end
   end
 
-  #
-  # DELETE /api/favourites/<key>
-  # curl -X DELETE  http://localhost:9000/api/favourites/org.apache.struts:struts -v -u admin:admin
-  #
-  def destroy
-    ok=current_user.delete_favourite(params[:id])
-    render_success(ok ? "Favourite deleted" : "Favourite not found")
-  end
-
   def favourites_to_json(favourites=[])
     json=[]
     favourites.each do |f|
