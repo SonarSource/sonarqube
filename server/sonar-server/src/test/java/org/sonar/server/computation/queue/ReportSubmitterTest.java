@@ -36,7 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -74,9 +74,9 @@ public class ReportSubmitterTest {
   private CeQueue queue = mock(CeQueueImpl.class);
   private ComponentService componentService = mock(ComponentService.class);
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-  private FavoriteService favoriteService = mock(FavoriteService.class);
+  private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
 
-  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionTemplateService, db.getDbClient(), favoriteService);
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionTemplateService, db.getDbClient(), favoriteUpdater);
 
   @Test
   public void submit_a_report_on_existing_project() {
@@ -89,7 +89,7 @@ public class ReportSubmitterTest {
 
     verifyReportIsPersisted(TASK_UUID);
     verifyZeroInteractions(permissionTemplateService);
-    verifyZeroInteractions(favoriteService);
+    verifyZeroInteractions(favoriteUpdater);
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -119,7 +119,7 @@ public class ReportSubmitterTest {
 
     verifyReportIsPersisted(TASK_UUID);
     verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
-    verify(favoriteService).put(any(DbSession.class), eq(createdProject.getId()));
+    verify(favoriteUpdater).put(any(DbSession.class), eq(createdProject.getId()));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -147,7 +147,7 @@ public class ReportSubmitterTest {
 
     underTest.submit(PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
-    verifyZeroInteractions(favoriteService);
+    verifyZeroInteractions(favoriteUpdater);
   }
 
   @Test

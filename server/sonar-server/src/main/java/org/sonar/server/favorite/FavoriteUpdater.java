@@ -25,13 +25,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.user.UserSession;
 
-public class FavoriteService {
+public class FavoriteUpdater {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public FavoriteService(DbClient dbClient, UserSession userSession) {
+  public FavoriteUpdater(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }

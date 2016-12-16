@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 
 public class FavoritesWsTest {
 
-  private final FavoritesWsAction[] actions = {new AddAction(mock(UserSession.class), mock(DbClient.class), mock(FavoriteService.class), mock(ComponentFinder.class))};
+  private final FavoritesWsAction[] actions = {new AddAction(mock(UserSession.class), mock(DbClient.class), mock(FavoriteUpdater.class), mock(ComponentFinder.class))};
   private WsTester ws = new WsTester(new FavoritesWs(actions));
 
   private Controller underTest = ws.controller("api/favorites");

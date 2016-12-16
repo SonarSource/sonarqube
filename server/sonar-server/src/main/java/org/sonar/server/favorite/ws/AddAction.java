@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 
@@ -38,13 +38,13 @@ import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.PARAM_COMPO
 public class AddAction implements FavoritesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final FavoriteService favoriteService;
+  private final FavoriteUpdater favoriteUpdater;
   private final ComponentFinder componentFinder;
 
-  public AddAction(UserSession userSession, DbClient dbClient, FavoriteService favoriteService, ComponentFinder componentFinder) {
+  public AddAction(UserSession userSession, DbClient dbClient, FavoriteUpdater favoriteUpdater, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.favoriteService = favoriteService;
+    this.favoriteUpdater = favoriteUpdater;
     this.componentFinder = componentFinder;
   }
 
@@ -76,7 +76,7 @@ public class AddAction implements FavoritesWsAction {
         userSession
           .checkLoggedIn()
           .checkComponentUuidPermission(UserRole.USER, componentDto.uuid());
-        favoriteService.put(dbSession, componentDto.getId());
+        favoriteUpdater.put(dbSession, componentDto.getId());
         dbSession.commit();
       }
     };

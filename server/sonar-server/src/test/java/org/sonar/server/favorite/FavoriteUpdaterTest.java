@@ -31,7 +31,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FavoriteServiceTest {
+public class FavoriteUpdaterTest {
   private static final long COMPONENT_ID = 23L;
   private static final long USER_ID = 42L;
 
@@ -43,7 +43,7 @@ public class FavoriteServiceTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private FavoriteService underTest = new FavoriteService(dbClient, userSession);
+  private FavoriteUpdater underTest = new FavoriteUpdater(dbClient, userSession);
 
   @Test
   public void put_favorite() {

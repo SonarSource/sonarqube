@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.util.RubyUtils;
 
@@ -42,15 +42,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final ComponentService componentService;
   private final PermissionTemplateService permissionTemplateService;
-  private final FavoriteService favoriteService;
+  private final FavoriteUpdater favoriteUpdater;
 
   public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionTemplateService permissionTemplateService,
-    FavoriteService favoriteService) {
+    FavoriteUpdater favoriteUpdater) {
     this.dbClient = dbClient;
     this.resourceDao = resourceDao;
     this.componentService = componentService;
     this.permissionTemplateService = permissionTemplateService;
-    this.favoriteService = favoriteService;
+    this.favoriteUpdater = favoriteUpdater;
   }
 
   @Override
@@ -88,7 +88,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
     if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {
-      favoriteService.put(dbSession, provisionedComponent.getId());
+      favoriteUpdater.put(dbSession, provisionedComponent.getId());
       dbSession.commit();
     }
 

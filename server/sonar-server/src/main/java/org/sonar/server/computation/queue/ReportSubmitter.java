@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
@@ -50,16 +50,16 @@ public class ReportSubmitter {
   private final ComponentService componentService;
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
-  private final FavoriteService favoriteService;
+  private final FavoriteUpdater favoriteUpdater;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession,
-    ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteService favoriteService) {
+    ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentService = componentService;
     this.permissionTemplateService = permissionTemplateService;
     this.dbClient = dbClient;
-    this.favoriteService = favoriteService;
+    this.favoriteUpdater = favoriteUpdater;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
@@ -88,7 +88,7 @@ public class ReportSubmitter {
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, project)) {
-      favoriteService.put(dbSession, project.getId());
+      favoriteUpdater.put(dbSession, project.getId());
       dbSession.commit();
     }
 

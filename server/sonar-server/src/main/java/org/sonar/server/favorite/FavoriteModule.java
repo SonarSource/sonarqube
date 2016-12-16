@@ -29,7 +29,7 @@ public class FavoriteModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      FavoriteService.class,
+      FavoriteUpdater.class,
       FavoritesWs.class,
       AddAction.class);
   }

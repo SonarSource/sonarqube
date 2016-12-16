@@ -37,7 +37,7 @@ import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.favorite.FavoriteService;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
@@ -74,11 +74,11 @@ public class DefaultRubyComponentServiceTest {
   private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
     new ProjectMeasuresIndexer(system2, dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-  private FavoriteService favoriteService = mock(FavoriteService.class);
+  private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
 
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteService);
+  DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteUpdater);
 
   @Test
   public void find_by_key() {
@@ -117,7 +117,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
     verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
-    verify(favoriteService).put(any(DbSession.class), eq(project.getId()));
+    verify(favoriteUpdater).put(any(DbSession.class), eq(project.getId()));
   }
 
   @Test(expected = BadRequestException.class)
