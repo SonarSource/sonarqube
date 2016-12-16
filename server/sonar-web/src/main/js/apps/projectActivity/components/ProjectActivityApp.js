@@ -25,14 +25,15 @@ import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityPageFooter from './ProjectActivityPageFooter';
 import { fetchProjectActivity, changeFilter } from '../actions';
 import { getFilter } from '../../../store/projectActivity/duck';
-import { getProjectActivity } from '../../../store/rootReducer';
+import { getProjectActivity, getComponent } from '../../../store/rootReducer';
 import './projectActivity.css';
 
 type Props = {
   changeFilter: (project: string, filter: ?string) => void,
   location: { query: { id: string } },
   fetchProjectActivity: (project: string) => void,
-  filter: ?string
+  filter: ?string,
+  project: { configuration?: { showHistory: boolean } }
 };
 
 class ProjectActivityApp extends React.Component {
@@ -55,11 +56,13 @@ class ProjectActivityApp extends React.Component {
 
   render () {
     const project = this.props.location.query.id;
+    const { configuration } = this.props.project;
+    const canAdmin = configuration ? configuration.showHistory : false;
 
     return (
         <div className="page page-limited">
           <ProjectActivityPageHeader project={project}/>
-          <ProjectActivityAnalysesList project={project}/>
+          <ProjectActivityAnalysesList project={project} canAdmin={canAdmin}/>
           <ProjectActivityPageFooter project={project}/>
         </div>
     );
@@ -67,7 +70,8 @@ class ProjectActivityApp extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps: Props) => ({
-  filter: getFilter(getProjectActivity(state), ownProps.location.query.id)
+  filter: getFilter(getProjectActivity(state), ownProps.location.query.id),
+  project: getComponent(state, ownProps.location.query.id)
 });
 
 const mapDispatchToProps = { fetchProjectActivity, changeFilter };

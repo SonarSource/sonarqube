@@ -29,27 +29,31 @@ export default class ProjectActivityAnalysis extends React.Component {
   props: {
     analysis: Analysis,
     isFirst: boolean,
-    project: string
+    project: string,
+    canAdmin: boolean
   };
 
   render () {
     const { date, events } = this.props.analysis;
+    const { canAdmin } = this.props;
 
     const version = events.find(event => event.category === 'VERSION');
 
     return (
         <li className="project-activity-analysis clearfix">
-          <div className="project-activity-analysis-actions">
-            {version == null && (
-                <AddVersionForm
+          {canAdmin && (
+              <div className="project-activity-analysis-actions">
+                {version == null && (
+                    <AddVersionForm
+                        analysis={this.props.analysis}
+                        project={this.props.project}/>
+                )}
+
+                <AddCustomEventForm
                     analysis={this.props.analysis}
                     project={this.props.project}/>
-            )}
-
-            <AddCustomEventForm
-                analysis={this.props.analysis}
-                project={this.props.project}/>
-          </div>
+              </div>
+          )}
 
           <div className="project-activity-time">
             <FormattedDate date={date} format="LT" tooltipFormat="LTS"/>
@@ -60,7 +64,8 @@ export default class ProjectActivityAnalysis extends React.Component {
                 <Events
                     analysis={this.props.analysis.key}
                     events={events}
-                    project={this.props.project}/>
+                    project={this.props.project}
+                    canAdmin={canAdmin}/>
             )}
           </div>
         </li>

@@ -42,7 +42,7 @@ export default class Analysis extends React.Component {
             </div>
 
             {analysis.events.length > 0 ? (
-                <Events events={analysis.events}/>
+                <Events events={analysis.events} canAdmin={false}/>
             ) : (
                 <span className="note">{translate('project_activity.project_analyzed')}</span>
             )}

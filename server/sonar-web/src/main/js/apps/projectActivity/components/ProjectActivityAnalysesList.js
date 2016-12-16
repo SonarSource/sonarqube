@@ -34,7 +34,8 @@ class ProjectActivityAnalysesList extends React.Component {
     analyses?: Array<{
       key: string,
       date: string
-    }>
+    }>,
+    canAdmin: boolean
   };
 
   render () {
@@ -67,7 +68,8 @@ class ProjectActivityAnalysesList extends React.Component {
                             key={analysis.key}
                             analysis={analysis}
                             isFirst={analysis === firstAnalysis}
-                            project={this.props.project}/>
+                            project={this.props.project}
+                            canAdmin={this.props.canAdmin}/>
                     ))}
                   </ul>
                 </li>
