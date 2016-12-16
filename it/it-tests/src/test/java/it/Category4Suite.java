@@ -30,6 +30,7 @@ import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.duplication.NewDuplicationsTest;
 import it.projectEvent.EventTest;
+import it.projectEvent.ProjectActivityPageTest;
 import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.HttpHeadersTest;
@@ -80,6 +81,7 @@ import static util.ItUtils.xooPlugin;
   PurgeTest.class,
   // project event
   EventTest.class,
+  ProjectActivityPageTest.class,
   // project search
   SearchProjectsTest.class,
   // http

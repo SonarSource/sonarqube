@@ -57,7 +57,7 @@ class ProjectActivityAnalysesList extends React.Component {
         <div className="boxed-group boxed-group-inner">
           <ul className="project-activity-days-list">
             {Object.keys(byDay).map(day => (
-                <li key={day} className="project-activity-day">
+                <li key={day} className="project-activity-day" data-day={moment(Number(day)).format('YYYY-MM-DD')}>
                   <div className="project-activity-date">
                     <FormattedDate date={Number(day)} format="LL"/>
                   </div>

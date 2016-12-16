@@ -86,12 +86,12 @@ export default class Event extends React.Component {
               <div className="project-activity-event-actions">
                 <div className="button-group">
                   {canChange && (
-                      <button className="button-small" onClick={this.startChanging}>
+                      <button className="js-change-event button-small" onClick={this.startChanging}>
                         {translate('change_verb')}
                       </button>
                   )}
                   {canDelete && (
-                      <button className="button-small button-red" onClick={this.startDeleting}>
+                      <button className="js-delete-event button-small button-red" onClick={this.startDeleting}>
                         {translate('delete')}
                       </button>
                   )}

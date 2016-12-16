@@ -65,7 +65,7 @@ class ProjectActivityApp extends React.Component {
     const canAdmin = configuration ? configuration.showHistory : false;
 
     return (
-        <div className="page page-limited">
+        <div id="project-activity" className="page page-limited">
           <ProjectActivityPageHeader
               project={project}
               filter={this.state.filter}

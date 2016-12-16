@@ -19,32 +19,31 @@
  */
 package pageobjects;
 
-import com.codeborne.selenide.ElementsCollection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.codeborne.selenide.Condition;
 
-import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class ProjectHistoryPage {
+public class ProjectActivityPage {
 
-  public ProjectHistoryPage() {
-    $("#project-history").should(exist);
+  public ProjectActivityPage() {
+    $("#project-activity").should(Condition.exist);
   }
 
-  public ElementsCollection getSnapshots() {
-    return $$("tr.snapshot");
+  public ProjectAnalysisItem getLastAnalysis () {
+    return new ProjectAnalysisItem($(".project-activity-analysis"));
   }
 
-  public List<ProjectHistorySnapshotItem> getSnapshotsAsItems() {
-    return getSnapshots()
-      .stream()
-      .map(ProjectHistorySnapshotItem::new)
-      .collect(Collectors.toList());
+  public ProjectAnalysisItem getFirstAnalysis () {
+    return new ProjectAnalysisItem($$(".project-activity-analysis").last());
   }
 
-  public void checkAlertDisplayed() {
-    $("#info:not(.hidden)").should(exist);
+  public ProjectActivityPage assertFirstAnalysisOfTheDayHasText(String day, String text) {
+    $("#project-activity")
+      .find(".project-activity-day[data-day=\"" + day + "\"]")
+      .find(".project-activity-analysis")
+      .should(hasText(text));
+    return this;
   }
 }

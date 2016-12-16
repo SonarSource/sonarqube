@@ -136,7 +136,7 @@ export default class AddEventForm extends React.Component {
 
   render () {
     return (
-        <button className="button-small" onClick={this.openForm}>
+        <button className="js-add-event button-small" onClick={this.openForm}>
           {translate(this.props.addEventButtonText)}
           {this.state.open && this.renderModal()}
         </button>

@@ -128,7 +128,7 @@ public class ProjectAdministrationTest {
 
   // SONAR-4203
   @Test
-  @Ignore("history page is not available yet")
+  @Ignore("refactor with wsClient")
   public void delete_version_of_multimodule_project() {
     GregorianCalendar today = new GregorianCalendar();
     SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))

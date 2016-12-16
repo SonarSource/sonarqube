@@ -36,7 +36,7 @@ export default class ProjectActivityAnalysis extends React.Component {
 
   render () {
     const { date, events } = this.props.analysis;
-    const { canAdmin } = this.props;
+    const { isFirst, canAdmin } = this.props;
 
     const version = events.find(event => event.category === 'VERSION');
 
@@ -50,9 +50,11 @@ export default class ProjectActivityAnalysis extends React.Component {
 
                 <AddCustomEventForm analysis={this.props.analysis}/>
 
-                <RemoveAnalysisForm
-                    analysis={this.props.analysis}
-                    project={this.props.project}/>
+                {!isFirst && (
+                    <RemoveAnalysisForm
+                        analysis={this.props.analysis}
+                        project={this.props.project}/>
+                )}
               </div>
           )}
 

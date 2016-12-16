@@ -121,7 +121,7 @@ class RemoveAnalysisForm extends React.Component {
 
   render () {
     return (
-        <button className="button-small button-red" onClick={this.openForm}>
+        <button className="js-delete-analysis button-small button-red" onClick={this.openForm}>
           {translate('delete')}
           {this.state.open && this.renderModal()}
         </button>
