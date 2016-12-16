@@ -22,6 +22,7 @@ import React from 'react';
 import Events from './Events';
 import AddVersionForm from './forms/AddVersionForm';
 import AddCustomEventForm from './forms/AddCustomEventForm';
+import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
 
@@ -50,6 +51,10 @@ export default class ProjectActivityAnalysis extends React.Component {
                 )}
 
                 <AddCustomEventForm
+                    analysis={this.props.analysis}
+                    project={this.props.project}/>
+
+                <RemoveAnalysisForm
                     analysis={this.props.analysis}
                     project={this.props.project}/>
               </div>

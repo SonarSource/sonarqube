@@ -25,6 +25,7 @@ import {
   addEvent,
   deleteEvent as deleteEventAction,
   changeEvent as changeEventAction,
+  deleteAnalysis as deleteAnalysisAction,
   getPaging,
   getFilter
 } from '../../store/projectActivity/duck';
@@ -93,6 +94,13 @@ export const changeEvent = (
 ) => (dispatch: Function): Promise<*> => {
   return api.changeEvent(event, newName).then(
       () => dispatch(changeEventAction(project, analysis, event, { name: newName })),
+      rejectOnFail(dispatch)
+  );
+};
+
+export const deleteAnalysis = (project: string, analysis: string) => (dispatch: Function): Promise<*> => {
+  return api.deleteAnalysis(analysis).then(
+      () => dispatch(deleteAnalysisAction(project, analysis)),
       rejectOnFail(dispatch)
   );
 };

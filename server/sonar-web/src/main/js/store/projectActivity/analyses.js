@@ -82,5 +82,13 @@ export default (state: State = null, action: Action): State => {
     });
   }
 
+  if (action.type === 'DELETE_PROJECT_ACTIVITY_ANALYSIS') {
+    if (!state) {
+      return null;
+    }
+    // $FlowFixMe
+    return state.filter(analysis => analysis.key !== action.analysis);
+  }
+
   return state;
 };

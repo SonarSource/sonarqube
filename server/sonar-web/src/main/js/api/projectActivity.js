@@ -93,3 +93,7 @@ export const changeEvent = (event: string, name: ?string, description: ?string):
   }
   return postJSON('/api/project_analyses/update_event', data).then(r => r.event);
 };
+
+export const deleteAnalysis = (analysis: string): Promise<*> => (
+    post('/api/project_analyses/delete', { analysis })
+);
