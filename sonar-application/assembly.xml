@@ -109,6 +109,14 @@
     </dependencySet>
     <!-- JDBC drivers -->
     <dependencySet>
+      <outputDirectory>lib/jdbc/mssql/</outputDirectory>
+      <includes>
+        <include>com.microsoft.sqlserver:mssql-jdbc</include>
+      </includes>
+      <unpack>false</unpack>
+      <scope>provided</scope>
+    </dependencySet>
+    <dependencySet>
       <outputDirectory>lib/jdbc/mysql/</outputDirectory>
       <includes>
         <include>mysql:mysql-connector-java</include>

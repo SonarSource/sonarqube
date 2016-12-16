@@ -88,6 +88,10 @@
       </activation>
       <dependencies>
         <dependency>
+          <groupId>com.microsoft.sqlserver</groupId>
+          <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
         </dependency>
@@ -98,20 +102,6 @@
         <dependency>
           <groupId>com.oracle</groupId>
           <artifactId>ojdbc6</artifactId>
-        </dependency>
-        <dependency>
-          <!-- used to start previous versions of SQ on MSSQL -->
-          <groupId>net.sourceforge.jtds</groupId>
-          <artifactId>jtds</artifactId>
-          <version>1.3.1</version>
-        </dependency>
-        <dependency>
-          <groupId>com.microsoft.sqljdbc</groupId>
-          <artifactId>sqljdbc</artifactId>
-          <version>4.2</version>
-          <scope>system</scope>
-          <systemPath>${project.basedir}/../../sonar-application/src/main/assembly/lib/jdbc/mssql/sqljdbc42.jar
-          </systemPath>
         </dependency>
       </dependencies>
     </profile>
