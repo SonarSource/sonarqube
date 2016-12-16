@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Date;
@@ -27,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
@@ -39,13 +35,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.notification.IssueChangeNotification;
-import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -55,23 +46,19 @@ public class IssueService {
   private final DbClient dbClient;
   private final IssueIndex issueIndex;
 
-  private final IssueFieldsSetter issueUpdater;
-  private final IssueStorage issueStorage;
-  private final NotificationManager notificationService;
+  private final IssueFinder issueFinder;
+  private final IssueFieldsSetter issueFieldsSetter;
+  private final IssueUpdater issueUpdater;
   private final UserFinder userFinder;
   private final UserSession userSession;
 
-  public IssueService(DbClient dbClient, IssueIndex issueIndex,
-    IssueStorage issueStorage,
-    IssueFieldsSetter issueUpdater,
-    NotificationManager notificationService,
-    UserFinder userFinder,
-    UserSession userSession) {
+  public IssueService(DbClient dbClient, IssueIndex issueIndex, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
+    UserFinder userFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
-    this.issueStorage = issueStorage;
+    this.issueFinder = issueFinder;
+    this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
-    this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userSession = userSession;
   }
@@ -81,7 +68,7 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
       User user = null;
       if (!Strings.isNullOrEmpty(assignee)) {
         user = userFinder.findByLogin(assignee);
@@ -90,8 +77,8 @@ public class IssueService {
         }
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueUpdater.assign(issue, user, context)) {
-        saveIssue(session, issue, context, null);
+      if (issueFieldsSetter.assign(issue, user, context)) {
+        issueUpdater.saveIssue(session, issue, context, null);
       }
 
     } finally {
@@ -104,12 +91,12 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
       userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueUpdater.setManualSeverity(issue, severity, context)) {
-        saveIssue(session, issue, context, null);
+      if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
+        issueUpdater.saveIssue(session, issue, context, null);
       }
     } finally {
       session.close();
@@ -121,55 +108,15 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
       userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueUpdater.setType(issue, type, context)) {
-        saveIssue(session, issue, context, null);
+      if (issueFieldsSetter.setType(issue, type, context)) {
+        issueUpdater.saveIssue(session, issue, context, null);
       }
     } finally {
       session.close();
-    }
-  }
-
-  public Issue getByKey(String key) {
-    return issueIndex.getByKey(key);
-  }
-
-  // TODO Either use IssueFinder or remove it
-  @Deprecated
-  IssueDto getByKeyForUpdate(DbSession session, String key) {
-    // Load from index to check permission : if the user has no permission to see the issue an exception will be generated
-    Issue authorizedIssueIndex = getByKey(key);
-    return dbClient.issueDao().selectOrFailByKey(session, authorizedIssueIndex.key());
-  }
-
-  // TODO Either use IssueUpdater or remove it
-  @Deprecated
-  void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
-    String projectKey = issue.projectKey();
-    if (projectKey == null) {
-      throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
-    }
-    issueStorage.save(session, issue);
-    Optional<RuleDto> rule = getRuleByKey(session, issue.getRuleKey());
-    ComponentDto project = dbClient.componentDao().selectOrFailByKey(session, projectKey);
-    notificationService.scheduleForSending(new IssueChangeNotification()
-      .setIssue(issue)
-      .setChangeAuthorLogin(context.login())
-      .setRuleName(rule.isPresent() ? rule.get().getName() : null)
-      .setProject(project.getKey(), project.name())
-      .setComponent(dbClient.componentDao().selectOrFailByKey(session, issue.componentKey()))
-      .setComment(comment));
-  }
-
-  private Optional<RuleDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
-    Optional<RuleDto> rule = dbClient.ruleDao().selectByKey(session, ruleKey);
-    if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
-      return rule;
-    } else {
-      return Optional.absent();
     }
   }
 
@@ -195,10 +142,10 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueUpdater.setTags(issue, tags, context)) {
-        saveIssue(session, issue, context, null);
+      if (issueFieldsSetter.setTags(issue, tags, context)) {
+        issueUpdater.saveIssue(session, issue, context, null);
       }
       return issue.tags();
 

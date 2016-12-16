@@ -69,7 +69,7 @@ public class IssueServiceMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
-  IssueIndex IssueIndex;
+  IssueIndex issueIndex;
   DbSession session;
   IssueService service;
   RuleIndexer ruleIndexer;
@@ -78,7 +78,7 @@ public class IssueServiceMediumTest {
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    IssueIndex = tester.get(IssueIndex.class);
+    issueIndex = tester.get(IssueIndex.class);
     session = db.openSession(false);
     service = tester.get(IssueService.class);
     ruleIndexer = tester.get(RuleIndexer.class);
@@ -94,21 +94,11 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void get_by_key() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-
-    assertThat(service.getByKey(issue.getKey())).isNotNull();
-  }
-
-  @Test
   public void assign() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -117,11 +107,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isNull();
 
     service.assign(issue.getKey(), user.getLogin());
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
   }
 
   @Test
@@ -129,7 +119,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
 
@@ -138,11 +128,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
 
     service.assign(issue.getKey(), "");
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isNull();
   }
 
   @Test
@@ -150,7 +140,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -167,15 +157,17 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSessionRule.login("john")
+      .addProjectUuidPermissions(UserRole.USER, project.uuid())
+      .addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
 
     service.setSeverity(issue.getKey(), Severity.MINOR);
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
+    assertThat(issueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
   }
 
   @Test
@@ -183,15 +175,17 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSessionRule.login("john")
+      .addProjectUuidPermissions(UserRole.USER, project.uuid())
+      .addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setType(RuleType.CODE_SMELL));
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.CODE_SMELL);
 
     service.setType(issue.getKey(), RuleType.BUG);
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.BUG);
+    assertThat(issueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.BUG);
   }
 
   @Test
@@ -218,19 +212,19 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).isEmpty();
 
     // Tags are lowercased
     service.setTags(issue.getKey(), ImmutableSet.of("bug", "Convention"));
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
 
     // nulls and empty tags are ignored
     service.setTags(issue.getKey(), Sets.newHashSet("security", null, "", "convention"));
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // tag validation
     try {
@@ -238,14 +232,14 @@ public class IssueServiceMediumTest {
     } catch (Exception exception) {
       assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // unchanged tags
     service.setTags(issue.getKey(), ImmutableSet.of("convention", "security"));
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     service.setTags(issue.getKey(), ImmutableSet.<String>of());
-    assertThat(IssueIndex.getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(issueIndex.getByKey(issue.getKey()).tags()).isEmpty();
   }
 
   @Test
