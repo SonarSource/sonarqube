@@ -80,7 +80,7 @@ export default class RemoveVersionForm extends React.Component {
   render () {
     return (
         <Modal isOpen={true}
-               contentLabel="add event form"
+               contentLabel="modal form"
                className="modal"
                overlayClassName="modal-overlay"
                onRequestClose={this.closeForm}>
@@ -99,7 +99,7 @@ export default class RemoveVersionForm extends React.Component {
                       <i className="spinner"/>
                   ) : (
                       <div>
-                        <button type="submit" className="button-red" autoFocus={true}>{translate('remove')}</button>
+                        <button type="submit" className="button-red" autoFocus={true}>{translate('delete')}</button>
                         <button type="reset" className="button-link" onClick={this.closeForm}>
                           {translate('cancel')}
                         </button>

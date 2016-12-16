@@ -98,7 +98,7 @@ export default class ChangeEventForm extends React.Component {
   render () {
     return (
         <Modal isOpen={true}
-               contentLabel="add event form"
+               contentLabel="modal form"
                className="modal"
                overlayClassName="modal-overlay"
                onRequestClose={this.closeForm}>
@@ -126,7 +126,7 @@ export default class ChangeEventForm extends React.Component {
                       <i className="spinner"/>
                   ) : (
                       <div>
-                        <button type="submit">{translate('save')}</button>
+                        <button type="submit">{translate('change_verb')}</button>
                         <button type="reset" className="button-link" onClick={this.closeForm}>
                           {translate('cancel')}
                         </button>

@@ -94,7 +94,7 @@ export default class AddEventForm extends React.Component {
   renderModal () {
     return (
         <Modal isOpen={true}
-               contentLabel="add event form"
+               contentLabel="modal form"
                className="modal"
                overlayClassName="modal-overlay"
                onRequestClose={this.closeForm}>

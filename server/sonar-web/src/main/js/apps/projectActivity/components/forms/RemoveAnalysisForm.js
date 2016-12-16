@@ -87,18 +87,18 @@ class RemoveAnalysisForm extends React.Component {
   renderModal () {
     return (
         <Modal isOpen={true}
-               contentLabel="add event form"
+               contentLabel="modal form"
                className="modal"
                overlayClassName="modal-overlay"
                onRequestClose={this.closeForm}>
 
           <header className="modal-head">
-            <h2>Delete Analysis</h2>
+            <h2>{translate('project_activity.delete_analysis')}</h2>
           </header>
 
           <form onSubmit={this.handleSubmit}>
             <div className="modal-body">
-              Do you really want to delete this analysis?
+              {translate('project_activity.delete_analysis.question')}
             </div>
 
             <footer className="modal-foot">
