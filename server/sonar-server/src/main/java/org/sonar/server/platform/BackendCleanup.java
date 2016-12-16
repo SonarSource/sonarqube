@@ -32,7 +32,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.version.SqTables;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -76,7 +76,7 @@ public class BackendCleanup {
     try (DbSession dbSession = myBatis.openSession(false);
       Connection connection = dbSession.getConnection();
       Statement ddlStatement = connection.createStatement()) {
-      for (String tableName : DatabaseVersion.TABLES) {
+      for (String tableName : SqTables.TABLES) {
         Optional.ofNullable(TABLE_CLEANERS.get(tableName))
           .orElse(BackendCleanup::truncateDefault)
           .clean(tableName, ddlStatement, connection);

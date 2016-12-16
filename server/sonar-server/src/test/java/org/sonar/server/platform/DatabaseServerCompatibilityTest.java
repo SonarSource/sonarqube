@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

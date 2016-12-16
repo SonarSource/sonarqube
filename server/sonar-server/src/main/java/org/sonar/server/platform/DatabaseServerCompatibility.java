@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.app.ServerProcessLogging.STARTUP_LOGGER_NAME;
 

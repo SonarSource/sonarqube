@@ -29,7 +29,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 /**
  * Information about database and connection pool

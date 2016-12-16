@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.platform.db.migration.version;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
@@ -39,75 +37,6 @@ public class DatabaseVersion {
    * Note that the value can't be less than current LTS version.
    */
   public static final int MIN_UPGRADE_VERSION = 1_152;
-
-  /**
-   * These tables are still involved in DB migrations, so potentially
-   * incorrect collation must be fixed so that joins with other
-   * tables are possible.
-   *
-   * @see org.sonar.db.charset.ColumnDef#isInSonarQubeTable() 
-   */
-  public static final Set<String> OLD_DROPPED_TABLES = ImmutableSet.of(
-    "active_dashboards",
-    "activities",
-    "dashboards",
-    "issue_filters",
-    "issue_filter_favourites",
-    "measure_filters",
-    "measure_filter_favourites",
-    "widgets",
-    "widget_properties");
-
-  /**
-   * List of all the tables.
-   * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
-   * for all the supported databases, particularly due to Oracle results.
-   */
-  public static final Set<String> TABLES = ImmutableSet.of(
-    "active_rules",
-    "active_rule_parameters",
-    "authors",
-    "ce_activity",
-    "ce_queue",
-    "ce_task_input",
-    "ce_scanner_context",
-    "duplications_index",
-    "events",
-    "file_sources",
-    "groups",
-    "groups_users",
-    "group_roles",
-    "internal_properties",
-    "issues",
-    "issue_changes",
-    "loaded_templates",
-    "manual_measures",
-    "metrics",
-    "notifications",
-    "organizations",
-    "permission_templates",
-    "perm_templates_users",
-    "perm_templates_groups",
-    "perm_tpl_characteristics",
-    "quality_gates",
-    "quality_gate_conditions",
-    "projects",
-    "project_links",
-    "project_measures",
-    "project_qprofiles",
-    "properties",
-    "qprofile_changes",
-    "resource_index",
-    "rules",
-    "rules_parameters",
-    "rules_profiles",
-    "rule_repositories",
-    "schema_migrations",
-    "snapshots",
-    "users",
-    "user_roles",
-    "user_tokens",
-    "webhook_deliveries");
 
   private final DbClient dbClient;
 

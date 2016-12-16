@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.platform.platformlevel.PlatformLevel1;
 import org.sonar.server.platform.platformlevel.PlatformLevel2;

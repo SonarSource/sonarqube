@@ -23,7 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.version.SqTables;
 
 /**
  * Result of standard SQL command "select * from INFORMATION_SCHEMA" (columns listed in {@link #SELECT_COLUMNS}).
@@ -81,7 +81,7 @@ public class ColumnDef {
 
   public boolean isInSonarQubeTable() {
     String tableName = table.toLowerCase(Locale.ENGLISH);
-    return DatabaseVersion.TABLES.contains(tableName) || DatabaseVersion.OLD_DROPPED_TABLES.contains(tableName);
+    return SqTables.TABLES.contains(tableName) || SqTables.OLD_DROPPED_TABLES.contains(tableName);
   }
 
   public enum ColumnDefRowConverter implements SqlExecutor.RowConverter<ColumnDef> {

@@ -43,7 +43,7 @@ import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.version.SqTables;
 
 public abstract class DatabaseCommands {
   private final IDataTypeFactory dbUnitFactory;
@@ -149,7 +149,7 @@ public abstract class DatabaseCommands {
     try {
       connection.setAutoCommit(false);
       statement = connection.createStatement();
-      for (String table : DatabaseVersion.TABLES) {
+      for (String table : SqTables.TABLES) {
         try {
           if (shouldTruncate(connection, table)) {
             statement.executeUpdate(truncateSql(table));
@@ -193,7 +193,7 @@ public abstract class DatabaseCommands {
       connection.setAutoCommit(false);
 
       statement = connection.createStatement();
-      for (String table : DatabaseVersion.TABLES) {
+      for (String table : SqTables.TABLES) {
         try {
           resultSet = statement.executeQuery("SELECT CASE WHEN MAX(ID) IS NULL THEN 1 ELSE MAX(ID)+1 END FROM " + table);
           resultSet.next();
