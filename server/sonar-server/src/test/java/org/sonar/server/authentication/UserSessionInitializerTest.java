@@ -103,6 +103,8 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/setup/index");
     assertPathIsIgnored("/sessions/new");
     assertPathIsIgnored("/sessions/logout");
+    assertPathIsIgnored("/oauth2/callback/github");
+    assertPathIsIgnored("/oauth2/callback/foo");
     assertPathIsIgnored("/api/system/db_migration_status");
     assertPathIsIgnored("/api/system/status");
     assertPathIsIgnored("/api/system/migrate_db");

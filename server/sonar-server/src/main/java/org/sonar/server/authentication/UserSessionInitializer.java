@@ -61,7 +61,7 @@ public class UserSessionInitializer {
     "/batch/index", "/batch/file",
     "/maintenance/*",
     "/setup/*",
-    "/sessions/*",
+    "/sessions/*", "/oauth2/callback/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/index", "/api/server/setup", "/api/server/version",
     AUTH_LOGIN_URL, AUTH_VALIDATE_URL);
