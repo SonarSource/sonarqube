@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -32,8 +31,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class SetTypeAction extends Action {
 
-  private static final String SET_TYPE_KEY = "set_type";
-  private static final String TYPE_PARAMETER = "type";
+  public static final String SET_TYPE_KEY = "set_type";
+  public static final String TYPE_PARAMETER = "type";
 
   private final IssueFieldsSetter issueUpdater;
 
@@ -44,7 +43,7 @@ public class SetTypeAction extends Action {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     newValue(properties);
     return true;
   }
@@ -52,7 +51,7 @@ public class SetTypeAction extends Action {
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
     String type = newValue(properties);
-    return issueUpdater.setType((DefaultIssue) context.issue(), RuleType.valueOf(type), context.issueChangeContext());
+    return issueUpdater.setType(context.issue(), RuleType.valueOf(type), context.issueChangeContext());
   }
 
   private static String newValue(Map<String, Object> properties) {

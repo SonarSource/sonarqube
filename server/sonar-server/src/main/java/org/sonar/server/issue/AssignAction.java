@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
@@ -33,7 +32,8 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class AssignAction extends Action {
 
-  private static final String ASSIGN_KEY = "assign";
+  public static final String ASSIGN_KEY = "assign";
+  public static final String ASSIGNEE_PARAMETER = "assignee";
   public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
 
   private final UserFinder userFinder;
@@ -47,7 +47,7 @@ public class AssignAction extends Action {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     String assignee = assigneeValue(properties);
     if (!Strings.isNullOrEmpty(assignee)) {
       User user = selectUser(assignee);
@@ -67,11 +67,11 @@ public class AssignAction extends Action {
       throw new IllegalArgumentException("Assignee is missing from the execution parameters");
     }
     User assignee = (User) properties.get(VERIFIED_ASSIGNEE);
-    return issueUpdater.assign((DefaultIssue) context.issue(), assignee, context.issueChangeContext());
+    return issueUpdater.assign(context.issue(), assignee, context.issueChangeContext());
   }
 
   private String assigneeValue(Map<String, Object> properties) {
-    return (String) properties.get("assignee");
+    return (String) properties.get(ASSIGNEE_PARAMETER);
   }
 
   private User selectUser(String assigneeKey) {

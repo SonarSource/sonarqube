@@ -78,7 +78,7 @@ public class SetSeverityActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("unknwown", "unknown value");
     try {
-      action.verify(properties, Lists.<Issue>newArrayList(), new AnonymousMockUserSession());
+      action.verify(properties, Lists.newArrayList(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'severity'");
@@ -88,16 +88,16 @@ public class SetSeverityActionTest {
 
   @Test
   public void should_support_only_unresolved_issues() {
-    when(userSessionMock.hasComponentPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
-    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+    when(userSessionMock.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 
   @Test
   public void should_support_only_issues_with_issue_admin_permission() {
-    when(userSessionMock.hasComponentPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
-    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar2").setResolution(null))).isFalse();
+    when(userSessionMock.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar2").setResolution(null))).isFalse();
   }
 
 }

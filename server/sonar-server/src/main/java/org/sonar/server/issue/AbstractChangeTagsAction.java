@@ -25,7 +25,6 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -34,6 +33,8 @@ import org.sonar.server.user.UserSession;
 
 @ServerSide
 public abstract class AbstractChangeTagsAction extends Action {
+
+  public static final String TAGS_PARAMETER = "tags";
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -46,7 +47,7 @@ public abstract class AbstractChangeTagsAction extends Action {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     parseTags(properties);
     return true;
   }
@@ -61,7 +62,7 @@ public abstract class AbstractChangeTagsAction extends Action {
 
   private Set<String> parseTags(Map<String, Object> properties) {
     Set<String> result = Sets.newHashSet();
-    String tagsString = (String) properties.get("tags");
+    String tagsString = (String) properties.get(TAGS_PARAMETER);
     if (!Strings.isNullOrEmpty(tagsString)) {
       for (String tag : TAGS_SPLITTER.split(tagsString)) {
         RuleTagFormat.validate(tag);

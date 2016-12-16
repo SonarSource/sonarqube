@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.stream.Collectors;
@@ -35,6 +34,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class TransitionAction extends Action {
 
   public static final String DO_TRANSITION_KEY = "do_transition";
+  public static final String TRANSITION_PARAMETER = "transition";
 
   private final TransitionService transitionService;
 
@@ -44,16 +44,16 @@ public class TransitionAction extends Action {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     transition(properties);
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    DefaultIssue issue = (DefaultIssue) context.issue();
+    DefaultIssue issue = context.issue();
     String transition = transition(properties);
-    return canExecuteTransition(issue, transition) && transitionService.doTransition((DefaultIssue) context.issue(), context.issueChangeContext(), transition(properties));
+    return canExecuteTransition(issue, transition) && transitionService.doTransition(context.issue(), context.issueChangeContext(), transition(properties));
   }
 
   private boolean canExecuteTransition(DefaultIssue issue, String transitionKey) {
@@ -65,7 +65,7 @@ public class TransitionAction extends Action {
   }
 
   private static String transition(Map<String, Object> properties) {
-    String param = (String) properties.get("transition");
+    String param = (String) properties.get(TRANSITION_PARAMETER);
     checkArgument(!isNullOrEmpty(param), "Missing parameter : 'transition'");
     return param;
   }

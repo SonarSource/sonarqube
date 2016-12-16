@@ -102,7 +102,7 @@ public class TransitionActionTest {
   public void fail_to_verify_when_parameter_not_found() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing parameter : 'transition'");
-    action.verify(ImmutableMap.of("unknwown", "reopen"), Lists.<Issue>newArrayList(), userSession);
+    action.verify(ImmutableMap.of("unknwown", "reopen"), Lists.newArrayList(), userSession);
   }
 
   @Test

@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,13 +88,12 @@ public class IssueBulkChangeService {
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
 
-    Collection<Issue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
+    Collection<DefaultIssue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
     Repository repository = new Repository(issues);
 
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-    Set<String> concernedProjects = new HashSet<>();
-    for (Issue issue : issues) {
+    for (DefaultIssue issue : issues) {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
         applyAction(action, actionContext, issueBulkChangeQuery, result);
@@ -106,7 +104,7 @@ public class IssueBulkChangeService {
       if (issueBulkChangeQuery.hasComment()) {
         applyAction(getAction(CommentAction.COMMENT_KEY), actionContext, issueBulkChangeQuery, result);
       }
-      issueStorage.save((DefaultIssue) issue);
+      issueStorage.save(issue);
       if (!issueBulkChangeQuery.sendNotifications()) {
         continue;
       }
@@ -114,19 +112,18 @@ public class IssueBulkChangeService {
       if (projectKey != null) {
         Rule rule = repository.rule(issue.ruleKey());
         notificationService.scheduleForSending(new IssueChangeNotification()
-          .setIssue((DefaultIssue) issue)
+          .setIssue(issue)
           .setChangeAuthorLogin(issueChangeContext.login())
           .setRuleName(rule != null ? rule.getName() : null)
           .setProject(projectKey, repository.project(projectKey).name())
           .setComponent(repository.component(issue.componentKey())));
       }
-      concernedProjects.add(issue.projectKey());
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;
   }
 
-  private Collection<Issue> getByKeysForUpdate(List<String> issueKeys) {
+  private Collection<DefaultIssue> getByKeysForUpdate(List<String> issueKeys) {
     // Load from index to check permission
     SearchOptions options = new SearchOptions().setLimit(SearchOptions.MAX_LIMIT);
     // TODO restrict fields to issue key, in order to not load all other fields
@@ -142,9 +139,9 @@ public class IssueBulkChangeService {
       DbSession session = dbClient.openSession(false);
       try {
         List<IssueDto> dtos = dbClient.issueDao().selectByKeys(session, Lists.newArrayList(authorizedKeys));
-        return Collections2.transform(dtos, new Function<IssueDto, Issue>() {
+        return Collections2.transform(dtos, new Function<IssueDto, DefaultIssue>() {
           @Override
-          public Issue apply(@Nullable IssueDto input) {
+          public DefaultIssue apply(@Nullable IssueDto input) {
             return input != null ? input.toDefaultIssue() : null;
           }
         });
@@ -155,7 +152,7 @@ public class IssueBulkChangeService {
     return Collections.emptyList();
   }
 
-  private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, Collection<Issue> issues, UserSession userSession) {
+  private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, Collection<DefaultIssue> issues, UserSession userSession) {
     List<Action> bulkActions = newArrayList();
     for (String actionKey : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionKey);
@@ -167,7 +164,7 @@ public class IssueBulkChangeService {
   }
 
   private static void applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery, IssueBulkChangeResult result) {
-    Issue issue = actionContext.issue();
+    DefaultIssue issue = actionContext.issue();
     try {
       if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {
         result.addIssueChanged(issue);
@@ -189,16 +186,16 @@ public class IssueBulkChangeService {
   }
 
   static class ActionContext implements Action.Context {
-    private final Issue issue;
+    private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
 
-    ActionContext(Issue issue, IssueChangeContext changeContext) {
+    ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
       this.issue = issue;
       this.changeContext = changeContext;
     }
 
     @Override
-    public Issue issue() {
+    public DefaultIssue issue() {
       return issue;
     }
 
@@ -214,7 +211,7 @@ public class IssueBulkChangeService {
     private final Map<String, ComponentDto> components = newHashMap();
     private final Map<String, ComponentDto> projects = newHashMap();
 
-    public Repository(Collection<Issue> issues) {
+    public Repository(Collection<DefaultIssue> issues) {
       Set<RuleKey> ruleKeys = newHashSet();
       Set<String> componentKeys = newHashSet();
       Set<String> projectKeys = newHashSet();

@@ -22,15 +22,14 @@ package org.sonar.server.issue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.Condition;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.user.UserSession;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.issue.condition.Condition;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -62,7 +61,7 @@ public abstract class Action {
     return conditions;
   }
 
-  public boolean supports(Issue issue) {
+  public boolean supports(DefaultIssue issue) {
     for (Condition condition : conditions) {
       if (!condition.matches(issue)) {
         return false;
@@ -71,12 +70,12 @@ public abstract class Action {
     return true;
   }
 
-  abstract boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession);
+  public abstract boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession);
 
-  abstract boolean execute(Map<String, Object> properties, Context context);
+  public abstract boolean execute(Map<String, Object> properties, Context context);
 
-  interface Context {
-    Issue issue();
+  public interface Context {
+    DefaultIssue issue();
 
     IssueChangeContext issueChangeContext();
   }

@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
@@ -41,14 +40,14 @@ public class CommentAction extends Action {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     comment(properties);
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    issueUpdater.addComment((DefaultIssue) context.issue(), comment(properties), context.issueChangeContext());
+    issueUpdater.addComment(context.issue(), comment(properties), context.issueChangeContext());
     return true;
   }
 

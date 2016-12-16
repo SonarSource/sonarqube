@@ -19,12 +19,11 @@
  */
 package org.sonar.server.issue;
 
-import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.server.user.UserSession;
-
 import java.util.Collection;
 import java.util.Map;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,12 +34,12 @@ public class ActionTest {
     try {
       new Action("") {
         @Override
-        boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+        public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
           return false;
         }
 
         @Override
-        boolean execute(Map<String, Object> properties, Context context) {
+        public boolean execute(Map<String, Object> properties, Context context) {
           return false;
         }
       };
@@ -54,12 +53,12 @@ public class ActionTest {
     try {
       new Action(null) {
         @Override
-        boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+        public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
           return false;
         }
 
         @Override
-        boolean execute(Map<String, Object> properties, Context context) {
+        public boolean execute(Map<String, Object> properties, Context context) {
           return false;
         }
       };

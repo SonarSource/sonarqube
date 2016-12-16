@@ -45,12 +45,12 @@ public class CommentActionTest {
   private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
 
   @Before
-  public void before(){
+  public void before() {
     action = new CommentAction(issueUpdater);
   }
 
   @Test
-  public void should_execute(){
+  public void should_execute() {
     String comment = "My bulk change comment";
     Map<String, Object> properties = newHashMap();
     properties.put("comment", comment);
@@ -68,7 +68,7 @@ public class CommentActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("unknwown", "unknown value");
     try {
-      action.verify(properties, Lists.<Issue>newArrayList(), new AnonymousMockUserSession());
+      action.verify(properties, Lists.<DefaultIssue>newArrayList(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'comment'");
@@ -77,7 +77,7 @@ public class CommentActionTest {
   }
 
   @Test
-  public void should_support_all_issues(){
+  public void should_support_all_issues() {
     assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isTrue();
   }

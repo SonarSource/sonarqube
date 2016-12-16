@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
@@ -33,6 +32,7 @@ import org.sonar.server.user.UserSession;
 public class SetSeverityAction extends Action {
 
   public static final String SET_SEVERITY_KEY = "set_severity";
+  public static final String SEVERITY_PARAMETER = "severity";
 
   private final IssueFieldsSetter issueUpdater;
   private final UserSession userSession;
@@ -41,26 +41,26 @@ public class SetSeverityAction extends Action {
     super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
-    super.setConditions(new IsUnResolved(), issue -> isCurrentUserIssueAdmin(issue.projectKey()));
+    super.setConditions(new IsUnResolved(), issue -> isCurrentUserIssueAdmin(issue.projectUuid()));
   }
 
-  private boolean isCurrentUserIssueAdmin(String projectKey) {
-    return userSession.hasComponentPermission(UserRole.ISSUE_ADMIN, projectKey);
+  private boolean isCurrentUserIssueAdmin(String projectUuid) {
+    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
+  public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
     severity(properties);
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.setManualSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
+    return issueUpdater.setManualSeverity(context.issue(), severity(properties), context.issueChangeContext());
   }
 
   private static String severity(Map<String, Object> properties) {
-    String param = (String) properties.get("severity");
+    String param = (String) properties.get(SEVERITY_PARAMETER);
     if (Strings.isNullOrEmpty(param)) {
       throw new IllegalArgumentException("Missing parameter : 'severity'");
     }

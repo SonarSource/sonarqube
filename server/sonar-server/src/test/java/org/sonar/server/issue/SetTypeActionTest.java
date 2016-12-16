@@ -75,7 +75,7 @@ public class SetTypeActionTest {
   public void should_verify_fail_if_parameter_not_found() {
     Map<String, Object> properties = newHashMap();
     try {
-      underTest.verify(properties, Lists.<Issue>newArrayList(), new AnonymousMockUserSession());
+      underTest.verify(properties, Lists.newArrayList(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter: 'type'");

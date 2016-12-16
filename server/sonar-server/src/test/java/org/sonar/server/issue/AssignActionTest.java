@@ -92,7 +92,7 @@ public class AssignActionTest {
 
     User user = new DefaultUser().setLogin(assignee);
 
-    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
+    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
     when(userFinder.findByLogin(assignee)).thenReturn(user);
     assertThat(action.verify(properties, issues, mock(ThreadLocalUserSession.class))).isTrue();
     assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isEqualTo(user);
@@ -107,7 +107,7 @@ public class AssignActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
 
-    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
+    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
     when(userFinder.findByLogin(assignee)).thenReturn(null);
     action.verify(properties, issues, mock(ThreadLocalUserSession.class));
   }
@@ -118,7 +118,7 @@ public class AssignActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
 
-    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
+    List<DefaultIssue> issues = newArrayList(new DefaultIssue().setKey("ABC"));
     action.verify(properties, issues, mock(ThreadLocalUserSession.class));
     assertThat(action.verify(properties, issues, mock(ThreadLocalUserSession.class))).isTrue();
     assertThat(properties.containsKey(AssignAction.VERIFIED_ASSIGNEE)).isTrue();
