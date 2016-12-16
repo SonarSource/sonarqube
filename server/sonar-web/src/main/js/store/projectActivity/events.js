@@ -24,49 +24,39 @@ import type {
   ReceiveProjectActivityAction,
   AddEventAction,
   DeleteEventAction,
-  DeleteAnalysisAction
+  ChangeEventAction
 } from './duck';
 
-type Analysis = {
-  key: string;
-  date: string;
-  events: Array<string>
-};
-
 export type State = {
-  [key: string]: Analysis
+  [key: string]: {
+    key: string,
+    name: string;
+    category: string;
+    description?: string;
+  }
 };
 
 const receiveProjectActivity = (state: State, action: ReceiveProjectActivityAction): State => {
-  const analysesWithFlatEvents = action.analyses.map(analysis => ({
-    ...analysis,
-    events: analysis.events.map(event => event.key)
-  }));
-  return { ...state, ...keyBy(analysesWithFlatEvents, 'key') };
+  const events = {};
+  action.analyses.forEach(analysis => {
+    Object.assign(events, keyBy(analysis.events, 'key'));
+  });
+  return { ...state, ...events };
 };
 
 const addEvent = (state: State, action: AddEventAction): State => {
-  const analysis = state[action.analysis];
-  const newAnalysis = {
-    ...analysis,
-    events: [...analysis.events, action.event]
-  };
-  return { ...state, [action.analysis]: newAnalysis };
+  return { ...state, [action.event.key]: action.event };
 };
 
 const deleteEvent = (state: State, action: DeleteEventAction): State => {
-  const analysis = state[action.analysis];
-  const newAnalysis = {
-    ...analysis,
-    events: analysis.events.filter(event => event !== action.event)
-  };
-  return { ...state, [action.analysis]: newAnalysis };
+  const newState = { ...state };
+  delete newState[action.event];
+  return newState;
 };
 
-const deleteAnalysis = (state: State, action: DeleteAnalysisAction): State => {
-  const newState = { ...state };
-  delete newState[action.analysis];
-  return newState;
+const changeEvent = (state: State, action: ChangeEventAction): State => {
+  const newEvent = { ...state[action.event], ...action.changes };
+  return { ...state, [action.event]: newEvent };
 };
 
 export default (state: State = {}, action: Action): State => {
@@ -77,13 +67,13 @@ export default (state: State = {}, action: Action): State => {
       return addEvent(state, action);
     case 'DELETE_PROJECT_ACTIVITY_EVENT':
       return deleteEvent(state, action);
-    case 'DELETE_PROJECT_ACTIVITY_ANALYSIS':
-      return deleteAnalysis(state, action);
+    case 'CHANGE_PROJECT_ACTIVITY_EVENT':
+      return changeEvent(state, action);
     default:
       return state;
   }
 };
 
-export const getAnalysis = (state: State, key: string): Analysis => (
+export const getEvent = (state: State, key: string) => (
     state[key]
 );

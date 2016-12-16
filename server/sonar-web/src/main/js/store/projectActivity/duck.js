@@ -19,9 +19,14 @@
  */
 // @flow
 import { combineReducers } from 'redux';
-import analyses from './analyses';
-import filter from './filter';
+import analyses, * as fromAnalyses from './analyses';
+import type { State as AnalysesState } from './analyses';
+import analysesByProject from './analysesByProject';
+import type { State as AnalysesByProjectState } from './analysesByProject';
+import events, * as fromEvents from './events';
+import type { State as EventsState } from './events';
 import paging from './paging';
+import type { State as PagingState } from './paging';
 
 export type Event = {
   key: string,
@@ -136,43 +141,29 @@ export const deleteAnalysis = (project: string, analysis: string): DeleteAnalysi
   analysis
 });
 
-const byProject = combineReducers({ analyses, filter, paging });
-
 type State = {
-  [key: string]: {
-    analyses: Array<Analysis>,
-    filter: ?string,
-    paging: Paging
-  }
+  analyses: AnalysesState,
+  analysesByProject: AnalysesByProjectState,
+  events: EventsState,
+  filter: string,
+  paging: PagingState,
 };
 
-const reducer = (state: State = {}, action: Action): State => {
-  const actions = [
-    'RECEIVE_PROJECT_ACTIVITY',
-    'CHANGE_PROJECT_ACTIVITY_FILTER',
-    'ADD_PROJECT_ACTIVITY_EVENT',
-    'DELETE_PROJECT_ACTIVITY_EVENT',
-    'CHANGE_PROJECT_ACTIVITY_EVENT',
-    'DELETE_PROJECT_ACTIVITY_ANALYSIS'
-  ];
+export default combineReducers({ analyses, analysesByProject, events, paging });
 
-  if (actions.includes(action.type)) {
-    return { ...state, [action.project]: byProject(state[action.project], action) };
-  }
-  return state;
+const getEvent = (state: State, key: string): Event => (
+    fromEvents.getEvent(state.events, key)
+);
+
+const getAnalysis = (state: State, key: string) => {
+  const analysis = fromAnalyses.getAnalysis(state.analyses, key);
+  const events: Array<Event> = analysis.events.map(key => getEvent(state, key));
+  return { ...analysis, events };
 };
-
-export default reducer;
 
 export const getAnalyses = (state: State, project: string) => (
-    state[project] && state[project].analyses
+    state.analysesByProject[project] && state.analysesByProject[project].map(key => getAnalysis(state, key))
 );
-
-export const getFilter = (state: State, project: string) => (
-    state[project] && state[project].filter
-);
-
-
 export const getPaging = (state: State, project: string) => (
-    state[project] && state[project].paging
+    state.paging[project]
 );

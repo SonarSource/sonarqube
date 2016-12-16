@@ -23,36 +23,41 @@ import { connect } from 'react-redux';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityPageFooter from './ProjectActivityPageFooter';
-import { fetchProjectActivity, changeFilter } from '../actions';
-import { getFilter } from '../../../store/projectActivity/duck';
-import { getProjectActivity, getComponent } from '../../../store/rootReducer';
+import { fetchProjectActivity } from '../actions';
+import { getComponent } from '../../../store/rootReducer';
 import './projectActivity.css';
 
 type Props = {
-  changeFilter: (project: string, filter: ?string) => void,
   location: { query: { id: string } },
   fetchProjectActivity: (project: string) => void,
   filter: ?string,
   project: { configuration?: { showHistory: boolean } }
 };
 
+type State = {
+  filter: ?string
+};
+
 class ProjectActivityApp extends React.Component {
   props: Props;
 
+  state: State = {
+    filter: null
+  };
+
   componentDidMount () {
     document.querySelector('html').classList.add('dashboard-page');
-
-    // reset filter when opening the page
-    if (this.props.filter) {
-      this.props.changeFilter(this.props.location.query.id, null);
-    } else {
-      this.props.fetchProjectActivity(this.props.location.query.id);
-    }
+    this.props.fetchProjectActivity(this.props.location.query.id);
   }
 
   componentWillUnmount () {
     document.querySelector('html').classList.remove('dashboard-page');
   }
+
+  handleFilter = (filter: ?string) => {
+    this.setState({ filter });
+    this.props.fetchProjectActivity(this.props.location.query.id, filter);
+  };
 
   render () {
     const project = this.props.location.query.id;
@@ -61,19 +66,26 @@ class ProjectActivityApp extends React.Component {
 
     return (
         <div className="page page-limited">
-          <ProjectActivityPageHeader project={project}/>
-          <ProjectActivityAnalysesList project={project} canAdmin={canAdmin}/>
-          <ProjectActivityPageFooter project={project}/>
+          <ProjectActivityPageHeader
+              project={project}
+              filter={this.state.filter}
+              changeFilter={this.handleFilter}/>
+
+          <ProjectActivityAnalysesList
+              project={project}
+              canAdmin={canAdmin}/>
+
+          <ProjectActivityPageFooter
+              project={project}/>
         </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps: Props) => ({
-  filter: getFilter(getProjectActivity(state), ownProps.location.query.id),
   project: getComponent(state, ownProps.location.query.id)
 });
 
-const mapDispatchToProps = { fetchProjectActivity, changeFilter };
+const mapDispatchToProps = { fetchProjectActivity };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectActivityApp);

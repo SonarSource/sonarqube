@@ -19,24 +19,20 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
-import { changeFilter } from '../actions';
-import { getProjectActivity } from '../../../store/rootReducer';
-import { getFilter } from '../../../store/projectActivity/duck';
 
 type Props = {
-  changeFilter: (project: string, filter: ?string) => void,
+  changeFilter: (filter: ?string) => void,
   filter: ?string,
   project: string
 };
 
-class ProjectActivityPageHeader extends React.Component {
+export default class ProjectActivityPageHeader extends React.Component {
   props: Props;
 
-  handleChange = (option?: { value: ?string }) => {
-    this.props.changeFilter(this.props.project, option && option.value);
+  handleChange = (option: null | { value: string }) => {
+    this.props.changeFilter(option && option.value);
   }
 
   render () {
@@ -65,11 +61,3 @@ class ProjectActivityPageHeader extends React.Component {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps: Props) => ({
-  filter: getFilter(getProjectActivity(state), ownProps.project)
-});
-
-const mapDispatchToProps = { changeFilter };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectActivityPageHeader);

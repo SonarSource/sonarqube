@@ -20,11 +20,13 @@
 // @flow
 import type { Paging, ReceiveProjectActivityAction } from './duck';
 
-type State = ?Paging;
+export type State = {
+  [key: string]: Paging
+};
 
-export default (state: State = null, action: ReceiveProjectActivityAction): State => {
+export default (state: State = {}, action: ReceiveProjectActivityAction): State => {
   if (action.type === 'RECEIVE_PROJECT_ACTIVITY') {
-    return action.paging;
+    return { ...state, [action.project]: action.paging };
   }
 
   return state;

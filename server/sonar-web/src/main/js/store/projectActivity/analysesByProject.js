@@ -18,52 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import keyBy from 'lodash/keyBy';
-import type {
-  Action,
-  ReceiveProjectActivityAction,
-  AddEventAction,
-  DeleteEventAction,
-  DeleteAnalysisAction
-} from './duck';
-
-type Analysis = {
-  key: string;
-  date: string;
-  events: Array<string>
-};
+import type { Action, ReceiveProjectActivityAction, DeleteAnalysisAction } from './duck';
 
 export type State = {
-  [key: string]: Analysis
+  [key: string]: Array<string>
 };
 
 const receiveProjectActivity = (state: State, action: ReceiveProjectActivityAction): State => {
-  const analysesWithFlatEvents = action.analyses.map(analysis => ({
-    ...analysis,
-    events: analysis.events.map(event => event.key)
-  }));
-  return { ...state, ...keyBy(analysesWithFlatEvents, 'key') };
-};
-
-const addEvent = (state: State, action: AddEventAction): State => {
-  const analysis = state[action.analysis];
-  const newAnalysis = {
-    ...analysis,
-    events: [...analysis.events, action.event]
+  const analyses = state[action.project] || [];
+  const newAnalyses = action.analyses.map(analysis => analysis.key);
+  return {
+    ...state,
+    [action.project]: action.paging.pageIndex === 1 ? newAnalyses : [...analyses, ...newAnalyses]
   };
-  return { ...state, [action.analysis]: newAnalysis };
-};
-
-const deleteEvent = (state: State, action: DeleteEventAction): State => {
-  const analysis = state[action.analysis];
-  const newAnalysis = {
-    ...analysis,
-    events: analysis.events.filter(event => event !== action.event)
-  };
-  return { ...state, [action.analysis]: newAnalysis };
 };
 
 const deleteAnalysis = (state: State, action: DeleteAnalysisAction): State => {
+  // FIXME
   const newState = { ...state };
   delete newState[action.analysis];
   return newState;
@@ -73,17 +44,9 @@ export default (state: State = {}, action: Action): State => {
   switch (action.type) {
     case 'RECEIVE_PROJECT_ACTIVITY':
       return receiveProjectActivity(state, action);
-    case 'ADD_PROJECT_ACTIVITY_EVENT':
-      return addEvent(state, action);
-    case 'DELETE_PROJECT_ACTIVITY_EVENT':
-      return deleteEvent(state, action);
     case 'DELETE_PROJECT_ACTIVITY_ANALYSIS':
       return deleteAnalysis(state, action);
     default:
       return state;
   }
 };
-
-export const getAnalysis = (state: State, key: string): Analysis => (
-    state[key]
-);

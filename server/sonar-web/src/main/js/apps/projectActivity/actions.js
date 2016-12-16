@@ -26,8 +26,7 @@ import {
   deleteEvent as deleteEventAction,
   changeEvent as changeEventAction,
   deleteAnalysis as deleteAnalysisAction,
-  getPaging,
-  getFilter
+  getPaging
 } from '../../store/projectActivity/duck';
 import { onFail } from '../../store/rootActions';
 import { getProjectActivity } from '../../store/rootReducer';
@@ -37,26 +36,23 @@ const rejectOnFail = (dispatch: Function) => (error: any) => {
   return Promise.reject();
 };
 
-export const fetchProjectActivity = (project: string) => (dispatch: Function, getState: Function): void => {
-  const state = getState();
-  const filter = getFilter(getProjectActivity(state), project);
-
+export const fetchProjectActivity = (project: string, filter: ?string) => (dispatch: Function): void => {
   api.getProjectActivity(project, { category: filter }).then(
       ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
       onFail(dispatch)
   );
 };
 
-export const fetchMoreProjectActivity = (project: string) => (dispatch: Function, getState: Function): void => {
-  const projectActivity = getProjectActivity(getState());
-  const filter = getFilter(projectActivity, project);
-  const { pageIndex } = getPaging(projectActivity, project);
+export const fetchMoreProjectActivity = (project: string, filter: ?string) =>
+    (dispatch: Function, getState: Function): void => {
+      const projectActivity = getProjectActivity(getState());
+      const { pageIndex } = getPaging(projectActivity, project);
 
-  api.getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 }).then(
-      ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-      onFail(dispatch)
-  );
-};
+      api.getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 }).then(
+          ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
+          onFail(dispatch)
+      );
+    };
 
 export const changeFilter = (project: string, filter: ?string) => (dispatch: Function): void => {
   dispatch(changeProjectActivityFilter(project, filter));
