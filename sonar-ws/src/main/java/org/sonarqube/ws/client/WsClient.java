@@ -21,6 +21,7 @@ package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
+import org.sonarqube.ws.client.favorite.FavoritesService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.organization.OrganizationService;
@@ -58,6 +59,8 @@ public interface WsClient {
   OrganizationService organizations();
 
   ComponentsService components();
+
+  FavoritesService favorites();
 
   IssuesService issues();
 

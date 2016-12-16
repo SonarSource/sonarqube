@@ -39,7 +39,7 @@ import it.ui.SourceViewerTest;
 import it.ui.UiTest;
 import it.uiExtension.UiExtensionsTest;
 import it.user.BaseIdentityProviderTest;
-import it.user.FavouriteTest;
+import it.user.FavoritesWsTest;
 import it.user.ForceAuthenticationTest;
 import it.user.LocalAuthenticationTest;
 import it.user.MyAccountPageTest;
@@ -59,7 +59,7 @@ import static util.ItUtils.xooPlugin;
   ServerSystemTest.class,
   // user
   MyAccountPageTest.class,
-  FavouriteTest.class,
+  FavoritesWsTest.class,
   // authentication
   ForceAuthenticationTest.class,
   LocalAuthenticationTest.class,

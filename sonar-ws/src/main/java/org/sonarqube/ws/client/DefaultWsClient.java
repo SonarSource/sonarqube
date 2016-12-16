@@ -21,6 +21,7 @@ package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
+import org.sonarqube.ws.client.favorite.FavoritesService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.organization.OrganizationService;
@@ -48,6 +49,7 @@ class DefaultWsClient implements WsClient {
   private final OrganizationService organizations;
   private final PermissionsService permissionsService;
   private final ComponentsService componentsService;
+  private final FavoritesService favoritesService;
   private final QualityProfilesService qualityProfilesService;
   private final IssuesService issuesService;
   private final UserTokensService userTokensService;
@@ -67,6 +69,7 @@ class DefaultWsClient implements WsClient {
     this.organizations = new OrganizationService(wsConnector);
     this.permissionsService = new PermissionsService(wsConnector);
     this.componentsService = new ComponentsService(wsConnector);
+    this.favoritesService = new FavoritesService(wsConnector);
     this.qualityProfilesService = new QualityProfilesService(wsConnector);
     this.issuesService = new IssuesService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
@@ -100,6 +103,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public ComponentsService components() {
     return componentsService;
+  }
+
+  @Override
+  public FavoritesService favorites() {
+    return favoritesService;
   }
 
   @Override

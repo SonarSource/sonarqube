@@ -28,48 +28,49 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Favourite;
-import org.sonar.wsclient.services.FavouriteCreateQuery;
 import org.sonar.wsclient.services.FavouriteDeleteQuery;
 import org.sonar.wsclient.services.FavouriteQuery;
+import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 /**
  * TODO This test should not require an analysis, only provisioning the project should be enough
  */
-public class FavouriteTest {
+public class FavoritesWsTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  private static WsClient adminClient;
 
   @Before
   public void inspectProject() {
     orchestrator.resetData();
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    adminClient = newAdminWsClient(orchestrator);
   }
 
   @Test
-  public void favourites_web_service() {
-    Sonar adminWsClient = orchestrator.getServer().getAdminWsClient();
+  public void favorites_web_service() {
+    Sonar oldWsClient = orchestrator.getServer().getAdminWsClient();
 
     // GET (nothing)
-    List<Favourite> favourites = adminWsClient.findAll(new FavouriteQuery());
+    List<Favourite> favourites = oldWsClient.findAll(new FavouriteQuery());
     assertThat(favourites).isEmpty();
 
-    // POST (create favourites)
-    Favourite favourite = adminWsClient.create(new FavouriteCreateQuery("sample"));
-    assertThat(favourite).isNotNull();
-    assertThat(favourite.getKey()).isEqualTo("sample");
-    adminWsClient.create(new FavouriteCreateQuery("sample:src/main/xoo/sample/Sample.xoo"));
+    // POST (create favorites)
+    adminClient.favorites().add("sample");
+    adminClient.favorites().add("sample:src/main/xoo/sample/Sample.xoo");
 
-    // GET (created favourites)
-    favourites = adminWsClient.findAll(new FavouriteQuery());
+    // GET (created favorites)
+    favourites = oldWsClient.findAll(new FavouriteQuery());
     assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample", "sample:src/main/xoo/sample/Sample.xoo");
 
-    // DELETE (a favourite)
-    adminWsClient.delete(new FavouriteDeleteQuery("sample"));
-    favourites = adminWsClient.findAll(new FavouriteQuery());
+    // DELETE (a favorite)
+    oldWsClient.delete(new FavouriteDeleteQuery("sample"));
+    favourites = oldWsClient.findAll(new FavouriteQuery());
     assertThat(favourites.stream().map(Favourite::getKey)).containsOnly("sample:src/main/xoo/sample/Sample.xoo");
   }
 
