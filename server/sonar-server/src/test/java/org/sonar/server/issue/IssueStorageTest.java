@@ -40,15 +40,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 
-
 public class IssueStorageTest {
 
-  IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+  private static final System2 system2 = System2.INSTANCE;
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), "emmerik");
+
+  private DbClient dbClient = dbTester.getDbClient();
 
   @Test
   public void batch_insert_new_issues() {
@@ -83,7 +84,7 @@ public class IssueStorageTest {
     saver.save(issue);
 
     dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -120,7 +121,7 @@ public class IssueStorageTest {
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -159,7 +160,7 @@ public class IssueStorageTest {
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -179,7 +180,7 @@ public class IssueStorageTest {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -197,13 +198,13 @@ public class IssueStorageTest {
       .setComponentUuid("uuid-100")
       .setProjectUuid("uuid-10")
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -225,7 +226,7 @@ public class IssueStorageTest {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -242,19 +243,19 @@ public class IssueStorageTest {
       .setCloseDate(date)
       .setProjectUuid("uuid-10")
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeBatchSaver extends IssueStorage {
 
     protected FakeBatchSaver(DbClient dbClient, RuleFinder ruleFinder) {
-      super(dbClient, ruleFinder);
+      super(system2, dbClient, ruleFinder);
     }
 
     @Override
@@ -278,7 +279,7 @@ public class IssueStorageTest {
     private final ComponentDto project;
 
     protected FakeServerSaver(DbClient dbClient, RuleFinder ruleFinder, ComponentDto component, ComponentDto project) {
-      super(dbClient, ruleFinder);
+      super(system2, dbClient, ruleFinder);
       this.component = component;
       this.project = project;
     }

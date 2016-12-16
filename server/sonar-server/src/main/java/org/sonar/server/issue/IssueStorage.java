@@ -24,6 +24,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -47,10 +48,12 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public abstract class IssueStorage {
 
+  private final System2 system2;
   private final RuleFinder ruleFinder;
   private final DbClient dbClient;
 
-  protected IssueStorage(DbClient dbClient, RuleFinder ruleFinder) {
+  protected IssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder) {
+    this.system2 = system2;
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
   }
@@ -79,7 +82,7 @@ public abstract class IssueStorage {
   private void doSave(DbSession session, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
-    long now = System.currentTimeMillis();
+    long now = system2.now();
     List<DefaultIssue> toBeUpdated = batchInsertAndReturnIssuesToUpdate(session, issues, now);
     update(toBeUpdated, now);
     doAfterSave();

@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,8 +37,8 @@ public class ServerIssueStorage extends IssueStorage {
 
   private final IssueIndexer indexer;
 
-  public ServerIssueStorage(RuleFinder ruleFinder, DbClient dbClient, IssueIndexer indexer) {
-    super(dbClient, ruleFinder);
+  public ServerIssueStorage(System2 system2, RuleFinder ruleFinder, DbClient dbClient, IssueIndexer indexer) {
+    super(system2, dbClient, ruleFinder);
     this.indexer = indexer;
   }
 

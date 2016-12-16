@@ -42,21 +42,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 public class ServerIssueStorageTest {
 
-  System2 system = mock(System2.class);
+  System2 system2 = mock(System2.class);
 
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(system);
+  public DbTester dbTester = DbTester.create(system2);
 
   DbClient dbClient = dbTester.getDbClient();
 
-  ServerIssueStorage storage = new ServerIssueStorage(new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
+  ServerIssueStorage storage = new ServerIssueStorage(system2, new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
 
   @Before
   public void setupDbClient() {
-    when(system.now()).thenReturn(2000000000L);
+    when(system2.now()).thenReturn(2000000000L);
   }
 
   @Test
@@ -109,7 +108,7 @@ public class ServerIssueStorageTest {
     storage.save(issue);
 
     dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
-      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
@@ -129,7 +128,7 @@ public class ServerIssueStorageTest {
       .setNew(false)
       .setChanged(true)
 
-        // updated fields
+      // updated fields
       .setLine(5000)
       .setProjectUuid("CDEF")
       .setEffort(Duration.create(10L))
@@ -146,7 +145,7 @@ public class ServerIssueStorageTest {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-        // unmodifiable fields
+      // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
@@ -154,7 +153,7 @@ public class ServerIssueStorageTest {
     storage.save(issue);
 
     dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml",
-      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+      new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeRuleFinder implements RuleFinder {

@@ -56,11 +56,13 @@ import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class IssueUpdaterTest {
 
+  private System2 system2 = mock(System2.class);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
@@ -75,7 +77,7 @@ public class IssueUpdaterTest {
   private ArgumentCaptor<IssueChangeNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
 
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new ServerIssueStorage(new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(System2.INSTANCE, dbClient, esTester.client())),
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient), dbClient, new IssueIndexer(system2, dbClient, esTester.client())),
     notificationManager);
 
   @Test
