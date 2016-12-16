@@ -37,6 +37,7 @@ import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.favorite.FavoriteService;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;

@@ -36,7 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.FavoriteService;
+import org.sonar.server.favorite.FavoriteService;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.permission.PermissionTemplateService;

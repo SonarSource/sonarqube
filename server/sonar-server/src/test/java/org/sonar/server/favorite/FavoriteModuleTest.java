@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import { post, requestDelete, getJSON } from '../helpers/request';
 
-export const getFavorites = (): Promise<Object> => (
-    getJSON('/api/favourites')
-);
+package org.sonar.server.favorite;
 
-export function addFavorite (componentKey: string) {
-  const url = '/api/favorites';
-  const data = { component: componentKey };
-  return post(url, data);
-}
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-export function removeFavorite (componentKey: string) {
-  const url = '/api/favourites/' + encodeURIComponent(componentKey);
-  return requestDelete(url);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class FavoriteModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new FavoriteModule().configure(container);
+    assertThat(container.size()).isEqualTo(3 + 2);
+  }
 }

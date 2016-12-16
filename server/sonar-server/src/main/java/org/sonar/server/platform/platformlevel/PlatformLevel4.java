@@ -41,7 +41,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
-import org.sonar.server.component.FavoriteService;
 import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -57,6 +56,7 @@ import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -374,7 +374,8 @@ public class PlatformLevel4 extends PlatformLevel {
       NewAlerts.class,
       NewAlerts.newMetadata(),
       ComponentCleanerService.class,
-      FavoriteService.class,
+
+      FavoriteModule.class,
 
       // views
       ViewIndexDefinition.class,

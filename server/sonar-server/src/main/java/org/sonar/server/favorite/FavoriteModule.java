@@ -21,14 +21,17 @@
 package org.sonar.server.favorite;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.favorite.ws.AddAction;
+import org.sonar.server.favorite.ws.FavoritesWs;
 
 public class FavoriteModule extends Module {
 
   @Override
   protected void configureModule() {
     add(
-    // TODO
-    );
+      FavoriteService.class,
+      FavoritesWs.class,
+      AddAction.class);
   }
 
 }

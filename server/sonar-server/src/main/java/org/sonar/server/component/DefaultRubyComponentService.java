@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.server.favorite.FavoriteService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.util.RubyUtils;
 

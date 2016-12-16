@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.FavoriteService;
+import org.sonar.server.favorite.FavoriteService;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
