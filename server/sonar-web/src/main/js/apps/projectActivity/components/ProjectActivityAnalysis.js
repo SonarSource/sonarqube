@@ -38,7 +38,19 @@ export default class ProjectActivityAnalysis extends React.Component {
     const version = events.find(event => event.category === 'VERSION');
 
     return (
-        <li className="project-activity-analysis">
+        <li className="project-activity-analysis clearfix">
+          <div className="project-activity-analysis-actions">
+            {version == null && (
+                <AddVersionForm
+                    analysis={this.props.analysis}
+                    project={this.props.project}/>
+            )}
+
+            <AddCustomEventForm
+                analysis={this.props.analysis}
+                project={this.props.project}/>
+          </div>
+
           <div className="project-activity-time">
             <FormattedDate date={date} format="LT" tooltipFormat="LTS"/>
           </div>
@@ -50,19 +62,6 @@ export default class ProjectActivityAnalysis extends React.Component {
                     events={events}
                     project={this.props.project}/>
             )}
-
-            <div className="project-activity-analysis-actions">
-
-              {version == null && (
-                  <AddVersionForm
-                      analysis={this.props.analysis}
-                      project={this.props.project}/>
-              )}
-
-              <AddCustomEventForm
-                  analysis={this.props.analysis}
-                  project={this.props.project}/>
-            </div>
           </div>
         </li>
     );

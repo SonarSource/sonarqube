@@ -18,9 +18,9 @@
 
 .project-activity-analysis {
   position: relative;
-  min-height: 16px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  min-height: 20px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   border-top: 1px solid #e6e6e6;
   border-bottom: 1px solid #e6e6e6;
 }
@@ -34,7 +34,8 @@
 }
 
 .project-activity-analysis-actions {
-  margin-top: 10px;
+  float: right;
+  padding-right: 10px;
 }
 
 .project-activity-analysis-actions:first-child,
@@ -44,17 +45,26 @@
 
 .project-activity-analysis-form {
   display: inline-block;
-  line-height: 24px;
+  vertical-align: top;
+  line-height: 20px;
 }
 
 .project-activity-analysis-form + .project-activity-analysis-form {
-  margin-top: 6px;
+  margin-left: 8px;
+}
+
+.project-activity-analysis-form > form {
+  margin-bottom: 10px;
+  padding: 9px;
+  border: 1px solid #faebcc;
+  border-radius: 2px;
+  background-color: #fcf8e3;
 }
 
 .project-activity-time {
   float: left;
   width: 130px;
-  line-height: 16px;
+  line-height: 20px;
   padding-right: 50px;
   box-sizing: border-box;
   font-size: 12px;
@@ -80,17 +90,34 @@
   overflow: hidden;
 }
 
-.project-activity-events-primary {
-  float: left;
-  min-width: 240px;
+.project-activity-event {
+  line-height: 20px;
 }
 
-.project-activity-events-secondary {
-  float: left;
+.project-activity-editable-event {
+
+}
+
+.project-activity-editable-event .project-activity-event {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.project-activity-event + .project-activity-event,
+.project-activity-editable-event + .project-activity-event,
+.project-activity-event + .project-activity-editable-event,
+.project-activity-editable-event + .project-activity-editable-event {
+  margin-top: 10px;
+}
+
+.project-activity-editable-event-actions {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 8px;
 }
 
 .project-activity-version-badge {
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 2px;
   font-weight: bold;
   font-size: 12px;

@@ -19,31 +19,17 @@
  */
 // @flow
 import React from 'react';
-import ChangeVersionForm from './forms/ChangeVersionForm';
-import RemoveVersionForm from './forms/RemoveVersionForm';
 import type { Event } from '../../../store/projectActivity/duck';
 
 export default class VersionEvent extends React.Component {
   props: {
-    analysis: string,
-    event: Event,
-    project: string
+    event: Event
   };
 
   render () {
     return (
         <div className="project-activity-event">
           <span className="badge project-activity-version-badge">{this.props.event.name}</span>
-
-          <ChangeVersionForm
-              analysis={this.props.analysis}
-              event={this.props.event}
-              project={this.props.project}/>
-
-          <RemoveVersionForm
-              analysis={this.props.analysis}
-              event={this.props.event}
-              project={this.props.project}/>
         </div>
     );
   }

@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import sortBy from 'lodash/sortBy';
-import Event from './Event';
+import EditableEvent from './EditableEvent';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 
 export default class Events extends React.Component {
@@ -42,7 +42,7 @@ export default class Events extends React.Component {
     return (
         <div>
           {sortedEvents.map(event => (
-              <Event
+              <EditableEvent
                   key={event.key}
                   analysis={this.props.analysis}
                   event={event}

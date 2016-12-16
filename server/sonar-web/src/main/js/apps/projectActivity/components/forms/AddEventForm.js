@@ -95,13 +95,15 @@ export default class AddEventForm extends React.Component {
         <div className="project-activity-analysis-form">
           {this.state.open ? (
                   <form onSubmit={this.handleSubmit}>
-                    <input
-                        value={this.state.name}
-                        autoFocus={true}
-                        disabled={this.state.processing}
-                        className="input-medium little-spacer-right"
-                        type="text"
-                        onChange={this.changeInput}/>
+                    <div className="spacer-bottom">
+                      <input
+                          value={this.state.name}
+                          autoFocus={true}
+                          disabled={this.state.processing}
+                          className="input-medium"
+                          type="text"
+                          onChange={this.changeInput}/>
+                    </div>
                     {this.state.processing ? (
                             <i className="spinner"/>
                         ) : (
@@ -114,7 +116,9 @@ export default class AddEventForm extends React.Component {
                         )}
                   </form>
               ) : (
-                  <button onClick={this.openForm}>{translate(this.props.addEventButtonText)}</button>
+                  <button className="button-small" onClick={this.openForm}>
+                    {translate(this.props.addEventButtonText)}
+                  </button>
               )}
         </div>
     );

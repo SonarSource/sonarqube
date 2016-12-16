@@ -28,11 +28,11 @@ type Props = {
   event: Event,
   project: string,
   removeEventButtonText: string,
-  removeEventQuestion: string
+  removeEventQuestion: string,
+  onClose: () => void
 };
 
 type State = {
-  open: boolean,
   processing: boolean
 }
 
@@ -41,7 +41,6 @@ export default class RemoveVersionForm extends React.Component {
   props: Props;
 
   state: State = {
-    open: false,
     processing: false
   };
 
@@ -53,16 +52,8 @@ export default class RemoveVersionForm extends React.Component {
     this.mounted = false;
   }
 
-  openForm = () => {
-    if (this.mounted) {
-      this.setState({ open: true });
-    }
-  };
-
   closeForm = () => {
-    if (this.mounted) {
-      this.setState({ open: false });
-    }
+    this.props.onClose();
   };
 
   stopProcessing = () => {
@@ -73,8 +64,9 @@ export default class RemoveVersionForm extends React.Component {
 
   stopProcessingAndClose = () => {
     if (this.mounted) {
-      this.setState({ open: false, processing: false });
+      this.setState({ processing: false });
     }
+    this.props.onClose();
   };
 
   handleSubmit = (e: Object) => {
@@ -87,27 +79,21 @@ export default class RemoveVersionForm extends React.Component {
   render () {
     return (
         <div className="project-activity-analysis-form">
-          {this.state.open ? (
-                  <form onSubmit={this.handleSubmit}>
-                    <span className="spacer-right">
-                      {translate(this.props.removeEventQuestion)}
+          <form onSubmit={this.handleSubmit}>
+            <div className="spacer-bottom">
+              {translate(this.props.removeEventQuestion)}
+            </div>
+            {this.state.processing ? (
+                    <i className="spinner"/>
+                ) : (
+                    <span>
+                      <button type="submit" className="button-red">{translate('remove')}</button>
+                      <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
+                        {translate('cancel')}
+                      </button>
                     </span>
-                    {this.state.processing ? (
-                            <i className="spinner"/>
-                        ) : (
-                            <span>
-                              <button type="submit" className="button-red">{translate('remove')}</button>
-                              <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
-                                {translate('cancel')}
-                              </button>
-                            </span>
-                        )}
-                  </form>
-              ) : (
-                  <button className="button-clean" onClick={this.openForm}>
-                    <i className="icon-delete"/>
-                  </button>
-              )}
+                )}
+          </form>
         </div>
     );
   }

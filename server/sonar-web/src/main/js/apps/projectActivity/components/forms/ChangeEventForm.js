@@ -27,11 +27,11 @@ type Props = {
   changeEvent: () => Promise<*>,
   changeEventButtonText: string,
   event: Event,
-  project: string
+  project: string,
+  onClose: () => void
 };
 
 type State = {
-  open: boolean,
   processing: boolean,
   name: string
 }
@@ -44,7 +44,6 @@ export default class ChangeEventForm extends React.Component {
   constructor (props: Props) {
     super(props);
     this.state = {
-      open: false,
       processing: false,
       name: props.event.name
     };
@@ -58,16 +57,11 @@ export default class ChangeEventForm extends React.Component {
     this.mounted = false;
   }
 
-  openForm = () => {
-    if (this.mounted) {
-      this.setState({ open: true });
-    }
-  };
-
   closeForm = () => {
     if (this.mounted) {
-      this.setState({ open: false, name: this.props.event.name });
+      this.setState({ name: this.props.event.name });
     }
+    this.props.onClose();
   };
 
   changeInput = (e: Object) => {
@@ -84,8 +78,9 @@ export default class ChangeEventForm extends React.Component {
 
   stopProcessingAndClose = () => {
     if (this.mounted) {
-      this.setState({ open: false, processing: false });
+      this.setState({ processing: false });
     }
+    this.props.onClose();
   };
 
   handleSubmit = (e: Object) => {
@@ -102,31 +97,27 @@ export default class ChangeEventForm extends React.Component {
   render () {
     return (
         <div className="project-activity-analysis-form">
-          {this.state.open ? (
-                  <form onSubmit={this.handleSubmit}>
-                    <input
-                        value={this.state.name}
-                        autoFocus={true}
-                        disabled={this.state.processing}
-                        className="input-medium little-spacer-right"
-                        type="text"
-                        onChange={this.changeInput}/>
-                    {this.state.processing ? (
-                            <i className="spinner"/>
-                        ) : (
-                            <span>
-                              <button type="submit">{translate('save')}</button>
-                              <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
-                                {translate('cancel')}
-                              </button>
-                            </span>
-                        )}
-                  </form>
-              ) : (
-                  <button className="button-clean" onClick={this.openForm}>
-                    <i className="icon-edit"/>
+          <form onSubmit={this.handleSubmit}>
+            <div className="spacer-bottom">
+              <input
+                  value={this.state.name}
+                  autoFocus={true}
+                  disabled={this.state.processing}
+                  className="input-medium"
+                  type="text"
+                  onChange={this.changeInput}/>
+            </div>
+            {this.state.processing ? (
+                    <i className="spinner"/>
+                ) : (
+                    <span>
+                  <button type="submit">{translate('save')}</button>
+                  <button type="reset" className="button-link spacer-left" onClick={this.closeForm}>
+                    {translate('cancel')}
                   </button>
-              )}
+                </span>
+                )}
+          </form>
         </div>
     );
   }
