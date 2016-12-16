@@ -45,14 +45,10 @@ export default class ProjectActivityAnalysis extends React.Component {
           {canAdmin && (
               <div className="project-activity-analysis-actions">
                 {version == null && (
-                    <AddVersionForm
-                        analysis={this.props.analysis}
-                        project={this.props.project}/>
+                    <AddVersionForm analysis={this.props.analysis}/>
                 )}
 
-                <AddCustomEventForm
-                    analysis={this.props.analysis}
-                    project={this.props.project}/>
+                <AddCustomEventForm analysis={this.props.analysis}/>
 
                 <RemoveAnalysisForm
                     analysis={this.props.analysis}
@@ -68,7 +64,6 @@ export default class ProjectActivityAnalysis extends React.Component {
               <Events
                   analysis={this.props.analysis.key}
                   events={events}
-                  project={this.props.project}
                   isFirst={this.props.isFirst}
                   canAdmin={canAdmin}/>
           )}

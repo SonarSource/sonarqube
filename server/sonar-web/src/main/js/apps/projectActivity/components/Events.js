@@ -27,7 +27,6 @@ export default class Events extends React.Component {
   props: {
     analysis: string,
     events: Array<EventType>,
-    project: string,
     isFirst: boolean,
     canAdmin: boolean
   };
@@ -48,7 +47,6 @@ export default class Events extends React.Component {
                   key={event.key}
                   analysis={this.props.analysis}
                   event={event}
-                  project={this.props.project}
                   isFirst={this.props.isFirst}
                   canAdmin={this.props.canAdmin}/>
           ))}

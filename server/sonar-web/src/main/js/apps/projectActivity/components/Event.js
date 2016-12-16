@@ -28,7 +28,6 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   analysis: string,
   event: EventType,
-  project: string,
   isFirst: boolean,
   canAdmin: boolean
 };
@@ -104,9 +103,7 @@ export default class Event extends React.Component {
 
           {this.state.changing && (
               <ChangeCustomEventForm
-                  analysis={this.props.analysis}
                   event={this.props.event}
-                  project={this.props.project}
                   onClose={this.stopChanging}/>
           )}
 
@@ -114,7 +111,6 @@ export default class Event extends React.Component {
               <RemoveCustomEventForm
                   analysis={this.props.analysis}
                   event={this.props.event}
-                  project={this.props.project}
                   onClose={this.stopDeleting}/>
           )}
         </div>

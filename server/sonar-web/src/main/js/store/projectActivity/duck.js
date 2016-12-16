@@ -54,30 +54,20 @@ export type ReceiveProjectActivityAction = {
   paging: Paging
 };
 
-export type ChangeProjectActivityFilter = {
-  type: 'CHANGE_PROJECT_ACTIVITY_FILTER',
-  project: string,
-  filter: ?string
-};
-
 export type AddEventAction = {
   type: 'ADD_PROJECT_ACTIVITY_EVENT',
-  project: string,
   analysis: string,
   event: Event
 };
 
 export type DeleteEventAction = {
   type: 'DELETE_PROJECT_ACTIVITY_EVENT',
-  project: string,
   analysis: string,
   event: string
 };
 
 export type ChangeEventAction = {
   type: 'CHANGE_PROJECT_ACTIVITY_EVENT',
-  project: string,
-  analysis: string,
   event: string,
   changes: Object
 };
@@ -90,7 +80,6 @@ export type DeleteAnalysisAction = {
 
 export type Action =
     ReceiveProjectActivityAction |
-        ChangeProjectActivityFilter |
         AddEventAction |
         DeleteEventAction |
         ChangeEventAction |
@@ -107,30 +96,20 @@ export const receiveProjectActivity = (
   paging
 });
 
-export const changeProjectActivityFilter = (project: string, filter: ?string): ChangeProjectActivityFilter => ({
-  type: 'CHANGE_PROJECT_ACTIVITY_FILTER',
-  project,
-  filter
-});
-
-export const addEvent = (project: string, analysis: string, event: Event): AddEventAction => ({
+export const addEvent = (analysis: string, event: Event): AddEventAction => ({
   type: 'ADD_PROJECT_ACTIVITY_EVENT',
-  project,
   analysis,
   event
 });
 
-export const deleteEvent = (project: string, analysis: string, event: string): DeleteEventAction => ({
+export const deleteEvent = (analysis: string, event: string): DeleteEventAction => ({
   type: 'DELETE_PROJECT_ACTIVITY_EVENT',
-  project,
   analysis,
   event
 });
 
-export const changeEvent = (project: string, analysis: string, event: string, changes: Object): ChangeEventAction => ({
+export const changeEvent = (event: string, changes: Object): ChangeEventAction => ({
   type: 'CHANGE_PROJECT_ACTIVITY_EVENT',
-  project,
-  analysis,
   event,
   changes
 });

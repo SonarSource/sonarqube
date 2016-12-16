@@ -21,7 +21,6 @@
 import * as api from '../../api/projectActivity';
 import {
   receiveProjectActivity,
-  changeProjectActivityFilter,
   addEvent,
   deleteEvent as deleteEventAction,
   changeEvent as changeEventAction,
@@ -54,42 +53,28 @@ export const fetchMoreProjectActivity = (project: string, filter: ?string) =>
       );
     };
 
-export const changeFilter = (project: string, filter: ?string) => (dispatch: Function): void => {
-  dispatch(changeProjectActivityFilter(project, filter));
-  dispatch(fetchProjectActivity(project));
-};
+export const addCustomEvent = (analysis: string, name: string, category?: string) =>
+    (dispatch: Function): Promise<*> => {
+      return api.createEvent(analysis, name, category).then(
+          ({ analysis, ...event }) => dispatch(addEvent(analysis, event)),
+          rejectOnFail(dispatch)
+      );
+    };
 
-export const addCustomEvent = (
-    project: string,
-    analysis: string,
-    name: string,
-    category?: string
-) => (dispatch: Function): Promise<*> => {
-  return api.createEvent(analysis, name, category).then(
-      ({ analysis, ...event }) => dispatch(addEvent(project, analysis, event)),
-      rejectOnFail(dispatch)
-  );
-};
-
-export const deleteEvent = (project: string, analysis: string, event: string) => (dispatch: Function): Promise<*> => {
+export const deleteEvent = (analysis: string, event: string) => (dispatch: Function): Promise<*> => {
   return api.deleteEvent(event).then(
-      () => dispatch(deleteEventAction(project, analysis, event)),
+      () => dispatch(deleteEventAction(analysis, event)),
       rejectOnFail(dispatch)
   );
 };
 
-export const addVersion = (project: string, analysis: string, version: string) => (dispatch: Function): Promise<*> => {
-  return dispatch(addCustomEvent(project, analysis, version, 'VERSION'));
+export const addVersion = (analysis: string, version: string) => (dispatch: Function): Promise<*> => {
+  return dispatch(addCustomEvent(analysis, version, 'VERSION'));
 };
 
-export const changeEvent = (
-    project: string,
-    analysis: string,
-    event: string,
-    newName: string
-) => (dispatch: Function): Promise<*> => {
-  return api.changeEvent(event, newName).then(
-      () => dispatch(changeEventAction(project, analysis, event, { name: newName })),
+export const changeEvent = (event: string, name: string) => (dispatch: Function): Promise<*> => {
+  return api.changeEvent(event, name).then(
+      () => dispatch(changeEventAction(event, { name })),
       rejectOnFail(dispatch)
   );
 };

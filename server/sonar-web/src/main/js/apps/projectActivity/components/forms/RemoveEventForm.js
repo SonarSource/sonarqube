@@ -27,7 +27,6 @@ type Props = {
   analysis: Analysis,
   deleteEvent: () => Promise<*>,
   event: Event,
-  project: string,
   removeEventButtonText: string,
   removeEventQuestion: string,
   onClose: () => void
@@ -73,7 +72,7 @@ export default class RemoveVersionForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.deleteEvent(this.props.project, this.props.analysis, this.props.event.key)
+    this.props.deleteEvent(this.props.analysis, this.props.event.key)
         .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 

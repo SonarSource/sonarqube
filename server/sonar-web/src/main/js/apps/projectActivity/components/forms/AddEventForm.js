@@ -26,7 +26,6 @@ import { translate } from '../../../../helpers/l10n';
 type Props = {
   addEvent: () => Promise<*>,
   analysis: Analysis,
-  project: string,
   addEventButtonText: string
 };
 
@@ -87,7 +86,7 @@ export default class AddEventForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.addEvent(this.props.project, this.props.analysis.key, this.state.name)
+    this.props.addEvent(this.props.analysis.key, this.state.name)
         .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 

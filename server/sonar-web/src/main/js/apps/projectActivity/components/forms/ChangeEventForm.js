@@ -24,11 +24,9 @@ import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
 type Props = {
-  analysis: string,
   changeEvent: () => Promise<*>,
   changeEventButtonText: string,
   event: Event,
-  project: string,
   onClose: () => void
 };
 
@@ -87,12 +85,8 @@ export default class ChangeEventForm extends React.Component {
   handleSubmit = (e: Object) => {
     e.preventDefault();
     this.setState({ processing: true });
-    this.props.changeEvent(
-        this.props.project,
-        this.props.analysis,
-        this.props.event.key,
-        this.state.name
-    ).then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props.changeEvent(this.props.event.key, this.state.name)
+        .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
   render () {
