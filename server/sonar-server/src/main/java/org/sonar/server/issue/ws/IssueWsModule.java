@@ -21,8 +21,6 @@ package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.issue.ActionFinder;
-import org.sonar.server.issue.InternalRubyIssueService;
-import org.sonar.server.issue.IssueBulkChangeService;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueQueryService;
@@ -46,8 +44,6 @@ public class IssueWsModule extends Module {
       IssueFieldsSetter.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
-      InternalRubyIssueService.class,
-      IssueBulkChangeService.class,
       IssueService.class,
       IssueQueryService.class,
       IssuesWs.class,
@@ -67,6 +63,7 @@ public class IssueWsModule extends Module {
       SetTypeAction.class,
       ComponentTagsAction.class,
       AuthorsAction.class,
-      ChangelogAction.class);
+      ChangelogAction.class,
+      BulkChangeAction.class);
   }
 }

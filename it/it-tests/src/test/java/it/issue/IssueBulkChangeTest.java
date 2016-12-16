@@ -19,20 +19,28 @@
  */
 package it.issue;
 
-import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.issue.BulkChange;
-import org.sonar.wsclient.issue.BulkChangeQuery;
-import org.sonar.wsclient.issue.Issue;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.BulkChangeWsResponse;
+import org.sonarqube.ws.client.issue.BulkChangeRequest;
+import org.sonarqube.ws.client.issue.IssuesService;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.issue.IssueRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.Common.Severity.BLOCKER;
+import static org.sonarqube.ws.Issues.Issue;
+import static util.ItUtils.newAdminWsClient;
 
 /**
  * SONAR-4421
@@ -44,8 +52,15 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   private static final String COMMENT_AS_HTML = "this is my <strong>comment</strong>";
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @ClassRule
+  public static IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+
+  @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
 
+  private IssuesService issuesService;
   private ProjectAnalysis xooSampleLittleIssuesAnalysis;
 
   @Before
@@ -54,6 +69,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
     this.xooSampleLittleIssuesAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)
       .withQualityProfile(qualityProfileKey);
+    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
   }
 
   @Test
@@ -62,9 +78,9 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
-    BulkChange bulkChange = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
+    BulkChangeWsResponse bulkChange = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
 
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    assertThat(bulkChange.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
     assertIssueSeverity(issueKeys, newSeverity);
   }
 
@@ -72,9 +88,9 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   public void should_do_transition() {
     xooSampleLittleIssuesAnalysis.run();
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
-    BulkChange bulkChange = bulkTransitionStatusOfIssues(issueKeys, "confirm");
+    BulkChangeWsResponse bulkChangeResponse = bulkTransitionStatusOfIssues(issueKeys, "confirm");
 
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
     assertIssueStatus(issueKeys, "CONFIRMED");
   }
 
@@ -83,11 +99,11 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     xooSampleLittleIssuesAnalysis.run();
 
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
-    BulkChange bulkChange = buldChangeAssigneeOfIssues(issueKeys, "admin");
+    BulkChangeWsResponse bulkChangeResponse = buldChangeAssigneeOfIssues(issueKeys, "admin");
 
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys)) {
-      assertThat(issue.assignee()).isEqualTo("admin");
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    for (Issue issue : issueRule.getByKeys(issueKeys)) {
+      assertThat(issue.getAssignee()).isEqualTo("admin");
     }
   }
 
@@ -98,45 +114,39 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
 
-    BulkChange bulkChange = adminIssueClient().bulkChange(
-      BulkChangeQuery.create()
-        .issues(issueKeys)
-        .actions("set_severity", "comment")
-        .actionParameter("set_severity", "severity", newSeverity)
-        .actionParameter("comment", "comment", COMMENT_AS_MARKDOWN)
-      );
+    BulkChangeWsResponse bulkChangeResponse = issuesService.bulkChange(BulkChangeRequest.builder()
+      .setIssues(asList(issueKeys))
+      .setSetSeverity(newSeverity)
+      .setComment(COMMENT_AS_MARKDOWN)
+      .build());
 
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys, true)) {
-      assertThat(issue.comments()).hasSize(1);
-      assertThat(issue.comments().get(0).htmlText()).isEqualTo(COMMENT_AS_HTML);
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    for (Issue issue : issueRule.getByKeys(issueKeys)) {
+      assertThat(issue.getComments().getCommentsList()).hasSize(1);
+      assertThat(issue.getComments().getComments(0).getHtmlText()).isEqualTo(COMMENT_AS_HTML);
     }
   }
 
   @Test
   public void should_apply_bulk_change_on_many_actions() {
     xooSampleLittleIssuesAnalysis.run();
-
-    String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
 
-    BulkChange bulkChange = adminIssueClient().bulkChange(
-      BulkChangeQuery.create()
-        .issues(issueKeys)
-        .actions("do_transition", "assign", "set_severity")
-        .actionParameter("do_transition", "transition", "confirm")
-        .actionParameter("assign", "assignee", "admin")
-        .actionParameter("set_severity", "severity", newSeverity)
-        .comment(COMMENT_AS_MARKDOWN)
-      );
+    BulkChangeWsResponse bulkChangeResponse = issuesService.bulkChange(BulkChangeRequest.builder()
+      .setIssues(asList(issueKeys))
+      .setDoTransition("confirm")
+      .setAssign("admin")
+      .setSetSeverity("BLOCKER")
+      .setComment(COMMENT_AS_MARKDOWN)
+      .build());
 
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys, true)) {
-      assertThat(issue.status()).isEqualTo("CONFIRMED");
-      assertThat(issue.assignee()).isEqualTo("admin");
-      assertThat(issue.severity()).isEqualTo(newSeverity);
-      assertThat(issue.comments()).hasSize(1);
-      assertThat(issue.comments().get(0).htmlText()).isEqualTo(COMMENT_AS_HTML);
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    for (Issue issue : issueRule.getByKeys(issueKeys)) {
+      assertThat(issue.getStatus()).isEqualTo("CONFIRMED");
+      assertThat(issue.getAssignee()).isEqualTo("admin");
+      assertThat(issue.getSeverity()).isEqualTo(BLOCKER);
+      assertThat(issue.getComments().getCommentsList()).hasSize(1);
+      assertThat(issue.getComments().getComments(0).getHtmlText()).isEqualTo(COMMENT_AS_HTML);
     }
   }
 
@@ -148,7 +158,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
 
     try {
-      issueClient().bulkChange(createBulkChangeSeverityOfIssuesQuery(issueKeys, newSeverity));
+      issuesService.bulkChange(createBulkChangeSeverityOfIssuesQuery(issueKeys, newSeverity));
     } catch (Exception e) {
       assertHttpException(e, 401);
     }
@@ -162,34 +172,23 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
 
     // Apply the bulk change a first time
-    BulkChange bulkChange = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    BulkChangeWsResponse bulkChangeResponse = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
 
     // Re apply the same bulk change -> no issue should be changed
-    bulkChange = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(0);
-    assertThat(bulkChange.totalIssuesNotChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
+    bulkChangeResponse = bulkChangeSeverityOfIssues(issueKeys, newSeverity);
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(0);
+    assertThat(bulkChangeResponse.getIgnored()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
   }
 
   @Test
-  public void should_not_apply_bulk_change_if_no_issue_selected() {
-    try {
-      bulkChangeSeverityOfIssues(new String[] {}, "BLOCKER");
-    } catch (Exception e) {
-      assertHttpException(e, 400);
-    }
-  }
-
-  @Test
-  public void should_not_apply_bulk_change_if_action_is_invalid() {
+  public void should_not_apply_bulk_change_if_no_action() {
     xooSampleLittleIssuesAnalysis.run();
 
-    int limit = BULK_EDITED_ISSUE_COUNT;
-    String[] issueKeys = searchIssueKeys(limit);
-
-    BulkChangeQuery query = (BulkChangeQuery.create().issues(issueKeys).actions("invalid"));
     try {
-      adminIssueClient().bulkChange(query);
+      int limit = BULK_EDITED_ISSUE_COUNT;
+      String[] issueKeys = searchIssueKeys(limit);
+      issuesService.bulkChange(BulkChangeRequest.builder().setIssues(asList(issueKeys)).build());
     } catch (Exception e) {
       assertHttpException(e, 400);
     }
@@ -205,18 +204,15 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     adminIssueClient().doTransition(searchIssues().iterator().next().key(), "confirm");
 
     // Apply a bulk change on unconfirm transition
-    BulkChangeQuery query = (BulkChangeQuery.create()
-      .issues(issueKeys)
-      .actions("do_transition")
-      .actionParameter("do_transition", "transition", "unconfirm")
-      .comment("this is my comment")
-      );
-    BulkChange bulkChange = adminIssueClient().bulkChange(query);
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(1);
+    BulkChangeWsResponse bulkChangeResponse = issuesService.bulkChange(BulkChangeRequest.builder().setIssues(asList(issueKeys))
+      .setDoTransition("unconfirm")
+      .setComment("this is my comment")
+      .build());
+    assertThat(bulkChangeResponse.getSuccess()).isEqualTo(1);
 
     int nbIssuesWithComment = 0;
-    for (Issue issue : searchIssues(issueKeys, true)) {
-      if (!issue.comments().isEmpty()) {
+    for (Issues.Issue issue : issueRule.getByKeys(issueKeys)) {
+      if (!issue.getComments().getCommentsList().isEmpty()) {
         nbIssuesWithComment++;
       }
     }
@@ -225,14 +221,14 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   }
 
   private static void assertIssueSeverity(String[] issueKeys, String expectedSeverity) {
-    for (Issue issue : searchIssues(issueKeys)) {
-      assertThat(issue.severity()).isEqualTo(expectedSeverity);
+    for (Issues.Issue issue : issueRule.getByKeys(issueKeys)) {
+      assertThat(issue.getSeverity().name()).isEqualTo(expectedSeverity);
     }
   }
 
   private static void assertIssueStatus(String[] issueKeys, String expectedStatus) {
-    for (Issue issue : searchIssues(issueKeys)) {
-      assertThat(issue.status()).isEqualTo(expectedStatus);
+    for (Issues.Issue issue : issueRule.getByKeys(issueKeys)) {
+      assertThat(issue.getStatus()).isEqualTo(expectedStatus);
     }
   }
 
@@ -241,56 +237,36 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     assertThat(((HttpException) e).status()).isEqualTo(expectedCode);
   }
 
-  private static BulkChange bulkChangeSeverityOfIssues(String[] issueKeys, String newSeverity) {
-    BulkChangeQuery bulkChangeQuery = createBulkChangeSeverityOfIssuesQuery(issueKeys, newSeverity);
-
-    return adminIssueClient().bulkChange(bulkChangeQuery);
+  private BulkChangeWsResponse bulkChangeSeverityOfIssues(String[] issueKeys, String newSeverity) {
+    BulkChangeRequest bulkChangeQuery = createBulkChangeSeverityOfIssuesQuery(issueKeys, newSeverity);
+    return issuesService.bulkChange(bulkChangeQuery);
   }
 
-  private static BulkChangeQuery createBulkChangeSeverityOfIssuesQuery(String[] issueKeys, String newSeverity) {
-    BulkChangeQuery bulkChangeQuery = BulkChangeQuery.create()
-      .actions("set_severity")
-      .actionParameter("set_severity", "severity", newSeverity);
+  private static BulkChangeRequest createBulkChangeSeverityOfIssuesQuery(String[] issueKeys, String newSeverity) {
+    BulkChangeRequest.Builder request = BulkChangeRequest.builder().setSetSeverity(newSeverity);
     if (issueKeys != null && issueKeys.length > 0) {
-      bulkChangeQuery.issues(issueKeys);
+      request.setIssues(asList(issueKeys));
     }
-    return bulkChangeQuery;
+    return request.build();
   }
 
-  private static BulkChange bulkTransitionStatusOfIssues(String[] issueKeys, String newSeverity) {
-    return adminIssueClient().bulkChange(
-      BulkChangeQuery.create()
-        .issues(issueKeys)
-        .actions("do_transition")
-        .actionParameter("do_transition", "transition", newSeverity)
-      );
+  private BulkChangeWsResponse bulkTransitionStatusOfIssues(String[] issueKeys, String newSeverity) {
+    return issuesService.bulkChange(BulkChangeRequest.builder().setIssues(asList(issueKeys)).setDoTransition(newSeverity).build());
   }
 
-  private static BulkChange buldChangeAssigneeOfIssues(String[] issueKeys, String newAssignee) {
-    return adminIssueClient().bulkChange(
-      BulkChangeQuery.create()
-        .issues(issueKeys)
-        .actions("assign")
-        .actionParameter("assign", "assignee", newAssignee)
-      );
-  }
-
-  private static String[] getIssueKeys(List<Issue> issues, int nbIssues) {
-    return FluentIterable.from(issues)
-      .limit(nbIssues)
-      .transform(IssueToKey.INSTANCE)
-      .toArray(String.class);
+  private BulkChangeWsResponse buldChangeAssigneeOfIssues(String[] issueKeys, String newAssignee) {
+    return issuesService.bulkChange(BulkChangeRequest.builder().setIssues(asList(issueKeys)).setAssign(newAssignee).build());
   }
 
   private static String[] searchIssueKeys(int limit) {
-    return getIssueKeys(searchIssues(), limit);
+    return getIssueKeys(issueRule.search(new SearchWsRequest()).getIssuesList(), limit);
   }
 
-  private enum IssueToKey implements Function<Issue, String> {
-    INSTANCE;
-
-    public String apply(Issue issue) {
-      return issue.key();
-    }
+  private static String[] getIssueKeys(List<Issues.Issue> issues, int nbIssues) {
+    return FluentIterable.from(issues)
+      .limit(nbIssues)
+      .transform(Issue::getKey)
+      .toArray(String.class);
   }
+
 }

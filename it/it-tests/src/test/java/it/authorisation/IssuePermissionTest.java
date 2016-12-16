@@ -28,16 +28,16 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.issue.BulkChange;
-import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -216,14 +216,15 @@ public class IssuePermissionTest {
       client.userClient().create(UserParameters.create().login(user).name(user).password("password").passwordConfirmation("password"));
       addUserPermission(user, "sample", "issueadmin");
 
-      BulkChange bulkChange = orchestrator.getServer().wsClient(user, "password").issueClient().bulkChange(
-        BulkChangeQuery.create().issues(issueOnSample.key(), issueOnSample2.key())
-          .actions("set_severity", "do_transition")
-          .actionParameter("do_transition", "transition", "falsepositive")
-          .actionParameter("set_severity", "severity", "BLOCKER"));
+      Issues.BulkChangeWsResponse response = newUserWsClient(orchestrator, user, "password").issues()
+        .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnSample.key(), issueOnSample2.key()))
+          .setSetSeverity("BLOCKER")
+          .setDoTransition("falsepositive")
+          .build());
 
-      assertThat(bulkChange.totalIssuesChanged()).isEqualTo(1);
-      assertThat(bulkChange.totalIssuesNotChanged()).isEqualTo(1);
+      assertThat(response.getTotal()).isEqualTo(2);
+      assertThat(response.getSuccess()).isEqualTo(1);
+      assertThat(response.getIgnored()).isEqualTo(1);
 
     } finally {
       client.userClient().deactivate(user);

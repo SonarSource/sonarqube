@@ -20,6 +20,7 @@
 package org.sonar.db.rule;
 
 import com.google.common.base.Optional;
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
@@ -62,7 +63,7 @@ public class RuleDao implements Dao {
    * Select rules by keys, whatever their status. Returns an empty list
    * if the list of {@code keys} is empty, without any db round trip.
    */
-  public List<RuleDto> selectByKeys(DbSession session, List<RuleKey> keys) {
+  public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
@@ -78,7 +79,7 @@ public class RuleDao implements Dao {
     return mapper(session).selectAll();
   }
 
-  public List<RuleDto> selectByQuery(DbSession session, RuleQuery ruleQuery){
+  public List<RuleDto> selectByQuery(DbSession session, RuleQuery ruleQuery) {
     return mapper(session).selectByQuery(ruleQuery);
   }
 
@@ -129,4 +130,3 @@ public class RuleDao implements Dao {
   }
 
 }
-

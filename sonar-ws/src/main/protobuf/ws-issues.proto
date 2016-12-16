@@ -201,4 +201,13 @@ message ChangelogWsResponse {
   }
 }
 
+// Response of POST api/issues/bulk_change
+message BulkChangeWsResponse {
+  optional int64 total = 1;
+  optional int64 success = 2;
+  optional int64 ignored = 3;
+  optional int64 failures = 4;
+}
+
+
 

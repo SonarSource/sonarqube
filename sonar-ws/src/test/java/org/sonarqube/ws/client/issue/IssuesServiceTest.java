@@ -28,6 +28,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -59,6 +60,35 @@ public class IssuesServiceTest {
     serviceTester.assertThat(request)
       .hasParam("issue", "ABCD")
       .hasParam("assignee", "teryk")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void bulk_change() {
+    underTest.bulkChange(BulkChangeRequest.builder()
+      .setIssues(asList("ABCD", "EFGH"))
+      .setAssign("john")
+      .setSetSeverity("MAJOR")
+      .setSetType("bugs")
+      .setDoTransition("confirm")
+      .setAddTags(asList("tag1", "tag2"))
+      .setRemoveTags(asList("tag3", "tag4"))
+      .setComment("some comment")
+      .setSendNotifications(true)
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    assertThat(serviceTester.getPostParser()).isSameAs(Issues.BulkChangeWsResponse.parser());
+    serviceTester.assertThat(request)
+      .hasParam("issues", "ABCD,EFGH")
+      .hasParam("assign", "john")
+      .hasParam("set_severity", "MAJOR")
+      .hasParam("set_type", "bugs")
+      .hasParam("do_transition", "confirm")
+      .hasParam("add_tags", "tag1,tag2")
+      .hasParam("remove_tags", "tag3,tag4")
+      .hasParam("comment", "some comment")
+      .hasParam("sendNotifications", "true")
       .andNoOtherParam();
   }
 

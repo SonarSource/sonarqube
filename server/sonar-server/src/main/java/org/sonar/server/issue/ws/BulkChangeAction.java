@@ -1,0 +1,388 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.issue.ws;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.Action;
+import org.sonar.server.issue.AddTagsAction;
+import org.sonar.server.issue.AssignAction;
+import org.sonar.server.issue.IssueStorage;
+import org.sonar.server.issue.RemoveTagsAction;
+import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Issues;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableMap.of;
+import static java.util.function.Function.identity;
+import static org.sonar.api.issue.DefaultTransitions.REOPEN;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.core.util.stream.Collectors.toList;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
+import static org.sonar.server.issue.AssignAction.ASSIGNEE_PARAMETER;
+import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
+import static org.sonar.server.issue.CommentAction.COMMENT_PROPERTY;
+import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;
+import static org.sonar.server.issue.SetSeverityAction.SEVERITY_PARAMETER;
+import static org.sonar.server.issue.SetTypeAction.SET_TYPE_KEY;
+import static org.sonar.server.issue.SetTypeAction.TYPE_PARAMETER;
+import static org.sonar.server.issue.TransitionAction.DO_TRANSITION_KEY;
+import static org.sonar.server.issue.TransitionAction.TRANSITION_PARAMETER;
+import static org.sonar.server.search.QueryContext.MAX_LIMIT;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_BULK_CHANGE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ACTIONS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADD_TAGS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGN;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DO_TRANSITION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLAN;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REMOVE_TAGS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEND_NOTIFICATIONS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_SEVERITY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SET_TYPE;
+
+public class BulkChangeAction implements IssuesWsAction {
+
+  private static final Logger LOG = Loggers.get(BulkChangeAction.class);
+
+  private final System2 system2;
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final IssueStorage issueStorage;
+  private final NotificationManager notificationService;
+  private final List<Action> actions;
+
+  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService, List<Action> actions) {
+    this.system2 = system2;
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.issueStorage = issueStorage;
+    this.notificationService = notificationService;
+    this.actions = actions;
+  }
+
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
+      .setDescription("Bulk change on issues. Requires authentication and User role on project(s)")
+      .setSince("3.7")
+      .setHandler(this)
+      .setPost(true);
+
+    action.createParam(PARAM_ISSUES)
+      .setDescription("Comma-separated list of issue keys")
+      .setRequired(true)
+      .setExampleValue(UUID_EXAMPLE_01 + "," + UUID_EXAMPLE_02);
+    action.createParam(PARAM_ACTIONS)
+      .setDescription("No more needed since version 6.3")
+      .setDeprecatedSince("6.3")
+      .setExampleValue("assign,set_severity");
+    action.createParam(PARAM_ASSIGN)
+      .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
+      .setExampleValue("john.smith")
+      .setDeprecatedKey("assign.assignee");
+    action.createParam(PARAM_SET_SEVERITY)
+      .setDescription("To change the severity of the list of issues")
+      .setExampleValue(BLOCKER)
+      .setPossibleValues(Severity.ALL)
+      .setDeprecatedKey("set_severity.severity");
+    action.createParam(PARAM_SET_TYPE)
+      .setDescription("To change the type of the list of issues")
+      .setExampleValue(BUG)
+      .setPossibleValues(RuleType.names())
+      .setSince("5.5")
+      .setDeprecatedKey("set_type.type");
+    action.createParam(PARAM_PLAN)
+      .setDescription("In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
+      .setDeprecatedSince("5.5");
+    action.createParam(PARAM_DO_TRANSITION)
+      .setDescription("Transition")
+      .setExampleValue(REOPEN)
+      .setPossibleValues(DefaultTransitions.ALL)
+      .setDeprecatedKey("do_transition.transition");
+    action.createParam(PARAM_ADD_TAGS)
+      .setDescription("Add tags")
+      .setExampleValue("security,java8")
+      .setDeprecatedKey("add_tags.tags");
+    action.createParam(PARAM_REMOVE_TAGS)
+      .setDescription("Remove tags")
+      .setExampleValue("security,java8")
+      .setDeprecatedKey("remove_tags.tags");
+    action.createParam(PARAM_COMMENT)
+      .setDescription("To add a comment to a list of issues")
+      .setExampleValue("Here is my comment");
+    action.createParam(PARAM_SEND_NOTIFICATIONS)
+      .setDescription("Available since version 4.0")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Issues.BulkChangeWsResponse wsResponse = Stream.of(request)
+        .map(loadData(dbSession))
+        .map(executeBulkChange())
+        .map(toWsResponse())
+        .collect(Collectors.toOneElement());
+      writeProtobuf(wsResponse, request, response);
+    }
+  }
+
+  private Function<Request, BulkChangeData> loadData(DbSession dbSession) {
+    return request -> new BulkChangeData(dbSession, request);
+  }
+
+  private Function<BulkChangeData, BulkChangeResult> executeBulkChange() {
+    return bulkChangeData -> {
+      BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
+      IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+      bulkChangeData.issues.stream()
+        .filter(bulkChange(issueChangeContext, bulkChangeData, result))
+        .peek(issueStorage::save)
+        .forEach(sendNotification(issueChangeContext, bulkChangeData));
+      return result;
+    };
+  }
+
+  private Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
+    return issue -> {
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext);
+      bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
+      addCommentIfNeeded(actionContext, bulkChangeData);
+      return result.success.contains(issue.key());
+    };
+  }
+
+  private static Consumer<Action> applyAction(ActionContext actionContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
+    return action -> {
+      DefaultIssue issue = actionContext.issue();
+      try {
+        if (action.supports(issue) && action.execute(bulkChangeData.getProperties(action.key()), actionContext)) {
+          result.increaseSuccess(issue);
+        }
+      } catch (Exception e) {
+        result.increaseFailure();
+        LOG.error("An error occur when trying to apply the action : {} on issue : {}. This issue has been ignored. Error is '{}'", action.key(), issue.key(), e.getMessage());
+      }
+    };
+  }
+
+  private static void addCommentIfNeeded(ActionContext actionContext, BulkChangeData bulkChangeData) {
+    bulkChangeData.getCommentAction().ifPresent(action -> action.execute(bulkChangeData.getProperties(action.key()), actionContext));
+  }
+
+  private Consumer<DefaultIssue> sendNotification(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData) {
+    return issue -> {
+      if (bulkChangeData.sendNotification) {
+        notificationService.scheduleForSending(new IssueChangeNotification()
+          .setIssue(issue)
+          .setChangeAuthorLogin(issueChangeContext.login())
+          .setRuleName(bulkChangeData.rulesByKey.get(issue.ruleKey()).getName())
+          .setProject(bulkChangeData.projectsByUuid.get(issue.projectUuid()))
+          .setComponent(bulkChangeData.componentsByUuid.get(issue.componentUuid())));
+      }
+    };
+  }
+
+  private static Function<BulkChangeResult, Issues.BulkChangeWsResponse> toWsResponse() {
+    return bulkChangeResult -> Issues.BulkChangeWsResponse.newBuilder()
+      .setTotal(bulkChangeResult.getTotal())
+      .setSuccess(bulkChangeResult.getSuccess())
+      .setIgnored((long) bulkChangeResult.getTotal() - (bulkChangeResult.getSuccess() + bulkChangeResult.getFailures()))
+      .setFailures(bulkChangeResult.getFailures())
+      .build();
+  }
+
+  private static class ActionContext implements Action.Context {
+    private final DefaultIssue issue;
+    private final IssueChangeContext changeContext;
+
+    ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
+      this.issue = issue;
+      this.changeContext = changeContext;
+    }
+
+    @Override
+    public DefaultIssue issue() {
+      return issue;
+    }
+
+    @Override
+    public IssueChangeContext issueChangeContext() {
+      return changeContext;
+    }
+  }
+
+  private class BulkChangeData {
+    private final Map<String, Map<String, Object>> propertiesByActions;
+    private final boolean sendNotification;
+    private final Collection<DefaultIssue> issues;
+    private final Map<String, ComponentDto> projectsByUuid;
+    private final Map<String, ComponentDto> componentsByUuid;
+    private final Map<RuleKey, RuleDto> rulesByKey;
+    private final List<Action> availableActions;
+
+    BulkChangeData(DbSession dbSession, Request request) {
+      this.sendNotification = request.mandatoryParamAsBoolean(PARAM_SEND_NOTIFICATIONS);
+      this.propertiesByActions = toPropertiesByActions(request);
+
+      List<String> issueKeys = request.mandatoryParamAsStrings(PARAM_ISSUES);
+      checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issues is limited to %s", MAX_LIMIT);
+      List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
+
+      List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
+      this.projectsByUuid = getAuthorizedProjects(dbSession, allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.issues = getAuthorizedIssues(allIssues);
+      this.componentsByUuid = getComponents(dbSession,
+        issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
+          .collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
+        issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
+        .collect(uniqueIndex(RuleDto::getKey, identity()));
+
+      this.availableActions = actions.stream()
+        .filter(action -> propertiesByActions.containsKey(action.key()))
+        .filter(action -> action.verify(getProperties(action.key()), issues, userSession))
+        .collect(Collectors.toList());
+    }
+
+    private List<ComponentDto> getComponents(DbSession dbSession, Collection<String> componentUuids) {
+      return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+    }
+
+    private List<ComponentDto> getAuthorizedProjects(DbSession dbSession, List<ComponentDto> projectDtos) {
+      Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
+      Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
+        projectDtos.stream().map(ComponentDto::getId).collect(toList()),
+        userSession.getUserId(), UserRole.USER);
+      return projectDtos.stream()
+        .filter(project -> authorizedProjectIds.contains(projectIdsByUuids.get(project.projectUuid())))
+        .collect(Collectors.toList());
+    }
+
+    private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
+      Set<String> projectUuids = projectsByUuid.values().stream().map(ComponentDto::uuid).collect(Collectors.toSet());
+      return allIssues.stream()
+        .filter(issue -> projectUuids.contains(issue.getProjectUuid()))
+        .map(IssueDto::toDefaultIssue)
+        .collect(Collectors.toList());
+    }
+
+    Map<String, Object> getProperties(String actionKey) {
+      return propertiesByActions.get(actionKey);
+    }
+
+    List<Action> getActionsWithoutComment() {
+      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).collect(Collectors.toList());
+    }
+
+    Optional<Action> getCommentAction() {
+      return availableActions.stream().filter(action -> action.key().equals(COMMENT_KEY)).findFirst();
+    }
+
+    private Map<String, Map<String, Object>> toPropertiesByActions(Request request) {
+      Map<String, Map<String, Object>> properties = new HashMap<>();
+      request.getParam(PARAM_ASSIGN, value -> properties.put(AssignAction.ASSIGN_KEY, new HashMap<>(of(ASSIGNEE_PARAMETER, value))));
+      request.getParam(PARAM_SET_SEVERITY, value -> properties.put(SET_SEVERITY_KEY, new HashMap<>(of(SEVERITY_PARAMETER, value))));
+      request.getParam(PARAM_SET_TYPE, value -> properties.put(SET_TYPE_KEY, new HashMap<>(of(TYPE_PARAMETER, value))));
+      request.getParam(PARAM_DO_TRANSITION, value -> properties.put(DO_TRANSITION_KEY, new HashMap<>(of(TRANSITION_PARAMETER, value))));
+      request.getParam(PARAM_ADD_TAGS, value -> properties.put(AddTagsAction.KEY, new HashMap<>(of(TAGS_PARAMETER, value))));
+      request.getParam(PARAM_REMOVE_TAGS, value -> properties.put(RemoveTagsAction.KEY, new HashMap<>(of(TAGS_PARAMETER, value))));
+      request.getParam(PARAM_COMMENT, value -> properties.put(COMMENT_KEY, new HashMap<>(of(COMMENT_PROPERTY, value))));
+      checkAtLeastOneActionIsDefined(properties.keySet());
+      return properties;
+    }
+
+    private void checkAtLeastOneActionIsDefined(Set<String> actions) {
+      long actionsDefined = actions.stream().filter(action -> !action.equals(COMMENT_KEY)).count();
+      checkArgument(actionsDefined > 0, "At least one action must be provided");
+    }
+  }
+
+  private static class BulkChangeResult {
+    private final int total;
+    private Set<String> success = new HashSet<>();
+    private int failures = 0;
+
+    BulkChangeResult(int total) {
+      this.total = total;
+    }
+
+    void increaseSuccess(DefaultIssue issue) {
+      this.success.add(issue.key());
+    }
+
+    void increaseFailure() {
+      this.failures++;
+    }
+
+    public int getTotal() {
+      return total;
+    }
+
+    public int getSuccess() {
+      return success.size();
+    }
+
+    public int getFailures() {
+      return failures;
+    }
+  }
+}

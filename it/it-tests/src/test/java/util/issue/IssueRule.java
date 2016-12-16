@@ -28,6 +28,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +62,12 @@ public class IssueRule extends ExternalResource {
     List<Issue> issues = search(new SearchWsRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("_all"))).getIssuesList();
     assertThat(issues).hasSize(1);
     return issues.iterator().next();
+  }
+
+  public List<Issue> getByKeys(String... issueKeys) {
+    List<Issue> issues = search(new SearchWsRequest().setIssues(asList(issueKeys)).setAdditionalFields(singletonList("_all"))).getIssuesList();
+    assertThat(issues).hasSize(issueKeys.length);
+    return issues;
   }
 
   private WsClient adminWsClient() {

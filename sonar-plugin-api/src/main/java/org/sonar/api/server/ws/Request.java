@@ -59,7 +59,8 @@ public abstract class Request {
   public abstract String getMediaType();
 
   /**
-   * Return true of the parameter is set.
+   * Return true of the parameter is set in the request.
+   * Does NOT take into account the deprecated key of a parameter.
    */
   public abstract boolean hasParam(String key);
 
@@ -289,7 +290,8 @@ public abstract class Request {
 
   @Beta
   public <T> Param<T> getParam(String key, BiFunction<Request, String, T> retrieveAndValidate) {
-    if (hasParam(key)) {
+    String param = this.param(key);
+    if (param != null) {
       return GenericParam.present(retrieveAndValidate.apply(this, key));
     }
     return AbsentParam.absent();
@@ -297,8 +299,8 @@ public abstract class Request {
 
   @Beta
   public StringParam getParam(String key, Consumer<String> validate) {
-    if (hasParam(key)) {
-      String value = this.param(key);
+    String value = this.param(key);
+    if (value != null) {
       validate.accept(value);
       return StringParamImpl.present(value);
     }
@@ -307,8 +309,9 @@ public abstract class Request {
 
   @Beta
   public StringParam getParam(String key) {
-    if (hasParam(key)) {
-      return StringParamImpl.present(this.param(key));
+    String value = this.param(key);
+    if (value != null) {
+      return StringParamImpl.present(value);
     }
     return AbsentStringParam.absent();
   }

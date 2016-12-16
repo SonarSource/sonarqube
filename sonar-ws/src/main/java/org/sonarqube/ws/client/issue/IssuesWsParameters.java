@@ -41,6 +41,7 @@ public class IssuesWsParameters {
   public static final String ACTION_COMPONENT_TAGS = "component_tags";
   public static final String ACTION_SET_TAGS = "set_tags";
   public static final String ACTION_SET_TYPE = "set_type";
+  public static final String ACTION_BULK_CHANGE = "bulk_change";
 
   public static final String PARAM_ISSUE = "issue";
   public static final String PARAM_COMMENT = "comment";
@@ -68,6 +69,15 @@ public class IssuesWsParameters {
   public static final String PARAM_FILE_UUIDS = "fileUuids";
   public static final String PARAM_ON_COMPONENT_ONLY = "onComponentOnly";
   public static final String PARAM_RULES = "rules";
+  public static final String PARAM_ACTIONS = "actions";
+  public static final String PARAM_ASSIGN = "assign";
+  public static final String PARAM_SET_SEVERITY = "set_severity";
+  public static final String PARAM_SET_TYPE = "set_type";
+  public static final String PARAM_PLAN = "plan";
+  public static final String PARAM_DO_TRANSITION = "do_transition";
+  public static final String PARAM_ADD_TAGS = "add_tags";
+  public static final String PARAM_REMOVE_TAGS = "remove_tags";
+  public static final String PARAM_SEND_NOTIFICATIONS = "sendNotifications";
 
   /**
    * @deprecated since 5.5, action plan feature has been removed
