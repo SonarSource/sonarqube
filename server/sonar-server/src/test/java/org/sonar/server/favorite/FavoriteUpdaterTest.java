@@ -49,7 +49,7 @@ public class FavoriteUpdaterTest {
   public void put_favorite() {
     assertNoFavorite();
 
-    underTest.put(dbSession, COMPONENT_ID);
+    underTest.add(dbSession, COMPONENT_ID);
 
     assertFavorite();
   }
@@ -58,17 +58,17 @@ public class FavoriteUpdaterTest {
   public void do_nothing_when_not_logged_in() {
     userSession.anonymous();
 
-    underTest.put(dbSession, COMPONENT_ID);
+    underTest.add(dbSession, COMPONENT_ID);
 
     assertNoFavorite();
   }
 
   @Test
   public void put_existing_favorite() {
-    underTest.put(dbSession, COMPONENT_ID);
+    underTest.add(dbSession, COMPONENT_ID);
     assertFavorite();
 
-    underTest.put(dbSession, COMPONENT_ID);
+    underTest.add(dbSession, COMPONENT_ID);
 
     assertFavorite();
   }

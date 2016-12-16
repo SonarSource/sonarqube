@@ -39,7 +39,7 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user is logged, no action is done
    */
-  public void put(DbSession dbSession, long componentDbId) {
+  public void add(DbSession dbSession, long componentDbId) {
     if (!userSession.isLoggedIn()) {
       return;
     }

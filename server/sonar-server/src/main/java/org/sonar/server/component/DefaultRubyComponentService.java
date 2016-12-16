@@ -88,7 +88,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
     if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {
-      favoriteUpdater.put(dbSession, provisionedComponent.getId());
+      favoriteUpdater.add(dbSession, provisionedComponent.getId());
       dbSession.commit();
     }
 

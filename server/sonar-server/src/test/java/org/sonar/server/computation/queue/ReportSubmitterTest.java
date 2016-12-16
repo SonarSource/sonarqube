@@ -119,7 +119,7 @@ public class ReportSubmitterTest {
 
     verifyReportIsPersisted(TASK_UUID);
     verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
-    verify(favoriteUpdater).put(any(DbSession.class), eq(createdProject.getId()));
+    verify(favoriteUpdater).add(any(DbSession.class), eq(createdProject.getId()));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
