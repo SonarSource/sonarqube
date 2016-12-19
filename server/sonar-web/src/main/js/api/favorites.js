@@ -21,7 +21,7 @@
 import { post, getJSON } from '../helpers/request';
 
 export const getFavorites = (): Promise<Object> => (
-    getJSON('/api/favourites')
+    getJSON('/api/favorites/search')
 );
 
 export function addFavorite (component: string) {

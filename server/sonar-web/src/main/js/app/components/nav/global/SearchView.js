@@ -162,7 +162,7 @@ export default Marionette.LayoutView.extend({
 
   fetchFavorite (): Promise<*> {
     return getFavorites().then(r => {
-      this.favorite = r.map(f => {
+      this.favorite = r.favorites.map(f => {
         const isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
         return {
           url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
