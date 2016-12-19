@@ -1,0 +1,71 @@
+exports[`test reducer 1`] = `Object {}`;
+
+exports[`test reducer 2`] = `
+Object {
+  "AVjUDBiSiXOcXjpycvde": Object {
+    "category": "VERSION",
+    "key": "AVjUDBiSiXOcXjpycvde",
+    "name": "2.18-SNAPSHOT"
+  },
+  "AVkWNYNYr4pSN7TrXcjY": Object {
+    "category": "OTHER",
+    "key": "AVkWNYNYr4pSN7TrXcjY",
+    "name": "foo"
+  }
+}
+`;
+
+exports[`test reducer 3`] = `
+Object {
+  "AVjUDBiSiXOcXjpycvde": Object {
+    "category": "VERSION",
+    "key": "AVjUDBiSiXOcXjpycvde",
+    "name": "2.18-SNAPSHOT"
+  },
+  "AVkWNYNYr4pSN7TrXcjY": Object {
+    "category": "OTHER",
+    "key": "AVkWNYNYr4pSN7TrXcjY",
+    "name": "foo"
+  },
+  "AVkWcQ8Hr4pSN7TrXcjZ": Object {
+    "category": "OTHER",
+    "key": "AVkWcQ8Hr4pSN7TrXcjZ",
+    "name": "custom"
+  }
+}
+`;
+
+exports[`test reducer 4`] = `
+Object {
+  "AVjUDBiSiXOcXjpycvde": Object {
+    "category": "VERSION",
+    "key": "AVjUDBiSiXOcXjpycvde",
+    "name": "2.18-SNAPSHOT"
+  },
+  "AVkWNYNYr4pSN7TrXcjY": Object {
+    "category": "OTHER",
+    "key": "AVkWNYNYr4pSN7TrXcjY",
+    "name": "foo"
+  },
+  "AVkWcQ8Hr4pSN7TrXcjZ": Object {
+    "category": "OTHER",
+    "key": "AVkWcQ8Hr4pSN7TrXcjZ",
+    "name": "new name"
+  }
+}
+`;
+
+exports[`test reducer 5`] = `
+Object {
+  "AVjUDBiSiXOcXjpycvde": Object {
+    "category": "VERSION",
+    "key": "AVjUDBiSiXOcXjpycvde",
+    "name": "2.18-SNAPSHOT"
+  },
+  "AVkWNYNYr4pSN7TrXcjY": Object {
+    "category": "OTHER",
+    "key": "AVkWNYNYr4pSN7TrXcjY",
+    "name": "foo"
+  }
+}
+`;
