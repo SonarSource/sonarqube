@@ -23,7 +23,7 @@ module.exports = function (diff) {
   let message;
 
   if (diff.key === 'file') {
-    return translate('issue.change.issue_was_moved');
+    return translateWithParameters('issue.change.file_move', diff.oldValue, diff.newValue);
   }
 
   if (diff.newValue != null) {
