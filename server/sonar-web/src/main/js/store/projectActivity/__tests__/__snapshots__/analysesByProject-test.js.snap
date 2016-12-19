@@ -1,0 +1,55 @@
+exports[`test reducer 1`] = `Object {}`;
+
+exports[`test reducer 2`] = `
+Object {
+  "project-foo": Array [
+    "AVgFqeOSKpGuA48ADATE",
+    "AVgAgC1Vdo07z3PUnnkt"
+  ]
+}
+`;
+
+exports[`test reducer 3`] = `
+Object {
+  "project-foo": Array [
+    "AVgFqeOSKpGuA48ADATE",
+    "AVgAgC1Vdo07z3PUnnkt",
+    "AVgFqeOSKpGuA48ADATX"
+  ]
+}
+`;
+
+exports[`test reducer 4`] = `
+Object {
+  "project-bar": Array [
+    "AVgGkRvCrrTJiPpCD-rG"
+  ],
+  "project-foo": Array [
+    "AVgFqeOSKpGuA48ADATE",
+    "AVgAgC1Vdo07z3PUnnkt",
+    "AVgFqeOSKpGuA48ADATX"
+  ]
+}
+`;
+
+exports[`test reducer 5`] = `
+Object {
+  "project-bar": Array [
+    "AVgGkRvCrrTJiPpCD-rG"
+  ],
+  "project-foo": Array [
+    "AVgAgC1Vdo07z3PUnnkt",
+    "AVgFqeOSKpGuA48ADATX"
+  ]
+}
+`;
+
+exports[`test reducer 6`] = `
+Object {
+  "project-bar": Array [],
+  "project-foo": Array [
+    "AVgAgC1Vdo07z3PUnnkt",
+    "AVgFqeOSKpGuA48ADATX"
+  ]
+}
+`;
