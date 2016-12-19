@@ -110,7 +110,7 @@ public class UiTest {
     assertThat(url()).contains("/profiles/show?key=xoo-basic");
     $(".quality-profile-inheritance")
       .shouldBe(visible)
-      .shouldHave(text("1 active rules"));
+      .shouldHave(text("active rules"));
   }
 
   @Test
