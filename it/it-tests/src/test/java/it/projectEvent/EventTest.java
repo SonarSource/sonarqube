@@ -37,9 +37,8 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.selenium.Selenese.runSelenese;
 
-@Ignore("history page is not available yet")
+@Ignore("refactor using wsClient")
 public class EventTest {
 
   @ClassRule
@@ -50,7 +49,6 @@ public class EventTest {
     orchestrator.resetData();
   }
 
-  @Ignore("UUID column of Events is not handled with Ruby pages and WS")
   @Test
   public void old_ws_events_does_not_allow_creating_events_on_modules() {
     SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
@@ -70,14 +68,6 @@ public class EventTest {
       .setParam("resource", componentKey)
       .setParam("name", eventName)
       .setParam("category", "Foo");
-  }
-
-  @Ignore("UUID column of Events is not handled with Ruby pages and WS")
-  @Test
-  public void delete_standard_event() {
-    executeAnalysis();
-
-    runSelenese(orchestrator, "/projectEvent/EventTest/create_delete_standard_event.html");
   }
 
   /**

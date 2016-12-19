@@ -17,40 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package pageobjects;
+// @flow
+import React from 'react';
+import { connect } from 'react-redux';
+import { addCustomEvent } from '../../actions';
+import AddEventForm from './AddEventForm';
 
-import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.NoSuchElementException;
+const AddCustomEventForm = props => (
+    <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event"/>
+);
 
-public class ProjectHistorySnapshotItem {
+const mapStateToProps = null;
 
-  private final SelenideElement elt;
+const mapDispatchToProps = { addEvent: addCustomEvent };
 
-  public ProjectHistorySnapshotItem(SelenideElement elt) {
-    this.elt = elt;
-  }
-
-  public SelenideElement getVersionText() {
-    return elt.$("td:nth-child(5) table td:nth-child(1)");
-  }
-
-  public SelenideElement getType() {
-    try {
-      return elt.$(".js-type");
-    } catch (NoSuchElementException e) {
-      return null;
-    }
-  }
-
-  public SelenideElement getUrl() {
-    return elt.$(".js-url");
-  }
-
-  public SelenideElement getDeleteButton() {
-    return elt.$("td:nth-child(9) input[type=\"submit\"]");
-  }
-
-  public void clickDelete() {
-    getDeleteButton().click();
-  }
-}
+export default connect(mapStateToProps, mapDispatchToProps)(AddCustomEventForm);

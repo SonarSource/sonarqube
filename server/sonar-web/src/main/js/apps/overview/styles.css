@@ -319,6 +319,16 @@
   box-sizing: border-box;
 }
 
+.overview-analysis {
+
+}
+
+.overview-analysis + .overview-analysis {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e6e6e6;
+}
+
 /*
  * Other
  */

@@ -66,6 +66,7 @@
     "react-dev-utils": "0.2.1",
     "react-dom": "15.3.2",
     "react-helmet": "3.1.0",
+    "react-modal": "^1.6.4",
     "react-redux": "4.4.1",
     "react-router": "2.8.1",
     "react-router-redux": "4.0.2",
@@ -93,7 +94,7 @@
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
     "lint": "eslint src/main/js",
-    "typecheck": "flow check src/main/js"
+    "typecheck": "flow src/main/js"
   },
   "engines": {
     "node": ">=4"

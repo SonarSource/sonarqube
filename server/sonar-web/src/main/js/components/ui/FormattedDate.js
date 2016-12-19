@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+// @flow
+import React from 'react';
+import moment from 'moment';
 
-const middlewares = [thunk];
-const composed = [];
+export default class FormattedDate extends React.Component {
+  props: {
+    date: string | number,
+    format?: string,
+    tooltipFormat?: string
+  };
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+  static defaultProps = {
+    format: 'LLL'
+  };
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
+  render () {
+    const { date, format, tooltipFormat } = this.props;
+
+    const m = moment(date);
+
+    const title = tooltipFormat ? m.format(tooltipFormat) : undefined;
+
+    return (
+        <time dateTime={m.format()} title={title}>
+          {m.format(format)}
+        </time>
+    );
+  }
 }
-
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
-
-export const configureTestStore = (rootReducer, initialState) => (
-    createStore(rootReducer, initialState)
-);

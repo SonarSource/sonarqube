@@ -152,13 +152,20 @@ input[type="submit"].button-success {
 .button-clean,
 .button-clean:hover,
 .button-clean:focus {
-  margin: 0;
   padding: 0;
   line-height: 1;
   border: none;
   background: transparent;
   box-shadow: none;
   color: @baseFontColor;
+}
+
+.button-clean path {
+  transition: opacity 0.3s ease;
+}
+
+.button-clean:hover path {
+  opacity: 0.8;
 }
 
 .button-link {
@@ -186,6 +193,15 @@ input[type="submit"].button-success {
     color: @secondFontColor;
     background: transparent;
     cursor: default;
+  }
+}
+
+.button-small {
+  height: 20px;
+  line-height: 18px;
+
+  & > svg {
+    margin-top: 2px;
   }
 }
 

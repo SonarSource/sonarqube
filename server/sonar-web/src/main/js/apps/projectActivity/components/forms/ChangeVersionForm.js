@@ -17,28 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+// @flow
+import React from 'react';
+import { connect } from 'react-redux';
+import ChangeEventForm from './ChangeEventForm';
+import { changeEvent } from '../../actions';
 
-const middlewares = [thunk];
-const composed = [];
-
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
-
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
-}
-
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
-
-export const configureTestStore = (rootReducer, initialState) => (
-    createStore(rootReducer, initialState)
+const ChangeVersionForm = props => (
+    <ChangeEventForm
+        {...props}
+        changeEventButtonText="project_activity.change_version"/>
 );
+
+const mapStateToProps = null;
+
+const mapDispatchToProps = { changeEvent };
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChangeVersionForm);

@@ -25,6 +25,7 @@ import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
+import projectActivity from './projectActivity/duck';
 
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
@@ -40,6 +41,7 @@ export default combineReducers({
   favorites,
   languages,
   measures,
+  projectActivity,
   users,
 
   // apps
@@ -81,6 +83,10 @@ export const getComponentMeasure = (state, componentKey, metricKey) => (
 
 export const getComponentMeasures = (state, componentKey) => (
     fromMeasures.getComponentMeasures(state.measures, componentKey)
+);
+
+export const getProjectActivity = state => (
+    state.projectActivity
 );
 
 export const getProjects = state => (

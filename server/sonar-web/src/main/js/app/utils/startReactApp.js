@@ -45,6 +45,7 @@ import issuesRoutes from '../../apps/issues/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
+import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
 import projectsRoutes from '../../apps/projects/routes';
 import projectsAdminRoutes from '../../apps/projects-admin/routes';
@@ -109,6 +110,7 @@ const startReactApp = () => {
                     <Route path="custom_measures">{customMeasuresRoutes}</Route>
                     <Route path="dashboard">{overviewRoutes}</Route>
                     <Route path="project">
+                      <Route path="activity">{projectActivityRoutes}</Route>
                       <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                       <Route path="settings">{settingsRoutes}</Route>
                       {projectAdminRoutes}

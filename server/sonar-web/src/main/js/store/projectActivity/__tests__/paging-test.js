@@ -17,34 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package pageobjects;
+import { configureTestStore } from '../../utils/configureStore';
+import paging from '../paging';
+import { receiveProjectActivity } from '../duck';
 
-import com.codeborne.selenide.ElementsCollection;
-import java.util.List;
-import java.util.stream.Collectors;
+const PROJECT = 'project-foo';
 
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+const ANALYSES = [];
 
-public class ProjectHistoryPage {
+const PAGING_1 = {
+  total: 3,
+  pageIndex: 1,
+  pageSize: 100
+};
 
-  public ProjectHistoryPage() {
-    $("#project-history").should(exist);
-  }
+const PAGING_2 = {
+  total: 5,
+  pageIndex: 2,
+  pageSize: 30
+};
 
-  public ElementsCollection getSnapshots() {
-    return $$("tr.snapshot");
-  }
+it('reducer', () => {
+  const store = configureTestStore(paging);
+  expect(store.getState()).toMatchSnapshot();
 
-  public List<ProjectHistorySnapshotItem> getSnapshotsAsItems() {
-    return getSnapshots()
-      .stream()
-      .map(ProjectHistorySnapshotItem::new)
-      .collect(Collectors.toList());
-  }
+  store.dispatch(receiveProjectActivity(PROJECT, ANALYSES, PAGING_1));
+  expect(store.getState()).toMatchSnapshot();
 
-  public void checkAlertDisplayed() {
-    $("#info:not(.hidden)").should(exist);
-  }
-}
+  store.dispatch(receiveProjectActivity(PROJECT, ANALYSES, PAGING_2));
+  expect(store.getState()).toMatchSnapshot();
+});

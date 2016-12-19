@@ -95,6 +95,17 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
+  renderActivityLink () {
+    return (
+        <li>
+          <Link to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
+                activeClassName="active">
+            {translate('project_activity.page')}
+          </Link>
+        </li>
+    );
+  }
+
   renderComponentIssuesLink () {
     return (
         <li>
@@ -138,7 +149,6 @@ export default class ComponentNavMenu extends React.Component {
             {this.renderCustomMeasuresLink()}
             {this.renderLinksLink()}
             {this.renderPermissionsLink()}
-            {this.renderHistoryLink()}
             {this.renderBackgroundTasksLink()}
             {this.renderUpdateKeyLink()}
             {this.renderExtensions()}
@@ -238,21 +248,6 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
-  renderHistoryLink () {
-    if (!this.props.conf.showHistory) {
-      return null;
-    }
-    const url = `/project/history?id=${encodeURIComponent(this.props.component.key)}`;
-    // return this.renderLink(url, translate('project_history.page'), '/project/history');
-    return (
-        <li key={url}>
-          <span className="text-muted" style={{ cursor: 'not-allowed', textDecoration: 'line-through' }}>
-            {translate('project_history.page')}
-          </span>
-        </li>
-    );
-  }
-
   renderBackgroundTasksLink () {
     if (!this.props.conf.showBackgroundTasks) {
       return null;
@@ -336,6 +331,7 @@ export default class ComponentNavMenu extends React.Component {
           {this.renderComponentIssuesLink()}
           {this.renderComponentMeasuresLink()}
           {this.renderCodeLink()}
+          {this.renderActivityLink()}
           {this.renderTools()}
           {this.renderAdministration()}
         </ul>

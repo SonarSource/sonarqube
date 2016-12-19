@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+// @flow
+import React from 'react';
+import type { Event as EventType } from '../../../store/projectActivity/duck';
+import { translate } from '../../../helpers/l10n';
+import './Event.css';
 
-const middlewares = [thunk];
-const composed = [];
+export default class EventInner extends React.Component {
+  props: {
+    event: EventType
+  };
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+  render () {
+    const { event } = this.props;
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
+    if (event.category === 'VERSION') {
+      return (
+          <span className="badge project-activity-version-badge">{this.props.event.name}</span>
+      );
+    }
+
+    return (
+        <span>
+          <span className="note">{translate('event.category', event.category)}:</span>
+          {' '}
+          <strong title={event.description}>{event.name}</strong>
+        </span>
+    );
+  }
 }
-
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
-
-export const configureTestStore = (rootReducer, initialState) => (
-    createStore(rootReducer, initialState)
-);

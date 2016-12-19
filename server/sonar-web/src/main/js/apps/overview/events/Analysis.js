@@ -18,39 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import moment from 'moment';
-
-import { EventType } from '../propTypes';
+import Events from '../../projectActivity/components/Events';
+import FormattedDate from '../../../components/ui/FormattedDate';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
+import type { Analysis as AnalysisType } from '../../../store/projectActivity/duck';
 
-const Event = ({ event }) => {
-  return (
-      <TooltipsContainer>
-        <li className="spacer-top">
-          <p>
-            <strong className="js-event-type">
-              {translate('event.category', event.type)}
-            </strong>
-            {': '}
-            <span className="js-event-name">{event.name}</span>
-            {event.text && (
-                <i
-                    className="spacer-left icon-help"
-                    data-toggle="tooltip"
-                    title={event.text}/>
+export default class Analysis extends React.Component {
+  props: {
+    analysis: AnalysisType
+  };
+
+  render () {
+    const { analysis } = this.props;
+
+    return (
+        <TooltipsContainer>
+          <li className="overview-analysis">
+            <div className="small little-spacer-bottom">
+              <strong>
+                <FormattedDate date={analysis.date} format="LL"/>
+              </strong>
+            </div>
+
+            {analysis.events.length > 0 ? (
+                <Events events={analysis.events} canAdmin={false}/>
+            ) : (
+                <span className="note">{translate('project_activity.project_analyzed')}</span>
             )}
-          </p>
-          <p className="note little-spacer-top js-event-date">
-            {moment(event.date).format('LL')}
-          </p>
-        </li>
-      </TooltipsContainer>
-  );
-};
-
-Event.propTypes = {
-  event: EventType.isRequired
-};
-
-export default Event;
+          </li>
+        </TooltipsContainer>
+    );
+  }
+}

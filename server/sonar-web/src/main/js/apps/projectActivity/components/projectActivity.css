@@ -1,0 +1,121 @@
+.project-activity-days-list {
+
+}
+
+.project-activity-day {
+  margin-bottom: 40px;
+}
+
+.project-activity-date {
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.project-activity-analyses-list {
+
+}
+
+.project-activity-analysis {
+  position: relative;
+  min-height: 20px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.project-activity-analysis:hover {
+  background-color: #ecf6fe;
+}
+
+.project-activity-analysis + .project-activity-analysis {
+  border-top: none;
+}
+
+.project-activity-analysis-actions {
+  float: right;
+  padding-right: 10px;
+}
+
+.project-activity-analysis-actions:first-child,
+.project-activity-analysis-actions:empty {
+  margin-top: 0;
+}
+
+.project-activity-analysis-actions > button + button,
+.project-activity-analysis-actions > button + form,
+.project-activity-analysis-actions > form + button,
+.project-activity-analysis-actions > form + form {
+  margin-left: 8px;
+}
+
+.project-activity-analysis-form {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 20px;
+  margin-bottom: 10px;
+  padding: 9px;
+  border: 1px solid #faebcc;
+  border-radius: 2px;
+  background-color: #fcf8e3;
+}
+
+.project-activity-analysis-form + .project-activity-analysis-form {
+  margin-left: 8px;
+}
+
+.project-activity-time {
+  float: left;
+  width: 130px;
+  line-height: 20px;
+  padding-right: 50px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.project-activity-time::after {
+  position: absolute;
+  z-index: 21;
+  top: 11px;
+  left: 100px;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #4b9fd5;
+  border-radius: 10px;
+  box-sizing: border-box;
+  content: "";
+}
+
+.project-activity-events {
+  overflow: hidden;
+}
+
+.project-activity-event {
+  line-height: 20px;
+}
+
+.project-activity-event-actions {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.project-activity-event-actions button {
+  height: 20px;
+}
+
+.project-activity-event-actions button + button {
+  margin-left: 4px;
+}
+
+.project-activity-version-badge {
+  vertical-align: middle;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0;
+}

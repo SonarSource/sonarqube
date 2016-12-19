@@ -27,13 +27,14 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
+import pageobjects.Navigation;
+import pageobjects.ProjectActivityPage;
 import util.ItUtils;
 
 import static util.ItUtils.projectDir;
@@ -70,7 +71,6 @@ public class QualityGateUiTest {
    * SONAR-3326
    */
   @Test
-  @Ignore("history page is not available yet")
   public void display_alerts_correctly_in_history_page() {
     QualityGateClient qgClient = qgClient();
     QualityGate qGate = qgClient.create("AlertsForHistory");
@@ -83,7 +83,10 @@ public class QualityGateUiTest {
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
     scanSampleWithDate("2012-01-02");
 
-    runSelenese(orchestrator, "/qualityGate/QualityGateUiTest/should-display-alerts-correctly-history-page.html");
+    ProjectActivityPage page = Navigation.get(orchestrator).openProjectActivity("sample");
+    page
+      .assertFirstAnalysisOfTheDayHasText("2012-01-02", "Green (was Orange)")
+      .assertFirstAnalysisOfTheDayHasText("2012-01-01", "Orange");
 
     qgClient.unsetDefault();
     qgClient.destroy(qGate.id());

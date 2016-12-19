@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectAdministration;
+package it.projectEvent;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -28,15 +28,12 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import pageobjects.Navigation;
-import pageobjects.ProjectHistoryPage;
-import pageobjects.ProjectHistorySnapshotItem;
+import pageobjects.ProjectActivityPage;
+import pageobjects.ProjectAnalysisItem;
 
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.confirm;
 import static util.ItUtils.projectDir;
 
-public class ProjectHistoryPageTest {
+public class ProjectActivityPageTest {
 
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
@@ -45,47 +42,54 @@ public class ProjectHistoryPageTest {
   public Navigation nav = Navigation.get(ORCHESTRATOR);
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     ORCHESTRATOR.resetData();
-    analyzeProject("shared/xoo-history-v1", "2014-10-19");
-    analyzeProject("shared/xoo-history-v2", "2014-11-13");
   }
 
   @Test
   public void should_list_snapshots() {
-    ProjectHistoryPage page = openPage();
+    analyzeProject("shared/xoo-history-v1", "2014-10-19");
+    analyzeProject("shared/xoo-history-v2", "2014-11-13");
 
-    page.getSnapshots().shouldHaveSize(2);
+    ProjectActivityPage page = openPage();
+    page.getAnalyses().shouldHaveSize(2);
 
-    List<ProjectHistorySnapshotItem> snapshots = page.getSnapshotsAsItems();
+    List<ProjectAnalysisItem> analyses = page.getAnalysesAsItems();
+    analyses.get(0)
+      .shouldHaveEventWithText("1.0-SNAPSHOT")
+      .shouldNotHaveDeleteButton();
 
-    snapshots.get(0).getVersionText().shouldBe(text("1.0-SNAPSHOT"));
-    snapshots.get(0).getDeleteButton().shouldNot(exist);
-
-    snapshots.get(1).getVersionText().shouldBe(text("0.9-SNAPSHOT"));
-    snapshots.get(1).getDeleteButton().should(exist);
+    analyses.get(1)
+      .shouldHaveEventWithText("0.9-SNAPSHOT")
+      .shouldHaveDeleteButton();
   }
 
   @Test
-  public void should_delete_snapshot() {
-    ProjectHistoryPage page = openPage();
-
-    page.getSnapshots().shouldHaveSize(2);
-
-    page.getSnapshotsAsItems().get(1).clickDelete();
-    confirm();
-
-    page.checkAlertDisplayed();
-    page.getSnapshots().shouldHaveSize(1);
+  public void add_change_delete_custom_event() {
+    analyzeProject();
+    openPage().getLastAnalysis()
+      .addCustomEvent("foo")
+      .changeLastEvent("bar")
+      .deleteLastEvent();
   }
 
-  private ProjectHistoryPage openPage() {
+  @Test
+  public void delete_analysis() {
+    analyzeProject();
+    analyzeProject();
+    openPage().getFirstAnalysis().delete();
+  }
+
+  private ProjectActivityPage openPage() {
     nav.logIn().submitCredentials("admin", "admin");
-    return nav.openProjectHistory("sample");
+    return nav.openProjectActivity("sample");
+  }
+
+  private static void analyzeProject() {
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
   private static void analyzeProject(String path, String date) {
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir(path))
-      .setProperties("sonar.projectDate", date));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir(path)).setProperties("sonar.projectDate", date));
   }
 }

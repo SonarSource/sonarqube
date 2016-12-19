@@ -79,16 +79,16 @@ public class Navigation extends ExternalResource {
     return open(url, ProjectQualityGatePage.class);
   }
 
-  public ProjectHistoryPage openProjectHistory(String projectKey) {
-    // TODO encode projectKey
-    String url = "/project/history?id=" + projectKey;
-    return open(url, ProjectHistoryPage.class);
-  }
-
   public ProjectKeyPage openProjectKey(String projectKey) {
     // TODO encode projectKey
     String url = "/project/key?id=" + projectKey;
     return open(url, ProjectKeyPage.class);
+  }
+
+  public ProjectActivityPage openProjectActivity(String projectKey) {
+    // TODO encode projectKey
+    String url = "/project/activity?id=" + projectKey;
+    return open(url, ProjectActivityPage.class);
   }
 
   public BackgroundTasksPage openBackgroundTasksPage() {
