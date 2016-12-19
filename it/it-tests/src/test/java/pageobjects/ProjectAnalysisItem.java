@@ -50,30 +50,31 @@ public class ProjectAnalysisItem {
   }
 
   public void delete() {
-    this.elt.find(".js-delete-analysis").click();
+    elt.find(".js-delete-analysis").click();
 
     SelenideElement modal = $(".modal");
     modal.shouldBe(visible);
     modal.find("button[type=\"submit\"]").click();
 
-    this.elt.shouldNotBe(visible);
+    elt.shouldNotBe(visible);
   }
 
   public ProjectAnalysisItem addCustomEvent(String name) {
-    this.elt.find(".js-add-event").click();
+    elt.find(".js-create").click();
+    elt.find(".js-add-event").click();
 
     SelenideElement modal = $(".modal");
     modal.shouldBe(visible);
     modal.find("input").setValue(name);
     modal.find("button[type=\"submit\"]").click();
 
-    this.elt.find(".project-activity-event:last-child").shouldHave(text(name));
+    elt.find(".project-activity-event:last-child").shouldHave(text(name));
 
     return this;
   }
 
   public ProjectAnalysisItem changeLastEvent(String newName) {
-    SelenideElement lastEvent = this.elt.find(".project-activity-event:last-child");
+    SelenideElement lastEvent = elt.find(".project-activity-event:last-child");
     lastEvent.find(".js-change-event").click();
 
     SelenideElement modal = $(".modal");
@@ -87,16 +88,16 @@ public class ProjectAnalysisItem {
   }
 
   public ProjectAnalysisItem deleteLastEvent() {
-    int eventsCount = this.elt.findAll(".project-activity-event").size();
+    int eventsCount = elt.findAll(".project-activity-event").size();
 
-    SelenideElement lastEvent = this.elt.find(".project-activity-event:last-child");
+    SelenideElement lastEvent = elt.find(".project-activity-event:last-child");
     lastEvent.find(".js-delete-event").click();
 
     SelenideElement modal = $(".modal");
     modal.shouldBe(visible);
     modal.find("button[type=\"submit\"]").click();
 
-    this.elt.findAll(".project-activity-event").shouldHaveSize(eventsCount - 1);
+    elt.findAll(".project-activity-event").shouldHaveSize(eventsCount - 1);
 
     return this;
   }

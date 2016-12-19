@@ -46,7 +46,7 @@ export default class ProjectActivityAnalysis extends React.Component {
           {canAdmin && (
               <div className="project-activity-analysis-actions">
                 <div className="dropdown display-inline-block">
-                  <button className="button-small" data-toggle="dropdown">
+                  <button className="js-create button-small" data-toggle="dropdown">
                     {translate('create')} <i className="icon-dropdown"/>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-right">
