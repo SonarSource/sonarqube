@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 
 module.exports = function (diff) {
   let message;
@@ -27,16 +28,23 @@ module.exports = function (diff) {
   }
 
   if (diff.newValue != null) {
+    const newValue = diff.key === 'effort' ?
+        formatMeasure(diff.newValue, 'WORK_DUR') :
+        diff.newValue;
     message = translateWithParameters('issue.changelog.changed_to',
-        translate('issue.changelog.field', diff.key), diff.newValue);
+        translate('issue.changelog.field', diff.key), newValue);
   } else {
     message = translateWithParameters('issue.changelog.removed',
         translate('issue.changelog.field', diff.key));
   }
 
   if (diff.oldValue != null) {
+    const oldValue = diff.key === 'effort' ?
+        formatMeasure(diff.oldValue, 'WORK_DUR') :
+        diff.oldValue;
+
     message += ' (';
-    message += translateWithParameters('issue.changelog.was', diff.oldValue);
+    message += translateWithParameters('issue.changelog.was', oldValue);
     message += ')';
   }
 
