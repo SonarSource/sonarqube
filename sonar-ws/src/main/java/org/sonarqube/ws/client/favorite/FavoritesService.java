@@ -20,12 +20,17 @@
 
 package org.sonarqube.ws.client.favorite;
 
+import javax.annotation.Nullable;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonarqube.ws.Favorites.SearchResponse;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_ADD;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_REMOVE;
+import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.CONTROLLER_FAVORITES;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.PARAM_COMPONENT;
 
@@ -44,5 +49,17 @@ public class FavoritesService extends BaseService {
     PostRequest post = new PostRequest(path(ACTION_REMOVE)).setParam(PARAM_COMPONENT, component);
 
     call(post);
+  }
+
+  public SearchResponse search(@Nullable Integer page, @Nullable Integer pageSize) {
+    GetRequest get = new GetRequest(path(ACTION_SEARCH));
+    if (page != null) {
+      get.setParam(Param.PAGE, page);
+    }
+    if (pageSize != null) {
+      get.setParam(Param.PAGE_SIZE, pageSize);
+    }
+
+    return call(get, SearchResponse.parser());
   }
 }

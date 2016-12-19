@@ -44,7 +44,6 @@ public class JwtCsrfVerifier {
   private static final String API_URL = "/api";
   private static final Set<String> RAILS_UPDATE_API_URLS = ImmutableSet.of(
     "/api/events",
-    "/api/favourites",
     "/api/issues/add_comment",
     "/api/issues/delete_comment",
     "/api/issues/edit_comment",

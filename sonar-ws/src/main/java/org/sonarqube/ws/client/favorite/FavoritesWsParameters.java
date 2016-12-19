@@ -25,6 +25,7 @@ public class FavoritesWsParameters {
 
   public static final String ACTION_ADD = "add";
   public static final String ACTION_REMOVE = "remove";
+  public static final String ACTION_SEARCH = "search";
 
   public static final String PARAM_COMPONENT = "component";
 

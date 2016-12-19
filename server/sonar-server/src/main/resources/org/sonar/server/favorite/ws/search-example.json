@@ -1,0 +1,24 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  },
+  "favorites": [
+    {
+      "key": "K2",
+      "name": "Apache HBase",
+      "qualifier": "TRK"
+    },
+    {
+      "key": "K3",
+      "name": "JDK9",
+      "qualifier": "TRK"
+    },
+    {
+      "key": "K1",
+      "name": "Samba",
+      "qualifier": "TRK"
+    }
+  ]
+}

@@ -35,7 +35,6 @@ public class UsersWsModule extends Module {
       SearchAction.class,
       GroupsAction.class,
       IdentityProvidersAction.class,
-      FavouritesWs.class,
       UserPropertiesWs.class,
       UserJsonWriter.class);
   }

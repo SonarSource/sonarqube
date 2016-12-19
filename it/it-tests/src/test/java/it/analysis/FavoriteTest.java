@@ -28,9 +28,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Favorites;
+import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
@@ -71,8 +71,8 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
-    assertThat(response).contains(PROJECT_KEY);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    assertThat(response.getFavoritesList()).extracting(Favorite::getKey).contains(PROJECT_KEY);
   }
 
   @Test
@@ -81,8 +81,8 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
-    assertThat(response).doesNotContain(PROJECT_KEY);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    assertThat(response.getFavoritesList()).extracting(Favorite::getKey).doesNotContain(PROJECT_KEY);
   }
 
   @Test
@@ -94,8 +94,8 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    String response = adminWsClient.wsConnector().call(new GetRequest("api/favourites").setMediaType(MediaTypes.JSON)).content();
-    assertThat(response).doesNotContain(PROJECT_KEY);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    assertThat(response.getFavoritesList()).extracting(Favorite::getKey).doesNotContain(PROJECT_KEY);
   }
 
   private static SonarScanner createScannerWithUserCredentials() {
