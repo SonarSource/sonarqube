@@ -20,6 +20,9 @@
 package pageobjects;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsCollection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
@@ -31,11 +34,22 @@ public class ProjectActivityPage {
     $("#project-activity").should(Condition.exist);
   }
 
-  public ProjectAnalysisItem getLastAnalysis () {
+  public ElementsCollection getAnalyses() {
+    return $$(".project-activity-analysis");
+  }
+
+  public List<ProjectAnalysisItem> getAnalysesAsItems() {
+    return getAnalyses()
+      .stream()
+      .map(ProjectAnalysisItem::new)
+      .collect(Collectors.toList());
+  }
+
+  public ProjectAnalysisItem getLastAnalysis() {
     return new ProjectAnalysisItem($(".project-activity-analysis"));
   }
 
-  public ProjectAnalysisItem getFirstAnalysis () {
+  public ProjectAnalysisItem getFirstAnalysis() {
     return new ProjectAnalysisItem($$(".project-activity-analysis").last());
   }
 

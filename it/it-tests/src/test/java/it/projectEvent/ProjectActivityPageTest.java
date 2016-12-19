@@ -22,12 +22,14 @@ package it.projectEvent;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import pageobjects.Navigation;
 import pageobjects.ProjectActivityPage;
+import pageobjects.ProjectAnalysisItem;
 
 import static util.ItUtils.projectDir;
 
@@ -45,8 +47,26 @@ public class ProjectActivityPageTest {
   }
 
   @Test
+  public void should_list_snapshots() {
+    analyzeProject("shared/xoo-history-v1", "2014-10-19");
+    analyzeProject("shared/xoo-history-v2", "2014-11-13");
+
+    ProjectActivityPage page = openPage();
+    page.getAnalyses().shouldHaveSize(2);
+
+    List<ProjectAnalysisItem> analyses = page.getAnalysesAsItems();
+    analyses.get(0)
+      .shouldHaveEventWithText("1.0-SNAPSHOT")
+      .shouldNotHaveDeleteButton();
+
+    analyses.get(1)
+      .shouldHaveEventWithText("0.9-SNAPSHOT")
+      .shouldHaveDeleteButton();
+  }
+
+  @Test
   public void add_change_delete_custom_event() {
-    executeAnalysis();
+    analyzeProject();
     openPage().getLastAnalysis()
       .addCustomEvent("foo")
       .changeLastEvent("bar")
@@ -55,8 +75,8 @@ public class ProjectActivityPageTest {
 
   @Test
   public void delete_analysis() {
-    executeAnalysis();
-    executeAnalysis();
+    analyzeProject();
+    analyzeProject();
     openPage().getFirstAnalysis().delete();
   }
 
@@ -65,8 +85,11 @@ public class ProjectActivityPageTest {
     return nav.openProjectActivity("sample");
   }
 
-  private static void executeAnalysis(String... properties) {
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample")).setProperties(properties);
-    ORCHESTRATOR.executeBuild(sampleProject);
+  private static void analyzeProject() {
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+  }
+
+  private static void analyzeProject(String path, String date) {
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir(path)).setProperties("sonar.projectDate", date));
   }
 }

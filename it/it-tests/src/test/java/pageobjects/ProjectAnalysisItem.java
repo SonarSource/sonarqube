@@ -19,6 +19,7 @@
  */
 package pageobjects;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Condition.text;
@@ -31,6 +32,21 @@ public class ProjectAnalysisItem {
 
   public ProjectAnalysisItem(SelenideElement elt) {
     this.elt = elt;
+  }
+
+  public ProjectAnalysisItem shouldHaveEventWithText(String text) {
+    elt.find(".project-activity-events").shouldHave(Condition.text(text));
+    return this;
+  }
+
+  public ProjectAnalysisItem shouldHaveDeleteButton() {
+    elt.find(".js-delete-analysis").shouldBe(visible);
+    return this;
+  }
+
+  public ProjectAnalysisItem shouldNotHaveDeleteButton() {
+    elt.find(".js-delete-analysis").shouldNotBe(visible);
+    return this;
   }
 
   public void delete() {
