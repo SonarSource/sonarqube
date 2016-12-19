@@ -24,8 +24,7 @@ import Marionette from 'backbone.marionette';
 import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
 import Template from './templates/source-viewer-header.hbs';
-
-const API_FAVORITE: string = window.baseUrl + '/api/favorites';
+import { addFavorite, removeFavorite } from '../../api/favorites';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -39,28 +38,15 @@ export default Marionette.ItemView.extend({
   },
 
   toggleFavorite () {
-    const that = this;
     if (this.model.get('fav')) {
-      $.ajax({
-        url: API_FAVORITE + '/remove',
-        type: 'POST',
-        data: {
-          component: this.model.get('key')
-        }
-      }).done(function () {
-        that.model.set('fav', false);
-        that.render();
+      removeFavorite(this.model.get('key')).then(() => {
+        this.model.set('fav', false);
+        this.render();
       });
     } else {
-      $.ajax({
-        url: API_FAVORITE + '/add',
-        type: 'POST',
-        data: {
-          component: this.model.get('key')
-        }
-      }).done(function () {
-        that.model.set('fav', true);
-        that.render();
+      addFavorite(this.model.get('key')).then(() => {
+        this.model.set('fav', true);
+        this.render();
       });
     }
   },
