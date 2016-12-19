@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import { Link } from 'react-router';
 import Changelog from '../Changelog';
 import ChangesList from '../ChangesList';
 
