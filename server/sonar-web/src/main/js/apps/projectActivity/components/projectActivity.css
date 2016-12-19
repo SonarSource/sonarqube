@@ -100,8 +100,15 @@
 
 .project-activity-event-actions {
   display: inline-block;
-  vertical-align: middle;
-  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.project-activity-event-actions button {
+  height: 20px;
+}
+
+.project-activity-event-actions button + button {
+  margin-left: 4px;
 }
 
 .project-activity-version-badge {

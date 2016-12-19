@@ -53,7 +53,8 @@ export default class AddEventForm extends React.Component {
     this.mounted = false;
   }
 
-  openForm = () => {
+  openForm = (e: Object) => {
+    e.preventDefault();
     if (this.mounted) {
       this.setState({ open: true });
     }
@@ -136,10 +137,10 @@ export default class AddEventForm extends React.Component {
 
   render () {
     return (
-        <button className="js-add-event button-small" onClick={this.openForm}>
+        <a className="js-add-event button-small" href="#" onClick={this.openForm}>
           {translate(this.props.addEventButtonText)}
           {this.state.open && this.renderModal()}
-        </button>
+        </a>
     );
   }
 }

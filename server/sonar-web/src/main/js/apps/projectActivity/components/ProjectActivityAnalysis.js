@@ -25,6 +25,7 @@ import AddCustomEventForm from './forms/AddCustomEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import type { Analysis } from '../../../store/projectActivity/duck';
+import { translate } from '../../../helpers/l10n';
 
 export default class ProjectActivityAnalysis extends React.Component {
   props: {
@@ -44,16 +45,28 @@ export default class ProjectActivityAnalysis extends React.Component {
         <li className="project-activity-analysis clearfix">
           {canAdmin && (
               <div className="project-activity-analysis-actions">
-                {version == null && (
-                    <AddVersionForm analysis={this.props.analysis}/>
-                )}
-
-                <AddCustomEventForm analysis={this.props.analysis}/>
+                <div className="dropdown display-inline-block">
+                  <button className="button-small" data-toggle="dropdown">
+                    {translate('create')} <i className="icon-dropdown"/>
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-right">
+                    {version == null && (
+                        <li>
+                          <AddVersionForm analysis={this.props.analysis}/>
+                        </li>
+                    )}
+                    <li>
+                      <AddCustomEventForm analysis={this.props.analysis}/>
+                    </li>
+                  </ul>
+                </div>
 
                 {!isFirst && (
-                    <RemoveAnalysisForm
-                        analysis={this.props.analysis}
-                        project={this.props.project}/>
+                    <div className="display-inline-block little-spacer-left">
+                      <RemoveAnalysisForm
+                          analysis={this.props.analysis}
+                          project={this.props.project}/>
+                    </div>
                 )}
               </div>
           )}

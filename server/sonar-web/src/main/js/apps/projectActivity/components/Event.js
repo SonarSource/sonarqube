@@ -22,8 +22,9 @@ import React from 'react';
 import EventInner from './EventInner';
 import ChangeCustomEventForm from './forms/ChangeCustomEventForm';
 import RemoveCustomEventForm from './forms/RemoveCustomEventForm';
+import DeleteIcon from './DeleteIcon';
+import ChangeIcon from './ChangeIcon';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
-import { translate } from '../../../helpers/l10n';
 
 type Props = {
   analysis: string,
@@ -82,24 +83,22 @@ export default class Event extends React.Component {
 
     return (
         <div className="project-activity-event">
+          <EventInner event={this.props.event}/>
+
           {showActions && (
               <div className="project-activity-event-actions">
-                <div className="button-group">
-                  {canChange && (
-                      <button className="js-change-event button-small" onClick={this.startChanging}>
-                        {translate('change_verb')}
-                      </button>
-                  )}
-                  {canDelete && (
-                      <button className="js-delete-event button-small button-red" onClick={this.startDeleting}>
-                        {translate('delete')}
-                      </button>
-                  )}
-                </div>
+                {canChange && (
+                    <button className="js-change-event button-clean" onClick={this.startChanging}>
+                      <ChangeIcon/>
+                    </button>
+                )}
+                {canDelete && (
+                    <button className="js-delete-event button-clean" onClick={this.startDeleting}>
+                      <DeleteIcon/>
+                    </button>
+                )}
               </div>
           )}
-
-          <EventInner event={this.props.event}/>
 
           {this.state.changing && (
               <ChangeCustomEventForm
