@@ -24,7 +24,7 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUser from './GlobalNavUser';
 import GlobalNavSearch from './GlobalNavSearch';
 import ShortcutsHelpView from './ShortcutsHelpView';
-import { getCurrentUser } from '../../../../store/rootReducer';
+import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 
 class GlobalNav extends React.Component {
   componentDidMount () {
@@ -77,7 +77,8 @@ class GlobalNav extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
+  appState: getAppState(state)
 });
 
 export default connect(mapStateToProps)(GlobalNav);

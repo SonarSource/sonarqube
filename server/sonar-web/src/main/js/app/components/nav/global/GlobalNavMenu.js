@@ -24,6 +24,7 @@ import { isUserAdmin } from '../../../../helpers/users';
 
 export default class GlobalNavMenu extends React.Component {
   static propTypes = {
+    appState: React.PropTypes.object.isRequired,
     currentUser: React.PropTypes.object.isRequired
   };
 
@@ -102,20 +103,19 @@ export default class GlobalNavMenu extends React.Component {
     );
   }
 
-  renderGlobalPageLink (globalPage, index) {
-    const url = window.baseUrl + globalPage.url;
+  renderGlobalPageLink = ({ id, name }) => {
     return (
-        <li key={index}>
-          <a href={url}>{globalPage.name}</a>
+        <li key={id}>
+          <Link to={`/extension/${id}`}>{name}</Link>
         </li>
     );
-  }
+  };
 
   renderMore () {
-    if (this.props.globalPages.length === 0) {
+    const { globalPages } = this.props.appState;
+    if (globalPages.length === 0) {
       return null;
     }
-    const globalPages = this.props.globalPages.map((p, i) => this.renderGlobalPageLink(p, i));
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -123,7 +123,7 @@ export default class GlobalNavMenu extends React.Component {
             <span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
-            {globalPages}
+            {globalPages.map(this.renderGlobalPageLink)}
           </ul>
         </li>
     );
