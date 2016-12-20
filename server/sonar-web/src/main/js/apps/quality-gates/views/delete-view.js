@@ -20,6 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/quality-gates-delete.hbs';
 import { deleteQualityGate } from '../../../api/quality-gates';
+import { parseError } from '../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -33,10 +34,16 @@ export default ModalForm.extend({
   sendRequest () {
     const { id } = this.options.qualityGate;
 
-    deleteQualityGate(id).then(() => {
-      this.destroy();
-      this.options.onDelete(this.options.qualityGate);
-    });
+    deleteQualityGate(id).then(
+        () => {
+          this.destroy();
+          this.options.onDelete(this.options.qualityGate);
+        },
+        error => {
+          this.enableForm();
+          parseError(error).then(msg => this.showErrors([{ msg }]));
+        }
+    );
   },
 
   serializeData () {

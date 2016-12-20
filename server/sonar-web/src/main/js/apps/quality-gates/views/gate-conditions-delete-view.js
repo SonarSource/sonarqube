@@ -21,6 +21,7 @@ import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/quality-gates-condition-delete.hbs';
 import { deleteCondition } from '../../../api/quality-gates';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { parseError } from '../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -32,11 +33,16 @@ export default ModalForm.extend({
   },
 
   sendRequest () {
-    return deleteCondition(this.options.condition.id)
-        .then(() => {
+    return deleteCondition(this.options.condition.id).then(
+        () => {
           this.destroy();
           this.options.onDelete();
-        });
+        },
+        error => {
+          this.enableForm();
+          parseError(error).then(msg => this.showErrors([{ msg }]));
+        }
+    );
   },
 
   serializeData () {

@@ -20,6 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/quality-gate-form.hbs';
 import { copyQualityGate } from '../../../api/quality-gates';
+import { parseError } from '../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -34,10 +35,16 @@ export default ModalForm.extend({
     const { id } = this.options.qualityGate;
     const name = this.$('#quality-gate-form-name').val();
 
-    copyQualityGate(id, name).then(qualityGate => {
-      this.destroy();
-      this.options.onCopy(qualityGate);
-    });
+    copyQualityGate(id, name).then(
+        qualityGate => {
+          this.destroy();
+          this.options.onCopy(qualityGate);
+        },
+        error => {
+          this.enableForm();
+          parseError(error).then(msg => this.showErrors([{ msg }]));
+        }
+    );
   },
 
   serializeData () {
