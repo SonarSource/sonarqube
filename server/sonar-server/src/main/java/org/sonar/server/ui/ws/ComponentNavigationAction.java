@@ -20,9 +20,6 @@
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.Lists;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -195,33 +192,10 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages) {
     json.name("extensions").beginArray();
-    for (ViewProxy<Page> page : pages) {
-      if (page.isUserAuthorized(component)) {
-        writePage(json, getPageUrl(page, component), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle()));
-      }
-    }
+    pages.stream()
+      .filter(page -> page.isUserAuthorized(component))
+      .forEach(page -> writePage(json, page.getId(), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle())));
     json.endArray();
-  }
-
-  private static String getPageUrl(ViewProxy<Page> page, ComponentDto component) {
-    String result;
-    String componentKey = encodeComponentKey(component);
-    if (page.isController()) {
-      result = String.format("%s?id=%s", page.getId(), componentKey);
-    } else {
-      result = String.format("/plugins/resource/%s?page=%s", componentKey, page.getId());
-    }
-    return result;
-  }
-
-  private static String encodeComponentKey(ComponentDto component) {
-    String componentKey = component.getKey();
-    try {
-      componentKey = URLEncoder.encode(componentKey, StandardCharsets.UTF_8.name());
-    } catch (UnsupportedEncodingException unknownEncoding) {
-      throw new IllegalStateException(unknownEncoding);
-    }
-    return componentKey;
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component) {
@@ -233,9 +207,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     if (isAdmin) {
       json.name("extensions").beginArray();
       List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language());
-      for (ViewProxy<Page> page : configPages) {
-        writePage(json, getPageUrl(page, component), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle()));
-      }
+      configPages.forEach(page -> writePage(json, page.getId(), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle())));
       json.endArray();
     }
     json.endObject();
@@ -261,9 +233,9 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return resourceType != null && resourceType.getBooleanProperty(resourceTypeProperty);
   }
 
-  private static void writePage(JsonWriter json, String url, String name) {
+  private static void writePage(JsonWriter json, String id, String name) {
     json.beginObject()
-      .prop("url", url)
+      .prop("id", id)
       .prop("name", name)
       .endObject();
   }

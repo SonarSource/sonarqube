@@ -1,16 +1,16 @@
 {
   "extensions": [
     {
-      "name": "First Page",
-      "url": "/plugins/resource/polop?page=first_page"
+      "id": "first_page",
+      "name": "First Page"
     },
     {
-      "name": "Second Page",
-      "url": "/second/page?id=polop"
+      "id": "/second/page",
+      "name": "Second Page"
     },
     {
-      "name": "Admin Page",
-      "url": "/admin/page?id=polop"
+      "id": "/admin/page",
+      "name": "Admin Page"
     }
   ]
 }

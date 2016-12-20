@@ -8,15 +8,15 @@
   "snapshotDate": "2016-12-06T11:44:00+0200",
   "extensions": [
     {
-      "url": "/admin/page?id\u003dorg.codehaus.sonar%3Asonar",
+      "id": "/admin/page",
       "name": "Admin Page"
     },
     {
-      "url": "/plugins/resource/org.codehaus.sonar%3Asonar?page\u003dfirst_page",
+      "id": "first_page",
       "name": "First Page"
     },
     {
-      "url": "/second/page?id\u003dorg.codehaus.sonar%3Asonar",
+      "id": "/second/page",
       "name": "Second Page"
     }
   ],
