@@ -301,7 +301,7 @@
     var e    = $.Event('hide.bs.' + this.type)
 
     function complete() {
-      if (that.hoverState != 'in') $tip.detach()
+      $tip.detach()
       that.$element
         .removeAttr('aria-describedby')
         .trigger('hidden.bs.' + that.type)
