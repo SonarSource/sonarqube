@@ -73,6 +73,7 @@ export default class SourceViewer extends React.Component {
 
     if (line) {
       this.sourceViewer.highlightLine(line);
+      this.sourceViewer.scrollToLine(line);
     }
   }
 
