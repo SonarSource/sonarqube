@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.ResourceQualifier;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+@NavigationSection(NavigationSection.RESOURCE)
+@ResourceQualifier({Qualifiers.PROJECT})
+public class ProjectPage implements Page {
 
-public class UiExtensionsPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      FakePageDecorations.class,
-      ResourceConfigurationPage.class,
-      ProjectPage.class,
-      GlobalPage.class,
-      SettingsPage.class
-    );
+  public String getId() {
+    return "/project_page";
   }
+
+  public String getTitle() {
+    return "Project Page";
+  }
+
 }

@@ -18,18 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.UserRole;
 
-public class UiExtensionsPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      FakePageDecorations.class,
-      ResourceConfigurationPage.class,
-      ProjectPage.class,
-      GlobalPage.class,
-      SettingsPage.class
-    );
+@NavigationSection(NavigationSection.CONFIGURATION)
+@UserRole(UserRole.ADMIN)
+public class SettingsPage implements Page {
+
+  public String getId() {
+    return "settings_page";
   }
+
+  public String getTitle() {
+    return "Settings Page";
+  }
+
 }
