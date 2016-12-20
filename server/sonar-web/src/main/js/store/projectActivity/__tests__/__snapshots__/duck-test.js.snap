@@ -2,19 +2,19 @@ exports[`actions addEvent 1`] = `
 Object {
   "analysis": "foo",
   "event": Object {
-    "key": "bar"
+    "key": "bar",
   },
-  "type": "ADD_PROJECT_ACTIVITY_EVENT"
+  "type": "ADD_PROJECT_ACTIVITY_EVENT",
 }
 `;
 
 exports[`actions changeEvent 1`] = `
 Object {
   "changes": Object {
-    "name": "bar"
+    "name": "bar",
   },
   "event": "foo",
-  "type": "CHANGE_PROJECT_ACTIVITY_EVENT"
+  "type": "CHANGE_PROJECT_ACTIVITY_EVENT",
 }
 `;
 
@@ -22,7 +22,7 @@ exports[`actions deleteAnalysis 1`] = `
 Object {
   "analysis": "bar",
   "project": "foo",
-  "type": "DELETE_PROJECT_ACTIVITY_ANALYSIS"
+  "type": "DELETE_PROJECT_ACTIVITY_ANALYSIS",
 }
 `;
 
@@ -30,7 +30,7 @@ exports[`actions deleteEvent 1`] = `
 Object {
   "analysis": "foo",
   "event": "bar",
-  "type": "DELETE_PROJECT_ACTIVITY_EVENT"
+  "type": "DELETE_PROJECT_ACTIVITY_EVENT",
 }
 `;
 
@@ -42,15 +42,15 @@ Array [
       Object {
         "category": "VERSION",
         "key": "AVjUDBiSiXOcXjpycvde",
-        "name": "2.18-SNAPSHOT"
-      }
+        "name": "2.18-SNAPSHOT",
+      },
     ],
-    "key": "AVgGkRvCrrTJiPpCD-rG"
+    "key": "AVgGkRvCrrTJiPpCD-rG",
   },
   Object {
     "date": "2016-10-27T12:21:15+0200",
     "events": Array [],
-    "key": "AVgFqeOSKpGuA48ADATE"
+    "key": "AVgFqeOSKpGuA48ADATE",
   },
   Object {
     "date": "2016-10-26T12:17:29+0200",
@@ -58,11 +58,11 @@ Array [
       Object {
         "category": "OTHER",
         "key": "AVkWNYNYr4pSN7TrXcjY",
-        "name": "foo"
-      }
+        "name": "foo",
+      },
     ],
-    "key": "AVgAgC1Vdo07z3PUnnkt"
-  }
+    "key": "AVgAgC1Vdo07z3PUnnkt",
+  },
 ]
 `;
 
@@ -70,6 +70,6 @@ exports[`selectors getPaging 1`] = `
 Object {
   "pageIndex": 1,
   "pageSize": 100,
-  "total": 3
+  "total": 3,
 }
 `;

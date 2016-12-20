@@ -122,7 +122,8 @@
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
-      "<rootDir>/src/main/webapp"
+      "<rootDir>/src/main/webapp",
+      "<rootDir>/scripts"
     ]
   },
   "babel": {

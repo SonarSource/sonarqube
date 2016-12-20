@@ -4,8 +4,8 @@ exports[`test reducer 2`] = `
 Object {
   "project-foo": Array [
     "AVgFqeOSKpGuA48ADATE",
-    "AVgAgC1Vdo07z3PUnnkt"
-  ]
+    "AVgAgC1Vdo07z3PUnnkt",
+  ],
 }
 `;
 
@@ -14,33 +14,33 @@ Object {
   "project-foo": Array [
     "AVgFqeOSKpGuA48ADATE",
     "AVgAgC1Vdo07z3PUnnkt",
-    "AVgFqeOSKpGuA48ADATX"
-  ]
+    "AVgFqeOSKpGuA48ADATX",
+  ],
 }
 `;
 
 exports[`test reducer 4`] = `
 Object {
   "project-bar": Array [
-    "AVgGkRvCrrTJiPpCD-rG"
+    "AVgGkRvCrrTJiPpCD-rG",
   ],
   "project-foo": Array [
     "AVgFqeOSKpGuA48ADATE",
     "AVgAgC1Vdo07z3PUnnkt",
-    "AVgFqeOSKpGuA48ADATX"
-  ]
+    "AVgFqeOSKpGuA48ADATX",
+  ],
 }
 `;
 
 exports[`test reducer 5`] = `
 Object {
   "project-bar": Array [
-    "AVgGkRvCrrTJiPpCD-rG"
+    "AVgGkRvCrrTJiPpCD-rG",
   ],
   "project-foo": Array [
     "AVgAgC1Vdo07z3PUnnkt",
-    "AVgFqeOSKpGuA48ADATX"
-  ]
+    "AVgFqeOSKpGuA48ADATX",
+  ],
 }
 `;
 
@@ -49,7 +49,7 @@ Object {
   "project-bar": Array [],
   "project-foo": Array [
     "AVgAgC1Vdo07z3PUnnkt",
-    "AVgFqeOSKpGuA48ADATX"
-  ]
+    "AVgFqeOSKpGuA48ADATX",
+  ],
 }
 `;

@@ -5,8 +5,8 @@ Object {
   "project-foo": Object {
     "pageIndex": 1,
     "pageSize": 100,
-    "total": 3
-  }
+    "total": 3,
+  },
 }
 `;
 
@@ -15,7 +15,7 @@ Object {
   "project-foo": Object {
     "pageIndex": 2,
     "pageSize": 30,
-    "total": 5
-  }
+    "total": 5,
+  },
 }
 `;

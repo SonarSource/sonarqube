@@ -5,22 +5,22 @@ Object {
   "AVgAgC1Vdo07z3PUnnkt": Object {
     "date": "2016-10-26T12:17:29+0200",
     "events": Array [
-      "AVkWNYNYr4pSN7TrXcjY"
+      "AVkWNYNYr4pSN7TrXcjY",
     ],
-    "key": "AVgAgC1Vdo07z3PUnnkt"
+    "key": "AVgAgC1Vdo07z3PUnnkt",
   },
   "AVgFqeOSKpGuA48ADATE": Object {
     "date": "2016-10-27T12:21:15+0200",
     "events": Array [],
-    "key": "AVgFqeOSKpGuA48ADATE"
+    "key": "AVgFqeOSKpGuA48ADATE",
   },
   "AVgGkRvCrrTJiPpCD-rG": Object {
     "date": "2016-10-27T16:33:50+0200",
     "events": Array [
-      "AVjUDBiSiXOcXjpycvde"
+      "AVjUDBiSiXOcXjpycvde",
     ],
-    "key": "AVgGkRvCrrTJiPpCD-rG"
-  }
+    "key": "AVgGkRvCrrTJiPpCD-rG",
+  },
 }
 `;
 
@@ -29,23 +29,23 @@ Object {
   "AVgAgC1Vdo07z3PUnnkt": Object {
     "date": "2016-10-26T12:17:29+0200",
     "events": Array [
-      "AVkWNYNYr4pSN7TrXcjY"
+      "AVkWNYNYr4pSN7TrXcjY",
     ],
-    "key": "AVgAgC1Vdo07z3PUnnkt"
+    "key": "AVgAgC1Vdo07z3PUnnkt",
   },
   "AVgFqeOSKpGuA48ADATE": Object {
     "date": "2016-10-27T12:21:15+0200",
     "events": Array [],
-    "key": "AVgFqeOSKpGuA48ADATE"
+    "key": "AVgFqeOSKpGuA48ADATE",
   },
   "AVgGkRvCrrTJiPpCD-rG": Object {
     "date": "2016-10-27T16:33:50+0200",
     "events": Array [
       "AVjUDBiSiXOcXjpycvde",
-      "AVkWcQ8Hr4pSN7TrXcjZ"
+      "AVkWcQ8Hr4pSN7TrXcjZ",
     ],
-    "key": "AVgGkRvCrrTJiPpCD-rG"
-  }
+    "key": "AVgGkRvCrrTJiPpCD-rG",
+  },
 }
 `;
 
@@ -54,22 +54,22 @@ Object {
   "AVgAgC1Vdo07z3PUnnkt": Object {
     "date": "2016-10-26T12:17:29+0200",
     "events": Array [
-      "AVkWNYNYr4pSN7TrXcjY"
+      "AVkWNYNYr4pSN7TrXcjY",
     ],
-    "key": "AVgAgC1Vdo07z3PUnnkt"
+    "key": "AVgAgC1Vdo07z3PUnnkt",
   },
   "AVgFqeOSKpGuA48ADATE": Object {
     "date": "2016-10-27T12:21:15+0200",
     "events": Array [],
-    "key": "AVgFqeOSKpGuA48ADATE"
+    "key": "AVgFqeOSKpGuA48ADATE",
   },
   "AVgGkRvCrrTJiPpCD-rG": Object {
     "date": "2016-10-27T16:33:50+0200",
     "events": Array [
-      "AVjUDBiSiXOcXjpycvde"
+      "AVjUDBiSiXOcXjpycvde",
     ],
-    "key": "AVgGkRvCrrTJiPpCD-rG"
-  }
+    "key": "AVgGkRvCrrTJiPpCD-rG",
+  },
 }
 `;
 
@@ -78,16 +78,16 @@ Object {
   "AVgAgC1Vdo07z3PUnnkt": Object {
     "date": "2016-10-26T12:17:29+0200",
     "events": Array [
-      "AVkWNYNYr4pSN7TrXcjY"
+      "AVkWNYNYr4pSN7TrXcjY",
     ],
-    "key": "AVgAgC1Vdo07z3PUnnkt"
+    "key": "AVgAgC1Vdo07z3PUnnkt",
   },
   "AVgGkRvCrrTJiPpCD-rG": Object {
     "date": "2016-10-27T16:33:50+0200",
     "events": Array [
-      "AVjUDBiSiXOcXjpycvde"
+      "AVjUDBiSiXOcXjpycvde",
     ],
-    "key": "AVgGkRvCrrTJiPpCD-rG"
-  }
+    "key": "AVgGkRvCrrTJiPpCD-rG",
+  },
 }
 `;

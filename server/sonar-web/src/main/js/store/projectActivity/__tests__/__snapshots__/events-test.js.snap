@@ -5,13 +5,13 @@ Object {
   "AVjUDBiSiXOcXjpycvde": Object {
     "category": "VERSION",
     "key": "AVjUDBiSiXOcXjpycvde",
-    "name": "2.18-SNAPSHOT"
+    "name": "2.18-SNAPSHOT",
   },
   "AVkWNYNYr4pSN7TrXcjY": Object {
     "category": "OTHER",
     "key": "AVkWNYNYr4pSN7TrXcjY",
-    "name": "foo"
-  }
+    "name": "foo",
+  },
 }
 `;
 
@@ -20,18 +20,18 @@ Object {
   "AVjUDBiSiXOcXjpycvde": Object {
     "category": "VERSION",
     "key": "AVjUDBiSiXOcXjpycvde",
-    "name": "2.18-SNAPSHOT"
+    "name": "2.18-SNAPSHOT",
   },
   "AVkWNYNYr4pSN7TrXcjY": Object {
     "category": "OTHER",
     "key": "AVkWNYNYr4pSN7TrXcjY",
-    "name": "foo"
+    "name": "foo",
   },
   "AVkWcQ8Hr4pSN7TrXcjZ": Object {
     "category": "OTHER",
     "key": "AVkWcQ8Hr4pSN7TrXcjZ",
-    "name": "custom"
-  }
+    "name": "custom",
+  },
 }
 `;
 
@@ -40,18 +40,18 @@ Object {
   "AVjUDBiSiXOcXjpycvde": Object {
     "category": "VERSION",
     "key": "AVjUDBiSiXOcXjpycvde",
-    "name": "2.18-SNAPSHOT"
+    "name": "2.18-SNAPSHOT",
   },
   "AVkWNYNYr4pSN7TrXcjY": Object {
     "category": "OTHER",
     "key": "AVkWNYNYr4pSN7TrXcjY",
-    "name": "foo"
+    "name": "foo",
   },
   "AVkWcQ8Hr4pSN7TrXcjZ": Object {
     "category": "OTHER",
     "key": "AVkWcQ8Hr4pSN7TrXcjZ",
-    "name": "new name"
-  }
+    "name": "new name",
+  },
 }
 `;
 
@@ -60,12 +60,12 @@ Object {
   "AVjUDBiSiXOcXjpycvde": Object {
     "category": "VERSION",
     "key": "AVjUDBiSiXOcXjpycvde",
-    "name": "2.18-SNAPSHOT"
+    "name": "2.18-SNAPSHOT",
   },
   "AVkWNYNYr4pSN7TrXcjY": Object {
     "category": "OTHER",
     "key": "AVkWNYNYr4pSN7TrXcjY",
-    "name": "foo"
-  }
+    "name": "foo",
+  },
 }
 `;
