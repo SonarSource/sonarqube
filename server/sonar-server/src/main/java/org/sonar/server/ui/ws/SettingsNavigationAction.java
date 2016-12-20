@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Locale;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
@@ -73,17 +74,13 @@ public class SettingsNavigationAction implements NavigationWsAction {
     if (isAdmin) {
       for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION, null, null, null)) {
         json.beginObject()
-          .prop("name", i18n.message(userSession.locale(), String.format("%s.page", page.getTitle()), page.getTitle()))
-          .prop("url", getPageUrl(page))
+          .prop("id", page.getId())
+          .prop("name", i18n.message(Locale.ENGLISH, String.format("%s.page", page.getTitle()), page.getTitle()))
           .endObject();
       }
     }
     json.endArray();
 
     json.endObject().close();
-  }
-
-  private static String getPageUrl(ViewProxy<Page> page) {
-    return page.isController() ? page.getId() : String.format("/plugins/configuration/%s", page.getId());
   }
 }

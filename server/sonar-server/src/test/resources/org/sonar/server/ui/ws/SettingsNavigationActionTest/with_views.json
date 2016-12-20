@@ -3,12 +3,12 @@
   "showProvisioning": false,
   "extensions": [
     {
-      "name": "First Page",
-      "url": "/plugins/configuration/first_page"
+      "id": "first_page",
+      "name": "First Page"
     },
     {
-      "name": "Second Page",
-      "url": "/second/page"
+      "id": "second_page",
+      "name": "Second Page"
     }
   ]
 }

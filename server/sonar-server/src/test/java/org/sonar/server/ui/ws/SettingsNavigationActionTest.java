@@ -130,7 +130,7 @@ public class SettingsNavigationActionTest {
 
       @Override
       public String getId() {
-        return "/second/page";
+        return "second_page";
       }
     }
 
