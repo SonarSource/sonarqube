@@ -21,7 +21,7 @@ package it.projectEvent;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import it.Category1Suite;
+import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -36,7 +36,7 @@ import static util.ItUtils.projectDir;
 public class ProjectActivityPageTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
