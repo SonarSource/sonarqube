@@ -98,8 +98,8 @@ public class GlobalNavigationAction implements NavigationWsAction {
     for (ViewProxy<Page> page : views.getPages(NavigationSection.HOME)) {
       if (page.isUserAuthorized()) {
         json.beginObject()
+          .prop("id", page.getId())
           .prop("name", page.getTitle())
-          .prop("url", page.isController() ? page.getId() : String.format("/plugins/home/%s", page.getId()))
           .endObject();
       }
     }

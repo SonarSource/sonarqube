@@ -208,7 +208,7 @@ public class GlobalNavigationActionTest {
 
       @Override
       public String getId() {
-        return "/my_rails_app";
+        return "my_rails_app";
       }
     };
 

@@ -1,12 +1,12 @@
 {
   "globalPages": [
     {
-      "name": "My Plugin Page",
-      "url": "/plugins/home/my_plugin_page"
+      "id": "my_plugin_page",
+      "name": "My Plugin Page"
     },
     {
-      "name": "My Rails App",
-      "url": "/my_rails_app"
+      "id": "my_rails_app",
+      "name": "My Rails App"
     }
   ],
   "settings": {
