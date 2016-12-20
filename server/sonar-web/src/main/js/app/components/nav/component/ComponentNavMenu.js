@@ -57,7 +57,7 @@ export default class ComponentNavMenu extends React.Component {
   renderLink (url, title, highlightUrl = url) {
     const fullUrl = window.baseUrl + url;
     const isActive = typeof highlightUrl === 'string' ?
-    window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
+        window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
         highlightUrl(fullUrl);
 
     return (
@@ -296,16 +296,26 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
+  renderExtension = ({ id, name }) => {
+    return (
+        <li key={id}>
+          <Link to={{ pathname: `/project/extension/${id}`, query: { id: this.props.component.key } }}
+                activeClassName="active">
+            {name}
+          </Link>
+        </li>
+    );
+  };
+
   renderExtensions () {
     const extensions = this.props.conf.extensions || [];
-    return extensions.map(e => this.renderLink(e.url, e.name, e.url));
+    return extensions.map(this.renderExtension);
   }
 
   renderTools () {
     const extensions = this.props.component.extensions || [];
     const withoutGovernance = extensions.filter(ext => ext.name !== 'Governance');
-    const tools = withoutGovernance
-        .map(extension => this.renderLink(extension.url, extension.name));
+    const tools = withoutGovernance.map(this.renderExtension);
 
     if (!tools.length) {
       return null;
