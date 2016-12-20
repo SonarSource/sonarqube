@@ -43,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class GlobalNavigationActionTest {
+public class GlobalActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -180,11 +180,11 @@ public class GlobalNavigationActionTest {
 
   private void init(View[] views, ResourceTypeTree[] resourceTypeTrees) {
     when(database.getDialect()).thenReturn(new H2());
-    ws = new WsActionTester(new GlobalNavigationAction(new Views(userSessionRule, views), settings, new ResourceTypes(resourceTypeTrees), server, database));
+    ws = new WsActionTester(new GlobalAction(new Views(userSessionRule, views), settings, new ResourceTypes(resourceTypeTrees), server, database));
   }
 
   private void executeAndVerify(String json) {
-    assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalNavigationActionTest.class.getSimpleName() + "/" + json));
+    assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalActionTest.class.getSimpleName() + "/" + json));
   }
 
   private View[] createViews() {

@@ -80,7 +80,7 @@ import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class ComponentNavigationActionTest {
+public class ComponentActionTest {
 
   private static final String PROJECT_KEY = "polop";
   private static final ComponentDto PROJECT = newProjectDto("abcd")
@@ -383,7 +383,7 @@ public class ComponentNavigationActionTest {
   }
 
   private void init(View... views) {
-    ws = new WsActionTester(new ComponentNavigationAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
+    ws = new WsActionTester(new ComponentAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
       new QualityGateFinder(dbClient)));
   }
 
@@ -392,7 +392,7 @@ public class ComponentNavigationActionTest {
   }
 
   private void verify(String json, String expectedJson) {
-    assertJson(json).isSimilarTo(getClass().getResource(ComponentNavigationActionTest.class.getSimpleName() + "/" + expectedJson));
+    assertJson(json).isSimilarTo(getClass().getResource(ComponentActionTest.class.getSimpleName() + "/" + expectedJson));
   }
 
   private void executeAndVerify(String componentKey, String expectedJson) {

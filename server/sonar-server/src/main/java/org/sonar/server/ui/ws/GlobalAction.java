@@ -45,7 +45,7 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
 import static org.sonar.core.config.WebConstants.SONAR_UPDATECENTER_ACTIVATE;
 
-public class GlobalNavigationAction implements NavigationWsAction {
+public class GlobalAction implements NavigationWsAction {
 
   private static final Set<String> SETTING_KEYS = ImmutableSet.of(
     SONAR_LF_LOGO_URL,
@@ -63,7 +63,7 @@ public class GlobalNavigationAction implements NavigationWsAction {
   private final Server server;
   private final Database database;
 
-  public GlobalNavigationAction(Views views, Settings settings, ResourceTypes resourceTypes, Server server, Database database) {
+  public GlobalAction(Views views, Settings settings, ResourceTypes resourceTypes, Server server, Database database) {
     this.views = views;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
@@ -77,7 +77,7 @@ public class GlobalNavigationAction implements NavigationWsAction {
       .setDescription("Get information concerning global navigation for the current user.")
       .setHandler(this)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("example-global.json"))
+      .setResponseExample(getClass().getResource("global-example.json"))
       .setSince("5.2");
   }
 

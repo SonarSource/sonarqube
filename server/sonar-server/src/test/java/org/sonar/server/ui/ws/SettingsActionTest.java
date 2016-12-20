@@ -41,7 +41,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SettingsNavigationActionTest {
+public class SettingsActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -99,11 +99,11 @@ public class SettingsNavigationActionTest {
   }
 
   private void init(View... views) {
-    ws = new WsActionTester(new SettingsNavigationAction(settings, new Views(userSessionRule, views), i18n, userSessionRule));
+    ws = new WsActionTester(new SettingsAction(settings, new Views(userSessionRule, views), i18n, userSessionRule));
   }
 
   private void executeAndVerify(String json) {
-    JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("SettingsNavigationActionTest/" + json));
+    JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("SettingsActionTest/" + json));
   }
 
   private View[] createViews() {

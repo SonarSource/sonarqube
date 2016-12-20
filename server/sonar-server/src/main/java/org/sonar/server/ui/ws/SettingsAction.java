@@ -34,14 +34,14 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-public class SettingsNavigationAction implements NavigationWsAction {
+public class SettingsAction implements NavigationWsAction {
 
   private final Settings settings;
   private final Views views;
   private final I18n i18n;
   private final UserSession userSession;
 
-  public SettingsNavigationAction(Settings settings, Views views, I18n i18n, UserSession userSession) {
+  public SettingsAction(Settings settings, Views views, I18n i18n, UserSession userSession) {
     this.views = views;
     this.settings = settings;
     this.i18n = i18n;
@@ -58,7 +58,7 @@ public class SettingsNavigationAction implements NavigationWsAction {
         "</ul>")
       .setHandler(this)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("example-settings.json"))
+      .setResponseExample(getClass().getResource("settings-example.json"))
       .setSince("5.2");
   }
 

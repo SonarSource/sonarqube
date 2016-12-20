@@ -197,10 +197,7 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
-import org.sonar.server.ui.ws.ComponentNavigationAction;
-import org.sonar.server.ui.ws.GlobalNavigationAction;
-import org.sonar.server.ui.ws.NavigationWs;
-import org.sonar.server.ui.ws.SettingsNavigationAction;
+import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.DefaultUserFinder;
 import org.sonar.server.user.DefaultUserService;
@@ -518,10 +515,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectSettingsFactory.class,
 
       // UI
-      GlobalNavigationAction.class,
-      SettingsNavigationAction.class,
-      ComponentNavigationAction.class,
-      NavigationWs.class,
+      NavigationWsModule.class,
 
       // root
       RootWsModule.class,

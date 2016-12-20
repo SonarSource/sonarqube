@@ -65,7 +65,7 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
-public class ComponentNavigationAction implements NavigationWsAction {
+public class ComponentAction implements NavigationWsAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 
@@ -82,8 +82,8 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
 
-  public ComponentNavigationAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
-    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
+  public ComponentAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
+                         ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
     this.views = views;
     this.i18n = i18n;
@@ -100,7 +100,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
         "Requires the 'Browse' permission on the component's project.")
       .setHandler(this)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("example-component.json"))
+      .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2");
 
     projectNavigation.createParam(PARAM_COMPONENT_KEY)
