@@ -80,14 +80,6 @@ const globalMessages = (state: State = [], action: Action = {}) => {
         level: action.level
       }];
 
-    case actions.REQUIRE_AUTHENTICATION:
-      // FIXME l10n
-      return [{
-        id: uniqueId('global-message-'),
-        message: 'Authentication required to see this page.',
-        level: ERROR
-      }];
-
     case actions.REQUIRE_AUTHORIZATION:
       // FIXME l10n
       return [{

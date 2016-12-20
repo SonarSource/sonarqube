@@ -31,17 +31,12 @@ export type Action = {
 
 export const actions = {
   SET_APP_STATE: 'SET_APP_STATE',
-  REQUIRE_AUTHENTICATION: 'REQUIRE_AUTHENTICATION',
   REQUIRE_AUTHORIZATION: 'REQUIRE_AUTHORIZATION'
 };
 
 export const setAppState = (appState: AppState): Action => ({
   type: actions.SET_APP_STATE,
   appState
-});
-
-export const requireAuthentication = () => ({
-  type: actions.REQUIRE_AUTHENTICATION
 });
 
 export const requireAuthorization = () => ({
@@ -57,10 +52,6 @@ const defaultValue = {
 export default (state: AppState = defaultValue, action: Action) => {
   if (action.type === actions.SET_APP_STATE) {
     return { ...state, ...action.appState };
-  }
-
-  if (action.type === actions.REQUIRE_AUTHENTICATION) {
-    return { ...state, authenticationError: true };
   }
 
   if (action.type === actions.REQUIRE_AUTHORIZATION) {
