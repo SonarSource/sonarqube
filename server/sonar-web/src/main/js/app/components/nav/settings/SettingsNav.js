@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import { IndexLink } from 'react-router';
+import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 
 export default class SettingsNav extends React.Component {
@@ -47,18 +47,13 @@ export default class SettingsNav extends React.Component {
     return this.isSomethingActive(urls);
   }
 
-  renderLink (url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const isActive = typeof highlightUrl === 'string' ?
-    window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
-        highlightUrl(fullUrl);
-
+  renderExtension = ({ id, name }) => {
     return (
-        <li key={url} className={classNames({ 'active': isActive })}>
-          <a href={fullUrl}>{title}</a>
+        <li key={id}>
+          <Link to={`/admin/extension/${id}`} activeClassName="active">{name}</Link>
         </li>
     );
-  }
+  };
 
   render () {
     const isSecurity = this.isSecurityActive();
@@ -115,7 +110,7 @@ export default class SettingsNav extends React.Component {
                         Custom Metrics
                       </IndexLink>
                     </li>
-                    {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
+                    {this.props.extensions.map(this.renderExtension)}
                   </ul>
                 </li>
 

@@ -22,24 +22,46 @@ import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getCurrentUser } from '../../store/rootReducer';
 import { isUserAdmin } from '../../helpers/users';
+import { onFail } from '../../store/rootActions';
+import { getSettingsNavigation } from '../../api/nav';
 
 class AdminContainer extends React.Component {
+  state = {
+    loading: true
+  };
+
   componentDidMount () {
     if (!isUserAdmin(this.props.currentUser)) {
       // workaround cyclic dependencies
       const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
       handleRequiredAuthorization();
     }
+
+    this.mounted = true;
+    this.loadData();
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  loadData () {
+    getSettingsNavigation().then(
+        r => this.setState({ extensions: r.extensions, loading: false }),
+        onFail(this.props.dispatch)
+    );
   }
 
   render () {
-    if (!isUserAdmin(this.props.currentUser)) {
+    if (!isUserAdmin(this.props.currentUser) || this.state.loading) {
       return null;
     }
 
     return (
         <div>
-          <SettingsNav/>
+          <SettingsNav
+              location={this.props.location}
+              extensions={this.state.extensions}/>
           {this.props.children}
         </div>
     );
