@@ -211,7 +211,7 @@ public class UpdateEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event of category 'Profile' cannot be modified. Authorized categories: Version, Other");
+    expectedException.expectMessage("Event of category 'QUALITY_PROFILE' cannot be modified. Authorized categories: VERSION, OTHER");
 
     call("E1", "name");
   }

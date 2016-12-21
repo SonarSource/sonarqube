@@ -20,6 +20,8 @@
 
 package org.sonar.server.projectanalysis.ws;
 
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -74,13 +76,16 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
 
   private void doHandle(DeleteEventRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      EventDto dbEvent = dbClient.eventDao().selectByUuid(dbSession, request.getEvent())
-        .orElseThrow(() -> new NotFoundException(format("Event '%s' not found", request.getEvent())));
-      checkPermissions(dbEvent);
-      checkModifiable().accept(dbEvent);
-
-      deleteEvent(dbSession, dbEvent);
+      Stream.of(getEvent(dbSession, request.getEvent()))
+        .peek(checkPermissions())
+        .peek(checkModifiable())
+        .forEach(event -> deleteEvent(dbSession, event));
     }
+  }
+
+  private EventDto getEvent(DbSession dbSession, String event) {
+    return dbClient.eventDao().selectByUuid(dbSession, event)
+      .orElseThrow(() -> new NotFoundException(format("Event '%s' not found", event)));
   }
 
   private void deleteEvent(DbSession dbSession, EventDto dbEvent) {
@@ -95,8 +100,8 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
     dbSession.commit();
   }
 
-  private void checkPermissions(EventDto event) {
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
+  private Consumer<EventDto> checkPermissions() {
+    return event -> userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
   }
 
   private static DeleteEventRequest toDeleteEventRequest(Request httpRequest) {

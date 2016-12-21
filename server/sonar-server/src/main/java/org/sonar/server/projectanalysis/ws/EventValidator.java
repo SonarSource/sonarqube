@@ -25,11 +25,15 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.db.event.EventDto;
+import org.sonarqube.ws.client.projectanalysis.EventCategory;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
 
 class EventValidator {
-  private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of("Version", "Other");
+  private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of(VERSION.name(), OTHER.name());
   private static final String AUTHORIZED_CATEGORIES_INLINED = Joiner.on(", ").join(AUTHORIZED_CATEGORIES);
 
   private EventValidator() {
@@ -37,8 +41,8 @@ class EventValidator {
   }
 
   static Consumer<EventDto> checkModifiable() {
-    return event -> checkArgument(AUTHORIZED_CATEGORIES.contains(event.getCategory()),
+    return event -> checkArgument(AUTHORIZED_CATEGORIES.contains(fromLabel(event.getCategory()).name()),
       "Event of category '%s' cannot be modified. Authorized categories: %s",
-      event.getCategory(), AUTHORIZED_CATEGORIES_INLINED);
+      EventCategory.fromLabel(event.getCategory()), AUTHORIZED_CATEGORIES_INLINED);
   }
 }
