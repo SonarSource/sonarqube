@@ -88,7 +88,7 @@ public class ReportSubmitter {
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, project)) {
-      favoriteUpdater.add(dbSession, project.getId());
+      favoriteUpdater.add(dbSession, project);
       dbSession.commit();
     }
 

@@ -20,10 +20,12 @@
 
 package org.sonar.server.favorite;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
@@ -43,14 +45,20 @@ public class FavoriteUpdater {
   /**
    * Set favorite to the logged in user. If no user is logged, no action is done
    */
-  public void add(DbSession dbSession, long componentDtoId) {
+  public void add(DbSession dbSession, ComponentDto componentDto) {
     if (!userSession.isLoggedIn()) {
       return;
     }
 
+    List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setKey(PROP_FAVORITE_KEY)
+      .setUserId(userSession.getUserId())
+      .setComponentId(componentDto.getId())
+      .build(), dbSession);
+    checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getKey());
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
-      .setResourceId(componentDtoId)
+      .setResourceId(componentDto.getId())
       .setUserId(Long.valueOf(userSession.getUserId())));
   }
 
