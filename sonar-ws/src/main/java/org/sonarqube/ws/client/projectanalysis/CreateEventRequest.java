@@ -20,22 +20,18 @@
 
 package org.sonarqube.ws.client.projectanalysis;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class CreateEventRequest {
   private final String analysis;
   private final EventCategory category;
   private final String name;
-  private final String description;
 
   private CreateEventRequest(Builder builder) {
     analysis = builder.analysis;
     category = builder.category;
     name = builder.name;
-    description = builder.description;
   }
 
   public String getAnalysis() {
@@ -50,11 +46,6 @@ public class CreateEventRequest {
     return name;
   }
 
-  @CheckForNull
-  public String getDescription() {
-    return description;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -63,7 +54,6 @@ public class CreateEventRequest {
     private String analysis;
     private EventCategory category = EventCategory.OTHER;
     private String name;
-    private String description;
 
     private Builder() {
       // enforce static factory method
@@ -84,15 +74,11 @@ public class CreateEventRequest {
       return this;
     }
 
-    public Builder setDescription(@Nullable String description) {
-      this.description = description;
-      return this;
-    }
-
     public CreateEventRequest build() {
       checkArgument(analysis != null, "Analysis key is required");
       checkArgument(category != null, "Category is required");
       checkArgument(name != null, "Name is required");
+      checkArgument(isNotBlank(name), "A non empty name is required");
 
       return new CreateEventRequest(this);
     }

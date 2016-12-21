@@ -37,12 +37,11 @@ public class CreateEventRequestTest {
 
   @Test
   public void build_request() {
-    CreateEventRequest result = underTest.setAnalysis("P1").setCategory(OTHER).setName("name").setDescription("description").build();
+    CreateEventRequest result = underTest.setAnalysis("P1").setCategory(OTHER).setName("name").build();
 
     assertThat(result.getAnalysis()).isEqualTo("P1");
     assertThat(result.getCategory()).isEqualTo(OTHER);
     assertThat(result.getName()).isEqualTo("name");
-    assertThat(result.getDescription()).isEqualTo("description");
   }
 
   @Test
@@ -74,5 +73,13 @@ public class CreateEventRequestTest {
     expectedException.expectMessage("Name is required");
 
     underTest.setAnalysis("P1").setCategory(VERSION).build();
+  }
+
+  @Test
+  public void fail_when_blank_name() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A non empty name is required");
+
+    underTest.setAnalysis("P1").setName("   ").setCategory(VERSION).build();
   }
 }

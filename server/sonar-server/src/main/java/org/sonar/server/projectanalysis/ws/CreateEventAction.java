@@ -54,7 +54,6 @@ import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class CreateEventAction implements ProjectAnalysesWsAction {
@@ -98,10 +97,6 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .setDescription("Name")
       .setExampleValue("5.6")
       .setRequired(true);
-
-    action.createParam(PARAM_DESCRIPTION)
-      .setDescription("Description")
-      .setExampleValue("Version released");
   }
 
   @Override
@@ -151,7 +146,6 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .setAnalysis(request.mandatoryParam(PARAM_ANALYSIS))
       .setName(request.mandatoryParam(PARAM_NAME))
       .setCategory(request.mandatoryParamAsEnum(PARAM_CATEGORY, EventCategory.class))
-      .setDescription(request.param(PARAM_DESCRIPTION))
       .build();
   }
 
@@ -162,7 +156,6 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .setComponentUuid(analysis.getComponentUuid())
       .setCategory(request.getCategory().getLabel())
       .setName(request.getName())
-      .setDescription(request.getDescription())
       .setCreatedAt(system.now())
       .setDate(analysis.getCreatedAt());
   }

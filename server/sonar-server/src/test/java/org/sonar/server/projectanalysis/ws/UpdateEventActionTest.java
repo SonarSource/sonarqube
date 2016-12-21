@@ -54,7 +54,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
@@ -83,36 +82,35 @@ public class UpdateEventActionTest {
     String result = ws.newRequest()
       .setParam(PARAM_EVENT, "E1")
       .setParam(PARAM_NAME, "My Custom Event")
-      .setParam(PARAM_DESCRIPTION, "event description")
       .execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("update_event-example.json"));
   }
 
   @Test
-  public void update_name_and_description_in_db() {
+  public void update_name_in_db() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
-    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
-    call("E1", "name", "description");
+    call("E1", "name");
 
     EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
     assertThat(newEvent.getName()).isEqualTo("name");
-    assertThat(newEvent.getDescription()).isEqualTo("description");
+    assertThat(newEvent.getDescription()).isNull();
     assertThat(newEvent.getCategory()).isEqualTo(originalEvent.getCategory());
     assertThat(newEvent.getDate()).isEqualTo(originalEvent.getDate());
     assertThat(newEvent.getCreatedAt()).isEqualTo(originalEvent.getCreatedAt());
   }
 
   @Test
-  public void ws_response_with_updated_name_and_description() {
+  public void ws_response_with_updated_name() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
-    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
-    ProjectAnalyses.Event result = call("E1", "name", "description").getEvent();
+    ProjectAnalyses.Event result = call("E1", "name").getEvent();
 
     assertThat(result.getName()).isEqualTo("name");
-    assertThat(result.getDescription()).isEqualTo("description");
+    assertThat(result.hasDescription()).isFalse();
     assertThat(result.getCategory()).isEqualTo(OTHER.name());
     assertThat(result.getAnalysis()).isEqualTo(originalEvent.getAnalysisUuid());
     assertThat(result.getKey()).isEqualTo("E1");
@@ -124,7 +122,7 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
 
-    call("E1", "6.3", null);
+    call("E1", "6.3");
 
     SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
     assertThat(updatedAnalysis.getVersion()).isEqualTo("6.3");
@@ -136,7 +134,7 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()));
 
-    call("E1", "6.3", null);
+    call("E1", "6.3");
 
     SnapshotDto updatedAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
     assertThat(updatedAnalysis.getVersion()).isEqualTo("5.6");
@@ -147,7 +145,7 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
 
-    call("E1", "name", null);
+    call("E1", "name");
 
     EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
     assertThat(newEvent.getName()).isEqualTo("name");
@@ -157,26 +155,14 @@ public class UpdateEventActionTest {
   @Test
   public void update_as_project_admin() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
-    db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
 
-    call("E1", "name", "description");
+    call("E1", "name");
 
     EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
     assertThat(newEvent.getName()).isEqualTo("name");
-    assertThat(newEvent.getDescription()).isEqualTo("description");
-  }
-
-  @Test
-  public void update_description_only_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
-    EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
-
-    call("E1", null, "description");
-
-    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
-    assertThat(newEvent.getName()).isEqualTo(originalEvent.getName());
-    assertThat(newEvent.getDescription()).isEqualTo("description");
+    assertThat(newEvent.getDescription()).isNull();
   }
 
   @Test
@@ -198,7 +184,7 @@ public class UpdateEventActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    call("E1", "name", "description");
+    call("E1", "name");
   }
 
   @Test
@@ -206,17 +192,17 @@ public class UpdateEventActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Event 'E42' not found");
 
-    call("E42", "name", "description");
+    call("E42", "name");
   }
 
   @Test
-  public void fail_if_no_name_nor_description() {
+  public void fail_if_no_name() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(NullPointerException.class);
 
-    call("E1", null, null);
+    call("E1", null);
   }
 
   @Test
@@ -227,7 +213,7 @@ public class UpdateEventActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Event of category 'Profile' cannot be modified. Authorized categories: Version, Other");
 
-    call("E1", "name", "description");
+    call("E1", "name");
   }
 
   @Test
@@ -239,16 +225,15 @@ public class UpdateEventActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
 
-    call("E2", "E1 name", "description");
+    call("E2", "E1 name");
   }
 
-  private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name, @Nullable String description) {
+  private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name) {
     TestRequest request = ws.newRequest()
       .setMethod(POST.name())
       .setMediaType(MediaTypes.PROTOBUF);
     setNullable(eventUuid, e -> request.setParam(PARAM_EVENT, e));
     setNullable(name, n -> request.setParam(PARAM_NAME, n));
-    setNullable(description, d -> request.setParam(PARAM_DESCRIPTION, d));
 
     try {
       return UpdateEventResponse.parseFrom(request.execute().getInputStream());

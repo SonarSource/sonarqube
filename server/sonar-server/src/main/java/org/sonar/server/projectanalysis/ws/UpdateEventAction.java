@@ -45,7 +45,6 @@ import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
@@ -79,10 +78,6 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
     action.createParam(PARAM_NAME)
       .setDescription("New name")
       .setExampleValue("5.6");
-
-    action.createParam(PARAM_DESCRIPTION)
-      .setDescription("New description")
-      .setExampleValue("Version released");
   }
 
   @Override
@@ -152,7 +147,6 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   private static Function<EventDto, EventDto> updateNameAndDescription(UpdateEventRequest request) {
     return event -> {
       setNullable(request.getName(), event::setName);
-      setNullable(request.getDescription(), event::setDescription);
       return event;
     };
   }
@@ -173,7 +167,6 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   private static Function<Request, UpdateEventRequest> toUpdateEventRequest() {
     return request -> new UpdateEventRequest(
       request.mandatoryParam(PARAM_EVENT),
-      request.param(PARAM_NAME),
-      request.param(PARAM_DESCRIPTION));
+      request.param(PARAM_NAME));
   }
 }

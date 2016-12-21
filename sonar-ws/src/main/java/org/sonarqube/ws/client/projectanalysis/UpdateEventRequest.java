@@ -21,21 +21,20 @@
 package org.sonarqube.ws.client.projectanalysis;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class UpdateEventRequest {
   private final String event;
   private final String name;
-  private final String description;
 
-  public UpdateEventRequest(String event, @Nullable String name, @Nullable String description) {
-    checkArgument(name != null || description != null, "Name or description is required");
+  public UpdateEventRequest(String event, String name) {
+    requireNonNull(name, "Name is required");
+    checkArgument(isNotBlank(name), "A non empty name is required");
     this.event = requireNonNull(event, "Event key is required");
     this.name = name;
-    this.description = description;
   }
 
   public String getEvent() {
@@ -45,10 +44,5 @@ public class UpdateEventRequest {
   @CheckForNull
   public String getName() {
     return name;
-  }
-
-  @CheckForNull
-  public String getDescription() {
-    return description;
   }
 }

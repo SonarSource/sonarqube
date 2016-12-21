@@ -36,7 +36,7 @@ public class EventTesting {
       .setComponentUuid(analysis.getComponentUuid())
       .setUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(400))
-      .setDescription(randomAlphanumeric(400))
+      .setDescription(null)
       .setCategory("Other")
       .setComponentUuid(analysis.getComponentUuid())
       .setCreatedAt(System.currentTimeMillis())

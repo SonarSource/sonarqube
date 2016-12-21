@@ -64,7 +64,6 @@ import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class CreateEventActionTest {
@@ -101,7 +100,6 @@ public class CreateEventActionTest {
       .setParam(PARAM_ANALYSIS, analysis.getUuid())
       .setParam(PARAM_CATEGORY, OTHER.name())
       .setParam(PARAM_NAME, "My Custom Event")
-      .setParam(PARAM_DESCRIPTION, "event description")
       .execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("create_event-example.json"));
@@ -113,8 +111,7 @@ public class CreateEventActionTest {
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
-      .setName("5.6.3")
-      .setDescription("LTS version");
+      .setName("5.6.3");
     when(system.now()).thenReturn(123_456_789L);
 
     CreateEventResponse result = call(request);
@@ -124,7 +121,7 @@ public class CreateEventActionTest {
     EventDto dbEvent = dbEvents.get(0);
     assertThat(dbEvent.getName()).isEqualTo("5.6.3");
     assertThat(dbEvent.getCategory()).isEqualTo(VERSION.getLabel());
-    assertThat(dbEvent.getDescription()).isEqualTo("LTS version");
+    assertThat(dbEvent.getDescription()).isNull();
     assertThat(dbEvent.getAnalysisUuid()).isEqualTo(analysis.getUuid());
     assertThat(dbEvent.getComponentUuid()).isEqualTo(analysis.getComponentUuid());
     assertThat(dbEvent.getUuid()).isEqualTo(result.getEvent().getKey());
@@ -138,8 +135,7 @@ public class CreateEventActionTest {
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
-      .setName("5.6.3")
-      .setDescription("LTS version");
+      .setName("5.6.3");
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
 
     CreateEventResponse result = call(request);
@@ -153,8 +149,7 @@ public class CreateEventActionTest {
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
-      .setName("5.6.3")
-      .setDescription("LTS version");
+      .setName("5.6.3");
 
     call(request);
 
@@ -167,19 +162,18 @@ public class CreateEventActionTest {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
-      .setName("Project Import")
-      .setDescription("Import from another instance");
+      .setName("Project Import");
 
     CreateEventResponse result = call(request);
 
     SnapshotDto newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
     assertThat(analysis.getVersion()).isEqualTo(newAnalysis.getVersion());
-    ProjectAnalyses.Event event = result.getEvent();
-    assertThat(event.getKey()).isNotEmpty();
-    assertThat(event.getCategory()).isEqualTo(OTHER.name());
-    assertThat(event.getName()).isEqualTo("Project Import");
-    assertThat(event.getDescription()).isEqualTo("Import from another instance");
-    assertThat(event.getAnalysis()).isEqualTo(analysis.getUuid());
+    ProjectAnalyses.Event wsEvent = result.getEvent();
+    assertThat(wsEvent.getKey()).isNotEmpty();
+    assertThat(wsEvent.getCategory()).isEqualTo(OTHER.name());
+    assertThat(wsEvent.getName()).isEqualTo("Project Import");
+    assertThat(wsEvent.hasDescription()).isFalse();
+    assertThat(wsEvent.getAnalysis()).isEqualTo(analysis.getUuid());
   }
 
   @Test
@@ -309,8 +303,7 @@ public class CreateEventActionTest {
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
-      .setName("5.6.3")
-      .setDescription("LTS version");
+      .setName("5.6.3");
     userSession.anonymous();
 
     expectedException.expect(ForbiddenException.class);
@@ -337,10 +330,6 @@ public class CreateEventActionTest {
     httpRequest.setParam(PARAM_CATEGORY, request.getCategory().name())
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_ANALYSIS, request.getAnalysis());
-
-    if (request.getDescription() != null) {
-      httpRequest.setParam(PARAM_DESCRIPTION, request.getDescription());
-    }
 
     try {
       return CreateEventResponse.parseFrom(httpRequest.execute().getInputStream());

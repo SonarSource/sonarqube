@@ -34,29 +34,18 @@ public class UpdateEventRequestTest {
 
   @Test
   public void request_with_name_only() {
-    underTest = new UpdateEventRequest("E1", "name", null);
+    underTest = new UpdateEventRequest("E1", "name");
 
     assertThat(underTest.getEvent()).isEqualTo("E1");
     assertThat(underTest.getName()).isEqualTo("name");
-    assertThat(underTest.getDescription()).isNull();
-  }
-
-  @Test
-  public void request_with_description_only() {
-    underTest = new UpdateEventRequest("E1", null , "description");
-
-    assertThat(underTest.getEvent()).isEqualTo("E1");
-    assertThat(underTest.getName()).isNull();
-    assertThat(underTest.getDescription()).isEqualTo("description");
   }
 
   @Test
   public void request_with_all_parameters() {
-    underTest = new UpdateEventRequest("E1", "name", "description");
+    underTest = new UpdateEventRequest("E1", "name");
 
     assertThat(underTest.getEvent()).isEqualTo("E1");
     assertThat(underTest.getName()).isEqualTo("name");
-    assertThat(underTest.getDescription()).isEqualTo("description");
   }
 
   @Test
@@ -64,14 +53,22 @@ public class UpdateEventRequestTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Event key is required");
 
-    new UpdateEventRequest(null, "name", "description");
+    new UpdateEventRequest(null, "name");
   }
 
   @Test
-  public void fail_if_name_and_description_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name or description is required");
+  public void fail_if_name_not_provided() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Name is required");
 
-    new UpdateEventRequest("E1", null, null);
+    new UpdateEventRequest("E1", null);
+  }
+
+  @Test
+  public void fail_if_name_blank() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A non empty name is required");
+
+    new UpdateEventRequest("E1", "    ");
   }
 }
