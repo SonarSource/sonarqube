@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -37,6 +38,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
+import org.sonarqube.ws.client.projectanalysis.EventCategory;
 import org.sonarqube.ws.client.projectanalysis.UpdateEventRequest;
 
 import static java.lang.String.format;
@@ -61,11 +63,13 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("update_event")
       .setDescription("Update a project analysis event.<br>" +
+        "Only events of category '%s' and '%s' can be updated.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +
         "  <li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "</ul>",
+        EventCategory.VERSION.name(), EventCategory.OTHER.name())
       .setSince("6.3")
       .setPost(true)
       .setResponseExample(getClass().getResource("update_event-example.json"))
@@ -73,6 +77,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
 
     action.createParam(PARAM_EVENT)
       .setDescription("Event key")
+      .setExampleValue(Uuids.UUID_EXAMPLE_08)
       .setRequired(true);
 
     action.createParam(PARAM_NAME)

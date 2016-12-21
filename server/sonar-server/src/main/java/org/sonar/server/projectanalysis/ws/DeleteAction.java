@@ -52,7 +52,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("delete")
-      .setDescription("Delete an analysis.<br>" +
+      .setDescription("Delete a project analysis.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +
@@ -63,6 +63,7 @@ public class DeleteAction implements ProjectAnalysesWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_ANALYSIS)
+      .setDescription("Analysis key")
       .setExampleValue(Uuids.UUID_EXAMPLE_04)
       .setRequired(true);
   }

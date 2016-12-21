@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -37,6 +38,7 @@ import org.sonarqube.ws.client.projectanalysis.DeleteEventRequest;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
+import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
 
@@ -52,18 +54,21 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("delete_event")
-      .setDescription("Delete an analysis event.<br>" +
+      .setDescription("Delete a project analysis event.<br>" +
+        "Only event of category '%s' and '%s' can be deleted.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +
         "  <li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "</ul>",
+        VERSION.name(), OTHER.name())
       .setPost(true)
       .setSince("6.3")
       .setHandler(this);
 
     action.createParam(PARAM_EVENT)
       .setDescription("Event key")
+      .setExampleValue(Uuids.UUID_EXAMPLE_02)
       .setRequired(true);
   }
 

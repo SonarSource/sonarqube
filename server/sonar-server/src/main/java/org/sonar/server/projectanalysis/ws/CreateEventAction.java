@@ -72,12 +72,14 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("create_event")
-      .setDescription("Add an event to a project analysis.<br>" +
+      .setDescription("Create a project analysis event.<br>" +
+        "Only event of category '%s' and '%s' can be created.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer System'</li>" +
         "  <li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "</ul>",
+        VERSION.name(), OTHER.name())
       .setSince("6.3")
       .setPost(true)
       .setResponseExample(getClass().getResource("create_event-example.json"))
