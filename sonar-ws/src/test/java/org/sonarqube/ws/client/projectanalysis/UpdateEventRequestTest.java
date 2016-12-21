@@ -63,12 +63,4 @@ public class UpdateEventRequestTest {
 
     new UpdateEventRequest("E1", null);
   }
-
-  @Test
-  public void fail_if_name_blank() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A non empty name is required");
-
-    new UpdateEventRequest("E1", "    ");
-  }
 }

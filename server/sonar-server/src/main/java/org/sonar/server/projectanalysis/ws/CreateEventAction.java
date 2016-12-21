@@ -47,6 +47,7 @@ import org.sonarqube.ws.client.projectanalysis.EventCategory;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
@@ -152,6 +153,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   }
 
   private EventDto toDbEvent(CreateEventRequest request, SnapshotDto analysis) {
+    checkArgument(isNotBlank(request.getName()), "A non empty name is required");
     return new EventDto()
       .setUuid(uuidFactory.create())
       .setAnalysisUuid(analysis.getUuid())

@@ -74,12 +74,4 @@ public class CreateEventRequestTest {
 
     underTest.setAnalysis("P1").setCategory(VERSION).build();
   }
-
-  @Test
-  public void fail_when_blank_name() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A non empty name is required");
-
-    underTest.setAnalysis("P1").setName("   ").setCategory(VERSION).build();
-  }
 }

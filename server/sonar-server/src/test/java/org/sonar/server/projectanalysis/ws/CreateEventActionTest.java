@@ -214,6 +214,17 @@ public class CreateEventActionTest {
   }
 
   @Test
+  public void fail_if_not_blank_name() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    CreateEventRequest.Builder request = CreateEventRequest.builder().setAnalysis(analysis.getUuid()).setName("    ");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A non empty name is required");
+
+    call(request);
+  }
+
+  @Test
   public void fail_if_analysis_is_not_found() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis 'A42' is not found");

@@ -21,7 +21,6 @@
 package org.sonarqube.ws.client.projectanalysis;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class CreateEventRequest {
   private final String analysis;
@@ -78,10 +77,8 @@ public class CreateEventRequest {
       checkArgument(analysis != null, "Analysis key is required");
       checkArgument(category != null, "Category is required");
       checkArgument(name != null, "Name is required");
-      checkArgument(isNotBlank(name), "A non empty name is required");
 
       return new CreateEventRequest(this);
     }
   }
-
 }

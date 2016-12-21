@@ -206,6 +206,17 @@ public class UpdateEventActionTest {
   }
 
   @Test
+  public void fail_if_blank_name() {
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A non empty name is required");
+
+    call("E1", "     ");
+  }
+
+  @Test
   public void fail_if_category_other_than_other_or_version() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));

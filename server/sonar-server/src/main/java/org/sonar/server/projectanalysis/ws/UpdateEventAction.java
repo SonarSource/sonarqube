@@ -41,7 +41,9 @@ import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 import org.sonarqube.ws.client.projectanalysis.EventCategory;
 import org.sonarqube.ws.client.projectanalysis.UpdateEventRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -121,6 +123,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
   }
 
   private EventDto getDbEvent(DbSession dbSession, UpdateEventRequest request) {
+    checkArgument(isNotBlank(request.getName()), "A non empty name is required");
     return dbClient.eventDao().selectByUuid(dbSession, request.getEvent())
       .orElseThrow(() -> new NotFoundException(format("Event '%s' not found", request.getEvent())));
   }
