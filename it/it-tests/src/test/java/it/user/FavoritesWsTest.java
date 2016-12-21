@@ -28,6 +28,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.favorite.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -52,7 +53,7 @@ public class FavoritesWsTest {
   @Test
   public void favorites_web_service() {
     // GET (nothing)
-    List<Favorite> favorites = adminClient.favorites().search(null, null).getFavoritesList();
+    List<Favorite> favorites = adminClient.favorites().search(new SearchRequest()).getFavoritesList();
     assertThat(favorites).isEmpty();
 
     // POST (create favorites)
@@ -60,12 +61,12 @@ public class FavoritesWsTest {
     adminClient.favorites().add("sample:src/main/xoo/sample/Sample.xoo");
 
     // GET (created favorites)
-    favorites = adminClient.favorites().search(null, null).getFavoritesList();
+    favorites = adminClient.favorites().search(new SearchRequest()).getFavoritesList();
     assertThat(favorites.stream().map(Favorite::getKey)).containsOnly("sample", "sample:src/main/xoo/sample/Sample.xoo");
 
     // DELETE (a favorite)
     adminClient.favorites().remove("sample");
-    favorites = adminClient.favorites().search(null, null).getFavoritesList();
+    favorites = adminClient.favorites().search(new SearchRequest()).getFavoritesList();
     assertThat(favorites.stream().map(Favorite::getKey)).containsOnly("sample:src/main/xoo/sample/Sample.xoo");
   }
 

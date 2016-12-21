@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.favorite;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -51,6 +52,17 @@ public class FavoritesServiceTest {
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasPath("remove")
       .hasParam(PARAM_COMPONENT, "my_project")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search() {
+    underTest.search(new SearchRequest().setPage(42).setPageSize(255));
+
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasPath("search")
+      .hasParam(Param.PAGE, 42)
+      .hasParam(Param.PAGE_SIZE, 255)
       .andNoOtherParam();
   }
 }

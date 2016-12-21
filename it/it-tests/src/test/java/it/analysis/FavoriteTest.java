@@ -32,6 +32,7 @@ import org.sonarqube.ws.Favorites;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.favorite.SearchRequest;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
@@ -71,7 +72,7 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(new SearchRequest());
     assertThat(response.getFavoritesList()).extracting(Favorite::getKey).contains(PROJECT_KEY);
   }
 
@@ -81,7 +82,7 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(new SearchRequest());
     assertThat(response.getFavoritesList()).extracting(Favorite::getKey).doesNotContain(PROJECT_KEY);
   }
 
@@ -94,7 +95,7 @@ public class FavoriteTest {
 
     orchestrator.executeBuild(sampleProject);
 
-    Favorites.SearchResponse response = adminWsClient.favorites().search(null, null);
+    Favorites.SearchResponse response = adminWsClient.favorites().search(new SearchRequest());
     assertThat(response.getFavoritesList()).extracting(Favorite::getKey).doesNotContain(PROJECT_KEY);
   }
 

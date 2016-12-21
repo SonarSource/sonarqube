@@ -42,11 +42,13 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
+import org.sonarqube.ws.client.favorite.SearchRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.Collectors.toOneElement;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.favorite.SearchRequest.MAX_PAGE_SIZE;
 
 public class SearchAction implements FavoritesWsAction {
   private final FavoriteFinder favoriteFinder;
@@ -68,19 +70,26 @@ public class SearchAction implements FavoritesWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
-    action.addPagingParams(100, 500);
+    action.addPagingParams(100, MAX_PAGE_SIZE);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     SearchResponse wsResponse = Stream.of(request)
+      .map(toWsRequest())
       .map(search())
       .map(new ResponseBuilder())
       .collect(Collectors.toOneElement());
     writeProtobuf(wsResponse, request, response);
   }
 
-  private Function<Request, SearchResults> search() {
+  private static Function<Request, SearchRequest> toWsRequest() {
+    return request -> new SearchRequest()
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+  }
+
+  private Function<SearchRequest, SearchResults> search() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
         return Stream.of(request)
@@ -103,7 +112,7 @@ public class SearchAction implements FavoritesWsAction {
       .copyOf(dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(results.dbSession, userSession.getUserId(), UserRole.USER));
   }
 
-  private static Consumer<Request> checkAuthentication(UserSession userSession) {
+  private static Consumer<SearchRequest> checkAuthentication(UserSession userSession) {
     return r -> userSession.checkLoggedIn();
   }
 
@@ -122,7 +131,7 @@ public class SearchAction implements FavoritesWsAction {
         .collect(Collectors.toList());
     }
 
-    static Function<Request, Builder> builder(DbSession dbSession) {
+    static Function<SearchRequest, Builder> builder(DbSession dbSession) {
       return request -> new Builder(dbSession, request);
     }
 
@@ -133,10 +142,10 @@ public class SearchAction implements FavoritesWsAction {
       private Set<String> authorizedProjectUuids;
       private List<ComponentDto> allFavorites;
 
-      private Builder(DbSession dbSession, Request request) {
+      private Builder(DbSession dbSession, SearchRequest request) {
         this.dbSession = dbSession;
-        this.page = request.mandatoryParamAsInt(Param.PAGE);
-        this.pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
+        this.page = request.getPage();
+        this.pageSize = request.getPageSize();
       }
 
       public SearchResults build() {

@@ -20,7 +20,6 @@
 
 package org.sonarqube.ws.client.favorite;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonarqube.ws.Favorites.SearchResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -51,13 +50,13 @@ public class FavoritesService extends BaseService {
     call(post);
   }
 
-  public SearchResponse search(@Nullable Integer page, @Nullable Integer pageSize) {
+  public SearchResponse search(SearchRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH));
-    if (page != null) {
-      get.setParam(Param.PAGE, page);
+    if (request.getPage() != null) {
+      get.setParam(Param.PAGE, request.getPage());
     }
-    if (pageSize != null) {
-      get.setParam(Param.PAGE_SIZE, pageSize);
+    if (request.getPageSize() != null) {
+      get.setParam(Param.PAGE_SIZE, request.getPageSize());
     }
 
     return call(get, SearchResponse.parser());
