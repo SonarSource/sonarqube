@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
+// @flow
+import { getExtensionFromCache } from '../../utils/installExtensionsHandler';
 
-@NavigationSection(NavigationSection.HOME)
-public class GlobalPage implements Page {
+const installScript = (key: string) => {
+  return new Promise(resolve => {
+    const scriptTag = document.createElement('script');
+    scriptTag.src = `${window.baseUrl}/static/${key}.js`;
+    scriptTag.onload = resolve;
+    document.getElementsByTagName('body')[0].appendChild(scriptTag);
+  });
+};
 
-  public String getId() {
-    return "uiextensionsplugin/global_page";
-  }
+export const getExtensionStart = (key: string) => (
+    new Promise((resolve, reject) => {
+      const fromCache = getExtensionFromCache(key);
+      if (fromCache) {
+        return resolve(fromCache);
+      }
 
-  public String getTitle() {
-    return "Global Page";
-  }
-
-}
+      installScript(key).then(() => {
+        const start = getExtensionFromCache(key);
+        if (start) {
+          resolve(start);
+        } else {
+          reject();
+        }
+      });
+    })
+);

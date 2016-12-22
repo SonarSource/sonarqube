@@ -26,7 +26,6 @@ import { ProfileType } from '../propTypes';
 
 export default class ProfileDetails extends React.Component {
   static propTypes = {
-    /* eslint-disable react/no-unused-prop-types */
     profile: ProfileType,
     canAdmin: React.PropTypes.bool,
     updateProfiles: React.PropTypes.func

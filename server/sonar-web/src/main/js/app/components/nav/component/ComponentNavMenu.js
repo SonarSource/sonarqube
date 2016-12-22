@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 
 const SETTINGS_URLS = [
+  '/project/admin',
   '/project/settings',
   '/project/quality_profiles',
   '/project/quality_gate',
@@ -54,24 +54,12 @@ export default class ComponentNavMenu extends React.Component {
     return Object.keys(this.props.conf).some(key => this.props.conf[key]);
   }
 
-  renderLink (url, title, highlightUrl = url) {
-    const fullUrl = window.baseUrl + url;
-    const isActive = typeof highlightUrl === 'string' ?
-        window.location.pathname.indexOf(window.baseUrl + highlightUrl) === 0 :
-        highlightUrl(fullUrl);
-
-    return (
-        <li key={url} className={classNames({ 'active': isActive })}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  }
-
   renderDashboardLink () {
+    const pathname = this.isView() ? '/view' : '/dashboard';
     return (
         <li>
           <Link
-              to={{ pathname: '/dashboard', query: { id: this.props.component.key } }}
+              to={{ pathname, query: { id: this.props.component.key } }}
               activeClassName="active">
             <i className="icon-home"/>
           </Link>
@@ -96,6 +84,10 @@ export default class ComponentNavMenu extends React.Component {
   }
 
   renderActivityLink () {
+    if (this.isView() || this.isDeveloper()) {
+      return null;
+    }
+
     return (
         <li>
           <Link to={{ pathname: '/project/activity', query: { id: this.props.component.key } }}
@@ -296,11 +288,11 @@ export default class ComponentNavMenu extends React.Component {
     );
   }
 
-  renderExtension = ({ id, name }) => {
+  renderExtension = ({ id, name }, isAdmin = false) => {
+    const pathname = isAdmin ? `/project/admin/extension/${id}` : `/project/extension/${id}`;
     return (
         <li key={id}>
-          <Link to={{ pathname: `/project/extension/${id}`, query: { id: this.props.component.key } }}
-                activeClassName="active">
+          <Link to={{ pathname, query: { id: this.props.component.key } }} activeClassName="active">
             {name}
           </Link>
         </li>
@@ -309,7 +301,7 @@ export default class ComponentNavMenu extends React.Component {
 
   renderExtensions () {
     const extensions = this.props.conf.extensions || [];
-    return extensions.map(this.renderExtension);
+    return extensions.map(e => this.renderExtension(e, true));
   }
 
   renderTools () {

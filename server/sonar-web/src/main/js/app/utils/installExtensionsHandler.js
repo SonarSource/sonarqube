@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
+// @flow
+const extensions = {};
 
-@NavigationSection(NavigationSection.HOME)
-public class GlobalPage implements Page {
+const registerExtension = (key: string, start: Function) => {
+  extensions[key] = start;
+};
 
-  public String getId() {
-    return "uiextensionsplugin/global_page";
-  }
+export default () => {
+  window.registerExtension = registerExtension;
+};
 
-  public String getTitle() {
-    return "Global Page";
-  }
-
-}
+export const getExtensionFromCache = (key: string) => {
+  return extensions[key];
+};

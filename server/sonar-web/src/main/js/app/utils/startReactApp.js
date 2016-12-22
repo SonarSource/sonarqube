@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute } from 'react-router';
+import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { Provider } from 'react-redux';
 import LocalizationContainer from '../components/LocalizationContainer';
 import MigrationContainer from '../components/MigrationContainer';
@@ -28,7 +28,13 @@ import GlobalContainer from '../components/GlobalContainer';
 import SimpleContainer from '../components/SimpleContainer';
 import Landing from '../components/Landing';
 import ProjectContainer from '../components/ProjectContainer';
+import ProjectAdminContainer from '../components/ProjectAdminContainer';
+import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
+import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
+import ViewDashboard from '../components/extensions/ViewDashboard';
 import AdminContainer from '../components/AdminContainer';
+import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
+import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
 import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
@@ -97,6 +103,7 @@ const startReactApp = () => {
                   <Route path="account">{accountRoutes}</Route>
                   <Route path="coding_rules">{codingRulesRoutes}</Route>
                   <Route path="component">{componentRoutes}</Route>
+                  <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension}/>
                   <Route path="issues">{issuesRoutes}</Route>
                   <Route path="projects">{projectsRoutes}</Route>
                   <Route path="quality_gates">{qualityGatesRoutes}</Route>
@@ -109,16 +116,24 @@ const startReactApp = () => {
                     <Route path="component_measures">{componentMeasuresRoutes}</Route>
                     <Route path="custom_measures">{customMeasuresRoutes}</Route>
                     <Route path="dashboard">{overviewRoutes}</Route>
+                    <Redirect from="governance" to="/view"/>
                     <Route path="project">
                       <Route path="activity">{projectActivityRoutes}</Route>
+                      <Route path="admin" component={ProjectAdminContainer}>
+                        <Route path="extension/:pluginKey/:extensionKey" component={ProjectAdminPageExtension}/>
+                      </Route>
+                      <Redirect from="extension/governance/governance" to="/view"/>
+                      <Route path="extension/:pluginKey/:extensionKey" component={ProjectPageExtension}/>
                       <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                       <Route path="settings">{settingsRoutes}</Route>
                       {projectAdminRoutes}
                     </Route>
                     <Route path="project_roles">{projectPermissionsRoutes}</Route>
+                    <Route path="view" component={ViewDashboard}/>
                   </Route>
 
                   <Route component={AdminContainer}>
+                    <Route path="admin/extension/:pluginKey/:extensionKey" component={GlobalAdminPageExtension}/>
                     <Route path="background_tasks">{backgroundTasksRoutes}</Route>
                     <Route path="groups">{groupsRoutes}</Route>
                     <Route path="metrics">{metricsRoutes}</Route>
