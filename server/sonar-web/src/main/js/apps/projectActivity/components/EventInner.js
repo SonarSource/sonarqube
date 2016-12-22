@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
 import './Event.css';
@@ -38,11 +39,13 @@ export default class EventInner extends React.Component {
     }
 
     return (
-        <span>
-          <span className="note">{translate('event.category', event.category)}:</span>
-          {' '}
-          <strong title={event.description}>{event.name}</strong>
-        </span>
+        <TooltipsContainer>
+          <span>
+            <span className="note">{translate('event.category', event.category)}:</span>
+            {' '}
+            <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+          </span>
+        </TooltipsContainer>
     );
   }
 }

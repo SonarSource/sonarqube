@@ -6,6 +6,10 @@
   margin-bottom: 40px;
 }
 
+.project-activity-day:last-child {
+  margin-bottom: 10px;
+}
+
 .project-activity-date {
   margin-bottom: 16px;
   font-size: 15px;
