@@ -36,8 +36,8 @@ import {
   getMeasuresAppTreePageIndex,
   getMeasuresAppAllMetrics,
   getMeasuresAppDetailsMetric,
-  isMeasuresAppFetching
-  , getMeasuresAppComponent
+  isMeasuresAppFetching,
+  getMeasuresAppComponent
 } from '../../../../store/rootReducer';
 
 const mapStateToProps = state => {

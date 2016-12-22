@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Measure from './../components/Measure';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';

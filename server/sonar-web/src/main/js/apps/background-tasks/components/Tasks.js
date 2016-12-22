@@ -21,7 +21,6 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
-
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
 

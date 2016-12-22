@@ -20,7 +20,6 @@
 import React from 'react';
 import partition from 'lodash/partition';
 import sortBy from 'lodash/sortBy';
-
 import MeasuresList from './MeasuresList';
 import { domains } from '../config/domains';
 import { getLocalizedMetricName } from '../../../helpers/l10n';

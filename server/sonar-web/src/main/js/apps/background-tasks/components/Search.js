@@ -19,7 +19,6 @@
  */
  /* @flow */
 import React from 'react';
-
 import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';

@@ -21,7 +21,6 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Clipboard from 'clipboard';
-
 import Template from './templates/account-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 

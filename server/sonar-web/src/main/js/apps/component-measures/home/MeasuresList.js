@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-
 import MeasureListValue from './MeasureListValue';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 

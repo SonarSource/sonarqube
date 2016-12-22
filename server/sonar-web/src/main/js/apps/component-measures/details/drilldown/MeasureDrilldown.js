@@ -19,13 +19,11 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-
 import IconList from './../../components/IconList';
 import IconTree from './../../components/IconTree';
 import IconBubbles from './../../components/IconBubbles';
 import IconTreemap from './../../components/IconTreemap';
 import IconHistory from './../../components/IconHistory';
-
 import { hasHistory, hasBubbleChart, hasTreemap } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
 

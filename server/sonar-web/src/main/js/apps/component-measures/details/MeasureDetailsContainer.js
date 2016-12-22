@@ -25,8 +25,8 @@ import {
   getMeasuresAppDetailsMetric,
   getMeasuresAppDetailsMeasure,
   getMeasuresAppDetailsSecondaryMeasure,
-  getMeasuresAppDetailsPeriods
-  , getMeasuresAppComponent
+  getMeasuresAppDetailsPeriods,
+  getMeasuresAppComponent
 } from '../../../store/rootReducer';
 
 const mapStateToProps = state => {

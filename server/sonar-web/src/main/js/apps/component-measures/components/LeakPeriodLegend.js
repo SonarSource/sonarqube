@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import moment from 'moment';
-
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';

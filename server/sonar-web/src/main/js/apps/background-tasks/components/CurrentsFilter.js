@@ -19,7 +19,6 @@
  */
  /* @flow */
 import React from 'react';
-
 import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
 

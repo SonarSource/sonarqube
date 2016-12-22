@@ -19,7 +19,6 @@
  */
 import _ from 'underscore';
 import React from 'react';
-
 import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';

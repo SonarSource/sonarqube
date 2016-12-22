@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-delete-rule.hbs';
 

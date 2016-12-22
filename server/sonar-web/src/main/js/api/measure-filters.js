@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { post } from '../helpers/request.js';
+import { post } from '../helpers/request';
 
 export function toggleMeasureFilter (id) {
   const url = '/measures/toggle_fav';

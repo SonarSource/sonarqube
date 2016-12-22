@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import enhance from './enhance';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { getMetricName } from '../helpers/metrics';

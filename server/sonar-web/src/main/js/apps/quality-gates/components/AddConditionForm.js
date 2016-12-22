@@ -20,7 +20,6 @@
 import _ from 'underscore';
 import React from 'react';
 import Select from 'react-select';
-
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default function AddConditionForm ({ metrics, onSelect }) {

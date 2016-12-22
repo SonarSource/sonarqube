@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-
 import { fetchQualityGate, setQualityGateAsDefault, unsetQualityGateAsDefault } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';

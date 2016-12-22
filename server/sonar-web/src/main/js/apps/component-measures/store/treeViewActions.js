@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import initial from 'lodash/initial';
-
 import { getComponentTree } from '../../../api/components';
 import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';

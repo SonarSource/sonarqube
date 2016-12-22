@@ -21,7 +21,6 @@ import find from 'lodash/find';
 import sortBy from 'lodash/sortBy';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import { Histogram } from './histogram';
 import { formatMeasure } from '../../helpers/measures';
 import { getLanguages } from '../../api/languages';

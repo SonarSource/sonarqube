@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Spinner from './../Spinner';
 import { BubbleChart as OriginalBubbleChart } from '../../../../components/charts/bubble-chart';
 import bubbles from '../../config/bubbles';

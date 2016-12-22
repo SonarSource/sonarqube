@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Marionette from 'backbone.marionette';
-
 import Layout from './layout';
 import Users from './users';
 import HeaderView from './header-view';

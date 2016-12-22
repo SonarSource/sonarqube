@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-
 import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';

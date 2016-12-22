@@ -21,7 +21,6 @@
 import $ from 'jquery';
 import moment from 'moment';
 import React, { Component } from 'react';
-
 import { DATE_FORMAT } from '../constants';
 
 export default class DateFilter extends Component {

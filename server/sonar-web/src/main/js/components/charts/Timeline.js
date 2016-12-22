@@ -22,7 +22,6 @@ import _ from 'underscore';
 import d3 from 'd3';
 import moment from 'moment';
 import React from 'react';
-
 import { ResizeMixin } from '../mixins/resize-mixin';
 import { TooltipsMixin } from '../mixins/tooltips-mixin';
 

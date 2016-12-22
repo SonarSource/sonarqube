@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import React, { Component } from 'react';
-
 import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
 

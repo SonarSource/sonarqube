@@ -20,7 +20,6 @@
  /* @flow */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import { translate } from '../../../helpers/l10n';
 
 export default class Stats extends React.Component {

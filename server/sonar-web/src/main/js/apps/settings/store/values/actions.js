@@ -19,6 +19,7 @@
  */
 // @flow
 import type { SettingValue } from '../../types';
+
 export const RECEIVE_VALUES: string = 'RECEIVE_VALUES';
 
 /**

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Workspace from '../../../components/workspace/main';
 import PinIcon from '../../../components/shared/pin-icon';
 import { translate } from '../../../helpers/l10n';

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-
 import Conditions from './Conditions';
 import Projects from './Projects';
 import { translate } from '../../../helpers/l10n';

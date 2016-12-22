@@ -20,7 +20,6 @@
 import sortBy from 'lodash/sortBy';
 import moment from 'moment';
 import React from 'react';
-
 import Spinner from './../../components/Spinner';
 import Timeline from '../../../../components/charts/Timeline';
 import { getTimeMachineData } from '../../../../api/time-machine';

@@ -20,7 +20,6 @@
 import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
-
 import { TreemapBreadcrumbs } from './treemap-breadcrumbs';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';

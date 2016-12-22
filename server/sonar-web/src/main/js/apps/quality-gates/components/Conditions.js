@@ -20,7 +20,6 @@
 import _ from 'underscore';
 import React from 'react';
 import uniqBy from 'lodash/uniqBy';
-
 import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
 import Condition from './Condition';

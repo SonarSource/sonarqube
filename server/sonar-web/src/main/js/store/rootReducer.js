@@ -26,7 +26,6 @@ import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import projectActivity from './projectActivity/duck';
-
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';

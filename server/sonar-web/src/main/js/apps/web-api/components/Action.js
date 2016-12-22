@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-
 import { getActionKey } from '../utils';
 import Params from './Params';
 import ResponseExample from './ResponseExample';

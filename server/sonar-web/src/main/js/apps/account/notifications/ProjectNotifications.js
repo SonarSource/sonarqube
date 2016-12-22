@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import Select from 'react-select';
-
 import ProjectNotification from './ProjectNotification';
 import { translate } from '../../../helpers/l10n';
 import { getProjectsWithInternalId } from '../../../api/components';

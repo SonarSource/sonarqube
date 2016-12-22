@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { BarChart } from '../charts/bar-chart';
 import { formatMeasure } from '../../helpers/measures';
 import { translateWithParameters } from '../../helpers/l10n';

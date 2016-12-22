@@ -19,7 +19,6 @@
  */
 import React, { Component } from 'react';
 import Select from 'react-select';
-
 import ThresholdInput from './ThresholdInput';
 import DeleteConditionView from '../views/gate-conditions-delete-view';
 import Checkbox from '../../../components/controls/Checkbox';

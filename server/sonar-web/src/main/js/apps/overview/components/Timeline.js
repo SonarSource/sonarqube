@@ -20,7 +20,6 @@
 import d3 from 'd3';
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import { LineChart } from '../../../components/charts/line-chart';
 
 const HEIGHT = 80;

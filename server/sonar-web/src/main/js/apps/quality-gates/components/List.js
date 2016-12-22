@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
-
 import { translate } from '../../../helpers/l10n';
 
 export default function List ({ qualityGates }) {

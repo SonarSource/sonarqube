@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
-
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { translate, getLocalizedMetricDomain } from '../../../helpers/l10n';
