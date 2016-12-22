@@ -28,7 +28,7 @@ const SECTIONS_ORDER = ['SonarQube', 'Database', 'System', 'Elasticsearch State'
   'Compute Engine Tasks', 'Compute Engine State', 'Compute Engine Database Connection', 'JvmProperties'];
 
 export default React.createClass({
-  componentDidMount() {
+  componentDidMount () {
     getSystemInfo().then(info => this.setState({ sections: this.parseSections(info) }));
   },
 
@@ -58,55 +58,57 @@ export default React.createClass({
     new RestartModal().render();
   },
 
-  render() {
+  render () {
     let sections = null;
     if (this.state && this.state.sections) {
       sections = this.state.sections
-        .filter(section => SECTIONS_ORDER.indexOf(section.name)>=0)
-        .map(section => {
-          return <Section key={section.name} section={section.name} items={section.items}/>;
-        });
+          .filter(section => SECTIONS_ORDER.indexOf(section.name) >= 0)
+          .map(section => (
+              <Section key={section.name} section={section.name} items={section.items}/>
+          ));
     }
 
-    return <div className="page">
-      <header className="page-header">
-        <h1 className="page-title">{translate('system_info.page')}</h1>
-        <div className="page-actions">
-          <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
-          <div className="display-inline-block dropdown big-spacer-left">
-            <button data-toggle="dropdown">Logs <i className="icon-dropdown"/></button>
-            <ul className="dropdown-menu">
-              <li>
-                <a href={window.baseUrl + '/api/system/logs?process=app'} id="logs-link">
-                  Main Process
-                </a>
-              </li>
-              <li>
-                <a href={window.baseUrl + '/api/system/logs?process=ce'} id="ce-logs-link">
-                  Compute Engine
-                </a>
-              </li>
-              <li>
-                <a href={window.baseUrl + '/api/system/logs?process=es'} id="es-logs-link">
-                  Elasticsearch
-                </a>
-              </li>
-              <li>
-                <a href={window.baseUrl + '/api/system/logs?process=web'} id="web-logs-link">
-                  Web Server
-                </a>
-              </li>
-            </ul>
-          </div>
-          <button
-              id="restart-server-button"
-              className="big-spacer-left"
-              onClick={this.handleServerRestart}>
-            Restart Server
-          </button>
+    return (
+        <div className="page">
+          <header className="page-header">
+            <h1 className="page-title">{translate('system_info.page')}</h1>
+            <div className="page-actions">
+              <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
+              <div className="display-inline-block dropdown big-spacer-left">
+                <button data-toggle="dropdown">Logs <i className="icon-dropdown"/></button>
+                <ul className="dropdown-menu">
+                  <li>
+                    <a href={window.baseUrl + '/api/system/logs?process=app'} id="logs-link">
+                      Main Process
+                    </a>
+                  </li>
+                  <li>
+                    <a href={window.baseUrl + '/api/system/logs?process=ce'} id="ce-logs-link">
+                      Compute Engine
+                    </a>
+                  </li>
+                  <li>
+                    <a href={window.baseUrl + '/api/system/logs?process=es'} id="es-logs-link">
+                      Elasticsearch
+                    </a>
+                  </li>
+                  <li>
+                    <a href={window.baseUrl + '/api/system/logs?process=web'} id="web-logs-link">
+                      Web Server
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <button
+                  id="restart-server-button"
+                  className="big-spacer-left"
+                  onClick={this.handleServerRestart}>
+                Restart Server
+              </button>
+            </div>
+          </header>
+          {sections}
         </div>
-      </header>
-      {sections}
-    </div>;
+    );
   }
 });

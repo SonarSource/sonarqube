@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-
 import { translate } from '../../../helpers/l10n';
 
 export default class ConditionsAlert extends Component {
@@ -50,17 +49,17 @@ export default class ConditionsAlert extends Component {
                 {translate('quality_gates.health_icons')}
                 <ul>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-ok"></i>
+                    <i className="icon-alert-ok"/>
                     {' '}
                     {translate('alerts.notes.ok')}
                   </li>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-warn"></i>
+                    <i className="icon-alert-warn"/>
                     {' '}
                     {translate('alerts.notes.warn')}
                   </li>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-error"></i>
+                    <i className="icon-alert-error"/>
                     {' '}
                     {translate('alerts.notes.error')}
                   </li>

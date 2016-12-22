@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-
 import ProjectsView from '../views/gate-projects-view';
 
 export default class Projects extends Component {
@@ -57,7 +56,7 @@ export default class Projects extends Component {
 
   render () {
     return (
-        <div ref="container"></div>
+        <div ref="container"/>
     );
   }
 }

@@ -21,7 +21,7 @@ import _ from 'underscore';
 
 module.exports = function (context, options) {
   let ret = '';
-  context.forEach(function (d, i) {
+  context.forEach((d, i) => {
     const c = _.extend({ index: i }, d);
     ret += options.fn(c);
   });

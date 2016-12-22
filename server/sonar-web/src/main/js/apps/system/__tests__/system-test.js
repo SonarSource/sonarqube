@@ -24,7 +24,7 @@ import ItemBoolean from '../item-boolean';
 import ItemObject from '../item-object';
 import ItemLogLevel from '../item-log-level';
 
-describe('Item Value', function () {
+describe('Item Value', () => {
   it('should render string', () => {
     const result = shallow(<ItemValue value="/some/path/as/an/example"/>);
     expect(result.find('code').text()).toBe('/some/path/as/an/example');
@@ -65,7 +65,7 @@ describe('ItemObject', () => {
   });
 });
 
-describe('Log Level', function () {
+describe('Log Level', () => {
   it('should render select box', () => {
     const result = shallow(<ItemLogLevel value="INFO"/>);
     expect(result.find('select').length).toBe(1);

@@ -20,28 +20,32 @@
  /* @flow */
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import { translate } from '../../../helpers/l10n';
 
-export default class Stats extends React.Component {
-  static propTypes = {
-    failingCount: React.PropTypes.number,
-    pendingCount: React.PropTypes.number,
-    onShowFailing: React.PropTypes.func.isRequired,
-    onCancelAllPending: React.PropTypes.func.isRequired
-  };
+type Props = {
+  failingCount: number,
+  pendingCount: number,
+  onShowFailing: () => void,
+  onCancelAllPending: () => void
+};
 
-  shouldComponentUpdate (nextProps: any, nextState: any) {
+type State = Object;
+
+export default class Stats extends React.Component {
+  props: Props;
+  state: State;
+
+  shouldComponentUpdate (nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleCancelAllPending (e: any) {
+  handleCancelAllPending (e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancelAllPending();
   }
 
-  handleShowFailing (e: any) {
+  handleShowFailing (e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onShowFailing();

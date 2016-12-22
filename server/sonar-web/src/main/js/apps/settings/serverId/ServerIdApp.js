@@ -103,7 +103,7 @@ export default class ServerIdApp extends React.Component {
                 <input
                     id="server-id-organization"
                     type="text"
-                    required
+                    required={true}
                     value={this.state.organization}
                     disabled={this.state.loading}
                     onChange={e => this.setState({ organization: e.target.value })}/>
@@ -122,7 +122,7 @@ export default class ServerIdApp extends React.Component {
                 <input
                     id="server-id-ip"
                     type="text"
-                    required
+                    required={true}
                     value={this.state.ip}
                     disabled={this.state.loading}
                     onChange={e => this.setState({ ip: e.target.value })}/>

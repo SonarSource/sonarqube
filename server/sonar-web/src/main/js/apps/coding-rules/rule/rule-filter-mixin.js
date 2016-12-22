@@ -31,7 +31,7 @@ export default {
       bottomRight: true,
       model: this.model
     });
-    popup.on('select', function (property, value) {
+    popup.on('select', (property, value) => {
       const obj = {};
       obj[property] = '' + value;
       that.options.app.state.updateFilter(obj);

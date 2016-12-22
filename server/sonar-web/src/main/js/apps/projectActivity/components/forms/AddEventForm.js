@@ -31,9 +31,9 @@ type Props = {
 
 type State = {
   open: boolean,
-  processing: boolean;
-  name: string;
-}
+  processing: boolean,
+  name: string
+};
 
 export default class AddEventForm extends React.Component {
   mounted: boolean;

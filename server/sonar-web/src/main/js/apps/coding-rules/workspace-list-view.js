@@ -31,15 +31,15 @@ export default WorkspaceListView.extend({
   bindShortcuts () {
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
     const that = this;
-    key('right', 'list', function () {
+    key('right', 'list', () => {
       that.options.app.controller.showDetailsForSelected();
       return false;
     });
-    key('a', function () {
+    key('a', () => {
       that.options.app.controller.activateCurrent();
       return false;
     });
-    key('d', function () {
+    key('d', () => {
       that.options.app.controller.deactivateCurrent();
       return false;
     });

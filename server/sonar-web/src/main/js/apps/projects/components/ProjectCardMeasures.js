@@ -28,8 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class ProjectCardMeasures extends React.Component {
   static propTypes = {
-    measures: React.PropTypes.object,
-    languages: React.PropTypes.array
+    measures: React.PropTypes.object
   };
 
   render () {

@@ -24,7 +24,7 @@ import MainView from './main-view';
 
 const App = new Marionette.Application();
 
-App.on('start', function (options) {
+App.on('start', options => {
   const viewOptions = _.extend(options, {
     model: new Backbone.Model()
   });

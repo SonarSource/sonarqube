@@ -51,7 +51,7 @@ export default class HoldersList extends React.Component {
             }}>
           <div className="permission-column-inner">
             <a href="#"
-               title={`Filter by "${p.name}" permission` }
+               title={`Filter by "${p.name}" permission`}
                data-toggle="tooltip"
                onClick={this.handlePermissionClick.bind(this, p.key)}>
               {p.name}

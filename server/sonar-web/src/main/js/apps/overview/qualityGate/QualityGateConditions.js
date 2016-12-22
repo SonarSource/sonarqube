@@ -20,7 +20,6 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import sortBy from 'lodash/sortBy';
-
 import QualityGateCondition from './QualityGateCondition';
 import { ComponentType, ConditionsListType } from '../propTypes';
 import { getMeasuresAndMeta } from '../../../api/measures';

@@ -19,7 +19,5 @@
  */
 module.exports = function (...args) {
   const list = args.slice(0, -1);
-  return list.reduce(function (p, c) {
-    return p + +c;
-  }, 0);
+  return list.reduce((p, c) => p + +c, 0);
 };

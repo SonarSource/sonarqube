@@ -31,7 +31,7 @@ export default Modal.extend({
     this.loadStacktrace();
   },
 
-  loadStacktrace() {
+  loadStacktrace () {
     getTask(this.options.task.id, ['stacktrace']).then(task => {
       this.loaded = true;
       this.stacktrace = task.errorStacktrace;
@@ -39,7 +39,7 @@ export default Modal.extend({
     });
   },
 
-  serializeData() {
+  serializeData () {
     return {
       task: this.options.task,
       stacktrace: this.stacktrace,

@@ -41,13 +41,13 @@ export default Popup.extend({
     const that = this;
     const files = this.model.get('duplicationFiles');
     const groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref');
-    let duplications = _.map(groupedBlocks, function (blocks, fileRef) {
+    let duplications = _.map(groupedBlocks, (blocks, fileRef) => {
       return {
         blocks,
         file: files[fileRef]
       };
     });
-    duplications = _.sortBy(duplications, function (d) {
+    duplications = _.sortBy(duplications, d => {
       const a = d.file.projectName !== that.model.get('projectName');
       const b = d.file.subProjectName !== that.model.get('subProjectName');
       const c = d.file.key !== that.model.get('key');

@@ -20,8 +20,6 @@
 module.exports = function (...args) {
   const options = args[args.length - 1];
   const list = args.slice(0, -1);
-  const any = list.reduce(function (prev, current) {
-    return prev || current;
-  }, false);
+  const any = list.reduce((prev, current) => prev || current, false);
   return any ? options.fn(this) : options.inverse(this);
 };

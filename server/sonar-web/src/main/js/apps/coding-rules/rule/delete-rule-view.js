@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-delete-rule.hbs';
 
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit() {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
     const url = window.baseUrl + '/api/rules/delete';

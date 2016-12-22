@@ -19,12 +19,11 @@
  */
 import d3 from 'd3';
 import React from 'react';
-
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 const Sector = React.createClass({
-  render() {
+  render () {
     const arc = d3.svg.arc()
         .outerRadius(this.props.radius)
         .innerRadius(this.props.radius - this.props.thickness);
@@ -39,11 +38,11 @@ export const DonutChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return { thickness: 6, padding: [0, 0, 0, 0] };
   },
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 
@@ -62,19 +61,24 @@ export const DonutChart = React.createClass({
         .sort(null)
         .value(d => d.value);
     const sectors = pie(this.props.data).map((d, i) => {
-      return <Sector key={i}
-                     data={d}
-                     radius={radius}
-                     fill={this.props.data[i].fill}
-                     thickness={this.props.thickness}/>;
+      return (
+          <Sector
+              key={i}
+              data={d}
+              radius={radius}
+              fill={this.props.data[i].fill}
+              thickness={this.props.thickness}/>
+      );
     });
 
-    return <svg className="donut-chart" width={this.state.width} height={this.state.height}>
-      <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-        <g transform={`translate(${radius}, ${radius})`}>
-          {sectors}
-        </g>
-      </g>
-    </svg>;
+    return (
+        <svg className="donut-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            <g transform={`translate(${radius}, ${radius})`}>
+              {sectors}
+            </g>
+          </g>
+        </svg>
+    );
   }
 });

@@ -20,7 +20,6 @@
 import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
-
 import { TreemapBreadcrumbs } from './treemap-breadcrumbs';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
@@ -53,11 +52,10 @@ export const TreemapRect = React.createClass({
     height: React.PropTypes.number.isRequired,
     fill: React.PropTypes.string.isRequired,
     label: React.PropTypes.string.isRequired,
-    prefix: React.PropTypes.string,
     onClick: React.PropTypes.func
   },
 
-  renderLink() {
+  renderLink () {
     if (!this.props.link) {
       return null;
     }
@@ -66,12 +64,14 @@ export const TreemapRect = React.createClass({
       return null;
     }
 
-    return <a onClick={e => e.stopPropagation()}
-              className="treemap-link"
-              href={this.props.link}
-              style={{ fontSize: 12 }}>
-      <span className="icon-link"/>
-    </a>;
+    return (
+        <a onClick={e => e.stopPropagation()}
+           className="treemap-link"
+           href={this.props.link}
+           style={{ fontSize: 12 }}>
+          <span className="icon-link"/>
+        </a>
+    );
   },
 
   render () {
@@ -93,14 +93,20 @@ export const TreemapRect = React.createClass({
       cursor: typeof this.props.onClick === 'function' ? 'pointer' : 'default'
     };
     const isTextVisible = this.props.width >= 40 && this.props.height >= 40;
-    return <div className="treemap-cell"
-        {...tooltipAttrs}
-                style={cellStyles}
-                onClick={this.props.onClick}>
-      <div className="treemap-inner" dangerouslySetInnerHTML={{ __html: this.props.label }}
-           style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible' : 'hidden' }}/>
-      {this.renderLink()}
-    </div>;
+    /* eslint-disable jsx-a11y/onclick-has-focus, jsx-a11y/onclick-has-role */
+    return (
+        <div
+            className="treemap-cell"
+            {...tooltipAttrs}
+            style={cellStyles}
+            onClick={this.props.onClick}>
+          <div
+              className="treemap-inner"
+              dangerouslySetInnerHTML={{ __html: this.props.label }}
+              style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible' : 'hidden' }}/>
+          {this.renderLink()}
+        </div>
+    );
   }
 });
 
@@ -113,17 +119,19 @@ export const Treemap = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 
   renderWhenNoData () {
-    return <div className="sonar-d3">
-      <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
-        {translate('no_data')}
-      </div>
-      <TreemapBreadcrumbs {...this.props}/>
-    </div>;
+    return (
+        <div className="sonar-d3">
+          <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
+            {translate('no_data')}
+          </div>
+          <TreemapBreadcrumbs {...this.props}/>
+        </div>
+    );
   },
 
   render () {
@@ -152,24 +160,29 @@ export const Treemap = React.createClass({
       const key = node.label;
       const label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
       const onClick = this.props.canBeClicked(node) ? () => this.props.onRectangleClick(node) : null;
-      return <TreemapRect key={key}
-                          x={node.x}
-                          y={node.y}
-                          width={node.dx}
-                          height={node.dy}
-                          fill={node.color}
-                          label={label}
-                          prefix={prefix}
-                          tooltip={node.tooltip}
-                          link={node.link}
-                          onClick={onClick}/>;
+      return (
+          <TreemapRect
+              key={key}
+              x={node.x}
+              y={node.y}
+              width={node.dx}
+              height={node.dy}
+              fill={node.color}
+              label={label}
+              prefix={prefix}
+              tooltip={node.tooltip}
+              link={node.link}
+              onClick={onClick}/>
+      );
     });
 
-    return <div className="sonar-d3">
-      <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
-        {rectangles}
-      </div>
-      <TreemapBreadcrumbs {...this.props}/>
-    </div>;
+    return (
+        <div className="sonar-d3">
+          <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
+            {rectangles}
+          </div>
+          <TreemapBreadcrumbs {...this.props}/>
+        </div>
+    );
   }
 });

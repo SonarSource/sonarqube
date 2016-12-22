@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Spinner from './../Spinner';
 import { BubbleChart as OriginalBubbleChart } from '../../../../components/charts/bubble-chart';
 import bubbles from '../../config/bubbles';
@@ -136,8 +135,8 @@ export default class BubbleChart extends React.Component {
       };
     });
 
-    const formatXTick = (tick) => formatMeasure(tick, this.xMetric.type);
-    const formatYTick = (tick) => formatMeasure(tick, this.yMetric.type);
+    const formatXTick = tick => formatMeasure(tick, this.xMetric.type);
+    const formatYTick = tick => formatMeasure(tick, this.yMetric.type);
 
     return (
         <OriginalBubbleChart

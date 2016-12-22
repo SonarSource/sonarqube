@@ -42,7 +42,7 @@ export default class SimpleContainer extends React.Component {
         <div className="global-container">
           <div className="page-wrapper page-wrapper-global" id="container">
             <nav className="navbar navbar-global page-container" id="global-navigation">
-              <div className="navbar-header"></div>
+              <div className="navbar-header"/>
             </nav>
 
             <div id="bd" className="page-wrapper-simple">

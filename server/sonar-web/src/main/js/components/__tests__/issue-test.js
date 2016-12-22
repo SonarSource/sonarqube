@@ -19,59 +19,59 @@
  */
 import Issue from '../issue/models/issue';
 
-describe('Model', function () {
-  it('should have correct urlRoot', function () {
+describe('Model', () => {
+  it('should have correct urlRoot', () => {
     const issue = new Issue();
     expect(issue.urlRoot()).toBe('/api/issues');
   });
 
-  it('should parse response without root issue object', function () {
+  it('should parse response without root issue object', () => {
     const issue = new Issue();
     const example = { a: 1 };
     expect(issue.parse(example)).toEqual(example);
   });
 
-  it('should parse response with the root issue object', function () {
+  it('should parse response with the root issue object', () => {
     const issue = new Issue();
     const example = { a: 1 };
     expect(issue.parse({ issue: example })).toEqual(example);
   });
 
-  it('should reset attributes (no attributes initially)', function () {
+  it('should reset attributes (no attributes initially)', () => {
     const issue = new Issue();
     const example = { a: 1 };
     issue.reset(example);
     expect(issue.toJSON()).toEqual(example);
   });
 
-  it('should reset attributes (override attribute)', function () {
+  it('should reset attributes (override attribute)', () => {
     const issue = new Issue({ a: 2 });
     const example = { a: 1 };
     issue.reset(example);
     expect(issue.toJSON()).toEqual(example);
   });
 
-  it('should reset attributes (different attributes)', function () {
+  it('should reset attributes (different attributes)', () => {
     const issue = new Issue({ a: 2 });
     const example = { b: 1 };
     issue.reset(example);
     expect(issue.toJSON()).toEqual(example);
   });
 
-  it('should unset `textRange` of a closed issue', function () {
+  it('should unset `textRange` of a closed issue', () => {
     const issue = new Issue();
     const result = issue.parse({ issue: { status: 'CLOSED', textRange: { startLine: 5 } } });
     expect(result.textRange).toBeFalsy();
   });
 
-  it('should unset `flows` of a closed issue', function () {
+  it('should unset `flows` of a closed issue', () => {
     const issue = new Issue();
     const result = issue.parse({ issue: { status: 'CLOSED', flows: [1, 2, 3] } });
     expect(result.flows).toEqual([]);
   });
 
-  describe('Actions', function () {
-    it('should assign', function () {
+  describe('Actions', () => {
+    it('should assign', () => {
       const issue = new Issue({ key: 'issue-key' });
       const spy = jest.fn();
       issue._action = spy;
@@ -82,7 +82,7 @@ describe('Model', function () {
       });
     });
 
-    it('should unassign', function () {
+    it('should unassign', () => {
       const issue = new Issue({ key: 'issue-key' });
       const spy = jest.fn();
       issue._action = spy;
@@ -93,7 +93,7 @@ describe('Model', function () {
       });
     });
 
-    it('should plan', function () {
+    it('should plan', () => {
       const issue = new Issue({ key: 'issue-key' });
       const spy = jest.fn();
       issue._action = spy;
@@ -101,7 +101,7 @@ describe('Model', function () {
       expect(spy).toBeCalledWith({ data: { plan: 'plan', issue: 'issue-key' }, url: '/api/issues/plan' });
     });
 
-    it('should unplan', function () {
+    it('should unplan', () => {
       const issue = new Issue({ key: 'issue-key' });
       const spy = jest.fn();
       issue._action = spy;
@@ -109,7 +109,7 @@ describe('Model', function () {
       expect(spy).toBeCalledWith({ data: { plan: undefined, issue: 'issue-key' }, url: '/api/issues/plan' });
     });
 
-    it('should set severity', function () {
+    it('should set severity', () => {
       const issue = new Issue({ key: 'issue-key' });
       const spy = jest.fn();
       issue._action = spy;
@@ -121,8 +121,8 @@ describe('Model', function () {
     });
   });
 
-  describe('#getLinearLocations', function () {
-    it('should return single line location', function () {
+  describe('#getLinearLocations', () => {
+    it('should return single line location', () => {
       const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 } });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(1);
@@ -132,7 +132,7 @@ describe('Model', function () {
       expect(locations[0].to).toBe(10);
     });
 
-    it('should return location not from 0', function () {
+    it('should return location not from 0', () => {
       const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 } });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(1);
@@ -142,7 +142,7 @@ describe('Model', function () {
       expect(locations[0].to).toBe(10);
     });
 
-    it('should return 2-lines location', function () {
+    it('should return 2-lines location', () => {
       const issue = new Issue({ textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 } });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(2);
@@ -156,7 +156,7 @@ describe('Model', function () {
       expect(locations[1].to).toBe(10);
     });
 
-    it('should return 3-lines location', function () {
+    it('should return 3-lines location', () => {
       const issue = new Issue({ textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 } });
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(3);
@@ -174,7 +174,7 @@ describe('Model', function () {
       expect(locations[2].to).toBe(10);
     });
 
-    it('should return [] when no location', function () {
+    it('should return [] when no location', () => {
       const issue = new Issue();
       const locations = issue.getLinearLocations();
       expect(locations.length).toBe(0);

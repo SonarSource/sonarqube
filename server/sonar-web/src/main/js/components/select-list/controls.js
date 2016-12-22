@@ -23,16 +23,16 @@ import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
-  componentWillMount() {
+  componentWillMount () {
     this.search = _.debounce(this.search, 100);
   },
 
-  search() {
+  search () {
     const query = this.refs.search.value;
     this.props.search(query);
   },
 
-  onCheck(value) {
+  onCheck (value) {
     switch (value) {
       case 'selected':
         this.props.loadSelected();
@@ -45,7 +45,7 @@ export default React.createClass({
     }
   },
 
-  render() {
+  render () {
     const selectionOptions = [
       { value: 'selected', label: 'Selected' },
       { value: 'deselected', label: 'Not Selected' },

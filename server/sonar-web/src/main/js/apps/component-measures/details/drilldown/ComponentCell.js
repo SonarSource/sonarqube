@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-
 import QualifierIcon from '../../../../components/shared/qualifier-icon';
 import { splitPath } from '../../../../helpers/path';
 import { getComponentUrl } from '../../../../helpers/urls';

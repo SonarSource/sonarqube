@@ -60,7 +60,7 @@ export default Marionette.ItemView.extend({
       rule: this.options.rule,
       app: this.options.app
     });
-    activationView.on('profileActivated', function () {
+    activationView.on('profileActivated', () => {
       that.options.refreshActives();
     });
     activationView.render();
@@ -81,7 +81,7 @@ export default Marionette.ItemView.extend({
             rule_key: ruleKey,
             reset: true
           }
-        }).done(function () {
+        }).done(() => {
           that.options.refreshActives();
         });
       }
@@ -102,7 +102,7 @@ export default Marionette.ItemView.extend({
             profile_key: that.model.get('qProfile'),
             rule_key: ruleKey
           }
-        }).done(function () {
+        }).done(() => {
           that.options.refreshActives();
         });
       }
@@ -135,7 +135,7 @@ export default Marionette.ItemView.extend({
     if (!parent) {
       return params;
     }
-    return params.map(function (p) {
+    return params.map(p => {
       const parentParam = _.findWhere(parent.params, { key: p.key });
       if (parentParam != null) {
         return _.extend(p, {

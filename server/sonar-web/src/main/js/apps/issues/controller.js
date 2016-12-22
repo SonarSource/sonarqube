@@ -53,7 +53,7 @@ export default Controller.extend({
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
-    return $.get(window.baseUrl + '/api/issues/search', data).done(function (r) {
+    return $.get(window.baseUrl + '/api/issues/search', data).done(r => {
       const issues = that.options.app.list.parseIssues(r);
       if (firstPage) {
         that.options.app.list.reset(issues);
@@ -61,7 +61,7 @@ export default Controller.extend({
         that.options.app.list.add(issues);
       }
       that.options.app.list.setIndex();
-      FACET_DATA_FIELDS.forEach(function (field) {
+      FACET_DATA_FIELDS.forEach(field => {
         that.options.app.facets[field] = r[field];
       });
       that.options.app.facets.reset(that._allFacets());
@@ -107,8 +107,8 @@ export default Controller.extend({
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
-    return $.get(window.baseUrl + '/api/issues/search', data, function (r) {
-      FACET_DATA_FIELDS.forEach(function (field) {
+    return $.get(window.baseUrl + '/api/issues/search', data, r => {
+      FACET_DATA_FIELDS.forEach(field => {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
       const facetData = _.findWhere(r.facets, { property: id });
@@ -146,9 +146,7 @@ export default Controller.extend({
       _.extend(filter, { assignees: '__me__' });
     }
     const route = [];
-    _.map(filter, function (value, property) {
-      return route.push(`${property}=${encodeURIComponent(value)}`);
-    });
+    _.map(filter, (value, property) => route.push(`${property}=${encodeURIComponent(value)}`));
     return route.join(separator);
   },
 

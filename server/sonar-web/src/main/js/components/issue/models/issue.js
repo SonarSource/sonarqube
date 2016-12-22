@@ -57,11 +57,9 @@ export default Backbone.Model.extend({
   _injectRelational (issue, source, baseField, lookupField) {
     const baseValue = issue[baseField];
     if (baseValue != null && _.size(source)) {
-      const lookupValue = _.find(source, function (candidate) {
-        return candidate[lookupField] === baseValue;
-      });
+      const lookupValue = _.find(source, candidate => candidate[lookupField] === baseValue);
       if (lookupValue != null) {
-        Object.keys(lookupValue).forEach(function (key) {
+        Object.keys(lookupValue).forEach(key => {
           const newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
           issue[newKey] = lookupValue[key];
         });
@@ -73,7 +71,7 @@ export default Backbone.Model.extend({
   _injectCommentsRelational (issue, users) {
     if (issue.comments) {
       const that = this;
-      const newComments = issue.comments.map(function (comment) {
+      const newComments = issue.comments.map(comment => {
         let newComment = _.extend({}, comment, { author: comment.login });
         delete newComment.login;
         newComment = that._injectRelational(newComment, users, 'author', 'login');
@@ -226,7 +224,7 @@ export default Backbone.Model.extend({
       url: this.urlRoot() + '/do_transition',
       data: { issue: this.id, transition }
     }, options);
-    return this._action(opts).done(function () {
+    return this._action(opts).done(() => {
       that.trigger('transition', transition);
     });
   },

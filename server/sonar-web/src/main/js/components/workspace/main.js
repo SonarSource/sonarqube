@@ -39,13 +39,13 @@ Workspace.prototype = {
 
     this.items = new Items();
     this.items.load();
-    this.items.on('change', function () {
+    this.items.on('change', () => {
       that.save();
     });
 
     this.itemsView = new ItemsView({ collection: this.items });
     this.itemsView.render().$el.appendTo(document.body);
-    this.itemsView.on('click', function (model) {
+    this.itemsView.on('click', model => {
       that.open(model);
     });
   },
@@ -92,11 +92,11 @@ Workspace.prototype = {
     model.trigger('showViewer');
     this.viewerView = new Viewer({ model });
     this.viewerView
-        .on('viewerMinimize', function () {
+        .on('viewerMinimize', () => {
           model.trigger('hideViewer');
           that.closeComponentViewer();
         })
-        .on('viewerClose', function (m) {
+        .on('viewerClose', m => {
           that.closeComponentViewer();
           m.destroy();
         });
@@ -116,10 +116,10 @@ Workspace.prototype = {
 
   showRule (model) {
     const that = this;
-    this.fetchRule(model).done(function () {
+    this.fetchRule(model).done(() => {
       model.set({ exist: true });
       that.showViewer(RuleView, model);
-    }).fail(function () {
+    }).fail(() => {
       model.set({ exist: false });
       that.showViewer(RuleView, model);
     });
@@ -128,7 +128,7 @@ Workspace.prototype = {
   fetchRule (model) {
     const url = window.baseUrl + '/api/rules/show';
     const options = { key: model.get('key') };
-    return $.get(url, options).done(function (r) {
+    return $.get(url, options).done(r => {
       model.set(r.rule);
     });
   }

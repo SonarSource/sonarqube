@@ -26,60 +26,60 @@ const METRIC = 'coverage';
 
 let oldBaseUrl;
 
-beforeEach(function () {
+beforeEach(() => {
   oldBaseUrl = window.baseUrl;
 });
 
-afterEach(function () {
+afterEach(() => {
   window.baseUrl = oldBaseUrl;
 });
 
-describe('#getComponentUrl', function () {
-  it('should return component url', function () {
+describe('#getComponentUrl', () => {
+  it('should return component url', () => {
     expect(getComponentUrl(SIMPLE_COMPONENT_KEY)).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
   });
 
-  it('should encode component key', function () {
+  it('should encode component key', () => {
     expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 
-  it('should take baseUrl into account', function () {
+  it('should take baseUrl into account', () => {
     window.baseUrl = '/context';
     expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 });
 
-describe('#getComponentIssuesUrl', function () {
-  it('should work without parameters', function () {
+describe('#getComponentIssuesUrl', () => {
+  it('should work without parameters', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).toBe(
         '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
   });
 
-  it('should encode component key', function () {
+  it('should encode component key', () => {
     expect(getComponentIssuesUrl(COMPLEX_COMPONENT_KEY, {})).toBe(
         '/component_issues?id=' + COMPLEX_COMPONENT_KEY_ENCODED + '#');
   });
 
-  it('should work with parameters', function () {
+  it('should work with parameters', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toBe(
         '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#resolved=false');
   });
 
-  it('should encode parameters', function () {
+  it('should encode parameters', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { componentUuids: COMPLEX_COMPONENT_KEY })).toBe(
         '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#componentUuids=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 });
 
-describe('#getComponentDrilldownUrl', function () {
-  it('should return component drilldown url', function () {
+describe('#getComponentDrilldownUrl', () => {
+  it('should return component drilldown url', () => {
     expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).toEqual({
       pathname: '/component_measures/metric/' + METRIC,
       query: { id: SIMPLE_COMPONENT_KEY }
     });
   });
 
-  it('should encode component key', function () {
+  it('should encode component key', () => {
     expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).toEqual({
       pathname: '/component_measures/metric/' + METRIC,
       query: { id: COMPLEX_COMPONENT_KEY }

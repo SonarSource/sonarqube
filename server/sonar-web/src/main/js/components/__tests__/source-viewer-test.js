@@ -19,12 +19,12 @@
  */
 import helper from '../source-viewer/helpers/code-with-issue-locations-helper';
 
-describe('Code With Issue Locations Helper', function () {
-  it('should be a function', function () {
+describe('Code With Issue Locations Helper', () => {
+  it('should be a function', () => {
     expect(helper).toBeTruthy();
   });
 
-  it('should mark one location', function () {
+  it('should mark one location', () => {
     const code = '<span class="k">if</span> (<span class="sym-2 sym">a</span> + <span class="c">1</span>) {';
     const locations = [{ from: 1, to: 5 }];
     const result = helper(code, locations, 'x');
@@ -39,7 +39,7 @@ describe('Code With Issue Locations Helper', function () {
     ].join(''));
   });
 
-  it('should mark two locations', function () {
+  it('should mark two locations', () => {
     const code = 'abcdefghijklmnopqrst';
     const locations = [
       { from: 1, to: 6 },
@@ -55,7 +55,7 @@ describe('Code With Issue Locations Helper', function () {
     ].join(''));
   });
 
-  it('should mark one locations', function () {
+  it('should mark one locations', () => {
     const code = '<span class="cppd"> * Copyright (C) 2008-2014 SonarSource</span>';
     const locations = [{ from: 15, to: 20 }];
     const result = helper(code, locations, 'x');
@@ -66,7 +66,7 @@ describe('Code With Issue Locations Helper', function () {
     ].join(''));
   });
 
-  it('should mark two locations', function () {
+  it('should mark two locations', () => {
     const code = '<span class="cppd"> * Copyright (C) 2008-2014 SonarSource</span>';
     const locations = [
       { from: 24, to: 29 },
@@ -82,20 +82,20 @@ describe('Code With Issue Locations Helper', function () {
     ].join(''));
   });
 
-  it('should parse line with < and >', function () {
+  it('should parse line with < and >', () => {
     const code = '<span class="j">#include &lt;stdio.h&gt;</span>';
     const result = helper(code, []);
     expect(result).toBe('<span class="j">#include &lt;stdio.h&gt;</span>');
   });
 
-  it('should parse syntax and usage highlighting', function () {
+  it('should parse syntax and usage highlighting', () => {
     const code = '<span class="k"><span class="sym-3 sym">this</span></span>';
     const expected = '<span class="k sym-3 sym">this</span>';
     const result = helper(code, []);
     expect(result).toBe(expected);
   });
 
-  it('should parse nested tags', function () {
+  it('should parse nested tags', () => {
     const code = '<span class="k"><span class="sym-3 sym">this</span> is</span>';
     const expected = '<span class="k sym-3 sym">this</span><span class="k"> is</span>';
     const result = helper(code, []);

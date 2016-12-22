@@ -38,7 +38,6 @@ export function sortPermissions (permissions) {
  */
 export function mergePermissionsToTemplates (permissionTemplates, basePermissions) {
   return permissionTemplates.map(permissionTemplate => {
-
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
     const permissions = basePermissions.map(basePermission => {

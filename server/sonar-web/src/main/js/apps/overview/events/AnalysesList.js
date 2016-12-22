@@ -29,9 +29,9 @@ import { getAnalyses } from '../../../store/projectActivity/duck';
 
 type Props = {
   analyses?: Array<*>,
-  project: string;
-  fetchRecentProjectActivity: (project: string) => Promise<*>;
-}
+  project: string,
+  fetchRecentProjectActivity: (project: string) => Promise<*>
+};
 
 class AnalysesList extends React.Component {
   mounted: boolean;

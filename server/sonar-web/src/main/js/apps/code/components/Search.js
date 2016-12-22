@@ -21,7 +21,6 @@ import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
-
 import Components from './Components';
 import { getTree } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -192,7 +191,7 @@ export default class Search extends React.Component {
         <div id="code-search" className={containerClassName}>
           <form className="search-box" onSubmit={this.handleSubmit.bind(this)}>
             <button className="search-box-submit button-clean">
-              <i className="icon-search"></i>
+              <i className="icon-search"/>
             </button>
 
             <input

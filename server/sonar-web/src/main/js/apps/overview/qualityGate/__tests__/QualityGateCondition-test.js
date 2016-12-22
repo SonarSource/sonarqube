@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-
 import QualityGateCondition from '../QualityGateCondition';
 import { DrilldownLink } from '../../../../components/shared/drilldown-link';
 

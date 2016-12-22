@@ -29,7 +29,7 @@ export default Marionette.Controller.extend({
   },
 
   _allFacets () {
-    return this.options.app.state.get('allFacets').map(function (facet) {
+    return this.options.app.state.get('allFacets').map(facet => {
       return { property: facet };
     });
   },
@@ -39,22 +39,18 @@ export default Marionette.Controller.extend({
     let facets = this.options.app.state.get('facets');
     const criteria = Object.keys(this.options.app.state.get('query'));
     facets = facets.concat(criteria);
-    facets = facets.map(function (facet) {
+    facets = facets.map(facet => {
       return that.options.app.state.get('transform')[facet] != null ?
           that.options.app.state.get('transform')[facet] : facet;
     });
     facets = _.uniq(facets);
-    return facets.filter(function (facet) {
-      return that.options.app.state.get('allFacets').indexOf(facet) !== -1;
-    });
+    return facets.filter(facet => that.options.app.state.get('allFacets').indexOf(facet) !== -1);
   },
 
   _facetsFromServer () {
     const that = this;
     const facets = this._enabledFacets();
-    return facets.filter(function (facet) {
-      return that.options.app.state.get('facetsFromServer').indexOf(facet) !== -1;
-    });
+    return facets.filter(facet => that.options.app.state.get('facetsFromServer').indexOf(facet) !== -1);
   },
 
   fetchList () {
@@ -72,7 +68,7 @@ export default Marionette.Controller.extend({
       facet.set({ enabled: true });
     } else {
       this.requestFacet(id)
-          .done(function () {
+          .done(() => {
             facet.set({ enabled: true });
           });
     }
@@ -104,7 +100,7 @@ export default Marionette.Controller.extend({
   parseQuery (query, separator) {
     separator = separator || '|';
     const q = {};
-    (query || '').split(separator).forEach(function (t) {
+    (query || '').split(separator).forEach(t => {
       const tokens = t.split('=');
       if (tokens[0] && tokens[1] != null) {
         q[tokens[0]] = decodeURIComponent(tokens[1]);
@@ -117,7 +113,7 @@ export default Marionette.Controller.extend({
     separator = separator || '|';
     const filter = this.options.app.state.get('query');
     const route = [];
-    _.map(filter, function (value, property) {
+    _.map(filter, (value, property) => {
       route.push(`${property}=${encodeURIComponent(value)}`);
     });
     return route.join(separator);
@@ -132,15 +128,13 @@ export default Marionette.Controller.extend({
     const index = this.options.app.state.get('selectedIndex') + 1;
     if (index < this.options.app.list.length) {
       this.options.app.state.set({ selectedIndex: index });
+    } else if (!this.options.app.state.get('maxResultsReached')) {
+      const that = this;
+      this.fetchNextPage().done(() => {
+        that.options.app.state.set({ selectedIndex: index });
+      });
     } else {
-      if (!this.options.app.state.get('maxResultsReached')) {
-        const that = this;
-        this.fetchNextPage().done(function () {
-          that.options.app.state.set({ selectedIndex: index });
-        });
-      } else {
-        this.options.app.list.trigger('limitReached');
-      }
+      this.options.app.list.trigger('limitReached');
     }
   },
 

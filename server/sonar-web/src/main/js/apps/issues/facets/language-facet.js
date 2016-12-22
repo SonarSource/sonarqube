@@ -50,7 +50,7 @@ export default CustomValuesFacet.extend({
         results (data) {
           return {
             more: false,
-            results: data.languages.map(function (lang) {
+            results: data.languages.map(lang => {
               return { id: lang.key, text: lang.name };
             })
           };
@@ -62,7 +62,7 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const source = this.options.app.facets.languages;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const key = v.val;
       let label = null;
       if (key) {

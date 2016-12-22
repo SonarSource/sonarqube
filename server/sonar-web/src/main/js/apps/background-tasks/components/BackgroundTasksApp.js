@@ -34,17 +34,30 @@ import { Task } from '../types';
 import { getComponent } from '../../../store/rootReducer';
 import '../background-tasks.css';
 
+type Props = {
+  component: Object,
+  location: Object
+};
+
+type State = {
+  loading: boolean,
+  tasks: Array<*>,
+  types?: Array<*>,
+  query: string,
+  pendingCount: number,
+  failingCount: number,
+};
+
 class BackgroundTasksApp extends React.Component {
+  loadTasksDebounced: Function;
+  mounted: boolean;
+  props: Props;
+
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };
 
-  static propTypes = {
-    component: React.PropTypes.object,
-    location: React.PropTypes.object
-  };
-
-  state: any = {
+  state: State = {
     loading: true,
     tasks: [],
 
@@ -69,11 +82,11 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  shouldComponentUpdate (nextProps: any, nextState: any) {
+  shouldComponentUpdate (nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (prevProps: any) {
+  componentDidUpdate (prevProps: Props) {
     if (prevProps.component !== this.props.component ||
         prevProps.location !== this.props.location) {
       this.loadTasksDebounced();
@@ -83,9 +96,6 @@ class BackgroundTasksApp extends React.Component {
   componentWillUnmount () {
     this.mounted = false;
   }
-
-  loadTasksDebounced: any;
-  mounted: boolean;
 
   loadTasks () {
     this.setState({ loading: true });
@@ -98,7 +108,7 @@ class BackgroundTasksApp extends React.Component {
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 
     const filters = { status, taskType, currents, minSubmittedAt, maxExecutedAt, query };
-    const parameters: any = mapFiltersToParameters(filters);
+    const parameters: Object = mapFiltersToParameters(filters);
 
     if (this.props.component) {
       parameters.componentId = this.props.component.id;
@@ -125,7 +135,7 @@ class BackgroundTasksApp extends React.Component {
     });
   }
 
-  handleFilterUpdate (nextState: any) {
+  handleFilterUpdate (nextState: Object) {
     const nextQuery = { ...this.props.location.query, ...nextState };
 
     // remove defaults

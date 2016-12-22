@@ -26,6 +26,7 @@ import { TYPE_PROPERTY_SET } from '../../constants';
 
 export default class Input extends React.Component {
   static propTypes = {
+    /* eslint-disable react/no-unused-prop-types */
     setting: React.PropTypes.object.isRequired,
     value: React.PropTypes.any,
     onChange: React.PropTypes.func.isRequired

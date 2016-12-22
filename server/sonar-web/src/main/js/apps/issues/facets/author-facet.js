@@ -49,7 +49,7 @@ export default CustomValuesFacet.extend({
         results (data) {
           return {
             more: false,
-            results: data.authors.map(function (author) {
+            results: data.authors.map(author => {
               return { id: author, text: author };
             })
           };

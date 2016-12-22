@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-
 import { fetchQualityGate, setQualityGateAsDefault, unsetQualityGateAsDefault } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
@@ -63,7 +62,7 @@ export default class Details extends Component {
 
     new CopyView({
       qualityGate,
-      onCopy: (newQualityGate) => {
+      onCopy: newQualityGate => {
         onCopy(newQualityGate);
         router.push(`/quality_gates/show/${newQualityGate.id}`);
       }
@@ -88,7 +87,7 @@ export default class Details extends Component {
 
     new DeleteView({
       qualityGate,
-      onDelete: (qualityGate) => {
+      onDelete: qualityGate => {
         onDelete(qualityGate);
         router.replace('/quality_gates');
       }
@@ -105,7 +104,7 @@ export default class Details extends Component {
             <div className="search-navigator-workspace-header" style={{ top: 30 }}>
               <h2 className="search-navigator-header-component">&nbsp;</h2>
             </div>
-            <div className="search-navigator-workspace-details"></div>
+            <div className="search-navigator-workspace-details"/>
           </div>
       );
     }

@@ -34,7 +34,7 @@ type Props = {
 
 type State = {
   processing: boolean
-}
+};
 
 export default class RemoveVersionForm extends React.Component {
   mounted: boolean;

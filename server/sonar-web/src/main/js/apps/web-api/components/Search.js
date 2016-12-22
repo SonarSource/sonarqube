@@ -19,7 +19,6 @@
  */
 import _ from 'underscore';
 import React from 'react';
-
 import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
@@ -66,6 +65,9 @@ export default class Search extends React.Component {
               <span
                   style={{ cursor: 'pointer' }}
                   title={translate('api_documentation.internal_tooltip')}
+                  tabIndex="0"
+                  role="checkbox"
+                  aria-checked={showInternal ? 'true' : 'false'}
                   onClick={onToggleInternal}>
                 Show Internal API
               </span>
@@ -85,6 +87,9 @@ export default class Search extends React.Component {
               <span
                   style={{ cursor: 'pointer' }}
                   title={translate('api_documentation.deprecation_tooltip')}
+                  tabIndex="0"
+                  role="checkbox"
+                  aria-checked={showOnlyDeprecated ? 'true' : 'false'}
                   onClick={onToggleDeprecated}>
                 Show Only Deprecated API
               </span>

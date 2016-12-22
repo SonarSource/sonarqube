@@ -39,7 +39,7 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const source = this.options.app.facets.users;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const key = v.val;
       let label = null;
       if (key) {

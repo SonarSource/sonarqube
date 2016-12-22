@@ -35,7 +35,7 @@ export default Modal.extend({
     };
   },
 
-  onCheckboxChange() {
+  onCheckboxChange () {
     const checked = this.$('#grant-to-project-creators').is(':checked');
     if (checked) {
       addProjectCreatorToTemplate(

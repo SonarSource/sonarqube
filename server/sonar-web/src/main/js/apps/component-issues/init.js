@@ -111,7 +111,7 @@ App.updateContextFacets = function () {
   });
 };
 
-App.on('start', function (options) {
+App.on('start', options => {
   init.call(App, options);
 });
 

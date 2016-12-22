@@ -30,7 +30,7 @@ import './projectActivity.css';
 type Props = {
   location: { query: { id: string } },
   fetchProjectActivity: (project: string) => void,
-  filter: ?string,
+  /* eslint-disable react/no-unused-prop-types */
   project: { configuration?: { showHistory: boolean } }
 };
 

@@ -19,7 +19,6 @@
  */
  /* @flow */
 import React from 'react';
-
 import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/shared/pending-icon';
 import { translate } from '../../../helpers/l10n';

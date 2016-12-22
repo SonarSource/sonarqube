@@ -30,17 +30,17 @@ export default React.createClass({
     onSearch: React.PropTypes.func.isRequired
   },
 
-  onSubmit(e) {
+  onSubmit (e) {
     e.preventDefault();
     this.search();
   },
 
-  search() {
+  search () {
     const q = this.refs.input.value;
     this.props.onSearch(q);
   },
 
-  getTypeOptions() {
+  getTypeOptions () {
     return [
       { value: TYPE.ALL, label: 'All' },
       { value: TYPE.PROVISIONED, label: 'Provisioned' },
@@ -48,16 +48,14 @@ export default React.createClass({
     ];
   },
 
-  getQualifierOptions() {
+  getQualifierOptions () {
     const options = this.props.topLevelQualifiers.map(q => {
       return { value: q, label: translate('qualifiers', q) };
     });
-    return _.sortBy(options, option => {
-      return QUALIFIERS_ORDER.indexOf(option.value);
-    });
+    return _.sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   },
 
-  renderCheckbox() {
+  renderCheckbox () {
     const isAllChecked = this.props.projects.length > 0 &&
             this.props.selection.length === this.props.projects.length;
     const thirdState = this.props.projects.length > 0 &&
@@ -72,11 +70,11 @@ export default React.createClass({
     );
   },
 
-  renderSpinner() {
+  renderSpinner () {
     return <i className="spinner"/>;
   },
 
-  onCheck(checked) {
+  onCheck (checked) {
     if (checked) {
       this.props.onAllSelected();
     } else {
@@ -91,13 +89,13 @@ export default React.createClass({
     return <div className="spacer-top alert alert-info">{translate('bulk_deletion.ghosts.description')}</div>;
   },
 
-  deleteProjects() {
+  deleteProjects () {
     new DeleteView({
       deleteProjects: this.props.deleteProjects
     }).render();
   },
 
-  renderQualifierFilter() {
+  renderQualifierFilter () {
     const options = this.getQualifierOptions();
     if (options.length < 2) {
       return null;
@@ -113,7 +111,7 @@ export default React.createClass({
     );
   },
 
-  render() {
+  render () {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
         <div className="panel panel-vertical bordered-bottom spacer-bottom">
@@ -134,7 +132,7 @@ export default React.createClass({
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">
                   <button className="search-box-submit button-clean">
-                    <i className="icon-search"></i>
+                    <i className="icon-search"/>
                   </button>
                   <input onChange={this.search}
                          value={this.props.query}

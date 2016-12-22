@@ -19,7 +19,6 @@
  */
 import d3 from 'd3';
 import React from 'react';
-
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -39,7 +38,7 @@ export const LineChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       displayBackdrop: true,
       displayPoints: true,
@@ -51,7 +50,7 @@ export const LineChart = React.createClass({
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 
@@ -61,10 +60,10 @@ export const LineChart = React.createClass({
     }
 
     const area = d3.svg.area()
-                 .x(d => xScale(d.x))
-                 .y0(yScale.range()[0])
-                 .y1(d => yScale(d.y))
-                 .interpolate(this.props.interpolate);
+        .x(d => xScale(d.x))
+        .y0(yScale.range()[0])
+        .y1(d => yScale(d.y))
+        .interpolate(this.props.interpolate);
 
     let data = this.props.data;
     if (this.props.backdropConstraints) {
@@ -81,11 +80,14 @@ export const LineChart = React.createClass({
     const points = this.props.data.map((point, index) => {
       const x = xScale(point.x);
       const y = yScale(point.y);
-      return <circle key={index}
-                     className="line-chart-point"
-                     r="3"
-                     cx={x}
-                     cy={y}/>;
+      return (
+          <circle
+              key={index}
+              className="line-chart-point"
+              r="3"
+              cx={x}
+              cy={y}/>
+      );
     });
     return <g>{points}</g>;
   },
@@ -98,12 +100,15 @@ export const LineChart = React.createClass({
       const x = xScale(point.x);
       const y1 = yScale.range()[0];
       const y2 = yScale(point.y);
-      return <line key={index}
-                   className="line-chart-grid"
-                   x1={x}
-                   x2={x}
-                   y1={y1}
-                   y2={y2}/>;
+      return (
+          <line
+              key={index}
+              className="line-chart-grid"
+              x1={x}
+              x2={x}
+              y1={y1}
+              y2={y2}/>
+      );
     });
     return <g>{lines}</g>;
   },
@@ -116,11 +121,14 @@ export const LineChart = React.createClass({
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale.range()[0];
-      return <text key={index}
-                   className="line-chart-tick"
-                   x={x}
-                   y={y}
-                   dy="1.5em">{tick}</text>;
+      return (
+          <text
+              key={index}
+              className="line-chart-tick"
+              x={x}
+              y={y}
+              dy="1.5em">{tick}</text>
+      );
     });
     return <g>{ticks}</g>;
   },
@@ -133,20 +141,23 @@ export const LineChart = React.createClass({
       const point = this.props.data[index];
       const x = xScale(point.x);
       const y = yScale(point.y);
-      return <text key={index}
-                   className="line-chart-tick"
-                   x={x}
-                   y={y}
-                   dy="-1em">{value}</text>;
+      return (
+          <text
+              key={index}
+              className="line-chart-tick"
+              x={x}
+              y={y}
+              dy="-1em">{value}</text>
+      );
     });
     return <g>{ticks}</g>;
   },
 
   renderLine (xScale, yScale) {
     const p = d3.svg.line()
-                 .x(d => xScale(d.x))
-                 .y(d => yScale(d.y))
-                 .interpolate(this.props.interpolate);
+        .x(d => xScale(d.x))
+        .y(d => yScale(d.y))
+        .interpolate(this.props.interpolate);
 
     return <path className="line-chart-path" d={p(this.props.data)}/>;
   },
@@ -161,10 +172,10 @@ export const LineChart = React.createClass({
 
     let maxY;
     const xScale = d3.scale.linear()
-                   .domain(d3.extent(this.props.data, d => d.x))
-                   .range([0, availableWidth]);
+        .domain(d3.extent(this.props.data, d => d.x))
+        .range([0, availableWidth]);
     const yScale = d3.scale.linear()
-                   .range([availableHeight, 0]);
+        .range([availableHeight, 0]);
 
     if (this.props.domain) {
       maxY = this.props.domain[1];
@@ -174,15 +185,17 @@ export const LineChart = React.createClass({
       yScale.domain([0, maxY]);
     }
 
-    return <svg className="line-chart" width={this.state.width} height={this.state.height}>
-      <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-        {this.renderVerticalGrid(xScale, yScale, maxY)}
-        {this.renderBackdrop(xScale, yScale)}
-        {this.renderLine(xScale, yScale)}
-        {this.renderPoints(xScale, yScale)}
-        {this.renderXTicks(xScale, yScale)}
-        {this.renderXValues(xScale, yScale)}
-      </g>
-    </svg>;
+    return (
+        <svg className="line-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            {this.renderVerticalGrid(xScale, yScale, maxY)}
+            {this.renderBackdrop(xScale, yScale)}
+            {this.renderLine(xScale, yScale)}
+            {this.renderPoints(xScale, yScale)}
+            {this.renderXTicks(xScale, yScale)}
+            {this.renderXValues(xScale, yScale)}
+          </g>
+        </svg>
+    );
   }
 });

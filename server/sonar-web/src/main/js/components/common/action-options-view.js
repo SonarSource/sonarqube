@@ -81,24 +81,12 @@ export default PopupView.extend({
     const that = this;
     this.currentKeyScope = key.getScope();
     key.setScope(this.keyScope);
-    key('down', this.keyScope, function () {
-      return that.selectNextOption();
-    });
-    key('up', this.keyScope, function () {
-      return that.selectPreviousOption();
-    });
-    key('return', this.keyScope, function () {
-      return that.selectActiveOption();
-    });
-    key('escape', this.keyScope, function () {
-      return that.destroy();
-    });
-    key('backspace', this.keyScope, function () {
-      return false;
-    });
-    key('shift+tab', this.keyScope, function () {
-      return false;
-    });
+    key('down', this.keyScope, () => that.selectNextOption());
+    key('up', this.keyScope, () => that.selectPreviousOption());
+    key('return', this.keyScope, () => that.selectActiveOption());
+    key('escape', this.keyScope, () => that.destroy());
+    key('backspace', this.keyScope, () => false);
+    key('shift+tab', this.keyScope, () => false);
   },
 
   unbindShortcuts () {

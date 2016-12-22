@@ -25,7 +25,7 @@ const ONE_MINUTE = 1;
 const ONE_HOUR = ONE_MINUTE * 60;
 const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
-beforeEach(function () {
+beforeEach(() => {
   resetBundle({
     'work_duration.x_days': '{0}d',
     'work_duration.x_hours': '{0}h',
@@ -37,8 +37,8 @@ beforeEach(function () {
   });
 });
 
-describe('#formatMeasure()', function () {
-  it('should format INT', function () {
+describe('#formatMeasure()', () => {
+  it('should format INT', () => {
     expect(formatMeasure(0, 'INT')).toBe('0');
     expect(formatMeasure(1, 'INT')).toBe('1');
     expect(formatMeasure(-5, 'INT')).toBe('-5');
@@ -49,7 +49,7 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(1234567890, 'INT')).toBe('1,234,567,890');
   });
 
-  it('should format SHORT_INT', function () {
+  it('should format SHORT_INT', () => {
     expect(formatMeasure(0, 'SHORT_INT')).toBe('0');
     expect(formatMeasure(1, 'SHORT_INT')).toBe('1');
     expect(formatMeasure(999, 'SHORT_INT')).toBe('999');
@@ -60,7 +60,7 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1b');
   });
 
-  it('should format FLOAT', function () {
+  it('should format FLOAT', () => {
     expect(formatMeasure(0.0, 'FLOAT')).toBe('0.0');
     expect(formatMeasure(1.0, 'FLOAT')).toBe('1.0');
     expect(formatMeasure(1.3, 'FLOAT')).toBe('1.3');
@@ -72,14 +72,14 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(1234567890.0, 'FLOAT')).toBe('1,234,567,890.0');
   });
 
-  it('should respect FLOAT precision', function () {
+  it('should respect FLOAT precision', () => {
     expect(formatMeasure(0.1, 'FLOAT')).toBe('0.1');
     expect(formatMeasure(0.12, 'FLOAT')).toBe('0.12');
     expect(formatMeasure(0.12345, 'FLOAT')).toBe('0.12345');
     expect(formatMeasure(0.123456, 'FLOAT')).toBe('0.12346');
   });
 
-  it('should format PERCENT', function () {
+  it('should format PERCENT', () => {
     expect(formatMeasure(0.0, 'PERCENT')).toBe('0.0%');
     expect(formatMeasure(1.0, 'PERCENT')).toBe('1.0%');
     expect(formatMeasure(1.3, 'PERCENT')).toBe('1.3%');
@@ -88,7 +88,7 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(100.0, 'PERCENT')).toBe('100.0%');
   });
 
-  it('should format WORK_DUR', function () {
+  it('should format WORK_DUR', () => {
     expect(formatMeasure(0, 'WORK_DUR')).toBe('0');
     expect(formatMeasure(5 * ONE_DAY, 'WORK_DUR')).toBe('5d');
     expect(formatMeasure(2 * ONE_HOUR, 'WORK_DUR')).toBe('2h');
@@ -103,7 +103,7 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(-1 * ONE_MINUTE, 'WORK_DUR')).toBe('-1min');
   });
 
-  it('should format SHORT_WORK_DUR', function () {
+  it('should format SHORT_WORK_DUR', () => {
     expect(formatMeasure(0, 'SHORT_WORK_DUR')).toBe('0');
     expect(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('5d');
     expect(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('2h');
@@ -127,7 +127,7 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('1md');
   });
 
-  it('should format RATING', function () {
+  it('should format RATING', () => {
     expect(formatMeasure(1, 'RATING')).toBe('A');
     expect(formatMeasure(2, 'RATING')).toBe('B');
     expect(formatMeasure(3, 'RATING')).toBe('C');
@@ -135,14 +135,14 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(5, 'RATING')).toBe('E');
   });
 
-  it('should format LEVEL', function () {
+  it('should format LEVEL', () => {
     expect(formatMeasure('ERROR', 'LEVEL')).toBe('Error');
     expect(formatMeasure('WARN', 'LEVEL')).toBe('Warning');
     expect(formatMeasure('OK', 'LEVEL')).toBe('Ok');
     expect(formatMeasure('UNKNOWN', 'LEVEL')).toBe('UNKNOWN');
   });
 
-  it('should format MILLISEC', function () {
+  it('should format MILLISEC', () => {
     expect(formatMeasure(0, 'MILLISEC')).toBe('0ms');
     expect(formatMeasure(1, 'MILLISEC')).toBe('1ms');
     expect(formatMeasure(173, 'MILLISEC')).toBe('173ms');
@@ -151,21 +151,21 @@ describe('#formatMeasure()', function () {
     expect(formatMeasure(17862325, 'MILLISEC')).toBe('298min');
   });
 
-  it('should not format unknown type', function () {
+  it('should not format unknown type', () => {
     expect(formatMeasure('random value', 'RANDOM_TYPE')).toBe('random value');
   });
 
-  it('should return null if value is empty string', function () {
+  it('should return null if value is empty string', () => {
     expect(formatMeasure('', 'PERCENT')).toBeNull();
   });
 
-  it('should not fail without parameters', function () {
+  it('should not fail without parameters', () => {
     expect(formatMeasure()).toBeNull();
   });
 });
 
-describe('#formatMeasureVariation()', function () {
-  it('should format INT', function () {
+describe('#formatMeasureVariation()', () => {
+  it('should format INT', () => {
     expect(formatMeasureVariation(0, 'INT')).toBe('+0');
     expect(formatMeasureVariation(1, 'INT')).toBe('+1');
     expect(formatMeasureVariation(-1, 'INT')).toBe('-1');
@@ -173,7 +173,7 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(-1529, 'INT')).toBe('-1,529');
   });
 
-  it('should format SHORT_INT', function () {
+  it('should format SHORT_INT', () => {
     expect(formatMeasureVariation(0, 'SHORT_INT')).toBe('+0');
     expect(formatMeasureVariation(1, 'SHORT_INT')).toBe('+1');
     expect(formatMeasureVariation(-1, 'SHORT_INT')).toBe('-1');
@@ -183,7 +183,7 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(-10678, 'SHORT_INT')).toBe('-11k');
   });
 
-  it('should format FLOAT', function () {
+  it('should format FLOAT', () => {
     expect(formatMeasureVariation(0.0, 'FLOAT')).toBe('+0.0');
     expect(formatMeasureVariation(1.0, 'FLOAT')).toBe('+1.0');
     expect(formatMeasureVariation(-1.0, 'FLOAT')).toBe('-1.0');
@@ -191,14 +191,14 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(-50.89, 'FLOAT')).toBe('-50.89');
   });
 
-  it('should respect FLOAT precision', function () {
+  it('should respect FLOAT precision', () => {
     expect(formatMeasureVariation(0.1, 'FLOAT')).toBe('+0.1');
     expect(formatMeasureVariation(0.12, 'FLOAT')).toBe('+0.12');
     expect(formatMeasureVariation(0.12345, 'FLOAT')).toBe('+0.12345');
     expect(formatMeasureVariation(0.123456, 'FLOAT')).toBe('+0.12346');
   });
 
-  it('should format PERCENT', function () {
+  it('should format PERCENT', () => {
     expect(formatMeasureVariation(0.0, 'PERCENT')).toBe('+0.0%');
     expect(formatMeasureVariation(1.0, 'PERCENT')).toBe('+1.0%');
     expect(formatMeasureVariation(-1.0, 'PERCENT')).toBe('-1.0%');
@@ -206,7 +206,7 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(-50.89, 'PERCENT')).toBe('-50.9%');
   });
 
-  it('should format WORK_DUR', function () {
+  it('should format WORK_DUR', () => {
     expect(formatMeasureVariation(0, 'WORK_DUR')).toBe('+0');
     expect(formatMeasureVariation(5 * ONE_DAY, 'WORK_DUR')).toBe('+5d');
     expect(formatMeasureVariation(2 * ONE_HOUR, 'WORK_DUR')).toBe('+2h');
@@ -216,7 +216,7 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(-1 * ONE_MINUTE, 'WORK_DUR')).toBe('-1min');
   });
 
-  it('should format SHORT_WORK_DUR', function () {
+  it('should format SHORT_WORK_DUR', () => {
     expect(formatMeasureVariation(0, 'SHORT_WORK_DUR')).toBe('+0');
     expect(formatMeasureVariation(5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+5d');
     expect(formatMeasureVariation(2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+2h');
@@ -240,11 +240,11 @@ describe('#formatMeasureVariation()', function () {
     expect(formatMeasureVariation(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+1md');
   });
 
-  it('should not format unknown type', function () {
+  it('should not format unknown type', () => {
     expect(formatMeasureVariation('random value', 'RANDOM_TYPE')).toBe('random value');
   });
 
-  it('should not fail without parameters', function () {
+  it('should not fail without parameters', () => {
     expect(formatMeasureVariation()).toBeNull();
   });
 });

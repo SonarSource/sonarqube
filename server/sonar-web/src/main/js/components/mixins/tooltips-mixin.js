@@ -26,7 +26,7 @@ export const TooltipsMixin = {
     this.initTooltips();
   },
 
-  componentWillUpdate() {
+  componentWillUpdate () {
     this.hideTooltips();
   },
 
@@ -34,7 +34,7 @@ export const TooltipsMixin = {
     this.initTooltips();
   },
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroyTooltips();
   },
 
@@ -65,7 +65,7 @@ export const TooltipsContainer = React.createClass({
     this.initTooltips();
   },
 
-  componentWillUpdate() {
+  componentWillUpdate () {
     this.destroyTooltips();
   },
 
@@ -73,7 +73,7 @@ export const TooltipsContainer = React.createClass({
     this.initTooltips();
   },
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroyTooltips();
   },
 

@@ -37,13 +37,13 @@ export default FormView.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
+    }).done(() => {
       that.collection.refresh();
       if (that.options.domains.indexOf(metric.get('domain')) === -1) {
         that.options.domains.push(metric.get('domain'));
       }
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       that.enableForm();
     });

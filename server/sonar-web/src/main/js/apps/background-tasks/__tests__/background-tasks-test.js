@@ -56,7 +56,7 @@ describe('Search', () => {
     expect(component.find('.js-search').length).toBe(0);
   });
 
-  it('should search', (done) => {
+  it('should search', done => {
     const searchSpy = jest.fn();
     const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy}/>);
     const searchInput = component.find('.js-search');

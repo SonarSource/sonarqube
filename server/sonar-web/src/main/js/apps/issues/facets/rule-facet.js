@@ -49,7 +49,7 @@ export default CustomValuesFacet.extend({
           return { q: term, p: page };
         },
         results (data) {
-          const results = data.rules.map(function (rule) {
+          const results = data.rules.map(rule => {
             const lang = rule.langName || translate('manual');
             return {
               id: rule.key,
@@ -68,7 +68,7 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const rules = this.options.app.facets.rules;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const key = v.val;
       let label = '';
       let extra = '';

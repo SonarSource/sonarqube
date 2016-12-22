@@ -92,13 +92,13 @@ export function getGateForProject (projectKey) {
   return getJSON(url, data).then(r => r.qualityGate);
 }
 
-export function associateGateWithProject(gateId, projectKey) {
+export function associateGateWithProject (gateId, projectKey) {
   const url = '/api/qualitygates/select';
   const data = { gateId, projectKey };
   return post(url, data);
 }
 
-export function dissociateGateWithProject(gateId, projectKey) {
+export function dissociateGateWithProject (gateId, projectKey) {
   const url = '/api/qualitygates/deselect';
   const data = { gateId, projectKey };
   return post(url, data);

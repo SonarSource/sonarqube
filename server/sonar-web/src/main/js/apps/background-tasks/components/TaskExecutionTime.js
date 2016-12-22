@@ -22,7 +22,7 @@ import React from 'react';
 import { formatDuration } from '../utils';
 import { Task } from '../types';
 
-const TaskExecutionTime = ({ task } : { task: Task }) => {
+const TaskExecutionTime = ({ task }: { task: Task }) => {
   return (
       <td className="thin nowrap text-right">
         {formatDuration(task.executionTimeMs)}

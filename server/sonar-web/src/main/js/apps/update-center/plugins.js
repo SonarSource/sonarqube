@@ -38,23 +38,19 @@ const Plugins = Backbone.Collection.extend({
 
   parse (r) {
     const that = this;
-    return r.plugins.map(function (plugin) {
+    return r.plugins.map(plugin => {
       let updates = [
         that._getLastWithStatus(plugin.updates, 'COMPATIBLE'),
         that._getLastWithStatus(plugin.updates, 'REQUIRES_SYSTEM_UPGRADE'),
         that._getLastWithStatus(plugin.updates, 'DEPS_REQUIRE_SYSTEM_UPGRADE')
       ].filter(_.identity);
-      updates = updates.map(function (update) {
-        return that._extendChangelog(plugin.updates, update);
-      });
+      updates = updates.map(update => that._extendChangelog(plugin.updates, update));
       return _.extend(plugin, { updates });
     });
   },
 
   _getLastWithStatus (updates, status) {
-    const index = _.findLastIndex(updates, function (update) {
-      return update.status === status;
-    });
+    const index = _.findLastIndex(updates, update => update.status === status);
     return index !== -1 ? updates[index] : null;
   },
 
@@ -115,13 +111,13 @@ const Plugins = Backbone.Collection.extend({
       type: 'GET',
       url: window.baseUrl + '/api/plugins/pending',
       success (r) {
-        const installing = r.installing.map(function (plugin) {
+        const installing = r.installing.map(plugin => {
           return { key: plugin.key, _status: 'installing' };
         });
-        const updating = r.updating.map(function (plugin) {
+        const updating = r.updating.map(plugin => {
           return { key: plugin.key, _status: 'updating' };
         });
-        const uninstalling = r.removing.map(function (plugin) {
+        const uninstalling = r.removing.map(plugin => {
           return { key: plugin.key, _status: 'uninstalling' };
         });
         that._installedCount = installing.length;
@@ -142,9 +138,7 @@ const Plugins = Backbone.Collection.extend({
       type: 'GET',
       url: window.baseUrl + '/api/system/upgrades',
       success (r) {
-        that._systemUpdates = r.upgrades.map(function (update) {
-          return _.extend(update, { _system: true });
-        });
+        that._systemUpdates = r.upgrades.map(update => _.extend(update, { _system: true }));
       }
     };
     return Backbone.ajax(opts);
@@ -152,7 +146,7 @@ const Plugins = Backbone.Collection.extend({
 
   fetchInstalled () {
     const that = this;
-    return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending()).done(function () {
+    return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending()).done(() => {
       const plugins = new Plugins();
       plugins.set(that._installed);
       plugins.set(that._updates, { remove: false });
@@ -164,7 +158,7 @@ const Plugins = Backbone.Collection.extend({
   fetchUpdates () {
     const that = this;
     return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending())
-        .done(function () {
+        .done(() => {
           const plugins = new Plugins();
           plugins.set(that._installed);
           plugins.set(that._updates, { remove: true });
@@ -175,7 +169,7 @@ const Plugins = Backbone.Collection.extend({
 
   fetchAvailable () {
     const that = this;
-    return $.when(this._fetchAvailable(), this._fetchPending()).done(function () {
+    return $.when(this._fetchAvailable(), this._fetchPending()).done(() => {
       const plugins = new Plugins();
       plugins.set(that._available);
       plugins.set(that._pending, { add: false, remove: false });
@@ -185,13 +179,14 @@ const Plugins = Backbone.Collection.extend({
 
   fetchSystemUpgrades () {
     const that = this;
-    return $.when(this._fetchSystemUpgrades()).done(function () {
+    return $.when(this._fetchSystemUpgrades()).done(() => {
       that.reset(that._systemUpdates);
     });
   },
 
   search (query) {
-    this.filter(function (model) {
+    /* eslint-disable array-callback-return */
+    this.filter(model => {
       model.set({ _hidden: !model.match(query) });
     });
   },
@@ -205,7 +200,7 @@ const Plugins = Backbone.Collection.extend({
         that._installedCount = 0;
         that._updatedCount = 0;
         that._uninstalledCount = 0;
-        that.forEach(function (model) {
+        that.forEach(model => {
           model.unset('_status');
         });
         that.trigger('change');

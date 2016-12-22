@@ -70,13 +70,13 @@ export default Marionette.ItemView.extend({
         key: this.model.get('key'),
         markdown_note: this.ui.extendDescriptionText.val()
       }
-    }).done(function (r) {
+    }).done(r => {
       that.model.set({
         htmlNote: r.rule.htmlNote,
         mdNote: r.rule.mdNote
       });
       that.render();
-    }).fail(function () {
+    }).fail(() => {
       that.render();
     });
   },

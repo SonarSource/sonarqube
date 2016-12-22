@@ -23,7 +23,7 @@ module.exports = function (context, options) {
   let ret = '';
 
   if (Array.isArray(context)) {
-    context.forEach(function (element, index, list) {
+    context.forEach((element, index, list) => {
       const previous = index > 0 ? list[index - 1] : null;
       const c = _.extend({ '_previous': previous }, element);
       ret += options.fn(c);

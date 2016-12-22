@@ -36,7 +36,7 @@ export default Backbone.Model.extend({
   },
 
   getInactiveProfiles (actives, profiles) {
-    return actives.map(function (profile) {
+    return actives.map(profile => {
       const profileBase = _.findWhere(profiles, { key: profile.qProfile });
       if (profileBase != null) {
         _.extend(profile, profileBase);

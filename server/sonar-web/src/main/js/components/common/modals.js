@@ -40,7 +40,7 @@ export default Marionette.ItemView.extend({
     this.renderOverlay();
     this.keyScope = key.getScope();
     key.setScope('modal');
-    key('escape', 'modal', function () {
+    key('escape', 'modal', () => {
       that.destroy();
       return false;
     });
@@ -52,7 +52,7 @@ export default Marionette.ItemView.extend({
 
   show () {
     const that = this;
-    setTimeout(function () {
+    setTimeout(() => {
       that.$el.addClass('in');
       $('.' + that.overlayClassName).addClass('in');
     }, 0);
@@ -83,7 +83,7 @@ export default Marionette.ItemView.extend({
 
   attachCloseEvents () {
     const that = this;
-    $('body').on('click.' + EVENT_SCOPE, function () {
+    $('body').on('click.' + EVENT_SCOPE, () => {
       $('body').off('click.' + EVENT_SCOPE);
       that.destroy();
     });

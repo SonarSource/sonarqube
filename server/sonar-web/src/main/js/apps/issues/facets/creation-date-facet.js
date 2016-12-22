@@ -22,7 +22,7 @@ import _ from 'underscore';
 import moment from 'moment';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-creation-date-facet.hbs';
-import '../../../components/widgets/barchart.js';
+import '../../../components/widgets/barchart';
 import { formatMeasure } from '../../../helpers/measures';
 
 export default BaseFacet.extend({
@@ -52,7 +52,7 @@ export default BaseFacet.extend({
     });
     const props = ['createdAfter', 'createdBefore', 'createdAt'];
     const query = this.options.app.state.get('query');
-    props.forEach(function (prop) {
+    props.forEach(prop => {
       const value = query[prop];
       if (value != null) {
         return that.$(`input[name=${prop}]`).val(value);
@@ -62,13 +62,13 @@ export default BaseFacet.extend({
     if (!(_.isArray(values) && values.length > 0)) {
       let date = moment();
       values = [];
-      _.times(10, function () {
+      _.times(10, () => {
         values.push({ count: 0, val: date.toDate().toString() });
         date = date.subtract(1, 'days');
       });
       values.reverse();
     }
-    values = values.map(function (v) {
+    values = values.map(v => {
       const format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
       const text = formatMeasure(v.count, format);
       return _.extend(v, { text });

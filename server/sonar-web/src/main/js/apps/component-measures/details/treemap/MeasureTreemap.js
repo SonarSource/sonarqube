@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Spinner from './../../components/Spinner';
 import { getLeakValue } from '../../utils';
 import { Treemap } from '../../../../components/charts/treemap';

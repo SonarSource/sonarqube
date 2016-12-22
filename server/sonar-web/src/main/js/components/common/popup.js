@@ -48,14 +48,14 @@ export default Marionette.ItemView.extend({
 
   attachCloseEvents () {
     const that = this;
-    key('escape', function () {
+    key('escape', () => {
       that.destroy();
     });
-    $('body').on('click.bubble-popup', function () {
+    $('body').on('click.bubble-popup', () => {
       $('body').off('click.bubble-popup');
       that.destroy();
     });
-    this.options.triggerEl.on('click.bubble-popup', function (e) {
+    this.options.triggerEl.on('click.bubble-popup', e => {
       that.options.triggerEl.off('click.bubble-popup');
       e.stopPropagation();
       that.destroy();

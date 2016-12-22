@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { BarChart } from '../charts/bar-chart';
 import { formatMeasure } from '../../helpers/measures';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -48,20 +47,22 @@ export const ComplexityDistribution = React.createClass({
 
     const xValues = data.map(point => formatMeasure(point.y, 'INT'));
 
-    return <BarChart data={data}
-                     xTicks={xTicks}
-                     xValues={xValues}
-                     height={HEIGHT}
-                     barsWidth={20}
-                     padding={[25, 10, 25, 10]}/>;
+    return (
+        <BarChart
+            data={data}
+            xTicks={xTicks}
+            xValues={xValues}
+            height={HEIGHT}
+            barsWidth={20}
+            padding={[25, 10, 25, 10]}/>
+    );
   },
 
   render () {
     // TODO remove inline styling
     return (
-        <div
-            className="overview-bar-chart"
-            style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}>
+        <div className="overview-bar-chart"
+             style={{ height: HEIGHT, paddingTop: 10, paddingBottom: 15 }}>
           {this.renderBarChart()}
         </div>
     );

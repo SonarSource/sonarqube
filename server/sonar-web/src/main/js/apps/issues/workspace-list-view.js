@@ -45,37 +45,23 @@ export default WorkspaceListView.extend({
       selectedIssueView.$('.js-issue-' + action).click();
     };
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
-    key('right', 'list', function () {
+    key('right', 'list', () => {
       const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
       that.options.app.controller.showComponentViewer(selectedIssue);
       return false;
     });
-    key('space', 'list', function () {
+    key('space', 'list', () => {
       const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
       selectedIssue.set({ selected: !selectedIssue.get('selected') });
       return false;
     });
-    key('f', 'list', function () {
-      return doAction('transition');
-    });
-    key('a', 'list', function () {
-      return doAction('assign');
-    });
-    key('m', 'list', function () {
-      return doAction('assign-to-me');
-    });
-    key('p', 'list', function () {
-      return doAction('plan');
-    });
-    key('i', 'list', function () {
-      return doAction('set-severity');
-    });
-    key('c', 'list', function () {
-      return doAction('comment');
-    });
-    key('t', 'list', function () {
-      return doAction('edit-tags');
-    });
+    key('f', 'list', () => doAction('transition'));
+    key('a', 'list', () => doAction('assign'));
+    key('m', 'list', () => doAction('assign-to-me'));
+    key('p', 'list', () => doAction('plan'));
+    key('i', 'list', () => doAction('set-severity'));
+    key('c', 'list', () => doAction('comment'));
+    key('t', 'list', () => doAction('edit-tags'));
   },
 
   unbindShortcuts () {

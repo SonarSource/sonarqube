@@ -60,9 +60,7 @@ export default BaseFacet.extend({
 
   sortValues (values) {
     const order = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
-    return _.sortBy(values, function (v) {
-      return order.indexOf(v.val);
-    });
+    return _.sortBy(values, v => order.indexOf(v.val));
   }
 });
 

@@ -25,7 +25,6 @@ import { parseUrlQuery } from '../store/utils';
 
 export default class AllProjects extends React.Component {
   static propTypes = {
-    user: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.bool]),
     isFavorite: React.PropTypes.bool.isRequired,
     fetchProjects: React.PropTypes.func.isRequired
   };

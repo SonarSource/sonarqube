@@ -33,11 +33,10 @@ import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
   propTypes: {
-    hasProvisionPermission: React.PropTypes.bool.isRequired,
-    topLevelQualifiers: React.PropTypes.array.isRequired
+    hasProvisionPermission: React.PropTypes.bool.isRequired
   },
 
-  getInitialState() {
+  getInitialState () {
     return {
       ready: false,
       projects: [],
@@ -54,11 +53,11 @@ export default React.createClass({
     this.requestProjects = _.debounce(this.requestProjects, 250);
   },
 
-  componentDidMount() {
+  componentDidMount () {
     this.requestProjects();
   },
 
-  getFilters() {
+  getFilters () {
     const filters = { ps: PAGE_SIZE };
     if (this.state.page !== 1) {
       filters.p = this.state.page;
@@ -69,7 +68,7 @@ export default React.createClass({
     return filters;
   },
 
-  requestProjects() {
+  requestProjects () {
     switch (this.state.type) {
       case TYPE.ALL:
         this.requestAllProjects();
@@ -86,12 +85,12 @@ export default React.createClass({
     }
   },
 
-  requestGhosts() {
+  requestGhosts () {
     const data = this.getFilters();
     getGhosts(data).then(r => {
-      let projects = r.projects.map(project => {
-        return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
-      });
+      let projects = r.projects.map(project => (
+          _.extend(project, { id: project.uuid, qualifier: 'TRK' })
+      ));
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
@@ -99,12 +98,12 @@ export default React.createClass({
     });
   },
 
-  requestProvisioned() {
+  requestProvisioned () {
     const data = this.getFilters();
     getProvisioned(data).then(r => {
-      let projects = r.projects.map(project => {
-        return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
-      });
+      let projects = r.projects.map(project => (
+          _.extend(project, { id: project.uuid, qualifier: 'TRK' })
+      ));
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
@@ -112,7 +111,7 @@ export default React.createClass({
     });
   },
 
-  requestAllProjects() {
+  requestAllProjects () {
     const data = this.getFilters();
     data.qualifiers = this.state.qualifiers;
     getComponents(data).then(r => {
@@ -124,12 +123,12 @@ export default React.createClass({
     });
   },
 
-  loadMore() {
+  loadMore () {
     this.setState({ ready: false, page: this.state.page + 1 },
         this.requestProjects);
   },
 
-  onSearch(query) {
+  onSearch (query) {
     this.setState({
       ready: false,
       page: 1,
@@ -138,7 +137,7 @@ export default React.createClass({
     }, this.requestProjects);
   },
 
-  onTypeChanged(newType) {
+  onTypeChanged (newType) {
     this.setState({
       ready: false,
       page: 1,
@@ -149,7 +148,7 @@ export default React.createClass({
     }, this.requestProjects);
   },
 
-  onQualifierChanged(newQualifier) {
+  onQualifierChanged (newQualifier) {
     this.setState({
       ready: false,
       page: 1,
@@ -160,28 +159,26 @@ export default React.createClass({
     }, this.requestProjects);
   },
 
-  onProjectSelected(project) {
+  onProjectSelected (project) {
     const newSelection = _.uniq([].concat(this.state.selection, project.id));
     this.setState({ selection: newSelection });
   },
 
-  onProjectDeselected(project) {
+  onProjectDeselected (project) {
     const newSelection = _.without(this.state.selection, project.id);
     this.setState({ selection: newSelection });
   },
 
-  onAllSelected() {
-    const newSelection = this.state.projects.map(project => {
-      return project.id;
-    });
+  onAllSelected () {
+    const newSelection = this.state.projects.map(project => project.id);
     this.setState({ selection: newSelection });
   },
 
-  onAllDeselected() {
+  onAllDeselected () {
     this.setState({ selection: [] });
   },
 
-  deleteProjects() {
+  deleteProjects () {
     this.setState({ ready: false });
     const ids = this.state.selection.join(',');
     deleteComponents({ ids }).then(() => {
@@ -189,7 +186,7 @@ export default React.createClass({
     });
   },
 
-  render() {
+  render () {
     return (
         <div className="page page-limited">
           <Header

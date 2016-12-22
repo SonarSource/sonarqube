@@ -20,7 +20,7 @@
 import React from 'react';
 
 export default React.createClass({
-  render() {
+  render () {
     /* eslint max-len: 0 */
     return (
         <svg width="16" height="16" className="icon-pending">

@@ -38,16 +38,14 @@ export default BaseFacet.extend({
     const languages = languagesQuery != null ? languagesQuery.split(',') : [];
     const lang = languages.length === 1 ? languages[0] : null;
     const values = this.options.app.qualityProfiles
-        .filter(function (profile) {
-          return lang != null ? profile.lang === lang : true;
-        })
-        .map(function (profile) {
-          return {
-            label: profile.name,
-            extra: that.options.app.languages[profile.lang],
-            val: profile.key
-          };
-        });
+        .filter(profile => (
+            lang != null ? profile.lang === lang : true
+        ))
+        .map(profile => ({
+          label: profile.name,
+          extra: that.options.app.languages[profile.lang],
+          val: profile.key
+        }));
     return _.sortBy(values, 'label');
   },
 

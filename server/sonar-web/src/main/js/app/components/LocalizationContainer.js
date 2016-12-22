@@ -22,7 +22,7 @@ import React from 'react';
 import { requestMessages } from '../../helpers/l10n';
 
 export default class LocalizationContainer extends React.Component {
-  mounted: bool;
+  mounted: boolean;
 
   state = {
     loading: true

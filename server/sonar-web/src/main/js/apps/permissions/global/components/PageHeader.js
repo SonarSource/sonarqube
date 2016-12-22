@@ -20,12 +20,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
-import { loadHolders } from '../store/actions';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
 class PageHeader extends React.Component {
   static propTypes = {
-    loadHolders: React.PropTypes.func.isRequired,
     loading: React.PropTypes.bool
   };
 
@@ -56,11 +54,6 @@ const mapStateToProps = state => ({
   loading: isPermissionsAppLoading(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-  loadHolders: () => dispatch(loadHolders())
-});
-
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(PageHeader);

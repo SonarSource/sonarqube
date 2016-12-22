@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/web-api';
 
 export default class ResponseExample extends React.Component {

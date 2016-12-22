@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { Treemap, TreemapRect } from '../treemap';
 
-it('should display', function () {
+it('should display', () => {
   const items = [
     { size: 10, color: '#777', label: 'SonarQube :: Server' },
     { size: 30, color: '#777', label: 'SonarQube :: Web' },

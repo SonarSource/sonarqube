@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Breadcrumbs from './Breadcrumbs';
 import { translateWithParameters } from '../../../../helpers/l10n';
 
-const ListHeader = (props) => {
+const ListHeader = props => {
   const { metric, breadcrumbs, onBrowse } = props;
   const { selectedIndex, componentsCount, onSelectPrevious, onSelectNext } = props;
   const hasPrevious = selectedIndex > 0;

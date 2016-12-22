@@ -28,7 +28,7 @@ import DefinitionChanges from './DefinitionChanges';
 import { getPropertyName, getPropertyDescription, getSettingValue, isDefaultOrInherited } from '../utils';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { resetValue, saveValue } from '../store/actions';
-import { failValidation, passValidation } from '../store/settingsPage/validationMessages/actions';
+import { passValidation } from '../store/settingsPage/validationMessages/actions';
 import { cancelChange, changeValue } from '../store/settingsPage/changedValues/actions';
 import { TYPE_PASSWORD } from '../constants';
 import {
@@ -52,7 +52,6 @@ class Definition extends React.Component {
     cancelChange: React.PropTypes.func.isRequired,
     saveValue: React.PropTypes.func.isRequired,
     resetValue: React.PropTypes.func.isRequired,
-    failValidation: React.PropTypes.func.isRequired,
     passValidation: React.PropTypes.func.isRequired
   };
 
@@ -197,5 +196,5 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(
     mapStateToProps,
-    { changeValue, saveValue, resetValue, failValidation, passValidation, cancelChange }
+    { changeValue, saveValue, resetValue, passValidation, cancelChange }
 )(Definition);

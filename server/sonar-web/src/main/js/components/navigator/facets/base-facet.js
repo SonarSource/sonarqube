@@ -45,7 +45,7 @@ export default Marionette.ItemView.extend({
     const property = this.model.get('property');
     const value = this.options.app.state.get('query')[property];
     if (typeof value === 'string') {
-      value.split(',').forEach(function (s) {
+      value.split(',').forEach(s => {
         const facet = that.$('.js-facet').filter(`[data-value="${s}"]`);
         if (facet.length > 0) {
           facet.addClass('active');
@@ -95,7 +95,7 @@ export default Marionette.ItemView.extend({
   },
 
   sortValues (values) {
-    return values.slice().sort(function (left, right) {
+    return values.slice().sort((left, right) => {
       if (left.count !== right.count) {
         return right.count - left.count;
       }

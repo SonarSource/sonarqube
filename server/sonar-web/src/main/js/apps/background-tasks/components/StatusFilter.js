@@ -20,11 +20,10 @@
  /* @flow */
 import React from 'react';
 import Select from 'react-select';
-
 import { STATUSES } from '../constants';
 import { translate } from '../../../helpers/l10n';
 
-const StatusFilter = ({ value, onChange }: { value: ?string, onChange: any }) => {
+const StatusFilter = ({ value, onChange }: { value: ?string, onChange: Function }) => {
   const options = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     { value: STATUSES.ALL_EXCEPT_PENDING, label: translate('background_task.status.ALL_EXCEPT_PENDING') },

@@ -28,7 +28,7 @@ export function translate (...keys: string[]) {
   return messages[messageKey] || messageKey;
 }
 
-export function translateWithParameters (messageKey: string, ...parameters: Array<string|number>) {
+export function translateWithParameters (messageKey: string, ...parameters: Array<string | number>) {
   const message = messages[messageKey];
   if (message) {
     return parameters
@@ -118,7 +118,7 @@ export function requestMessages () {
   });
 }
 
-export function resetBundle (bundle: any) {
+export function resetBundle (bundle: Object) {
   messages = bundle;
 }
 

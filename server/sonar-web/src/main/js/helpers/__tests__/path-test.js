@@ -19,48 +19,48 @@
  */
 import { collapsedDirFromPath, fileFromPath } from '../path';
 
-describe('#collapsedDirFromPath()', function () {
-  it('should return null when pass null', function () {
+describe('#collapsedDirFromPath()', () => {
+  it('should return null when pass null', () => {
     expect(collapsedDirFromPath(null)).toBeNull();
   });
 
-  it('should return "/" when pass "/"', function () {
+  it('should return "/" when pass "/"', () => {
     expect(collapsedDirFromPath('/')).toBe('/');
   });
 
-  it('should not cut short path', function () {
+  it('should not cut short path', () => {
     expect(collapsedDirFromPath('src/main/js/components/state.js')).toBe('src/main/js/components/');
   });
 
-  it('should cut long path', function () {
+  it('should cut long path', () => {
     expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js'))
         .toBe('src/.../js/components/navigator/app/models/');
   });
 
-  it('should cut very long path', function () {
+  it('should cut very long path', () => {
     expect(collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'))
         .toBe('src/.../js/components/navigator/app/models/');
   });
 });
 
-describe('#fileFromPath()', function () {
-  it('should return null when pass null', function () {
+describe('#fileFromPath()', () => {
+  it('should return null when pass null', () => {
     expect(fileFromPath(null)).toBeNull();
   });
 
-  it('should return empty string when pass "/"', function () {
+  it('should return empty string when pass "/"', () => {
     expect(fileFromPath('/')).toBe('');
   });
 
-  it('should return file name when pass only file name', function () {
+  it('should return file name when pass only file name', () => {
     expect(fileFromPath('file.js')).toBe('file.js');
   });
 
-  it('should return file name when pass file path', function () {
+  it('should return file name when pass file path', () => {
     expect(fileFromPath('src/main/js/file.js')).toBe('file.js');
   });
 
-  it('should return file name when pass file name without extension', function () {
+  it('should return file name when pass file name without extension', () => {
     expect(fileFromPath('src/main/file')).toBe('file');
   });
 });

@@ -44,7 +44,7 @@ export default ModalFormView.extend({
         });
   },
 
-  serializeData() {
+  serializeData () {
     return {
       ...ModalFormView.prototype.serializeData.apply(this, arguments),
       profile: this.profile,

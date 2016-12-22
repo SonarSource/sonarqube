@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
-
-import { getJSON } from '../helpers/request.js';
+import { getJSON } from '../helpers/request';
 
 export function getFacets (query, facets) {
   const url = '/api/issues/search';

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { getIdentityProviders } from '../../../api/users';
 
 export default class UserExternalIdentity extends React.Component {
@@ -78,7 +77,7 @@ export default class UserExternalIdentity extends React.Component {
     return (
         <div className="identity-provider"
              style={{ backgroundColor: identityProvider.backgroundColor }}>
-          <img src={window.baseUrl + identityProvider.iconPath} width="14" height="14"/>
+          <img src={window.baseUrl + identityProvider.iconPath} width="14" height="14" alt={identityProvider.name}/>
           {' '}
           {user.externalIdentity}
         </div>

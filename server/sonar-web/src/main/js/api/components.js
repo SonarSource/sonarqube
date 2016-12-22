@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON, postJSON, post } from '../helpers/request.js';
+import { getJSON, postJSON, post } from '../helpers/request';
 
 export function getComponents (data?: Object) {
   const url = '/api/components/search';

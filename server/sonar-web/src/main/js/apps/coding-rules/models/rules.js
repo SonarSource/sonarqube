@@ -29,8 +29,8 @@ export default Backbone.Collection.extend({
     const profiles = r.qProfiles || [];
 
     if (r.actives != null) {
-      rules = rules.map(function (rule) {
-        const activations = (r.actives[rule.key] || []).map(function (activation) {
+      rules = rules.map(rule => {
+        const activations = (r.actives[rule.key] || []).map(activation => {
           const profile = profiles[activation.qProfile];
           if (profile != null) {
             _.extend(activation, { profile });
@@ -47,13 +47,13 @@ export default Backbone.Collection.extend({
   },
 
   setIndex () {
-    this.forEach(function (rule, index) {
+    this.forEach((rule, index) => {
       rule.set({ index });
     });
   },
 
   addExtraAttributes (repositories) {
-    this.models.forEach(function (model) {
+    this.models.forEach(model => {
       model.addExtraAttributes(repositories);
     });
   }

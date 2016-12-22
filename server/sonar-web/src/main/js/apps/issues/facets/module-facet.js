@@ -24,7 +24,7 @@ export default BaseFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const components = this.options.app.facets.components;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const uuid = v.val;
       let label = uuid;
       if (uuid) {

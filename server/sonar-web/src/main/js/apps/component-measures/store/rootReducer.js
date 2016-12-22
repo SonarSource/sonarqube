@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-
 import appReducer from './../app/reducer';
 import statusReducer from './statusReducer';
 import homeReducer from '../home/reducer';

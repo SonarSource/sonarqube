@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
 
@@ -32,7 +31,7 @@ export default function GlobalNotifications ({ notifications, channels }) {
         <table className="form">
           <thead>
             <tr>
-              <th></th>
+              <th/>
               {channels.map(channel => (
                   <th key={channel} className="text-center">
                     <h4>{translate('notification.channel', channel)}</h4>

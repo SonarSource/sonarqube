@@ -32,7 +32,7 @@ import '../styles.css';
 type Props = {
   component: { key: string },
   defaultCategory: ?string,
-  fetchSettings(componentKey: ?string): Promise<any>,
+  fetchSettings(componentKey: ?string): Promise<*>,
   location: { query: {} }
 };
 

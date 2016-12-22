@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import Action from './Action';
 import InternalBadge from './InternalBadge';
 import { getActionKey } from '../utils';

@@ -33,7 +33,7 @@ export default class LoginForm extends React.Component {
     password: ''
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = (e: Object) => {
     e.preventDefault();
     this.props.onSubmit(this.state.login, this.state.password);
   };
@@ -50,7 +50,7 @@ export default class LoginForm extends React.Component {
                       <li key={identityProvider.key}>
                         <a href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
                            style={{ backgroundColor: identityProvider.backgroundColor }}
-                           title={`Log in with ${identityProvider.name}` }>
+                           title={`Log in with ${identityProvider.name}`}>
                           <img alt={identityProvider.name} width="20" height="20"
                                src={window.baseUrl + identityProvider.iconPath}/>
                           <span>Log in with {identityProvider.name}</span>

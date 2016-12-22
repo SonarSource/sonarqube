@@ -21,7 +21,6 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Clipboard from 'clipboard';
-
 import Template from './templates/account-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 
@@ -67,7 +66,7 @@ export default Marionette.ItemView.extend({
         });
   },
 
-  onRevokeTokenFormSubmit(e) {
+  onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = _.findWhere(this.tokens, { name: `${tokenName}` });
@@ -93,7 +92,7 @@ export default Marionette.ItemView.extend({
     this.newToken = null;
   },
 
-  serializeData() {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       tokens: this.tokens,
       newToken: this.newToken,

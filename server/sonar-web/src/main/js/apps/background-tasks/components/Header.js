@@ -19,7 +19,6 @@
  */
  /* @flow */
 import React from 'react';
-
 import { translate } from '../../../helpers/l10n';
 
 const Header = () => {

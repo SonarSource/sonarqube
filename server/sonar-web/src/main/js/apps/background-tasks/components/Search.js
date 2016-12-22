@@ -19,7 +19,6 @@
  */
  /* @flow */
 import React from 'react';
-
 import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
@@ -58,12 +57,12 @@ export default class Search extends React.Component {
     this.props.onFilterUpdate({ query });
   }
 
-  handleReload (e: any) {
+  handleReload (e: Object) {
     e.target.blur();
     this.props.onReload();
   }
 
-  handleReset (e: any) {
+  handleReset (e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onFilterUpdate(DEFAULT_FILTERS);

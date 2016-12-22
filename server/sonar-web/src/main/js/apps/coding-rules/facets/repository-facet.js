@@ -36,7 +36,7 @@ export default CustomValuesFacet.extend({
       results (data) {
         return {
           more: false,
-          results: data.repositories.map(function (repo) {
+          results: data.repositories.map(repo => {
             return { id: repo.key, text: repo.name + ' (' + repo.language + ')' };
           })
         };
@@ -52,7 +52,7 @@ export default CustomValuesFacet.extend({
   getValues () {
     const that = this;
     const labels = that.getLabelsSource();
-    return this.model.getValues().map(function (value) {
+    return this.model.getValues().map(value => {
       const repo = _.findWhere(that.options.app.repositories, { key: value.val });
       if (repo != null) {
         const langName = that.options.app.languages[repo.language];

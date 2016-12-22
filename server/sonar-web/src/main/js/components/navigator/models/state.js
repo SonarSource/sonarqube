@@ -37,7 +37,7 @@ export default Backbone.Model.extend({
 
   clearQuery (query) {
     const q = {};
-    Object.keys(query).forEach(function (key) {
+    Object.keys(query).forEach(key => {
       if (query[key]) {
         q[key] = query[key];
       }
@@ -47,7 +47,7 @@ export default Backbone.Model.extend({
 
   _areQueriesEqual (a, b) {
     let equal = Object.keys(a).length === Object.keys(b).length;
-    Object.keys(a).forEach(function (key) {
+    Object.keys(a).forEach(key => {
       equal = equal && a[key] === b[key];
     });
     return equal;

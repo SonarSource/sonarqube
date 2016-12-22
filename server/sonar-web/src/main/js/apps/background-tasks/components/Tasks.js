@@ -21,21 +21,25 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
-
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
 
-export default class Tasks extends React.Component {
-  static propTypes = {
-    tasks: React.PropTypes.array.isRequired,
-    component: React.PropTypes.object,
-    types: React.PropTypes.array.isRequired,
-    loading: React.PropTypes.bool.isRequired,
-    onCancelTask: React.PropTypes.func.isRequired,
-    onFilterTask: React.PropTypes.func.isRequired
-  };
+type Props = {
+  tasks: Array<*>,
+  component: Object,
+  types: Array<*>,
+  loading: boolean,
+  onCancelTask: Function,
+  onFilterTask: Function
+};
 
-  shouldComponentUpdate (nextProps: any, nextState: any) {
+type State = Object;
+
+export default class Tasks extends React.Component {
+  props: Props;
+  state: State;
+
+  shouldComponentUpdate (nextProps: Props, nextState: State) {
     return shallowCompare(this, nextProps, nextState);
   }
 

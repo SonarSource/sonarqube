@@ -21,7 +21,6 @@ import groupBy from 'lodash/groupBy';
 import partition from 'lodash/partition';
 import sortBy from 'lodash/sortBy';
 import toPairs from 'lodash/toPairs';
-
 import { RECEIVE_MEASURES } from './actions';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 

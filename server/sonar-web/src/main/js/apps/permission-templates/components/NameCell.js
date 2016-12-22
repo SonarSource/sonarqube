@@ -24,8 +24,7 @@ import { PermissionTemplateType } from '../propTypes';
 
 export default class NameCell extends React.Component {
   static propTypes = {
-    permissionTemplate: PermissionTemplateType.isRequired,
-    topQualifiers: React.PropTypes.array.isRequired
+    permissionTemplate: PermissionTemplateType.isRequired
   };
 
   render () {

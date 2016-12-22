@@ -20,7 +20,5 @@
 module.exports = function (options) {
   const ops = ['LT', 'GT', 'EQ', 'NE'];
 
-  return ops.reduce(function (prev, current) {
-    return prev + options.fn(current);
-  }, '');
+  return ops.reduce((prev, current) => prev + options.fn(current), '');
 };

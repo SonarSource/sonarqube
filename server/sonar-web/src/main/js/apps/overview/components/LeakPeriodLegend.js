@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import moment from 'moment';
-
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
 

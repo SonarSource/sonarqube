@@ -71,9 +71,7 @@ const init = function ({ el, updateCenterActive }) {
   });
 };
 
-App.on('start', function (options) {
-  return init.call(App, options);
-});
+App.on('start', options => init.call(App, options));
 
 export default function (el, updateCenterActive) {
   App.start({ el, updateCenterActive });

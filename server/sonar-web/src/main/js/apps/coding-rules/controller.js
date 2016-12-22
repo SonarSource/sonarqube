@@ -61,7 +61,7 @@ export default Controller.extend({
     const that = this;
     const url = window.baseUrl + '/api/rules/search';
     const options = _.extend(this._searchParameters(), this.app.state.get('query'));
-    return $.get(url, options).done(function (r) {
+    return $.get(url, options).done(r => {
       const rules = that.app.list.parseRules(r);
       if (firstPage) {
         that.app.list.reset(rules);
@@ -94,7 +94,7 @@ export default Controller.extend({
     const url = window.baseUrl + '/api/rules/search';
     const facet = this.app.facets.get(id);
     const options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
-    return $.get(url, options).done(function (r) {
+    return $.get(url, options).done(r => {
       const facetData = _.findWhere(r.facets, { property: id });
       if (facetData) {
         facet.set(facetData);
@@ -116,7 +116,7 @@ export default Controller.extend({
       key: rule.id,
       actives: true
     };
-    return $.get(url, options).done(function (data) {
+    return $.get(url, options).done(data => {
       rule.set(data.rule);
       rule.addExtraAttributes(that.app.repositories);
     });
@@ -126,7 +126,7 @@ export default Controller.extend({
     const that = this;
     const ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
     this.app.layout.workspaceDetailsRegion.reset();
-    this.getRuleDetails(ruleModel).done(function (data) {
+    this.getRuleDetails(ruleModel).done(data => {
       key.setScope('details');
       that.app.workspaceListView.unbindScrollEvents();
       that.app.state.set({ rule: ruleModel });

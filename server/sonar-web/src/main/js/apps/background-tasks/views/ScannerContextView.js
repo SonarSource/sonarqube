@@ -30,14 +30,14 @@ export default Modal.extend({
     this.loadScannerContext();
   },
 
-  loadScannerContext() {
+  loadScannerContext () {
     getTask(this.options.task.id, ['scannerContext']).then(task => {
       this.scannerContext = task.scannerContext;
       this.render();
     });
   },
 
-  serializeData() {
+  serializeData () {
     return {
       task: this.options.task,
       scannerContext: this.scannerContext

@@ -128,9 +128,7 @@ export default ModalFormView.extend({
         value
       };
     }).get();
-    options.params = params.map(function (param) {
-      return param.key + '=' + csvEscape(param.value);
-    }).join(';');
+    options.params = params.map(param => param.key + '=' + csvEscape(param.value)).join(';');
     this.sendRequest(action, options);
   },
 
@@ -145,9 +143,7 @@ export default ModalFormView.extend({
       prevent_reactivation: false
     };
     const params = this.existingRule.params;
-    options.params = params.map(function (param) {
-      return param.key + '=' + param.defaultValue;
-    }).join(';');
+    options.params = params.map(param => param.key + '=' + param.defaultValue).join(';');
     this.sendRequest('create', options);
   },
 
@@ -163,14 +159,14 @@ export default ModalFormView.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
+    }).done(() => {
       if (that.options.templateRule) {
         that.options.app.controller.showDetails(that.options.templateRule);
       } else {
         that.options.app.controller.showDetails(that.model);
       }
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       if (jqXHR.status === 409) {
         that.existingRule = jqXHR.responseJSON.rule;
         that.showErrors([], [{ msg: translate('coding_rules.reactivate.help') }]);
@@ -187,12 +183,10 @@ export default ModalFormView.extend({
     if (this.options.templateRule) {
       params = this.options.templateRule.get('params');
     } else if (this.model && this.model.has('params')) {
-      params = this.model.get('params').map(function (p) {
-        return _.extend(p, { value: p.defaultValue });
-      });
+      params = this.model.get('params').map(p => _.extend(p, { value: p.defaultValue }));
     }
 
-    const statuses = ['READY', 'BETA', 'DEPRECATED'].map(function (status) {
+    const statuses = ['READY', 'BETA', 'DEPRECATED'].map(status => {
       return {
         id: status,
         text: translate('rules.status', status.toLowerCase())

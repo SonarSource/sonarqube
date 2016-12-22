@@ -22,7 +22,7 @@ import SeverityIcon from './severity-icon';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
-  render() {
+  render () {
     if (!this.props.severity) {
       return null;
     }

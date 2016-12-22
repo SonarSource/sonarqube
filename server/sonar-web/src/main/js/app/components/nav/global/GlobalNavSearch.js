@@ -99,7 +99,7 @@ class GlobalNavSearch extends React.Component {
           <a className="navbar-search-dropdown" href="#" onClick={this.onClick}>
             <i className="icon-search navbar-icon"/>&nbsp;<i className="icon-dropdown"/>
           </a>
-          <div ref="container" className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"></div>
+          <div ref="container" className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"/>
         </li>
     );
   }

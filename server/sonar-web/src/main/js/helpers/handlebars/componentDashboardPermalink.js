@@ -32,8 +32,6 @@ module.exports = function (componentKey, dashboardKey) {
     }
   }
 
-  const query = params.map(function (p) {
-    return p.key + '=' + encodeURIComponent(p.value);
-  }).join('&');
+  const query = params.map(p => p.key + '=' + encodeURIComponent(p.value)).join('&');
   return window.baseUrl + '/dashboard/index?' + query;
 };

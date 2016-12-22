@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
-
 import Spinner from './../components/Spinner';
 import MeasureDetailsHeader from './MeasureDetailsHeader';
 import MeasureDrilldown from './drilldown/MeasureDrilldown';

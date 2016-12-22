@@ -23,7 +23,7 @@ import ItemObject from './item-object';
 import ItemLogLevel from './item-log-level';
 
 export default React.createClass({
-  render() {
+  render () {
     if (this.props.name === 'Logs Level') {
       return <ItemLogLevel value={this.props.value}/>;
     }

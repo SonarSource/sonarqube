@@ -36,7 +36,7 @@ export default BaseFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const source = this.options.app.facets.components;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const key = v.val;
       let label = null;
       if (key) {

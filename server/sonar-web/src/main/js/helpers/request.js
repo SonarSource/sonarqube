@@ -228,6 +228,6 @@ export function requestDelete (url: string, data?: Object): Promise<Object> {
  * @param response
  * @returns {Promise}
  */
-export function delay (response: any): Promise<any> {
+export function delay (response: *): Promise<*> {
   return new Promise(resolve => setTimeout(() => resolve(response), 1200));
 }

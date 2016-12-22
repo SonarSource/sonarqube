@@ -53,10 +53,10 @@ export default class EvolutionRules extends React.Component {
   loadLatestRules () {
     const data = {
       'available_since': PERIOD_START_MOMENT.format('YYYY-MM-DD'),
-      s: 'createdAt',
-      asc: false,
-      ps: RULES_LIMIT,
-      f: 'name,langName,actives'
+      's': 'createdAt',
+      'asc': false,
+      'ps': RULES_LIMIT,
+      'f': 'name,langName,actives'
     };
 
     searchRules(data).then(r => {

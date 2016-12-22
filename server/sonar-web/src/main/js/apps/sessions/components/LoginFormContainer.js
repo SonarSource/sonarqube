@@ -26,7 +26,7 @@ import { getAppState } from '../../../store/rootReducer';
 import { getIdentityProviders } from '../../../api/users';
 
 class LoginFormContainer extends React.Component {
-  mounted: bool;
+  mounted: boolean;
 
   static propTypes = {
     location: React.PropTypes.object.isRequired

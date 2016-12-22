@@ -21,7 +21,6 @@ import classNames from 'classnames';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';

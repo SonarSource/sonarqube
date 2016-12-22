@@ -55,7 +55,7 @@ export default ActionOptionsView.extend({
     const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
-    setTimeout(function () {
+    setTimeout(() => {
       that.$('input').focus();
     }, 100);
   },
@@ -120,7 +120,7 @@ export default ActionOptionsView.extend({
   search (query) {
     const that = this;
     if (query.length > 1) {
-      $.get(window.baseUrl + '/api/users/search', { q: query }).done(function (data) {
+      $.get(window.baseUrl + '/api/users/search', { q: query }).done(data => {
         that.resetAssignees(data.users);
       });
     } else {
@@ -130,7 +130,7 @@ export default ActionOptionsView.extend({
 
   resetAssignees (users) {
     if (users) {
-      this.assignees = users.map(function (user) {
+      this.assignees = users.map(user => {
         return { id: user.login, text: user.name };
       });
     } else {
@@ -152,8 +152,6 @@ export default ActionOptionsView.extend({
   },
 
   makeUnique (assignees) {
-    return _.uniq(assignees, false, function (assignee) {
-      return assignee.id;
-    });
+    return _.uniq(assignees, false, assignee => assignee.id);
   }
 });

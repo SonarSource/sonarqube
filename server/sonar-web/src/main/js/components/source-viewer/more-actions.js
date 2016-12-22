@@ -36,7 +36,7 @@ export default Marionette.ItemView.extend({
 
   onRender () {
     const that = this;
-    $('body').on('click.component-viewer-more-actions', function () {
+    $('body').on('click.component-viewer-more-actions', () => {
       $('body').off('click.component-viewer-more-actions');
       that.destroy();
     });

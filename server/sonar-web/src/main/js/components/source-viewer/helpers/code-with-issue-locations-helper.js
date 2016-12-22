@@ -54,7 +54,7 @@ function splitByTokens (code, rootClassName = '') {
   const container = document.createElement('div');
   let tokens = [];
   container.innerHTML = code;
-  [].forEach.call(container.childNodes, function (node) {
+  [].forEach.call(container.childNodes, node => {
     if (node.nodeType === 1) {
       // ELEMENT NODE
       const fullClassName = rootClassName ? (rootClassName + ' ' + node.className) : node.className;
@@ -77,10 +77,10 @@ function splitByTokens (code, rootClassName = '') {
  * @returns {Array}
  */
 function highlightIssueLocations (tokens, issueLocations, className) {
-  issueLocations.forEach(function (location) {
+  issueLocations.forEach(location => {
     const nextTokens = [];
     let acc = 0;
-    tokens.forEach(function (token) {
+    tokens.forEach(token => {
       const x = intersect(acc, acc + token.text.length, location.from, location.to);
       const p1 = part(token.text, acc, x.from, acc);
       const p2 = part(token.text, x.from, x.to, acc);
@@ -109,9 +109,9 @@ function highlightIssueLocations (tokens, issueLocations, className) {
  * @returns {string}
  */
 function generateHTML (tokens) {
-  return tokens.map(function (token) {
-    return `<span class="${token.className}">${_.escape(token.text)}</span>`;
-  }).join('');
+  return tokens.map(token => (
+      `<span class="${token.className}">${_.escape(token.text)}</span>`
+  )).join('');
 }
 
 /**

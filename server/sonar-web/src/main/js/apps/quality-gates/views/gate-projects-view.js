@@ -19,7 +19,6 @@
  */
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-
 import Template from '../templates/quality-gate-detail-projects.hbs';
 import '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';

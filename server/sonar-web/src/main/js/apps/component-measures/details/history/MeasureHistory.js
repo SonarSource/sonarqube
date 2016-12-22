@@ -20,7 +20,6 @@
 import sortBy from 'lodash/sortBy';
 import moment from 'moment';
 import React from 'react';
-
 import Spinner from './../../components/Spinner';
 import Timeline from '../../../../components/charts/Timeline';
 import { getTimeMachineData } from '../../../../api/time-machine';
@@ -117,8 +116,8 @@ export default class MeasureHistory extends React.Component {
       };
     });
 
-    const formatValue = (value) => formatMeasure(value, metric.type);
-    const formatYTick = (tick) => formatMeasure(tick, getShortType(metric.type));
+    const formatValue = value => formatMeasure(value, metric.type);
+    const formatYTick = tick => formatMeasure(tick, getShortType(metric.type));
 
     return (
         <div style={{ height: HEIGHT }}>

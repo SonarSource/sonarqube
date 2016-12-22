@@ -58,7 +58,7 @@ const init = function (el, component) {
   this.customMeasures.fetch();
 };
 
-App.on('start', function (options) {
+App.on('start', options => {
   init.call(App, options.el, options.component);
 });
 

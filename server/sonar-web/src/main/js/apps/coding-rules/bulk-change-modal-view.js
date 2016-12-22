@@ -68,10 +68,10 @@ export default ModalFormView.extend({
     const that = this;
     let looper = $.Deferred().resolve();
     this.disableForm();
-    profiles.forEach(function (profile) {
+    profiles.forEach(profile => {
       const opts = _.extend({}, options, { profile_key: profile });
-      looper = looper.then(function () {
-        return $.post(url, opts).done(function (r) {
+      looper = looper.then(() => {
+        return $.post(url, opts).done(r => {
           if (!that.isDestroyed) {
             if (r.failed) {
               that.showWarnMessage(profile, r.succeeded, r.failed);
@@ -82,7 +82,7 @@ export default ModalFormView.extend({
         });
       });
     });
-    looper.done(function () {
+    looper.done(() => {
       that.options.app.controller.fetchList();
       if (!that.isDestroyed) {
         that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
@@ -98,9 +98,7 @@ export default ModalFormView.extend({
     const languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [];
     let profiles = this.options.app.qualityProfiles;
     if (languages.length > 0) {
-      profiles = _.filter(profiles, function (profile) {
-        return languages.indexOf(profile.lang) !== -1;
-      });
+      profiles = _.filter(profiles, profile => languages.indexOf(profile.lang) !== -1);
     }
     return profiles;
   },

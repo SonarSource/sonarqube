@@ -19,7 +19,6 @@
  */
 import d3 from 'd3';
 import React from 'react';
-
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -36,7 +35,7 @@ export const BarChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       xTicks: [],
       xValues: [],
@@ -48,7 +47,7 @@ export const BarChart = React.createClass({
     return { width: this.props.width, height: this.props.height };
   },
 
-  handleClick(point) {
+  handleClick (point) {
     this.props.onBarClick(point);
   },
 
@@ -66,14 +65,19 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <text key={index}
-                   className="bar-chart-tick"
-                   x={x}
-                   y={y}
-                   dy="1.5em"
-                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          {...tooltipAtts}>{tick}</text>;
+      return (
+          <text
+              key={index}
+              className="bar-chart-tick"
+              x={x}
+              y={y}
+              dy="1.5em"
+              onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+              {...tooltipAtts}>
+            {tick}
+          </text>
+      );
     });
     return <g>{ticks}</g>;
   },
@@ -92,14 +96,19 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <text key={index}
-                   className="bar-chart-tick"
-                   x={x}
-                   y={y}
-                   dy="-1em"
-                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-          {...tooltipAtts}>{value}</text>;
+      return (
+          <text
+              key={index}
+              className="bar-chart-tick"
+              x={x}
+              y={y}
+              dy="-1em"
+              onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+              {...tooltipAtts}>
+            {value}
+          </text>
+      );
     });
     return <g>{ticks}</g>;
   },
@@ -115,15 +124,18 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <rect key={index}
-                   className="bar-chart-bar"
-          {...tooltipAtts}
-                   x={x}
-                   y={y}
-                   width={this.props.barsWidth}
-                   height={height}
-                   onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
-                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}/>;
+      return (
+          <rect
+              key={index}
+              className="bar-chart-bar"
+              {...tooltipAtts}
+              x={x}
+              y={y}
+              width={this.props.barsWidth}
+              height={height}
+              onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
+              style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}/>
+      );
     });
     return <g>{bars}</g>;
   },
@@ -148,12 +160,14 @@ export const BarChart = React.createClass({
         .domain([0, maxY])
         .range([availableHeight, 0]);
 
-    return <svg className="bar-chart" width={this.state.width} height={this.state.height}>
-      <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-        {this.renderXTicks(xScale, yScale)}
-        {this.renderXValues(xScale, yScale)}
-        {this.renderBars(xScale, yScale)}
-      </g>
-    </svg>;
+    return (
+        <svg className="bar-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            {this.renderXTicks(xScale, yScale)}
+            {this.renderXValues(xScale, yScale)}
+            {this.renderBars(xScale, yScale)}
+          </g>
+        </svg>
+    );
   }
 });

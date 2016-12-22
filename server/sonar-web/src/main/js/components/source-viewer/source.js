@@ -44,7 +44,7 @@ export default Backbone.Model.extend({
     const source = this.get('source');
     let metaIdx = 0;
     let metaLine = meta[metaIdx];
-    source.forEach(function (line) {
+    source.forEach(line => {
       while (metaLine != null && line.line > metaLine.line) {
         metaLine = meta[++metaIdx];
       }
@@ -59,11 +59,11 @@ export default Backbone.Model.extend({
   addDuplications (duplications) {
     const source = this.get('source');
     if (source != null) {
-      source.forEach(function (line) {
+      source.forEach(line => {
         const lineDuplications = [];
-        duplications.forEach(function (d, i) {
+        duplications.forEach((d, i) => {
           let duplicated = false;
-          d.blocks.forEach(function (b) {
+          d.blocks.forEach(b => {
             if (b._ref === '1') {
               const lineFrom = b.from;
               const lineTo = b.from + b.size - 1;
@@ -84,7 +84,7 @@ export default Backbone.Model.extend({
     const source = this.get('source');
     let hasDuplications = false;
     if (source != null) {
-      source.forEach(function (line) {
+      source.forEach(line => {
         if (line.duplicated) {
           hasDuplications = true;
         }
@@ -94,9 +94,7 @@ export default Backbone.Model.extend({
   },
 
   hasCoverage (source) {
-    return _.some(source, function (line) {
-      return line.coverageStatus != null;
-    });
+    return _.some(source, line => line.coverageStatus != null);
   }
 });
 

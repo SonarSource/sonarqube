@@ -35,7 +35,7 @@ export default CustomValuesFacet.extend({
       results (data) {
         return {
           more: false,
-          results: data.tags.map(function (tag) {
+          results: data.tags.map(tag => {
             return { id: tag, text: tag };
           })
         };

@@ -33,7 +33,7 @@ type Props = {
 type State = {
   processing: boolean,
   name: string
-}
+};
 
 export default class ChangeEventForm extends React.Component {
   mounted: boolean;

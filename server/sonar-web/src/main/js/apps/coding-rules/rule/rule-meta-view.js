@@ -63,7 +63,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
 
   changeTags () {
     const that = this;
-    this.requestTags().done(function (r) {
+    this.requestTags().done(r => {
       that.ui.tagInput.select2({
         tags: _.difference(_.difference(r.tags, that.model.get('tags')), that.model.get('sysTags')),
         width: '300px'
@@ -95,10 +95,10 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
         key: this.model.get('key'),
         tags
       }
-    }).done(function (r) {
+    }).done(r => {
       that.model.set('tags', r.rule.tags);
       that.cancelEdit();
-    }).always(function () {
+    }).always(() => {
       that.cancelEdit();
     });
   },

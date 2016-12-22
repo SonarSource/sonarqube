@@ -19,7 +19,6 @@
  */
 import Backbone from 'backbone';
 import React, { Component } from 'react';
-
 import TokensView from '../tokens-view';
 
 export default class Tokens extends Component {
@@ -49,6 +48,6 @@ export default class Tokens extends Component {
   }
 
   render () {
-    return <div ref="container"></div>;
+    return <div ref="container"/>;
   }
 }

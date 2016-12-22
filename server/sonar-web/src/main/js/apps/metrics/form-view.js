@@ -40,10 +40,8 @@ export default ModalForm.extend({
         callback({ id: value, text: value });
       },
       query (options) {
-        const items = that.options.domains.filter(function (d) {
-          return d.toLowerCase().indexOf(options.term.toLowerCase()) !== -1;
-        });
-        const results = items.map(function (item) {
+        const items = that.options.domains.filter(d => d.toLowerCase().indexOf(options.term.toLowerCase()) !== -1);
+        const results = items.map(item => {
           return { id: item, text: item };
         });
         options.callback({ results, more: false });

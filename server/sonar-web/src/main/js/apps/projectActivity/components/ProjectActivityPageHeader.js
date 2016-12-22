@@ -24,8 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 type Props = {
   changeFilter: (filter: ?string) => void,
-  filter: ?string,
-  project: string
+  filter: ?string
 };
 
 export default class ProjectActivityPageHeader extends React.Component {

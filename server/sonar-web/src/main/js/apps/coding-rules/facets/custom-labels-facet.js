@@ -29,7 +29,7 @@ export default BaseFacet.extend({
   getValues () {
     const that = this;
     const labels = that.getLabelsSource();
-    return this.model.getValues().map(function (item) {
+    return this.model.getValues().map(item => {
       return _.extend(item, {
         label: labels[item.val]
       });

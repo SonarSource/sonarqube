@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBreadcrumbs from '../ComponentNavBreadcrumbs';
 
-it('should not render breadcrumbs with one element', function () {
+it('should not render breadcrumbs with one element', () => {
   const breadcrumbs = [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }];
   const result = shallow(<ComponentNavBreadcrumbs breadcrumbs={breadcrumbs}/>);
   expect(result.find('li').length).toBe(1);

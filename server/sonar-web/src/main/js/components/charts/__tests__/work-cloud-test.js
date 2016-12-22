@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { WordCloud, Word } from '../word-cloud';
 
-it('should display', function () {
+it('should display', () => {
   const items = [
     { size: 10, link: '#', text: 'SonarQube :: Server' },
     { size: 30, link: '#', text: 'SonarQube :: Web' },

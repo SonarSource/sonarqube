@@ -20,7 +20,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Clipboard from 'clipboard';
-
 import Modal from '../../components/common/modals';
 import Template from './templates/users-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
@@ -68,7 +67,7 @@ export default Modal.extend({
         });
   },
 
-  onRevokeTokenFormSubmit(e) {
+  onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = _.findWhere(this.tokens, { name: `${tokenName}` });
@@ -100,7 +99,7 @@ export default Modal.extend({
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData() {
+  serializeData () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
       tokens: this.tokens,
       newToken: this.newToken,
