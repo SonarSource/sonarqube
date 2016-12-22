@@ -25,6 +25,6 @@ export default React.createClass({
       return null;
     }
     const className = 'icon-severity-' + this.props.severity.toLowerCase();
-    return <i className={className}></i>;
+    return <i className={className}/>;
   }
 });

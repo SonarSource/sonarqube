@@ -104,7 +104,7 @@ export default class Details extends Component {
             <div className="search-navigator-workspace-header" style={{ top: 30 }}>
               <h2 className="search-navigator-header-component">&nbsp;</h2>
             </div>
-            <div className="search-navigator-workspace-details"></div>
+            <div className="search-navigator-workspace-details"/>
           </div>
       );
     }

@@ -48,7 +48,7 @@ export default class BulkUpdateForm extends React.Component {
                 name="replace"
                 type="text"
                 placeholder={translate('update_key.replace_example')}
-                required/>
+                required={true}/>
           </div>
 
           <div className="modal-field">
@@ -61,7 +61,7 @@ export default class BulkUpdateForm extends React.Component {
                 name="by"
                 type="text"
                 placeholder={translate('update_key.by_example')}
-                required/>
+                required={true}/>
             <button
                 ref="submit"
                 id="bulk-update-see-results"

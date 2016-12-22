@@ -106,7 +106,7 @@ export default class Conditions extends React.Component {
                 <p>{translate('quality_gates.duplicated_conditions')}</p>
                 <ul className="list-styled spacer-top">
                   {uniqDuplicates.map(d => (
-                      <li>{getLocalizedMetricName(d.metric)}</li>
+                      <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
                   ))}
                 </ul>
               </div>
@@ -131,7 +131,7 @@ export default class Conditions extends React.Component {
                   <th className="thin nowrap">
                     {translate('quality_gates.conditions.error')}
                   </th>
-                  {edit && <th></th>}
+                  {edit && <th/>}
                 </tr>
                 </thead>
                 <tbody>

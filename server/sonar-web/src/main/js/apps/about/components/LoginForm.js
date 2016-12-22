@@ -57,7 +57,7 @@ export default class LoginForm extends React.Component {
 
           <div className="big-spacer-bottom">
             <label htmlFor="login" className="login-label">{translate('login')}</label>
-            <input type="text" id="login" name="login" className="login-input" maxLength="255" required
+            <input type="text" id="login" name="login" className="login-input" maxLength="255" required={true}
                    placeholder={translate('login')}
                    value={this.state.login}
                    onChange={e => this.setState({ login: e.target.value })}/>
@@ -65,7 +65,7 @@ export default class LoginForm extends React.Component {
 
           <div className="big-spacer-bottom">
             <label htmlFor="password" className="login-label">{translate('password')}</label>
-            <input type="password" id="password" name="password" className="login-input" required
+            <input type="password" id="password" name="password" className="login-input" required={true}
                    placeholder={translate('password')}
                    value={this.state.password}
                    onChange={e => this.setState({ password: e.target.value })}/>

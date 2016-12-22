@@ -28,7 +28,6 @@ export default class Projects extends React.Component {
     projects: projectsListType.isRequired,
     total: React.PropTypes.number.isRequired,
     loading: React.PropTypes.bool.isRequired,
-    search: React.PropTypes.func.isRequired,
     loadMore: React.PropTypes.func.isRequired
   };
 

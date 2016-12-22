@@ -49,17 +49,17 @@ export default class ConditionsAlert extends Component {
                 {translate('quality_gates.health_icons')}
                 <ul>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-ok"></i>
+                    <i className="icon-alert-ok"/>
                     {' '}
                     {translate('alerts.notes.ok')}
                   </li>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-warn"></i>
+                    <i className="icon-alert-warn"/>
                     {' '}
                     {translate('alerts.notes.warn')}
                   </li>
                   <li className="little-spacer-top">
-                    <i className="icon-alert-error"></i>
+                    <i className="icon-alert-error"/>
                     {' '}
                     {translate('alerts.notes.error')}
                   </li>

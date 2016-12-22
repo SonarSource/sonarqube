@@ -134,7 +134,7 @@ export default React.createClass({
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">
                   <button className="search-box-submit button-clean">
-                    <i className="icon-search"></i>
+                    <i className="icon-search"/>
                   </button>
                   <input onChange={this.search}
                          value={this.props.query}

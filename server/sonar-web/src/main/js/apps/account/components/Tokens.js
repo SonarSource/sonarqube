@@ -48,6 +48,6 @@ export default class Tokens extends Component {
   }
 
   render () {
-    return <div ref="container"></div>;
+    return <div ref="container"/>;
   }
 }

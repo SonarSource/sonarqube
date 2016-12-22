@@ -22,6 +22,7 @@ import Item from './item';
 
 export default React.createClass({
   propTypes: {
+    /* eslint-disable react/no-unused-prop-types */
     items: React.PropTypes.array.isRequired,
     renderItem: React.PropTypes.func.isRequired,
     getItemKey: React.PropTypes.func.isRequired,
@@ -32,7 +33,7 @@ export default React.createClass({
   render() {
     const renderedItems = this.props.items.map(item => {
       const key = this.props.getItemKey(item);
-      return <Item key={key} {...this.props} item={item} />;
+      return <Item key={key} {...this.props} item={item}/>;
     });
     return (
         <ul>{renderedItems}</ul>

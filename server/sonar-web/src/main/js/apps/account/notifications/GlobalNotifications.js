@@ -31,7 +31,7 @@ export default function GlobalNotifications ({ notifications, channels }) {
         <table className="form">
           <thead>
             <tr>
-              <th></th>
+              <th/>
               {channels.map(channel => (
                   <th key={channel} className="text-center">
                     <h4>{translate('notification.channel', channel)}</h4>

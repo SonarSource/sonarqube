@@ -114,8 +114,8 @@ export default class MarkdownHelp extends React.Component {
               <tr>
                 <td className="text-top">
                   Standard text<br/>
-                  > Blockquoted text<br/>
-                  > that spans multiple lines<br/>
+                  &gt; Blockquoted text<br/>
+                  &gt; that spans multiple lines<br/>
                 </td>
                 <td className="markdown text-top">
                   <p>Standard text</p>

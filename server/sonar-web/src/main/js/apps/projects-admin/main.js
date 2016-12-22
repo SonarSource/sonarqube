@@ -33,8 +33,7 @@ import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
   propTypes: {
-    hasProvisionPermission: React.PropTypes.bool.isRequired,
-    topLevelQualifiers: React.PropTypes.array.isRequired
+    hasProvisionPermission: React.PropTypes.bool.isRequired
   },
 
   getInitialState() {

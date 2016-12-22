@@ -77,7 +77,7 @@ class EmailForm extends React.Component {
               <input
                   id="test-email-to"
                   type="email"
-                  required
+                  required={true}
                   value={this.state.recipient}
                   disabled={this.state.loading}
                   onChange={e => this.setState({ recipient: e.target.value })}/>
@@ -100,7 +100,7 @@ class EmailForm extends React.Component {
               </label>
               <textarea
                   id="test-email-title"
-                  required
+                  required={true}
                   rows="5"
                   value={this.state.message}
                   disabled={this.state.loading}

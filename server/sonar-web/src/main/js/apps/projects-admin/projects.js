@@ -29,8 +29,7 @@ import { translate } from '../../helpers/l10n';
 export default class Projects extends React.Component {
   static propTypes = {
     projects: React.PropTypes.array.isRequired,
-    selection: React.PropTypes.array.isRequired,
-    refresh: React.PropTypes.func.isRequired
+    selection: React.PropTypes.array.isRequired
   };
 
   componentWillMount () {

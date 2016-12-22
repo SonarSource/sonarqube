@@ -48,9 +48,11 @@ export const Bubble = React.createClass({
         'title': this.props.tooltip
       };
     }
-    return <circle onClick={this.handleClick} className="bubble-chart-bubble"
-                   r={this.props.r} {...tooltipAttrs}
-                   transform={`translate(${this.props.x}, ${this.props.y})`}/>;
+    return (
+        <circle onClick={this.handleClick} className="bubble-chart-bubble"
+                r={this.props.r} {...tooltipAttrs}
+                transform={`translate(${this.props.x}, ${this.props.y})`}/>
+    );
   }
 });
 
@@ -120,12 +122,15 @@ export const BubbleChart = React.createClass({
       const x = xScale(tick);
       const y1 = yScale.range()[0];
       const y2 = yScale.range()[1];
-      return <line key={index}
-                   x1={x}
-                   x2={x}
-                   y1={y1}
-                   y2={y2}
-                   className="bubble-chart-grid"/>;
+      return (
+          <line
+              key={index}
+              x1={x}
+              x2={x}
+              y1={y1}
+              y2={y2}
+              className="bubble-chart-grid"/>
+      );
     });
 
     return <g ref="xGrid">{lines}</g>;
@@ -140,12 +145,15 @@ export const BubbleChart = React.createClass({
       const y = yScale(tick);
       const x1 = xScale.range()[0];
       const x2 = xScale.range()[1];
-      return <line key={index}
-                   x1={x1}
-                   x2={x2}
-                   y1={y}
-                   y2={y}
-                   className="bubble-chart-grid"/>;
+      return (
+          <line
+              key={index}
+              x1={x1}
+              x2={x2}
+              y1={y}
+              y2={y}
+              className="bubble-chart-grid"/>
+      );
     });
 
     return <g ref="yGrid">{lines}</g>;
@@ -160,11 +168,16 @@ export const BubbleChart = React.createClass({
       const x = xScale(tick);
       const y = yScale.range()[0];
       const innerText = this.props.formatXTick(tick);
-      return <text key={index}
-                   className="bubble-chart-tick"
-                   x={x}
-                   y={y}
-                   dy="1.5em">{innerText}</text>;
+      return (
+          <text
+              key={index}
+              className="bubble-chart-tick"
+              x={x}
+              y={y}
+              dy="1.5em">
+            {innerText}
+          </text>
+      );
     });
 
     return <g>{ticks}</g>;
@@ -179,12 +192,17 @@ export const BubbleChart = React.createClass({
       const x = xScale.range()[0];
       const y = yScale(tick);
       const innerText = this.props.formatYTick(tick);
-      return <text key={index}
-                   className="bubble-chart-tick bubble-chart-tick-y"
-                   x={x}
-                   y={y}
-                   dx="-0.5em"
-                   dy="0.3em">{innerText}</text>;
+      return (
+          <text
+              key={index}
+              className="bubble-chart-tick bubble-chart-tick-y"
+              x={x}
+              y={y}
+              dx="-0.5em"
+              dy="0.3em">
+            {innerText}
+          </text>
+      );
     });
 
     return <g>{ticks}</g>;
@@ -218,24 +236,29 @@ export const BubbleChart = React.createClass({
 
     const bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
         .map((item, index) => {
-          return <Bubble key={index}
-                         link={item.link}
-                         tooltip={item.tooltip}
-                         x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}
-                         onClick={this.props.onBubbleClick}/>;
+          return (
+              <Bubble
+                  key={index}
+                  link={item.link}
+                  tooltip={item.tooltip}
+                  x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}
+                  onClick={this.props.onBubbleClick}/>
+          );
         });
 
     const xTicks = this.getTicks(xScale, this.props.formatXTick);
     const yTicks = this.getTicks(yScale, this.props.formatYTick);
 
-    return <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
-      <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-        {this.renderXGrid(xTicks, xScale, yScale)}
-        {this.renderXTicks(xTicks, xScale, yScaleOriginal)}
-        {this.renderYGrid(yTicks, xScale, yScale)}
-        {this.renderYTicks(yTicks, xScaleOriginal, yScale)}
-        {bubbles}
-      </g>
-    </svg>;
+    return (
+        <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            {this.renderXGrid(xTicks, xScale, yScale)}
+            {this.renderXTicks(xTicks, xScale, yScaleOriginal)}
+            {this.renderYGrid(yTicks, xScale, yScale)}
+            {this.renderYTicks(yTicks, xScaleOriginal, yScale)}
+            {bubbles}
+          </g>
+        </svg>
+    );
   }
 });

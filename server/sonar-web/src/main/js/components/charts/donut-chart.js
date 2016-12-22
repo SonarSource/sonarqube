@@ -61,19 +61,24 @@ export const DonutChart = React.createClass({
         .sort(null)
         .value(d => d.value);
     const sectors = pie(this.props.data).map((d, i) => {
-      return <Sector key={i}
-                     data={d}
-                     radius={radius}
-                     fill={this.props.data[i].fill}
-                     thickness={this.props.thickness}/>;
+      return (
+          <Sector
+              key={i}
+              data={d}
+              radius={radius}
+              fill={this.props.data[i].fill}
+              thickness={this.props.thickness}/>
+      );
     });
 
-    return <svg className="donut-chart" width={this.state.width} height={this.state.height}>
-      <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-        <g transform={`translate(${radius}, ${radius})`}>
-          {sectors}
-        </g>
-      </g>
-    </svg>;
+    return (
+        <svg className="donut-chart" width={this.state.width} height={this.state.height}>
+          <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
+            <g transform={`translate(${radius}, ${radius})`}>
+              {sectors}
+            </g>
+          </g>
+        </svg>
+    );
   }
 });

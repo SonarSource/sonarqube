@@ -56,7 +56,7 @@ export default class Projects extends Component {
 
   render () {
     return (
-        <div ref="container"></div>
+        <div ref="container"/>
     );
   }
 }

@@ -67,7 +67,7 @@ export default class UpdateForm extends React.Component {
               value={value}
               type="text"
               placeholder={translate('update_key.new_key')}
-              required
+              required={true}
               onChange={this.handleChange.bind(this)}/>
 
           <div className="spacer-top">

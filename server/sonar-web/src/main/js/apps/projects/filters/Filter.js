@@ -37,9 +37,7 @@ export default class Filter extends React.Component {
 
     halfWidth: React.PropTypes.bool,
 
-    getFilterUrl: React.PropTypes.func.isRequired,
-
-    router: React.PropTypes.object
+    getFilterUrl: React.PropTypes.func.isRequired
   };
 
   static defaultProps = {
