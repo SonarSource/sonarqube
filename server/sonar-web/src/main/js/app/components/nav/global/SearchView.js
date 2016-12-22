@@ -28,7 +28,6 @@ import EmptySearchTemplate from '../templates/nav-search-empty.hbs';
 import SearchTemplate from '../templates/nav-search.hbs';
 import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
-import { collapsedDirFromPath, fileFromPath } from '../../../../helpers/path';
 import { isUserAdmin } from '../../../../helpers/users';
 import { getFavorites } from '../../../../api/favorites';
 import { getSuggestions } from '../../../../api/components';
@@ -163,10 +162,9 @@ export default Marionette.LayoutView.extend({
   fetchFavorite (): Promise<*> {
     return getFavorites().then(r => {
       this.favorite = r.favorites.map(f => {
-        const isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
         return {
           url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
-          name: isFile ? collapsedDirFromPath(f.lname) + fileFromPath(f.lname) : f.name,
+          name: f.name,
           icon: 'favorite'
         };
       });
