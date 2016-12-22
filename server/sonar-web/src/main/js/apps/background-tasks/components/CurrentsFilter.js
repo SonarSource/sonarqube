@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
@@ -39,13 +39,16 @@ const CurrentsFilter = ({ value, onChange }: { value: ?string, onChange: (string
 
   return (
       <div className="bt-search-form-field">
-        <Checkbox
-            checked={checked}
-            onCheck={handleChange}/>
+        <Checkbox checked={checked} onCheck={handleChange}/>
         &nbsp;
         <label
-            onClick={handleLabelClick}
-            style={{ cursor: 'pointer' }}>Yes</label>
+            style={{ cursor: 'pointer' }}
+            role="checkbox"
+            tabIndex="0"
+            aria-checked={checked ? 'true' : 'false'}
+            onClick={handleLabelClick}>
+          Yes
+        </label>
       </div>
   );
 };

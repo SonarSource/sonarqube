@@ -1954,9 +1954,9 @@ eslint-plugin-import@^2.2.0:
     minimatch "^3.0.3"
     pkg-up "^1.0.0"
 
-eslint-plugin-jsx-a11y@2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsx-a11y/-/eslint-plugin-jsx-a11y-2.2.2.tgz#ac893b4f9ecb7534bc0373ff6a47388835d3a859"
+eslint-plugin-jsx-a11y@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsx-a11y/-/eslint-plugin-jsx-a11y-3.0.2.tgz#9f0eabcafde3d2a2600d96a66adb90d099e841fe"
   dependencies:
     damerau-levenshtein "^1.0.0"
     jsx-ast-utils "^1.0.0"

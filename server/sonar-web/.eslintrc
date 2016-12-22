@@ -20,6 +20,7 @@
 
   "plugins": [
     "import",
+    "jsx-a11y",
     "flowtype",
     "react"
   ],
@@ -84,6 +85,24 @@
     }],
     "import/newline-after-import": 2,
     "import/no-named-default": 2,
+
+    "jsx-a11y/aria-props": 2,
+    "jsx-a11y/aria-proptypes": 2,
+    "jsx-a11y/aria-role": 2,
+    "jsx-a11y/aria-unsupported-elements": 2,
+    "jsx-a11y/heading-has-content": 2,
+    "jsx-a11y/html-has-lang": 2,
+    "jsx-a11y/img-has-alt": 2,
+    "jsx-a11y/img-redundant-alt": 2,
+    "jsx-a11y/lang": 2,
+    "jsx-a11y/mouse-events-have-key-events": 2,
+    "jsx-a11y/no-access-key": 2,
+    "jsx-a11y/no-marquee": 2,
+    "jsx-a11y/onclick-has-focus": 2,
+    "jsx-a11y/onclick-has-role": 2,
+    "jsx-a11y/role-has-required-aria-props": 2,
+    "jsx-a11y/role-supports-aria-props": 2,
+    "jsx-a11y/tabindex-no-positive": 2,
 
     "react/jsx-boolean-value": [2, "always"],
     "react/jsx-closing-bracket-location": [2, "after-props"],

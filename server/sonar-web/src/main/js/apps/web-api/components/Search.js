@@ -65,6 +65,9 @@ export default class Search extends React.Component {
               <span
                   style={{ cursor: 'pointer' }}
                   title={translate('api_documentation.internal_tooltip')}
+                  tabIndex="0"
+                  role="checkbox"
+                  aria-checked={showInternal ? 'true' : 'false'}
                   onClick={onToggleInternal}>
                 Show Internal API
               </span>
@@ -84,6 +87,9 @@ export default class Search extends React.Component {
               <span
                   style={{ cursor: 'pointer' }}
                   title={translate('api_documentation.deprecation_tooltip')}
+                  tabIndex="0"
+                  role="checkbox"
+                  aria-checked={showOnlyDeprecated ? 'true' : 'false'}
                   onClick={onToggleDeprecated}>
                 Show Only Deprecated API
               </span>

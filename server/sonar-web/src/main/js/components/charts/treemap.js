@@ -93,6 +93,7 @@ export const TreemapRect = React.createClass({
       cursor: typeof this.props.onClick === 'function' ? 'pointer' : 'default'
     };
     const isTextVisible = this.props.width >= 40 && this.props.height >= 40;
+    /* eslint-disable jsx-a11y/onclick-has-focus, jsx-a11y/onclick-has-role */
     return (
         <div
             className="treemap-cell"
