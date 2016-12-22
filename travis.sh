@@ -55,8 +55,10 @@ CI)
     # No need for Maven phase "install" as the generated JAR file does not need to be installed
     # in Maven local repository. Phase "verify" is enough.
 
+    set_maven_build_version $TRAVIS_BUILD_NUMBER
     export MAVEN_OPTS="-Xmx1G -Xms128m"
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
+
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
         -Dclirr=true \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
@@ -64,7 +66,8 @@ CI)
         -Dsonar.github.oauth=$GITHUB_TOKEN \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
-        -B -e -V
+        -B -e -V \
+        -Pdeploy-sonarsource
 
   else
     strongEcho 'Build, no analysis, no deploy'
