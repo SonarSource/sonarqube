@@ -24,7 +24,7 @@ import { actions as appStateActions } from '../../../../store/appState/duck';
 
 type State = { [key: string]: {} };
 
-const reducer = (state: State = {}, action: any) => {
+const reducer = (state: State = {}, action: Object) => {
   if (action.type === RECEIVE_VALUES) {
     const settingsByKey = keyBy(action.settings, 'key');
     return { ...state, ...settingsByKey };

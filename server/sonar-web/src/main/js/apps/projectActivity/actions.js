@@ -30,7 +30,7 @@ import {
 import { onFail } from '../../store/rootActions';
 import { getProjectActivity } from '../../store/rootReducer';
 
-const rejectOnFail = (dispatch: Function) => (error: any) => {
+const rejectOnFail = (dispatch: Function) => (error: Object) => {
   onFail(dispatch)(error);
   return Promise.reject();
 };

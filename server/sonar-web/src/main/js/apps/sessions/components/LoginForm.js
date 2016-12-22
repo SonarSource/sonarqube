@@ -33,7 +33,7 @@ export default class LoginForm extends React.Component {
     password: ''
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = (e: Object) => {
     e.preventDefault();
     this.props.onSubmit(this.state.login, this.state.password);
   };

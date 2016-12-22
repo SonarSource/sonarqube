@@ -30,14 +30,14 @@ import type { State as PagingState } from './paging';
 
 export type Event = {
   key: string,
-  name: string;
-  category: string;
-  description?: string;
+  name: string,
+  category: string,
+  description?: string
 };
 
 export type Analysis = {
-  key: string;
-  date: string;
+  key: string,
+  date: string,
   events: Array<Event>
 };
 

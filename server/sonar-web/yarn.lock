@@ -1592,7 +1592,7 @@ decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
-deep-equal@1.0.1, deep-equal@^1.0.0:
+deep-equal@1.0.1, deep-equal@^1.0.0, deep-equal@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/deep-equal/-/deep-equal-1.0.1.tgz#f5d260292b660e084eff4cdbc9f08ad3247448b5"
 
@@ -1675,6 +1675,10 @@ dom-converter@~0.1:
   resolved "https://registry.yarnpkg.com/dom-converter/-/dom-converter-0.1.4.tgz#a45ef5727b890c9bffe6d7c876e7b19cb0e17f3b"
   dependencies:
     utila "~0.3"
+
+dom-helpers@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-2.4.0.tgz#9bb4b245f637367b1fa670274272aa28fe06c367"
 
 dom-serializer@0, dom-serializer@~0.1.0:
   version "0.1.0"
@@ -1929,9 +1933,9 @@ eslint-module-utils@^2.0.0:
     debug "2.2.0"
     pkg-dir "^1.0.0"
 
-eslint-plugin-flowtype@2.18.1:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-flowtype/-/eslint-plugin-flowtype-2.18.1.tgz#f027524c58b90d27a0544e74c082fba070afd9c8"
+eslint-plugin-flowtype@^2.29.1:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-flowtype/-/eslint-plugin-flowtype-2.29.1.tgz#74cc5603ff0baff6e224482bbd17406b0980f6c3"
   dependencies:
     lodash "^4.15.0"
 
@@ -3641,11 +3645,11 @@ lodash.words@^3.0.0:
   dependencies:
     lodash._root "^3.0.0"
 
-lodash@4.6.1, lodash@^4.2.0, lodash@^4.2.1:
+lodash@4.6.1, lodash@^4.2.0:
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.6.1.tgz#df00c1164ad236b183cfc3887a5e8d38cc63cbbc"
 
-lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.4, lodash@^4.17.2, lodash@^4.3.0, lodash@^4.6.1:
+lodash@^4.0.0, lodash@^4.15.0, lodash@^4.16.4, lodash@^4.17.2, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.2"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
 
@@ -4711,6 +4715,14 @@ react-transform-hmr@1.0.4:
     global "^4.3.0"
     react-proxy "^1.1.7"
 
+react-virtualized@8.1.1:
+  version "8.1.1"
+  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-8.1.1.tgz#90a8106e5562ed5b0d458f2ef5868bd8bb95e404"
+  dependencies:
+    babel-runtime "^6.11.6"
+    classnames "^2.2.3"
+    dom-helpers "^2.4.0"
+
 react@15.3.2:
   version "15.3.2"
   resolved "https://registry.yarnpkg.com/react/-/react-15.3.2.tgz#a7bccd2fee8af126b0317e222c28d1d54528d09e"
@@ -4821,6 +4833,12 @@ reduce-function-call@^1.0.1:
 redux-logger@2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/redux-logger/-/redux-logger-2.2.1.tgz#f57dd1b3f48c0f48d4ad58ef8c026f753d6cb06c"
+
+redux-simple-router@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/redux-simple-router/-/redux-simple-router-1.0.1.tgz#b6a9d6fdae978c096375d8fd6f81ff223880cc28"
+  dependencies:
+    deep-equal "^1.0.1"
 
 redux-thunk@1.0.2:
   version "1.0.2"

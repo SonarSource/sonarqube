@@ -25,7 +25,7 @@ export function updateTask (tasks: Task[], newTask: Task) {
   return tasks.map(task => task.id === newTask.id ? newTask : task);
 }
 
-export function mapFiltersToParameters (filters: any = {}) {
+export function mapFiltersToParameters (filters: Object = {}) {
   const parameters = {};
 
   if (filters.status === STATUSES.ALL) {

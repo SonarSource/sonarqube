@@ -26,7 +26,7 @@ function isAnotherDay (a, b) {
   return !moment(a).isSame(moment(b), 'day');
 }
 
-const TaskDay = ({ task, prevTask } : { task: Task, prevTask: ?Task }) => {
+const TaskDay = ({ task, prevTask }: { task: Task, prevTask: ?Task }) => {
   const shouldDisplay = !prevTask || isAnotherDay(task.submittedAt, prevTask.submittedAt);
 
   return (

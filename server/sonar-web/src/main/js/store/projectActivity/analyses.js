@@ -28,8 +28,8 @@ import type {
 } from './duck';
 
 type Analysis = {
-  key: string;
-  date: string;
+  key: string,
+  date: string,
   events: Array<string>
 };
 

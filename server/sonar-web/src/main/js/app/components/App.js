@@ -25,7 +25,7 @@ import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 
 class App extends React.Component {
-  mounted: bool;
+  mounted: boolean;
 
   static propTypes = {
     fetchAppState: React.PropTypes.func.isRequired,

@@ -27,7 +27,7 @@ type AppState = {
 export type Action = {
   type: string,
   appState: AppState
-}
+};
 
 export const actions = {
   SET_APP_STATE: 'SET_APP_STATE',

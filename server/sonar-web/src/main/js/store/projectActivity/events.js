@@ -30,9 +30,9 @@ import type {
 export type State = {
   [key: string]: {
     key: string,
-    name: string;
-    category: string;
-    description?: string;
+    name: string,
+    category: string,
+    description?: string,
   }
 };
 

@@ -32,13 +32,13 @@ export default class DefinitionChanges extends React.Component {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  handleSaveClick (e: any) {
+  handleSaveClick (e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onSave();
   }
 
-  handleCancelChange (e: any) {
+  handleCancelChange (e: Object) {
     e.preventDefault();
     e.target.blur();
     this.props.onCancel();

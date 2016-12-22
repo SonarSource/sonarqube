@@ -34,7 +34,7 @@ type Props = {
 type State = {
   open: boolean,
   processing: boolean
-}
+};
 
 class RemoveAnalysisForm extends React.Component {
   mounted: boolean;

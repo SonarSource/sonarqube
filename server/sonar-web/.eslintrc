@@ -21,7 +21,8 @@
 
   "plugins": [
     "react",
-    "import"
+    "import",
+    "flowtype"
   ],
 
   "rules": {
@@ -52,6 +53,22 @@
     "prefer-const": 2,
     "semi": [2, "always"],
     "keyword-spacing": 2,
+
+    "flowtype/boolean-style": 2,
+    "flowtype/generic-spacing": 2,
+    "flowtype/no-dupe-keys": 2,
+    "flowtype/no-primitive-constructor-types": 2,
+    "flowtype/no-weak-types": [2, {
+      "any": true,
+      "Object": false,
+      "Function": false
+    }],
+    "flowtype/object-type-delimiter": 2,
+    "flowtype/semi": 2,
+    "flowtype/space-after-type-colon": 2,
+    "flowtype/space-before-generic-bracket": 2,
+    "flowtype/space-before-type-colon": 2,
+    "flowtype/union-intersection-spacing": 2,
 
     "import/no-unresolved": 2,
     "import/named": 2,
