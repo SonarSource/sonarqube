@@ -19,13 +19,10 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
@@ -59,14 +56,9 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class ProjectStatusAction implements QualityGatesWsAction {
-  private static final String QG_STATUSES_ONE_LINE = Joiner.on(", ")
-    .join(Lists.transform(Arrays.asList(ProjectStatusWsResponse.Status.values()), new Function<ProjectStatusWsResponse.Status, String>() {
-      @Nonnull
-      @Override
-      public String apply(@Nonnull ProjectStatusWsResponse.Status input) {
-        return input.toString();
-      }
-    }));
+  private static final String QG_STATUSES_ONE_LINE = Arrays.stream(ProjectStatusWsResponse.Status.values())
+    .map(Enum::toString)
+    .collect(Collectors.joining(", "));
   private static final String MSG_ONE_PARAMETER_ONLY = String.format("One (and only one) of the following parameters must be provided '%s', '%s', '%s'",
     PARAM_ANALYSIS_ID, PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
 

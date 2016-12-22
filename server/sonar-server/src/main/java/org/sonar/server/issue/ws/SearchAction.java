@@ -369,25 +369,26 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_TYPES, RuleType.names());
     addMandatoryValuesToFacet(facets, PARAM_COMPONENT_UUIDS, request.getComponentUuids());
 
-    for (String facetName : request.getFacets()) {
-      LinkedHashMap<String, Long> buckets = facets.get(facetName);
-      if (!FACET_ASSIGNED_TO_ME.equals(facetName)) {
-        if (buckets != null) {
-          List<String> requestParams = wsRequest.paramAsStrings(facetName);
-          if (requestParams != null) {
-            for (String param : requestParams) {
-              if (!buckets.containsKey(param) && !IssueQueryService.LOGIN_MYSELF.equals(param)) {
-                // Prevent appearance of a glitch value due to dedicated parameter for this facet
-                buckets.put(param, 0L);
-              }
-            }
-          }
-        }
-      }
+    List<String> requestedFacets = request.getFacets();
+    if (requestedFacets == null) {
+      return;
     }
+    requestedFacets.stream()
+      .filter(facetName -> !FACET_ASSIGNED_TO_ME.equals(facetName))
+      .forEach(facetName -> {
+        LinkedHashMap<String, Long> buckets = facets.get(facetName);
+        List<String> requestParams = wsRequest.paramAsStrings(facetName);
+        if (buckets == null || requestParams == null) {
+          return;
+        }
+        requestParams.stream()
+          .filter(param -> !buckets.containsKey(param) && !IssueQueryService.LOGIN_MYSELF.equals(param))
+          // Prevent appearance of a glitch value due to dedicated parameter for this facet
+          .forEach(param -> buckets.put(param, 0L));
+      });
   }
 
-  private void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
+  private static void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
     Map<String, Long> buckets = facets.get(facetName);
     if (buckets != null && mandatoryValues != null) {
       for (String mandatoryValue : mandatoryValues) {

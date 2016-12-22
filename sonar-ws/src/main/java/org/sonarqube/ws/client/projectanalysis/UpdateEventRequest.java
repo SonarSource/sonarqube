@@ -30,7 +30,7 @@ public class UpdateEventRequest {
 
   public UpdateEventRequest(String event, String name) {
     this.event = requireNonNull(event, "Event key is required");
-    this.name = requireNonNull(name, "Name is required");;
+    this.name = requireNonNull(name, "Name is required");
   }
 
   public String getEvent() {

@@ -191,7 +191,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final Map<String, Action> actions;
 
     private Controller(NewController newController) {
-      checkState(!newController.actions.isEmpty(), format("At least one action must be declared in the web service '%s'", newController.path));
+      checkState(!newController.actions.isEmpty(), "At least one action must be declared in the web service '%s'", newController.path);
       this.path = newController.path;
       this.description = newController.description;
       this.since = newController.since;
@@ -327,8 +327,7 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     public NewParam createParam(String paramKey) {
-      checkState(!newParams.containsKey(paramKey),
-        format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key));
+      checkState(!newParams.containsKey(paramKey), "The parameter '%s' is defined multiple times in the action '%s'", paramKey, key);
       NewParam newParam = new NewParam(paramKey);
       newParams.put(paramKey, newParam);
       return newParam;
@@ -485,7 +484,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.responseExample = newAction.responseExample;
       this.handler = newAction.handler;
 
-      checkState(this.handler != null, "RequestHandler is not set on action " + path);
+      checkState(this.handler != null, "RequestHandler is not set on action %s", path);
       logWarningIf(isNullOrEmpty(this.description), "Description is not set on action " + path);
       logWarningIf(isNullOrEmpty(this.since), "Since is not set on action " + path);
       logWarningIf(!this.post && this.responseExample == null, "The response example is not set on action " + path);
