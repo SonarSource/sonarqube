@@ -24,7 +24,7 @@ import React from 'react';
 import Spinner from './../../components/Spinner';
 import Timeline from '../../../../components/charts/Timeline';
 import { getTimeMachineData } from '../../../../api/time-machine';
-import { getEvents } from '../../../../api/events';
+import { getProjectActivity } from '../../../../api/projectActivity';
 import { formatMeasure, getShortType } from '../../../../helpers/measures';
 import { translate } from '../../../../helpers/l10n';
 
@@ -91,9 +91,10 @@ export default class MeasureHistory extends React.Component {
   }
 
   fetchEvents () {
-    return getEvents(this.props.component.key, 'Version').then(r => {
-      const events = r.map(event => {
-        return { version: event.n, date: moment(event.dt).toDate() };
+    return getProjectActivity(this.props.component.key, { category: 'VERSION' }).then(({ analyses }) => {
+      const events = analyses.map(analysis => {
+        const version = analysis.events.find(event => event.category === 'VERSION');
+        return { version: version.name, date: moment(analysis.date).toDate() };
       });
 
       return sortBy(events, 'date');
