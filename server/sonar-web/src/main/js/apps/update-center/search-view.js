@@ -84,7 +84,7 @@ export default Marionette.ItemView.extend({
 
   focusSearch () {
     const that = this;
-    setTimeout(function () {
+    setTimeout(() => {
       that.$('#update-center-search-query').focus();
     }, 0);
   },

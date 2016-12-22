@@ -66,7 +66,7 @@ export default ModalForm.extend({
       formatResult: format,
       formatSelection: format
     });
-    setTimeout(function () {
+    setTimeout(() => {
       that.$('a').first().focus();
     }, 0);
   },
@@ -81,9 +81,7 @@ export default ModalForm.extend({
         value: $(this).val() || $(this).prop('placeholder') || ''
       };
     }).get();
-    const paramsHash = (params.map(function (param) {
-      return param.key + '=' + csvEscape(param.value);
-    })).join(';');
+    const paramsHash = (params.map(param => param.key + '=' + csvEscape(param.value))).join(';');
 
     if (this.model) {
       profileKey = this.model.get('qProfile');
@@ -110,10 +108,10 @@ export default ModalForm.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
+    }).done(() => {
       that.destroy();
       that.trigger('profileActivated', severity, params, profileKey);
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.enableForm();
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });
@@ -121,12 +119,10 @@ export default ModalForm.extend({
 
   getAvailableQualityProfiles (lang) {
     const activeQualityProfiles = this.collection || new Backbone.Collection();
-    const inactiveProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
-      return activeQualityProfiles.findWhere({ key: profile.key });
-    });
-    return _.filter(inactiveProfiles, function (profile) {
-      return profile.lang === lang;
-    });
+    const inactiveProfiles = _.reject(this.options.app.qualityProfiles, profile => (
+        activeQualityProfiles.findWhere({ key: profile.key })
+    ));
+    return _.filter(inactiveProfiles, profile => profile.lang === lang);
   },
 
   serializeData () {
@@ -134,7 +130,7 @@ export default ModalForm.extend({
     if (this.model != null) {
       const modelParams = this.model.get('params');
       if (_.isArray(modelParams)) {
-        params = params.map(function (p) {
+        params = params.map(p => {
           const parentParam = _.findWhere(modelParams, { key: p.key });
           if (parentParam != null) {
             _.extend(p, { value: parentParam.value });

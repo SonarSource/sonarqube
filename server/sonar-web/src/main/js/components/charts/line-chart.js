@@ -38,7 +38,7 @@ export const LineChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       displayBackdrop: true,
       displayPoints: true,
@@ -50,7 +50,7 @@ export const LineChart = React.createClass({
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 

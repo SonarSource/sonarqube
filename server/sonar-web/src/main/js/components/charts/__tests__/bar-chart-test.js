@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { BarChart } from '../bar-chart';
 
-it('should display bars', function () {
+it('should display bars', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
@@ -36,7 +36,7 @@ it('should display bars', function () {
   expect(chart.find('.bar-chart-bar').length).toBe(3);
 });
 
-it('should display ticks', function () {
+it('should display ticks', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
@@ -53,7 +53,7 @@ it('should display ticks', function () {
   expect(chart.find('.bar-chart-tick').length).toBe(3);
 });
 
-it('should display values', function () {
+it('should display values', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
@@ -70,7 +70,7 @@ it('should display values', function () {
   expect(chart.find('.bar-chart-tick').length).toBe(3);
 });
 
-it('should display bars, ticks and values', function () {
+it('should display bars, ticks and values', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },

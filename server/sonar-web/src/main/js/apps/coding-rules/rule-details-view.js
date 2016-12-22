@@ -100,7 +100,7 @@ export default Marionette.LayoutView.extend({
       template_key: this.model.get('key'),
       f: 'name,severity,params'
     };
-    return $.get(url, options).done(function (data) {
+    return $.get(url, options).done(data => {
       that.customRules.reset(data.rules);
     });
   },
@@ -111,15 +111,15 @@ export default Marionette.LayoutView.extend({
 
   bindShortcuts () {
     const that = this;
-    key('up', 'details', function () {
+    key('up', 'details', () => {
       that.options.app.controller.selectPrev();
       return false;
     });
-    key('down', 'details', function () {
+    key('down', 'details', () => {
       that.options.app.controller.selectNext();
       return false;
     });
-    key('left, backspace', 'details', function () {
+    key('left, backspace', 'details', () => {
       that.options.app.controller.hideDetails();
       return false;
     });

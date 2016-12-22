@@ -43,9 +43,9 @@ export default ModalForm.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
+    }).done(() => {
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.enableForm();
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });

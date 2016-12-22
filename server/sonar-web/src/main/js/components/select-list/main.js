@@ -32,15 +32,15 @@ export default React.createClass({
     deselectItem: React.PropTypes.func.isRequired
   },
 
-  getInitialState() {
+  getInitialState () {
     return { items: [], total: 0, selection: 'selected', query: null };
   },
 
-  componentDidMount() {
+  componentDidMount () {
     this.loadItems();
   },
 
-  loadItems() {
+  loadItems () {
     const options = {
       selection: this.state.selection,
       query: this.state.query,
@@ -51,7 +51,7 @@ export default React.createClass({
     });
   },
 
-  loadMoreItems() {
+  loadMoreItems () {
     const options = {
       selection: this.state.selection,
       query: this.state.query,
@@ -63,23 +63,23 @@ export default React.createClass({
     });
   },
 
-  loadSelected() {
+  loadSelected () {
     this.setState({ selection: 'selected', query: null }, this.loadItems);
   },
 
-  loadDeselected() {
+  loadDeselected () {
     this.setState({ selection: 'deselected', query: null }, this.loadItems);
   },
 
-  loadAll() {
+  loadAll () {
     this.setState({ selection: 'all', query: null }, this.loadItems);
   },
 
-  search(query) {
+  search (query) {
     this.setState({ query }, this.loadItems);
   },
 
-  render() {
+  render () {
     return (
         <div className="select-list-container">
           <Controls

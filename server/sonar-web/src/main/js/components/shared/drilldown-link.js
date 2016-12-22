@@ -49,11 +49,11 @@ const ISSUE_MEASURES = [
 ];
 
 export const DrilldownLink = React.createClass({
-  isIssueMeasure() {
+  isIssueMeasure () {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
   },
 
-  propsToIssueParams() {
+  propsToIssueParams () {
     const params = {};
 
     if (this.props.periodDate) {
@@ -111,7 +111,7 @@ export const DrilldownLink = React.createClass({
     return params;
   },
 
-  renderIssuesLink() {
+  renderIssuesLink () {
     const url = getComponentIssuesUrl(
         this.props.component,
         this.propsToIssueParams());
@@ -121,7 +121,7 @@ export const DrilldownLink = React.createClass({
     );
   },
 
-  render() {
+  render () {
     if (this.isIssueMeasure()) {
       return this.renderIssuesLink();
     }

@@ -40,12 +40,8 @@ export default Marionette.CollectionView.extend({
   },
 
   updateState () {
-    const enabledFacets = this.collection.filter(function (model) {
-      return model.get('enabled');
-    });
-    const enabledFacetIds = enabledFacets.map(function (model) {
-      return model.id;
-    });
+    const enabledFacets = this.collection.filter(model => model.get('enabled'));
+    const enabledFacetIds = enabledFacets.map(model => model.id);
     this.options.app.state.set({ facets: enabledFacetIds });
   }
 

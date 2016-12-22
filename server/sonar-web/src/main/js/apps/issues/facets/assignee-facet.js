@@ -75,7 +75,7 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const users = this.options.app.facets.users;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const login = v.val;
       let name = '';
       if (login) {
@@ -111,9 +111,7 @@ export default CustomValuesFacet.extend({
   },
 
   sortValues (values) {
-    return _.sortBy(values, function (v) {
-      return v.val === '' ? -999999 : -v.count;
-    });
+    return _.sortBy(values, v => v.val === '' ? -999999 : -v.count);
   },
 
   serializeData () {

@@ -20,7 +20,7 @@
 import React from 'react';
 
 export default React.createClass({
-  render() {
+  render () {
     if (this.props.value) {
       return <i className="icon-check"/>;
     } else {

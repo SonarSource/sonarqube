@@ -78,9 +78,7 @@ export default Marionette.ItemView.extend({
     const key = this.model.get('key');
     const componentUuid = this.model.get('componentUuid');
     this.model.reset({ key, componentUuid }, { silent: true });
-    return this.model.fetch(options).done(function () {
-      return that.trigger('reset');
-    });
+    return this.model.fetch(options).done(() => that.trigger('reset'));
   },
 
   showChangeLog (e) {
@@ -89,7 +87,7 @@ export default Marionette.ItemView.extend({
     const changeLog = new ChangeLog();
     return changeLog.fetch({
       data: { issue: this.model.get('key') }
-    }).done(function () {
+    }).done(() => {
       if (that.popup) {
         that.popup.destroy();
       }
@@ -228,10 +226,10 @@ export default Marionette.ItemView.extend({
     const that = this;
     this.disableControls();
     return this.model.customAction(action)
-        .done(function () {
+        .done(() => {
           that.updateAfterAction(true);
         })
-        .fail(function () {
+        .fail(() => {
           that.enableControls();
         });
   },

@@ -38,7 +38,7 @@ export default ModalView.extend({
   onRender () {
     ModalView.prototype.onRender.apply(this, arguments);
     const that = this;
-    setTimeout(function () {
+    setTimeout(() => {
       that.$(':tabbable').first().focus();
     }, 0);
   },
@@ -57,13 +57,13 @@ export default ModalView.extend({
   showErrors (errors, warnings) {
     const container = this.ui.messagesContainer.empty();
     if (_.isArray(errors)) {
-      errors.forEach(function (error) {
+      errors.forEach(error => {
         const html = `<div class="alert alert-danger">${error.msg}</div>`;
         container.append(html);
       });
     }
     if (_.isArray(warnings)) {
-      warnings.forEach(function (warn) {
+      warnings.forEach(warn => {
         const html = `<div class="alert alert-warning">${warn.msg}</div>`;
         container.append(html);
       });

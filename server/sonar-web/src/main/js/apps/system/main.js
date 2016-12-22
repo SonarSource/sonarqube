@@ -28,7 +28,7 @@ const SECTIONS_ORDER = ['SonarQube', 'Database', 'System', 'Elasticsearch State'
   'Compute Engine Tasks', 'Compute Engine State', 'Compute Engine Database Connection', 'JvmProperties'];
 
 export default React.createClass({
-  componentDidMount() {
+  componentDidMount () {
     getSystemInfo().then(info => this.setState({ sections: this.parseSections(info) }));
   },
 
@@ -58,14 +58,14 @@ export default React.createClass({
     new RestartModal().render();
   },
 
-  render() {
+  render () {
     let sections = null;
     if (this.state && this.state.sections) {
       sections = this.state.sections
           .filter(section => SECTIONS_ORDER.indexOf(section.name) >= 0)
-          .map(section => {
-            return <Section key={section.name} section={section.name} items={section.items}/>;
-          });
+          .map(section => (
+              <Section key={section.name} section={section.name} items={section.items}/>
+          ));
     }
 
     return (

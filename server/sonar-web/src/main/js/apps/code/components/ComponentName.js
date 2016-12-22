@@ -66,28 +66,26 @@ const ComponentName = ({ component, rootComponent, previous, canBrowse }) => {
           <span>{name}</span>
         </Link>
     );
-  } else {
-    if (canBrowse) {
-      const query = { id: rootComponent.key };
-      if (component.key !== rootComponent.key) {
-        Object.assign(query, { selected: component.key });
-      }
-      inner = (
-          <Link to={{ pathname: '/code', query }} className="link-with-icon">
-            <QualifierIcon qualifier={component.qualifier}/>
-            {' '}
-            <span>{name}</span>
-          </Link>
-      );
-    } else {
-      inner = (
-          <span>
-            <QualifierIcon qualifier={component.qualifier}/>
-            {' '}
-            {name}
-          </span>
-      );
+  } else if (canBrowse) {
+    const query = { id: rootComponent.key };
+    if (component.key !== rootComponent.key) {
+      Object.assign(query, { selected: component.key });
     }
+    inner = (
+        <Link to={{ pathname: '/code', query }} className="link-with-icon">
+          <QualifierIcon qualifier={component.qualifier}/>
+          {' '}
+          <span>{name}</span>
+        </Link>
+    );
+  } else {
+    inner = (
+        <span>
+          <QualifierIcon qualifier={component.qualifier}/>
+          {' '}
+          {name}
+        </span>
+    );
   }
 
   return (

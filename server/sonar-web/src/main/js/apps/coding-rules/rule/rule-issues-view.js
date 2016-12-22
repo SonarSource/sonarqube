@@ -29,7 +29,7 @@ export default Marionette.ItemView.extend({
     const that = this;
     this.total = null;
     this.projects = [];
-    this.requestIssues().done(function () {
+    this.requestIssues().done(() => {
       that.render();
     });
   },
@@ -43,10 +43,10 @@ export default Marionette.ItemView.extend({
       ps: 1,
       facets: 'projectUuids'
     };
-    return $.get(url, options).done(function (r) {
+    return $.get(url, options).done(r => {
       const projectsFacet = _.findWhere(r.facets, { property: 'projectUuids' });
       let projects = projectsFacet != null ? projectsFacet.values : [];
-      projects = projects.map(function (project) {
+      projects = projects.map(project => {
         const projectBase = _.findWhere(r.components, { uuid: project.val });
         return _.extend(project, {
           name: projectBase != null ? projectBase.longName : ''

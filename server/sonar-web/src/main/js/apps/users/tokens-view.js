@@ -67,7 +67,7 @@ export default Modal.extend({
         });
   },
 
-  onRevokeTokenFormSubmit(e) {
+  onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = _.findWhere(this.tokens, { name: `${tokenName}` });
@@ -99,7 +99,7 @@ export default Modal.extend({
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData() {
+  serializeData () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
       tokens: this.tokens,
       newToken: this.newToken,

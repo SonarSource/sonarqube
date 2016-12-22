@@ -60,9 +60,7 @@ export default Backbone.Collection.extend({
   },
 
   getTakenMetrics () {
-    const metrics = this.map(function (model) {
-      return model.get('metric').id;
-    });
+    const metrics = this.map(model => model.get('metric').id);
     return _.uniq(metrics);
   }
 

@@ -19,5 +19,5 @@
  */
 module.exports = function (...args) {
   /* eslint no-console: 0 */
-  console.log.apply(console, args.slice(0, -1));
+  console.log(...args.slice(0, -1));
 };

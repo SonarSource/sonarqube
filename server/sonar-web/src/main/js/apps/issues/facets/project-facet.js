@@ -71,7 +71,7 @@ export default CustomValuesFacet.extend({
         results (data) {
           return {
             more: data.p * data.ps < data.total,
-            results: data.components.map(function (c) {
+            results: data.components.map(c => {
               return { id: c.uuid, text: c.name };
             })
           };
@@ -83,7 +83,7 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const projects = this.options.app.facets.components;
-    values.forEach(function (v) {
+    values.forEach(v => {
       const uuid = v.val;
       let label = '';
       if (uuid) {

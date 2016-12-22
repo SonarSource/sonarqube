@@ -56,7 +56,7 @@ const init = function ({ el, currentUser }, providers) {
   this.users.fetch();
 };
 
-App.on('start', function (options) {
+App.on('start', options => {
   getIdentityProviders().then(r => init.call(App, options, r.identityProviders));
 });
 

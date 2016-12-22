@@ -64,12 +64,8 @@ $.fn.barchart = function (data) {
     const plot = svg.append('g')
         .classed('plot', true);
     const xScale = d3.scale.ordinal()
-        .domain(data.map(function (d, i) {
-          return i;
-        }));
-    const yScaleMax = d3.max(data, function (d) {
-      return d.count;
-    });
+        .domain(data.map((d, i) => i));
+    const yScaleMax = d3.max(data, d => d.count);
     const yScale = d3.scale.linear()
         .domain([0, yScaleMax]);
 
@@ -88,21 +84,17 @@ $.fn.barchart = function (data) {
     if (barWidth > 0) {
       const barsEnter = bars.enter()
           .append('g')
-          .attr('transform', function (d, i) {
-            return trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count)));
-          });
+          .attr('transform', (d, i) => (
+              trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count)))
+          ));
 
       barsEnter.append('rect')
           .style('fill', options.color)
           .attr('width', barWidth)
-          .attr('height', function (d) {
-            return Math.floor(yScale(d.count));
-          })
+          .attr('height', d => Math.floor(yScale(d.count)))
           .style('cursor', 'pointer')
-          .attr('data-period-start', function (d) {
-            return moment(d.val).format(DATE_FORMAT);
-          })
-          .attr('data-period-end', function (d, i) {
+          .attr('data-period-start', d => moment(d.val).format(DATE_FORMAT))
+          .attr('data-period-end', (d, i) => {
             const ending = i < data.length - 1 ? moment(data[i + 1].val) : options.endDate;
             if (ending) {
               return ending.format(DATE_FORMAT);
@@ -110,7 +102,7 @@ $.fn.barchart = function (data) {
               return '';
             }
           })
-          .attr('title', function (d, i) {
+          .attr('title', (d, i) => {
             const beginning = moment(d.val);
             const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
             if (ending) {
@@ -123,16 +115,14 @@ $.fn.barchart = function (data) {
           .attr('data-placement', 'bottom')
           .attr('data-toggle', 'tooltip');
 
-      const maxValue = d3.max(data, function (d) {
-        return d.count;
-      });
+      const maxValue = d3.max(data, d => d.count);
       let isValueShown = false;
 
       barsEnter.append('text')
           .classed('subtitle', true)
           .attr('transform', trans(barWidth / 2, -4))
           .style('text-anchor', 'middle')
-          .text(function (d) {
+          .text(d => {
             const text = !isValueShown && d.count === maxValue ? d.text : '';
             isValueShown = d.count === maxValue;
             return text;

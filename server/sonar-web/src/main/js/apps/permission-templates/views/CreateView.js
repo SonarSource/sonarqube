@@ -34,10 +34,10 @@ export default FormView.extend({
         // do not show global error
         400: null
       }
-    }).done(function (r) {
+    }).done(r => {
       that.trigger('done', r);
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.enableForm();
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });

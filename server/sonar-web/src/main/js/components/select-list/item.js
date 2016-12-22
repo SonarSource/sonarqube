@@ -28,7 +28,7 @@ export default React.createClass({
     deselectItem: React.PropTypes.func.isRequired
   },
 
-  onCheck(checked) {
+  onCheck (checked) {
     if (checked) {
       this.props.selectItem(this.props.item);
     } else {
@@ -36,7 +36,7 @@ export default React.createClass({
     }
   },
 
-  render() {
+  render () {
     const renderedItem = this.props.renderItem(this.props.item);
     return (
         <li className="panel panel-vertical">

@@ -53,36 +53,24 @@ export default SourceViewer.extend({
       }
       return selectedIssueView.find('.js-issue-' + action).click();
     };
-    key('up', 'componentViewer', function () {
+    key('up', 'componentViewer', () => {
       that.options.app.controller.selectPrev();
       return false;
     });
-    key('down', 'componentViewer', function () {
+    key('down', 'componentViewer', () => {
       that.options.app.controller.selectNext();
       return false;
     });
-    key('left,backspace', 'componentViewer', function () {
+    key('left,backspace', 'componentViewer', () => {
       that.options.app.controller.closeComponentViewer();
       return false;
     });
-    key('f', 'componentViewer', function () {
-      return doAction('transition');
-    });
-    key('a', 'componentViewer', function () {
-      return doAction('assign');
-    });
-    key('m', 'componentViewer', function () {
-      return doAction('assign-to-me');
-    });
-    key('p', 'componentViewer', function () {
-      return doAction('plan');
-    });
-    key('i', 'componentViewer', function () {
-      return doAction('set-severity');
-    });
-    return key('c', 'componentViewer', function () {
-      return doAction('comment');
-    });
+    key('f', 'componentViewer', () => doAction('transition'));
+    key('a', 'componentViewer', () => doAction('assign'));
+    key('m', 'componentViewer', () => doAction('assign-to-me'));
+    key('p', 'componentViewer', () => doAction('plan'));
+    key('i', 'componentViewer', () => doAction('set-severity'));
+    key('c', 'componentViewer', () => doAction('comment'));
   },
 
   unbindShortcuts () {
@@ -126,9 +114,7 @@ export default SourceViewer.extend({
 
   selectIssue (e) {
     const key = $(e.currentTarget).data('issue-key');
-    const issue = this.issues.find(function (model) {
-      return model.get('key') === key;
-    });
+    const issue = this.issues.find(model => model.get('key') === key);
     const index = this.options.app.list.indexOf(issue);
     return this.options.app.state.set({ selectedIndex: index });
   },
@@ -170,9 +156,7 @@ export default SourceViewer.extend({
     if ((this.baseIssue != null) && this.baseIssue.has('index')) {
       index = Math.max(index, this.baseIssue.get('index'));
     }
-    return issues.filter(function (issue) {
-      return Math.abs(issue.get('index') - index) <= that.ISSUES_LIMIT / 2;
-    });
+    return issues.filter(issue => Math.abs(issue.get('index') - index) <= that.ISSUES_LIMIT / 2);
   },
 
   requestIssues () {
@@ -183,10 +167,8 @@ export default SourceViewer.extend({
     } else {
       r = $.Deferred().resolve().promise();
     }
-    return r.done(function () {
-      that.issues.reset(that.options.app.list.filter(function (issue) {
-        return issue.get('component') === that.model.key();
-      }));
+    return r.done(() => {
+      that.issues.reset(that.options.app.list.filter(issue => issue.get('component') === that.model.key()));
       that.issues.reset(that.limitIssues(that.issues));
       return that.addIssuesPerLineMeta(that.issues);
     });

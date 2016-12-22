@@ -40,7 +40,7 @@ export const ResizeMixin = {
     this.setState({ width: newWidth, height: newHeight });
   },
 
-  isResizable() {
+  isResizable () {
     return !this.props.width || !this.props.height;
   }
 };

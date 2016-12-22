@@ -50,7 +50,7 @@ export default ActionOptionsView.extend({
 
   requestTags (query) {
     const that = this;
-    return $.get(window.baseUrl + '/api/issues/tags', { ps: 10, q: query }).done(function (data) {
+    return $.get(window.baseUrl + '/api/issues/tags', { ps: 10, q: query }).done(data => {
       that.tags = data.tags;
       that.renderTags();
     });
@@ -60,7 +60,7 @@ export default ActionOptionsView.extend({
     const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
-    setTimeout(function () {
+    setTimeout(() => {
       that.$('input').focus();
     }, 100);
   },
@@ -72,9 +72,7 @@ export default ActionOptionsView.extend({
 
   filterTags (tags) {
     const that = this;
-    return _.filter(tags, function (tag) {
-      return tag.indexOf(that.query) !== -1;
-    });
+    return _.filter(tags, tag => tag.indexOf(that.query) !== -1);
   },
 
   renderTags () {
@@ -139,9 +137,7 @@ export default ActionOptionsView.extend({
         key: this.model.id,
         tags: tags.join()
       }
-    }).fail(function () {
-      return that.model.set({ tags: _tags });
-    });
+    }).fail(() => that.model.set({ tags: _tags }));
   },
 
   onInputClick (e) {
@@ -181,7 +177,7 @@ export default ActionOptionsView.extend({
   },
 
   resetAssignees (users) {
-    this.assignees = users.map(function (user) {
+    this.assignees = users.map(user => {
       return { id: user.login, text: user.name };
     });
     this.renderTags();

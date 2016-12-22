@@ -121,7 +121,7 @@ export default Marionette.LayoutView.extend({
   onRender () {
     const that = this;
     this.resultsRegion.show(this.resultsView);
-    setTimeout(function () {
+    setTimeout(() => {
       that.$('.js-search-input').focus();
     }, 0);
   },
@@ -174,7 +174,7 @@ export default Marionette.LayoutView.extend({
 
   resetResultsToDefault () {
     const recentHistory = RecentHistory.get();
-    const history = recentHistory.map(function (historyItem, index) {
+    const history = recentHistory.map((historyItem, index) => {
       const url = window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
           window.dashboardParameters(true);
       return {
@@ -184,7 +184,7 @@ export default Marionette.LayoutView.extend({
         extra: index === 0 ? translate('browsed_recently') : null
       };
     });
-    const favorite = this.favorite.slice(0, 6).map(function (f, index) {
+    const favorite = this.favorite.slice(0, 6).map((f, index) => {
       return { ...f, extra: index === 0 ? translate('favorite') : null };
     });
     this.results.reset([].concat(history, favorite));
@@ -235,7 +235,7 @@ export default Marionette.LayoutView.extend({
     if (isUserAdmin(this.model.get('currentUser'))) {
       customItems.push({ name: translate('layout.settings'), url: window.baseUrl + '/settings' });
     }
-    const findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
+    const findings = [].concat(DEFAULT_ITEMS, customItems).filter(f => {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
@@ -246,10 +246,10 @@ export default Marionette.LayoutView.extend({
 
   getGlobalDashboardFindings (q) {
     const dashboards = this.model.get('globalDashboards') || [];
-    const items = dashboards.map(function (d) {
+    const items = dashboards.map(d => {
       return { name: d.name, url: window.baseUrl + '/dashboard/index?did=' + encodeURIComponent(d.key) };
     });
-    const findings = items.filter(function (f) {
+    const findings = items.filter(f => {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
@@ -259,7 +259,7 @@ export default Marionette.LayoutView.extend({
   },
 
   getFavoriteFindings (q) {
-    const findings = this.favorite.filter(function (f) {
+    const findings = this.favorite.filter(f => {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {

@@ -35,13 +35,13 @@ import FiltersView from './filters-view';
 const App = new Marionette.Application();
 
 App.on('start', function (el) {
-  $.get(window.baseUrl + '/api/rules/app').done(function (r) {
+  $.get(window.baseUrl + '/api/rules/app').done(r => {
     App.canWrite = r.canWrite;
     App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
     App.languages = _.extend(r.languages, {
       none: 'None'
     });
-    _.map(App.qualityProfiles, function (profile) {
+    _.map(App.qualityProfiles, profile => {
       profile.language = App.languages[profile.lang];
     });
     App.repositories = r.repositories;

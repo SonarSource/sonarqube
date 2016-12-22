@@ -19,7 +19,7 @@
  */
 module.exports = function (context, options) {
   let ret = '';
-  context.forEach(function (d, i) {
+  context.forEach((d, i) => {
     if (i % 2 === 1) {
       ret += options.fn(d);
     }

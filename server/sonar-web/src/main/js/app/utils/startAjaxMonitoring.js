@@ -64,7 +64,7 @@ const Process = Backbone.Model.extend({
       message: msg
     });
     this.set('state', 'failed');
-    setTimeout(function () {
+    setTimeout(() => {
       that.finish({ force: true });
     }, 5000);
   }
@@ -93,7 +93,7 @@ const ProcessesView = Marionette.ItemView.extend({
           .addClass('process-spinner process-spinner-failed shown');
       const close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
       close.appendTo(el);
-      close.on('click', function () {
+      close.on('click', () => {
         failed.finish({ force: true });
       });
       el.appendTo(this.$el);
@@ -120,7 +120,7 @@ function addBackgroundProcess () {
   const uid = _.uniqueId('process');
   const process = new Process({
     id: uid,
-    timer: setTimeout(function () {
+    timer: setTimeout(() => {
       process.timeout();
     }, defaults.timeout)
   });

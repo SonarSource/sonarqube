@@ -55,9 +55,7 @@ export default ModalForm.extend({
     const scmAccounts = this.$('[name="scmAccounts"]').map(function () {
       return $(this).val();
     }).toArray();
-    return scmAccounts.filter(function (value) {
-      return !!value;
-    });
+    return scmAccounts.filter(value => !!value);
   },
 
   addScmAccount () {

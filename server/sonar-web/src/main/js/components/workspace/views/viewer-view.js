@@ -34,7 +34,7 @@ export default BaseView.extend({
     const viewer = new SourceViewer();
     const options = this.model.toJSON();
     viewer.open(this.model.get('uuid'), { workspace: true });
-    viewer.on('loaded', function () {
+    viewer.on('loaded', () => {
       that.model.set({
         name: viewer.model.get('name'),
         q: viewer.model.get('q')

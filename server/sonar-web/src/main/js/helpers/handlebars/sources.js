@@ -25,7 +25,7 @@ module.exports = function (source, scm, options) {
     scm = null;
   }
 
-  const sources = _.map(source, function (code, line) {
+  const sources = _.map(source, (code, line) => {
     return {
       code,
       lineNumber: line,
@@ -33,7 +33,7 @@ module.exports = function (source, scm, options) {
     };
   });
 
-  return sources.reduce(function (prev, current, index) {
-    return prev + options.fn(_.extend({ first: index === 0 }, current));
-  }, '');
+  return sources.reduce((prev, current, index) => (
+      prev + options.fn(_.extend({ first: index === 0 }, current))
+  ), '');
 };

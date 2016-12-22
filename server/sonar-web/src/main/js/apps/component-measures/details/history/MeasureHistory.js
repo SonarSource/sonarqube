@@ -116,8 +116,8 @@ export default class MeasureHistory extends React.Component {
       };
     });
 
-    const formatValue = (value) => formatMeasure(value, metric.type);
-    const formatYTick = (tick) => formatMeasure(tick, getShortType(metric.type));
+    const formatValue = value => formatMeasure(value, metric.type);
+    const formatYTick = tick => formatMeasure(tick, getShortType(metric.type));
 
     return (
         <div style={{ height: HEIGHT }}>

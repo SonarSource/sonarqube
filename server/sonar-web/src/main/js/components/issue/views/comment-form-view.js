@@ -43,7 +43,7 @@ export default PopupView.extend({
   onRender () {
     const that = this;
     PopupView.prototype.onRender.apply(this, arguments);
-    setTimeout(function () {
+    setTimeout(() => {
       that.ui.textarea.focus();
     }, 100);
   },
@@ -97,9 +97,9 @@ export default PopupView.extend({
     this.disableForm();
     this.options.detailView.disableControls();
     return $.post(url, data)
-        .done(function () {
+        .done(() => {
           that.options.detailView.updateAfterAction(true);
-        }).fail(function () {
+        }).fail(() => {
           that.enableForm();
           that.options.detailView.enableControls();
         });

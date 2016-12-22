@@ -21,7 +21,7 @@ import React from 'react';
 import ItemValue from './item-value';
 
 export default React.createClass({
-  render() {
+  render () {
     const rows = Object.keys(this.props.value).map(key => {
       return (
           <tr key={key}>

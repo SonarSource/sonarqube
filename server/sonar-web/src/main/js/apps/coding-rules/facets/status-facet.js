@@ -26,17 +26,15 @@ export default BaseFacet.extend({
 
   getValues () {
     const values = this.model.getValues();
-    const x = values.map(function (value) {
-      return _.extend(value, { label: translate('rules.status', value.val.toLowerCase()) });
-    });
+    const x = values.map(value => (
+        _.extend(value, { label: translate('rules.status', value.val.toLowerCase()) })
+    ));
     return x;
   },
 
   sortValues (values) {
     const order = this.statuses;
-    return _.sortBy(values, function (v) {
-      return order.indexOf(v.val);
-    });
+    return _.sortBy(values, v => order.indexOf(v.val));
   },
 
   serializeData () {

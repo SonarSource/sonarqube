@@ -62,7 +62,7 @@ export default ModalForm.extend({
     return bulkApplyTemplate(data);
   },
 
-  bulkApplyToSelected(permissionTemplate) {
+  bulkApplyToSelected (permissionTemplate) {
     const { selection } = this.options;
     let lastRequest = Promise.resolve();
 

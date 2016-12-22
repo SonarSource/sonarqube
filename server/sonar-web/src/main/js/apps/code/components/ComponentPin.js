@@ -23,7 +23,7 @@ import PinIcon from '../../../components/shared/pin-icon';
 import { translate } from '../../../helpers/l10n';
 
 const ComponentPin = ({ component }) => {
-  const handleClick = (e) => {
+  const handleClick = e => {
     e.preventDefault();
     Workspace.openComponent({ uuid: component.id });
   };

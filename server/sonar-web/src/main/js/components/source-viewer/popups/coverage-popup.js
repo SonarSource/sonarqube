@@ -44,7 +44,7 @@ export default Popup.extend({
   serializeData () {
     const row = this.options.row || {};
     const tests = _.groupBy(this.collection.toJSON(), 'fileId');
-    const testFiles = _.map(tests, function (testSet) {
+    const testFiles = _.map(tests, testSet => {
       const test = testSet[0];
       return {
         file: {

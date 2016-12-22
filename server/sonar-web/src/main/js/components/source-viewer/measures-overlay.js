@@ -79,9 +79,7 @@ export default ModalView.extend({
           .outerRadius(radius);
       const pie = d3.layout.pie()
           .sort(null)
-          .value(function (d) {
-            return d;
-          });
+          .value(d => d);
       const colors = function (i) {
         return i === 0 ? options.color : options.baseColor;
       };
@@ -90,9 +88,7 @@ export default ModalView.extend({
 
       sectors.enter()
           .append('path')
-          .style('fill', function (d, i) {
-            return colors(i);
-          })
+          .style('fill', (d, i) => colors(i))
           .attr('d', arc);
     });
   },
@@ -110,10 +106,8 @@ export default ModalView.extend({
       url,
       async: false,
       data: { ps: 9999 }
-    }).done(function (data) {
-      metrics = _.filter(data.metrics, function (metric) {
-        return metric.type !== 'DATA' && !metric.hidden;
-      });
+    }).done(data => {
+      metrics = _.filter(data.metrics, metric => metric.type !== 'DATA' && !metric.hidden);
       metrics = _.sortBy(metrics, 'name');
     });
     return metrics;
@@ -135,11 +129,9 @@ export default ModalView.extend({
   },
 
   prepareMetrics (metrics) {
-    metrics = _.filter(metrics, function (metric) {
-      return metric.value != null;
-    });
+    metrics = _.filter(metrics, metric => metric.value != null);
     return _.sortBy(
-        _.map(_.pairs(_.groupBy(metrics, 'domain')), function (domain) {
+        _.map(_.pairs(_.groupBy(metrics, 'domain')), domain => {
           return {
             name: domain[0],
             metrics: domain[1]
@@ -183,12 +175,10 @@ export default ModalView.extend({
         facets: 'types,severities,tags'
       };
 
-      $.get(url, options).done(function (data) {
+      $.get(url, options).done(data => {
         const typesFacet = data.facets.find(facet => facet.property === 'types').values;
         const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-        const sortedTypesFacet = _.sortBy(typesFacet, function (v) {
-          return typesOrder.indexOf(v.val);
-        });
+        const sortedTypesFacet = _.sortBy(typesFacet, v => typesOrder.indexOf(v.val));
 
         const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
         const sortedSeveritiesFacet = _.sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
@@ -213,13 +203,11 @@ export default ModalView.extend({
       const url = window.baseUrl + '/api/tests/list';
       const options = { testFileId: this.model.id };
 
-      $.get(url, options).done(function (data) {
+      $.get(url, options).done(data => {
         that.model.set({ tests: data.tests });
         that.testSorting = 'status';
         that.testAsc = true;
-        that.sortTests(function (test) {
-          return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
-        });
+        that.sortTests(test => `${that.testsOrder.indexOf(test.status)}_______${test.name}`);
         resolve();
       });
     });
@@ -259,9 +247,7 @@ export default ModalView.extend({
     if (this.testSorting === 'status') {
       this.testAsc = !this.testAsc;
     }
-    this.sortTests(function (test) {
-      return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
-    });
+    this.sortTests(test => `${that.testsOrder.indexOf(test.status)}_______${test.name}`);
     this.testSorting = 'status';
     this.render();
   },
@@ -272,7 +258,7 @@ export default ModalView.extend({
     const url = window.baseUrl + '/api/tests/covered_files';
     const options = { testId };
     this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
-    return $.get(url, options).done(function (data) {
+    return $.get(url, options).done(data => {
       that.coveredFiles = data.files;
       that.selectedTest = _.findWhere(that.model.get('tests'), { id: testId });
       that.render();

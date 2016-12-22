@@ -46,7 +46,7 @@ export default CustomValuesFacet.extend({
           return { q: term, ps: 10 };
         },
         results (data) {
-          const results = data.tags.map(function (tag) {
+          const results = data.tags.map(tag => {
             return { id: tag, text: tag };
           });
           return { more: false, results };
@@ -57,7 +57,7 @@ export default CustomValuesFacet.extend({
 
   getValuesWithLabels () {
     const values = this.model.getValues();
-    values.forEach(function (v) {
+    values.forEach(v => {
       v.label = v.val;
       v.extra = '';
     });

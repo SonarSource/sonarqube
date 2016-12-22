@@ -72,14 +72,14 @@ export default IssueView.extend({
       bottomRight: true,
       model: this.model
     });
-    this.popup.on('select', function (property, value) {
+    this.popup.on('select', (property, value) => {
       const obj = {};
       obj[property] = '' + value;
-      SHOULD_NULL.any.forEach(function (p) {
+      SHOULD_NULL.any.forEach(p => {
         obj[p] = null;
       });
       if (SHOULD_NULL[property] != null) {
-        SHOULD_NULL[property].forEach(function (p) {
+        SHOULD_NULL[property].forEach(p => {
           obj[p] = null;
         });
       }
@@ -127,9 +127,7 @@ export default IssueView.extend({
       index,
       selected
     }, { silent: true });
-    return this.model.fetch(options).done(function () {
-      return that.trigger('reset');
-    });
+    return this.model.fetch(options).done(() => that.trigger('reset'));
   },
 
   openComponentViewer () {

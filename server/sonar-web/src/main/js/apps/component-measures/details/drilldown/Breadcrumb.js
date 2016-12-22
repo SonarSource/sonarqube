@@ -23,7 +23,7 @@ import { isDiffMetric, formatLeak } from '../../utils';
 import { formatMeasure } from '../../../../helpers/measures';
 
 const Breadcrumb = ({ component, metric, onBrowse }) => {
-  const handleClick = (e) => {
+  const handleClick = e => {
     e.preventDefault();
     e.target.blur();
     onBrowse(component);

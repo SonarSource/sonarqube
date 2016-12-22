@@ -26,8 +26,8 @@ module.exports = function (children, options) {
     audaciousFn = options.fn;
   }
 
-  children.forEach(function (child) {
-    out = out + audaciousFn(child);
+  children.forEach(child => {
+    out += audaciousFn(child);
   });
 
   return out;

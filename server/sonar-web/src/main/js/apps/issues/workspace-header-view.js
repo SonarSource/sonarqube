@@ -60,7 +60,7 @@ export default WorkspaceHeaderView.extend({
     $('#modal').dialog('close');
     const selectedIndex = this.options.app.state.get('selectedIndex');
     const selectedKeys = _.pluck(this.options.app.list.where({ selected: true }), 'id');
-    this.options.app.controller.fetchList().done(function () {
+    this.options.app.controller.fetchList().done(() => {
       that.options.app.state.set({ selectedIndex });
       that.options.app.list.selectByKeys(selectedKeys);
     });
@@ -80,7 +80,7 @@ export default WorkspaceHeaderView.extend({
   },
 
   selectNone () {
-    this.options.app.list.where({ selected: true }).forEach(function (issue) {
+    this.options.app.list.where({ selected: true }).forEach(issue => {
       issue.set({ selected: false });
     });
     this._suppressUpdate = false;
@@ -88,7 +88,7 @@ export default WorkspaceHeaderView.extend({
   },
 
   selectAll () {
-    this.options.app.list.forEach(function (issue) {
+    this.options.app.list.forEach(issue => {
       issue.set({ selected: true });
     });
     this._suppressUpdate = false;

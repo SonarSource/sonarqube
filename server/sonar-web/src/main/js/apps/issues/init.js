@@ -72,7 +72,7 @@ const init = function ({ el, user }) {
   Backbone.history.start();
 };
 
-App.on('start', function (el) {
+App.on('start', el => {
   init.call(App, el);
 });
 

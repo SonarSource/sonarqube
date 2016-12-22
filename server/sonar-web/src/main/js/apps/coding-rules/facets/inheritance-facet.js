@@ -60,7 +60,7 @@ export default BaseFacet.extend({
 
   getValues () {
     const values = ['NONE', 'INHERITED', 'OVERRIDES'];
-    return values.map(function (key) {
+    return values.map(key => {
       return {
         label: translate('coding_rules.filters.inheritance', key.toLowerCase()),
         val: key

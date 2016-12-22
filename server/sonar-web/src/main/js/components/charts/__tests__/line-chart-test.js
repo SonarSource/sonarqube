@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { LineChart } from '../line-chart';
 
-it('should display line', function () {
+it('should display line', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
@@ -31,7 +31,7 @@ it('should display line', function () {
   expect(chart.find('.line-chart-path').length).toBe(1);
 });
 
-it('should display ticks', function () {
+it('should display ticks', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
@@ -47,7 +47,7 @@ it('should display ticks', function () {
   expect(chart.find('.line-chart-tick').length).toBe(3);
 });
 
-it('should display values', function () {
+it('should display values', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },

@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import { getProjectsWithInternalId } from '../../../api/components';
 
 export default function ProjectNotifications ({ notifications, channels, onAddProject, onRemoveProject }) {
-  const loadOptions = (query) => {
+  const loadOptions = query => {
     return getProjectsWithInternalId(query)
         .then(results => results.map(r => {
           return {
@@ -37,7 +37,7 @@ export default function ProjectNotifications ({ notifications, channels, onAddPr
         });
   };
 
-  const handleAddProject = (selected) => {
+  const handleAddProject = selected => {
     const project = {
       internalId: selected.value,
       name: selected.label

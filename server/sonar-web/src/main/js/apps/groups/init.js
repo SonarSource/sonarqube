@@ -54,7 +54,7 @@ const init = function (el) {
   this.groups.fetch();
 };
 
-App.on('start', function (el) {
+App.on('start', el => {
   init.call(App, el);
 });
 

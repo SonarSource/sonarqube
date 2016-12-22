@@ -52,9 +52,7 @@ export default ModalForm.extend({
 
   getAvailableMetrics () {
     const takenMetrics = this.collection.getTakenMetrics();
-    return this.metrics.toJSON().filter(function (metric) {
-      return takenMetrics.indexOf(metric.id) === -1;
-    });
+    return this.metrics.toJSON().filter(metric => takenMetrics.indexOf(metric.id) === -1);
   },
 
   serializeData () {

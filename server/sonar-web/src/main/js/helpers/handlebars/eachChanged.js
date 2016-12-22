@@ -21,7 +21,7 @@ import _ from 'underscore';
 
 module.exports = function (context, property, options) {
   let ret = '';
-  context.forEach(function (d, i) {
+  context.forEach((d, i) => {
     const changed = i > 0 ? d[property] !== context[i - 1][property] : true;
     const c = _.extend({ changed }, d);
     ret += options.fn(c);

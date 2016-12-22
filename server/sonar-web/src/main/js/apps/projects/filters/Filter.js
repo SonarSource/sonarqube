@@ -68,7 +68,7 @@ export default class Filter extends React.Component {
   renderOption (option) {
     const { property, value, facet, getFacetValueForOption } = this.props;
     const className = classNames('facet', 'search-navigator-facet', 'projects-facet', {
-      active: option === value,
+      'active': option === value,
       'search-navigator-facet-half': this.props.halfWidth
     }, this.props.optionClassName);
 

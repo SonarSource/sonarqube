@@ -64,7 +64,7 @@ export default Marionette.CompositeView.extend({
 
   bindScrollEvents () {
     const that = this;
-    $(window).on('scroll.workspace-list-view', function () {
+    $(window).on('scroll.workspace-list-view', () => {
       that.onScroll();
     });
   },
@@ -75,12 +75,12 @@ export default Marionette.CompositeView.extend({
 
   bindShortcuts () {
     const that = this;
-    key('up', 'list', function () {
+    key('up', 'list', () => {
       that.options.app.controller.selectPrev();
       return false;
     });
 
-    key('down', 'list', function () {
+    key('down', 'list', () => {
       that.options.app.controller.selectNext();
       return false;
     });
@@ -95,7 +95,7 @@ export default Marionette.CompositeView.extend({
     if (!this.options.app.state.get('maxResultsReached')) {
       const that = this;
       this.unbindScrollEvents();
-      this.options.app.controller.fetchNextPage().done(function () {
+      this.options.app.controller.fetchNextPage().done(() => {
         that.bindScrollEvents();
       });
     }

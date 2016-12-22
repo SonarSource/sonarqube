@@ -29,17 +29,17 @@ export const TreemapBreadcrumbs = React.createClass({
     }).isRequired).isRequired
   },
 
-  handleItemClick(item, e) {
+  handleItemClick (item, e) {
     e.preventDefault();
     this.props.onRectangleClick(item);
   },
 
-  handleReset(e) {
+  handleReset (e) {
     e.preventDefault();
     this.props.onReset();
   },
 
-  renderHome() {
+  renderHome () {
     return (
         <span className="treemap-breadcrumbs-item">
           <a onClick={this.handleReset} className="icon-home" href="#"/>
@@ -47,7 +47,7 @@ export const TreemapBreadcrumbs = React.createClass({
     );
   },
 
-  renderBreadcrumbsItems(b) {
+  renderBreadcrumbsItems (b) {
     return (
         <span key={b.key} className="treemap-breadcrumbs-item" title={b.name}>
           <i className="icon-chevron-right"/>
@@ -57,7 +57,7 @@ export const TreemapBreadcrumbs = React.createClass({
     );
   },
 
-  render() {
+  render () {
     const breadcrumbs = this.props.breadcrumbs.map(this.renderBreadcrumbsItems);
     return (
         <div className="treemap-breadcrumbs">

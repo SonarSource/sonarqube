@@ -135,8 +135,8 @@ export default class BubbleChart extends React.Component {
       };
     });
 
-    const formatXTick = (tick) => formatMeasure(tick, this.xMetric.type);
-    const formatYTick = (tick) => formatMeasure(tick, this.yMetric.type);
+    const formatXTick = tick => formatMeasure(tick, this.xMetric.type);
+    const formatYTick = tick => formatMeasure(tick, this.yMetric.type);
 
     return (
         <OriginalBubbleChart

@@ -26,9 +26,7 @@ export default BaseFacet.extend({
 
   sortValues (values) {
     const order = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-    return _.sortBy(values, function (v) {
-      return order.indexOf(v.val);
-    });
+    return _.sortBy(values, v => order.indexOf(v.val));
   }
 });
 

@@ -63,7 +63,7 @@ export default ModalFormView.extend({
     });
   },
 
-  onDestroy() {
+  onDestroy () {
     this.options.loadProjects();
     ModalFormView.prototype.onDestroy.apply(this, arguments);
   }

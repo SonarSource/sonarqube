@@ -73,7 +73,7 @@ export const BubbleChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       sizeRange: [5, 45],
       displayXGrid: true,
@@ -86,7 +86,7 @@ export const BubbleChart = React.createClass({
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 
@@ -106,7 +106,7 @@ export const BubbleChart = React.createClass({
     return [availableHeight - dMaxY, dMinY];
   },
 
-  getTicks(scale, format) {
+  getTicks (scale, format) {
     const ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
     const uniqueTicksCount = _.uniq(ticks).length;
     const ticksCount = uniqueTicksCount < TICKS_COUNT ? uniqueTicksCount - 1 : TICKS_COUNT;

@@ -38,10 +38,10 @@ export default FormView.extend({
         400: null,
         500: null
       }
-    }).done(function () {
+    }).done(() => {
       that.collection.refresh();
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.enableForm();
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });

@@ -134,12 +134,12 @@ const SelectListItemView = Backbone.View.extend({
         403: null,
         500: null
       }
-    }).done(function () {
+    }).done(() => {
       that.model.set('selected', !selected);
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.render();
       showError(jqXHR);
-    }).always(function () {
+    }).always(() => {
       that.$el.removeClass('progress');
     });
   }
@@ -202,7 +202,7 @@ const SelectListView = Backbone.View.extend({
       this.$listContainer
           .height(this.settings.height)
           .css('overflow', 'auto')
-          .on('scroll', function () {
+          .on('scroll', () => {
             that.scroll();
           });
     } else {
@@ -216,7 +216,7 @@ const SelectListView = Backbone.View.extend({
         .on('search', _.debounce(keyup, 250));
 
     if (this.settings.focusSearch) {
-      setTimeout(function () {
+      setTimeout(() => {
         searchInput.focus();
       }, 250);
     }
@@ -241,16 +241,14 @@ const SelectListView = Backbone.View.extend({
   },
 
   renderList () {
-    this.listItemViews.forEach(function (view) {
+    this.listItemViews.forEach(view => {
       view.remove();
     });
     this.listItemViews = [];
     if (this.collection.length > 0) {
       this.collection.each(this.renderListItem, this);
-    } else {
-      if (this.settings.readOnly) {
-        this.renderEmpty();
-      }
+    } else if (this.settings.readOnly) {
+      this.renderEmpty();
     }
     this.$listContainer.scrollTop(0);
   },

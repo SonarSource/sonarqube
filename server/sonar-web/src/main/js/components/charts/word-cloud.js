@@ -50,7 +50,7 @@ export const WordCloud = React.createClass({
 
   mixins: [TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       sizeRange: [10, 24]
     };

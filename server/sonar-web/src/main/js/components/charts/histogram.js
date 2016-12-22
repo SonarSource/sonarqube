@@ -36,7 +36,7 @@ export const Histogram = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
       xTicks: [],
       xValues: [],
@@ -49,7 +49,7 @@ export const Histogram = React.createClass({
     return { width: this.props.width, height: this.props.height };
   },
 
-  handleClick(point) {
+  handleClick (point) {
     this.props.onBarClick(point);
   },
 

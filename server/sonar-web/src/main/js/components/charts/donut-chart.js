@@ -23,7 +23,7 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 const Sector = React.createClass({
-  render() {
+  render () {
     const arc = d3.svg.arc()
         .outerRadius(this.props.radius)
         .innerRadius(this.props.radius - this.props.thickness);
@@ -38,11 +38,11 @@ export const DonutChart = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getDefaultProps() {
+  getDefaultProps () {
     return { thickness: 6, padding: [0, 0, 0, 0] };
   },
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 

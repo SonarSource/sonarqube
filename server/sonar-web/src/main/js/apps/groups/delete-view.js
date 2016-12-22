@@ -37,10 +37,10 @@ export default ModalForm.extend({
         // do not show global error
         400: null
       }
-    }).done(function () {
+    }).done(() => {
       collection.total--;
       that.destroy();
-    }).fail(function (jqXHR) {
+    }).fail(jqXHR => {
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });
   },

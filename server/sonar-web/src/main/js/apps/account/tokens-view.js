@@ -66,7 +66,7 @@ export default Marionette.ItemView.extend({
         });
   },
 
-  onRevokeTokenFormSubmit(e) {
+  onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
     const token = _.findWhere(this.tokens, { name: `${tokenName}` });
@@ -92,7 +92,7 @@ export default Marionette.ItemView.extend({
     this.newToken = null;
   },
 
-  serializeData() {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       tokens: this.tokens,
       newToken: this.newToken,

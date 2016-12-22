@@ -65,7 +65,7 @@ export default ModalFormView.extend({
       that.emptyInput($(this));
       $(this).addClass('hidden');
     });
-    importers.forEach(function (importer) {
+    importers.forEach(importer => {
       that.$(`.js-importer[data-key="${importer.key}"]`).removeClass('hidden');
     });
   },
@@ -77,9 +77,9 @@ export default ModalFormView.extend({
 
   getImportersForLanguages (language) {
     if (language != null) {
-      return this.options.importers.filter(function (importer) {
-        return importer.languages.indexOf(language) !== -1;
-      });
+      return this.options.importers.filter(importer => (
+          importer.languages.indexOf(language) !== -1
+      ));
     } else {
       return [];
     }

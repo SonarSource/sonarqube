@@ -29,12 +29,12 @@ import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
 export default React.createClass({
-  componentDidMount() {
+  componentDidMount () {
     this.loadStatus();
     this.populateRecentHistory();
   },
 
-  loadStatus() {
+  loadStatus () {
     getTasksForComponent(this.props.component.id).then(r => {
       this.setState({
         isPending: r.queue.some(task => task.status === STATUSES.PENDING),
@@ -44,7 +44,7 @@ export default React.createClass({
     });
   },
 
-  populateRecentHistory() {
+  populateRecentHistory () {
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
@@ -52,7 +52,7 @@ export default React.createClass({
     }
   },
 
-  render() {
+  render () {
     return (
         <nav className="navbar navbar-context page-container" id="context-navigation">
           <div className="navbar-context-inner">

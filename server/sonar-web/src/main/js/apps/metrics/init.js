@@ -60,18 +60,18 @@ const init = function (el) {
 };
 
 App.requestDomains = function () {
-  return $.get(window.baseUrl + '/api/metrics/domains').done(function (r) {
+  return $.get(window.baseUrl + '/api/metrics/domains').done(r => {
     App.domains = r.domains;
   });
 };
 App.requestTypes = function () {
-  return $.get(window.baseUrl + '/api/metrics/types').done(function (r) {
+  return $.get(window.baseUrl + '/api/metrics/types').done(r => {
     App.types = r.types;
   });
 };
 
-App.on('start', function (el) {
-  $.when(App.requestDomains(), App.requestTypes()).done(function () {
+App.on('start', el => {
+  $.when(App.requestDomains(), App.requestTypes()).done(() => {
     init.call(App, el);
   });
 });

@@ -19,7 +19,7 @@
  */
 module.exports = function (...args) {
   let ret = null;
-  args.forEach(function (arg) {
+  args.forEach(arg => {
     if (typeof arg === 'string' && ret == null) {
       ret = arg;
     }

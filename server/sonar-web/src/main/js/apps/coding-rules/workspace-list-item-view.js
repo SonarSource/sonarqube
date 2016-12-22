@@ -69,15 +69,16 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   activate () {
     const that = this;
     const selectedProfile = this.options.app.state.get('query').qprofile;
-    const othersQualityProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
-      return profile.key === selectedProfile;
-    });
+    const othersQualityProfiles = _.reject(
+        this.options.app.qualityProfiles,
+        profile => profile.key === selectedProfile
+    );
     const activationView = new ProfileActivationView({
       rule: this.model,
       collection: new Backbone.Collection(othersQualityProfiles),
       app: this.options.app
     });
-    activationView.on('profileActivated', function (severity, params, profile) {
+    activationView.on('profileActivated', (severity, params, profile) => {
       const activation = {
         severity,
         params,
@@ -104,7 +105,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
             profile_key: activation.qProfile,
             rule_key: ruleKey
           }
-        }).done(function () {
+        }).done(() => {
           that.model.unset('activation');
         });
       }

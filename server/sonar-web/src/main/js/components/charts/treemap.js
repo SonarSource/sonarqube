@@ -55,7 +55,7 @@ export const TreemapRect = React.createClass({
     onClick: React.PropTypes.func
   },
 
-  renderLink() {
+  renderLink () {
     if (!this.props.link) {
       return null;
     }
@@ -119,7 +119,7 @@ export const Treemap = React.createClass({
 
   mixins: [ResizeMixin, TooltipsMixin],
 
-  getInitialState() {
+  getInitialState () {
     return { width: this.props.width, height: this.props.height };
   },
 

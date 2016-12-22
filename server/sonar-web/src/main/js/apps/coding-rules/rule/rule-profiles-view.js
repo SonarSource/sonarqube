@@ -61,7 +61,7 @@ export default Marionette.CompositeView.extend({
       collection: this.collection,
       app: this.options.app
     });
-    activationView.on('profileActivated', function (severity, params, profile) {
+    activationView.on('profileActivated', (severity, params, profile) => {
       if (that.options.app.state.get('query').qprofile === profile) {
         const activation = {
           severity,
@@ -78,7 +78,7 @@ export default Marionette.CompositeView.extend({
 
   refreshActives () {
     const that = this;
-    this.options.app.controller.getRuleDetails(this.model).done(function (data) {
+    this.options.app.controller.getRuleDetails(this.model).done(data => {
       that.collection.reset(that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles));
     });
   },
