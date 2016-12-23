@@ -44,7 +44,11 @@ class ProjectCardLanguages extends React.Component {
         .slice(0, 2)
         .map(l => this.getLanguageName(l[0]));
 
-    return <span>{finalLanguages.join(', ')}</span>;
+    return (
+        <div className="project-card-languages">
+          {finalLanguages.join(', ')}
+        </div>
+    );
   }
 }
 

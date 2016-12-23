@@ -84,6 +84,14 @@
   font-size: 12px;
 }
 
+.project-card-languages {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .project-card-quality-gate {
   line-height: 24px;
 }
