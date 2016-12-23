@@ -29,7 +29,7 @@ import org.sonar.api.web.UserRole;
 public class ResourceConfigurationPage implements Page {
 
   public String getId() {
-    return "/resource_configuration_sample";
+    return "uiextensionsplugin/resource_configuration_sample";
   }
 
   public String getTitle() {

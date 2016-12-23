@@ -19,7 +19,6 @@
  */
 // @flow
 import uniqueId from 'lodash/uniqueId';
-import { actions } from '../appState/duck';
 
 type Level = 'ERROR' | 'SUCCESS';
 
@@ -80,7 +79,7 @@ const globalMessages = (state: State = [], action: Action = {}) => {
         level: action.level
       }];
 
-    case actions.REQUIRE_AUTHORIZATION:
+    case 'REQUIRE_AUTHORIZATION':
       // FIXME l10n
       return [{
         id: uniqueId('global-message-'),

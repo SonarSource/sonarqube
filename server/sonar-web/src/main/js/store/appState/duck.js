@@ -19,28 +19,36 @@
  */
 // @flow
 type AppState = {
+  adminPages?: Array<*>,
   authenticationError: boolean,
   authorizationError: boolean,
   qualifiers: ?Array<string>
 };
 
-export type Action = {
-  type: string,
+type SetAppStateAction = {
+  type: 'SET_APP_STATE',
   appState: AppState
 };
 
-export const actions = {
-  SET_APP_STATE: 'SET_APP_STATE',
-  REQUIRE_AUTHORIZATION: 'REQUIRE_AUTHORIZATION'
+type SetAdminPagesAction = {
+  type: 'SET_ADMIN_PAGES',
+  adminPages: Array<*>
 };
 
-export const setAppState = (appState: AppState): Action => ({
-  type: actions.SET_APP_STATE,
+export type Action = SetAppStateAction | SetAdminPagesAction;
+
+export const setAppState = (appState: AppState): SetAppStateAction => ({
+  type: 'SET_APP_STATE',
   appState
 });
 
+export const setAdminPages = (adminPages: Array<*>): SetAdminPagesAction => ({
+  type: 'SET_ADMIN_PAGES',
+  adminPages
+});
+
 export const requireAuthorization = () => ({
-  type: actions.REQUIRE_AUTHORIZATION
+  type: 'REQUIRE_AUTHORIZATION'
 });
 
 const defaultValue = {
@@ -50,11 +58,15 @@ const defaultValue = {
 };
 
 export default (state: AppState = defaultValue, action: Action) => {
-  if (action.type === actions.SET_APP_STATE) {
+  if (action.type === 'SET_APP_STATE') {
     return { ...state, ...action.appState };
   }
 
-  if (action.type === actions.REQUIRE_AUTHORIZATION) {
+  if (action.type === 'SET_ADMIN_PAGES') {
+    return { ...state, adminPages: action.adminPages };
+  }
+
+  if (action.type === 'REQUIRE_AUTHORIZATION') {
     return { ...state, authorizationError: true };
   }
 

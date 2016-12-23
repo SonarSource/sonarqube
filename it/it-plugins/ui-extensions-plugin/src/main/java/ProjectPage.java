@@ -27,7 +27,7 @@ import org.sonar.api.web.ResourceQualifier;
 public class ProjectPage implements Page {
 
   public String getId() {
-    return "/project_page";
+    return "uiextensionsplugin/project_page";
   }
 
   public String getTitle() {

@@ -39,8 +39,6 @@ const Meta = ({ component, measures }) => {
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
 
-  const showShowAnalyses = isProject || isView || isDeveloper;
-
   return (
       <div className="overview-meta">
         {hasDescription && (
@@ -63,7 +61,7 @@ const Meta = ({ component, measures }) => {
 
         <MetaKey component={component}/>
 
-        {showShowAnalyses && (
+        {isProject && (
             <AnalysesList project={component.key}/>
         )}
       </div>

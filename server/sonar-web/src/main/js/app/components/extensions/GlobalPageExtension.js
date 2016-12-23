@@ -17,35 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import PrimitiveInput from './PrimitiveInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import { connect } from 'react-redux';
+import Extension from './Extension';
+import ExtensionNotFound from './ExtensionNotFound';
+import { getAppState } from '../../../store/rootReducer';
 
-export default class Input extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    value: React.PropTypes.any,
-    onChange: React.PropTypes.func.isRequired
-  };
-
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+class GlobalPageExtension extends React.Component {
+  props: {
+    globalPages: Array<{ id: string }>,
+    params: {
+      extensionKey: string,
+      pluginKey: string
+    }
   }
 
   render () {
-    const { definition } = this.props.setting;
-
-    if (definition.multiValues) {
-      return <MultiValueInput {...this.props}/>;
-    }
-
-    if (definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput {...this.props}/>;
-    }
-
-    return <PrimitiveInput {...this.props}/>;
+    const { extensionKey, pluginKey } = this.props.params;
+    const extension = this.props.globalPages.find(p => p.id === `${pluginKey}/${extensionKey}`);
+    return extension ? (
+            <Extension extension={extension}/>
+        ) : (
+            <ExtensionNotFound/>
+        );
   }
 }
+
+const mapStateToProps = state => ({
+  globalPages: getAppState(state).globalPages
+});
+
+export default connect(mapStateToProps)(GlobalPageExtension);

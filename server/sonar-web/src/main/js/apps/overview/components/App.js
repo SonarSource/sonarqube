@@ -17,19 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
+import { withRouter } from 'react-router';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
-import { ComponentType } from '../propTypes';
 
-export default class App extends React.Component {
-  static propTypes = {
-    component: ComponentType.isRequired
-  };
+type Props = {
+  component: {
+    id: string,
+    key: string,
+    qualifier: string
+  },
+  router: Object
+};
 
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+class App extends React.Component {
+  props: Props;
+  state: Object;
+
+  componentDidMount () {
+    if (['VW', 'SVW'].includes(this.props.component.qualifier)) {
+      this.props.router.replace({
+        pathname: '/view',
+        query: { id: this.props.component.key }
+      });
+    }
+  }
+
+  shouldComponentUpdate (nextProps: Props) {
+    return shallowCompare(this, nextProps);
   }
 
   render () {
@@ -55,3 +73,7 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default withRouter(App);
+
+export const UnconnectedApp = App;

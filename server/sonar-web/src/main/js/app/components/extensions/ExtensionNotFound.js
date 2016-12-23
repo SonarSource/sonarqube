@@ -17,35 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
-import PropertySetInput from './PropertySetInput';
-import MultiValueInput from './MultiValueInput';
-import PrimitiveInput from './PrimitiveInput';
-import { TYPE_PROPERTY_SET } from '../../constants';
+import { Link } from 'react-router';
 
-export default class Input extends React.Component {
-  static propTypes = {
-    setting: React.PropTypes.object.isRequired,
-    value: React.PropTypes.any,
-    onChange: React.PropTypes.func.isRequired
-  };
+export default class ExtensionNotFound extends React.Component {
+  componentDidMount () {
+    document.querySelector('html').classList.add('dashboard-page');
+  }
 
-  shouldComponentUpdate (nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
+  componentWillUnmount () {
+    document.querySelector('html').classList.remove('dashboard-page');
   }
 
   render () {
-    const { definition } = this.props.setting;
-
-    if (definition.multiValues) {
-      return <MultiValueInput {...this.props}/>;
-    }
-
-    if (definition.type === TYPE_PROPERTY_SET) {
-      return <PropertySetInput {...this.props}/>;
-    }
-
-    return <PrimitiveInput {...this.props}/>;
+    return (
+        <div id="bd" className="page-wrapper-simple">
+          <div id="nonav" className="page-simple">
+            <h2 className="big-spacer-bottom">The page you were looking for does not exist.</h2>
+            <p className="spacer-bottom">You may have mistyped the address or the page may have moved.</p>
+            <p><Link to="/">Go back to the homepage</Link></p>
+          </div>
+        </div>
+    );
   }
 }

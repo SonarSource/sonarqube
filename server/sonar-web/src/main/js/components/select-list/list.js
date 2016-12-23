@@ -22,7 +22,6 @@ import Item from './item';
 
 export default React.createClass({
   propTypes: {
-    /* eslint-disable react/no-unused-prop-types */
     items: React.PropTypes.array.isRequired,
     renderItem: React.PropTypes.func.isRequired,
     getItemKey: React.PropTypes.func.isRequired,

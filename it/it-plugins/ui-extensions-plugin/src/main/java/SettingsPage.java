@@ -27,7 +27,7 @@ import org.sonar.api.web.UserRole;
 public class SettingsPage implements Page {
 
   public String getId() {
-    return "settings_page";
+    return "uiextensionsplugin/settings_page";
   }
 
   public String getTitle() {

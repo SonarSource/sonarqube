@@ -20,48 +20,37 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getCurrentUser } from '../../store/rootReducer';
+import { getCurrentUser, getAppState } from '../../store/rootReducer';
 import { isUserAdmin } from '../../helpers/users';
 import { onFail } from '../../store/rootActions';
 import { getSettingsNavigation } from '../../api/nav';
+import { setAdminPages } from '../../store/appState/duck';
 
 class AdminContainer extends React.Component {
-  state = {
-    loading: true
-  };
-
   componentDidMount () {
     if (!isUserAdmin(this.props.currentUser)) {
       // workaround cyclic dependencies
       const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
       handleRequiredAuthorization();
     }
-
-    this.mounted = true;
     this.loadData();
-  }
-
-  componentWillUnmount () {
-    this.mounted = false;
   }
 
   loadData () {
     getSettingsNavigation().then(
-        r => this.setState({ extensions: r.extensions, loading: false }),
+        r => this.props.setAdminPages(r.extensions),
         onFail(this.props.dispatch)
     );
   }
 
   render () {
-    if (!isUserAdmin(this.props.currentUser) || this.state.loading) {
+    if (!isUserAdmin(this.props.currentUser) || !this.props.adminPages) {
       return null;
     }
 
     return (
         <div>
-          <SettingsNav
-              location={this.props.location}
-              extensions={this.state.extensions}/>
+          <SettingsNav location={this.props.location} extensions={this.props.adminPages}/>
           {this.props.children}
         </div>
     );
@@ -69,7 +58,10 @@ class AdminContainer extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  adminPages: getAppState(state).adminPages,
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(AdminContainer);
+const mapDispatchToProps = { setAdminPages };
+
+export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);

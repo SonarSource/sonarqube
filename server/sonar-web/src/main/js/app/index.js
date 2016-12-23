@@ -21,6 +21,7 @@ import configureLocale from './utils/configureLocale';
 import exposeLibraries from './utils/exposeLibraries';
 import startAjaxMonitoring from './utils/startAjaxMonitoring';
 import startReactApp from './utils/startReactApp';
+import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
 import './styles/index';
 
@@ -39,3 +40,4 @@ startAjaxMonitoring();
 installGlobal();
 startReactApp();
 exposeLibraries();
+installExtensionsHandler();

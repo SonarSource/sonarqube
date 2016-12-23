@@ -30,17 +30,25 @@ import './ComponentNav.css';
 
 export default React.createClass({
   componentDidMount () {
+    this.mounted = true;
+
     this.loadStatus();
     this.populateRecentHistory();
   },
 
+  componentWillUnmount () {
+    this.mounted = false;
+  },
+
   loadStatus () {
     getTasksForComponent(this.props.component.id).then(r => {
-      this.setState({
-        isPending: r.queue.some(task => task.status === STATUSES.PENDING),
-        isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
-        isFailed: r.current && r.current.status === STATUSES.FAILED
-      });
+      if (this.mounted) {
+        this.setState({
+          isPending: r.queue.some(task => task.status === STATUSES.PENDING),
+          isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
+          isFailed: r.current && r.current.status === STATUSES.FAILED
+        });
+      }
     });
   },
 
