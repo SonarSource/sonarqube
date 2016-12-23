@@ -78,8 +78,8 @@ export default class ProjectCardMeasures extends React.Component {
               <div className="project-card-measure-number">
                 {measures['coverage'] != null && (
                     <span className="spacer-right">
-                    <CoverageRating value={measures['coverage']}/>
-                  </span>
+                      <CoverageRating value={measures['coverage']}/>
+                    </span>
                 )}
                 <Measure measure={{ value: measures['coverage'] }}
                          metric={{ key: 'coverage', type: 'PERCENT' }}/>
@@ -93,9 +93,11 @@ export default class ProjectCardMeasures extends React.Component {
           <div className="project-card-measure" data-key="duplicated_lines_density">
             <div className="project-card-measure-inner">
               <div className="project-card-measure-number">
-                <span className="spacer-right">
-                  <DuplicationsRating value={measures['duplicated_lines_density']}/>
-                </span>
+                {measures['duplicated_lines_density'] != null && (
+                  <span className="spacer-right">
+                    <DuplicationsRating value={measures['duplicated_lines_density']}/>
+                  </span>
+                )}
                 <Measure measure={{ value: measures['duplicated_lines_density'] }}
                          metric={{ key: 'duplicated_lines_density', type: 'PERCENT' }}/>
               </div>
@@ -105,20 +107,22 @@ export default class ProjectCardMeasures extends React.Component {
             </div>
           </div>
 
-          <div className="project-card-measure" data-key="ncloc">
-            <div className="project-card-measure-inner">
-              <div className="project-card-measure-number">
-                <span className="spacer-right">
-                  <SizeRating value={measures['ncloc']}/>
-                </span>
-                <Measure measure={{ value: measures['ncloc'] }}
-                         metric={{ key: 'ncloc', type: 'SHORT_INT' }}/>
-              </div>
-              <div className="project-card-measure-label">
-                <ProjectCardLanguages distribution={measures['ncloc_language_distribution']}/>
+          {measures['ncloc'] != null && (
+            <div className="project-card-measure" data-key="ncloc">
+              <div className="project-card-measure-inner">
+                <div className="project-card-measure-number">
+                  <span className="spacer-right">
+                    <SizeRating value={measures['ncloc']}/>
+                  </span>
+                  <Measure measure={{ value: measures['ncloc'] }}
+                           metric={{ key: 'ncloc', type: 'SHORT_INT' }}/>
+                </div>
+                <div className="project-card-measure-label">
+                  <ProjectCardLanguages distribution={measures['ncloc_language_distribution']}/>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
     );
   }

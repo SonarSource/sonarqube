@@ -38,7 +38,8 @@ export default class ProjectCard extends React.Component {
     }
 
     const areProjectMeasuresLoaded = this.props.measures != null;
-    const isProjectAnalyzed = areProjectMeasuresLoaded && this.props.measures.ncloc != null;
+    const isProjectAnalyzed = areProjectMeasuresLoaded &&
+        (this.props.measures['ncloc'] != null || this.props.measures['sqale_rating'] != null);
 
     const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': !areProjectMeasuresLoaded });
 
