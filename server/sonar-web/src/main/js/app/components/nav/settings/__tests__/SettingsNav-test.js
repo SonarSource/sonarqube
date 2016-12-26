@@ -19,11 +19,10 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import toJSON from 'enzyme-to-json';
 import SettingsNav from '../SettingsNav';
 
 it('should work with extensions', () => {
   const extensions = [{ id: 'foo', name: 'Foo' }];
   const wrapper = shallow(<SettingsNav extensions={extensions}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });

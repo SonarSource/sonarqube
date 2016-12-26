@@ -119,6 +119,9 @@
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/SetupTestEnvironment.js"
     ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
       "<rootDir>/src/main/webapp",

@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import toJSON from 'enzyme-to-json';
 import ComponentNavMenu from '../ComponentNavMenu';
 
 it('should work with extensions', () => {
@@ -29,5 +28,5 @@ it('should work with extensions', () => {
     extensions: [{ id: 'foo', name: 'Foo' }]
   };
   const wrapper = shallow(<ComponentNavMenu component={component} conf={conf}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });

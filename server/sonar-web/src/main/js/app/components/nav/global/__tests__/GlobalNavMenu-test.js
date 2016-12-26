@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import toJSON from 'enzyme-to-json';
 import GlobalNavMenu from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
@@ -31,5 +30,5 @@ it('should work with extensions', () => {
     permissions: { global: [] }
   };
   const wrapper = shallow(<GlobalNavMenu appState={appState} currentUser={currentUser}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
