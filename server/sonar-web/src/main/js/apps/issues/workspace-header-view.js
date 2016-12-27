@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
+import BulkChangeForm from './BulkChangeForm';
 import Template from './templates/issues-workspace-header.hbs';
 
 export default WorkspaceHeaderView.extend({
@@ -34,17 +34,6 @@ export default WorkspaceHeaderView.extend({
     };
   },
 
-  initialize () {
-    WorkspaceHeaderView.prototype.initialize.apply(this, arguments);
-    this._onBulkIssues = window.onBulkIssues;
-    window.onBulkIssues = this.afterBulkChange.bind(this);
-  },
-
-  onDestroy () {
-    WorkspaceHeaderView.prototype.onDestroy.apply(this, arguments);
-    window.onBulkIssues = this._onBulkIssues;
-  },
-
   onSelectionClick (e) {
     e.preventDefault();
     this.toggleSelection();
@@ -56,13 +45,11 @@ export default WorkspaceHeaderView.extend({
   },
 
   afterBulkChange () {
-    const that = this;
-    $('#modal').dialog('close');
     const selectedIndex = this.options.app.state.get('selectedIndex');
     const selectedKeys = this.options.app.list.where({ selected: true }).map(item => item.id);
     this.options.app.controller.fetchList().done(() => {
-      that.options.app.state.set({ selectedIndex });
-      that.options.app.list.selectByKeys(selectedKeys);
+      this.options.app.state.set({ selectedIndex });
+      this.options.app.list.selectByKeys(selectedKeys);
     });
   },
 
@@ -104,17 +91,21 @@ export default WorkspaceHeaderView.extend({
   },
 
   bulkChange () {
-    const query = this.options.app.controller.getQuery('&', true, true);
-    const url = window.baseUrl + '/issues/bulk_change_form?' + query;
-    window.openModalWindow(url, {});
+    const query = this.options.app.controller.getQueryAsObject();
+    new BulkChangeForm({
+      query,
+      onChange: () => this.afterBulkChange()
+    }).render();
   },
 
   bulkChangeSelected () {
     const selected = this.options.app.list.where({ selected: true });
-    const selectedKeys = selected.map(item => item.id).slice(0, 200);
-    const query = 'issues=' + selectedKeys.join();
-    const url = window.baseUrl + '/issues/bulk_change_form?' + query;
-    window.openModalWindow(url, {});
+    const selectedKeys = selected.map(item => item.id).slice(0, 500);
+    const query = { issues: selectedKeys.join() };
+    new BulkChangeForm({
+      query,
+      onChange: () => this.afterBulkChange()
+    }).render();
   },
 
   serializeData () {
