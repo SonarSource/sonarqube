@@ -18,17 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
+
+export const searchIssues = (query: {}) => (
+    getJSON('/api/issues/search', query)
+);
 
 export function getFacets (query: {}, facets: Array<string>): Promise<*> {
-  const url = '/api/issues/search';
   const data = {
     ...query,
     facets: facets.join(),
     ps: 1,
     additionalFields: '_all'
   };
-  return getJSON(url, data).then(r => {
+  return searchIssues(data).then(r => {
     return { facets: r.facets, response: r };
   });
 }
@@ -62,9 +65,24 @@ export function getAssignees (query: {}): Promise<*> {
 }
 
 export function getIssuesCount (query: {}): Promise<*> {
-  const url = '/api/issues/search';
   const data = { ...query, ps: 1, facetMode: 'effort' };
-  return getJSON(url, data).then(r => {
+  return searchIssues(data).then(r => {
     return { issues: r.total, debt: r.debtTotal };
   });
 }
+
+export const searchIssueTags = (ps: number = 500) => (
+    getJSON('/api/issues/tags', { ps })
+);
+
+export function getIssueFilters () {
+  const url = '/api/issue_filters/search';
+  return getJSON(url).then(r => r.issueFilters);
+}
+
+export const bulkChangeIssues = (issueKeys: Array<string>, query: {}) => (
+    post('/api/issues/bulk_change', {
+      issues: issueKeys.join(),
+      ...query
+    })
+);
