@@ -19,7 +19,7 @@
  */
 package org.sonar.server.notification;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -69,7 +69,7 @@ public class NotificationCenter {
    * If "propertyValue" is null, the verification is done on the existence of such a property (whatever the value).
    */
   public List<String> getDispatcherKeysForProperty(String propertyKey, @Nullable String propertyValue) {
-    List<String> keys = Lists.newArrayList();
+    ImmutableList.Builder<String> keys = ImmutableList.builder();
     for (NotificationDispatcherMetadata metadata : dispatchersMetadata) {
       String dispatcherKey = metadata.getDispatcherKey();
       String value = metadata.getProperty(propertyKey);
@@ -77,7 +77,7 @@ public class NotificationCenter {
         keys.add(dispatcherKey);
       }
     }
-    return keys;
+    return keys.build();
   }
 
 }

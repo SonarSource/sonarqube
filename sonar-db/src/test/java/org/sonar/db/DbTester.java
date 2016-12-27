@@ -67,6 +67,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
+import org.sonar.db.notification.NotificationDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
@@ -110,6 +111,7 @@ public class DbTester extends ExternalResource {
   private final QualityGateDbTester qualityGateDbTester;
   private final IssueDbTester issueDbTester;
   private final RuleDbTester ruleDbTester;
+  private final NotificationDbTester notificationDbTester;
   private final RootFlagAssertions rootFlagAssertions;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
@@ -125,6 +127,7 @@ public class DbTester extends ExternalResource {
     this.qualityGateDbTester = new QualityGateDbTester(this);
     this.issueDbTester = new IssueDbTester(this);
     this.ruleDbTester = new RuleDbTester(this);
+    this.notificationDbTester = new NotificationDbTester(this);
     this.rootFlagAssertions = new RootFlagAssertions(this);
   }
 
@@ -223,6 +226,10 @@ public class DbTester extends ExternalResource {
 
   public RuleDbTester rules() {
     return ruleDbTester;
+  }
+
+  public NotificationDbTester notifications() {
+    return notificationDbTester;
   }
 
   @Override

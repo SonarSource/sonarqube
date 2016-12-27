@@ -21,31 +21,25 @@ package org.sonar.server.notification;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.NotificationChannel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class NotificationCenterTest {
 
-  @Mock
-  private NotificationChannel emailChannel;
+  private NotificationChannel emailChannel = mock(NotificationChannel.class);
+  private NotificationChannel gtalkChannel = mock(NotificationChannel.class);
 
-  @Mock
-  private NotificationChannel gtalkChannel;
-
-  private NotificationCenter notificationCenter;
+  private NotificationCenter underTest;
 
   @Before
   public void init() {
-    MockitoAnnotations.initMocks(this);
-
     NotificationDispatcherMetadata metadata1 = NotificationDispatcherMetadata.create("Dispatcher1").setProperty("global", "true").setProperty("on-project", "true");
     NotificationDispatcherMetadata metadata2 = NotificationDispatcherMetadata.create("Dispatcher2").setProperty("global", "true");
     NotificationDispatcherMetadata metadata3 = NotificationDispatcherMetadata.create("Dispatcher3").setProperty("global", "FOO").setProperty("on-project", "BAR");
 
-    notificationCenter = new NotificationCenter(
+    underTest = new NotificationCenter(
         new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
         new NotificationChannel[] {emailChannel, gtalkChannel}
         );
@@ -53,30 +47,30 @@ public class NotificationCenterTest {
 
   @Test
   public void shouldReturnChannels() {
-    assertThat(notificationCenter.getChannels()).containsOnly(emailChannel, gtalkChannel);
+    assertThat(underTest.getChannels()).containsOnly(emailChannel, gtalkChannel);
   }
 
   @Test
   public void shouldReturnDispatcherKeysForSpecificPropertyValue() {
-    assertThat(notificationCenter.getDispatcherKeysForProperty("global", "true")).containsOnly("Dispatcher1", "Dispatcher2");
+    assertThat(underTest.getDispatcherKeysForProperty("global", "true")).containsOnly("Dispatcher1", "Dispatcher2");
   }
 
   @Test
   public void shouldReturnDispatcherKeysForExistenceOfProperty() {
-    assertThat(notificationCenter.getDispatcherKeysForProperty("on-project", null)).containsOnly("Dispatcher1", "Dispatcher3");
+    assertThat(underTest.getDispatcherKeysForProperty("on-project", null)).containsOnly("Dispatcher1", "Dispatcher3");
   }
 
   @Test
   public void testDefaultConstructors() {
-    notificationCenter = new NotificationCenter(new NotificationChannel[] {emailChannel});
-    assertThat(notificationCenter.getChannels()).hasSize(1);
+    underTest = new NotificationCenter(new NotificationChannel[] {emailChannel});
+    assertThat(underTest.getChannels()).hasSize(1);
 
-    notificationCenter = new NotificationCenter();
-    assertThat(notificationCenter.getChannels()).hasSize(0);
+    underTest = new NotificationCenter();
+    assertThat(underTest.getChannels()).hasSize(0);
 
-    notificationCenter = new NotificationCenter(new NotificationDispatcherMetadata[] {NotificationDispatcherMetadata.create("Dispatcher1").setProperty("global", "true")});
-    assertThat(notificationCenter.getChannels()).hasSize(0);
-    assertThat(notificationCenter.getDispatcherKeysForProperty("global", null)).hasSize(1);
+    underTest = new NotificationCenter(new NotificationDispatcherMetadata[] {NotificationDispatcherMetadata.create("Dispatcher1").setProperty("global", "true")});
+    assertThat(underTest.getChannels()).hasSize(0);
+    assertThat(underTest.getDispatcherKeysForProperty("global", null)).hasSize(1);
   }
 
 }

@@ -20,7 +20,6 @@
 package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -52,7 +51,6 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
-import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
@@ -85,12 +83,7 @@ import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
-import org.sonar.server.notification.DefaultNotificationManager;
-import org.sonar.server.notification.NotificationCenter;
-import org.sonar.server.notification.NotificationDaemon;
-import org.sonar.server.notification.NotificationService;
-import org.sonar.server.notification.email.AlertsEmailTemplate;
-import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.organization.ws.OrganizationsWsModule;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -396,8 +389,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
       NewIssuesNotificationFactory.class,
-      EmailNotificationChannel.class,
-      AlertsEmailTemplate.class,
 
       // issues actions
       AssignAction.class,
@@ -437,12 +428,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RubyTextService.class,
 
       // Notifications
-      EmailSettings.class,
-      NotificationService.class,
-      NotificationCenter.class,
-      DefaultNotificationManager.class,
-      EmailsWsModule.class,
-      NotificationDaemon.class,
+      NotificationModule.class,
 
       // Tests
       TestsWs.class,

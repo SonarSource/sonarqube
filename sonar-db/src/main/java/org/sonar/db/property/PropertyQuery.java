@@ -19,6 +19,8 @@
  */
 package org.sonar.db.property;
 
+import javax.annotation.Nullable;
+
 public class PropertyQuery {
 
   private final String key;
@@ -57,7 +59,7 @@ public class PropertyQuery {
       return this;
     }
 
-    public Builder setComponentId(Long componentId) {
+    public Builder setComponentId(@Nullable Long componentId) {
       this.componentId = componentId;
       return this;
     }
