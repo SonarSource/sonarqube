@@ -22,11 +22,22 @@ import { connect } from 'react-redux';
 import Nav from './Nav';
 import UserCard from './UserCard';
 import { getCurrentUser } from '../../../store/rootReducer';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import '../account.css';
 
 class Account extends React.Component {
+  componentDidMount () {
+    if (!this.props.currentUser.isLoggedIn) {
+      handleRequiredAuthentication();
+    }
+  }
+
   render () {
     const { currentUser, children } = this.props;
+
+    if (!currentUser.isLoggedIn) {
+      return null;
+    }
 
     return (
         <div id="account-page">
