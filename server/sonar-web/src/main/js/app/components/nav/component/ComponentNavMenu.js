@@ -143,7 +143,7 @@ export default class ComponentNavMenu extends React.Component {
             {this.renderPermissionsLink()}
             {this.renderBackgroundTasksLink()}
             {this.renderUpdateKeyLink()}
-            {this.renderExtensions()}
+            {this.renderAdminExtensions()}
             {this.renderDeletionLink()}
           </ul>
         </li>
@@ -299,17 +299,15 @@ export default class ComponentNavMenu extends React.Component {
     );
   };
 
-  renderExtensions () {
+  renderAdminExtensions () {
     const extensions = this.props.conf.extensions || [];
     return extensions.map(e => this.renderExtension(e, true));
   }
 
-  renderTools () {
+  renderExtensions () {
     const extensions = this.props.component.extensions || [];
     const withoutGovernance = extensions.filter(ext => ext.name !== 'Governance');
-    const tools = withoutGovernance.map(this.renderExtension);
-
-    if (!tools.length) {
+    if (!withoutGovernance.length) {
       return null;
     }
 
@@ -320,7 +318,7 @@ export default class ComponentNavMenu extends React.Component {
             <i className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
-            {tools}
+            {withoutGovernance.map(this.renderExtension)}
           </ul>
         </li>
     );
@@ -334,8 +332,8 @@ export default class ComponentNavMenu extends React.Component {
           {this.renderComponentMeasuresLink()}
           {this.renderCodeLink()}
           {this.renderActivityLink()}
-          {this.renderTools()}
           {this.renderAdministration()}
+          {this.renderExtensions()}
         </ul>
     );
   }
