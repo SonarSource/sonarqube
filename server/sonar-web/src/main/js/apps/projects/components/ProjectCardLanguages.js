@@ -20,6 +20,7 @@
 import React from 'react';
 import sortBy from 'lodash/sortBy';
 import { connect } from 'react-redux';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
@@ -45,9 +46,11 @@ class ProjectCardLanguages extends React.Component {
         .map(l => this.getLanguageName(l[0]));
 
     return (
-        <div className="project-card-languages">
-          {finalLanguages.join(', ')}
-        </div>
+        <TooltipsContainer options={{ delay: { show: 500, hide: 0 } }}>
+          <div className="project-card-languages">
+            <span title={finalLanguages.join('<br/>')} data-toggle="tooltip">{finalLanguages.join(', ')}</span>
+          </div>
+        </TooltipsContainer>
     );
   }
 }
