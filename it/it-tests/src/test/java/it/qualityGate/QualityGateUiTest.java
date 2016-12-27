@@ -22,7 +22,9 @@ package it.qualityGate;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import java.util.Date;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,6 +39,7 @@ import pageobjects.Navigation;
 import pageobjects.ProjectActivityPage;
 import util.ItUtils;
 
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
@@ -76,17 +79,20 @@ public class QualityGateUiTest {
     QualityGate qGate = qgClient.create("AlertsForHistory");
     qgClient.setDefault(qGate.id());
 
+    String firstAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -2));
+    String secondAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
+
     // with this configuration, project should have an Orange alert
     QualityGateCondition lowThresholds = qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("GT").warningThreshold("5").errorThreshold("50"));
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate(firstAnalysisDate);
     // with this configuration, project should have a Green alert
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
-    scanSampleWithDate("2012-01-02");
+    scanSampleWithDate(secondAnalysisDate);
 
     ProjectActivityPage page = Navigation.get(orchestrator).openProjectActivity("sample");
     page
-      .assertFirstAnalysisOfTheDayHasText("2012-01-02", "Green (was Orange)")
-      .assertFirstAnalysisOfTheDayHasText("2012-01-01", "Orange");
+      .assertFirstAnalysisOfTheDayHasText(secondAnalysisDate, "Green (was Orange)")
+      .assertFirstAnalysisOfTheDayHasText(firstAnalysisDate, "Orange");
 
     qgClient.unsetDefault();
     qgClient.destroy(qGate.id());
