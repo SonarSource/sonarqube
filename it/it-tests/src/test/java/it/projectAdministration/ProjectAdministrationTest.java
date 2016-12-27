@@ -26,8 +26,10 @@ import it.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,11 +43,15 @@ import pageobjects.Navigation;
 import pageobjects.settings.SettingsPage;
 import util.selenium.SeleneseTest;
 
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class ProjectAdministrationTest {
   private static final String DELETE_WS_ENDPOINT = "api/projects/bulk_delete";
+
+  // take some day in the past
+  private static final String ANALYSIS_DATE = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -66,7 +72,7 @@ public class ProjectAdministrationTest {
 
   @Test
   public void delete_project_by_web_service() {
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate(ANALYSIS_DATE);
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
@@ -80,7 +86,7 @@ public class ProjectAdministrationTest {
   @Test
   public void fail_when_trying_to_delete_a_file() {
     expectedException.expect(HttpException.class);
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate(ANALYSIS_DATE);
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
@@ -92,7 +98,7 @@ public class ProjectAdministrationTest {
   @Test
   public void fail_when_insufficient_privilege() {
     expectedException.expect(HttpException.class);
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate(ANALYSIS_DATE);
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
 

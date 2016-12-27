@@ -54,6 +54,9 @@ public class PurgeTest {
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
   private static final String PROJECT_SAMPLE_PATH = "dbCleaner/xoo-multi-modules-sample";
 
+  private static final String ONE_DAY_AGO = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
+  private static final String TWO_DAYS_AGO = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -2));
+
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
@@ -249,12 +252,12 @@ public class PurgeTest {
    */
   @Test
   public void should_delete_historical_data_of_directories_by_default() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, TWO_DAYS_AGO);
 
     int fileMeasures = count(COUNT_FILE_MEASURES);
     int dirMeasures = count(COUNT_DIR_MEASURES);
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, ONE_DAY_AGO);
 
     // second analysis with new_* metrics
     assertThat(count(COUNT_FILE_MEASURES)).isLessThan(2 * fileMeasures);
@@ -266,14 +269,14 @@ public class PurgeTest {
    */
   @Test
   public void should_not_delete_historical_data_of_directories() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, TWO_DAYS_AGO);
 
     int fileMeasures = count(COUNT_FILE_MEASURES);
     int dirMeasures = count(COUNT_DIR_MEASURES);
 
     setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", "false");
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, ONE_DAY_AGO);
 
     // second analysis as NEW_* metrics
     assertThat(count(COUNT_FILE_MEASURES)).isLessThan( 2 * fileMeasures);
@@ -285,7 +288,7 @@ public class PurgeTest {
    */
   @Test
   public void should_delete_historical_data_of_flagged_metrics() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, TWO_DAYS_AGO);
 
     // historical data of complexity_in_classes is supposed to be deleted (see CoreMetrics)
     String selectNcloc = "project_measures where metric_id in (select id from metrics where name='ncloc')";
@@ -293,7 +296,7 @@ public class PurgeTest {
     int nclocCount = count(selectNcloc);
     int complexitInClassesCount = count(selectComplexityInClasses);
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, ONE_DAY_AGO);
     assertThat(count(selectNcloc)).isGreaterThan(nclocCount);
     assertThat(count(selectComplexityInClasses)).isEqualTo(complexitInClassesCount);
   }

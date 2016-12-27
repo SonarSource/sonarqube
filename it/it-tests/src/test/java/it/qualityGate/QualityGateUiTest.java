@@ -23,7 +23,9 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
+import java.util.Date;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,6 +39,7 @@ import org.sonar.wsclient.qualitygate.UpdateCondition;
 import util.ItUtils;
 import util.selenium.SeleneseTest;
 
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -75,12 +78,15 @@ public class QualityGateUiTest {
     QualityGate qGate = qgClient.create("AlertsForHistory");
     qgClient.setDefault(qGate.id());
 
+    String firstAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -2));
+    String secondAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
+
     // with this configuration, project should have an Orange alert
     QualityGateCondition lowThresholds = qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("GT").warningThreshold("5").errorThreshold("50"));
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate(firstAnalysisDate);
     // with this configuration, project should have a Green alert
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
-    scanSampleWithDate("2012-01-02");
+    scanSampleWithDate(secondAnalysisDate);
 
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("display-alerts-history-page",
