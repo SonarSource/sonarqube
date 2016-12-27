@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import toJSON from 'enzyme-to-json';
 import ProjectCardMeasures from '../ProjectCardMeasures';
 
 it('should not render coverage', () => {
@@ -32,7 +31,7 @@ it('should not render coverage', () => {
     'sqale_rating': '1.0'
   };
   const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should not render duplications', () => {
@@ -45,7 +44,7 @@ it('should not render duplications', () => {
     'sqale_rating': '1.0'
   };
   const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should not render ncloc', () => {
@@ -58,5 +57,5 @@ it('should not render ncloc', () => {
     'sqale_rating': '1.0'
   };
   const wrapper = shallow(<ProjectCardMeasures measures={measures}/>);
-  expect(toJSON(wrapper)).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
