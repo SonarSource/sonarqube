@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 module.exports = function (context, options) {
   let ret = '';
-  context.forEach((d, i) => {
-    const c = _.extend({ index: i }, d);
+  context.forEach((d, index) => {
+    const c = { index, ...d };
     ret += options.fn(c);
   });
   return ret;

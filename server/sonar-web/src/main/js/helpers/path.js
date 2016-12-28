@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 export function collapsePath (path, limit = 30) {
   if (typeof path !== 'string') {
     return '';
@@ -30,9 +28,9 @@ export function collapsePath (path, limit = 30) {
     return path;
   }
 
-  const head = _.first(tokens);
-  const tail = _.last(tokens);
-  const middle = _.initial(_.rest(tokens));
+  const head = tokens[0];
+  const tail = tokens[tokens.length - 1];
+  const middle = tokens.slice(1, -1);
   let cut = false;
 
   while (middle.join().length > limit && middle.length > 0) {
@@ -55,11 +53,12 @@ export function collapsePath (path, limit = 30) {
 export function collapsedDirFromPath (path) {
   const limit = 30;
   if (typeof path === 'string') {
-    const tokens = _.initial(path.split('/'));
+    const tokens = path.split('/').slice(0, -1);
     if (tokens.length > 2) {
-      const head = _.first(tokens);
-      const tail = _.last(tokens);
-      const middle = _.initial(_.rest(tokens));
+      const head = tokens[0];
+      const tail = tokens[tokens.length - 1];
+      const middle = tokens.slice(1, -1);
+
       let cut = false;
       while (middle.join().length > limit && middle.length > 0) {
         middle.shift();
@@ -86,7 +85,7 @@ export function collapsedDirFromPath (path) {
 export function fileFromPath (path) {
   if (typeof path === 'string') {
     const tokens = path.split('/');
-    return _.last(tokens);
+    return tokens[tokens.length - 1];
   } else {
     return null;
   }
@@ -96,8 +95,8 @@ export function splitPath (path) {
   if (typeof path === 'string') {
     const tokens = path.split('/');
     return {
-      head: _.initial(tokens).join('/'),
-      tail: _.last(tokens)
+      head: tokens.slice(0, -1).join('/'),
+      tail: tokens[tokens.length - 1]
     };
   } else {
     return null;
