@@ -58,7 +58,7 @@ export default CustomValuesFacet.extend({
   serializeData () {
     return {
       ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
-      values: this.getValues()
+      values: this.sortValues(this.getValues())
     };
   }
 
