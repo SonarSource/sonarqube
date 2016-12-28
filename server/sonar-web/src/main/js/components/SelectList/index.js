@@ -92,10 +92,9 @@ const SelectListItemView = Backbone.View.extend({
     this.$('input').prop('name', this.model.get('name'));
     this.$el.toggleClass('selected', this.model.get('selected'));
     this.$('.select-list-list-checkbox')
-        .prop('title',
-            this.model.get('selected') ?
-                this.settings.tooltips.deselect :
-                this.settings.tooltips.select)
+        .prop('title', this.model.get('selected') ?
+            this.settings.tooltips.deselect :
+            this.settings.tooltips.select)
         .prop('checked', this.model.get('selected'));
 
     if (this.settings.readOnly) {
