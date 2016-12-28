@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import moment from 'moment';
 import d3 from 'd3';
 
@@ -50,8 +49,8 @@ const defaults = function () {
 
 $.fn.barchart = function (data) {
   $(this).each(function () {
-    const options = _.defaults($(this).data(), defaults());
-    _.extend(options, {
+    const options = { ...defaults(), ...$(this).data() };
+    Object.assign(options, {
       width: options.width || $(this).width(),
       endDate: options.endDate ? moment(options.endDate) : null
     });
@@ -69,7 +68,7 @@ $.fn.barchart = function (data) {
     const yScale = d3.scale.linear()
         .domain([0, yScaleMax]);
 
-    _.extend(options, {
+    Object.assign(options, {
       availableWidth: options.width - options.marginLeft - options.marginRight,
       availableHeight: options.height - options.marginTop - options.marginBottom
     });

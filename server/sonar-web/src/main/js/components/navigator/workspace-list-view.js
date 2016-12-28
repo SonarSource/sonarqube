@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import throttle from 'lodash/throttle';
 import Marionette from 'backbone.marionette';
 
 const BOTTOM_OFFSET = 60;
@@ -41,7 +41,7 @@ export default Marionette.CompositeView.extend({
   },
 
   initialize (options) {
-    this.loadMoreThrottled = _.throttle(this.loadMore, 1000, { trailing: false });
+    this.loadMoreThrottled = throttle(this.loadMore, 1000, { trailing: false });
     this.listenTo(options.app.state, 'change:maxResultsReached', this.toggleLoadMore);
     this.listenTo(options.app.state, 'change:selectedIndex', this.scrollTo);
     this.bindShortcuts();

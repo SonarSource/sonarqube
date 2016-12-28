@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import $ from 'jquery';
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
@@ -81,8 +80,9 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       path: this.model.get('path') || this.model.get('longName')
-    });
+    };
   }
 });

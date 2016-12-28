@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import PopupView from '../../common/popup';
 import Template from '../templates/comment-form.hbs';
 
@@ -106,10 +105,11 @@ export default PopupView.extend({
   },
 
   serializeData () {
-    const options = _.defaults(this.options.additionalOptions, { fromTransition: false });
-    return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
+    const options = { fromTransition: false, ...this.options.additionalOptions };
+    return {
+      ...PopupView.prototype.serializeData.apply(this, arguments),
       options
-    });
+    };
   }
 });
 

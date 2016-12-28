@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Word = React.createClass({
@@ -58,7 +58,7 @@ export const WordCloud = React.createClass({
 
   render () {
     const len = this.props.items.length;
-    const sortedItems = _.sortBy(this.props.items, (item, idx) => {
+    const sortedItems = sortBy(this.props.items, (item, idx) => {
       const index = len - idx;
       return (index % 2) * (len - index) + index / 2;
     });

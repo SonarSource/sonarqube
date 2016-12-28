@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
 import Popup from '../../common/popup';
 import Workspace from '../../workspace/main';
 import Template from '../templates/source-viewer-duplication-popup.hbs';
@@ -40,14 +41,14 @@ export default Popup.extend({
   serializeData () {
     const that = this;
     const files = this.model.get('duplicationFiles');
-    const groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref');
-    let duplications = _.map(groupedBlocks, (blocks, fileRef) => {
+    const groupedBlocks = groupBy(this.collection.toJSON(), '_ref');
+    let duplications = Object.keys(groupedBlocks).map(fileRef => {
       return {
-        blocks,
+        blocks: groupedBlocks[fileRef],
         file: files[fileRef]
       };
     });
-    duplications = _.sortBy(duplications, d => {
+    duplications = sortBy(duplications, d => {
       const a = d.file.projectName !== that.model.get('projectName');
       const b = d.file.subProjectName !== that.model.get('subProjectName');
       const c = d.file.key !== that.model.get('key');

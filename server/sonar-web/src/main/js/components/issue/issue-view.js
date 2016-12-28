@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import ChangeLog from './models/changelog';
@@ -132,7 +131,7 @@ export default Marionette.ItemView.extend({
     $('body').click();
     const commentEl = $(e.currentTarget).closest('.issue-comment');
     const commentKey = commentEl.data('comment-key');
-    const comment = _.findWhere(this.model.get('comments'), { key: commentKey });
+    const comment = this.model.get('comments').find(comment => comment.key === commentKey);
     this.popup = new CommentFormView({
       triggerEl: $(e.currentTarget),
       bottomRight: true,
@@ -257,10 +256,11 @@ export default Marionette.ItemView.extend({
 
   serializeData () {
     const issueKey = encodeURIComponent(this.model.get('key'));
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       permalink: window.baseUrl + '/issues/search#issues=' + issueKey,
       hasSecondaryLocations: this.model.get('flows').length
-    });
+    };
   }
 });
 

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/workspace-viewer-header.hbs';
 
@@ -76,8 +75,8 @@ export default Marionette.ItemView.extend({
   startResizing (e) {
     this.initialResizePosition = e.clientY;
     this.initialResizeHeight = $('.workspace-viewer-container').height();
-    const processResizing = _.bind(this.processResizing, this);
-    const stopResizing = _.bind(this.stopResizing, this);
+    const processResizing = this.processResizing.bind(this);
+    const stopResizing = this.stopResizing.bind(this);
     $('body')
         .on('mousemove.workspace', processResizing)
         .on('mouseup.workspace', stopResizing);
@@ -109,4 +108,3 @@ export default Marionette.ItemView.extend({
     $('.workspace-viewer-container').height(this.initialResizeHeight);
   }
 });
-

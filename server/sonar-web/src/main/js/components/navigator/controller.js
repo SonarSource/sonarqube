@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import uniq from 'lodash/uniq';
 import Marionette from 'backbone.marionette';
 
 export default Marionette.Controller.extend({
@@ -43,7 +43,7 @@ export default Marionette.Controller.extend({
       return that.options.app.state.get('transform')[facet] != null ?
           that.options.app.state.get('transform')[facet] : facet;
     });
-    facets = _.uniq(facets);
+    facets = uniq(facets);
     return facets.filter(facet => that.options.app.state.get('allFacets').indexOf(facet) !== -1);
   },
 
@@ -113,8 +113,8 @@ export default Marionette.Controller.extend({
     separator = separator || '|';
     const filter = this.options.app.state.get('query');
     const route = [];
-    _.map(filter, (value, property) => {
-      route.push(`${property}=${encodeURIComponent(value)}`);
+    Object.keys(filter).forEach(property => {
+      route.push(`${property}=${encodeURIComponent(filter[property])}`);
     });
     return route.join(separator);
   },

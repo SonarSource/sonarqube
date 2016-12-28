@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import debounce from 'lodash/debounce';
 import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   componentWillMount () {
-    this.search = _.debounce(this.search, 100);
+    this.search = debounce(this.search, 100);
   },
 
   search () {

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
+import sortBy from 'lodash/sortBy';
+import uniq from 'lodash/uniq';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
@@ -108,7 +109,7 @@ export const BubbleChart = React.createClass({
 
   getTicks (scale, format) {
     const ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
-    const uniqueTicksCount = _.uniq(ticks).length;
+    const uniqueTicksCount = uniq(ticks).length;
     const ticksCount = uniqueTicksCount < TICKS_COUNT ? uniqueTicksCount - 1 : TICKS_COUNT;
     return scale.ticks(ticksCount);
   },
@@ -234,7 +235,7 @@ export const BubbleChart = React.createClass({
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
-    const bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
+    const bubbles = sortBy(this.props.items, b => -b.size)
         .map((item, index) => {
           return (
               <Bubble

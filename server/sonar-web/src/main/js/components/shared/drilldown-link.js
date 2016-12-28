@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router';
@@ -63,50 +62,50 @@ export const DrilldownLink = React.createClass({
     switch (this.props.metric) {
       case 'blocker_violations':
       case 'new_blocker_violations':
-        _.extend(params, { resolved: 'false', severities: 'BLOCKER' });
+        Object.assign(params, { resolved: 'false', severities: 'BLOCKER' });
         break;
       case 'critical_violations':
       case 'new_critical_violations':
-        _.extend(params, { resolved: 'false', severities: 'CRITICAL' });
+        Object.assign(params, { resolved: 'false', severities: 'CRITICAL' });
         break;
       case 'major_violations':
       case 'new_major_violations':
-        _.extend(params, { resolved: 'false', severities: 'MAJOR' });
+        Object.assign(params, { resolved: 'false', severities: 'MAJOR' });
         break;
       case 'minor_violations':
       case 'new_minor_violations':
-        _.extend(params, { resolved: 'false', severities: 'MINOR' });
+        Object.assign(params, { resolved: 'false', severities: 'MINOR' });
         break;
       case 'info_violations':
       case 'new_info_violations':
-        _.extend(params, { resolved: 'false', severities: 'INFO' });
+        Object.assign(params, { resolved: 'false', severities: 'INFO' });
         break;
       case 'open_issues':
-        _.extend(params, { resolved: 'false', statuses: 'OPEN' });
+        Object.assign(params, { resolved: 'false', statuses: 'OPEN' });
         break;
       case 'reopened_issues':
-        _.extend(params, { resolved: 'false', statuses: 'REOPENED' });
+        Object.assign(params, { resolved: 'false', statuses: 'REOPENED' });
         break;
       case 'confirmed_issues':
-        _.extend(params, { resolved: 'false', statuses: 'CONFIRMED' });
+        Object.assign(params, { resolved: 'false', statuses: 'CONFIRMED' });
         break;
       case 'false_positive_issues':
-        _.extend(params, { resolutions: 'FALSE-POSITIVE' });
+        Object.assign(params, { resolutions: 'FALSE-POSITIVE' });
         break;
       case 'code_smells':
       case 'new_code_smells':
-        _.extend(params, { resolved: 'false', types: 'CODE_SMELL' });
+        Object.assign(params, { resolved: 'false', types: 'CODE_SMELL' });
         break;
       case 'bugs':
       case 'new_bugs':
-        _.extend(params, { resolved: 'false', types: 'BUG' });
+        Object.assign(params, { resolved: 'false', types: 'BUG' });
         break;
       case 'vulnerabilities':
       case 'new_vulnerabilities':
-        _.extend(params, { resolved: 'false', types: 'VULNERABILITY' });
+        Object.assign(params, { resolved: 'false', types: 'VULNERABILITY' });
         break;
       default:
-        _.extend(params, { resolved: 'false' });
+        Object.assign(params, { resolved: 'false' });
     }
     return params;
   },

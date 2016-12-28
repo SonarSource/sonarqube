@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import escapeHtml from 'escape-html';
 
 /**
  * Intersect two ranges
@@ -110,7 +110,7 @@ function highlightIssueLocations (tokens, issueLocations, className) {
  */
 function generateHTML (tokens) {
   return tokens.map(token => (
-      `<span class="${token.className}">${_.escape(token.text)}</span>`
+      `<span class="${token.className}">${escapeHtml(token.text)}</span>`
   )).join('');
 }
 
