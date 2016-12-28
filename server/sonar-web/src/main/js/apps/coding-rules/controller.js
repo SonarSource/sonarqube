@@ -68,7 +68,7 @@ export default Controller.extend({
         that.app.list.add(rules);
       }
       that.app.list.setIndex();
-      that.app.list.addExtraAttributes(that.app.languages, that.app.repositories);
+      that.app.list.addExtraAttributes(that.app.repositories);
       that.app.facets.reset(that._allFacets());
       that.app.facets.add(r.facets, { merge: true });
       that.enableFacets(that._enabledFacets());
