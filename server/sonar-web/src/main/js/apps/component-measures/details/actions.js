@@ -64,7 +64,7 @@ export function fetchMeasure (metricKey, periodIndex = 1) {
     const metric = metrics.find(m => m.key === metricKey);
     dispatch(requestMeasure(metric));
 
-    getMeasuresAndMeta(
+    return getMeasuresAndMeta(
         component.key,
         metricsToRequest,
         { additionalFields: 'periods' }
