@@ -27,7 +27,7 @@
     "react-redux": "4.4.1",
     "react-router": "2.8.1",
     "react-router-redux": "4.0.2",
-    "react-select": "1.0.0-beta12",
+    "react-select": "^1.0.0-rc.2",
     "redux": "3.3.1",
     "redux-logger": "2.2.1",
     "redux-thunk": "1.0.2",
