@@ -57,7 +57,7 @@ export default class ActionsCell extends React.Component {
     new DeleteView({
       model: new Backbone.Model(this.props.permissionTemplate)
     }).on('done', () => {
-      this.context.router.replace('/');
+      this.context.router.replace('/permission_templates');
       this.props.refresh();
     }).render();
   }

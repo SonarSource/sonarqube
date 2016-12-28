@@ -17,15 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import _ from 'underscore';
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 
 const PAGE_SIZE = 100;
-
-function request (options) {
-  return $.ajax(options);
-}
 
 export function getPermissionUsers (data) {
   const url = '/api/permissions/users';
@@ -82,20 +76,17 @@ export function getPermissionTemplates () {
   return getJSON(url);
 }
 
-export function createPermissionTemplate (options) {
-  const url = window.baseUrl + '/api/permissions/create_template';
-  return request(_.extend({ type: 'POST', url }, options));
-}
+export const createPermissionTemplate = data => (
+    postJSON('/api/permissions/create_template', data)
+);
 
-export function updatePermissionTemplate (options) {
-  const url = window.baseUrl + '/api/permissions/update_template';
-  return request(_.extend({ type: 'POST', url }, options));
-}
+export const updatePermissionTemplate = data => (
+    post('/api/permissions/update_template', data)
+);
 
-export function deletePermissionTemplate (options) {
-  const url = window.baseUrl + '/api/permissions/delete_template';
-  return request(_.extend({ type: 'POST', url }, options));
-}
+export const deletePermissionTemplate = data => (
+    post('/api/permissions/delete_template', data)
+);
 
 /**
  * Set default permission template for a given qualifier

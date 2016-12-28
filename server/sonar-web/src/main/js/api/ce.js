@@ -17,53 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
+// @flow
 import { getJSON, post } from '../helpers/request';
 
-export function getQueue (data) {
-  const url = window.baseUrl + '/api/ce/queue';
-  return $.get(url, data);
-}
+export const getActivity = (data?: Object): Promise<*> => (
+    getJSON(window.baseUrl + '/api/ce/activity', data)
+);
 
-export function getActivity (data) {
-  const url = window.baseUrl + '/api/ce/activity';
-  return $.get(url, data);
-}
-
-export function getStatus (componentId) {
-  const url = '/api/ce/activity_status';
+export const getStatus = (componentId?: string): Promise<*> => {
   const data = {};
   if (componentId) {
     Object.assign(data, { componentId });
   }
-  return getJSON(url, data);
-}
+  return getJSON('/api/ce/activity_status', data);
+};
 
-export function getTask (id, additionalFields) {
-  const url = '/api/ce/task';
-  return getJSON(url, { id, additionalFields }).then(r => r.task);
-}
+export const getTask = (id: string, additionalFields?: Array<string>): Promise<*> => (
+    getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task)
+);
 
-export function cancelTask (id) {
-  const url = '/api/ce/cancel';
-  return post(url, { id }).then(
-      getTask.bind(null, id),
-      getTask.bind(null, id)
-  );
-}
+export const cancelTask = (id: string): Promise<*> => (
+    post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id))
+);
 
-export function cancelAllTasks () {
-  const url = '/api/ce/cancel_all';
-  return post(url);
-}
+export const cancelAllTasks = (): Promise<*> => (
+    post('/api/ce/cancel_all')
+);
 
-export function getTasksForComponent (componentId) {
-  const url = '/api/ce/component';
-  const data = { componentId };
-  return getJSON(url, data);
-}
+export const getTasksForComponent = (componentId: string): Promise<*> => (
+    getJSON('/api/ce/component', { componentId })
+);
 
-export function getTypes () {
-  const url = '/api/ce/task_types';
-  return getJSON(url).then(r => r.taskTypes);
-}
+export const getTypes = (): Promise<*> => (
+    getJSON('/api/ce/task_types').then(r => r.taskTypes)
+);
