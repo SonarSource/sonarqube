@@ -73,7 +73,10 @@
         {{/any}}
 
         {{#if license}}
-          <li class="little-spacer-bottom">Licensed under <span class="js-plugin-license">{{license}}</span></li>
+          <li class="little-spacer-bottom text-limited" title="{{license}}">
+            Licensed under
+            <span class="js-plugin-license">{{license}}</span>
+          </li>
         {{/if}}
 
         {{#if organizationName}}
