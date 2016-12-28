@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
@@ -46,12 +45,12 @@ export default Controller.extend({
       this.closeComponentViewer();
     }
     const data = this._issuesParameters();
-    _.extend(data, this.options.app.state.get('query'));
+    Object.assign(data, this.options.app.state.get('query'));
     if (this.options.app.state.get('query').assigned_to_me) {
-      _.extend(data, { assignees: '__me__' });
+      Object.assign(data, { assignees: '__me__' });
     }
     if (this.options.app.state.get('isContext')) {
-      _.extend(data, this.options.app.state.get('contextQuery'));
+      Object.assign(data, this.options.app.state.get('contextQuery'));
     }
     return $.get(window.baseUrl + '/api/issues/search', data).done(r => {
       const issues = that.options.app.list.parseIssues(r);
@@ -100,18 +99,18 @@ export default Controller.extend({
   requestFacet (id) {
     const that = this;
     const facet = this.options.app.facets.get(id);
-    const data = _.extend({ facets: id, ps: 1, additionalFields: '_all' }, this.options.app.state.get('query'));
+    const data = { facets: id, ps: 1, additionalFields: '_all', ...this.options.app.state.get('query') };
     if (this.options.app.state.get('query').assigned_to_me) {
-      _.extend(data, { assignees: '__me__' });
+      Object.assign(data, { assignees: '__me__' });
     }
     if (this.options.app.state.get('isContext')) {
-      _.extend(data, this.options.app.state.get('contextQuery'));
+      Object.assign(data, this.options.app.state.get('contextQuery'));
     }
     return $.get(window.baseUrl + '/api/issues/search', data, r => {
       FACET_DATA_FIELDS.forEach(field => {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
-      const facetData = _.findWhere(r.facets, { property: id });
+      const facetData = r.facets.find(facet => facet.property === id);
       if (facetData != null) {
         return facet.set(facetData);
       }
@@ -140,13 +139,15 @@ export default Controller.extend({
     }
     const filter = this.options.app.state.get('query');
     if (addContext && this.options.app.state.get('isContext')) {
-      _.extend(filter, this.options.app.state.get('contextQuery'));
+      Object.assign(filter, this.options.app.state.get('contextQuery'));
     }
     if (handleMyIssues && this.options.app.state.get('query').assigned_to_me) {
-      _.extend(filter, { assignees: '__me__' });
+      Object.assign(filter, { assignees: '__me__' });
     }
     const route = [];
-    _.map(filter, (value, property) => route.push(`${property}=${encodeURIComponent(value)}`));
+    Object.keys(filter).forEach(property => {
+      route.push(`${property}=${encodeURIComponent(filter[property])}`);
+    });
     return route.join(separator);
   },
 

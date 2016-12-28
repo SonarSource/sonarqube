@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/users-form.hbs';
 
@@ -26,9 +25,10 @@ export default ModalForm.extend({
   template: Template,
 
   events () {
-    return _.extend(ModalForm.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.events.apply(this, arguments),
       'click #create-user-add-scm-account': 'onAddScmAccountClick'
-    });
+    };
   },
 
   onRender () {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import difference from 'lodash/difference';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import State from '../issues/models/state';
@@ -106,8 +106,8 @@ App.updateContextFacets = function () {
   const facetsFromServer = this.state.get('facetsFromServer');
   return this.state.set({
     facets,
-    allFacets: _.difference(allFacets, this.getRestrictedFacets()[this.config.resourceQualifier]),
-    facetsFromServer: _.difference(facetsFromServer, this.getRestrictedFacets()[this.config.resourceQualifier])
+    allFacets: difference(allFacets, this.getRestrictedFacets()[this.config.resourceQualifier]),
+    facetsFromServer: difference(facetsFromServer, this.getRestrictedFacets()[this.config.resourceQualifier])
   });
 };
 

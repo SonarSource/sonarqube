@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Clipboard from 'clipboard';
 import Modal from '../../components/common/modals';
 import Template from './templates/users-tokens.hbs';
@@ -28,10 +27,11 @@ export default Modal.extend({
   template: Template,
 
   events () {
-    return _.extend(Modal.prototype.events.apply(this, arguments), {
+    return {
+      ...Modal.prototype.events.apply(this, arguments),
       'submit .js-generate-token-form': 'onGenerateTokenFormSubmit',
       'submit .js-revoke-token-form': 'onRevokeTokenFormSubmit'
-    });
+    };
   },
 
   initialize () {
@@ -70,7 +70,7 @@ export default Modal.extend({
   onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
-    const token = _.findWhere(this.tokens, { name: `${tokenName}` });
+    const token = this.tokens.find(t => t.name === `${tokenName}`);
     if (token) {
       if (token.deleting) {
         revokeToken(this.model.id, tokenName).then(this.requestTokens.bind(this));
@@ -100,11 +100,12 @@ export default Modal.extend({
   },
 
   serializeData () {
-    return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Modal.prototype.serializeData.apply(this, arguments),
       tokens: this.tokens,
       newToken: this.newToken,
       errors: this.errors
-    });
+    };
   }
 
 });

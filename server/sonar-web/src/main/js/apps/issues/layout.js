@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/issues-layout.hbs';
 import './styles.css';
@@ -43,7 +42,7 @@ export default Marionette.LayoutView.extend({
 
   showSpinner (region) {
     return this[region].show(new Marionette.ItemView({
-      template: _.template('<i class="spinner"></i>')
+      template: () => '<i class="spinner"></i>'
     }));
   },
 

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
 import Metrics from '../metrics/metrics';
 import Template from './templates/custom-measures-form.hbs';
@@ -58,10 +57,11 @@ export default ModalForm.extend({
   serializeData () {
     const metrics = this.getAvailableMetrics();
     const isNew = !this.model;
-    return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.serializeData.apply(this, arguments),
       metrics,
       canCreateMetric: !isNew || metrics.length > 0
-    });
+    };
   }
 });
 

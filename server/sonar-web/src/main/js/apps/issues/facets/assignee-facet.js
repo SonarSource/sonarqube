@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import CustomValuesFacet from './custom-values-facet';
 import Template from '../templates/facets/issues-assignee-facet.hbs';
 
@@ -79,7 +79,7 @@ export default CustomValuesFacet.extend({
       const login = v.val;
       let name = '';
       if (login) {
-        const user = _.findWhere(users, { login });
+        const user = users.find(user => user.login === login);
         if (user != null) {
           name = user.name;
         }
@@ -111,13 +111,14 @@ export default CustomValuesFacet.extend({
   },
 
   sortValues (values) {
-    return _.sortBy(values, v => v.val === '' ? -999999 : -v.count);
+    return sortBy(values, v => v.val === '' ? -999999 : -v.count);
   },
 
   serializeData () {
-    return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
-    });
+    };
   }
 });
 

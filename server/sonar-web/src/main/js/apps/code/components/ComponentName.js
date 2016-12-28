@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
@@ -42,7 +41,8 @@ function mostCommitPrefix (strings) {
     i++;
   }
   const prefix = firstString.substr(0, i);
-  const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
+  const prefixTokens = prefix.split(/[\s\\\/]/);
+  const lastPrefixPart = prefixTokens[prefixTokens.length - 1];
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 

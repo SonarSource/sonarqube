@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 
 export default BaseFacet.extend({
@@ -28,7 +27,7 @@ export default BaseFacet.extend({
       const uuid = v.val;
       let label = uuid;
       if (uuid) {
-        const component = _.findWhere(components, { uuid });
+        const component = components.find(c => c.uuid === uuid);
         if (component != null) {
           label = component.longName;
         }
@@ -39,9 +38,10 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
-    });
+    };
   }
 });
 

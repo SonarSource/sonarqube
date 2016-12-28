@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-severity-facet.hbs';
 
@@ -27,6 +27,6 @@ export default BaseFacet.extend({
 
   sortValues (values) {
     const order = this.severities;
-    return _.sortBy(values, v => order.indexOf(v.val));
+    return sortBy(values, v => order.indexOf(v.val));
   }
 });

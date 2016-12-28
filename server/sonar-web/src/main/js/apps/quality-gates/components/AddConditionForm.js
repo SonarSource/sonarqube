@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
 import Select from 'react-select';
+import sortBy from 'lodash/sortBy';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default function AddConditionForm ({ metrics, onSelect }) {
@@ -31,7 +31,7 @@ export default function AddConditionForm ({ metrics, onSelect }) {
   }
 
   const metricsToDisplay = metrics.filter(metric => !metric.hidden);
-  const sortedMetrics = _.sortBy(metricsToDisplay, 'domain');
+  const sortedMetrics = sortBy(metricsToDisplay, 'domain');
   const options = sortedMetrics.map(metric => {
     return {
       value: metric.key,

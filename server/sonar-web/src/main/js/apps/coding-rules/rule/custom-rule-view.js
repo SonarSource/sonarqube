@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import DeleteRuleView from './delete-rule-view';
 import Template from '../templates/rule/coding-rules-custom-rule.hbs';
@@ -46,10 +45,11 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,
       templateRule: this.options.templateRule,
       permalink: window.baseUrl + '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
-    });
+    };
   }
 });

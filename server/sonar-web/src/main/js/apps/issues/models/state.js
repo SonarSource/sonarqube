@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import State from '../../../components/navigator/models/state';
 
 export default State.extend({
@@ -77,7 +76,7 @@ export default State.extend({
   },
 
   toJSON () {
-    return _.extend({ facetMode: this.getFacetMode() }, this.attributes);
+    return { facetMode: this.getFacetMode(), ...this.attributes };
   }
 });
 

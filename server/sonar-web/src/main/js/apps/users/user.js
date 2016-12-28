@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import defaults from 'lodash/defaults';
+import pick from 'lodash/pick';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
@@ -48,23 +49,23 @@ export default Backbone.Model.extend({
   sync (method, model, options) {
     const opts = options || {};
     if (method === 'create') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/create',
         type: 'POST',
-        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'password', 'scmAccount'),
+        data: pick(model.toQuery(), 'login', 'name', 'email', 'password', 'scmAccount'),
         traditional: true
       });
     }
     if (method === 'update') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/update',
         type: 'POST',
-        data: _.pick(model.toQuery(), 'login', 'name', 'email', 'scmAccount'),
+        data: pick(model.toQuery(), 'login', 'name', 'email', 'scmAccount'),
         traditional: true
       });
     }
     if (method === 'delete') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/deactivate',
         type: 'POST',
         data: { login: this.id }
@@ -81,7 +82,7 @@ export default Backbone.Model.extend({
     if (oldPassword != null) {
       data.previousPassword = oldPassword;
     }
-    const opts = _.defaults(options || {}, {
+    const opts = defaults(options || {}, {
       url: this.urlRoot() + '/change_password',
       type: 'POST',
       data

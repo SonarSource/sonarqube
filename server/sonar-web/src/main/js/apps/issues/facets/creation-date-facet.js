@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import moment from 'moment';
+import times from 'lodash/times';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-creation-date-facet.hbs';
 import '../../../components/widgets/barchart';
@@ -29,7 +29,8 @@ export default BaseFacet.extend({
   template: Template,
 
   events () {
-    return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.events.apply(this, arguments),
       'change input': 'applyFacet',
       'click .js-select-period-start': 'selectPeriodStart',
       'click .js-select-period-end': 'selectPeriodEnd',
@@ -39,7 +40,7 @@ export default BaseFacet.extend({
       'click .js-last-month': 'onLastMonthClick',
       'click .js-last-year': 'onLastYearClick',
       'click .js-leak': 'onLeakClick'
-    });
+    };
   },
 
   onRender () {
@@ -59,10 +60,10 @@ export default BaseFacet.extend({
       }
     });
     let values = this.model.getValues();
-    if (!(_.isArray(values) && values.length > 0)) {
+    if (!(Array.isArray(values) && values.length > 0)) {
       let date = moment();
       values = [];
-      _.times(10, () => {
+      times(10, () => {
         values.push({ count: 0, val: date.toDate().toString() });
         date = date.subtract(1, 'days');
       });
@@ -71,7 +72,7 @@ export default BaseFacet.extend({
     values = values.map(v => {
       const format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
       const text = formatMeasure(v.count, format);
-      return _.extend(v, { text });
+      return { ...v, text };
     });
     return this.$('.js-barchart').barchart(values);
   },
@@ -160,14 +161,15 @@ export default BaseFacet.extend({
   serializeData () {
     const hasLeak = this.options.app.state.get('contextComponentQualifier') === 'TRK';
 
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       hasLeak,
       periodStart: this.options.app.state.get('query').createdAfter,
       periodEnd: this.options.app.state.get('query').createdBefore,
       createdAt: this.options.app.state.get('query').createdAt,
       sinceLeakPeriod: this.options.app.state.get('query').sinceLeakPeriod,
       createdInLast: this.options.app.state.get('query').createdInLast
-    });
+    };
   }
 });
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import uniq from 'lodash/uniq';
 import Backbone from 'backbone';
 import CustomMeasure from './custom-measure';
 
@@ -40,7 +40,7 @@ export default Backbone.Collection.extend({
   },
 
   fetch (options) {
-    const opts = _.defaults(options || {}, { data: {} });
+    const opts = { data: {}, ...options };
     this.q = opts.data.q;
     opts.data.projectId = this.projectId;
     return Backbone.Collection.prototype.fetch.call(this, opts);
@@ -61,7 +61,7 @@ export default Backbone.Collection.extend({
 
   getTakenMetrics () {
     const metrics = this.map(model => model.get('metric').id);
-    return _.uniq(metrics);
+    return uniq(metrics);
   }
 
 });

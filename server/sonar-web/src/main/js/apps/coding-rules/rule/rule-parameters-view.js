@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-parameters.hbs';
 
@@ -29,16 +28,18 @@ export default Marionette.ItemView.extend({
   },
 
   onRender () {
-    this.$el.toggleClass('hidden', _.isEmpty(this.model.get('params')));
+    const params = this.model.get('params');
+    this.$el.toggleClass('hidden', params == null || params.length === 0);
   },
 
   serializeData () {
     const isEditable = this.options.app.canWrite && this.model.get('isCustom');
 
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       isEditable,
       canWrite: this.options.app.canWrite
-    });
+    };
   }
 });
 

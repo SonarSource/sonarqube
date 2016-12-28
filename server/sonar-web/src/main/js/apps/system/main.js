@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import { getSystemInfo } from '../../api/system';
 import Section from './section';
 import { translate } from '../../helpers/l10n';
@@ -40,7 +40,7 @@ export default React.createClass({
   },
 
   orderSections (sections) {
-    return _.sortBy(sections, section => SECTIONS_ORDER.indexOf(section.name));
+    return sortBy(sections, section => SECTIONS_ORDER.indexOf(section.name));
   },
 
   parseItems (data) {
@@ -51,7 +51,7 @@ export default React.createClass({
   },
 
   orderItems (items) {
-    return _.sortBy(items, 'name');
+    return sortBy(items, 'name');
   },
 
   handleServerRestart () {

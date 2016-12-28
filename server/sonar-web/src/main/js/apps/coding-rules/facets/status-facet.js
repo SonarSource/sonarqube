@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import BaseFacet from './base-facet';
 import { translate } from '../../../helpers/l10n';
 
@@ -26,20 +26,21 @@ export default BaseFacet.extend({
 
   getValues () {
     const values = this.model.getValues();
-    const x = values.map(value => (
-        _.extend(value, { label: translate('rules.status', value.val.toLowerCase()) })
-    ));
-    return x;
+    return values.map(value => ({
+      ...value,
+      label: translate('rules.status', value.val.toLowerCase())
+    }));
   },
 
   sortValues (values) {
     const order = this.statuses;
-    return _.sortBy(values, v => order.indexOf(v.val));
+    return sortBy(values, v => order.indexOf(v.val));
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValues())
-    });
+    };
   }
 });

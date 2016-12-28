@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import ModalFormView from '../../components/common/modal-form';
 import Template from './templates/coding-rules-bulk-change-modal.hbs';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -27,20 +26,21 @@ export default ModalFormView.extend({
   template: Template,
 
   ui () {
-    return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.ui.apply(this, arguments),
       codingRulesSubmitBulkChange: '#coding-rules-submit-bulk-change'
-    });
+    };
   },
 
   showSuccessMessage (profile, succeeded) {
-    const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
+    const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
     const message = translateWithParameters('coding_rules.bulk_change.success',
         profileBase.name, profileBase.language, succeeded);
     this.ui.messagesContainer.append(`<div class="alert alert-success">${message}</div>`);
   },
 
   showWarnMessage (profile, succeeded, failed) {
-    const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
+    const profileBase = this.options.app.qualityProfiles.find(p => p.key === profile);
     const message = translateWithParameters('coding_rules.bulk_change.warning',
         profileBase.name, profileBase.language, succeeded, failed);
     this.ui.messagesContainer.append(`<div class="alert alert-warning">${message}</div>`);
@@ -58,7 +58,7 @@ export default ModalFormView.extend({
   onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     const url = `${window.baseUrl}/api/qualityprofiles/${this.options.action}_rules`;
-    const options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action });
+    const options = { ...this.options.app.state.get('query'), wsAction: this.options.action };
     const profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
     this.ui.messagesContainer.empty();
     this.sendRequests(url, options, profiles);
@@ -69,7 +69,7 @@ export default ModalFormView.extend({
     let looper = $.Deferred().resolve();
     this.disableForm();
     profiles.forEach(profile => {
-      const opts = _.extend({}, options, { profile_key: profile });
+      const opts = { ...options, profile_key: profile };
       looper = looper.then(() => {
         return $.post(url, opts).done(r => {
           if (!that.isDestroyed) {
@@ -98,20 +98,21 @@ export default ModalFormView.extend({
     const languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [];
     let profiles = this.options.app.qualityProfiles;
     if (languages.length > 0) {
-      profiles = _.filter(profiles, profile => languages.indexOf(profile.lang) !== -1);
+      profiles = profiles.filter(profile => languages.indexOf(profile.lang) !== -1);
     }
     return profiles;
   },
 
   serializeData () {
-    const profile = _.findWhere(this.options.app.qualityProfiles, { key: this.options.param });
-    return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
+    const profile = this.options.app.qualityProfiles.find(p => p.key === this.options.param);
+    return {
+      ...ModalFormView.prototype.serializeData.apply(this, arguments),
       action: this.options.action,
       state: this.options.app.state.toJSON(),
       qualityProfile: this.options.param,
       qualityProfileName: profile != null ? profile.name : null,
       qualityProfiles: this.options.app.qualityProfiles,
       availableQualityProfiles: this.getAvailableQualityProfiles()
-    });
+    };
   }
 });

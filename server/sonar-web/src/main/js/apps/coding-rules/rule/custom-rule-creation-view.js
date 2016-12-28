@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-custom-rule-creation.hbs';
 import { csvEscape } from '../../../helpers/csv';
@@ -29,7 +28,8 @@ export default ModalFormView.extend({
   template: Template,
 
   ui () {
-    return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.ui.apply(this, arguments),
       customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
       customRuleCreationName: '#coding-rules-custom-rule-creation-name',
       customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
@@ -39,11 +39,12 @@ export default ModalFormView.extend({
       customRuleCreationCreate: '#coding-rules-custom-rule-creation-create',
       customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate',
       modalFoot: '.modal-foot'
-    });
+    };
   },
 
   events () {
-    return _.extend(ModalFormView.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.events.apply(this, arguments),
       'input @ui.customRuleCreationName': 'generateKey',
       'keydown @ui.customRuleCreationName': 'generateKey',
       'keyup @ui.customRuleCreationName': 'generateKey',
@@ -55,7 +56,7 @@ export default ModalFormView.extend({
       'click #coding-rules-custom-rule-creation-cancel': 'destroy',
       'click @ui.customRuleCreationCreate': 'create',
       'click @ui.customRuleCreationReactivate': 'reactivate'
-    });
+    };
   },
 
   generateKey () {
@@ -111,7 +112,7 @@ export default ModalFormView.extend({
     if (this.model && this.model.has('key')) {
       options.key = this.model.get('key');
     } else {
-      _.extend(options, {
+      Object.assign(options, {
         template_key: this.options.templateRule.get('key'),
         custom_key: this.ui.customRuleCreationKey.val(),
         prevent_reactivation: true
@@ -183,7 +184,7 @@ export default ModalFormView.extend({
     if (this.options.templateRule) {
       params = this.options.templateRule.get('params');
     } else if (this.model && this.model.has('params')) {
-      params = this.model.get('params').map(p => _.extend(p, { value: p.defaultValue }));
+      params = this.model.get('params').map(p => ({ ...p, value: p.defaultValue }));
     }
 
     const statuses = ['READY', 'BETA', 'DEPRECATED'].map(status => {
@@ -193,11 +194,12 @@ export default ModalFormView.extend({
       };
     });
 
-    return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.serializeData.apply(this, arguments),
       params,
       statuses,
       change: this.model && this.model.has('key'),
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
-    });
+    };
   }
 });

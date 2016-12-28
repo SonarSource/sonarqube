@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import MainView from './main-view';
@@ -25,9 +24,10 @@ import MainView from './main-view';
 const App = new Marionette.Application();
 
 App.on('start', options => {
-  const viewOptions = _.extend(options, {
+  const viewOptions = {
+    ...options,
     model: new Backbone.Model()
-  });
+  };
   const mainView = new MainView(viewOptions);
   mainView.render().refresh();
 });

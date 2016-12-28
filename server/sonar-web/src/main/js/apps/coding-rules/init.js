@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import State from './models/state';
@@ -37,11 +37,9 @@ const App = new Marionette.Application();
 App.on('start', function (el) {
   $.get(window.baseUrl + '/api/rules/app').done(r => {
     App.canWrite = r.canWrite;
-    App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
-    App.languages = _.extend(r.languages, {
-      none: 'None'
-    });
-    _.map(App.qualityProfiles, profile => {
+    App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);
+    App.languages = { ...r.languages, none: 'None' };
+    App.qualityProfiles.forEach(profile => {
       profile.language = App.languages[profile.lang];
     });
     App.repositories = r.repositories;

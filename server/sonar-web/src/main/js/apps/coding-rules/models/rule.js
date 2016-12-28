@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
   idAttribute: 'key',
 
   addExtraAttributes (repositories) {
-    const repo = _.findWhere(repositories, { key: this.get('repo') }) || this.get('repo');
+    const repo = repositories.find(repo => repo.key === this.get('repo')) || this.get('repo');
     const repoName = repo != null ? repo.name : repo;
     const isManual = this.get('repo') === 'manual';
     const isCustom = this.has('templateKey');
@@ -37,9 +36,9 @@ export default Backbone.Model.extend({
 
   getInactiveProfiles (actives, profiles) {
     return actives.map(profile => {
-      const profileBase = _.findWhere(profiles, { key: profile.qProfile });
+      const profileBase = profiles.find(p => p.key === profile.qProfile);
       if (profileBase != null) {
-        _.extend(profile, profileBase);
+        Object.assign(profile, profileBase);
       }
       return profile;
     });

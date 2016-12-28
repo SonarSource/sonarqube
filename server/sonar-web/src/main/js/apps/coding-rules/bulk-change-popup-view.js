@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import PopupView from '../../components/common/popup';
 import BulkChangeModalView from './bulk-change-modal-view';
 import Template from './templates/coding-rules-bulk-change-popup.hbs';
@@ -43,7 +42,7 @@ export default PopupView.extend({
   serializeData () {
     const query = this.options.app.state.get('query');
     const profileKey = query.qprofile;
-    const profile = _.findWhere(this.options.app.qualityProfiles, { key: profileKey });
+    const profile = this.options.app.qualityProfiles.find(p => p.key === profileKey);
     const activation = '' + query.activation;
 
     return {

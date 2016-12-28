@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Metric from './metric';
 
@@ -36,7 +35,7 @@ export default Backbone.Collection.extend({
   },
 
   fetch (options) {
-    const opts = _.defaults(options || {}, { data: {} });
+    const opts = { data: {}, ...options };
     this.q = opts.data.q;
     opts.data.isCustom = true;
     return Backbone.Collection.prototype.fetch.call(this, opts);

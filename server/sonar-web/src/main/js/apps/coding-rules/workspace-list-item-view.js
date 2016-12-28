@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import union from 'lodash/union';
 import Backbone from 'backbone';
 import WorkspaceListItemView from '../../components/navigator/workspace-list-item-view';
 import ProfileActivationView from './rule/profile-activation-view';
@@ -69,10 +69,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   activate () {
     const that = this;
     const selectedProfile = this.options.app.state.get('query').qprofile;
-    const othersQualityProfiles = _.reject(
-        this.options.app.qualityProfiles,
-        profile => profile.key === selectedProfile
-    );
+    const othersQualityProfiles = this.options.app.qualityProfiles.filter(profile => profile.key !== selectedProfile);
     const activationView = new ProfileActivationView({
       rule: this.model,
       collection: new Backbone.Collection(othersQualityProfiles),
@@ -113,10 +110,11 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   },
 
   serializeData () {
-    return _.extend(WorkspaceListItemView.prototype.serializeData.apply(this, arguments), {
-      tags: _.union(this.model.get('sysTags'), this.model.get('tags')),
+    return {
+      ...WorkspaceListItemView.prototype.serializeData.apply(this, arguments),
+      tags: union(this.model.get('sysTags'), this.model.get('tags')),
       canWrite: this.options.app.canWrite,
       selectedProfile: this.options.app.state.get('query').qprofile
-    });
+    };
   }
 });

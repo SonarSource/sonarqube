@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import CustomValuesFacet from './custom-values-facet';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -73,7 +72,7 @@ export default CustomValuesFacet.extend({
       let label = '';
       let extra = '';
       if (key) {
-        const rule = _.findWhere(rules, { key });
+        const rule = rules.find(r => r.key === key);
         if (rule != null) {
           label = rule.name;
         }
@@ -88,8 +87,9 @@ export default CustomValuesFacet.extend({
   },
 
   serializeData () {
-    return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
-    });
+    };
   }
 });

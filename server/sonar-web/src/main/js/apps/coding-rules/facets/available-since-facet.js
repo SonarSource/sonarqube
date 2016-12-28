@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-available-since-facet.hbs';
 
@@ -25,9 +24,10 @@ export default BaseFacet.extend({
   template: Template,
 
   events () {
-    return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.events.apply(this, arguments),
       'change input': 'applyFacet'
-    });
+    };
   },
 
   onRender () {

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
 import BulkChangePopup from './bulk-change-popup-view';
 import Template from './templates/coding-rules-workspace-header.hbs';
@@ -27,12 +26,13 @@ export default WorkspaceHeaderView.extend({
   template: Template,
 
   events () {
-    return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
+    return {
+      ...WorkspaceHeaderView.prototype.events.apply(this, arguments),
       'click .js-back': 'onBackClick',
       'click .js-bulk-change': 'onBulkChangeClick',
       'click .js-reload': 'reload',
       'click .js-new-search': 'newSearch'
-    });
+    };
   },
 
   onBackClick () {
@@ -58,9 +58,10 @@ export default WorkspaceHeaderView.extend({
   },
 
   serializeData () {
-    return _.extend(WorkspaceHeaderView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...WorkspaceHeaderView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite
-    });
+    };
   }
 });
 

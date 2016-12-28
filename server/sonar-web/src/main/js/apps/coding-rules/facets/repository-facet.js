@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import {} from 'lodash/object';
 import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
@@ -45,27 +45,29 @@ export default CustomValuesFacet.extend({
   },
 
   getLabelsSource () {
-    const repos = this.options.app.repositories;
-    return _.object(_.pluck(repos, 'key'), _.pluck(repos, 'name'));
+    const source = {};
+    this.options.app.repositories.forEach(repo => source[repo.key] = repo.name);
+    return source;
   },
 
   getValues () {
     const that = this;
     const labels = that.getLabelsSource();
     return this.model.getValues().map(value => {
-      const repo = _.findWhere(that.options.app.repositories, { key: value.val });
+      const repo = that.options.app.repositories.find(repo => repo.key === value.val);
       if (repo != null) {
         const langName = that.options.app.languages[repo.language];
-        _.extend(value, { extra: langName });
+        Object.assign(value, { extra: langName });
       }
-      return _.extend(value, { label: labels[value.val] });
+      return { ...value, label: labels[value.val] };
     });
   },
 
   serializeData () {
-    return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...CustomValuesFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues()
-    });
+    };
   }
 
 });

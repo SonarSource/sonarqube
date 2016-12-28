@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-mode-facet.hbs';
 
@@ -33,9 +32,10 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       mode: this.options.app.state.getFacetMode()
-    });
+    };
   }
 });
 

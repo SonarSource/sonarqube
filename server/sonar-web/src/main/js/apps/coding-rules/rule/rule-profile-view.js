@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import ProfileActivationView from './profile-activation-view';
@@ -117,30 +117,24 @@ export default Marionette.ItemView.extend({
     if (!(this.model.get('inherit') && this.model.get('inherit') !== 'NONE')) {
       return null;
     }
-    const myProfile = _.findWhere(this.options.app.qualityProfiles, {
-      key: this.model.get('qProfile')
-    });
+    const myProfile = this.options.app.qualityProfiles.find(p => p.key === this.model.get('qProfile'));
     const parentKey = myProfile.parentKey;
-    const parent = _.extend({}, _.findWhere(this.options.app.qualityProfiles, {
-      key: parentKey
-    }));
+    const parent = { ...this.options.app.qualityProfiles.find(p => p.key === parentKey) };
     const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) || new Backbone.Model();
-    _.extend(parent, parentActiveInfo.toJSON());
+    Object.assign(parent, parentActiveInfo.toJSON());
     return parent;
   },
 
   enhanceParameters () {
     const parent = this.getParent();
-    const params = _.sortBy(this.model.get('params'), 'key');
+    const params = sortBy(this.model.get('params'), 'key');
     if (!parent) {
       return params;
     }
     return params.map(p => {
-      const parentParam = _.findWhere(parent.params, { key: p.key });
+      const parentParam = parent.params.find(param => param.key === p.key);
       if (parentParam != null) {
-        return _.extend(p, {
-          original: _.findWhere(parent.params, { key: p.key }).value
-        });
+        return { ...p, original: parentParam };
       } else {
         return p;
       }
@@ -148,12 +142,13 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,
       parent: this.getParent(),
       parameters: this.enhanceParameters(),
       templateKey: this.options.rule.get('templateKey'),
       isTemplate: this.options.rule.get('isTemplate')
-    });
+    };
   }
 });

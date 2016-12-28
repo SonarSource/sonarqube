@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Backbone from 'backbone';
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-profile-activation.hbs';
@@ -28,18 +27,20 @@ export default ModalForm.extend({
   template: Template,
 
   ui () {
-    return _.extend(ModalForm.prototype.ui.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.ui.apply(this, arguments),
       qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
       qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity',
       qualityProfileActivate: '#coding-rules-quality-profile-activation-activate',
       qualityProfileParameters: '[name]'
-    });
+    };
   },
 
   events () {
-    return _.extend(ModalForm.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.events.apply(this, arguments),
       'click @ui.qualityProfileActivate': 'activate'
-    });
+    };
   },
 
   onRender () {
@@ -119,21 +120,21 @@ export default ModalForm.extend({
 
   getAvailableQualityProfiles (lang) {
     const activeQualityProfiles = this.collection || new Backbone.Collection();
-    const inactiveProfiles = _.reject(this.options.app.qualityProfiles, profile => (
-        activeQualityProfiles.findWhere({ key: profile.key })
+    const inactiveProfiles = this.options.app.qualityProfiles.filter(profile => (
+        !activeQualityProfiles.findWhere({ key: profile.key })
     ));
-    return _.filter(inactiveProfiles, profile => profile.lang === lang);
+    return inactiveProfiles.filter(profile => profile.lang === lang);
   },
 
   serializeData () {
     let params = this.options.rule.get('params');
     if (this.model != null) {
       const modelParams = this.model.get('params');
-      if (_.isArray(modelParams)) {
+      if (Array.isArray(modelParams)) {
         params = params.map(p => {
-          const parentParam = _.findWhere(modelParams, { key: p.key });
+          const parentParam = modelParams.find(param => param.key === p.key);
           if (parentParam != null) {
-            _.extend(p, { value: parentParam.value });
+            Object.assign(p, { value: parentParam.value });
           }
           return p;
         });
@@ -143,14 +144,15 @@ export default ModalForm.extend({
     const availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
     const contextProfile = this.options.app.state.get('query').qprofile;
 
-    return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.serializeData.apply(this, arguments),
       params,
       contextProfile,
       change: this.model && this.model.has('severity'),
       qualityProfiles: availableProfiles,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
-      saveEnabled: !_.isEmpty(availableProfiles) || (this.model && this.model.get('qProfile')),
+      saveEnabled: availableProfiles.length > 0 || (this.model && this.model.get('qProfile')),
       isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')
-    });
+    };
   }
 });

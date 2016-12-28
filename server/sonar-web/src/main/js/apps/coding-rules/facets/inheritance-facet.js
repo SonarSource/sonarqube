@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-inheritance-facet.hbs';
 import { translate } from '../../../helpers/l10n';
@@ -34,7 +33,7 @@ export default BaseFacet.extend({
     const query = this.options.app.state.get('query');
     const isProfileSelected = query.qprofile != null;
     if (isProfileSelected) {
-      const profile = _.findWhere(this.options.app.qualityProfiles, { key: query.qprofile });
+      const profile = this.options.app.qualityProfiles.find(p => p.key === query.qprofile);
       if (profile != null && profile.parentKey == null) {
         this.forbid();
       }
@@ -80,8 +79,9 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues()
-    });
+    };
   }
 });
