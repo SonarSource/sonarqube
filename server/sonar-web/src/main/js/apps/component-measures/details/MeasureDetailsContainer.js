@@ -40,11 +40,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchMeasure: (metricKey, periodIndex) => dispatch(fetchMeasure(metricKey, periodIndex))
-  };
-};
+const mapDispatchToProps = { fetchMeasure };
 
 export default connect(
     mapStateToProps,

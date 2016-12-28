@@ -22,43 +22,61 @@ import { Link, IndexLink } from 'react-router';
 import Spinner from './../components/Spinner';
 import MeasureDetailsHeader from './MeasureDetailsHeader';
 import MeasureDrilldown from './drilldown/MeasureDrilldown';
+import MetricNotFound from './MetricNotFound';
 import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class MeasureDetails extends React.Component {
-  componentWillMount () {
-    const { metrics } = this.props;
-    const { metricKey } = this.props.params;
-    const metric = metrics.find(metric => metric.key === metricKey);
+  mounted: boolean;
 
-    if (!metric) {
-      const { component } = this.props;
-      const { router } = this.context;
+  state = {
+    loading: true
+  };
 
-      router.replace({
-        pathname: '/',
-        query: { id: component.key }
-      });
+  componentDidMount () {
+    this.mounted = true;
+    this.loadData();
+  }
+
+  componentDidUpdate (prevProps) {
+    if (prevProps.params.metricKey !== this.props.params.metricKey) {
+      this.loadData();
     }
   }
 
-  componentDidMount () {
-    const periodIndex = this.props.location.query.period || 1;
-    this.props.fetchMeasure(this.props.params.metricKey, Number(periodIndex));
+  componentWillUnmount () {
+    this.mounted = false;
   }
 
-  componentDidUpdate (nextProps) {
-    if (nextProps.params.metricKey !== this.props.params.metricKey) {
-      const periodIndex = nextProps.location.query.period || 1;
-      this.props.fetchMeasure(nextProps.params.metricKey, Number(periodIndex));
+  metricExists (): boolean {
+    const { metrics } = this.props;
+    const { metricKey } = this.props.params;
+    const metric = metrics.find(metric => metric.key === metricKey);
+    return !!metric;
+  }
+
+  loadData () {
+    if (this.metricExists()) {
+      this.setState({ loading: true });
+      const periodIndex = this.props.location.query.period || 1;
+      const onLoaded = () => this.mounted && this.setState({ loading: false });
+      this.props.fetchMeasure(this.props.params.metricKey, Number(periodIndex)).then(onLoaded, onLoaded);
     }
   }
 
   render () {
+    if (!this.metricExists()) {
+      return <MetricNotFound/>;
+    }
+
+    if (this.state.loading) {
+      return <Spinner/>;
+    }
+
     const { component, metric, secondaryMeasure, measure, periods, children } = this.props;
 
-    if (measure == null) {
-      return <Spinner/>;
+    if (!measure) {
+      return <MetricNotFound/>;
     }
 
     const { tab } = this.props.params;
@@ -107,7 +125,3 @@ export default class MeasureDetails extends React.Component {
     );
   }
 }
-
-MeasureDetails.contextTypes = {
-  router: React.PropTypes.object
-};
