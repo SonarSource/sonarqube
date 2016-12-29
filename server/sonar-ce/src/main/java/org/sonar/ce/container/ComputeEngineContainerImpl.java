@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -89,7 +90,11 @@ import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
-import org.sonar.server.notification.NotificationModule;
+import org.sonar.server.notification.DefaultNotificationManager;
+import org.sonar.server.notification.NotificationCenter;
+import org.sonar.server.notification.NotificationService;
+import org.sonar.server.notification.email.AlertsEmailTemplate;
+import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -364,7 +369,12 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       DebtRulesXMLImporter.class,
 
       // Notifications
-      NotificationModule.class,
+      AlertsEmailTemplate.class,
+      EmailSettings.class,
+      NotificationService.class,
+      NotificationCenter.class,
+      DefaultNotificationManager.class,
+      EmailNotificationChannel.class,
 
       // Tests
       TestIndexer.class,

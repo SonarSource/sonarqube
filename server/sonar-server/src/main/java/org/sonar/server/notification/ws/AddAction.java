@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.resources.Qualifiers;
@@ -46,13 +45,14 @@ import org.sonarqube.ws.client.notification.AddRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_ADD;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
 public class AddAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;
@@ -69,8 +69,8 @@ public class AddAction implements NotificationsWsAction {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true");
-    this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true");
+    this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true").stream().sorted().collect(toList());
+    this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true").stream().sorted().collect(toList());
   }
 
   @Override
@@ -92,14 +92,14 @@ public class AddAction implements NotificationsWsAction {
       .setPossibleValues(channels)
       .setDefaultValue(EmailNotificationChannel.class.getSimpleName());
 
-    action.createParam(PARAM_NOTIFICATION)
-      .setDescription("Notification. Possible values are for:" +
+    action.createParam(PARAM_TYPE)
+      .setDescription("Notification type. Possible values are for:" +
         "<ul>" +
-        "  <li>Overall notifications: %s</li>" +
+        "  <li>Global notifications: %s</li>" +
         "  <li>Per project notifications: %s</li>" +
         "</ul>",
-        globalDispatchers.stream().sorted().collect(Collectors.joining(", ")),
-        projectDispatchers.stream().sorted().collect(Collectors.joining(", ")))
+        String.join(", ", globalDispatchers),
+        String.join(", ", projectDispatchers))
       .setRequired(true)
       .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
   }
@@ -118,7 +118,7 @@ public class AddAction implements NotificationsWsAction {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
         Optional<ComponentDto> project = searchProject(dbSession, request);
-        notificationUpdater.add(dbSession, request.getChannel(), request.getNotification(), project.orElse(null));
+        notificationUpdater.add(dbSession, request.getChannel(), request.getType(), project.orElse(null));
         dbSession.commit();
       }
     };
@@ -138,21 +138,21 @@ public class AddAction implements NotificationsWsAction {
   private Function<Request, AddRequest> toWsRequest() {
     return request -> {
       AddRequest.Builder requestBuilder = AddRequest.builder()
-        .setNotification(request.mandatoryParam(PARAM_NOTIFICATION))
+        .setType(request.mandatoryParam(PARAM_TYPE))
         .setChannel(request.mandatoryParam(PARAM_CHANNEL));
       String project = request.param(PARAM_PROJECT);
       setNullable(project, requestBuilder::setProject);
       AddRequest wsRequest = requestBuilder.build();
 
       if (wsRequest.getProject() == null) {
-        checkRequest(globalDispatchers.contains(wsRequest.getNotification()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_NOTIFICATION,
-          wsRequest.getNotification(),
+        checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+          PARAM_TYPE,
+          wsRequest.getType(),
           globalDispatchers);
       } else {
-        checkRequest(projectDispatchers.contains(wsRequest.getNotification()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_NOTIFICATION,
-          wsRequest.getNotification(),
+        checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+          PARAM_TYPE,
+          wsRequest.getType(),
           projectDispatchers);
       }
 

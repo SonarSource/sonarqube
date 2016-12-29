@@ -42,17 +42,17 @@ import org.sonar.server.notification.NotificationUpdater;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.client.notification.AddRequest;
+import org.sonarqube.ws.client.notification.RemoveRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_ADD;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_REMOVE;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
 public class RemoveAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;
@@ -75,7 +75,7 @@ public class RemoveAction implements NotificationsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_ADD)
+    WebService.NewAction action = context.createAction(ACTION_REMOVE)
       .setDescription("Remove a notification for the authenticated user.<br>" +
         "Requires authentication. If a project is provided, requires the 'Browse' permission on the specified project.")
       .setSince("6.3")
@@ -92,10 +92,10 @@ public class RemoveAction implements NotificationsWsAction {
       .setPossibleValues(channels)
       .setDefaultValue(EmailNotificationChannel.class.getSimpleName());
 
-    action.createParam(PARAM_NOTIFICATION)
-      .setDescription("Notification. Possible values are for:" +
+    action.createParam(PARAM_TYPE)
+      .setDescription("Notification type. Possible values are for:" +
         "<ul>" +
-        "  <li>Overall notifications: %s</li>" +
+        "  <li>Global notifications: %s</li>" +
         "  <li>Per project notifications: %s</li>" +
         "</ul>",
         globalDispatchers.stream().sorted().collect(Collectors.joining(", ")),
@@ -114,45 +114,45 @@ public class RemoveAction implements NotificationsWsAction {
     response.noContent();
   }
 
-  private Consumer<AddRequest> remove() {
+  private Consumer<RemoveRequest> remove() {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
         Optional<ComponentDto> project = searchProject(dbSession, request);
-        notificationUpdater.remove(dbSession, request.getChannel(), request.getNotification(), project.orElse(null));
+        notificationUpdater.remove(dbSession, request.getChannel(), request.getType(), project.orElse(null));
         dbSession.commit();
       }
     };
   }
 
-  private Optional<ComponentDto> searchProject(DbSession dbSession, AddRequest request) {
+  private Optional<ComponentDto> searchProject(DbSession dbSession, RemoveRequest request) {
     Optional<ComponentDto> project = request.getProject() == null ? empty() : Optional.of(componentFinder.getByKey(dbSession, request.getProject()));
     project.ifPresent(p -> checkRequest(Qualifiers.PROJECT.equals(p.qualifier()) && Scopes.PROJECT.equals(p.scope()),
       "Component '%s' must be a project", request.getProject()));
     return project;
   }
 
-  private Consumer<AddRequest> checkPermissions() {
+  private Consumer<RemoveRequest> checkPermissions() {
     return request -> userSession.checkLoggedIn();
   }
 
-  private Function<Request, AddRequest> toWsRequest() {
+  private Function<Request, RemoveRequest> toWsRequest() {
     return request -> {
-      AddRequest.Builder requestBuilder = AddRequest.builder()
-        .setNotification(request.mandatoryParam(PARAM_NOTIFICATION))
+      RemoveRequest.Builder requestBuilder = RemoveRequest.builder()
+        .setType(request.mandatoryParam(PARAM_TYPE))
         .setChannel(request.mandatoryParam(PARAM_CHANNEL));
       String project = request.param(PARAM_PROJECT);
       setNullable(project, requestBuilder::setProject);
-      AddRequest wsRequest = requestBuilder.build();
+      RemoveRequest wsRequest = requestBuilder.build();
 
       if (wsRequest.getProject() == null) {
-        checkRequest(globalDispatchers.contains(wsRequest.getNotification()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_NOTIFICATION,
-          wsRequest.getNotification(),
+        checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+          PARAM_TYPE,
+          wsRequest.getType(),
           globalDispatchers);
       } else {
-        checkRequest(projectDispatchers.contains(wsRequest.getNotification()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_NOTIFICATION,
-          wsRequest.getNotification(),
+        checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+          PARAM_TYPE,
+          wsRequest.getType(),
           projectDispatchers);
       }
 

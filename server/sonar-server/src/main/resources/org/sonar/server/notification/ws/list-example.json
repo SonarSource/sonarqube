@@ -1,0 +1,47 @@
+{
+  "notifications": [
+    {
+      "channel": "EmailChannel",
+      "type": "MyNewIssues"
+    },
+    {
+      "channel": "EmailChannel",
+      "type": "NewIssues"
+    },
+    {
+      "channel": "TwitterChannel",
+      "type": "MyNewIssues"
+    },
+    {
+      "channel": "EmailChannel",
+      "type": "MyNewIssues",
+      "project": "my_project",
+      "projectName": "My Project"
+    },
+    {
+      "channel": "EmailChannel",
+      "type": "NewQualityGateStatus",
+      "project": "my_project",
+      "projectName": "My Project"
+    },
+    {
+      "channel": "TwitterChannel",
+      "type": "MyNewIssues",
+      "project": "my_project",
+      "projectName": "My Project"
+    }
+  ],
+  "channels": [
+    "EmailChannel",
+    "TwitterChannel"
+  ],
+  "globalTypes": [
+    "MyNewIssues",
+    "NewIssues",
+    "NewQualityGateStatus"
+  ],
+  "perProjectTypes": [
+    "MyNewIssues",
+    "NewQualityGateStatus"
+  ]
+}

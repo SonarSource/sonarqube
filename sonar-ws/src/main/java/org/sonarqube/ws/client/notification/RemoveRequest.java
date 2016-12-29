@@ -25,12 +25,12 @@ import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-public class AddRequest {
+public class RemoveRequest {
   private final String type;
   private final String channel;
   private final String project;
 
-  private AddRequest(Builder builder) {
+  private RemoveRequest(Builder builder) {
     this.channel = builder.channel;
     this.type = builder.type;
     this.project = builder.project;
@@ -78,9 +78,9 @@ public class AddRequest {
       return this;
     }
 
-    public AddRequest build() {
+    public RemoveRequest build() {
       requireNonNull(type, "Notification is required");
-      return new AddRequest(this);
+      return new RemoveRequest(this);
     }
   }
 }

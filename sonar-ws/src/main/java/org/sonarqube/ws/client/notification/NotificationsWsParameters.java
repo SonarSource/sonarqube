@@ -23,10 +23,12 @@ package org.sonarqube.ws.client.notification;
 public class NotificationsWsParameters {
   public static final String CONTROLLER = "api/notifications";
   public static final String ACTION_ADD = "add";
+  public static final String ACTION_REMOVE = "remove";
+  public static final String ACTION_LIST = "list";
 
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_CHANNEL = "channel";
-  public static final String PARAM_NOTIFICATION = "notification";
+  public static final String PARAM_TYPE = "type";
 
   private NotificationsWsParameters() {
     // prevent instantiation

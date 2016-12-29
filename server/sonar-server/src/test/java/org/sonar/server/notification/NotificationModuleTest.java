@@ -30,6 +30,6 @@ public class NotificationModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
+    assertThat(container.size()).isEqualTo(13 + 2);
   }
 }

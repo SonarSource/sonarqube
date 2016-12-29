@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
@@ -50,8 +49,8 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
 public class AddActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
@@ -64,7 +63,6 @@ public class AddActionTest {
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
 
   private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
   private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
@@ -76,7 +74,7 @@ public class AddActionTest {
   private WsActionTester ws;
 
   private AddRequest.Builder request = AddRequest.builder()
-    .setNotification(NOTIF_MY_NEW_ISSUES);
+    .setType(NOTIF_MY_NEW_ISSUES);
 
   @Before
   public void setUp() {
@@ -105,7 +103,7 @@ public class AddActionTest {
 
   @Test
   public void add_to_a_specific_channel() {
-    call(request.setNotification(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
+    call(request.setType(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
 
     db.notifications().assertExists(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUserId(), null);
   }
@@ -117,6 +115,28 @@ public class AddActionTest {
     call(request.setProject(project.getKey()));
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+  }
+
+  @Test
+  public void add_a_global_notification_when_a_project_one_exists() {
+    ComponentDto project = db.components().insertProject();
+    call(request.setProject(project.getKey()));
+
+    call(request.setProject(null));
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+  }
+
+  @Test
+  public void add_a_project_notification_when_a_global_one_exists() {
+    ComponentDto project = db.components().insertProject();
+    call(request);
+
+    call(request.setProject(project.getKey()));
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
   }
 
   @Test
@@ -146,9 +166,9 @@ public class AddActionTest {
   @Test
   public void fail_when_unknown_global_dispatcher() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'notification' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
+    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
 
-    call(request.setNotification("Dispatcher42"));
+    call(request.setType("Dispatcher42"));
   }
 
   @Test
@@ -156,9 +176,9 @@ public class AddActionTest {
     ComponentDto project = db.components().insertProject();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'notification' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
+    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
 
-    call(request.setNotification("Dispatcher42").setProject(project.key()));
+    call(request.setType("Dispatcher42").setProject(project.key()));
   }
 
   @Test
@@ -197,7 +217,7 @@ public class AddActionTest {
   private TestResponse call(AddRequest.Builder wsRequestBuilder) {
     AddRequest wsRequest = wsRequestBuilder.build();
     TestRequest request = ws.newRequest();
-    request.setParam(PARAM_NOTIFICATION, wsRequest.getNotification());
+    request.setParam(PARAM_TYPE, wsRequest.getType());
     setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
     return request.execute();

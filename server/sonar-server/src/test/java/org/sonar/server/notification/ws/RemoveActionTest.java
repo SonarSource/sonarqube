@@ -50,8 +50,8 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
 public class RemoveActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
@@ -77,7 +77,7 @@ public class RemoveActionTest {
 
   private WsActionTester ws;
   private AddRequest.Builder request = AddRequest.builder()
-    .setNotification(NOTIF_MY_NEW_ISSUES);
+    .setType(NOTIF_MY_NEW_ISSUES);
 
   @Before
   public void setUp() {
@@ -113,7 +113,7 @@ public class RemoveActionTest {
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, null);
     dbSession.commit();
 
-    call(request.setNotification(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
+    call(request.setType(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
 
     db.notifications().assertDoesNotExist(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUserId(), null);
   }
@@ -127,6 +127,30 @@ public class RemoveActionTest {
     call(request.setProject(project.getKey()));
 
     db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+  }
+
+  @Test
+  public void fail_when_remove_a_global_notification_when_a_project_one_exists() {
+    ComponentDto project = db.components().insertProject();
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, project);
+    dbSession.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Notification doesn't exist");
+
+    call(request);
+  }
+
+  @Test
+  public void fail_when_remove_a_project_notification_when_a_global_one_exists() {
+    ComponentDto project = db.components().insertProject();
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
+    dbSession.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Notification doesn't exist");
+
+    call(request.setProject(project.getKey()));
   }
 
   @Test
@@ -157,9 +181,9 @@ public class RemoveActionTest {
   @Test
   public void fail_when_unknown_global_dispatcher() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'notification' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
+    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
 
-    call(request.setNotification("Dispatcher42"));
+    call(request.setType("Dispatcher42"));
   }
 
   @Test
@@ -167,9 +191,9 @@ public class RemoveActionTest {
     ComponentDto project = db.components().insertProject();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'notification' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
+    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
 
-    call(request.setNotification("Dispatcher42").setProject(project.key()));
+    call(request.setType("Dispatcher42").setProject(project.key()));
   }
 
   @Test
@@ -208,7 +232,7 @@ public class RemoveActionTest {
   private TestResponse call(AddRequest.Builder wsRequestBuilder) {
     AddRequest wsRequest = wsRequestBuilder.build();
     TestRequest request = ws.newRequest();
-    request.setParam(PARAM_NOTIFICATION, wsRequest.getNotification());
+    request.setParam(PARAM_TYPE, wsRequest.getType());
     setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
     return request.execute();
