@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
 import Template from './templates/issues-workspace-header.hbs';
 
@@ -26,18 +25,19 @@ export default WorkspaceHeaderView.extend({
   template: Template,
 
   events () {
-    return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
+    return {
+      ...WorkspaceHeaderView.prototype.events.apply(this, arguments),
       'click .js-selection': 'onSelectionClick',
       'click .js-back': 'returnToList',
       'click .js-new-search': 'newSearch',
       'click .js-bulk-change-selected': 'onBulkChangeSelectedClick'
-    });
+    };
   },
 
   initialize () {
     WorkspaceHeaderView.prototype.initialize.apply(this, arguments);
     this._onBulkIssues = window.onBulkIssues;
-    window.onBulkIssues = _.bind(this.afterBulkChange, this);
+    window.onBulkIssues = this.afterBulkChange.bind(this);
   },
 
   onDestroy () {
@@ -59,7 +59,7 @@ export default WorkspaceHeaderView.extend({
     const that = this;
     $('#modal').dialog('close');
     const selectedIndex = this.options.app.state.get('selectedIndex');
-    const selectedKeys = _.pluck(this.options.app.list.where({ selected: true }), 'id');
+    const selectedKeys = this.options.app.list.where({ selected: true }).map(item => item.id);
     this.options.app.controller.fetchList().done(() => {
       that.options.app.state.set({ selectedIndex });
       that.options.app.list.selectByKeys(selectedKeys);
@@ -111,7 +111,7 @@ export default WorkspaceHeaderView.extend({
 
   bulkChangeSelected () {
     const selected = this.options.app.list.where({ selected: true });
-    const selectedKeys = _.first(_.pluck(selected, 'id'), 200);
+    const selectedKeys = selected.map(item => item.id).slice(0, 200);
     const query = 'issues=' + selectedKeys.join();
     const url = window.baseUrl + '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
@@ -122,11 +122,12 @@ export default WorkspaceHeaderView.extend({
     const selectedCount = this.options.app.list.where({ selected: true }).length;
     const allSelected = issuesCount > 0 && issuesCount === selectedCount;
     const someSelected = !allSelected && selectedCount > 0;
-    return _.extend(WorkspaceHeaderView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...WorkspaceHeaderView.prototype.serializeData.apply(this, arguments),
       selectedCount,
       allSelected,
       someSelected
-    });
+    };
   }
 });
 

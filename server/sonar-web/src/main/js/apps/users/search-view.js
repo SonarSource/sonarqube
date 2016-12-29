@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import debounce from 'lodash/debounce';
 import Marionette from 'backbone.marionette';
 import Template from './templates/users-search.hbs';
 
@@ -32,7 +32,7 @@ export default Marionette.ItemView.extend({
 
   initialize () {
     this._bufferedValue = null;
-    this.debouncedOnKeyUp = _.debounce(this.onKeyUp, 400);
+    this.debouncedOnKeyUp = debounce(this.onKeyUp, 400);
   },
 
   onRender () {

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import numeral from 'numeral';
-import _ from 'underscore';
 import { translate, translateWithParameters } from './l10n';
 
 /**
@@ -48,22 +47,6 @@ export function formatMeasureVariation (value, type) {
  */
 export function localizeMetric (metricKey) {
   return translate('metric', metricKey, 'name');
-}
-
-/**
- * Group list of metrics by their domain
- * @param {Array} metrics
- * @returns {Array}
- */
-export function groupByDomain (metrics) {
-  const groupedMetrics = _.groupBy(metrics, 'domain');
-  const domains = _.map(groupedMetrics, (metricList, domain) => {
-    return {
-      domain,
-      metrics: _.sortBy(metricList, 'name')
-    };
-  });
-  return _.sortBy(domains, 'domain');
 }
 
 /**

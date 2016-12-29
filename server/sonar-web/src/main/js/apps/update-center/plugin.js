@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
@@ -41,7 +40,8 @@ export default Backbone.Model.extend({
 
   _action (options) {
     const that = this;
-    const opts = _.extend({}, options, {
+    const opts = {
+      ...options,
       type: 'POST',
       data: { key: this.id },
       success () {
@@ -50,7 +50,7 @@ export default Backbone.Model.extend({
       error (jqXHR) {
         that.set({ _status: 'failed', _errors: jqXHR.responseJSON.errors });
       }
-    });
+    };
     const xhr = Backbone.ajax(opts);
     this.trigger('request', this, xhr);
     return xhr;

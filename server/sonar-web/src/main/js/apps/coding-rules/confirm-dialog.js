@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 
 const DEFAULTS = {
   title: 'Confirmation',
@@ -37,7 +36,7 @@ const DEFAULTS = {
 };
 
 export default function (options) {
-  const settings = _.extend({}, DEFAULTS, options);
+  const settings = { ...DEFAULTS, ...options };
   const dialog = $('<div><div class="modal-head"><h2>' + settings.title + '</h2></div><div class="modal-body">' +
       settings.html + '</div><div class="modal-foot"><button data-confirm="yes">' + settings.yesLabel +
       '</button> <a data-confirm="no" class="action">' + settings.noLabel + '</a></div></div>');

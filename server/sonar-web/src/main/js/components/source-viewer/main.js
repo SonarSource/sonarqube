@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import moment from 'moment';
+import sortBy from 'lodash/sortBy';
+import toPairs from 'lodash/toPairs';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Source from './source';
@@ -131,10 +132,10 @@ export default Marionette.LayoutView.extend({
         }
       });
     };
-    _.extend(this.options, _.defaults(opts, { workspace: false }));
+    Object.assign(this.options, { workspace: false, ...opts });
     this.model
         .clear()
-        .set(_.result(this.model, 'defaults'))
+        .set(this.model.defaults())
         .set({ uuid: id });
     this.requestComponent().done(() => {
       that.requestSource(opts.aroundLine)
@@ -199,7 +200,7 @@ export default Marionette.LayoutView.extend({
   requestSource (aroundLine) {
     const that = this;
     const url = window.baseUrl + '/api/sources/lines';
-    const data = _.extend({ uuid: this.model.id }, this.linesLimit(aroundLine));
+    const data = { uuid: this.model.id, ...this.linesLimit(aroundLine) };
     return $.ajax({
       url,
       data,
@@ -209,15 +210,13 @@ export default Marionette.LayoutView.extend({
       }
     }).done(r => {
       let source = (r.sources || []).slice(0);
-      if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
+      if (source.length === 0 || (source.length > 0 && source[0].line === 1)) {
         source.unshift({ line: 0 });
       }
       source = source.map(row => {
-        return _.extend(row, {
-          coverageStatus: that.getCoverageStatus(row)
-        });
+        return { ...row, coverageStatus: that.getCoverageStatus(row) };
       });
-      const firstLine = _.first(source).line;
+      const firstLine = source.length > 0 ? source[0].line : null;
       const linesRequested = data.to - data.from + 1;
       that.model.set({
         source,
@@ -258,7 +257,7 @@ export default Marionette.LayoutView.extend({
             }
           });
         });
-        duplications = _.pairs(duplications).map(line => {
+        duplications = toPairs(duplications).map(line => {
           return {
             line: +line[0],
             duplicated: line[1]
@@ -297,7 +296,7 @@ export default Marionette.LayoutView.extend({
 
   _sortBySeverity (issues) {
     const order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-    return _.sortBy(issues, issue => order.indexOf(issue.severity));
+    return sortBy(issues, issue => order.indexOf(issue.severity));
   },
 
   addIssuesPerLineMeta (issues) {
@@ -305,12 +304,12 @@ export default Marionette.LayoutView.extend({
     const lines = {};
     issues.forEach(issue => {
       const line = issue.get('line') || 0;
-      if (!_.isArray(lines[line])) {
+      if (!Array.isArray(lines[line])) {
         lines[line] = [];
       }
       lines[line].push(issue.toJSON());
     });
-    const issuesPerLine = _.pairs(lines).map(line => {
+    const issuesPerLine = toPairs(lines).map(line => {
       return {
         line: +line[0],
         issues: that._sortBySeverity(line[1])
@@ -324,7 +323,7 @@ export default Marionette.LayoutView.extend({
     const issueLocations = [];
     issues.forEach(issue => {
       issue.getLinearLocations().forEach(location => {
-        const record = _.findWhere(issueLocations, { line: location.line });
+        const record = issueLocations.find(row => row.line === location.line);
         if (record) {
           record.issueLocations.push({ from: location.from, to: location.to });
         } else {
@@ -380,8 +379,8 @@ export default Marionette.LayoutView.extend({
     this.addIssuesPerLineMeta(this.issues);
     this.$('.source-line-with-issues').each(function () {
       const line = +$(this).data('line-number');
-      const row = _.findWhere(that.model.get('source'), { line });
-      const issue = _.first(row.issues);
+      const row = that.model.get('source').find(row => row.line === line);
+      const issue = row.issues[0];
       $(this).html(`<i class="icon-severity-${issue.severity.toLowerCase()}"></i>`);
     });
   },
@@ -401,7 +400,7 @@ export default Marionette.LayoutView.extend({
     e.stopPropagation();
     $('body').click();
     const line = +$(e.currentTarget).data('line-number');
-    const row = _.findWhere(this.model.get('source'), { line });
+    const row = this.model.get('source').find(row => row.line === line);
     const popup = new SCMPopupView({
       triggerEl: $(e.currentTarget),
       model: new Backbone.Model(row)
@@ -414,7 +413,7 @@ export default Marionette.LayoutView.extend({
     $('body').click();
     this.clearTooltips();
     const line = $(e.currentTarget).data('line-number');
-    const row = _.findWhere(this.model.get('source'), { line });
+    const row = this.model.get('source').find(row => row.line === line);
     const url = window.baseUrl + '/api/tests/list';
     const options = {
       sourceFileId: this.model.id,
@@ -455,9 +454,9 @@ export default Marionette.LayoutView.extend({
     const index = $(e.currentTarget).data('index');
     const line = $(e.currentTarget).data('line-number');
     let blocks = this.model.get('duplications')[index - 1].blocks;
-    const inRemovedComponent = _.some(blocks, b => b._ref == null);
+    const inRemovedComponent = blocks.some(b => b._ref == null);
     let foundOne = false;
-    blocks = _.filter(blocks, b => {
+    blocks = blocks.filter(b => {
       const outOfBounds = b.from > line || b.from + b.size < line;
       const currentFile = b._ref === '1';
       const shouldDisplayForCurrentFile = outOfBounds || foundOne;
@@ -593,7 +592,7 @@ export default Marionette.LayoutView.extend({
     this.$('.js-component-viewer-source-before').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
-    const firstLine = _.first(source).line;
+    const firstLine = source[0].line;
     const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
@@ -606,18 +605,16 @@ export default Marionette.LayoutView.extend({
         source = source.slice(0, that.TOTAL_LINES_LIMIT);
         that.model.set({ hasSourceAfter: true });
       }
-      if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
+      if (source.length === 0 || (source.length > 0 && source[0].line === 1)) {
         source.unshift({ line: 0 });
       }
       source = source.map(row => {
-        return _.extend(row, {
-          coverageStatus: that.getCoverageStatus(row)
-        });
+        return { ...row, coverageStatus: that.getCoverageStatus(row) };
       });
       that.model.set({
         source,
         hasCoverage: that.model.hasCoverage(source),
-        hasSourceBefore: (data.sources.length === that.LINES_AROUND) && (_.first(source).line > 0)
+        hasSourceBefore: data.sources.length === that.LINES_AROUND && source.length > 0 && source[0].line > 0
       });
       that.addIssuesPerLineMeta(that.issues);
       if (that.model.has('duplications')) {
@@ -640,7 +637,7 @@ export default Marionette.LayoutView.extend({
     this.$('.js-component-viewer-source-after').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
-    const lastLine = _.last(source).line;
+    const lastLine = source[source.length - 1].line;
     const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
@@ -654,9 +651,7 @@ export default Marionette.LayoutView.extend({
         that.model.set({ hasSourceBefore: true });
       }
       source = source.map(row => {
-        return _.extend(row, {
-          coverageStatus: that.getCoverageStatus(row)
-        });
+        return { ...row, coverageStatus: that.getCoverageStatus(row) };
       });
       that.model.set({
         source,
@@ -736,11 +731,11 @@ export default Marionette.LayoutView.extend({
     };
     let _locations = [primaryLocation];
     issue.get('flows').forEach(flow => {
-      const flowLocationsCount = _.size(flow.locations);
+      const flowLocationsCount = Array.isArray(flow.locations) ? flow.locations.length : 0;
       const flowLocations = flow.locations.map((location, index) => {
-        const _location = _.extend({}, location);
+        const _location = { ...location };
         if (flowLocationsCount > 1) {
-          _.extend(_location, { index: flowLocationsCount - index });
+          Object.assign(_location, { index: flowLocationsCount - index });
         }
         return _location;
       });
@@ -754,7 +749,7 @@ export default Marionette.LayoutView.extend({
       const line = location.textRange.startLine;
       const row = this.$(`.source-line-code[data-line-number="${line}"]`);
 
-      if (index > 0 && _.size(location.msg)) {
+      if (index > 0 && location.msg) {
         // render location marker only for
         // secondary locations and execution flows
         // and only if message is not empty

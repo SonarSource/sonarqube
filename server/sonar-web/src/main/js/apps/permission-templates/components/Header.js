@@ -39,16 +39,14 @@ export default class Header extends React.Component {
   handleCreateClick (e) {
     e.preventDefault();
 
-    new CreateView()
-        .on('done', r => {
-          this.props.refresh().then(() => {
-            this.context.router.push({
-              pathname: '/',
-              query: { id: r.permissionTemplate.id }
-            });
-          });
-        })
-        .render();
+    new CreateView().on('done', r => {
+      this.props.refresh().then(() => {
+        this.context.router.push({
+          pathname: '/permission_templates',
+          query: { id: r.permissionTemplate.id }
+        });
+      });
+    }).render();
   }
 
   render () {

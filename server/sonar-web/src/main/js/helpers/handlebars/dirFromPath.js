@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 module.exports = function (path) {
   if (typeof path === 'string') {
     const tokens = path.split('/');
-    return tokens.length > 1 ? _.initial(tokens).join('/') + '/' : '';
+    return tokens.length > 1 ? tokens.slice(0, -1).join('/') + '/' : '';
   } else {
     return null;
   }

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/custom-measures-list-footer.hbs';
 
@@ -42,11 +41,12 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       total: this.collection.total,
       count: this.collection.length,
       more: this.collection.hasMore()
-    });
+    };
   }
 });
 

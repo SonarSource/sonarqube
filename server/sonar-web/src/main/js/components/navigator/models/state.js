@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
@@ -55,8 +54,8 @@ export default Backbone.Model.extend({
 
   updateFilter (obj, options) {
     const oldQuery = this.get('query');
-    let query = _.extend({}, oldQuery, obj);
-    const opts = _.defaults(options || {}, { force: false });
+    let query = { ...oldQuery, ...obj };
+    const opts = { force: false, ...options };
     query = this.clearQuery(query);
     if (opts.force || !this._areQueriesEqual(oldQuery, query)) {
       this.setQuery(query);

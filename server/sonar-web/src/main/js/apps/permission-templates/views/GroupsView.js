@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Modal from '../../../components/common/modals';
 import Template from '../templates/permission-templates-groups.hbs';
 import '../../../components/SelectList';
@@ -65,9 +64,10 @@ export default Modal.extend({
   },
 
   serializeData () {
-    return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Modal.prototype.serializeData.apply(this, arguments),
       permissionName: this.options.permission.name,
       permissionTemplateName: this.options.permissionTemplate.name
-    });
+    };
   }
 });

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import union from 'lodash/union';
 import ActionOptionsView from '../../components/common/action-options-view';
 import Template from './templates/coding-rules-rule-filter-form.hbs';
 
@@ -33,9 +33,10 @@ export default ActionOptionsView.extend({
   },
 
   serializeData () {
-    return _.extend(ActionOptionsView.prototype.serializeData.apply(this, arguments), {
-      tags: _.union(this.model.get('sysTags'), this.model.get('tags'))
-    });
+    return {
+      ...ActionOptionsView.prototype.serializeData.apply(this, arguments),
+      tags: union(this.model.get('sysTags'), this.model.get('tags'))
+    };
   }
 
 });

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Controller from '../../components/navigator/controller';
 import Rule from './models/rule';
 import RuleDetailsView from './rule-details-view';
@@ -45,7 +44,7 @@ export default Controller.extend({
       f: fields.join()
     };
     if (this.app.state.get('query').q == null) {
-      _.extend(params, { s: 'name', asc: true });
+      Object.assign(params, { s: 'name', asc: true });
     }
     return params;
   },
@@ -60,7 +59,7 @@ export default Controller.extend({
 
     const that = this;
     const url = window.baseUrl + '/api/rules/search';
-    const options = _.extend(this._searchParameters(), this.app.state.get('query'));
+    const options = { ...this._searchParameters(), ...this.app.state.get('query') };
     return $.get(url, options).done(r => {
       const rules = that.app.list.parseRules(r);
       if (firstPage) {
@@ -69,7 +68,7 @@ export default Controller.extend({
         that.app.list.add(rules);
       }
       that.app.list.setIndex();
-      that.app.list.addExtraAttributes(that.app.languages, that.app.repositories);
+      that.app.list.addExtraAttributes(that.app.repositories);
       that.app.facets.reset(that._allFacets());
       that.app.facets.add(r.facets, { merge: true });
       that.enableFacets(that._enabledFacets());
@@ -93,9 +92,9 @@ export default Controller.extend({
   requestFacet (id) {
     const url = window.baseUrl + '/api/rules/search';
     const facet = this.app.facets.get(id);
-    const options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
+    const options = { facets: id, ps: 1, ...this.app.state.get('query') };
     return $.get(url, options).done(r => {
-      const facetData = _.findWhere(r.facets, { property: id });
+      const facetData = r.facets.find(facet => facet.property === id);
       if (facetData) {
         facet.set(facetData);
       }

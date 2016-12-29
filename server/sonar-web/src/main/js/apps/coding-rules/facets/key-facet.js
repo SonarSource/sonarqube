@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-key-facet.hbs';
 
@@ -33,8 +32,9 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       key: this.options.app.state.get('query').rule_key
-    });
+    };
   }
 });

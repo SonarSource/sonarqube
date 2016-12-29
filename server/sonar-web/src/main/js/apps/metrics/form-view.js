@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/metrics-form.hbs';
 
@@ -61,10 +60,11 @@ export default ModalForm.extend({
   },
 
   serializeData () {
-    return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalForm.prototype.serializeData.apply(this, arguments),
       domains: this.options.domains,
       types: this.options.types
-    });
+    };
   }
 
 });

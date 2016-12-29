@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 module.exports = function (array, element, options) {
-  if (_.isArray(array)) {
+  if (Array.isArray(array)) {
     if (array.indexOf(element) !== -1) {
       return options.fn(this);
     } else {

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import IssueView from '../workspace-list-item-view';
 
 export default IssueView.extend({
@@ -27,9 +26,10 @@ export default IssueView.extend({
   },
 
   serializeData () {
-    return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...IssueView.prototype.serializeData.apply(this, arguments),
       showComponent: false
-    });
+    };
   }
 });
 

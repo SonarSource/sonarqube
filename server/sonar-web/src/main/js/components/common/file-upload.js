@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import uniqueId from 'lodash/uniqueId';
 
 function createFrame () {
-  const uuid = _.uniqueId('upload-form-');
+  const uuid = uniqueId('upload-form-');
   return $('<iframe></iframe>')
       .prop('frameborder', 0)
       .prop('width', 0)

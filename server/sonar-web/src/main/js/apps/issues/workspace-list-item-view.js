@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import IssueView from '../../components/issue/issue-view';
 import IssueFilterView from './issue-filter-view';
 import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
@@ -37,13 +36,14 @@ export default IssueView.extend({
   filterTemplate: FilterTemplate,
 
   events () {
-    return _.extend(IssueView.prototype.events.apply(this, arguments), {
+    return {
+      ...IssueView.prototype.events.apply(this, arguments),
       'click': 'selectCurrent',
       'dblclick': 'openComponentViewer',
       'click .js-issue-navigate': 'openComponentViewer',
       'click .js-issue-filter': 'onIssueFilterClick',
       'click .js-toggle': 'onIssueToggle'
-    });
+    };
   },
 
   initialize (options) {
@@ -140,8 +140,9 @@ export default IssueView.extend({
   },
 
   serializeData () {
-    return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...IssueView.prototype.serializeData.apply(this, arguments),
       showComponent: true
-    });
+    };
   }
 });

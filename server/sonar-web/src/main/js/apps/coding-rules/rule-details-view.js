@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import union from 'lodash/union';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Rules from './models/rules';
@@ -158,14 +158,15 @@ export default Marionette.LayoutView.extend({
     let qualityProfilesVisible = true;
 
     if (this.model.get('isTemplate')) {
-      qualityProfilesVisible = !_.isEmpty(this.options.actives);
+      qualityProfilesVisible = Object.keys(this.options.actives).length > 0;
     }
 
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       isEditable,
       qualityProfilesVisible,
       canWrite: this.options.app.canWrite,
-      allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
-    });
+      allTags: union(this.model.get('sysTags'), this.model.get('tags'))
+    };
   }
 });

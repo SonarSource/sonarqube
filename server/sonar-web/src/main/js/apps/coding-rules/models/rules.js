@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Rule from './rule';
 
@@ -33,14 +32,14 @@ export default Backbone.Collection.extend({
         const activations = (r.actives[rule.key] || []).map(activation => {
           const profile = profiles[activation.qProfile];
           if (profile != null) {
-            _.extend(activation, { profile });
+            Object.assign(activation, { profile });
             if (profile.parent != null) {
-              _.extend(activation, { parentProfile: profiles[profile.parent] });
+              Object.assign(activation, { parentProfile: profiles[profile.parent] });
             }
           }
           return activation;
         });
-        return _.extend(rule, { activation: activations.length > 0 ? activations[0] : null });
+        return { ...rule, activation: activations.length > 0 ? activations[0] : null };
       });
     }
     return rules;

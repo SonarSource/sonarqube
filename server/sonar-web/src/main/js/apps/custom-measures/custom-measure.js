@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import defaults from 'lodash/defaults';
+import pick from 'lodash/pick';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
@@ -30,21 +31,21 @@ export default Backbone.Model.extend({
   sync (method, model, options) {
     const opts = options || {};
     if (method === 'create') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/create',
         type: 'POST',
-        data: _.pick(model.toJSON(), 'metricId', 'value', 'description', 'projectId')
+        data: pick(model.toJSON(), 'metricId', 'value', 'description', 'projectId')
       });
     }
     if (method === 'update') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/update',
         type: 'POST',
-        data: _.pick(model.toJSON(), 'id', 'value', 'description')
+        data: pick(model.toJSON(), 'id', 'value', 'description')
       });
     }
     if (method === 'delete') {
-      _.defaults(opts, {
+      defaults(opts, {
         url: this.urlRoot() + '/delete',
         type: 'POST',
         data: { id: this.id }

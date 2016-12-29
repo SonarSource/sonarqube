@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-context-facet.hbs';
 
@@ -25,9 +24,10 @@ export default BaseFacet.extend({
   template: Template,
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       state: this.options.app.state.toJSON()
-    });
+    };
   }
 });
 

@@ -17,51 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+// @flow
 import { getJSON } from '../helpers/request';
 
-export function getFacets (query, facets) {
+export function getFacets (query: {}, facets: Array<string>): Promise<*> {
   const url = '/api/issues/search';
-  const data = _.extend({}, query, { facets: facets.join(), ps: 1, additionalFields: '_all' });
+  const data = {
+    ...query,
+    facets: facets.join(),
+    ps: 1,
+    additionalFields: '_all'
+  };
   return getJSON(url, data).then(r => {
     return { facets: r.facets, response: r };
   });
 }
 
-export function getFacet (query, facet) {
+export function getFacet (query: {}, facet: string): Promise<*> {
   return getFacets(query, [facet]).then(r => {
     return { facet: r.facets[0].values, response: r.response };
   });
 }
 
-export function getSeverities (query) {
+export function getSeverities (query: {}): Promise<*> {
   return getFacet(query, 'severities').then(r => r.facet);
 }
 
-export function getTags (query) {
+export function getTags (query: {}): Promise<*> {
   return getFacet(query, 'tags').then(r => r.facet);
 }
 
-export function extractAssignees (facet, response) {
+export function extractAssignees (
+    facet: Array<{ val: string }>,
+    response: { users: Array<{ login: string }> }
+) {
   return facet.map(item => {
-    const user = _.findWhere(response.users, { login: item.val });
-    return _.extend(item, { user });
+    const user = response.users.find(user => user.login = item.val);
+    return { ...item, user };
   });
 }
 
-export function getAssignees (query) {
+export function getAssignees (query: {}): Promise<*> {
   return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
 }
 
-export function getIssuesCount (query) {
+export function getIssuesCount (query: {}): Promise<*> {
   const url = '/api/issues/search';
-  const data = _.extend({}, query, { ps: 1, facetMode: 'effort' });
+  const data = { ...query, ps: 1, facetMode: 'effort' };
   return getJSON(url, data).then(r => {
     return { issues: r.total, debt: r.debtTotal };
   });
-}
-
-export function getIssueFilters () {
-  const url = '/api/issue_filters/search';
-  return getJSON(url).then(r => r.issueFilters);
 }

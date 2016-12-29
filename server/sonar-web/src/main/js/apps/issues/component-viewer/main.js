@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import SourceViewer from '../../../components/source-viewer/main';
 import IssueView from './issue-view';
 
 export default SourceViewer.extend({
   events () {
-    return _.extend(SourceViewer.prototype.events.apply(this, arguments), {
+    return {
+      ...SourceViewer.prototype.events.apply(this, arguments),
       'click .js-close-component-viewer': 'closeComponentViewer',
       'click .code-issue': 'selectIssue'
-    });
+    };
   },
 
   initialize (options) {

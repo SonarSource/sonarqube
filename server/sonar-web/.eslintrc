@@ -46,7 +46,16 @@
     "func-name-matching": 2,
     "func-names": [2, "never"],
     "generator-star-spacing": 2,
-    "indent": [2, 2, { "SwitchCase": 1, "VariableDeclarator": 2 }],
+    "indent": [2, 2, {
+      "ArrayExpression": 1,
+      "CallExpression": { "arguments": 2 },
+      "MemberExpression": 2,
+      "ObjectExpression": 1,
+      "FunctionDeclaration": { "body": 1, "parameters": 2 },
+      "FunctionExpression": { "body": 1, "parameters": 2 },
+      "SwitchCase": 1,
+      "VariableDeclarator": 2
+    }],
     "jsx-quotes": 2,
     "key-spacing": 2,
     "keyword-spacing": 2,

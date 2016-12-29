@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
+import toPairs from 'lodash/toPairs';
 import ModalView from '../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
 import { getMeasures } from '../../api/measures';
@@ -39,13 +41,14 @@ export default ModalView.extend({
   },
 
   events () {
-    return _.extend(ModalView.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalView.prototype.events.apply(this, arguments),
       'click .js-sort-tests-by-duration': 'sortTestsByDuration',
       'click .js-sort-tests-by-name': 'sortTestsByName',
       'click .js-sort-tests-by-status': 'sortTestsByStatus',
       'click .js-show-test': 'showTest',
       'click .js-show-all-measures': 'showAllMeasures'
-    });
+    };
   },
 
   initPieChart () {
@@ -65,7 +68,7 @@ export default ModalView.extend({
         $(this).data('value'),
         $(this).data('max') - $(this).data('value')
       ];
-      const options = _.defaults($(this).data(), defaults);
+      const options = { ...defaults, ...$(this).data() };
       const radius = options.size / 2;
 
       const container = d3.select(this);
@@ -107,8 +110,8 @@ export default ModalView.extend({
       async: false,
       data: { ps: 9999 }
     }).done(data => {
-      metrics = _.filter(data.metrics, metric => metric.type !== 'DATA' && !metric.hidden);
-      metrics = _.sortBy(metrics, 'name');
+      metrics = data.metrics.filter(metric => metric.type !== 'DATA' && !metric.hidden);
+      metrics = sortBy(metrics, 'name');
     });
     return metrics;
   },
@@ -129,9 +132,9 @@ export default ModalView.extend({
   },
 
   prepareMetrics (metrics) {
-    metrics = _.filter(metrics, metric => metric.value != null);
-    return _.sortBy(
-        _.map(_.pairs(_.groupBy(metrics, 'domain')), domain => {
+    metrics = metrics.filter(metric => metric.value != null);
+    return sortBy(
+        toPairs(groupBy(metrics, 'domain')).map(domain => {
           return {
             name: domain[0],
             metrics: domain[1]
@@ -178,10 +181,10 @@ export default ModalView.extend({
       $.get(url, options).done(data => {
         const typesFacet = data.facets.find(facet => facet.property === 'types').values;
         const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-        const sortedTypesFacet = _.sortBy(typesFacet, v => typesOrder.indexOf(v.val));
+        const sortedTypesFacet = sortBy(typesFacet, v => typesOrder.indexOf(v.val));
 
         const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
-        const sortedSeveritiesFacet = _.sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
+        const sortedSeveritiesFacet = sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
 
         const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
 
@@ -215,8 +218,8 @@ export default ModalView.extend({
 
   sortTests (condition) {
     let tests = this.model.get('tests');
-    if (_.isArray(tests)) {
-      tests = _.sortBy(tests, condition);
+    if (Array.isArray(tests)) {
+      tests = sortBy(tests, condition);
       if (!this.testAsc) {
         tests.reverse();
       }
@@ -260,7 +263,7 @@ export default ModalView.extend({
     this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
     return $.get(url, options).done(data => {
       that.coveredFiles = data.files;
-      that.selectedTest = _.findWhere(that.model.get('tests'), { id: testId });
+      that.selectedTest = that.model.get('tests').find(test => test.id === testId);
       that.render();
     });
   },
@@ -271,11 +274,12 @@ export default ModalView.extend({
   },
 
   serializeData () {
-    return _.extend(ModalView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalView.prototype.serializeData.apply(this, arguments),
       testSorting: this.testSorting,
       selectedTest: this.selectedTest,
       coveredFiles: this.coveredFiles || []
-    });
+    };
   }
 });
 

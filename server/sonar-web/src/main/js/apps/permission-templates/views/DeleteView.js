@@ -20,6 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import { deletePermissionTemplate } from '../../../api/permissions';
 import Template from '../templates/permission-templates-delete.hbs';
+import { parseError } from '../../code/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -30,17 +31,15 @@ export default ModalForm.extend({
   },
 
   sendRequest () {
-    return deletePermissionTemplate({
-      data: { templateId: this.model.id },
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      this.trigger('done');
-      this.destroy();
-    }).fail(jqXHR => {
-      this.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    deletePermissionTemplate({ templateId: this.model.id }).then(
+        () => {
+          this.trigger('done');
+          this.destroy();
+        },
+        e => {
+          this.enableForm();
+          parseError(e).then(message => this.showSingleError(message));
+        }
+    );
   }
 });

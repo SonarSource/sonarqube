@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
 import RadioToggle from '../../components/controls/RadioToggle';
@@ -52,7 +52,7 @@ export default React.createClass({
     const options = this.props.topLevelQualifiers.map(q => {
       return { value: q, label: translate('qualifiers', q) };
     });
-    return _.sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
+    return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
   },
 
   renderCheckbox () {

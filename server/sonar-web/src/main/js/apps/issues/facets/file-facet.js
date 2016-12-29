@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-file-facet.hbs';
 
@@ -27,9 +26,10 @@ export default BaseFacet.extend({
 
   onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    const maxValueWidth = _.max(this.$('.facet-stat').map(function () {
+    const widths = this.$('.facet-stat').map(function () {
       return $(this).outerWidth();
-    }).get());
+    }).get();
+    const maxValueWidth = Math.max(...widths);
     return this.$('.facet-name').css('padding-right', maxValueWidth);
   },
 
@@ -40,7 +40,7 @@ export default BaseFacet.extend({
       const key = v.val;
       let label = null;
       if (key) {
-        const item = _.findWhere(source, { uuid: key });
+        const item = source.find(file => file.uuid === key);
         if (item != null) {
           label = item.longName;
         }
@@ -51,9 +51,10 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.sortValues(this.getValuesWithLabels())
-    });
+    };
   }
 });
 

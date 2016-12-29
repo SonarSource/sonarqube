@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import sortBy from 'lodash/sortBy';
 import uniqBy from 'lodash/uniqBy';
 import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
@@ -66,7 +66,7 @@ export default class Conditions extends React.Component {
         onDeleteCondition
     } = this.props;
 
-    const sortedConditions = _.sortBy(conditions, condition => {
+    const sortedConditions = sortBy(conditions, condition => {
       return metrics.find(metric => metric.key === condition.metric).name;
     });
 

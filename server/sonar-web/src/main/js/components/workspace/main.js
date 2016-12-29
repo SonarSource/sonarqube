@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Item from './models/item';
 import Items from './models/items';
 import ItemsView from './views/items-view';
@@ -75,11 +74,11 @@ Workspace.prototype = {
   },
 
   openComponent (options) {
-    return this.open(_.extend(options, { '__type__': 'component' }));
+    return this.open({ ...options, '__type__': 'component' });
   },
 
   openRule (options) {
-    return this.open(_.extend(options, { '__type__': 'rule' }));
+    return this.open({ ...options, '__type__': 'rule' });
   },
 
   showViewer (Viewer, model) {

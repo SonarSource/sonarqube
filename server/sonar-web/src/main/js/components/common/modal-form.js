@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import ModalView from './modals';
 
 export default ModalView.extend({
@@ -29,10 +28,11 @@ export default ModalView.extend({
   },
 
   events () {
-    return _.extend(ModalView.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalView.prototype.events.apply(this, arguments),
       'keydown input,textarea,select': 'onInputKeydown',
       'submit form': 'onFormSubmit'
-    });
+    };
   },
 
   onRender () {
@@ -56,13 +56,13 @@ export default ModalView.extend({
 
   showErrors (errors, warnings) {
     const container = this.ui.messagesContainer.empty();
-    if (_.isArray(errors)) {
+    if (Array.isArray(errors)) {
       errors.forEach(error => {
         const html = `<div class="alert alert-danger">${error.msg}</div>`;
         container.append(html);
       });
     }
-    if (_.isArray(warnings)) {
+    if (Array.isArray(warnings)) {
       warnings.forEach(warn => {
         const html = `<div class="alert alert-warning">${warn.msg}</div>`;
         container.append(html);

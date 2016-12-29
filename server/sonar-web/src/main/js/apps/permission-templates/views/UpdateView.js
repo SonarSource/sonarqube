@@ -19,28 +19,25 @@
  */
 import FormView from './FormView';
 import { updatePermissionTemplate } from '../../../api/permissions';
+import { parseError } from '../../code/utils';
 
 export default FormView.extend({
   sendRequest () {
-    const that = this;
     this.disableForm();
-    return updatePermissionTemplate({
-      data: {
-        id: this.model.id,
-        name: this.$('#permission-template-name').val(),
-        description: this.$('#permission-template-description').val(),
-        projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
-      },
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.options.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    updatePermissionTemplate({
+      id: this.model.id,
+      name: this.$('#permission-template-name').val(),
+      description: this.$('#permission-template-description').val(),
+      projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
+    }).then(
+        () => {
+          this.options.refresh();
+          this.destroy();
+        },
+        e => {
+          this.enableForm();
+          parseError(e).then(message => this.showSingleError(message));
+        }
+    );
   }
 });

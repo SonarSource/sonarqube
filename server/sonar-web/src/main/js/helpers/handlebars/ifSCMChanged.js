@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-
 module.exports = function (source, line, options) {
-  const currentLine = _.findWhere(source, { lineNumber: line });
-  const prevLine = _.findWhere(source, { lineNumber: line - 1 });
+  const currentLine = source.find(row => row.lineNumber === line);
+  const prevLine = source.find(row => row.lineNumber === line - 1);
   let changed = true;
   if (currentLine && prevLine && currentLine.scm && prevLine.scm) {
     changed = (currentLine.scm.author !== prevLine.scm.author) ||

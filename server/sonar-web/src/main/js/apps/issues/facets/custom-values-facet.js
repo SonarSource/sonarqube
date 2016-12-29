@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-custom-values-facet.hbs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -26,9 +25,10 @@ export default BaseFacet.extend({
   template: Template,
 
   events () {
-    return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.events.apply(this, arguments),
       'change .js-custom-value': 'addCustomValue'
-    });
+    };
   },
 
   getUrl () {

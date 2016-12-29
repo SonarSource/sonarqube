@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import groupBy from 'lodash/groupBy';
 import Popup from '../../common/popup';
 import Workspace from '../../workspace/main';
 import Template from '../templates/source-viewer-coverage-popup.hbs';
@@ -43,8 +43,9 @@ export default Popup.extend({
 
   serializeData () {
     const row = this.options.row || {};
-    const tests = _.groupBy(this.collection.toJSON(), 'fileId');
-    const testFiles = _.map(tests, testSet => {
+    const tests = groupBy(this.collection.toJSON(), 'fileId');
+    const testFiles = Object.keys(tests).map(fileId => {
+      const testSet = tests[fileId];
       const test = testSet[0];
       return {
         file: {

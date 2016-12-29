@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Clipboard from 'clipboard';
 import Template from './templates/account-tokens.hbs';
@@ -69,7 +68,7 @@ export default Marionette.ItemView.extend({
   onRevokeTokenFormSubmit (e) {
     e.preventDefault();
     const tokenName = $(e.currentTarget).data('token');
-    const token = _.findWhere(this.tokens, { name: `${tokenName}` });
+    const token = this.tokens.find(token => token.name === `${tokenName}`);
     if (token) {
       if (token.deleting) {
         revokeToken(this.model.id, tokenName).then(this.requestTokens.bind(this));
@@ -93,11 +92,12 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       tokens: this.tokens,
       newToken: this.newToken,
       errors: this.errors
-    });
+    };
   }
 
 });

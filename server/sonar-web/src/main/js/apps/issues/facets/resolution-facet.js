@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-resolution-facet.hbs';
 
@@ -60,7 +60,7 @@ export default BaseFacet.extend({
 
   sortValues (values) {
     const order = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
-    return _.sortBy(values, v => order.indexOf(v.val));
+    return sortBy(values, v => order.indexOf(v.val));
   }
 });
 

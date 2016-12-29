@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import debounce from 'lodash/debounce';
+import uniqBy from 'lodash/uniqBy';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';
@@ -30,17 +31,18 @@ export default ActionOptionsView.extend({
   optionTemplate: OptionTemplate,
 
   events () {
-    return _.extend(ActionOptionsView.prototype.events.apply(this, arguments), {
+    return {
+      ...ActionOptionsView.prototype.events.apply(this, arguments),
       'click input': 'onInputClick',
       'keydown input': 'onInputKeydown',
       'keyup input': 'onInputKeyup'
-    });
+    };
   },
 
   initialize () {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.assignees = null;
-    this.debouncedSearch = _.debounce(this.search, 250);
+    this.debouncedSearch = debounce(this.search, 250);
   },
 
   getAssignee () {
@@ -152,6 +154,6 @@ export default ActionOptionsView.extend({
   },
 
   makeUnique (assignees) {
-    return _.uniq(assignees, false, assignee => assignee.id);
+    return uniqBy(assignees, false, assignee => assignee.id);
   }
 });

@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import difference from 'lodash/difference';
+import union from 'lodash/union';
 import Marionette from 'backbone.marionette';
 import RuleFilterMixin from './rule-filter-mixin';
 import Template from '../templates/rule/coding-rules-rule-meta.hbs';
@@ -65,7 +66,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     const that = this;
     this.requestTags().done(r => {
       that.ui.tagInput.select2({
-        tags: _.difference(_.difference(r.tags, that.model.get('tags')), that.model.get('sysTags')),
+        tags: difference(difference(r.tags, that.model.get('tags')), that.model.get('sysTags')),
         width: '300px'
       });
 
@@ -104,11 +105,12 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       canWrite: this.options.app.canWrite,
-      allTags: _.union(this.model.get('sysTags'), this.model.get('tags')),
+      allTags: union(this.model.get('sysTags'), this.model.get('tags')),
       permalink: window.baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
-    });
+    };
   }
 });
 

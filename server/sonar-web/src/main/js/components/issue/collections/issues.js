@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Issue from '../models/issue';
 
@@ -30,8 +29,8 @@ export default Backbone.Collection.extend({
 
   _injectRelational (issue, source, baseField, lookupField) {
     const baseValue = issue[baseField];
-    if (baseValue != null && _.size(source)) {
-      const lookupValue = _.find(source, candidate => candidate[lookupField] === baseValue);
+    if (baseValue != null && Array.isArray(source) && source.length > 0) {
+      const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
       if (lookupValue != null) {
         Object.keys(lookupValue).forEach(key => {
           const newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
@@ -46,12 +45,12 @@ export default Backbone.Collection.extend({
     if (issue.comments) {
       const that = this;
       const newComments = issue.comments.map(comment => {
-        let newComment = _.extend({}, comment, { author: comment.login });
+        let newComment = { ...comment, author: comment.login };
         delete newComment.login;
         newComment = that._injectRelational(newComment, users, 'author', 'login');
         return newComment;
       });
-      issue = _.extend({}, issue, { comments: newComments });
+      issue = { ...issue, comments: newComments };
     }
     return issue;
   },

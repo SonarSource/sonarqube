@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-issues.hbs';
 
@@ -44,13 +43,14 @@ export default Marionette.ItemView.extend({
       facets: 'projectUuids'
     };
     return $.get(url, options).done(r => {
-      const projectsFacet = _.findWhere(r.facets, { property: 'projectUuids' });
+      const projectsFacet = r.facets.find(facet => facet.property === 'projectUuids');
       let projects = projectsFacet != null ? projectsFacet.values : [];
       projects = projects.map(project => {
-        const projectBase = _.findWhere(r.components, { uuid: project.val });
-        return _.extend(project, {
+        const projectBase = r.components.find(component => component.uuid === project.val);
+        return {
+          ...project,
           name: projectBase != null ? projectBase.longName : ''
-        });
+        };
       });
       that.projects = projects;
       that.total = r.total;
@@ -58,11 +58,12 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       total: this.total,
       projects: this.projects,
       baseSearchUrl: window.baseUrl + '/issues/search#resolved=false|rules=' + encodeURIComponent(this.model.id)
-    });
+    };
   }
 });
 

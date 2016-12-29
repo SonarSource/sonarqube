@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import escapeHtml from 'escape-html';
+import uniqueId from 'lodash/uniqueId';
 import { translate } from '../../helpers/l10n';
 import { getCSRFTokenName, getCSRFTokenValue } from '../../helpers/request';
 
@@ -44,9 +44,9 @@ const Process = Backbone.Model.extend({
   },
 
   finish (options) {
-    options = _.defaults(options || {}, { force: false });
-    if (this.get('state') !== 'failed' || !!options.force) {
-      this.trigger('destroy', this, this.collection, options);
+    const finalOptions = { force: false, ...options };
+    if (this.get('state') !== 'failed' || finalOptions.force) {
+      this.trigger('destroy', this, this.collection, finalOptions);
     }
   },
 
@@ -117,7 +117,7 @@ const processesView = new ProcessesView({
  * @returns {number}
  */
 function addBackgroundProcess () {
-  const uid = _.uniqueId('process');
+  const uid = uniqueId('process');
   const process = new Process({
     id: uid,
     timer: setTimeout(() => {
@@ -159,7 +159,7 @@ function handleAjaxError (jqXHR) {
   if (jqXHR != null && jqXHR.processId != null) {
     let message = null;
     if (jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
-      message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
+      message = jqXHR.responseJSON.errors.map(e => e.msg).join('. ');
     }
     failBackgroundProcess(jqXHR.processId, message ? escapeHtml(message) : null);
   }

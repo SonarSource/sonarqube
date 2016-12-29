@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import debounce from 'lodash/debounce';
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';
 import { PAGE_SIZE, TYPE } from './constants';
-import {
-    getComponents,
-    getProvisioned,
-    getGhosts,
-    deleteComponents
-} from '../../api/components';
+import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
 import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
@@ -50,7 +47,7 @@ export default React.createClass({
   },
 
   componentWillMount () {
-    this.requestProjects = _.debounce(this.requestProjects, 250);
+    this.requestProjects = debounce(this.requestProjects, 250);
   },
 
   componentDidMount () {
@@ -88,9 +85,11 @@ export default React.createClass({
   requestGhosts () {
     const data = this.getFilters();
     getGhosts(data).then(r => {
-      let projects = r.projects.map(project => (
-          _.extend(project, { id: project.uuid, qualifier: 'TRK' })
-      ));
+      let projects = r.projects.map(project => ({
+        ...project,
+        id: project.uuid,
+        qualifier: 'TRK'
+      }));
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
@@ -101,9 +100,11 @@ export default React.createClass({
   requestProvisioned () {
     const data = this.getFilters();
     getProvisioned(data).then(r => {
-      let projects = r.projects.map(project => (
-          _.extend(project, { id: project.uuid, qualifier: 'TRK' })
-      ));
+      let projects = r.projects.map(project => ({
+        ...project,
+        id: project.uuid,
+        qualifier: 'TRK'
+      }));
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
@@ -160,12 +161,12 @@ export default React.createClass({
   },
 
   onProjectSelected (project) {
-    const newSelection = _.uniq([].concat(this.state.selection, project.id));
+    const newSelection = uniq([].concat(this.state.selection, project.id));
     this.setState({ selection: newSelection });
   },
 
   onProjectDeselected (project) {
-    const newSelection = _.without(this.state.selection, project.id);
+    const newSelection = without(this.state.selection, project.id);
     this.setState({ selection: newSelection });
   },
 

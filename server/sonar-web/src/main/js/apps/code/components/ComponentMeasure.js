@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
 import Measure from '../../component-measures/components/Measure';
 
@@ -28,7 +27,8 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const finalMetricKey = (isProject && isReleasability) ? 'alert_status' : metricKey;
   const finalMetricType = (isProject && isReleasability) ? 'LEVEL' : metricType;
 
-  const measure = _.findWhere(component.measures, { metric: finalMetricKey });
+  const measure = Array.isArray(component.measures) &&
+      component.measures.find(measure => measure.metric === finalMetricKey);
 
   if (!measure) {
     return <span/>;

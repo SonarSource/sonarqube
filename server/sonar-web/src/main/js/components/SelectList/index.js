@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import Backbone from 'backbone';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import { translate } from '../../helpers/l10n';
 import ItemTemplate from './templates/item.hbs';
 import ListTemplate from './templates/list.hbs';
@@ -92,10 +93,9 @@ const SelectListItemView = Backbone.View.extend({
     this.$('input').prop('name', this.model.get('name'));
     this.$el.toggleClass('selected', this.model.get('selected'));
     this.$('.select-list-list-checkbox')
-        .prop('title',
-            this.model.get('selected') ?
-                this.settings.tooltips.deselect :
-                this.settings.tooltips.select)
+        .prop('title', this.model.get('selected') ?
+            this.settings.tooltips.deselect :
+            this.settings.tooltips.select)
         .prop('checked', this.model.get('selected'));
 
     if (this.settings.readOnly) {
@@ -185,7 +185,7 @@ const SelectListView = Backbone.View.extend({
         }
       });
     };
-    this.onScroll = _.throttle(onScroll, 1000);
+    this.onScroll = throttle(onScroll, 1000);
   },
 
   render () {
@@ -212,8 +212,8 @@ const SelectListView = Backbone.View.extend({
     this.$list = this.$('.select-list-list');
 
     const searchInput = this.$('.select-list-search-control input')
-        .on('keyup', _.debounce(keyup, 250))
-        .on('search', _.debounce(keyup, 250));
+        .on('keyup', debounce(keyup, 250))
+        .on('search', debounce(keyup, 250));
 
     if (this.settings.focusSearch) {
       setTimeout(() => {
@@ -226,7 +226,7 @@ const SelectListView = Backbone.View.extend({
     showError = function (jqXHR) {
       let message = translate('default_error_message');
       if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
-        message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
+        message = jqXHR.responseJSON.errors.map(e => e.msg).join('. ');
       }
 
       that.$el.prevAll('.alert').remove();

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import union from 'lodash/union';
 import Marionette from 'backbone.marionette';
 import BaseView from './base-viewer-view';
 import Template from '../templates/workspace-rule.hbs';
@@ -35,9 +35,9 @@ export default BaseView.extend({
   },
 
   serializeData () {
-    return _.extend(Marionette.LayoutView.prototype.serializeData.apply(this, arguments), {
-      allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
-    });
+    return {
+      ...Marionette.LayoutView.prototype.serializeData.apply(this, arguments),
+      allTags: union(this.model.get('sysTags'), this.model.get('tags'))
+    };
   }
 });
-

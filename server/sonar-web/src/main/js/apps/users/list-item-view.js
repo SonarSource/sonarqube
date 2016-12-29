@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import UpdateView from './update-view';
 import ChangePasswordView from './change-password-view';
@@ -137,13 +136,14 @@ export default Marionette.ItemView.extend({
     const identityProvider = this.model.get('local') ? null :
         this.options.providers.find(provider => externalProvider === provider.key);
 
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       identityProvider,
-      firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
+      firstScmAccounts: scmAccounts.slice(0, scmAccountsLimit),
       moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,
-      firstGroups: _.first(groups, groupsLimit),
+      firstGroups: groups.slice(0, groupsLimit),
       moreGroupsCount: groups.length - groupsLimit
-    });
+    };
   }
 });
 

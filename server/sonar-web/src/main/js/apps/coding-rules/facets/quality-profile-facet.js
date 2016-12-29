@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-quality-profile-facet.hbs';
 
@@ -26,10 +26,11 @@ export default BaseFacet.extend({
   template: Template,
 
   events () {
-    return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.events.apply(this, arguments),
       'click .js-active': 'setActivation',
       'click .js-inactive': 'unsetActivation'
-    });
+    };
   },
 
   getValues () {
@@ -46,7 +47,7 @@ export default BaseFacet.extend({
           extra: that.options.app.languages[profile.lang],
           val: profile.key
         }));
-    return _.sortBy(values, 'label');
+    return sortBy(values, 'label');
   },
 
   toggleFacet (e) {
@@ -85,9 +86,10 @@ export default BaseFacet.extend({
   },
 
   serializeData () {
-    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...BaseFacet.prototype.serializeData.apply(this, arguments),
       values: this.getValues(),
       toggled: this.getToggled()
-    });
+    };
   }
 });

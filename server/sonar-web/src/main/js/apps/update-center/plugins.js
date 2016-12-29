@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import findLastIndex from 'lodash/findLastIndex';
 import Backbone from 'backbone';
 import Plugin from './plugin';
 
@@ -43,21 +43,21 @@ const Plugins = Backbone.Collection.extend({
         that._getLastWithStatus(plugin.updates, 'COMPATIBLE'),
         that._getLastWithStatus(plugin.updates, 'REQUIRES_SYSTEM_UPGRADE'),
         that._getLastWithStatus(plugin.updates, 'DEPS_REQUIRE_SYSTEM_UPGRADE')
-      ].filter(_.identity);
+      ].filter(update => update);
       updates = updates.map(update => that._extendChangelog(plugin.updates, update));
-      return _.extend(plugin, { updates });
+      return { ...plugin, updates };
     });
   },
 
   _getLastWithStatus (updates, status) {
-    const index = _.findLastIndex(updates, update => update.status === status);
+    const index = findLastIndex(updates, update => update.status === status);
     return index !== -1 ? updates[index] : null;
   },
 
   _extendChangelog (updates, update) {
     const index = updates.indexOf(update);
     const previousUpdates = index > 0 ? updates.slice(0, index) : [];
-    return _.extend(update, { previousUpdates });
+    return { ...update, previousUpdates };
   },
 
   _fetchInstalled () {
@@ -138,7 +138,7 @@ const Plugins = Backbone.Collection.extend({
       type: 'GET',
       url: window.baseUrl + '/api/system/upgrades',
       success (r) {
-        that._systemUpdates = r.upgrades.map(update => _.extend(update, { _system: true }));
+        that._systemUpdates = r.upgrades.map(update => ({ ...update, _system: true }));
       }
     };
     return Backbone.ajax(opts);

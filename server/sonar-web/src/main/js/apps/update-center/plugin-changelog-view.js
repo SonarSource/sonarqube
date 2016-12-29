@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Popup from '../../components/common/popup';
 import Template from './templates/update-center-plugin-changelog.hbs';
 
@@ -36,11 +35,12 @@ export default Popup.extend({
   },
 
   serializeData () {
-    return _.extend(Popup.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...Popup.prototype.serializeData.apply(this, arguments),
       // if there is no status, this is a new plugin
       // => force COMPATIBLE status
       status: this.model.get('status') || 'COMPATIBLE'
-    });
+    };
   }
 });
 

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/quality-profiles-create-profile.hbs';
 import { createQualityProfile } from '../../../api/quality-profiles';
@@ -27,9 +26,10 @@ export default ModalFormView.extend({
   template: Template,
 
   events () {
-    return _.extend(ModalFormView.prototype.events.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.events.apply(this, arguments),
       'change #create-profile-language': 'onLanguageChange'
-    });
+    };
   },
 
   onFormSubmit () {
@@ -86,10 +86,11 @@ export default ModalFormView.extend({
   },
 
   serializeData () {
-    return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...ModalFormView.prototype.serializeData.apply(this, arguments),
       languages: this.options.languages,
       importers: this.options.importers
-    });
+    };
   }
 });
 

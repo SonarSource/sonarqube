@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
+import debounce from 'lodash/debounce';
+import difference from 'lodash/difference';
+import without from 'lodash/without';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-tags-form.hbs';
 import OptionTemplate from '../templates/issue-tags-form-option.hbs';
@@ -32,11 +34,12 @@ export default ActionOptionsView.extend({
   },
 
   events () {
-    return _.extend(ActionOptionsView.prototype.events.apply(this, arguments), {
+    return {
+      ...ActionOptionsView.prototype.events.apply(this, arguments),
       'click input': 'onInputClick',
       'keydown input': 'onInputKeydown',
       'keyup input': 'onInputKeyup'
-    });
+    };
   },
 
   initialize () {
@@ -44,7 +47,7 @@ export default ActionOptionsView.extend({
     this.query = '';
     this.tags = [];
     this.selected = 0;
-    this.debouncedSearch = _.debounce(this.search, 250);
+    this.debouncedSearch = debounce(this.search, 250);
     this.requestTags();
   },
 
@@ -71,14 +74,13 @@ export default ActionOptionsView.extend({
   },
 
   filterTags (tags) {
-    const that = this;
-    return _.filter(tags, tag => tag.indexOf(that.query) !== -1);
+    return tags.filter(tag => tag.indexOf(this.query) !== -1);
   },
 
   renderTags () {
     this.$('.menu').empty();
     this.filterTags(this.getTags()).forEach(this.renderSelectedTag, this);
-    this.filterTags(_.difference(this.tags, this.getTags())).forEach(this.renderTag, this);
+    this.filterTags(difference(this.tags, this.getTags())).forEach(this.renderTag, this);
     if (this.query.length > 0 && this.tags.indexOf(this.query) === -1 && this.getTags().indexOf(this.query) === -1) {
       this.renderCustomTag(this.query);
     }
@@ -118,7 +120,7 @@ export default ActionOptionsView.extend({
     let tags = this.getTags().slice();
     const tag = $(e.currentTarget).data('value');
     if ($(e.currentTarget).data('selected') != null) {
-      tags = _.without(tags, tag);
+      tags = without(tags, tag);
     } else {
       tags.push(tag);
     }

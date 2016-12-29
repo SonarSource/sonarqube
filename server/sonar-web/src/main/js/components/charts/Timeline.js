@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
-import _ from 'underscore';
 import d3 from 'd3';
 import moment from 'moment';
 import React from 'react';
@@ -116,7 +115,7 @@ const Timeline = React.createClass({
     const format = xScale.tickFormat(7);
     let ticks = xScale.ticks(7);
 
-    ticks = _.initial(ticks).map((tick, index) => {
+    ticks = ticks.slice(0, -1).map((tick, index) => {
       const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
       const x = (xScale(tick) + xScale(nextTick)) / 2;
       const y = yScale.range()[0];
@@ -141,11 +140,12 @@ const Timeline = React.createClass({
       return null;
     }
 
+    const yScaleRange = yScale.range();
     const opts = {
       x: xScale(this.props.leakPeriodDate),
-      y: _.last(yScale.range()),
+      y: yScaleRange[yScaleRange.length - 1],
       width: xScale.range()[1] - xScale(this.props.leakPeriodDate),
-      height: _.first(yScale.range()) - _.last(yScale.range()),
+      height: yScaleRange[0] - yScaleRange[yScaleRange.length - 1],
       fill: '#fbf3d5'
     };
 
@@ -165,7 +165,7 @@ const Timeline = React.createClass({
     const points = this.props.events
         .map(event => {
           const snapshot = this.props.data.find(d => d.x.getTime() === event.date.getTime());
-          return _.extend(event, { snapshot });
+          return { ...event, snapshot };
         })
         .filter(event => event.snapshot)
         .map(event => {

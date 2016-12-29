@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
@@ -49,7 +48,7 @@ export default Backbone.Model.extend({
         metaLine = meta[++metaIdx];
       }
       if (metaLine != null && line.line === metaLine.line) {
-        _.extend(line, metaLine);
+        Object.assign(line, metaLine);
         metaLine = meta[++metaIdx];
       }
     });
@@ -94,7 +93,7 @@ export default Backbone.Model.extend({
   },
 
   hasCoverage (source) {
-    return _.some(source, line => line.coverageStatus != null);
+    return source.some(line => line.coverageStatus != null);
   }
 });
 

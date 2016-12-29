@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import PopupView from '../../common/popup';
 import Template from '../templates/issue-changelog.hbs';
 
@@ -29,9 +28,10 @@ export default PopupView.extend({
   },
 
   serializeData () {
-    return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
+    return {
+      ...PopupView.prototype.serializeData.apply(this, arguments),
       issue: this.options.issue.toJSON()
-    });
+    };
   }
 });
 

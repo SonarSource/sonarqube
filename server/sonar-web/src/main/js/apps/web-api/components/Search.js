@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
+import debounce from 'lodash/debounce';
 import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
@@ -27,7 +27,7 @@ export default class Search extends React.Component {
   constructor (props) {
     super(props);
     this.state = { query: '' };
-    this.actuallySearch = _.debounce(this.actuallySearch.bind(this), 250);
+    this.actuallySearch = debounce(this.actuallySearch.bind(this), 250);
   }
 
   handleSearch (e) {
