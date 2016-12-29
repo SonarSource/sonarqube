@@ -18,33 +18,71 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
+import {
+  getGlobalNotifications,
+  getNotificationChannels,
+  getNotificationGlobalTypes
+} from '../../../store/rootReducer';
+import type {
+  Notification,
+  NotificationsState,
+  ChannelsState,
+  TypesState
+} from '../../../store/notifications/duck';
+import { addNotification, removeNotification } from './actions';
 
-export default function GlobalNotifications ({ notifications, channels }) {
-  return (
-      <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.overall_notifications.title')}
-        </h2>
+class GlobalNotifications extends React.Component {
+  props: {
+    notifications: NotificationsState,
+    channels: ChannelsState,
+    types: TypesState,
+    addNotification: (n: Notification) => void,
+    removeNotification: (n: Notification) => void
+  };
 
-        <table className="form">
-          <thead>
-            <tr>
-              <th/>
-              {channels.map(channel => (
-                  <th key={channel} className="text-center">
-                    <h4>{translate('notification.channel', channel)}</h4>
-                  </th>
-              ))}
-            </tr>
-          </thead>
+  render () {
+    return (
+        <section>
+          <h2 className="spacer-bottom">
+            {translate('my_profile.overall_notifications.title')}
+          </h2>
 
-          <NotificationsList
-              notifications={notifications}
-              checkboxId={(d, c) => `global_notifs_${d}_${c}`}
-              checkboxName={(d, c) => `global_notifs[${d}.${c}]`}/>
-        </table>
-      </section>
-  );
+          <table className="form">
+            <thead>
+              <tr>
+                <th/>
+                {this.props.channels.map(channel => (
+                    <th key={channel} className="text-center">
+                      <h4>{translate('notification.channel', channel)}</h4>
+                    </th>
+                ))}
+              </tr>
+            </thead>
+
+            <NotificationsList
+                notifications={this.props.notifications}
+                channels={this.props.channels}
+                types={this.props.types}
+                checkboxId={(d, c) => `global-notification-${d}-${c}`}
+                onAdd={this.props.addNotification}
+                onRemove={this.props.removeNotification}/>
+          </table>
+        </section>
+    );
+  }
 }
+
+const mapStateToProps = state => ({
+  notifications: getGlobalNotifications(state),
+  channels: getNotificationChannels(state),
+  types: getNotificationGlobalTypes(state)
+});
+
+const mapDispatchToProps = { addNotification, removeNotification };
+
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalNotifications);
+
+export const UnconnectedGlobalNotifications = GlobalNotifications;

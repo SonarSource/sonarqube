@@ -35,6 +35,11 @@ const Nav = () => (
           </Link>
         </li>
         <li>
+          <Link to="/account/notifications" activeClassName="active">
+            {translate('my_account.notifications')}
+          </Link>
+        </li>
+        <li>
           <Link to="/account/projects/" activeClassName="active">
             {translate('my_account.projects')}
           </Link>

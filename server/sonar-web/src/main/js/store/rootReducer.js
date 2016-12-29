@@ -24,6 +24,7 @@ import users, * as fromUsers from './users/reducer';
 import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
+import notifications, * as fromNotifications from './notifications/duck';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import projectActivity from './projectActivity/duck';
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
@@ -40,6 +41,7 @@ export default combineReducers({
   favorites,
   languages,
   measures,
+  notifications,
   projectActivity,
   users,
 
@@ -82,6 +84,30 @@ export const getComponentMeasure = (state, componentKey, metricKey) => (
 
 export const getComponentMeasures = (state, componentKey) => (
     fromMeasures.getComponentMeasures(state.measures, componentKey)
+);
+
+export const getGlobalNotifications = state => (
+    fromNotifications.getGlobal(state.notifications)
+);
+
+export const getProjectsWithNotifications = state => (
+    fromNotifications.getProjects(state.notifications)
+);
+
+export const getProjectNotifications = (state, project) => (
+    fromNotifications.getForProject(state.notifications, project)
+);
+
+export const getNotificationChannels = state => (
+    fromNotifications.getChannels(state.notifications)
+);
+
+export const getNotificationGlobalTypes = state => (
+    fromNotifications.getGlobalTypes(state.notifications)
+);
+
+export const getNotificationPerProjectTypes = state => (
+    fromNotifications.getPerProjectTypes(state.notifications)
 );
 
 export const getProjectActivity = state => (

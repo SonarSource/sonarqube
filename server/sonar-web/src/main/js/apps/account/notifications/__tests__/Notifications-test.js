@@ -18,38 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
+import { shallow } from 'enzyme';
+import { UnconnectedNotifications } from '../Notifications';
 
-export default class Checkbox extends React.Component {
-  static propTypes = {
-    id: React.PropTypes.string,
-    onCheck: React.PropTypes.func.isRequired,
-    checked: React.PropTypes.bool.isRequired,
-    thirdState: React.PropTypes.bool
-  };
-
-  static defaultProps = {
-    thirdState: false
-  };
-
-  componentWillMount () {
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick (e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onCheck(!this.props.checked);
-  }
-
-  render () {
-    const className = classNames('icon-checkbox', {
-      'icon-checkbox-checked': this.props.checked,
-      'icon-checkbox-single': this.props.thirdState
-    });
-
-    return (
-        <a id={this.props.id} className={className} href="#" onClick={this.handleClick}/>
-    );
-  }
-}
+it('should match snapshot', () => {
+  expect(shallow(
+      <UnconnectedNotifications fetchNotifications={jest.fn()}/>
+  )).toMatchSnapshot();
+});

@@ -18,38 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
+import { shallow } from 'enzyme';
+import { UnconnectedGlobalNotifications } from '../GlobalNotifications';
 
-export default class Checkbox extends React.Component {
-  static propTypes = {
-    id: React.PropTypes.string,
-    onCheck: React.PropTypes.func.isRequired,
-    checked: React.PropTypes.bool.isRequired,
-    thirdState: React.PropTypes.bool
-  };
+it('should match snapshot', () => {
+  const channels = ['channel1', 'channel2'];
+  const types = ['type1', 'type2'];
+  const notifications = [
+    { channel: 'channel1', type: 'type1' },
+    { channel: 'channel1', type: 'type2' },
+    { channel: 'channel2', type: 'type2' }
+  ];
 
-  static defaultProps = {
-    thirdState: false
-  };
-
-  componentWillMount () {
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick (e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onCheck(!this.props.checked);
-  }
-
-  render () {
-    const className = classNames('icon-checkbox', {
-      'icon-checkbox-checked': this.props.checked,
-      'icon-checkbox-single': this.props.thirdState
-    });
-
-    return (
-        <a id={this.props.id} className={className} href="#" onClick={this.handleClick}/>
-    );
-  }
-}
+  expect(shallow(
+      <UnconnectedGlobalNotifications
+          notifications={notifications}
+          channels={channels}
+          types={types}
+          addNotification={jest.fn()}
+          removeNotification={jest.fn()}/>
+  )).toMatchSnapshot();
+});

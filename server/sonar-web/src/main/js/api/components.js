@@ -101,16 +101,6 @@ export function getBreadcrumbs ({ id, key }: { id: string, key: string }) {
   });
 }
 
-export function getProjectsWithInternalId (query: string) {
-  const url = '/api/resources/search';
-  const data = {
-    f: 's2',
-    q: 'TRK',
-    s: query
-  };
-  return getJSON(url, data).then(r => r.results);
-}
-
 export function getMyProjects (data?: Object) {
   const url = '/api/projects/search_my_projects';
   return getJSON(url, data);
@@ -119,6 +109,14 @@ export function getMyProjects (data?: Object) {
 export function searchProjects (data?: Object) {
   const url = '/api/components/search_projects';
   return getJSON(url, data);
+}
+
+export function simpleSearchProjects (data?: Object) {
+  const url = '/api/projects/index';
+  return getJSON(url, data).then(projects => projects.map(project => ({
+    key: project.k,
+    name: project.nm
+  })));
 }
 
 /**

@@ -18,66 +18,89 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Select from 'react-select';
-import ProjectNotification from './ProjectNotification';
+import { connect } from 'react-redux';
+import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
-import { getProjectsWithInternalId } from '../../../api/components';
+import {
+  getProjectNotifications,
+  getNotificationChannels,
+  getNotificationPerProjectTypes
+} from '../../../store/rootReducer';
+import type {
+  Notification,
+  NotificationsState,
+  ChannelsState,
+  TypesState
+} from '../../../store/notifications/duck';
+import { addNotification, removeNotification } from './actions';
 
-export default function ProjectNotifications ({ notifications, channels, onAddProject, onRemoveProject }) {
-  const loadOptions = query => {
-    return getProjectsWithInternalId(query)
-        .then(results => results.map(r => {
-          return {
-            value: r.id,
-            label: r.text
-          };
-        }))
-        .then(options => {
-          return { options };
-        });
+class ProjectNotifications extends React.Component {
+  props: {
+    project: {
+      key: string,
+      name: string
+    },
+    notifications: NotificationsState,
+    channels: ChannelsState,
+    types: TypesState,
+    addNotification: (n: Notification) => void,
+    removeNotification: (n: Notification) => void
   };
 
-  const handleAddProject = selected => {
-    const project = {
-      internalId: selected.value,
-      name: selected.label
-    };
-    onAddProject(project);
-  };
+  handleAddNotification ({ channel, type }) {
+    this.props.addNotification({
+      channel,
+      type,
+      project: this.props.project.key,
+      projectName: this.props.project.name
+    });
+  }
 
-  return (
-      <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.per_project_notifications.title')}
-        </h2>
+  handleRemoveNotification ({ channel, type }) {
+    this.props.removeNotification({
+      channel,
+      type,
+      project: this.props.project.key
+    });
+  }
 
-        {!notifications.length && (
-            <div className="note">
-              {translate('my_account.no_project_notifications')}
-            </div>
-        )}
+  render () {
+    const { project, channels } = this.props;
 
-        {notifications.map(p => (
-            <ProjectNotification
-                key={p.project.internalId}
-                data={p}
-                channels={channels}
-                onRemoveProject={onRemoveProject}/>
-        ))}
-
-        <div className="spacer-top panel bg-muted">
-          <span className="text-middle spacer-right">
-            Set notifications for:
-          </span>
-          <Select.Async
-              name="new_project"
-              style={{ width: '300px' }}
-              loadOptions={loadOptions}
-              minimumInput={2}
-              onChange={handleAddProject}
-              placeholder="Search Project"
-              searchPromptText="Type at least 2 characters to search"/>
-        </div>
-      </section>
-  );
+    return (
+        <table key={project.key} className="form big-spacer-bottom">
+          <thead>
+            <tr>
+              <th>
+                <h4 className="display-inline-block">{project.name}</h4>
+              </th>
+              {channels.map(channel => (
+                  <th key={channel} className="text-center">
+                    <h4>{translate('notification.channel', channel)}</h4>
+                  </th>
+              ))}
+            </tr>
+          </thead>
+          <NotificationsList
+              notifications={this.props.notifications}
+              channels={this.props.channels}
+              types={this.props.types}
+              checkboxId={(d, c) => `project-notification-${project.key}-${d}-${c}`}
+              onAdd={n => this.handleAddNotification(n)}
+              onRemove={n => this.handleRemoveNotification(n)}/>
+        </table>
+    );
+  }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  notifications: getProjectNotifications(state, ownProps.project.key),
+  channels: getNotificationChannels(state),
+  types: getNotificationPerProjectTypes(state)
+});
+
+const mapDispatchToProps = { addNotification, removeNotification };
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectNotifications);
+
+export const UnconnectedProjectNotifications = ProjectNotifications;

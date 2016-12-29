@@ -18,38 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import classNames from 'classnames';
+import { shallow } from 'enzyme';
+import { UnconnectedProjects } from '../Projects';
 
-export default class Checkbox extends React.Component {
-  static propTypes = {
-    id: React.PropTypes.string,
-    onCheck: React.PropTypes.func.isRequired,
-    checked: React.PropTypes.bool.isRequired,
-    thirdState: React.PropTypes.bool
-  };
+const projects = [
+  { key: 'foo', name: 'Foo' },
+  { key: 'bar', name: 'Bar' }
+];
 
-  static defaultProps = {
-    thirdState: false
-  };
+const newProject = { key: 'qux', name: 'Qux' };
 
-  componentWillMount () {
-    this.handleClick = this.handleClick.bind(this);
-  }
+it('should render projects', () => {
+  const wrapper = shallow(
+      <UnconnectedProjects projects={projects}/>
+  );
+  expect(wrapper).toMatchSnapshot();
 
-  handleClick (e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onCheck(!this.props.checked);
-  }
+  // let's add a new project
+  wrapper.setState({ addedProjects: [newProject] });
+  expect(wrapper).toMatchSnapshot();
 
-  render () {
-    const className = classNames('icon-checkbox', {
-      'icon-checkbox-checked': this.props.checked,
-      'icon-checkbox-single': this.props.thirdState
-    });
-
-    return (
-        <a id={this.props.id} className={className} href="#" onClick={this.handleClick}/>
-    );
-  }
-}
+  // let's say we saved it, so it's passed back in `props`
+  wrapper.setProps({ projects: [...projects, newProject] });
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.state()).toMatchSnapshot();
+});

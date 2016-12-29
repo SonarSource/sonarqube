@@ -83,6 +83,18 @@ public class MyAccountPageTest {
     runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_projects.html");
   }
 
+  @Test
+  public void notifications() {
+    nav.logIn().asAdmin().openNotifications()
+      .addGlobalNotification("ChangesOnMyIssue")
+      .addGlobalNotification("NewIssues")
+      .removeGlobalNotification("ChangesOnMyIssue");
+
+    nav.openNotifications()
+      .shouldHaveGlobalNotification("NewIssues")
+      .shouldNotHaveGlobalNotification("ChangesOnMyIssue");
+  }
+
   private static void createUser(String login, String name, String email) {
     adminWsClient.wsConnector().call(
       new PostRequest("api/users/create")

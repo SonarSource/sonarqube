@@ -1,0 +1,60 @@
+exports[`test should match snapshot 1`] = `
+<section>
+  <h2
+    className="spacer-bottom">
+    my_profile.overall_notifications.title
+  </h2>
+  <table
+    className="form">
+    <thead>
+      <tr>
+        <th />
+        <th
+          className="text-center">
+          <h4>
+            notification.channel.channel1
+          </h4>
+        </th>
+        <th
+          className="text-center">
+          <h4>
+            notification.channel.channel2
+          </h4>
+        </th>
+      </tr>
+    </thead>
+    <NotificationsList
+      channels={
+        Array [
+          "channel1",
+          "channel2",
+        ]
+      }
+      checkboxId={[Function]}
+      notifications={
+        Array [
+          Object {
+            "channel": "channel1",
+            "type": "type1",
+          },
+          Object {
+            "channel": "channel1",
+            "type": "type2",
+          },
+          Object {
+            "channel": "channel2",
+            "type": "type2",
+          },
+        ]
+      }
+      onAdd={[Function]}
+      onRemove={[Function]}
+      types={
+        Array [
+          "type1",
+          "type2",
+        ]
+      } />
+  </table>
+</section>
+`;

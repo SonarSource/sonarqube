@@ -23,12 +23,14 @@ import Account from './components/Account';
 import ProjectsContainer from './projects/ProjectsContainer';
 import Security from './components/Security';
 import Profile from './profile/Profile';
+import Notifications from './notifications/Notifications';
 
 export default (
     <Route component={Account}>
       <IndexRoute component={Profile}/>
       <Route path="security" component={Security}/>
       <Route path="projects" component={ProjectsContainer}/>
+      <Route path="notifications" component={Notifications}/>
 
       <Route path="issues" onEnter={() => {
         window.location = window.baseUrl + '/issues' + window.location.hash + '|assigned_to_me=true';

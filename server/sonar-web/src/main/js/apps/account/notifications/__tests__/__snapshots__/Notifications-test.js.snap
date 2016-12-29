@@ -1,0 +1,16 @@
+exports[`test should match snapshot 1`] = `
+<div
+  className="account-body account-container">
+  <HelmetWrapper
+    title="my_account.page - my_account.notifications"
+    titleTemplate="SonarQube - %s" />
+  <p
+    className="big-spacer-bottom">
+    notification.dispatcher.information
+  </p>
+  <Connect(GlobalNotifications) />
+  <hr
+    className="account-separator" />
+  <Connect(Projects) />
+</div>
+`;

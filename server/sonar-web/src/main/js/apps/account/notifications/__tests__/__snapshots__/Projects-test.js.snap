@@ -1,0 +1,163 @@
+exports[`test should render projects 1`] = `
+<section>
+  <h2
+    className="spacer-bottom">
+    my_profile.per_project_notifications.title
+  </h2>
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    } />
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "bar",
+        "name": "Bar",
+      }
+    } />
+  <div
+    className="spacer-top panel bg-muted">
+    <span
+      className="text-middle spacer-right">
+      Set notifications for:
+    </span>
+    <Async
+      autoload={true}
+      cache={Object {}}
+      ignoreAccents={true}
+      ignoreCase={true}
+      loadOptions={[Function]}
+      loadingPlaceholder="Loading..."
+      minimumInput={2}
+      name="new_project"
+      onChange={[Function]}
+      options={Array []}
+      placeholder="Search Project"
+      searchPromptText="Type at least 2 characters to search"
+      style={
+        Object {
+          "width": "300px",
+        }
+      } />
+  </div>
+</section>
+`;
+
+exports[`test should render projects 2`] = `
+<section>
+  <h2
+    className="spacer-bottom">
+    my_profile.per_project_notifications.title
+  </h2>
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    } />
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "bar",
+        "name": "Bar",
+      }
+    } />
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "qux",
+        "name": "Qux",
+      }
+    } />
+  <div
+    className="spacer-top panel bg-muted">
+    <span
+      className="text-middle spacer-right">
+      Set notifications for:
+    </span>
+    <Async
+      autoload={true}
+      cache={Object {}}
+      ignoreAccents={true}
+      ignoreCase={true}
+      loadOptions={[Function]}
+      loadingPlaceholder="Loading..."
+      minimumInput={2}
+      name="new_project"
+      onChange={[Function]}
+      options={Array []}
+      placeholder="Search Project"
+      searchPromptText="Type at least 2 characters to search"
+      style={
+        Object {
+          "width": "300px",
+        }
+      } />
+  </div>
+</section>
+`;
+
+exports[`test should render projects 3`] = `
+<section>
+  <h2
+    className="spacer-bottom">
+    my_profile.per_project_notifications.title
+  </h2>
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+      }
+    } />
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "bar",
+        "name": "Bar",
+      }
+    } />
+  <Connect(ProjectNotifications)
+    project={
+      Object {
+        "key": "qux",
+        "name": "Qux",
+      }
+    } />
+  <div
+    className="spacer-top panel bg-muted">
+    <span
+      className="text-middle spacer-right">
+      Set notifications for:
+    </span>
+    <Async
+      autoload={true}
+      cache={Object {}}
+      ignoreAccents={true}
+      ignoreCase={true}
+      loadOptions={[Function]}
+      loadingPlaceholder="Loading..."
+      minimumInput={2}
+      name="new_project"
+      onChange={[Function]}
+      options={Array []}
+      placeholder="Search Project"
+      searchPromptText="Type at least 2 characters to search"
+      style={
+        Object {
+          "width": "300px",
+        }
+      } />
+  </div>
+</section>
+`;
+
+exports[`test should render projects 4`] = `
+Object {
+  "addedProjects": Array [],
+}
+`;

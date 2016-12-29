@@ -17,42 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import GlobalNotifications from './GlobalNotifications';
-import ProjectNotifications from './ProjectNotifications';
+import Projects from './Projects';
 import { translate } from '../../../helpers/l10n';
+import { fetchNotifications } from './actions';
 
-const Notifications = ({ globalNotifications, projectNotifications, onAddProject, onRemoveProject }) => {
-  const channels = globalNotifications[0].channels.map(c => c.id);
+class Notifications extends React.Component {
+  props: {
+    fetchNotifications: () => void
+  };
 
-  return (
-      <div>
-        <p className="big-spacer-bottom">
-          {translate('notification.dispatcher.information')}
-        </p>
-        <form id="notif_form" method="post" action={`${window.baseUrl}/account/update_notifications`}>
-          <GlobalNotifications
-              notifications={globalNotifications}
-              channels={channels}/>
+  componentDidMount () {
+    this.props.fetchNotifications();
+  }
+
+  render () {
+    const title = translate('my_account.page') + ' - ' + translate('my_account.notifications');
+
+    return (
+        <div className="account-body account-container">
+          <Helmet title={title} titleTemplate="SonarQube - %s"/>
+
+          <p className="big-spacer-bottom">
+            {translate('notification.dispatcher.information')}
+          </p>
+
+          <GlobalNotifications/>
 
           <hr className="account-separator"/>
 
-          <ProjectNotifications
-              notifications={projectNotifications}
-              channels={channels}
-              onAddProject={onAddProject}
-              onRemoveProject={onRemoveProject}/>
+          <Projects/>
+        </div>
+    );
+  }
+}
 
-          <hr className="account-separator"/>
+const mapDispatchToProps = { fetchNotifications };
 
-          <div className="text-center">
-            <button id="submit-notifications" type="submit">
-              {translate('my_profile.notifications.submit')}
-            </button>
-          </div>
-        </form>
-      </div>
-  );
-};
+export default connect(null, mapDispatchToProps)(Notifications);
 
-export default Notifications;
+export const UnconnectedNotifications = Notifications;

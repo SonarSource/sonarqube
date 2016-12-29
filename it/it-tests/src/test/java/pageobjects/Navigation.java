@@ -112,6 +112,10 @@ public class Navigation extends ExternalResource {
     return open("/settings/server_id", ServerIdPage.class);
   }
 
+  public NotificationsPage openNotifications() {
+    return open("/account/notifications", NotificationsPage.class);
+  }
+
   public LoginPage openLogin() {
     return open("/sessions/login", LoginPage.class);
   }
