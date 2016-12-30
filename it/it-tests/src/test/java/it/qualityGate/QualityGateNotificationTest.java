@@ -28,7 +28,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.qualitygate.NewCondition;
@@ -38,15 +37,19 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
+import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.resetEmailSettings;
 import static util.ItUtils.setServerProperty;
-import static util.selenium.Selenese.runSelenese;
 
 public class QualityGateNotificationTest {
 
@@ -56,6 +59,8 @@ public class QualityGateNotificationTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  @ClassRule
+  public static UserRule userRule = UserRule.from(orchestrator);
 
   @BeforeClass
   public static void initPeriods() throws Exception {
@@ -79,21 +84,28 @@ public class QualityGateNotificationTest {
   }
 
   @Test
-  @Ignore("notifications page is not available yet")
   public void status_on_metric_variation_and_send_notifications() throws Exception {
     Wiser smtpServer = new Wiser(0);
     try {
       // Configure SMTP
       smtpServer.start();
-      Sonar wsClient = orchestrator.getServer().getAdminWsClient();
-      wsClient.update(new PropertyUpdateQuery("email.smtp_host.secured", "localhost"));
-      wsClient.update(new PropertyUpdateQuery("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort())));
+      Sonar oldWsClient = orchestrator.getServer().getAdminWsClient();
+      oldWsClient.update(new PropertyUpdateQuery("email.smtp_host.secured", "localhost"));
+      oldWsClient.update(new PropertyUpdateQuery("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort())));
 
       // Create user, who will receive notifications for new violations
-      orchestrator.getServer().adminWsClient().post("api/users/create", "login", "tester", "name", "Tester", "email", "tester@example.org", "password", "tester");
-      runSelenese(orchestrator,
-        "/qualityGate/notifications/email_configuration.html",
-          "/qualityGate/notifications/activate_notification_channels.html");
+      userRule.createUser("tester", "Tester", "tester@example.org", "tester");
+      // Send test email to the test user
+      newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("api/emails/send")
+        .setParam("to", "test@example.org")
+        .setParam("message", "This is a test message from SonarQube"))
+        .failIfNotSuccessful();
+      // Add notifications to the test user
+      WsClient wsClient = newUserWsClient(orchestrator, "tester", "tester");
+      wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+        .setParam("type", "NewAlerts")
+        .setParam("channel", "EmailNotificationChannel"))
+        .failIfNotSuccessful();
 
       // Create quality gate with conditions on variations
       QualityGate simple = qgClient().create("SimpleWithDifferential");
@@ -110,14 +122,13 @@ public class QualityGateNotificationTest {
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
 
-      // Wait until all notifications are delivered
-      Thread.sleep(10000);
+      waitUntilAllNotificationsAreDelivered(smtpServer);
 
       Iterator<WiserMessage> emails = smtpServer.getMessages().iterator();
 
       MimeMessage message = emails.next().getMimeMessage();
       assertThat(message.getHeader("To", null)).isEqualTo("<test@example.org>");
-      assertThat((String) message.getContent()).contains("This is a test message from Sonar");
+      assertThat((String) message.getContent()).contains("This is a test message from SonarQube");
 
       assertThat(emails.hasNext()).isTrue();
       message = emails.next().getMimeMessage();
@@ -142,5 +153,14 @@ public class QualityGateNotificationTest {
 
   private static QualityGateClient qgClient() {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
+  }
+
+  private static void waitUntilAllNotificationsAreDelivered(Wiser smtpServer) throws InterruptedException {
+    for (int i = 0; i < 10; i++) {
+      if (smtpServer.getMessages().size() == 2) {
+        break;
+      }
+      Thread.sleep(1_000);
+    }
   }
 }

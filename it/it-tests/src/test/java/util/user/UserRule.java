@@ -51,7 +51,7 @@ public class UserRule extends ExternalResource {
   }
 
   public static UserRule from(Orchestrator orchestrator) {
-    return new UserRule(requireNonNull(orchestrator, "Orchestrator instance can not be null"));
+    return new UserRule(requireNonNull(orchestrator, "Orchestrator instance cannot be null"));
   }
 
   // *****************

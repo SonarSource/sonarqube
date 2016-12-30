@@ -26,28 +26,31 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.resetEmailSettings;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
-import static util.selenium.Selenese.runSelenese;
 
-@Ignore("notifications page is not available yet")
 public class IssueNotificationsTest extends AbstractIssueTest {
 
   private final static String PROJECT_KEY = "sample";
   private final static String USER_LOGIN = "tester";
+  private final static String USER_PASSWORD = "tester";
+  private static final String USER_EMAIL = "tester@example.org";
 
   private static Wiser smtpServer;
 
@@ -68,21 +71,36 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     setServerProperty(ORCHESTRATOR, "email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()));
 
     // Create test user
-    userRule.createUser(USER_LOGIN, "Tester", "tester@example.org", USER_LOGIN);
+    userRule.createUser(USER_LOGIN, "Tester", USER_EMAIL, USER_LOGIN);
 
-    // 1. Check that SMTP server was turned on and able to send test email
-    // 2. Create user, which will receive notifications for new violations
-    runSelenese(ORCHESTRATOR,
-      "/issue/IssueNotificationsTest/email_configuration.html",
-      "/issue/IssueNotificationsTest/user_notifications_settings.html");
+    // Send test email to the test user
+    newAdminWsClient(ORCHESTRATOR).wsConnector().call(new PostRequest("api/emails/send")
+      .setParam("to", USER_EMAIL)
+      .setParam("message", "This is a test message from SonarQube"))
+      .failIfNotSuccessful();
+
+    // Add notifications to the test user
+    WsClient wsClient = newUserWsClient(ORCHESTRATOR, USER_LOGIN, USER_PASSWORD);
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "NewIssues")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "ChangesOnMyIssue")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "SQ-MyNewIssues")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
 
     // We need to wait until all notifications will be delivered
-    waitUntilAllNotificationsAreDelivered();
+    waitUntilAllNotificationsAreDelivered(1);
 
     Iterator<WiserMessage> emails = smtpServer.getMessages().iterator();
 
     MimeMessage message = emails.next().getMimeMessage();
-    assertThat(message.getHeader("To", null)).isEqualTo("<test@example.org>");
+    assertThat(message.getHeader("To", null)).isEqualTo("<" + USER_EMAIL + ">");
     assertThat((String) message.getContent()).contains("This is a test message from SonarQube");
 
     assertThat(emails.hasNext()).isFalse();
@@ -119,7 +137,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     Issue issue = issues.list().get(0);
     issueClient.assign(issue.key(), USER_LOGIN);
 
-    waitUntilAllNotificationsAreDelivered();
+    waitUntilAllNotificationsAreDelivered(2);
 
     Iterator<WiserMessage> emails = smtpServer.getMessages().iterator();
 
@@ -148,7 +166,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", USER_LOGIN);
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-with-scm", "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false");
 
-    waitUntilAllNotificationsAreDelivered();
+    waitUntilAllNotificationsAreDelivered(2);
 
     Iterator<WiserMessage> emails = smtpServer.getMessages().iterator();
     emails.next();
@@ -181,7 +199,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
       .actionParameter("set_severity", "severity", "BLOCKER")
       .sendNotifications(true));
 
-    waitUntilAllNotificationsAreDelivered();
+    waitUntilAllNotificationsAreDelivered(2);
 
     Iterator<WiserMessage> emails = smtpServer.getMessages().iterator();
 
@@ -196,8 +214,13 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     assertThat(emails.hasNext()).isFalse();
   }
 
-  private static void waitUntilAllNotificationsAreDelivered() throws InterruptedException {
-    Thread.sleep(10_000L);
+  private static void waitUntilAllNotificationsAreDelivered(int expectedNumberOfEmails) throws InterruptedException {
+    for (int i = 0; i < 10; i++) {
+      if (smtpServer.getMessages().size() == expectedNumberOfEmails) {
+        break;
+      }
+      Thread.sleep(1_000);
+    }
   }
 
 }

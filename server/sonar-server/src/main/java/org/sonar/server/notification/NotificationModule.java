@@ -22,7 +22,6 @@ package org.sonar.server.notification;
 
 import org.sonar.api.config.EmailSettings;
 import org.sonar.core.platform.Module;
-import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.ws.AddAction;
@@ -39,7 +38,6 @@ public class NotificationModule extends Module {
       NotificationCenter.class,
       NotificationUpdater.class,
       DefaultNotificationManager.class,
-      EmailsWsModule.class,
       NotificationDaemon.class,
       AlertsEmailTemplate.class,
       EmailNotificationChannel.class,
