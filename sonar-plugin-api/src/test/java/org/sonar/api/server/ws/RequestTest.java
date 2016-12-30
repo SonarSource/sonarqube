@@ -226,7 +226,7 @@ public class RequestTest {
 
   @Test
   public void getParam_of_missing_string_parameter() {
-    Request.StringParam stringParam = underTest.getParam("boo");
+    Request.StringParam stringParam = underTest.getParam("a_string");
 
     assertThat(stringParam.isPresent()).isFalse();
     expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
@@ -281,7 +281,7 @@ public class RequestTest {
 
   @Test
   public void getParam_with_validation_of_missing_string_parameter() {
-    Request.StringParam stringParam = underTest.getParam("boo", (str) -> {
+    Request.StringParam stringParam = underTest.getParam("a_string", (str) -> {
       throw new IllegalStateException("validator should not be called");
     });
 
@@ -355,7 +355,7 @@ public class RequestTest {
 
   @Test
   public void getParam_of_missing_parameter_of_unspecified_type() {
-    Request.Param<Object> param = underTest.getParam("baa", (rqt, key) -> {
+    Request.Param<Object> param = underTest.getParam("a_string", (rqt, key) -> {
       throw new IllegalStateException("retrieveAndValidate BiConsumer should not be called");
     });
 
