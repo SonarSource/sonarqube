@@ -130,6 +130,18 @@ export default Controller.extend({
     return q;
   },
 
+  getQueryAsObject () {
+    const state = this.options.app.state;
+    const query = state.get('query');
+    if (query.assigned_to_me) {
+      Object.assign(query, { assignees: '__me__' });
+    }
+    if (state.get('isContext')) {
+      Object.assign(query, state.get('contextQuery'));
+    }
+    return query;
+  },
+
   getQuery (separator, addContext, handleMyIssues = false) {
     if (separator == null) {
       separator = '|';
