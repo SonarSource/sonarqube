@@ -49,7 +49,8 @@ public class TransitionService {
     String projectUuid = requireNonNull(issue.projectUuid());
     return workflow.outTransitions(issue)
       .stream()
-      .filter(transition -> isBlank(transition.requiredProjectPermission()) || userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))
+      .filter(transition -> (userSession.isLoggedIn() && isBlank(transition.requiredProjectPermission()))
+        || userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))
       .collect(Collectors.toList());
   }
 

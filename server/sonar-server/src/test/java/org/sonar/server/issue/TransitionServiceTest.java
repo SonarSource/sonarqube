@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
@@ -40,6 +39,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
@@ -62,7 +62,7 @@ public class TransitionServiceTest {
   @Test
   public void list_transitions() throws Exception {
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
-    userSession.addProjectUuidPermissions(UserRole.ISSUE_ADMIN, issue.getProjectUuid());
+    userSession.login("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.getProjectUuid());
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -71,11 +71,21 @@ public class TransitionServiceTest {
 
   @Test
   public void list_transitions_returns_only_transitions_that_do_not_requires_issue_admin_permission() throws Exception {
+    userSession.login("john");
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
     assertThat(result).extracting(Transition::key).containsOnly("confirm", "resolve");
+  }
+
+  @Test
+  public void list_transitions_returns_nothing_when_not_logged() throws Exception {
+    IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
+
+    List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
+
+    assertThat(result).isEmpty();
   }
 
   @Test
