@@ -55,7 +55,7 @@ public class BatchWs implements WebService {
     controller.createAction("index")
       .setInternal(true)
       .setSince("4.4")
-      .setDescription("List the JAR files to be downloaded by scanners")
+      .setDescription("List the JAR files to be downloaded by source analyzer")
       .setHandler((request, response) -> {
         try {
           response.stream().setMediaType("text/plain");
@@ -71,7 +71,7 @@ public class BatchWs implements WebService {
     NewAction action = controller.createAction("file")
       .setInternal(true)
       .setSince("4.4")
-      .setDescription("Download a JAR file listed in the index (see batch/index)")
+      .setDescription("Download a JAR file required by source analyzer")
       .setResponseExample(getClass().getResource("batch-file-example.txt"))
       .setHandler((request, response) -> {
         String filename = request.mandatoryParam("name");

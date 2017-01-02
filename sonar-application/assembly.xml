@@ -80,9 +80,8 @@
       <scope>provided</scope>
     </dependencySet>
 
-    <!-- Scanner Engine that is returned by batch/index WS -->
     <dependencySet>
-      <outputDirectory>lib/scanner</outputDirectory>
+      <outputDirectory>lib/batch</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.sonarsource.sonarqube:sonar-scanner-engine-shaded</include>
