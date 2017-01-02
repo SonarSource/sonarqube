@@ -63,6 +63,7 @@ import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableMap.of;
+import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -219,7 +220,8 @@ public class BulkChangeAction implements IssuesWsAction {
         }
       } catch (Exception e) {
         result.increaseFailure();
-        LOG.error("An error occur when trying to apply the action : {} on issue : {}. This issue has been ignored. Error is '{}'", action.key(), issue.key(), e.getMessage());
+        LOG.error(format("An error occur when trying to apply the action : %s on issue : %s. This issue has been ignored. Error is '%s'",
+          action.key(), issue.key(), e.getMessage()), e);
       }
     };
   }

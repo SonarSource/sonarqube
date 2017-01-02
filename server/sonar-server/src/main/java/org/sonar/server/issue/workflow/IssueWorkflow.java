@@ -179,8 +179,9 @@ public class IssueWorkflow implements Startable {
   }
 
   public List<Transition> outTransitions(Issue issue) {
-    State state = machine.state(issue.status());
-    checkArgument(state != null, "Unknown status: %s", issue.status());
+    String status = issue.status();
+    State state = machine.state(status);
+    checkArgument(state != null, "Unknown status: %s", status);
     return state.outManualTransitions(issue);
   }
 
@@ -197,8 +198,10 @@ public class IssueWorkflow implements Startable {
   }
 
   private State stateOf(DefaultIssue issue) {
-    State state = machine.state(issue.status());
-    checkState(state != null, "Unknown status: %s [issue=%s]", issue.status(), issue.key());
+    String status = issue.status();
+    State state = machine.state(status);
+    String issueKey = issue.key();
+    checkState(state != null, "Unknown status: %s [issue=%s]", status, issueKey);
     return state;
   }
 
