@@ -148,11 +148,6 @@ public class JwtCsrfVerifierTest {
 
   @Test
   public void ignore_rails_ws_requests() throws Exception {
-    executeVerifyStateDoesNotFailOnRequest("/api/events", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/issues/add_comment?key=ABCD", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/issues/delete_comment?key=ABCD", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/issues/edit_comment?key=ABCD", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/issues/bulk_change?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/projects/create?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/properties/create?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/user_properties", "POST");
