@@ -315,7 +315,7 @@ public class DefaultIndex {
     }
 
     if (StringUtils.isBlank(resource.getKey())) {
-      LOG.warn("Unable to index a resource without key " + resource);
+      LOG.warn("Unable to index a resource without key: {}", resource);
       return null;
     }
 
@@ -323,7 +323,7 @@ public class DefaultIndex {
 
     Bucket parentBucket = getBucket(parent);
     if (parentBucket == null && parent != null) {
-      LOG.warn("Resource ignored, parent is not indexed: " + resource);
+      LOG.warn("Resource ignored, parent is not indexed: {}", resource);
       return null;
     }
 

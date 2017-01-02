@@ -20,22 +20,21 @@
 package org.sonar.scanner.cpd.deprecated;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class DefaultCpdBlockIndexerTest {
 
   private DefaultCpdBlockIndexer engine;
   private Settings settings;
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Before
   public void init() {
@@ -45,17 +44,15 @@ public class DefaultCpdBlockIndexerTest {
 
   @Test
   public void shouldLogExclusions() {
-    Logger logger = mock(Logger.class);
-    engine.logExclusions(new String[0], logger);
-    verify(logger, never()).info(anyString());
+    engine.logExclusions(new String[0]);
+    assertThat(logTester.logs()).isEmpty();
 
-    logger = mock(Logger.class);
-    engine.logExclusions(new String[] {"Foo*", "**/Bar*"}, logger);
+    engine.logExclusions(new String[] {"Foo*", "**/Bar*"});
 
     String message = "Copy-paste detection exclusions:"
       + "\n  Foo*"
       + "\n  **/Bar*";
-    verify(logger, times(1)).info(message);
+    assertThat(logTester.logs()).containsExactly(message);
   }
 
   @Test

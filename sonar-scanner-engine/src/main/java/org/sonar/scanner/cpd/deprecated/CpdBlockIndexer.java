@@ -19,17 +19,20 @@
  */
 package org.sonar.scanner.cpd.deprecated;
 
-import org.slf4j.Logger;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @ScannerSide
 public abstract class CpdBlockIndexer {
+
+  private static final Logger LOG = Loggers.get(CpdBlockIndexer.class);
 
   abstract boolean isLanguageSupported(String language);
 
   abstract void index(String language);
 
-  protected void logExclusions(String[] exclusions, Logger logger) {
+  protected void logExclusions(String[] exclusions) {
     if (exclusions.length > 0) {
       StringBuilder message = new StringBuilder("Copy-paste detection exclusions:");
       for (String exclusion : exclusions) {
@@ -37,13 +40,8 @@ public abstract class CpdBlockIndexer {
         message.append(exclusion);
       }
 
-      logger.info(message.toString());
+      LOG.info(message.toString());
     }
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
   }
 
 }

@@ -110,7 +110,7 @@ public class HtmlReport implements Reporter {
       reportFileDir = new File(fs.workDir(), reportFileDirStr);
     }
     if (StringUtils.endsWith(reportFileDirStr, ".html")) {
-      LOG.warn(HTML_REPORT_LOCATION_KEY + " should indicate a directory. Using parent folder.");
+      LOG.warn("{} should indicate a directory. Using parent folder.", HTML_REPORT_LOCATION_KEY);
       reportFileDir = reportFileDir.getParentFile();
     }
     try {

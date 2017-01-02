@@ -22,8 +22,6 @@ package org.sonar.scanner.cpd.deprecated;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -31,13 +29,15 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 
 public class DefaultCpdBlockIndexer extends CpdBlockIndexer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdBlockIndexer.class);
+  private static final Logger LOG = Loggers.get(DefaultCpdBlockIndexer.class);
 
   private final CpdMappings mappings;
   private final FileSystem fs;
@@ -60,12 +60,12 @@ public class DefaultCpdBlockIndexer extends CpdBlockIndexer {
   public void index(String languageKey) {
     CpdMapping mapping = mappings.getMapping(languageKey);
     if (mapping == null) {
-      LOG.debug("No CpdMapping for language " + languageKey);
+      LOG.debug("No CpdMapping for language {}", languageKey);
       return;
     }
 
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
-    logExclusions(cpdExclusions, LOG);
+    logExclusions(cpdExclusions);
     FilePredicates p = fs.predicates();
     List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
       p.hasType(InputFile.Type.MAIN),

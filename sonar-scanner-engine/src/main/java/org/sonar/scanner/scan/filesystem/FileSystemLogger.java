@@ -56,9 +56,9 @@ public class FileSystemLogger {
 
   private void logEncoding(Logger logger, Charset charset) {
     if (!fs.isDefaultJvmEncoding()) {
-      logger.info("Source encoding: " + charset.displayName() + ", default locale: " + Locale.getDefault());
+      logger.info("Source encoding: {}, default locale: {}", charset.displayName(), Locale.getDefault());
     } else {
-      logger.warn("Source encoding is platform dependent (" + charset.displayName() + "), default locale: " + Locale.getDefault());
+      logger.warn("Source encoding is platform dependent ({}), default locale: {}", charset.displayName(), Locale.getDefault());
     }
   }
 

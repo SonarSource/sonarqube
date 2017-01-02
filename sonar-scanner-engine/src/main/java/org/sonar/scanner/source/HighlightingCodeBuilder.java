@@ -19,14 +19,13 @@
  */
 package org.sonar.scanner.source;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.colorizer.HtmlCodeBuilder;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class HighlightingCodeBuilder extends HtmlCodeBuilder {
 
@@ -65,7 +64,7 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
         startOffset = currentOffset;
         cssClass = startMatcher.group(1);
       } else {
-        LOG.warn("Expected to match highlighting start html tag but was: " + htmlTag);
+        LOG.warn("Expected to match highlighting start html tag but was: {}", htmlTag);
       }
     } else {
       Matcher endMatcher = END_TAG_PATTERN.matcher(htmlTag);
@@ -73,7 +72,7 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
         highlighting.highlight(startOffset, currentOffset, TypeOfText.forCssClass(cssClass));
         startOffset = -1;
       } else {
-        LOG.warn("Expected to match highlighting end html tag but was: " + htmlTag);
+        LOG.warn("Expected to match highlighting end html tag but was: {}", htmlTag);
       }
     }
   }

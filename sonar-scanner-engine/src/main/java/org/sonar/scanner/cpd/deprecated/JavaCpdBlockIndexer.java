@@ -27,14 +27,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.java.JavaStatementBuilder;
@@ -46,7 +46,7 @@ import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 
 public class JavaCpdBlockIndexer extends CpdBlockIndexer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaCpdBlockIndexer.class);
+  private static final Logger LOG = Loggers.get(JavaCpdBlockIndexer.class);
 
   private static final int BLOCK_SIZE = 10;
 
@@ -68,7 +68,7 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
   @Override
   public void index(String languageKey) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
-    logExclusions(cpdExclusions, LOG);
+    logExclusions(cpdExclusions);
     FilePredicates p = fs.predicates();
     List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
       p.hasType(InputFile.Type.MAIN),
