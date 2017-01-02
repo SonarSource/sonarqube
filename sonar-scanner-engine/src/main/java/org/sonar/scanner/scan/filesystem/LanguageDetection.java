@@ -22,6 +22,10 @@ package org.sonar.scanner.scan.filesystem;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +36,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesRepository;
-import javax.annotation.CheckForNull;
-
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Detect language of a source file based on its suffix and configured patterns.
@@ -68,7 +67,7 @@ class LanguageDetection {
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
         patternsByLanguage.put(language.key(), defaultLanguagePatterns);
-        LOG.debug("Declared extensions of language " + language + " were converted to " + getDetails(language.key()));
+        LOG.debug("Declared extensions of language {} were converted to {}", language, getDetails(language.key()));
       }
     }
 
@@ -103,7 +102,6 @@ class LanguageDetection {
       }
     }
     if (detectedLanguage != null) {
-      LOG.debug(String.format("Language of file '%s' is detected to be '%s'", inputFile.relativePath(), detectedLanguage));
       return detectedLanguage;
     }
 
@@ -127,7 +125,7 @@ class LanguageDetection {
     return false;
   }
 
-  private String getFileLangPatternPropKey(String languageKey) {
+  private static String getFileLangPatternPropKey(String languageKey) {
     return "sonar.lang.patterns." + languageKey;
   }
 

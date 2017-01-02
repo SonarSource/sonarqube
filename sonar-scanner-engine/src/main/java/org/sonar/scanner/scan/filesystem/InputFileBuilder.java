@@ -105,6 +105,8 @@ class InputFileBuilder {
 
     String lang = langDetection.language(inputFile);
     if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
+      // Return fast to skip costly metadata computation
+      LOG.debug("'{}' language is not supported by any analyzer. Skipping it.", inputFile.relativePath());
       return null;
     }
     inputFile.setLanguage(lang);

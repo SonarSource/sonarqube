@@ -56,7 +56,7 @@ public class QProfileVerifier {
     for (String lang : fs.languages()) {
       QProfile profile = profiles.findByLanguage(lang);
       if (profile == null) {
-        logger.warn("No Quality profile found for language " + lang);
+        logger.warn("No Quality profile found for language {}", lang);
       } else {
         logger.info("Quality profile for {}: {}", lang, profile.getName());
         if (isNotEmpty(defaultName) && defaultName.equals(profile.getName())) {

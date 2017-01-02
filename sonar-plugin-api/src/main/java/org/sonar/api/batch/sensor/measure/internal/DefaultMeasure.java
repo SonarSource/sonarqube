@@ -89,7 +89,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
   public void doSave() {
     Preconditions.checkNotNull(this.value, "Measure value can't be null");
     Preconditions.checkNotNull(this.metric, "Measure metric can't be null");
-    Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type " + this.metric.valueType());
+    Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type %s", this.metric.valueType());
     storage.store(this);
   }
 

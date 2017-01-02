@@ -20,21 +20,21 @@
 package org.sonar.scanner.phases;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.PostJob;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.util.BatchUtils;
-import java.util.Collection;
 
 @ScannerSide
 public class PostJobsExecutor {
-  private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
+  private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
   private final BatchExtensionDictionnary selector;
   private final Project project;
@@ -67,7 +67,7 @@ public class PostJobsExecutor {
 
   private static void logPostJobs(Collection<PostJob> postJobs) {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Post-jobs : {}", StringUtils.join(postJobs, " -> "));
+      LOG.debug(() -> "Post-jobs : " + StringUtils.join(postJobs, " -> "));
     }
   }
 }

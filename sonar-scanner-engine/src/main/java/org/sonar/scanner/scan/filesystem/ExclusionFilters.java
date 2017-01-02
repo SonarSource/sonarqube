@@ -62,7 +62,7 @@ public class ExclusionFilters {
     if (patterns.length > 0) {
       LOG.info(title);
       for (PathPattern pattern : patterns) {
-        LOG.info("  " + pattern);
+        LOG.info("  {}", pattern);
       }
     }
   }

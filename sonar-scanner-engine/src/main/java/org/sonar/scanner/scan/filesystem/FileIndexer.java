@@ -103,7 +103,7 @@ public class FileIndexer {
     progressReport.stop(progress.count() + " files indexed");
 
     if (exclusionFilters.hasPattern()) {
-      LOG.info(progress.excludedByPatternsCount() + " files ignored because of inclusion/exclusion patterns");
+      LOG.info("{} files ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount());
     }
   }
 
@@ -162,6 +162,11 @@ public class FileIndexer {
     tasks.add(executorService.submit(() -> {
       DefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
       if (completedInputFile != null && accept(completedInputFile)) {
+        LOG.debug("'{}' indexed {}with language '{}' and charset '{}'",
+          inputFile.relativePath(),
+          type == Type.TEST ? "as test " : "",
+          inputFile.language(),
+          inputFile.charset());
         fs.add(completedInputFile);
         status.markAsIndexed(completedInputFile);
         File parentDir = completedInputFile.file().getParentFile();
@@ -180,6 +185,7 @@ public class FileIndexer {
     // InputFileFilter extensions
     for (InputFileFilter filter : filters) {
       if (!filter.accept(inputFile)) {
+        LOG.debug("'{}' excluded by {}", inputFile.relativePath(), filter.getClass().getName());
         return false;
       }
     }

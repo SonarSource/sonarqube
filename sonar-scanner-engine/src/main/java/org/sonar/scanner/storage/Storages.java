@@ -19,19 +19,17 @@
  */
 package org.sonar.scanner.storage;
 
-import com.google.common.collect.Maps;
-
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import com.persistit.Exchange;
-import com.persistit.Value;
-import com.persistit.encoding.CoderManager;
 import com.persistit.Persistit;
+import com.persistit.Value;
+import com.persistit.Volume;
+import com.persistit.encoding.CoderManager;
 import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
-import com.persistit.Volume;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.ScannerSide;
 
@@ -67,7 +65,7 @@ public class Storages implements Startable {
 
   public <V> Storage<V> createCache(String cacheName) {
     Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
-    Preconditions.checkState(!cacheMap.containsKey(cacheName), "Cache is already created: " + cacheName);
+    Preconditions.checkState(!cacheMap.containsKey(cacheName), "Cache is already created: %s", cacheName);
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
       exchange.setMaximumValueSize(Value.MAXIMUM_SIZE);

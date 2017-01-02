@@ -32,10 +32,9 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.JavaTokenizers;
 import org.sonar.colorizer.Tokenizer;
@@ -46,7 +45,7 @@ import org.sonar.colorizer.Tokenizer;
 @ScannerSide
 public class CodeColorizers {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CodeColorizers.class);
+  private static final org.sonar.api.utils.log.Logger LOG = Loggers.get(CodeColorizers.class);
 
   private final Map<String, CodeColorizerFormat> byLang;
 
@@ -56,7 +55,7 @@ public class CodeColorizers {
       byLang.put(format.getLanguageKey(), format);
     }
 
-    LOG.debug("Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
+    LOG.debug(() -> "Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
   }
 
   /**
@@ -72,7 +71,7 @@ public class CodeColorizers {
     List<Tokenizer> tokenizers;
     if (format == null) {
       // Workaround for Java test code since Java plugin only provides highlighting for main source and no colorizer
-      // TODO can be dropped when Java plugin embed its own CodeColorizerFormat of (better) provides highlighting for tests
+      // TODO can be dropped when Java plugin embed its own CodeColorizerFormat or (better) provides highlighting for tests
       // See SONARJAVA-830
       if ("java".equals(language)) {
         tokenizers = JavaTokenizers.forHtml();
