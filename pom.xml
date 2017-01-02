@@ -504,12 +504,32 @@
         <artifactId>sonar-scm-git-plugin</artifactId>
         <version>${sonarGit.version}</version>
         <type>sonar-plugin</type>
+        <exclusions>
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
+          <exclusion>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.scm.svn</groupId>
         <artifactId>sonar-scm-svn-plugin</artifactId>
         <version>${sonarSvn.version}</version>
         <type>sonar-plugin</type>
+        <exclusions>
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
+          <exclusion>
+            <groupId>org.tmatesoft.svnkit</groupId>
+            <artifactId>svnkit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
@@ -526,18 +546,34 @@
         <artifactId>sonar-java-plugin</artifactId>
         <version>${sonarJava.version}</version>
         <type>sonar-plugin</type>
-        <!--<scope>provided</scope>-->
         <exclusions>
-          <!-- A banned dependency is bring because java-squid is using maven-project:2.07
-          This exclusion should be removed when the plugin will no more used maven-project -->
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
           <exclusion>
             <groupId>classworlds</groupId>
             <artifactId>classworlds</artifactId>
           </exclusion>
-          <!-- The mockito version of the Java plugin is not compatible with the mockito version used in SonarQube -->
           <exclusion>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.java</groupId>
+            <artifactId>java-surefire</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.java</groupId>
+            <artifactId>java-jacoco</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.java</groupId>
+            <artifactId>java-frontend</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.java</groupId>
+            <artifactId>java-checks</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -546,12 +582,40 @@
         <artifactId>sonar-javascript-plugin</artifactId>
         <version>${sonarJavaScript.version}</version>
         <type>sonar-plugin</type>
+        <exclusions>
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
+          <exclusion>
+            <groupId>org.sonarsource.javascript</groupId>
+            <artifactId>javascript-frontend</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.javascript</groupId>
+            <artifactId>javascript-checks</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.dotnet</groupId>
         <artifactId>sonar-csharp-plugin</artifactId>
         <version>${sonarCSharp.version}</version>
         <type>sonar-plugin</type>
+        <exclusions>
+          <exclusion>
+            <groupId>org.sonarsource.dotnet</groupId>
+            <artifactId>sonar-dotnet-tests-library</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.dotnet</groupId>
+            <artifactId>sonar-dotnet-shared-library</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.sslr-squid-bridge</groupId>
+            <artifactId>sslr-squid-bridge</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>net.java.dev.jna</groupId>
