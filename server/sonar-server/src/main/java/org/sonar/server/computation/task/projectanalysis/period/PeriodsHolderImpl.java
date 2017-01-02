@@ -20,12 +20,13 @@
 package org.sonar.server.computation.task.projectanalysis.period;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -64,7 +65,7 @@ public class PeriodsHolderImpl implements PeriodsHolder {
   @Override
   public List<Period> getPeriods() {
     checkHolderIsInitialized();
-    return from(Arrays.asList(periods)).filter(Predicates.notNull()).toList();
+    return Arrays.stream(periods).filter(Objects::nonNull).collect(Collectors.toList());
   }
 
   @Override
@@ -78,7 +79,7 @@ public class PeriodsHolderImpl implements PeriodsHolder {
 
   @Override
   public Period getPeriod(int i) {
-    checkState(hasPeriod(i), "Holder has no Period for index " + i);
+    checkState(hasPeriod(i), "Holder has no Period for index %s", i);
     return this.periods[i - 1];
   }
 

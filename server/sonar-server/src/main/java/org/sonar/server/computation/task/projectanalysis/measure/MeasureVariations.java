@@ -21,14 +21,13 @@ package org.sonar.server.computation.task.projectanalysis.measure;
 
 import com.google.common.base.MoreObjects;
 import java.util.Arrays;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
 
 @Immutable
 public final class MeasureVariations {
@@ -38,7 +37,7 @@ public final class MeasureVariations {
 
   public MeasureVariations(Double... variations) {
     checkArgument(variations.length <= 5, "There can not be more than 5 variations");
-    checkArgument(!from(Arrays.asList(variations)).filter(notNull()).isEmpty(), "There must be at least one variation");
+    checkArgument(Arrays.stream(variations).anyMatch(Objects::nonNull), "There must be at least one variation");
     for (Double variation : variations) {
       checkArgument(variation == null || !Double.isNaN(variation), NAN_ERROR_MESSAGE);
     }
@@ -58,7 +57,7 @@ public final class MeasureVariations {
 
     public Builder setVariation(Period period, double variation) {
       int arrayIndex = period.getIndex() - 1;
-      checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", period.getIndex()));
+      checkState(variations[arrayIndex] == null, "Variation for Period %s has already been set", period.getIndex());
       checkArgument(!Double.isNaN(variation), NAN_ERROR_MESSAGE);
       variations[arrayIndex] = variation;
       return this;

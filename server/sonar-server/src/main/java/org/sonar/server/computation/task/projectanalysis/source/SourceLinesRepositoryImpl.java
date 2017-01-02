@@ -44,7 +44,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
     Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(file.getReportAttributes().getRef());
 
-    checkState(linesIteratorOptional.isPresent(), String.format("File '%s' has no source code", file));
+    checkState(linesIteratorOptional.isPresent(), "File '%s' has no source code", file);
     int numberOfLines = reportReader.readComponent(file.getReportAttributes().getRef()).getLines();
     CloseableIterator<String> lineIterator = linesIteratorOptional.get();
 
@@ -59,7 +59,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
     private final int numberOfLines;
     private int currentLine = 0;
 
-    public ComponentLinesCloseableIterator(Component file, CloseableIterator<String> lineIterator, int numberOfLines) {
+    private ComponentLinesCloseableIterator(Component file, CloseableIterator<String> lineIterator, int numberOfLines) {
       this.file = file;
       this.delegate = lineIterator;
       this.numberOfLines = numberOfLines;

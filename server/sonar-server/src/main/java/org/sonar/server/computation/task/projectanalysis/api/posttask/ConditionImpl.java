@@ -163,7 +163,7 @@ class ConditionImpl implements QualityGate.Condition {
 
   @Override
   public String getValue() {
-    checkState(status != NO_VALUE, "There is no value when status is " + NO_VALUE);
+    checkState(status != NO_VALUE, "There is no value when status is %s", NO_VALUE);
 
     return value;
   }

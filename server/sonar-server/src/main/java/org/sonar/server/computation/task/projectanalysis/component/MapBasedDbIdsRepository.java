@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.format;
 
 /**
  * Cache of database ids for components (component id and snapshot id) based in Maps.
@@ -47,7 +46,7 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
     T ref = componentToKey.apply(component);
     Long existingComponentId = componentIdsByRef.get(ref);
     checkState(existingComponentId == null,
-      format("Component id '%s' is already registered in repository for Component '%s', can not set new id '%s'", existingComponentId, component.getKey(), componentId));
+      "Component id '%s' is already registered in repository for Component '%s', can not set new id '%s'", existingComponentId, component.getKey(), componentId);
     componentIdsByRef.put(ref, componentId);
     return this;
   }
@@ -56,14 +55,14 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   public long getComponentId(Component component) {
     T ref = componentToKey.apply(component);
     Long componentId = componentIdsByRef.get(ref);
-    checkState(componentId != null, format("No component id registered in repository for Component '%s'", component.getKey()));
+    checkState(componentId != null, "No component id registered in repository for Component '%s'", component.getKey());
     return componentId;
   }
 
   @Override
   public DbIdsRepository setDeveloperId(Developer developer, long developerId) {
     Long existingId = developerIdsByKey.get(developer);
-    checkState(existingId == null, format("Id '%s' is already registered in repository for Developer '%s', can not set new id '%s'", existingId, developer, developerId));
+    checkState(existingId == null, "Id '%s' is already registered in repository for Developer '%s', can not set new id '%s'", existingId, developer, developerId);
     developerIdsByKey.put(developer, developerId);
     return this;
   }
@@ -71,7 +70,7 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   @Override
   public long getDeveloperId(Developer developer) {
     Long devId = developerIdsByKey.get(developer);
-    checkState(devId != null, format("No id registered in repository for Developer '%s'", developer));
+    checkState(devId != null, "No id registered in repository for Developer '%s'", developer);
     return devId;
   }
 }

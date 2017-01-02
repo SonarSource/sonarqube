@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.coverage.internal;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.SortedMap;
@@ -30,6 +29,9 @@ import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
@@ -62,7 +64,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public NewCoverage ofType(CoverageType type) {
-    Preconditions.checkNotNull(type, "type can't be null");
+    checkNotNull(type, "type can't be null");
     this.type = type;
     return this;
   }
@@ -86,12 +88,12 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   }
 
   private void validateLine(int line) {
-    Preconditions.checkState(line <= inputFile.lines(), String.format("Line %d is out of range in the file %s (lines: %d)", line, inputFile.relativePath(), inputFile.lines()));
-    Preconditions.checkState(line > 0, "Line number must be strictly positive: " + line);
+    checkState(line <= inputFile.lines(), "Line %s is out of range in the file %s (lines: %s)", line, inputFile.relativePath(), inputFile.lines());
+    checkState(line > 0, "Line number must be strictly positive: %s", line);
   }
 
   private void validateFile() {
-    Preconditions.checkNotNull(inputFile, "Call onFile() first");
+    checkNotNull(inputFile, "Call onFile() first");
   }
 
   @Override

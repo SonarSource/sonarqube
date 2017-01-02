@@ -431,9 +431,10 @@ public interface RulesDefinition {
     private void registerRepository(NewRepositoryImpl newRepository) {
       Repository existing = repositoriesByKey.get(newRepository.key());
       if (existing != null) {
-        checkState(existing.language().equals(newRepository.language),
+        String existingLanguage = existing.language();
+        checkState(existingLanguage.equals(newRepository.language),
           "The rule repository '%s' must not be defined for two different languages: %s and %s",
-          newRepository.key, existing.language(), newRepository.language);
+          newRepository.key, existingLanguage, newRepository.language);
       }
       repositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository, existing));
     }

@@ -19,21 +19,21 @@
  */
 package org.sonar.server.computation.task.projectanalysis.scm;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
 
 /**
  * ScmInfo implementation based on the lines stored in DB
@@ -49,16 +49,16 @@ class DbScmInfo implements ScmInfo {
 
   static Optional<ScmInfo> create(Component component, Iterable<DbFileSources.Line> lines) {
     LineToChangeset lineToChangeset = new LineToChangeset();
-    List<Changeset> lineChangesets = from(lines)
-      .transform(lineToChangeset)
-      .filter(notNull())
-      .toList();
+    List<Changeset> lineChangesets = StreamSupport.stream(lines.spliterator(), false)
+      .map(lineToChangeset)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
     if (lineChangesets.isEmpty()) {
       return Optional.absent();
     }
     checkState(!lineToChangeset.isEncounteredLineWithoutScmInfo(),
-      format("Partial scm information stored in DB for component '%s'. Not all lines have SCM info. Can not proceed", component));
-    return Optional.<ScmInfo>of(new DbScmInfo(new ScmInfoImpl(lineChangesets)));
+      "Partial scm information stored in DB for component '%s'. Not all lines have SCM info. Can not proceed", component);
+    return Optional.of(new DbScmInfo(new ScmInfoImpl(lineChangesets)));
   }
 
   @Override
@@ -95,23 +95,18 @@ class DbScmInfo implements ScmInfo {
     public Changeset apply(@Nonnull DbFileSources.Line input) {
       if (input.hasScmRevision() && input.hasScmDate()) {
         String revision = input.getScmRevision();
-        Changeset changeset = cache.get(revision);
-        if (changeset == null) {
-          changeset = builder
-              .setRevision(revision)
-              .setAuthor(input.hasScmAuthor() ? input.getScmAuthor() : null)
-              .setDate(input.getScmDate())
-              .build();
-          cache.put(revision, changeset);
-        }
-        return changeset;
+        return cache.computeIfAbsent(revision, k -> builder
+          .setRevision(revision)
+          .setAuthor(input.hasScmAuthor() ? input.getScmAuthor() : null)
+          .setDate(input.getScmDate())
+          .build());
       }
 
       this.encounteredLineWithoutScmInfo = true;
       return null;
     }
 
-    public boolean isEncounteredLineWithoutScmInfo() {
+    boolean isEncounteredLineWithoutScmInfo() {
       return encounteredLineWithoutScmInfo;
     }
   }

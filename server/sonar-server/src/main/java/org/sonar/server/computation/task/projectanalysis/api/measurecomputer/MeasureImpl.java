@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Measure;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.ValueType.BOOLEAN;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.ValueType.DOUBLE;
@@ -41,7 +42,7 @@ public class MeasureImpl implements Measure {
 
   public MeasureImpl(org.sonar.server.computation.task.projectanalysis.measure.Measure measure) {
     this.measure = requireNonNull(measure, "Measure couldn't be null");
-    checkState(ALLOWED_VALUE_TYPES.contains(measure.getValueType()), String.format("Only following types are allowed %s", ALLOWED_VALUE_TYPES));
+    checkState(ALLOWED_VALUE_TYPES.contains(measure.getValueType()), "Only following types are allowed %s", ALLOWED_VALUE_TYPES);
   }
 
   @Override
@@ -75,10 +76,11 @@ public class MeasureImpl implements Measure {
   }
 
   private void checkValueType(org.sonar.server.computation.task.projectanalysis.measure.Measure.ValueType expected) {
-    checkState(measure.getValueType() == expected, String.format(
-      "Value can not be converted to %s because current value type is a %s",
-      expected.toString().toLowerCase(Locale.US),
-      measure.getValueType()));
+    if (measure.getValueType() != expected) {
+      throw new IllegalStateException(format("Value can not be converted to %s because current value type is a %s",
+        expected.toString().toLowerCase(Locale.US),
+        measure.getValueType()));
+    }
   }
 
   @Override

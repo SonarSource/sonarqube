@@ -183,7 +183,7 @@ public class EsSettings implements EsSettingsMBean {
     // If we're collecting indexing data send them to the Marvel host(s)
     if (!marvels.isEmpty()) {
       String hosts = StringUtils.join(marvels, ",");
-      LOGGER.info(String.format("Elasticsearch Marvel is enabled for %s", hosts));
+      LOGGER.info("Elasticsearch Marvel is enabled for %s", hosts);
       builder.put("marvel.agent.exporter.es.hosts", hosts);
     }
   }

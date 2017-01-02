@@ -36,9 +36,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
-import org.sonar.server.computation.task.projectanalysis.measure.MutableMeasureComputersHolder;
 import org.sonar.server.computation.task.projectanalysis.api.measurecomputer.MeasureComputerDefinitionImpl;
 import org.sonar.server.computation.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
+import org.sonar.server.computation.task.projectanalysis.measure.MutableMeasureComputersHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -111,7 +111,7 @@ public class LoadMeasureComputersStep implements ComputationStep {
   }
 
   private static void feedComputersByMetric(List<MeasureComputerWrapper> wrappers, Map<String, MeasureComputerWrapper> computersByOutputMetric,
-                                            Map<String, MeasureComputerWrapper> computersByInputMetric) {
+    Map<String, MeasureComputerWrapper> computersByInputMetric) {
     for (MeasureComputerWrapper computer : wrappers) {
       for (String outputMetric : computer.getDefinition().getOutputMetrics()) {
         computersByOutputMetric.put(outputMetric, computer);
@@ -205,7 +205,7 @@ public class LoadMeasureComputersStep implements ComputationStep {
     @Override
     public boolean apply(@Nonnull String metric) {
       checkState(pluginMetricKeys.contains(metric) || CORE_METRIC_KEYS.contains(metric),
-        String.format("Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric));
+        "Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric);
       return true;
     }
   }
@@ -222,8 +222,8 @@ public class LoadMeasureComputersStep implements ComputationStep {
   private class ValidateOutputMetric implements Predicate<String> {
     @Override
     public boolean apply(@Nonnull String metric) {
-      checkState(!CORE_METRIC_KEYS.contains(metric), String.format("Metric '%s' cannot be used as an output metric as it's a core metric", metric));
-      checkState(pluginMetricKeys.contains(metric), String.format("Metric '%s' cannot be used as an output metric as no plugin declare this metric", metric));
+      checkState(!CORE_METRIC_KEYS.contains(metric), "Metric '%s' cannot be used as an output metric as it's a core metric", metric);
+      checkState(pluginMetricKeys.contains(metric), "Metric '%s' cannot be used as an output metric as no plugin declare this metric", metric);
       return true;
     }
   }
@@ -232,10 +232,10 @@ public class LoadMeasureComputersStep implements ComputationStep {
     private Set<String> allOutputMetrics = new HashSet<>();
 
     @Override
-    public boolean apply(@Nonnull MeasureComputerWrapper wrapper ) {
+    public boolean apply(@Nonnull MeasureComputerWrapper wrapper) {
       for (String outputMetric : wrapper.getDefinition().getOutputMetrics()) {
         checkState(!allOutputMetrics.contains(outputMetric),
-          String.format("Output metric '%s' is already defined by another measure computer '%s'", outputMetric, wrapper.getComputer()));
+          "Output metric '%s' is already defined by another measure computer '%s'", outputMetric, wrapper.getComputer());
         allOutputMetrics.add(outputMetric);
       }
       return true;
