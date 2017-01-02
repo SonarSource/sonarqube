@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import static java.lang.String.format;
-
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,6 +28,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static java.lang.String.format;
 
 public class RoutesFilter implements Filter {
 
@@ -43,10 +43,10 @@ public class RoutesFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     String path = request.getRequestURI().replaceFirst(request.getContextPath(), EMPTY);
     if (path.startsWith(BATCH_WS + "/") && path.endsWith(".jar")) {
-      // Scanner is still using /batch/file.jar url
+      // Old scanners were using /batch/file.jar url (see SCANNERAPI-167)
       response.sendRedirect(format("%s%s/file?name=%s", request.getContextPath(), BATCH_WS, path.replace(BATCH_WS + "/", EMPTY)));
     } else if ("/batch_bootstrap/index".equals(path)) {
-      // Scanner is still using /batch_bootstrap url
+      // Old scanners were using /batch_bootstrap url (see SCANNERAPI-167)
       response.sendRedirect(format("%s%s/index", request.getContextPath(), BATCH_WS));
     } else if (API_SOURCES_WS.equals(path)) {
       // SONAR-7852 /api/sources?resource url is still used

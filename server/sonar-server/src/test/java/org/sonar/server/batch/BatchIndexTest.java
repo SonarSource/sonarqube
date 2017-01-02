@@ -51,7 +51,7 @@ public class BatchIndexTest {
     File homeDir = temp.newFolder();
     when(fs.getHomeDir()).thenReturn(homeDir);
 
-    File batchDir = new File(homeDir, "lib/batch");
+    File batchDir = new File(homeDir, "lib/scanner");
     FileUtils.forceMkdir(batchDir);
     jar = new File(batchDir, "sonar-batch.jar");
     FileUtils.writeStringToFile(new File(batchDir, "sonar-batch.jar"), "foo");
