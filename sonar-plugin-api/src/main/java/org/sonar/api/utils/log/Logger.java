@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.log;
 
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 /**
@@ -60,6 +61,23 @@ public interface Logger {
   void trace(String msg);
 
   /**
+   * Logs a TRACE message, which is only to be constructed if the logging level
+   * is such that the message will actually be logged.
+   * <p>
+   * TRACE messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * They can significantly slow down performances. The standard use-case is logging of
+   * SQL and Elasticsearch requests.
+   * @param msgSupplier A function, which when called, produces the desired log message
+   * @since 6.3
+   */
+  default void trace(Supplier<String> msgSupplier) {
+    if (isTraceEnabled()) {
+      trace(msgSupplier.get());
+    }
+  }
+
+  /**
    * Logs an TRACE parameterized message according to the specified format and argument. Example:
    * <code>trace("Value is {}", value)</code>
    * <p>
@@ -99,10 +117,27 @@ public interface Logger {
   boolean isDebugEnabled();
 
   /**
-   * Logs a DEBUG message. Debug messages must
+   * Logs a DEBUG message. 
+   * <p>
+   * DEBUG messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
   void debug(String msg);
+
+  /**
+   * Logs a DEBUG message which is only to be constructed if the logging level
+   * is such that the message will actually be logged.
+   * <p>
+   * DEBUG messages must
+   * be valuable for diagnosing production problems. They must not be used for development debugging.
+   * @param msgSupplier A function, which when called, produces the desired log message
+   * @since 6.3
+   */
+  default void debug(Supplier<String> msgSupplier) {
+    if (isDebugEnabled()) {
+      debug(msgSupplier.get());
+    }
+  }
 
   /**
    * Logs an DEBUG parameterized message according to the specified format and argument. Example:
