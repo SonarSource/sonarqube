@@ -27,7 +27,6 @@ public class ComponentsWsModule extends Module {
     add(
       ResourcesWs.class,
       ComponentsWs.class,
-      EventsWs.class,
       // actions
       AppAction.class,
       SearchAction.class,
