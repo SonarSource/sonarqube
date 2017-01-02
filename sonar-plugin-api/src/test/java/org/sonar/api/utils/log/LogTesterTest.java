@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.log;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,5 +63,57 @@ public class LogTesterTest {
 
     underTest.after();
     assertThat(LogInterceptors.get()).isSameAs(NullInterceptor.NULL_INSTANCE);
+  }
+
+  @Test
+  public void use_suppliers() throws Throwable {
+    // when LogTester is used, then info logs are enabled by default
+    underTest.before();
+    AtomicBoolean touchedTrace = new AtomicBoolean();
+    AtomicBoolean touchedDebug = new AtomicBoolean();
+    Loggers.get("logger1").trace(() -> {
+      touchedTrace.set(true);
+      return "a trace information";
+    });
+    Loggers.get("logger1").debug(() -> {
+      touchedDebug.set(true);
+      return "a debug information";
+    });
+
+    assertThat(underTest.logs()).isEmpty();
+    assertThat(touchedTrace.get()).isFalse();
+    assertThat(touchedDebug.get()).isFalse();
+
+    // change level to DEBUG
+    underTest.setLevel(LoggerLevel.DEBUG);
+    Loggers.get("logger1").trace(() -> {
+      touchedTrace.set(true);
+      return "a trace information";
+    });
+    Loggers.get("logger1").debug(() -> {
+      touchedDebug.set(true);
+      return "a debug information";
+    });
+
+    assertThat(underTest.logs()).containsOnly("a debug information");
+    assertThat(touchedTrace.get()).isFalse();
+    assertThat(touchedDebug.get()).isTrue();
+    touchedDebug.set(false);
+    underTest.logs().clear();
+
+    // change level to TRACE
+    underTest.setLevel(LoggerLevel.TRACE);
+    Loggers.get("logger1").trace(() -> {
+      touchedTrace.set(true);
+      return "a trace information";
+    });
+    Loggers.get("logger1").debug(() -> {
+      touchedDebug.set(true);
+      return "a debug information";
+    });
+
+    assertThat(underTest.logs()).containsExactly("a trace information", "a debug information");
+    assertThat(touchedTrace.get()).isTrue();
+    assertThat(touchedDebug.get()).isTrue();
   }
 }
