@@ -104,17 +104,14 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private ValuesWsResponse doHandle(Request request) {
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = toWsRequest(request);
-      Optional<ComponentDto> component = getComponent(dbSession, valuesRequest);
+      Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
       checkAdminPermission(component);
       Set<String> keys = new HashSet<>(valuesRequest.getKeys());
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -126,7 +123,7 @@ public class ValuesAction implements SettingsWsAction {
       .build();
   }
 
-  private Optional<ComponentDto> getComponent(DbSession dbSession, ValuesRequest valuesRequest) {
+  private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
     String componentId = valuesRequest.getComponentId();
     String componentKey = valuesRequest.getComponentKey();
     if (componentId != null || componentKey != null) {
@@ -148,9 +145,7 @@ public class ValuesAction implements SettingsWsAction {
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultSettings(keys));
     settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
-    if (component.isPresent()) {
-      settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, component.get()).values());
-    }
+    component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings;
   }
 
@@ -201,12 +196,7 @@ public class ValuesAction implements SettingsWsAction {
     }
 
     private Settings.Setting.Builder getOrCreateValueBuilder(String key) {
-      Settings.Setting.Builder valueBuilder = settingsBuilderByKey.get(key);
-      if (valueBuilder == null) {
-        valueBuilder = valuesWsBuilder.addSettingsBuilder().setKey(key);
-        settingsBuilderByKey.put(key, valueBuilder);
-      }
-      return valueBuilder;
+      return settingsBuilderByKey.computeIfAbsent(key, k -> valuesWsBuilder.addSettingsBuilder().setKey(key));
     }
 
     private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
