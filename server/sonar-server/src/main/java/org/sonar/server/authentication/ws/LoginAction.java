@@ -102,7 +102,7 @@ public class LoginAction extends ServletFilter {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.FORM))
         .setLogin(login)
-        .setMessage("empty login and/or password")
+        .setMessage("Empty login and/or password")
         .build();
     }
     return credentialsAuthenticator.authenticate(login, password, request, Method.FORM);

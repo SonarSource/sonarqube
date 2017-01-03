@@ -88,7 +88,7 @@ public class UserIdentityAuthenticator {
       throw AuthenticationException.newBuilder()
         .setSource(source)
         .setLogin(user.getLogin())
-        .setMessage("user signup disabled for provider '" + provider.getKey() + "'")
+        .setMessage("User signup disabled for provider '" + provider.getKey() + "'")
         .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
         .build();
     }
@@ -98,7 +98,7 @@ public class UserIdentityAuthenticator {
       throw AuthenticationException.newBuilder()
         .setSource(source)
         .setLogin(user.getLogin())
-        .setMessage(format("email '%s' is already used", email))
+        .setMessage(format("Email '%s' is already used", email))
         .setPublicMessage(format(
           "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
           email))

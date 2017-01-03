@@ -81,7 +81,7 @@ public class JwtCsrfVerifierTest {
     mockPostJavaWsRequest();
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("wrong CSFR in request");
+    thrown.expectMessage("Wrong CSFR in request");
     underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
@@ -91,7 +91,7 @@ public class JwtCsrfVerifierTest {
     mockPostJavaWsRequest();
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("missing reference CSRF value");
+    thrown.expectMessage("Missing reference CSRF value");
     underTest.verifyState(request, null, LOGIN);
   }
 
@@ -101,7 +101,7 @@ public class JwtCsrfVerifierTest {
     mockPostJavaWsRequest();
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("missing reference CSRF value");
+    thrown.expectMessage("Missing reference CSRF value");
     underTest.verifyState(request, "", LOGIN);
   }
 
@@ -112,7 +112,7 @@ public class JwtCsrfVerifierTest {
     when(request.getMethod()).thenReturn("POST");
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("wrong CSFR in request");
+    thrown.expectMessage("Wrong CSFR in request");
     underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
@@ -123,7 +123,7 @@ public class JwtCsrfVerifierTest {
     when(request.getMethod()).thenReturn("PUT");
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("wrong CSFR in request");
+    thrown.expectMessage("Wrong CSFR in request");
     underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 
@@ -134,7 +134,7 @@ public class JwtCsrfVerifierTest {
     when(request.getMethod()).thenReturn("DELETE");
 
     thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("wrong CSFR in request");
+    thrown.expectMessage("Wrong CSFR in request");
     underTest.verifyState(request, CSRF_STATE, LOGIN);
   }
 

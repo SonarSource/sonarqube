@@ -105,7 +105,7 @@ public class RealmAuthenticator implements Startable {
         throw AuthenticationException.newBuilder()
           .setSource(realmEventSource(method))
           .setLogin(userLogin)
-          .setMessage("realm returned authenticate=false")
+          .setMessage("Realm returned authenticate=false")
           .build();
       }
       UserDto userDto = synchronize(userLogin, details, request, method);

@@ -80,10 +80,10 @@ public class JwtCsrfVerifier {
   @CheckForNull
   private static String checkCsrf(@Nullable String csrfState, @Nullable String stateInHeader) {
     if (isBlank(csrfState)) {
-      return "missing reference CSRF value";
+      return "Missing reference CSRF value";
     }
     if (!StringUtils.equals(csrfState, stateInHeader)) {
-      return "wrong CSFR in request";
+      return "Wrong CSFR in request";
     }
     return null;
   }
