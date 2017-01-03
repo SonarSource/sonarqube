@@ -25,10 +25,8 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ValuesRequest {
 
@@ -89,7 +87,6 @@ public class ValuesRequest {
     }
 
     public ValuesRequest build() {
-      checkArgument(!keys.isEmpty(), "'%s' cannot be empty", PARAM_KEYS);
       return new ValuesRequest(this);
     }
   }

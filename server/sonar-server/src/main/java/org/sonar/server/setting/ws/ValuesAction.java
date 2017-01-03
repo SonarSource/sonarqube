@@ -20,6 +20,7 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,12 +32,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,8 +49,13 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 import org.sonarqube.ws.client.setting.ValuesRequest;
 
 import static java.lang.String.format;
+import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
+import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
+import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
@@ -63,8 +69,12 @@ public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
-  private static final String SECURED_SUFFIX_KEY = ".secured";
-  private static final String LICENSE = ".license";
+
+  private static final String SECURED_SUFFIX = ".secured";
+  private static final String LICENSE_SUFFIX = ".license.secured";
+  private static final String LICENSE_HASH_SUFFIX = ".licenseHash.secured";
+
+  private static final Set<String> ADDITIONAL_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -88,7 +98,7 @@ public class ValuesAction implements SettingsWsAction {
         "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires 'Browse' permission when a component is specified<br/>",
         "To access licensed settings, authentication is required<br/>" +
-        "To access secured settings, one of the following permissions is required: " +
+          "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
           "<li>'Administer System'</li>" +
           "<li>'Administer' rights on the specified component</li>" +
@@ -101,7 +111,6 @@ public class ValuesAction implements SettingsWsAction {
     addComponentParameters(action);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
-      .setRequired(true)
       .setExampleValue("sonar.technicalDebt.hoursInDay,sonar.dbcleaner.cleanDirectory");
   }
 
@@ -114,7 +123,8 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = toWsRequest(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      Set<String> keys = new HashSet<>(valuesRequest.getKeys());
+
+      Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
@@ -122,11 +132,32 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private static ValuesRequest toWsRequest(Request request) {
-    return ValuesRequest.builder()
-      .setKeys(request.mandatoryParamAsStrings(PARAM_KEYS))
+    ValuesRequest.Builder builder = ValuesRequest.builder()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
-      .build();
+      .setComponentKey(request.param(PARAM_COMPONENT_KEY));
+    if (request.hasParam(PARAM_KEYS)) {
+      builder.setKeys(request.paramAsStrings(PARAM_KEYS));
+    }
+    return builder.build();
+  }
+
+  private Set<String> loadKeys(ValuesRequest valuesRequest) {
+    List<String> keys = valuesRequest.getKeys();
+    if (!keys.isEmpty()) {
+      return new HashSet<>(keys);
+    }
+    return concat(
+      concat(loadLicenseHashKeys(), propertyDefinitions.getAll().stream().map(PropertyDefinition::key)),
+      ADDITIONAL_KEYS.stream())
+        .collect(Collectors.toSet());
+  }
+
+  private Stream<String> loadLicenseHashKeys() {
+    return propertyDefinitions.getAll()
+      .stream()
+      .filter(setting -> setting.type().equals(LICENSE))
+      .map(PropertyDefinition::key)
+      .map(setting -> setting.replace(LICENSE_SUFFIX, LICENSE_HASH_SUFFIX));
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
@@ -152,13 +183,17 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private Predicate<Setting> isVisible(Optional<ComponentDto> component) {
-    return setting -> !setting.getKey().endsWith(SECURED_SUFFIX_KEY)
+    return setting -> !setting.getKey().endsWith(SECURED_SUFFIX)
       || hasAdminPermission(component)
-      || (setting.getKey().contains(LICENSE) && userSession.isLoggedIn());
+      || (isLicenseRelated(setting) && userSession.isLoggedIn());
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {
-    return component.isPresent() ? userSession.hasComponentUuidPermission(UserRole.ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
+    return component.isPresent() ? userSession.hasComponentUuidPermission(ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  private static boolean isLicenseRelated(Setting setting) {
+    return setting.getKey().endsWith(LICENSE_SUFFIX) || setting.getKey().endsWith(LICENSE_HASH_SUFFIX);
   }
 
   private List<Setting> loadDefaultSettings(Set<String> keys) {

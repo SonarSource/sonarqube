@@ -20,7 +20,6 @@
 
 package org.sonarqube.ws.client.setting;
 
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,6 +43,15 @@ public class ValuesRequestTest {
   }
 
   @Test
+  public void create_request_with_no_keys() {
+    ValuesRequest result = underTest.build();
+
+    assertThat(result.getComponentId()).isNull();
+    assertThat(result.getComponentKey()).isNull();
+    assertThat(result.getKeys()).isEmpty();
+  }
+
+  @Test
   public void create_request_with_component_id() {
     ValuesRequest result = underTest.setKeys("sonar.debt").setComponentId("projectId").build();
 
@@ -59,23 +67,6 @@ public class ValuesRequestTest {
     assertThat(result.getComponentId()).isNull();
     assertThat(result.getComponentKey()).isEqualTo("projectKey");
     assertThat(result.getKeys()).containsOnly("sonar.debt");
-  }
-
-  @Test
-  public void fail_when_keys_is_null() throws Exception {
-    expectedException.expect(NullPointerException.class);
-    underTest
-      .setKeys((List<String>) null)
-      .setComponentId("projectId")
-      .build();
-  }
-
-  @Test
-  public void fail_when_keys_is_empty() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'keys' cannot be empty");
-
-    underTest.setComponentId("projectId").build();
   }
 
 }

@@ -531,6 +531,55 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_global_settings_from_definitions_when_no_component_and_no_keys() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties();
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+  }
+
+  @Test
+  public void return_project_settings_from_definitions_when_component_and_no_keys() throws Exception {
+    setUserAsProjectAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newComponentPropertyDto(project).setKey("foo").setValue("one"),
+      newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
+      newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"));
+
+    ValuesWsResponse result = executeRequestForProjectProperties();
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+  }
+
+  @Test
+  public void return_additional_settings_specific_for_scanner_when_no_keys() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build());
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("sonar.server_id").setValue("12345"),
+      newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties();
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.startTime", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
   public void fail_when_id_and_key_are_set() throws Exception {
     setAuthenticatedUser();
 
@@ -615,15 +664,17 @@ public class ValuesActionTest {
     return executeRequest(null, null, keys);
   }
 
-  private ValuesWsResponse executeRequest(@Nullable String id, @Nullable String key, String... keys) {
+  private ValuesWsResponse executeRequest(@Nullable String componentId, @Nullable String componentKey, String... keys) {
     TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("keys", COMMA_JOINER.join(keys));
-    if (id != null) {
-      request.setParam("componentId", id);
+      .setMediaType(MediaTypes.PROTOBUF);
+    if (keys.length > 0) {
+      request.setParam("keys", COMMA_JOINER.join(keys));
     }
-    if (key != null) {
-      request.setParam("componentKey", key);
+    if (componentId != null) {
+      request.setParam("componentId", componentId);
+    }
+    if (componentKey != null) {
+      request.setParam("componentKey", componentKey);
     }
     try {
       return ValuesWsResponse.parseFrom(request.execute().getInputStream());
