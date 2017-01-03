@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -49,6 +50,7 @@ import org.sonarqube.ws.client.setting.ValuesRequest;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -61,6 +63,8 @@ public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
+  private static final String SECURED_SUFFIX_KEY = ".secured";
+  private static final String LICENSE = ".license";
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -82,11 +86,14 @@ public class ValuesAction implements SettingsWsAction {
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "Either '%s' or '%s' can be provided, not both.<br> " +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        "Requires 'Browse' permission when a component is specified<br/>",
+        "To access licensed settings, authentication is required<br/>" +
+        "To access secured settings, one of the following permissions is required: " +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified component</li>" +
+          "</ul>",
+        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.1")
       .setInternal(true)
@@ -107,7 +114,6 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = toWsRequest(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      checkAdminPermission(component);
       Set<String> keys = new HashSet<>(valuesRequest.getKeys());
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
@@ -127,17 +133,11 @@ public class ValuesAction implements SettingsWsAction {
     String componentId = valuesRequest.getComponentId();
     String componentKey = valuesRequest.getComponentKey();
     if (componentId != null || componentKey != null) {
-      return Optional.of(componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY));
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY);
+      userSession.checkComponentUuidPermission(USER, component.projectUuid());
+      return Optional.of(component);
     }
     return Optional.empty();
-  }
-
-  private void checkAdminPermission(Optional<ComponentDto> component) {
-    if (component.isPresent()) {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.get().uuid());
-    } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-    }
   }
 
   private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
@@ -146,7 +146,19 @@ public class ValuesAction implements SettingsWsAction {
     settings.addAll(loadDefaultSettings(keys));
     settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
     component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
-    return settings;
+    return settings.stream()
+      .filter(isVisible(component))
+      .collect(Collectors.toList());
+  }
+
+  private Predicate<Setting> isVisible(Optional<ComponentDto> component) {
+    return setting -> !setting.getKey().endsWith(SECURED_SUFFIX_KEY)
+      || hasAdminPermission(component)
+      || (setting.getKey().contains(LICENSE) && userSession.isLoggedIn());
+  }
+
+  private boolean hasAdminPermission(Optional<ComponentDto> component) {
+    return component.isPresent() ? userSession.hasComponentUuidPermission(UserRole.ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private List<Setting> loadDefaultSettings(Set<String> keys) {

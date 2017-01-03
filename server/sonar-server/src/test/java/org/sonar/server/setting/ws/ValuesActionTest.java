@@ -35,7 +35,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -53,7 +52,9 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -92,7 +93,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_simple_value() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -111,14 +112,12 @@ public class ValuesActionTest {
 
   @Test
   public void return_multi_values() throws Exception {
-    setUserAsSystemAdmin();
-
+    setAuthenticatedUser();
     // Property never defined, default value is returned
     definitions.addComponent(PropertyDefinition.builder("default")
       .multiValues(true)
       .defaultValue("one,two")
       .build());
-
     // Property defined at global level
     definitions.addComponent(PropertyDefinition.builder("global")
       .multiValues(true)
@@ -143,7 +142,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_multi_value_with_coma() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
 
@@ -157,7 +156,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_property_set() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -179,7 +178,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_property_set_for_component() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -201,7 +200,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_default_values() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
@@ -215,7 +214,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_global_values() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       // The property is overriding default value
@@ -229,7 +228,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_project_values() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"),
@@ -244,7 +243,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_is_inherited_to_true_when_property_is_defined_only_at_global_level() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     // The property is not defined on project
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("property").setValue("one"));
@@ -257,7 +256,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_values_even_if_no_property_definition() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("globalPropertyWithoutDefinition");
@@ -270,7 +269,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_empty_when_property_def_exists_but_no_value() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -282,7 +281,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_nothing_when_unknown_keys() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
@@ -296,7 +295,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_module_values() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
@@ -312,7 +311,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_inherited_values_on_module() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
@@ -335,7 +334,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_inherited_values_on_global_setting() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build()));
@@ -351,7 +350,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_value() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -369,7 +368,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_values() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -387,7 +386,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_field_values() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponent(PropertyDefinition
@@ -409,7 +408,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_no_parent_value() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -433,7 +432,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_value_when_no_definition() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("global"),
@@ -446,7 +445,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_value_of_deprecated_key() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .deprecatedKey("deprecated")
@@ -462,8 +461,112 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void test_example_json_response() {
+  public void does_not_returned_secured_settings_when_not_authenticated() throws Exception {
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured");
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo");
+  }
+
+  @Test
+  public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_system_admin() throws Exception {
     setUserAsSystemAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_project_admin() throws Exception {
+    setUserAsProjectAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newComponentPropertyDto(project).setKey("foo").setValue("one"),
+      newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
+      newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
+      newComponentPropertyDto(project).setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    ValuesWsResponse result = executeRequestForProjectProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
+  public void fail_when_id_and_key_are_set() throws Exception {
+    setAuthenticatedUser();
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    executeRequest(project.uuid(), project.key());
+  }
+
+  @Test
+  public void fail_when_user_has_not_project_browse_permission() throws Exception {
+    userSession.login("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+
+    expectedException.expect(ForbiddenException.class);
+
+    executeRequest(project.uuid(), null, "foo");
+  }
+
+  @Test
+  public void fail_when_deprecated_key_and_new_key_are_used() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .deprecatedKey("deprecated")
+      .build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
+
+    executeRequestForGlobalProperties("foo", "deprecated");
+  }
+
+  @Test
+  public void test_example_json_response() {
+    setAuthenticatedUser();
     definitions.addComponent(PropertyDefinition
       .builder("sonar.test.jira")
       .defaultValue("abc")
@@ -488,50 +591,6 @@ public class ValuesActionTest {
       .getInput();
 
     JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
-  }
-
-  @Test
-  public void fail_when_id_and_key_are_set() throws Exception {
-    setUserAsProjectAdmin();
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    executeRequest(project.uuid(), project.key());
-  }
-
-  @Test
-  public void fail_when_not_system_admin() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-    definitions.addComponent(PropertyDefinition.builder("foo").build());
-
-    expectedException.expect(ForbiddenException.class);
-
-    executeRequestForGlobalProperties("foo");
-  }
-
-  @Test
-  public void fail_when_not_project_admin() throws Exception {
-    userSession.login("project-admin").addProjectUuidPermissions(USER, project.uuid());
-    definitions.addComponent(PropertyDefinition.builder("foo").build());
-
-    expectedException.expect(ForbiddenException.class);
-
-    executeRequest(project.uuid(), null, "foo");
-  }
-
-  @Test
-  public void fail_when_deprecated_key_and_new_key_are_used() throws Exception {
-    setUserAsSystemAdmin();
-    definitions.addComponent(PropertyDefinition
-      .builder("foo")
-      .deprecatedKey("deprecated")
-      .build());
-    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
-
-    executeRequestForGlobalProperties("foo", "deprecated");
   }
 
   @Test
@@ -573,12 +632,22 @@ public class ValuesActionTest {
     }
   }
 
+  private void setAuthenticatedUser() {
+    userSession.login("user");
+  }
+
+  private void setUserWithBrowsePermissionOnProject() {
+    userSession.login("user").addProjectUuidPermissions(USER, project.uuid());
+  }
+
   private void setUserAsSystemAdmin() {
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   private void setUserAsProjectAdmin() {
-    userSession.login("project-admin").addProjectUuidPermissions(ADMIN, project.uuid());
+    userSession.login("project-admin")
+      .addProjectUuidPermissions(ADMIN, project.uuid())
+      .addProjectUuidPermissions(USER, project.uuid());
   }
 
   private void assertSetting(Settings.Setting setting, String expectedKey, String expectedValue, boolean expectedInherited) {
