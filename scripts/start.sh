@@ -1,15 +1,25 @@
 #!/bin/bash
 ###############################
-# usage: start.sh [ -p ARG ]
+# usage: start.sh [ -p ARG ] [ -l ARG ]
 #  -p ARG: name(s) of patch separated by colon (name of patch is filename without extension)
+#  -l ARG: name of log file to display.
+#          valid values are 'all', 'sonar', 'web', 'ce' and 'es' (case insensitive).
+#          default value is 'all'.
 ###############################
+
+set -euo pipefail
 
 ROOT=$(pwd)
 
+source "$ROOT"/scripts/logs.sh
+
 PATCHES=""
-while getopts ":p:" opt; do
+LOG="$DEFAULT_LOG"
+while getopts ":p:l:" opt; do
   case "$opt" in
     p) PATCHES=$OPTARG
+       ;;
+    l) LOG=${OPTARG:=$DEFAULT_LOG}
        ;;
     \?)
       echo "Unsupported option $OPTARG" >&2
@@ -18,7 +28,9 @@ while getopts ":p:" opt; do
   esac
 done
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
+checkLogArgument "$LOG"
+
+if [[ "${OSTYPE:-}" == "darwin"* ]]; then
   OS='macosx-universal-64'
 else
   OS='linux-x86-64'
@@ -26,7 +38,7 @@ fi
 
 if ! ls sonar-application/target/sonarqube-*.zip &> /dev/null; then
   echo 'Sources are not built'
-  ./build.sh
+  "$ROOT"/build.sh
 fi
 
 cd sonar-application/target/
@@ -36,8 +48,6 @@ if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
 fi
 cd sonarqube-*
 
-# from that point on, strict bash
-set -euo pipefail
 SQ_HOME=$(pwd)
 cd "$ROOT"
 
@@ -55,4 +65,5 @@ fi
 
 "$SQ_EXEC" start
 sleep 1
-tail -fn 100 "$SQ_HOME"/logs/sonar.log
+doTail "$LOG"
+
