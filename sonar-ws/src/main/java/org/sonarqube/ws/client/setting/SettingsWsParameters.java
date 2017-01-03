@@ -28,8 +28,7 @@ public class SettingsWsParameters {
   public static final String ACTION_SET = "set";
   public static final String ACTION_RESET = "reset";
 
-  public static final String PARAM_COMPONENT_ID = "componentId";
-  public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_KEYS = "keys";
   public static final String PARAM_KEY = "key";
   public static final String PARAM_VALUE = "value";

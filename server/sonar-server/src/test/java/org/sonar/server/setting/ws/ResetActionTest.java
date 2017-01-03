@@ -217,10 +217,10 @@ public class ResetActionTest {
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNull();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -283,26 +283,23 @@ public class ResetActionTest {
   }
 
   private void executeRequestOnGlobalSetting(String key) {
-    executeRequest(key, null, null);
+    executeRequest(key, null);
   }
 
   private void executeRequestOnProjectSetting(String key) {
-    executeRequest(key, project.uuid(), null);
+    executeRequest(key, project.key());
   }
 
   private void executeRequestOnComponentSetting(String key, ComponentDto componentDto) {
-    executeRequest(key, componentDto.uuid(), null);
+    executeRequest(key, componentDto.key());
   }
 
-  private void executeRequest(String key, @Nullable String componentId, @Nullable String componentKey) {
+  private void executeRequest(String key, @Nullable String componentKey) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("keys", key);
-    if (componentId != null) {
-      request.setParam("componentId", componentId);
-    }
     if (componentKey != null) {
-      request.setParam("componentKey", componentKey);
+      request.setParam("component", componentKey);
     }
     request.execute();
   }

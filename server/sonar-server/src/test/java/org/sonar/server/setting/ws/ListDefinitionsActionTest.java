@@ -252,20 +252,7 @@ public class ListDefinitionsActionTest {
       .onQualifiers(PROJECT)
       .build());
 
-    ListDefinitionsWsResponse result = executeRequest(null, project.key());
-
-    assertThat(result.getDefinitionsList()).hasSize(1);
-  }
-
-  @Test
-  public void return_project_settings_def_by_project_id() {
-    setUserAsProjectAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition
-      .builder("foo")
-      .onQualifiers(PROJECT)
-      .build());
-
-    ListDefinitionsWsResponse result = executeRequest(project.uuid(), null);
+    ListDefinitionsWsResponse result = executeRequest(project.key());
 
     assertThat(result.getDefinitionsList()).hasSize(1);
   }
@@ -293,7 +280,7 @@ public class ListDefinitionsActionTest {
       PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
       PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
 
-    ListDefinitionsWsResponse result = executeRequest(project.uuid(), null);
+    ListDefinitionsWsResponse result = executeRequest(project.key());
 
     assertThat(result.getDefinitionsList()).extracting("key").containsOnly("global-and-project", "only-on-project");
   }
@@ -319,15 +306,6 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void fail_when_id_and_key_are_set() throws Exception {
-    setUserAsProjectAdmin();
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    executeRequest(project.uuid(), project.key());
-  }
-
-  @Test
   public void fail_when_not_system_admin() throws Exception {
     userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
@@ -344,17 +322,17 @@ public class ListDefinitionsActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    executeRequest(project.uuid(), null);
+    executeRequest(project.key());
   }
 
   @Test
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(1);
   }
 
   @Test
@@ -409,17 +387,14 @@ public class ListDefinitionsActionTest {
   }
 
   private ListDefinitionsWsResponse executeRequest() {
-    return executeRequest(null, null);
+    return executeRequest(null);
   }
 
-  private ListDefinitionsWsResponse executeRequest(@Nullable String id, @Nullable String key) {
+  private ListDefinitionsWsResponse executeRequest(@Nullable String key) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
-    if (id != null) {
-      request.setParam("componentId", id);
-    }
     if (key != null) {
-      request.setParam("componentKey", key);
+      request.setParam("component", key);
     }
     try {
       return ListDefinitionsWsResponse.parseFrom(request.execute().getInputStream());

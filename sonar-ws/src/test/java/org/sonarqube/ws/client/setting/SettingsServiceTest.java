@@ -31,8 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
@@ -49,13 +48,13 @@ public class SettingsServiceTest {
   @Test
   public void list_definitions() {
     underTest.listDefinitions(ListDefinitionsRequest.builder()
-      .setComponentKey("KEY")
+      .setComponent("KEY")
       .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(ListDefinitionsWsResponse.parser());
     serviceTester.assertThat(getRequest)
-      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .hasParam(PARAM_COMPONENT, "KEY")
       .andNoOtherParam();
   }
 
@@ -63,14 +62,14 @@ public class SettingsServiceTest {
   public void values() {
     underTest.values(ValuesRequest.builder()
       .setKeys("sonar.debt,sonar.issue")
-      .setComponentKey("KEY")
+      .setComponent("KEY")
       .build());
     GetRequest getRequest = serviceTester.getGetRequest();
 
     assertThat(serviceTester.getGetParser()).isSameAs(ValuesWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_KEYS, "sonar.debt,sonar.issue")
-      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .hasParam(PARAM_COMPONENT, "KEY")
       .andNoOtherParam();
   }
 
@@ -80,9 +79,8 @@ public class SettingsServiceTest {
       .setKey("sonar.debt")
       .setValue("8h")
       .setValues(newArrayList("v1", "v2", "v3"))
-      .setFieldValues(newArrayList("json1","json2","json3"))
-      .setComponentId("UUID")
-      .setComponentKey("KEY")
+      .setFieldValues(newArrayList("json1", "json2", "json3"))
+      .setComponent("KEY")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
@@ -90,8 +88,7 @@ public class SettingsServiceTest {
       .hasParam(PARAM_VALUE, "8h")
       .hasParam(PARAM_VALUES, newArrayList("v1", "v2", "v3"))
       .hasParam(PARAM_FIELD_VALUES, newArrayList("json1", "json2", "json3"))
-      .hasParam(PARAM_COMPONENT_ID, "UUID")
-      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .hasParam(PARAM_COMPONENT, "KEY")
       .andNoOtherParam();
   }
 
@@ -99,12 +96,12 @@ public class SettingsServiceTest {
   public void reset() {
     underTest.reset(ResetRequest.builder()
       .setKeys("sonar.debt")
-      .setComponentKey("KEY")
+      .setComponent("KEY")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_KEYS, "sonar.debt")
-      .hasParam(PARAM_COMPONENT_KEY, "KEY")
+      .hasParam(PARAM_COMPONENT, "KEY")
       .andNoOtherParam();
   }
 

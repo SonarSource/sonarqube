@@ -21,23 +21,17 @@ package org.sonar.server.setting.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 
-public class SettingsWsComponentParameters {
+class SettingsWsComponentParameter {
 
-  private SettingsWsComponentParameters() {
+  private SettingsWsComponentParameter() {
     // Only static methods
   }
 
-  static void addComponentParameters(WebService.NewAction action) {
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT_KEY)
+  static void addComponentParameter(WebService.NewAction action) {
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }

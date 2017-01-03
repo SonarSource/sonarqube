@@ -26,13 +26,12 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
@@ -46,16 +45,14 @@ public class SettingsService extends BaseService {
 
   public ListDefinitionsWsResponse listDefinitions(ListDefinitionsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_LIST_DEFINITIONS))
-      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey());
+      .setParam(PARAM_COMPONENT, request.getComponent());
     return call(getRequest, ListDefinitionsWsResponse.parser());
   }
 
   public ValuesWsResponse values(ValuesRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_VALUES))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
-      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey());
+      .setParam(PARAM_COMPONENT, request.getComponent());
     return call(getRequest, ValuesWsResponse.parser());
   }
 
@@ -65,15 +62,13 @@ public class SettingsService extends BaseService {
       .setParam(PARAM_VALUE, request.getValue())
       .setParam(PARAM_VALUES, request.getValues())
       .setParam(PARAM_FIELD_VALUES, request.getFieldValues())
-      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
+      .setParam(PARAM_COMPONENT, request.getComponent()));
   }
 
   public void reset(ResetRequest request) {
     call(new PostRequest(path(ACTION_RESET))
       .setParam(PARAM_KEYS, inlineMultipleParamValue(request.getKeys()))
-      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()));
+      .setParam(PARAM_COMPONENT, request.getComponent()));
   }
 
 }

@@ -40,12 +40,10 @@ import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
+import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 
 public class ListDefinitionsAction implements SettingsWsAction {
 
@@ -64,18 +62,16 @@ public class ListDefinitionsAction implements SettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_LIST_DEFINITIONS)
-      .setDescription(String.format("List settings definitions.<br>" +
-        "Either '%s' or '%s' can be provided, not both.<br> " +
+      .setDescription("List settings definitions.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
-        "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY))
+        "</ul>")
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
       .setSince("6.1")
-      .setInternal(true)
       .setHandler(this);
-    addComponentParameters(action);
+    addComponentParameter(action);
   }
 
   @Override
@@ -96,8 +92,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
   private static ListDefinitionsRequest toWsRequest(Request request) {
     return ListDefinitionsRequest.builder()
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .setComponent(request.param(PARAM_COMPONENT))
       .build();
   }
 
@@ -113,12 +108,11 @@ public class ListDefinitionsAction implements SettingsWsAction {
   }
 
   private Optional<ComponentDto> getComponent(DbSession dbSession, ListDefinitionsRequest wsRequest) {
-    String componentId = wsRequest.getComponentId();
-    String componentKey = wsRequest.getComponentKey();
-    if (componentId != null || componentKey != null) {
-      return Optional.of(componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY));
+    String componentKey = wsRequest.getComponent();
+    if (componentKey == null) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
   }
 
   private void checkAdminPermission(Optional<ComponentDto> component) {

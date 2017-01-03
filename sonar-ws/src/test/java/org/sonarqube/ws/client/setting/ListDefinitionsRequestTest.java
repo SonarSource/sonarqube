@@ -37,24 +37,14 @@ public class ListDefinitionsRequestTest {
   public void create_request_with_no_component() {
     ListDefinitionsRequest result = underTest.build();
 
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isNull();
-  }
-
-  @Test
-  public void create_request_with_component_id() {
-    ListDefinitionsRequest result = underTest.setComponentId("projectId").build();
-
-    assertThat(result.getComponentId()).isEqualTo("projectId");
-    assertThat(result.getComponentKey()).isNull();
+    assertThat(result.getComponent()).isNull();
   }
 
   @Test
   public void create_request_with_component_key() {
-    ListDefinitionsRequest result = underTest.setComponentKey("projectKey").build();
+    ListDefinitionsRequest result = underTest.setComponent("projectKey").build();
 
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isEqualTo("projectKey");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
   }
 
 }

@@ -29,13 +29,11 @@ import static java.util.Arrays.asList;
 
 public class ResetRequest {
   private final List<String> keys;
-  private final String componentId;
-  private final String componentKey;
+  private final String component;
 
   private ResetRequest(Builder builder) {
     this.keys = builder.keys;
-    this.componentId = builder.componentId;
-    this.componentKey = builder.componentKey;
+    this.component = builder.component;
   }
 
   public List<String> getKeys() {
@@ -43,13 +41,8 @@ public class ResetRequest {
   }
 
   @CheckForNull
-  public String getComponentId() {
-    return componentId;
-  }
-
-  @CheckForNull
-  public String getComponentKey() {
-    return componentKey;
+  public String getComponent() {
+    return component;
   }
 
   public static Builder builder() {
@@ -58,8 +51,7 @@ public class ResetRequest {
 
   public static class Builder {
     private List<String> keys;
-    private String componentId;
-    private String componentKey;
+    private String component;
 
     private Builder() {
       // enforce factory method use
@@ -75,13 +67,8 @@ public class ResetRequest {
       return this;
     }
 
-    public Builder setComponentId(@Nullable String componentId) {
-      this.componentId = componentId;
-      return this;
-    }
-
-    public Builder setComponentKey(@Nullable String componentKey) {
-      this.componentKey = componentKey;
+    public Builder setComponent(@Nullable String component) {
+      this.component = component;
       return this;
     }
 

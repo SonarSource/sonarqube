@@ -41,10 +41,9 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ResetAction implements SettingsWsAction {
@@ -70,14 +69,12 @@ public class ResetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_RESET)
       .setDescription("Remove a setting value.<br>" +
-        "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
-        "</ul>", PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        "</ul>")
       .setSince("6.1")
-      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 
@@ -85,7 +82,7 @@ public class ResetAction implements SettingsWsAction {
       .setDescription("Setting keys")
       .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
-    addComponentParameters(action);
+    addComponentParameter(action);
   }
 
   @Override
@@ -126,17 +123,16 @@ public class ResetAction implements SettingsWsAction {
   private static ResetRequest toWsRequest(Request request) {
     return ResetRequest.builder()
       .setKeys(request.paramAsStrings(PARAM_KEYS))
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .setComponent(request.param(PARAM_COMPONENT))
       .build();
   }
 
   private Optional<ComponentDto> getComponent(DbSession dbSession, ResetRequest request) {
-    if (request.getComponentId() == null && request.getComponentKey() == null) {
+    String componentKey = request.getComponent();
+    if (componentKey == null) {
       return Optional.empty();
     }
-    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY);
-    return Optional.of(project);
+    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
   }
 
   private void checkPermissions(Optional<ComponentDto> component) {

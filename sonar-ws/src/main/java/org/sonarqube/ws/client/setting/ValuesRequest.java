@@ -30,24 +30,17 @@ import static java.util.Objects.requireNonNull;
 
 public class ValuesRequest {
 
-  private final String componentId;
-  private final String componentKey;
+  private final String component;
   private final List<String> keys;
 
   private ValuesRequest(Builder builder) {
-    this.componentId = builder.componentId;
-    this.componentKey = builder.componentKey;
+    this.component = builder.component;
     this.keys = builder.keys;
   }
 
   @CheckForNull
-  public String getComponentId() {
-    return componentId;
-  }
-
-  @CheckForNull
-  public String getComponentKey() {
-    return componentKey;
+  public String getComponent() {
+    return component;
   }
 
   public List<String> getKeys() {
@@ -59,21 +52,15 @@ public class ValuesRequest {
   }
 
   public static class Builder {
-    private String componentId;
-    private String componentKey;
+    private String component;
     private List<String> keys = new ArrayList<>();
 
     private Builder() {
       // enforce factory method use
     }
 
-    public Builder setComponentId(@Nullable String componentId) {
-      this.componentId = componentId;
-      return this;
-    }
-
-    public Builder setComponentKey(@Nullable String componentKey) {
-      this.componentKey = componentKey;
+    public Builder setComponent(@Nullable String component) {
+      this.component = component;
       return this;
     }
 

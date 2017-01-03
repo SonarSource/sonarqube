@@ -40,28 +40,16 @@ public class SetRequestTest {
     assertThat(result.getKey()).isEqualTo("my.key");
     assertThat(result.getValue()).isEqualTo("my value");
     assertThat(result.getValues()).isNotNull().isEmpty();
-    assertThat(result.getComponentKey()).isNull();
-    assertThat(result.getComponentId()).isNull();
-  }
-
-  @Test
-  public void create_request_with_component_id() {
-    SetRequest result = underTest.setKey("my.key").setValue("my value").setComponentId("projectId").build();
-
-    assertThat(result.getKey()).isEqualTo("my.key");
-    assertThat(result.getValue()).isEqualTo("my value");
-    assertThat(result.getComponentId()).isEqualTo("projectId");
-    assertThat(result.getComponentKey()).isNull();
+    assertThat(result.getComponent()).isNull();
   }
 
   @Test
   public void create_request_with_component_key() {
-    SetRequest result = underTest.setKey("my.key").setValue("my value").setComponentKey("projectKey").build();
+    SetRequest result = underTest.setKey("my.key").setValue("my value").setComponent("projectKey").build();
 
     assertThat(result.getKey()).isEqualTo("my.key");
     assertThat(result.getValue()).isEqualTo("my value");
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isEqualTo("projectKey");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
   }
 
   @Test

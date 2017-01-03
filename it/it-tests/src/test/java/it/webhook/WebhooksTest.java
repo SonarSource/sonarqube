@@ -269,10 +269,10 @@ public class WebhooksTest {
 
   private void setProperty(@Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      ResetRequest req = ResetRequest.builder().setKeys(key).setComponentKey(componentKey).build();
+      ResetRequest req = ResetRequest.builder().setKeys(key).setComponent(componentKey).build();
       adminWs.settingsService().reset(req);
     } else {
-      SetRequest req = SetRequest.builder().setKey(key).setValue(value).setComponentKey(componentKey).build();
+      SetRequest req = SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build();
       adminWs.settingsService().set(req);
     }
   }

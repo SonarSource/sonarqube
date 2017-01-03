@@ -576,16 +576,8 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.startTime", "plugin.license.secured", "plugin.licenseHash.secured");
-  }
-
-  @Test
-  public void fail_when_id_and_key_are_set() throws Exception {
-    setAuthenticatedUser();
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    executeRequest(project.uuid(), project.key());
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.startTime", "plugin.license.secured",
+      "plugin.licenseHash.secured");
   }
 
   @Test
@@ -595,7 +587,7 @@ public class ValuesActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    executeRequest(project.uuid(), null, "foo");
+    executeRequest(project.key(), "foo");
   }
 
   @Test
@@ -646,35 +638,32 @@ public class ValuesActionTest {
   public void test_ws_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(2);
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {
-    return executeRequest(componentDto.uuid(), null, keys);
+    return executeRequest(componentDto.key(), keys);
   }
 
   private ValuesWsResponse executeRequestForProjectProperties(String... keys) {
-    return executeRequest(project.uuid(), null, keys);
+    return executeRequest(project.key(), keys);
   }
 
   private ValuesWsResponse executeRequestForGlobalProperties(String... keys) {
-    return executeRequest(null, null, keys);
+    return executeRequest(null, keys);
   }
 
-  private ValuesWsResponse executeRequest(@Nullable String componentId, @Nullable String componentKey, String... keys) {
+  private ValuesWsResponse executeRequest(@Nullable String componentKey, String... keys) {
     TestRequest request = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
     if (keys.length > 0) {
       request.setParam("keys", COMMA_JOINER.join(keys));
     }
-    if (componentId != null) {
-      request.setParam("componentId", componentId);
-    }
     if (componentKey != null) {
-      request.setParam("componentKey", componentKey);
+      request.setParam("component", componentKey);
     }
     try {
       return ValuesWsResponse.parseFrom(request.execute().getInputStream());

@@ -46,7 +46,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -57,13 +56,12 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.client.setting.SetRequest;
 
+import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
@@ -97,16 +95,13 @@ public class SetAction implements SettingsWsAction {
     WebService.NewAction action = context.createAction(ACTION_SET)
       .setDescription("Update a setting value.<br>" +
         "Either '%s' or '%s' must be provided, not both.<br> " +
-        "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
         "</ul>",
-        PARAM_VALUE, PARAM_VALUES,
-        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+        PARAM_VALUE, PARAM_VALUES)
       .setSince("6.1")
-      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 
@@ -127,13 +122,7 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Setting field values. To set several values, the parameter must be called once for each value.")
       .setExampleValue(PARAM_FIELD_VALUES + "={\"firstField\":\"first value\", \"secondField\":\"second value\", \"thirdField\":\"third value\"}");
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Component id")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_COMPONENT_KEY)
-      .setDescription("Component key")
-      .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+    addComponentParameter(action);
   }
 
   @Override
@@ -291,8 +280,7 @@ public class SetAction implements SettingsWsAction {
       .setValue(request.param(PARAM_VALUE))
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY))
+      .setComponent(request.param(PARAM_COMPONENT))
       .build();
   }
 
@@ -308,13 +296,11 @@ public class SetAction implements SettingsWsAction {
   }
 
   private Optional<ComponentDto> searchComponent(DbSession dbSession, SetRequest request) {
-    if (request.getComponentId() == null && request.getComponentKey() == null) {
+    String componentKey = request.getComponent();
+    if (componentKey == null) {
       return Optional.empty();
     }
-
-    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY);
-
-    return Optional.of(project);
+    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
   }
 
   private PropertyDto toProperty(SetRequest request, Optional<ComponentDto> component) {

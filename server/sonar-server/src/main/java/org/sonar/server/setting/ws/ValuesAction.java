@@ -57,12 +57,10 @@ import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameters.addComponentParameters;
+import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ValuesAction implements SettingsWsAction {
@@ -95,20 +93,17 @@ public class ValuesAction implements SettingsWsAction {
     WebService.NewAction action = context.createAction(ACTION_VALUES)
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
-        "Either '%s' or '%s' can be provided, not both.<br> " +
         "Requires 'Browse' permission when a component is specified<br/>",
         "To access licensed settings, authentication is required<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
           "<li>'Administer System'</li>" +
           "<li>'Administer' rights on the specified component</li>" +
-          "</ul>",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
+          "</ul>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.1")
-      .setInternal(true)
       .setHandler(this);
-    addComponentParameters(action);
+    addComponentParameter(action);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
       .setExampleValue("sonar.technicalDebt.hoursInDay,sonar.dbcleaner.cleanDirectory");
@@ -133,8 +128,7 @@ public class ValuesAction implements SettingsWsAction {
 
   private static ValuesRequest toWsRequest(Request request) {
     ValuesRequest.Builder builder = ValuesRequest.builder()
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(PARAM_COMPONENT_KEY));
+      .setComponent(request.param(PARAM_COMPONENT));
     if (request.hasParam(PARAM_KEYS)) {
       builder.setKeys(request.paramAsStrings(PARAM_KEYS));
     }
@@ -161,14 +155,13 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {
-    String componentId = valuesRequest.getComponentId();
-    String componentKey = valuesRequest.getComponentKey();
-    if (componentId != null || componentKey != null) {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, componentId, componentKey, ID_AND_KEY);
-      userSession.checkComponentUuidPermission(USER, component.projectUuid());
-      return Optional.of(component);
+    String componentKey = valuesRequest.getComponent();
+    if (componentKey == null) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+    userSession.checkComponentUuidPermission(USER, component.projectUuid());
+    return Optional.of(component);
   }
 
   private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {

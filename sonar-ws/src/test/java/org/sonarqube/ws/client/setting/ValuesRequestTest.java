@@ -37,8 +37,7 @@ public class ValuesRequestTest {
   public void create_request_with_no_component() {
     ValuesRequest result = underTest.setKeys("sonar.debt").build();
 
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isNull();
+    assertThat(result.getComponent()).isNull();
     assertThat(result.getKeys()).containsOnly("sonar.debt");
   }
 
@@ -46,26 +45,15 @@ public class ValuesRequestTest {
   public void create_request_with_no_keys() {
     ValuesRequest result = underTest.build();
 
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isNull();
+    assertThat(result.getComponent()).isNull();
     assertThat(result.getKeys()).isEmpty();
   }
 
   @Test
-  public void create_request_with_component_id() {
-    ValuesRequest result = underTest.setKeys("sonar.debt").setComponentId("projectId").build();
+  public void create_request_with_component() {
+    ValuesRequest result = underTest.setKeys("sonar.debt").setComponent("projectKey").build();
 
-    assertThat(result.getComponentId()).isEqualTo("projectId");
-    assertThat(result.getComponentKey()).isNull();
-    assertThat(result.getKeys()).containsOnly("sonar.debt");
-  }
-
-  @Test
-  public void create_request_with_component_key() {
-    ValuesRequest result = underTest.setKeys("sonar.debt").setComponentKey("projectKey").build();
-
-    assertThat(result.getComponentId()).isNull();
-    assertThat(result.getComponentKey()).isEqualTo("projectKey");
+    assertThat(result.getComponent()).isEqualTo("projectKey");
     assertThat(result.getKeys()).containsOnly("sonar.debt");
   }
 

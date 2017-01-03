@@ -217,9 +217,9 @@ public class ItUtils {
 
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(key).setComponentKey(componentKey).build());
+      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
     } else {
-      newAdminWsClient(orchestrator).settingsService().set(SetRequest.builder().setKey(key).setValue(value).setComponentKey(componentKey).build());
+      newAdminWsClient(orchestrator).settingsService().set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
     }
   }
 
@@ -230,7 +230,7 @@ public class ItUtils {
   }
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
-    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponentKey(componentKey).build());
+    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
   }
 
   public static void resetEmailSettings(Orchestrator orchestrator) {

@@ -23,7 +23,10 @@ import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
 
 export function getDefinitions (componentKey) {
   const url = '/api/settings/list_definitions';
-  const data = componentKey ? { componentKey } : {};
+  const data = { };
+  if (componentKey) {
+    data.component = componentKey;
+  }
   return getJSON(url, data).then(r => r.definitions);
 }
 
@@ -31,7 +34,7 @@ export function getValues (keys, componentKey) {
   const url = '/api/settings/values';
   const data = { keys };
   if (componentKey) {
-    data.componentKey = componentKey;
+    data.component = componentKey;
   }
   return getJSON(url, data).then(r => r.settings);
 }
@@ -53,7 +56,7 @@ export function setSettingValue (definition, value, componentKey) {
   }
 
   if (componentKey) {
-    data.componentKey = componentKey;
+    data.component = componentKey;
   }
 
   return post(url, data);
@@ -63,7 +66,7 @@ export function resetSettingValue (key, componentKey) {
   const url = '/api/settings/reset';
   const data = { keys: key };
   if (componentKey) {
-    data.componentKey = componentKey;
+    data.component = componentKey;
   }
   return post(url, data);
 }

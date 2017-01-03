@@ -32,16 +32,14 @@ public class SetRequest {
   private final String value;
   private final List<String> values;
   private final List<String> fieldValues;
-  private final String componentId;
-  private final String componentKey;
+  private final String component;
 
   private SetRequest(Builder builder) {
     this.key = builder.key;
     this.value = builder.value;
     this.values = builder.values;
     this.fieldValues = builder.fieldValues;
-    this.componentId = builder.componentId;
-    this.componentKey = builder.componentKey;
+    this.component = builder.component;
   }
 
   public String getKey() {
@@ -62,13 +60,8 @@ public class SetRequest {
   }
 
   @CheckForNull
-  public String getComponentId() {
-    return componentId;
-  }
-
-  @CheckForNull
-  public String getComponentKey() {
-    return componentKey;
+  public String getComponent() {
+    return component;
   }
 
   public static Builder builder() {
@@ -80,8 +73,7 @@ public class SetRequest {
     private String value;
     private List<String> values = emptyList();
     private List<String> fieldValues = emptyList();
-    private String componentId;
-    private String componentKey;
+    private String component;
 
     private Builder() {
       // enforce factory method use
@@ -107,13 +99,8 @@ public class SetRequest {
       return this;
     }
 
-    public Builder setComponentId(@Nullable String componentId) {
-      this.componentId = componentId;
-      return this;
-    }
-
-    public Builder setComponentKey(@Nullable String componentKey) {
-      this.componentKey = componentKey;
+    public Builder setComponent(@Nullable String component) {
+      this.component = component;
       return this;
     }
 

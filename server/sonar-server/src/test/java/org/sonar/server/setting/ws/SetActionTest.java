@@ -126,7 +126,7 @@ public class SetActionTest {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
     ComponentDto project = db.components().insertProject();
 
-    callForProjectSettingByUuid("my.key", "my project value", project.uuid());
+    callForProjectSettingByKey("my.key", "my project value", project.key());
 
     assertGlobalSetting("my.key", "my global value");
     assertComponentSetting("my.key", "my project value", project.getId());
@@ -138,7 +138,7 @@ public class SetActionTest {
     ComponentDto project = db.components().insertProject();
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    callForProjectSettingByUuid("my.key", "my value", project.uuid());
+    callForProjectSettingByKey("my.key", "my value", project.key());
 
     assertComponentSetting("my.key", "my value", project.getId());
   }
@@ -285,10 +285,10 @@ public class SetActionTest {
       newComponentPropertyDto("my.key.1.firstField", "componentFirstValue", project),
       newComponentPropertyDto("my.key.1.firstField", "componentSecondValue", project));
 
-    callForComponentPropertySetByUuid("my.key", newArrayList(
+    callForComponentPropertySet("my.key", newArrayList(
       GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
       GSON.toJson(ImmutableMap.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
-      project.uuid());
+      project.key());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
     assertThat(dbClient.propertiesDao().selectProjectProperties(dbSession, project.key())).hasSize(5);
@@ -535,7 +535,7 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
 
-    callForProjectSettingByUuid("my.key", "My Value", view.uuid());
+    callForProjectSettingByKey("my.key", "My Value", view.key());
   }
 
   @Test
@@ -543,7 +543,7 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One and only one of 'value', 'values', 'fieldValues' must be provided");
 
-    call("my.key", "My Value", newArrayList("Another Value"), null, null, null);
+    call("my.key", "My Value", newArrayList("Another Value"), null, null);
   }
 
   @Test
@@ -782,8 +782,8 @@ public class SetActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a Project");
 
-    callForComponentPropertySetByUuid("my.key", newArrayList(
-      GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.uuid());
+    callForComponentPropertySet("my.key", newArrayList(
+      GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.key());
   }
 
   @Test
@@ -792,10 +792,10 @@ public class SetActionTest {
 
     assertThat(definition.key()).isEqualTo("set");
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
-      .containsOnly("key", "value", "values", "fieldValues", "componentId", "componentKey");
+      .containsOnly("key", "value", "values", "fieldValues", "component");
   }
 
   private void assertGlobalSetting(String key, String value) {
@@ -823,57 +823,42 @@ public class SetActionTest {
   }
 
   private void callForGlobalSetting(@Nullable String key, @Nullable String value) {
-    call(key, value, null, null, null, null);
+    call(key, value, null, null, null);
   }
 
   private void callForMultiValueGlobalSetting(@Nullable String key, @Nullable List<String> values) {
-    call(key, null, values, null, null, null);
+    call(key, null, values, null, null);
   }
 
   private void callForGlobalPropertySet(@Nullable String key, @Nullable List<String> fieldValues) {
-    call(key, null, null, fieldValues, null, null);
+    call(key, null, null, fieldValues, null);
   }
 
-  private void callForComponentPropertySetByUuid(@Nullable String key, @Nullable List<String> fieldValues, @Nullable String componentUuid) {
-    call(key, null, null, fieldValues, componentUuid, null);
-  }
-
-  private void callForProjectSettingByUuid(@Nullable String key, @Nullable String value, @Nullable String componentUuid) {
-    call(key, value, null, null, componentUuid, null);
+  private void callForComponentPropertySet(@Nullable String key, @Nullable List<String> fieldValues, @Nullable String componentKey) {
+    call(key, null, null, fieldValues, componentKey);
   }
 
   private void callForProjectSettingByKey(@Nullable String key, @Nullable String value, @Nullable String componentKey) {
-    call(key, value, null, null, null, componentKey);
+    call(key, value, null, null, componentKey);
   }
 
-  private void call(@Nullable String key, @Nullable String value, @Nullable List<String> values, @Nullable List<String> fieldValues, @Nullable String componentUuid,
-    @Nullable String componentKey) {
+  private void call(@Nullable String key, @Nullable String value, @Nullable List<String> values, @Nullable List<String> fieldValues, @Nullable String componentKey) {
     TestRequest request = ws.newRequest();
-
     if (key != null) {
       request.setParam("key", key);
     }
-
     if (value != null) {
       request.setParam("value", value);
     }
-
     if (values != null) {
       request.setMultiParam("values", values);
     }
-
     if (fieldValues != null) {
       request.setMultiParam("fieldValues", fieldValues);
     }
-
-    if (componentUuid != null) {
-      request.setParam("componentId", componentUuid);
-    }
-
     if (componentKey != null) {
-      request.setParam("componentKey", componentKey);
+      request.setParam("component", componentKey);
     }
-
     request.execute();
   }
 
