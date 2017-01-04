@@ -49,9 +49,8 @@ class OracleCharsetHandler extends CharsetHandler {
   private void expectUtf8(Connection connection) throws SQLException {
     // Oracle does not allow to override character set on tables. Only global charset is verified.
     String charset = getSqlExecutor().selectSingleString(connection, "select value from nls_database_parameters where parameter='NLS_CHARACTERSET'");
-    String sort = getSqlExecutor().selectSingleString(connection, "select value from nls_database_parameters where parameter='NLS_SORT'");
-    if (!containsIgnoreCase(charset, UTF8) || !"BINARY".equalsIgnoreCase(sort)) {
-      throw MessageException.of(format("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is %s and NLS_SORT is %s.", charset, sort));
+    if (!containsIgnoreCase(charset, UTF8)) {
+      throw MessageException.of(format("Oracle NLS_CHARACTERSET does not support UTF8: %s", charset));
     }
   }
 }

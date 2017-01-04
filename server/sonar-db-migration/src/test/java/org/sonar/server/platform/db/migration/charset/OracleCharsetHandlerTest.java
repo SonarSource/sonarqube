@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.charset;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,7 +46,7 @@ public class OracleCharsetHandlerTest {
 
   @Test
   public void fresh_install_verifies_utf8_charset() throws Exception {
-    answerSql(singletonList(new String[] {"UTF8"}), singletonList(new String[] {"BINARY"}));
+    answerCharset("UTF8");
 
     underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
@@ -60,37 +60,24 @@ public class OracleCharsetHandlerTest {
 
   @Test
   public void fresh_install_supports_al32utf8() throws Exception {
-    answerSql(
-      singletonList(new String[] {"AL32UTF8"}), singletonList(new String[] {"BINARY"}));
+    answerCharset("AL32UTF8");
 
     underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
   public void fresh_install_fails_if_charset_is_not_utf8() throws Exception {
-    answerSql(
-      singletonList(new String[] {"LATIN"}), singletonList(new String[] {"BINARY"}));
+    answerCharset("LATIN");
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is LATIN and NLS_SORT is BINARY.");
-
-    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
-  }
-
-  @Test
-  public void fresh_install_fails_if_not_case_sensitive() throws Exception {
-    answerSql(
-      singletonList(new String[] {"UTF8"}), singletonList(new String[] {"LINGUISTIC"}));
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is UTF8 and NLS_SORT is LINGUISTIC.");
+    expectedException.expectMessage("Oracle NLS_CHARACTERSET does not support UTF8: LATIN");
 
     underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
   }
 
   @Test
   public void fails_if_can_not_get_charset() throws Exception {
-    answerSql(Collections.emptyList(), Collections.emptyList());
+    answerCharset(null);
 
     expectedException.expect(MessageException.class);
 
@@ -103,7 +90,8 @@ public class OracleCharsetHandlerTest {
     verifyZeroInteractions(sqlExecutor);
   }
 
-  private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(sqlExecutor.select(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest, otherRequests);
+  private void answerCharset(@Nullable String charset) throws SQLException {
+    when(sqlExecutor.select(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class)))
+      .thenReturn(charset == null ? Collections.emptyList() : singletonList(new String[] {charset}));
   }
 }
