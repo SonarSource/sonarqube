@@ -150,6 +150,19 @@
       and p.user_id is null
   </select>
 
+  <select id="selectByComponentIds" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      p.resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
+      and p.user_id is null
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>

@@ -32,9 +32,10 @@ import static org.sonar.api.web.UserRole.ADMIN;
 
 public class SettingsPermissionPredicates {
 
-  private static final String SECURED_SUFFIX = ".secured";
-  static final String LICENSE_SUFFIX = ".license.secured";
-  static final String LICENSE_HASH_SUFFIX = ".licenseHash.secured";
+  public static final String DOT_SECURED = ".secured";
+  public static final String DOT_LICENSE = ".license";
+  static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
+  static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
 
   private final UserSession userSession;
 
@@ -55,7 +56,7 @@ public class SettingsPermissionPredicates {
   }
 
   private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return isLicense(key, definition) || (!key.endsWith(SECURED_SUFFIX) || hasAdminPermission(component));
+    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasAdminPermission(component));
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {

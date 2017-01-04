@@ -19,30 +19,24 @@
  */
 package org.sonar.server.config.ws;
 
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-
-import static org.sonar.api.server.ws.RailsHandler.addFormatParam;
 
 public class PropertiesWs implements WebService {
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/properties");
-    controller.setDescription("Manage global and project properties.");
-    controller.setSince("2.6");
+  public static final String CONTROLLER_PROPERTIES = "api/properties";
 
-    defineIndexAction(controller);
+  private final IndexAction indexAction;
 
-    controller.done();
+  public PropertiesWs(IndexAction indexAction) {
+    this.indexAction = indexAction;
   }
 
-  private void defineIndexAction(NewController controller) {
-    NewAction action = controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
-      .setResponseExample(getClass().getResource("index-example.xml"))
-      .setSince("2.6")
-      .setHandler(RailsHandler.INSTANCE);
-    addFormatParam(action);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController(CONTROLLER_PROPERTIES)
+      .setDescription("This web service is deprecated, please use api/settings instead.")
+      .setSince("2.6");
+    indexAction.define(controller);
+    controller.done();
   }
 }

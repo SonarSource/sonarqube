@@ -1,0 +1,10 @@
+[
+  {
+    "key": "global",
+    "value": "three,four%2Cfive",
+    "values": [
+      "three",
+      "four,five"
+    ]
+  }
+]

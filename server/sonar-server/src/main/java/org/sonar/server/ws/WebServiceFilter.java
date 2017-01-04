@@ -29,7 +29,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.RailsHandler;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
+
+import static org.sonar.server.config.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 
 /**
  * This filter is used to execute Java WS.
@@ -45,11 +48,11 @@ public class WebServiceFilter extends ServletFilter {
 
   public WebServiceFilter(WebServiceEngine webServiceEngine) {
     this.webServiceEngine = webServiceEngine;
-    webServiceEngine.controllers().stream()
-      .forEach(controller -> controller.actions().stream()
+    webServiceEngine.controllers()
+      .forEach(controller -> controller.actions()
         .forEach(action -> {
-          // Rails and servlet filter WS should not be executed by the web service engine
-          if (!(action.handler() instanceof RailsHandler) && !(action.handler() instanceof ServletFilterHandler)) {
+          // Rails, Rest and servlet filter WS should not be executed by the web service engine
+          if (isJavaWs(controller, action)) {
             includeUrls.add("/" + controller.path() + "/*");
           } else {
             excludeUrls.add("/" + action.path() + "*");
@@ -84,21 +87,10 @@ public class WebServiceFilter extends ServletFilter {
     // Nothing to do
   }
 
-  private static class WsUrl {
-    private final String controller;
-    private final String action;
-
-    WsUrl(String controller, String action) {
-      this.controller = controller;
-      this.action = action;
-    }
-
-    String getController() {
-      return controller;
-    }
-
-    String getAction() {
-      return action;
-    }
+  private static boolean isJavaWs(WebService.Controller controller, WebService.Action action) {
+    return !(action.handler() instanceof RailsHandler)
+      && !(action.handler() instanceof ServletFilterHandler)
+      && !controller.path().equals(CONTROLLER_PROPERTIES);
   }
+
 }

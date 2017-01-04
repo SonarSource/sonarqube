@@ -1,0 +1,18 @@
+[
+  {
+    "key": "default",
+    "value": "one,two",
+    "values": [
+      "one",
+      "two"
+    ]
+  },
+  {
+    "key": "global",
+    "value": "three,four",
+    "values": [
+      "three",
+      "four"
+    ]
+  }
+]

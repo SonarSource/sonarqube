@@ -27,6 +27,7 @@ package org.sonar.api.server.ws;
 public class RailsHandler implements RequestHandler {
 
   public static final RequestHandler INSTANCE = new RailsHandler();
+  public static final String PARAM_FORMAT = "format";
 
   private RailsHandler() {
     // Nothing
@@ -38,7 +39,7 @@ public class RailsHandler implements RequestHandler {
   }
 
   public static WebService.NewParam addFormatParam(WebService.NewAction action) {
-    return action.createParam("format")
+    return action.createParam(PARAM_FORMAT)
       .setDescription("Response format can be set through:" +
         "<ul>" +
         "<li>Parameter format: xml | json</li>" +
@@ -54,7 +55,7 @@ public class RailsHandler implements RequestHandler {
   }
 
   public static WebService.NewParam addJsonOnlyFormatParam(WebService.NewAction action) {
-    return action.createParam("format")
+    return action.createParam(PARAM_FORMAT)
       .setDescription("Only json response format is available")
       .setPossibleValues("json");
   }

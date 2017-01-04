@@ -1,0 +1,21 @@
+[
+  {
+    "key": "foo",
+    "value": "1",
+    "values": [
+      "1"
+    ]
+  },
+  {
+    "key": "foo.1.key",
+    "value": "key1"
+  },
+  {
+    "key": "foo.1.plugin.license.secured",
+    "value": "ABCD"
+  },
+  {
+    "key": "foo.1.secret.secured",
+    "value": "123456"
+  }
+]

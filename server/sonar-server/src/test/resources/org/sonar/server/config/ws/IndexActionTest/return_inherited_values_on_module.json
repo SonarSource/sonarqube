@@ -1,0 +1,18 @@
+[
+  {
+    "key": "defaultProperty",
+    "value": "default"
+  },
+  {
+    "key": "projectProperty",
+    "value": "project"
+  },
+  {
+    "key": "globalProperty",
+    "value": "global"
+  },
+  {
+    "key": "moduleProperty",
+    "value": "module"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "key": "secret.secured",
+    "value": "password"
+  },
+  {
+    "key": "foo",
+    "value": "one"
+  },
+  {
+    "key": "not_defined",
+    "value": "ABCD"
+  },
+  {
+    "key": "plugin.license.secured",
+    "value": "ABCD"
+  },
+  {
+    "key": "global_not_defined",
+    "value": "ABCD"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "key": "foo",
+    "value": "1,2",
+    "values": [
+      "1",
+      "2"
+    ]
+  },
+  {
+    "key": "foo.1.key",
+    "value": "key1"
+  },
+  {
+    "key": "foo.2.key",
+    "value": "key2"
+  },
+  {
+    "key": "foo.1.size",
+    "value": "size1"
+  }
+]

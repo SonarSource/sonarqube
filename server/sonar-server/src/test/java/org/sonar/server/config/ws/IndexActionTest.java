@@ -1,0 +1,483 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.config.ws;
+
+import com.google.common.collect.ImmutableMap;
+import java.net.URL;
+import javax.annotation.Nullable;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyFieldDefinition;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDbTester;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.PropertyType.LICENSE;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.MediaTypes.JSON;
+
+public class IndexActionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = db.getDbClient();
+  PropertyDbTester propertyDb = new PropertyDbTester(db);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
+  PropertyDefinitions definitions = new PropertyDefinitions();
+
+  ComponentDto project;
+
+  WsActionTester ws = new WsActionTester(new IndexAction(dbClient, new ComponentFinder(dbClient), userSession, definitions));
+
+  @Before
+  public void setUp() throws Exception {
+    project = componentDb.insertComponent(newProjectDto());
+  }
+
+  @Test
+  public void return_simple_value() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    executeAndVerify(null, null, "return_simple_value.json");
+  }
+
+  @Test
+  public void return_multi_values() throws Exception {
+    setAuthenticatedUser();
+    // Property never defined, default value is returned
+    definitions.addComponent(PropertyDefinition.builder("default")
+      .multiValues(true)
+      .defaultValue("one,two")
+      .build());
+    // Property defined at global level
+    definitions.addComponent(PropertyDefinition.builder("global")
+      .multiValues(true)
+      .build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four"));
+
+    executeAndVerify(null, null, "return_multi_values.json");
+  }
+
+  @Test
+  public void return_multi_value_with_coma() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
+
+    executeAndVerify(null, null, "return_multi_value_with_coma.json");
+  }
+
+  @Test
+  public void return_property_set() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("size").name("Size").build()))
+      .build());
+    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
+
+    executeAndVerify(null, null, "return_property_set.json");
+  }
+
+  @Test
+  public void return_default_values() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
+
+    executeAndVerify(null, null, "return_default_values.json");
+  }
+
+  @Test
+  public void return_global_values() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    propertyDb.insertProperties(
+      // The property is overriding default value
+      newGlobalPropertyDto().setKey("property").setValue("one"));
+
+    executeAndVerify(null, null, "return_global_values.json");
+  }
+
+  @Test
+  public void return_project_values() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("property").setValue("one"),
+      // The property is overriding global value
+      newComponentPropertyDto(project).setKey("property").setValue("two"));
+
+    executeAndVerify(project.key(), null, "return_project_values.json");
+  }
+
+  @Test
+  public void return_values_even_if_no_property_definition() throws Exception {
+    setAuthenticatedUser();
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
+
+    executeAndVerify(null, null, "return_values_even_if_no_property_definition.json");
+  }
+
+  @Test
+  public void return_empty_when_property_def_exists_but_no_value() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+
+    executeAndVerify(null, null, "empty.json");
+  }
+
+  @Test
+  public void return_nothing_when_unknown_key() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
+
+    executeAndVerify(null, "unknown", "empty.json");
+  }
+
+  @Test
+  public void return_module_values() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("property").setValue("one"),
+      // The property is overriding global value
+      newComponentPropertyDto(module).setKey("property").setValue("two"));
+
+    executeAndVerify(module.key(), "property", "return_module_values.json");
+  }
+
+  @Test
+  public void return_inherited_values_on_module() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
+      PropertyDefinition.builder("globalProperty").build(),
+      PropertyDefinition.builder("projectProperty").build(),
+      PropertyDefinition.builder("moduleProperty").build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("globalProperty").setValue("global"),
+      newComponentPropertyDto(project).setKey("projectProperty").setValue("project"),
+      newComponentPropertyDto(module).setKey("moduleProperty").setValue("module"));
+
+    executeAndVerify(module.key(), null, "return_inherited_values_on_module.json");
+  }
+
+  @Test
+  public void return_inherited_values_on_global_setting() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
+      PropertyDefinition.builder("globalProperty").build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("globalProperty").setValue("global"));
+
+    executeAndVerify(null, null, "return_inherited_values_on_global_setting.json");
+  }
+
+  @Test
+  public void does_not_return_value_of_deprecated_key() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("deprecated").build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
+
+    executeAndVerify(null, "deprecated", "empty.json");
+  }
+
+  @Test
+  public void does_not_returned_secured_and_license_settings_when_not_authenticated() throws Exception {
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
+
+    executeAndVerify(null, null, "does_not_returned_secured_and_license_settings_when_not_authenticated.json");
+  }
+
+  @Test
+  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() throws Exception {
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
+        PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
+      .build());
+    propertyDb.insertPropertySet("foo", null,
+      ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
+
+    executeAndVerify(null, null, "does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated.json");
+  }
+
+  @Test
+  public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("commercial.plugin").type(LICENSE).build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    executeAndVerify(null, null, "return_license_with_hash_settings_when_authenticated_but_not_admin.json");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_system_admin() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    executeAndVerify(null, null, "return_secured_and_license_settings_when_system_admin.json");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_project_admin() throws Exception {
+    setUserAsProjectAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newComponentPropertyDto(project).setKey("foo").setValue("one"),
+      newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
+      newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
+      newComponentPropertyDto(project).setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    executeAndVerify(project.key(), null, "return_secured_and_license_settings_when_project_admin.json");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_in_property_set_when_system_admin() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
+        PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
+      .build());
+    propertyDb.insertPropertySet("foo", null,
+      ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
+
+    executeAndVerify(null, null, "return_secured_and_license_settings_in_property_set_when_system_admin.json");
+  }
+
+  @Test
+  public void return_all_settings_when_no_component_and_no_key() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("not_defined").setValue("ABCD"));
+
+    executeAndVerify(null, null, "return_all_settings_when_no_component_and_no_key.json");
+  }
+
+  @Test
+  public void return_all_project_settings_when_component_and_no_key() throws Exception {
+    setUserAsProjectAdmin();
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newComponentPropertyDto(project).setKey("foo").setValue("one"),
+      newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
+      newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
+      newComponentPropertyDto(project).setKey("not_defined").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("global_not_defined").setValue("ABCD"));
+
+    executeAndVerify(project.key(), null, "return_all_project_settings_when_component_and_no_key.json");
+  }
+
+  @Test
+  public void return_only_one_setting_when_key_is_provided() throws Exception {
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("bar").build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("bar").setValue("two"));
+
+    executeAndVerify(project.key(), "foo", "return_only_one_setting_when_key_is_provided.json");
+    executeAndVerify(project.key(), "unknown", "empty.json");
+  }
+
+  @Test
+  public void does_not_fail_when_user_has_not_project_browse_permission() throws Exception {
+    userSession.login("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    definitions.addComponent(PropertyDefinition.builder("foo").build());
+    propertyDb.insertProperties(newComponentPropertyDto(project).setKey("foo").setValue("one"));
+
+    executeAndVerify(project.key(), null, "does_not_fail_when_user_has_not_project_browse_permission.json");
+  }
+
+  @Test
+  public void does_not_fail_when_format_is_set_to_json() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
+
+    ws.newRequest().setParam("format", "json").execute();
+  }
+
+  @Test
+  public void fail_when_format_is_set_to_xml() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'format' (xml) must be one of: [json]");
+    ws.newRequest().setParam("format", "xml").execute();
+  }
+
+  @Test
+  public void test_example_json_response() {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition
+      .builder("sonar.test.jira")
+      .defaultValue("abc")
+      .build());
+    definitions.addComponent(PropertyDefinition
+      .builder("sonar.autogenerated")
+      .multiValues(true)
+      .build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("sonar.autogenerated").setValue("val1,val2,val3"));
+    definitions.addComponent(PropertyDefinition
+      .builder("sonar.demo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(PropertyFieldDefinition.build("text").name("Text").build(),
+        PropertyFieldDefinition.build("boolean").name("Boolean").build())
+      .build());
+    propertyDb.insertPropertySet("sonar.demo", null, ImmutableMap.of("text", "foo", "boolean", "true"), ImmutableMap.of("text", "bar", "boolean", "false"));
+
+    String result = ws.newRequest().setMediaType(JSON).execute().getInput();
+
+    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
+  }
+
+  @Test
+  public void test_ws_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(3);
+  }
+
+  private void executeAndVerify(@Nullable String componentKey, @Nullable String key, String expectedFile) {
+    TestRequest request = ws.newRequest().setMediaType(MediaTypes.JSON);
+    if (key != null) {
+      request.setParam("key", key);
+    }
+    if (componentKey != null) {
+      request.setParam("resource", componentKey);
+    }
+    String result = request.execute().getInput();
+    assertJson(result).isSimilarTo(resource(expectedFile));
+  }
+
+  private void setAuthenticatedUser() {
+    userSession.login("user");
+  }
+
+  private void setUserWithBrowsePermissionOnProject() {
+    userSession.login("user").addProjectUuidPermissions(USER, project.uuid());
+  }
+
+  private void setUserAsSystemAdmin() {
+    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  }
+
+  private void setUserAsProjectAdmin() {
+    userSession.login("project-admin")
+      .addProjectUuidPermissions(ADMIN, project.uuid())
+      .addProjectUuidPermissions(USER, project.uuid());
+  }
+
+  protected static URL resource(String s) {
+    Class<IndexActionTest> clazz = IndexActionTest.class;
+    return clazz.getResource(clazz.getSimpleName() + "/" + s);
+  }
+}

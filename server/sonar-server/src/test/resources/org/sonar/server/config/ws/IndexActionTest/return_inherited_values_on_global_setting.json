@@ -1,0 +1,10 @@
+[
+  {
+    "key": "defaultProperty",
+    "value": "default"
+  },
+  {
+    "key": "globalProperty",
+    "value": "global"
+  }
+]

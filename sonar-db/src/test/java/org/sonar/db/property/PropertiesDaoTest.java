@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,6 +46,7 @@ import org.sonar.db.user.UserTesting;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -423,6 +423,37 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void select_component_properties_by_ids() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project);
+    ComponentDto project2 = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project2);
+
+    UserDto user = UserTesting.newUserDto();
+    dbClient.userDao().insert(session, user);
+
+    String key = "key";
+    String anotherKey = "anotherKey";
+    insertProperties(
+      newGlobalPropertyDto().setKey(key),
+      newComponentPropertyDto(project).setKey(key),
+      newComponentPropertyDto(project2).setKey(key),
+      newComponentPropertyDto(project2).setKey(anotherKey),
+      newUserPropertyDto(user).setKey(key));
+
+    assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(project.getId())))
+      .extracting("key", "resourceId").containsOnly(tuple(key, project.getId()));
+    assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(project.getId(), project2.getId())))
+      .extracting("key", "resourceId").containsOnly(
+        tuple(key, project.getId()),
+        tuple(key, project2.getId()),
+        tuple(anotherKey, project2.getId())
+      );
+
+    assertThat(underTest.selectPropertiesByComponentIds(session, newHashSet(123456789L))).isEmpty();
+  }
+
+  @Test
   public void select_properties_by_keys_and_component_ids() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto();
     dbClient.componentDao().insert(session, project);
@@ -442,16 +473,16 @@ public class PropertiesDaoTest {
       newUserPropertyDto(user).setKey(key));
 
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId())))
-      .extracting("key", "resourceId").containsOnly(Tuple.tuple(key, project.getId()));
+      .extracting("key", "resourceId").containsOnly(tuple(key, project.getId()));
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
-        Tuple.tuple(key, project.getId()),
-        Tuple.tuple(key, project2.getId()));
+        tuple(key, project.getId()),
+        tuple(key, project2.getId()));
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet(key, anotherKey), newHashSet(project.getId(), project2.getId())))
       .extracting("key", "resourceId").containsOnly(
-        Tuple.tuple(key, project.getId()),
-        Tuple.tuple(key, project2.getId()),
-        Tuple.tuple(anotherKey, project2.getId()));
+        tuple(key, project.getId()),
+        tuple(key, project2.getId()),
+        tuple(anotherKey, project2.getId()));
 
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("unknown"), newHashSet(project.getId()))).isEmpty();
     assertThat(underTest.selectPropertiesByKeysAndComponentIds(session, newHashSet("key"), newHashSet(123456789L))).isEmpty();

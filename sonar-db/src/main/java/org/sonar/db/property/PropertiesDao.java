@@ -162,6 +162,10 @@ public class PropertiesDao implements Dao {
       partitionComponentIds -> getMapper(session).selectByKeysAndComponentIds(partitionKeys, partitionComponentIds)));
   }
 
+  public List<PropertyDto> selectPropertiesByComponentIds(DbSession session, Set<Long> componentIds) {
+    return executeLargeInputs(componentIds, getMapper(session)::selectByComponentIds);
+  }
+
   private List<PropertyDto> selectByKeys(DbSession session, Set<String> keys, @Nullable Long componentId) {
     return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys, componentId));
   }
