@@ -62,6 +62,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
+import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUEONEOF_NOT_SET;
 
 public class ValuesActionTest {
 
@@ -105,8 +106,6 @@ public class ValuesActionTest {
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
     assertThat(value.getValue()).isEqualTo("one");
-    assertThat(value.hasValues()).isFalse();
-    assertThat(value.hasFieldValues()).isFalse();
     assertThat(value.getInherited()).isFalse();
   }
 
@@ -129,15 +128,11 @@ public class ValuesActionTest {
 
     Settings.Setting foo = result.getSettings(0);
     assertThat(foo.getKey()).isEqualTo("default");
-    assertThat(foo.hasValue()).isFalse();
     assertThat(foo.getValues().getValuesList()).containsOnly("one", "two");
-    assertThat(foo.hasFieldValues()).isFalse();
 
     Settings.Setting bar = result.getSettings(1);
     assertThat(bar.getKey()).isEqualTo("global");
-    assertThat(bar.hasValue()).isFalse();
     assertThat(bar.getValues().getValuesList()).containsOnly("three", "four");
-    assertThat(bar.hasFieldValues()).isFalse();
   }
 
   @Test
@@ -171,8 +166,6 @@ public class ValuesActionTest {
     assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
-    assertThat(value.hasValue()).isFalse();
-    assertThat(value.hasValues()).isFalse();
     assertFieldValues(value, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
   }
 
@@ -193,8 +186,6 @@ public class ValuesActionTest {
     assertThat(result.getSettingsList()).hasSize(1);
     Settings.Setting value = result.getSettings(0);
     assertThat(value.getKey()).isEqualTo("foo");
-    assertThat(value.hasValue()).isFalse();
-    assertThat(value.hasValues()).isFalse();
     assertFieldValues(value, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
   }
 
@@ -707,7 +698,7 @@ public class ValuesActionTest {
 
   private void assertParentValue(Settings.Setting setting, @Nullable String parentValue) {
     if (parentValue == null) {
-      assertThat(setting.hasParentValue()).isFalse();
+      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
     } else {
       assertThat(setting.getParentValue()).isEqualTo(parentValue);
     }
@@ -715,7 +706,7 @@ public class ValuesActionTest {
 
   private void assertParentValues(Settings.Setting setting, String... parentValues) {
     if (parentValues.length == 0) {
-      assertThat(setting.hasParentValues()).isFalse();
+      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
     } else {
       assertThat(setting.getParentValues().getValuesList()).containsOnly(parentValues);
     }
@@ -723,7 +714,7 @@ public class ValuesActionTest {
 
   private void assertParentFieldValues(Settings.Setting setting, Map<String, String>... fieldsValues) {
     if (fieldsValues.length == 0) {
-      assertThat(setting.hasParentFieldValues()).isFalse();
+      assertThat(setting.getParentValueOneOfCase()).isEqualTo(PARENTVALUEONEOF_NOT_SET);
     } else {
       assertThat(setting.getParentFieldValues().getFieldValuesList()).hasSize(fieldsValues.length);
       int index = 0;

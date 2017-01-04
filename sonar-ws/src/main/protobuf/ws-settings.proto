@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-syntax = "proto2";
+syntax = "proto3";
 
 package sonarqube.ws.settings;
 
@@ -31,38 +31,38 @@ message ListDefinitionsWsResponse {
 
 // Response of GET api/settings/encrypt
 message EncryptWsResponse {
-  optional string encryptedValue = 1;
+  string encryptedValue = 1;
 }
 
 // Response of GET api/settings/generate_secret_key
 message GenerateSecretKeyWsResponse {
-  optional string secretKey = 1;
+  string secretKey = 1;
 }
 
 // Response of GET api/settings/check_secret_key
 message CheckSecretKeyWsResponse {
-  optional bool secretKeyAvailable = 1;
+  bool secretKeyAvailable = 1;
 }
 
 message Definition {
-  optional string key = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional Type type = 4;
-  optional string category = 5;
-  optional string subCategory = 6;
-  optional string defaultValue = 7;
-  optional bool multiValues = 8;
+  string key = 1;
+  oneof nameOneOf {string name = 2;}
+  string description = 3;
+  Type type = 4;
+  oneof categoryOneOf {string category = 5;}
+  oneof subCategoryOneOf {string subCategory = 6;}
+  oneof defaultValueOneOf {string defaultValue = 7;}
+  bool multiValues = 8;
   repeated string options = 9;
   repeated Field fields = 10;
-  optional string deprecatedKey = 11;
+  oneof deprecatedKeyOneOf {string deprecatedKey = 11;}
 }
 
 message Field {
-  optional string key = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional Type type = 4;
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  Type type = 4;
   repeated string options = 5;
 }
 
@@ -89,14 +89,18 @@ message ValuesWsResponse {
 }
 
 message Setting {
-  optional string key = 1;
-  optional string value = 2;
-  optional Values values = 3;
-  optional FieldValues fieldValues = 4;
-  optional bool inherited = 5;
-  optional string parentValue = 6;
-  optional Values parentValues = 7;
-  optional FieldValues parentFieldValues = 8;
+  string key = 1;
+  oneof valueOneOf {
+    string value = 2;
+    Values values = 3;
+    FieldValues fieldValues = 4;
+  }
+  bool inherited = 5;
+  oneof parentValueOneOf {
+    string parentValue = 6;
+    Values parentValues = 7;
+    FieldValues parentFieldValues = 8;
+  }
 }
 
 message Values {

@@ -57,6 +57,11 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
+import static org.sonarqube.ws.Settings.Definition.CategoryOneOfCase.CATEGORYONEOF_NOT_SET;
+import static org.sonarqube.ws.Settings.Definition.DefaultValueOneOfCase.DEFAULTVALUEONEOF_NOT_SET;
+import static org.sonarqube.ws.Settings.Definition.DeprecatedKeyOneOfCase.DEPRECATEDKEYONEOF_NOT_SET;
+import static org.sonarqube.ws.Settings.Definition.NameOneOfCase.NAMEONEOF_NOT_SET;
+import static org.sonarqube.ws.Settings.Definition.SubCategoryOneOfCase.SUBCATEGORYONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Type.BOOLEAN;
 import static org.sonarqube.ws.Settings.Type.LICENSE;
 import static org.sonarqube.ws.Settings.Type.PROPERTY_SET;
@@ -130,14 +135,14 @@ public class ListDefinitionsActionTest {
     Settings.Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getType()).isEqualTo(STRING);
-    assertThat(definition.hasName()).isFalse();
-    assertThat(definition.hasCategory()).isFalse();
-    assertThat(definition.hasSubCategory()).isFalse();
-    assertThat(definition.hasDefaultValue()).isFalse();
+    assertThat(definition.getNameOneOfCase()).isEqualTo(NAMEONEOF_NOT_SET);
+    assertThat(definition.getCategoryOneOfCase()).isEqualTo(CATEGORYONEOF_NOT_SET);
+    assertThat(definition.getSubCategoryOneOfCase()).isEqualTo(SUBCATEGORYONEOF_NOT_SET);
+    assertThat(definition.getDefaultValueOneOfCase()).isEqualTo(DEFAULTVALUEONEOF_NOT_SET);
     assertThat(definition.getMultiValues()).isFalse();
     assertThat(definition.getOptionsCount()).isZero();
     assertThat(definition.getFieldsCount()).isZero();
-    assertThat(definition.hasDeprecatedKey()).isFalse();
+    assertThat(definition.getDeprecatedKeyOneOfCase()).isEqualTo(DEPRECATEDKEYONEOF_NOT_SET);
   }
 
   @Test
