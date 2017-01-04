@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- project -->
-  <projects long_name="[null]"
+  <projects organization_uuid="org1"
+            long_name="[null]"
             id="1"
             scope="PRJ"
             qualifier="TRK"
@@ -19,7 +20,8 @@
             person_id="[null]"/>
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="2"
             scope="DIR"
             qualifier="PAC"
@@ -38,7 +40,8 @@
             person_id="[null]"/>
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="3"
             scope="FIL"
             qualifier="CLA"

@@ -19,15 +19,25 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
+import java.util.stream.Stream;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
 public class DbVersion63 implements DbVersion {
   @Override
+  public Stream<Object> getSupportComponents() {
+    return Stream.of(DefaultOrganizationUuidImpl.class);
+  }
+
+  @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(1500, "Add Events.UUID", AddUuidToEvents.class)
       .add(1501, "Populate Events.UUID", PopulateUuidColumnOfEvents.class)
-      .add(1502, "Make Events.UUID not nullable", MakeUuidNotNullOnEvents.class);
+      .add(1502, "Make Events.UUID not nullable", MakeUuidNotNullOnEvents.class)
+      .add(1503, "Add PROJECTS.ORGANIZATION_UUID", AddOrganizationUuidToProjects.class)
+      .add(1504, "Populate PROJECTS.ORGANIZATION_UUID", PopulateOrganizationUuidToProjects.class)
+      .add(1505, "Make PROJECTS.ORGANIZATION_UUID not nullable", MakeOrganizationUuidOfProjectsNotNullable.class)
+    ;
   }
 }

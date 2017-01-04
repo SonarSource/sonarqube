@@ -29,8 +29,9 @@ public class DbVersion63Test {
   private DbVersion63 underTest = new DbVersion63();
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void verify_support_components() {
+    assertThat(underTest.getSupportComponents())
+      .containsOnly(DefaultOrganizationUuidImpl.class);
   }
 
   @Test
@@ -40,8 +41,7 @@ public class DbVersion63Test {
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 3);
+    verifyMigrationCount(underTest, 6);
   }
-
 
 }

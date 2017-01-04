@@ -5,7 +5,8 @@
                resource_id="399"
                role="user"
                organization_uuid="org1"/>
-  <projects id="399"
+  <projects organization_uuid="org1"
+            id="399"
             kee="my.project:kee"
             root_id="[null]"
             qualifier="TRK"

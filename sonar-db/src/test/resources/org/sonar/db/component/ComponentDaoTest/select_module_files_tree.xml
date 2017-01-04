@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="ABCD"
             scope="PRJ"
             qualifier="TRK"
@@ -22,7 +23,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- module -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="ABCD"
             kee="org.struts:struts-core"
             name="Struts Core"
@@ -42,7 +44,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- file attached directly on module -->
-  <projects id="3"
+  <projects organization_uuid="org1"
+            id="3"
             scope="FIL"
             qualifier="FIL"
             kee="org.struts:struts-core:pom.xml"
@@ -75,7 +78,8 @@
                 data_type="SOURCE"/>
 
   <!-- sub module -->
-  <projects id="4"
+  <projects organization_uuid="org1"
+            id="4"
             root_uuid="ABCD"
             kee="org.struts:struts-data"
             name="Struts Data"
@@ -95,7 +99,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- directory -->
-  <projects id="5"
+  <projects organization_uuid="org1"
+            id="5"
             scope="DIR"
             qualifier="DIR"
             kee="org.struts:struts-core:src/org/struts"
@@ -116,7 +121,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- file -->
-  <projects id="6"
+  <projects organization_uuid="org1"
+            id="6"
             scope="FIL"
             qualifier="FIL"
             kee="org.struts:struts-core:src/org/struts/RequestContext.java"

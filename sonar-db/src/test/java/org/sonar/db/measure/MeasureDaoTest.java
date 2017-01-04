@@ -505,6 +505,7 @@ public class MeasureDaoTest {
   private String insertComponent(String scope, String qualifier, boolean enabled) {
     String uuid = UuidFactoryImpl.INSTANCE.create();
     ComponentDto componentDto = new ComponentDto()
+      .setOrganizationUuid("org1")
       .setUuid(uuid)
       .setScope(scope)
       .setQualifier(qualifier)

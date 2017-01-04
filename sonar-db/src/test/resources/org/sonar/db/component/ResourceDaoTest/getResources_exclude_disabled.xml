@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- disabled -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_id="[null]"
             scope="PRJ"
             qualifier="TRK"
@@ -20,7 +21,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- enabled -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_id="[null]"
             scope="PRJ"
             qualifier="TRK"

@@ -39,7 +39,8 @@
          template_id="[null]"/>
 
   <!-- project -->
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="[null]"
@@ -54,7 +55,8 @@
             root_uuid="ABCD"/>
 
   <!-- package -->
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="ABCD"
@@ -69,7 +71,8 @@
             root_uuid="ABCD"/>
 
   <!-- file -->
-  <projects uuid="CDEF"
+  <projects organization_uuid="org1"
+            uuid="CDEF"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="ABCD"

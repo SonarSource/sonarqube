@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_id="200"
             uuid="ABCD"
             project_uuid="ABCD"

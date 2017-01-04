@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- Simple View -->
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             project_uuid="ABCD"
@@ -26,7 +27,8 @@
              version="[null]"
   />
 
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             project_uuid="ABCD"
@@ -52,7 +54,8 @@
   />
 
   <!-- View with sub view -->
-  <projects uuid="EFGH"
+  <projects organization_uuid="org1"
+            uuid="EFGH"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -76,7 +79,8 @@
              build_date="1228222680000"
              version="[null]"
   />
-  <projects uuid="GHIJ"
+  <projects organization_uuid="org1"
+            uuid="GHIJ"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -102,7 +106,8 @@
   />
 
   <!-- Sub view -->
-  <projects uuid="FGHI"
+  <projects organization_uuid="org1"
+            uuid="FGHI"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -127,7 +132,8 @@
              version="[null]"
   />
 
-  <projects uuid="HIJK"
+  <projects organization_uuid="org1"
+            uuid="HIJK"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -153,7 +159,8 @@
   />
 
   <!-- View without project -->
-  <projects uuid="IJKL"
+  <projects organization_uuid="org1"
+            uuid="IJKL"
             uuid_path="NOT_USED"
             root_uuid="IJKL"
             project_uuid="IJKL"
@@ -180,7 +187,8 @@
 
   <!-- Real projects -->
 
-  <projects uuid="JKLM"
+  <projects organization_uuid="org1"
+            uuid="JKLM"
             uuid_path="NOT_USED"
             root_uuid="JKLM"
             project_uuid="JKLM"
@@ -205,7 +213,8 @@
              version="[null]"
   />
 
-  <projects uuid="KLMN"
+  <projects organization_uuid="org1"
+            uuid="KLMN"
             uuid_path="NOT_USED"
             root_uuid="KLMN"
             project_uuid="KLMN"

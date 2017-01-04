@@ -5,7 +5,8 @@
   <quality_gates id="43"
                  name="Ninth"/>
 
-  <projects uuid="A"
+  <projects organization_uuid="org1"
+            uuid="A"
             uuid_path="NOT_USED"
             root_uuid="A"
             kee="project-one"
@@ -13,7 +14,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="1"/>
-  <projects uuid="B"
+  <projects organization_uuid="org1"
+            uuid="B"
             uuid_path="NOT_USED"
             root_uuid="B"
             kee="project-two"
@@ -21,7 +23,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="2"/>
-  <projects uuid="C"
+  <projects organization_uuid="org1"
+            uuid="C"
             uuid_path="NOT_USED"
             root_uuid="C"
             kee="project-three"
@@ -29,7 +32,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="3"/>
-  <projects uuid="D"
+  <projects organization_uuid="org1"
+            uuid="D"
             uuid_path="NOT_USED"
             root_uuid="D"
             kee="project-four"
@@ -37,7 +41,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="4"/>
-  <projects uuid="E"
+  <projects organization_uuid="org1"
+            uuid="E"
             uuid_path="NOT_USED"
             root_uuid="E"
             kee="project-five"
@@ -45,7 +50,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="5"/>
-  <projects uuid="F"
+  <projects organization_uuid="org1"
+            uuid="F"
             uuid_path="NOT_USED"
             root_uuid="F"
             kee="view-six"
@@ -53,7 +59,8 @@
             qualifier="VW"
             scope="PRJ"
             id="6"/>
-  <projects uuid="G"
+  <projects organization_uuid="org1"
+            uuid="G"
             uuid_path="NOT_USED"
             root_uuid="G"
             kee="file-one"

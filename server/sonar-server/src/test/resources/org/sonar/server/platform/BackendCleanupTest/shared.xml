@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects uuid="JKLM"
+  <projects organization_uuid="org1"
+            uuid="JKLM"
             uuid_path="NOT_USED"
             root_uuid="JKLM"
             project_uuid="JKLM"

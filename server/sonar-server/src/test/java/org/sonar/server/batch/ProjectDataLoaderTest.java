@@ -81,6 +81,7 @@ public class ProjectDataLoaderTest {
   }
 
   private int uuidCounter = 0;
+
   @Test
   public void load_fails_with_BRE_if_component_is_neither_a_project_or_a_module() {
     String[][] allScopesAndQualifierButProjectAndModule = {
@@ -99,6 +100,7 @@ public class ProjectDataLoaderTest {
       String key = "theKey_" + scope + "_" + qualifier;
       String uuid = "uuid_" + uuidCounter++;
       dbClient.componentDao().insert(dbSession, new ComponentDto()
+        .setOrganizationUuid("org1")
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)

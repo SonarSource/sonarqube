@@ -37,6 +37,8 @@ import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsR
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -67,6 +69,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private DbClient dbClient = dbTester.getDbClient();
   private Date now;
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private PersistComponentsStep underTest;
 
   @Before
@@ -74,7 +77,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, defaultOrganizationProvider);
   }
 
   @Override
@@ -110,6 +113,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
     ComponentDto projectDto = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
+    assertThat(projectDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(projectDto.name()).isEqualTo("Project");
     assertThat(projectDto.description()).isEqualTo("Project description");
     assertThat(projectDto.path()).isNull();
@@ -124,6 +128,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto moduleDto = dbClient.componentDao().selectByKey(dbTester.getSession(), MODULE_KEY).get();
+    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(moduleDto.name()).isEqualTo("Module");
     assertThat(moduleDto.description()).isEqualTo("Module description");
     assertThat(moduleDto.path()).isEqualTo("module");
@@ -138,6 +143,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
@@ -152,6 +158,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");

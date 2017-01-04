@@ -31,12 +31,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Developer;
 import org.sonar.server.computation.task.projectanalysis.component.DumbDeveloper;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureToMeasureDto;
@@ -394,6 +394,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   private ComponentDto addComponent(String key, String uuid) {
     ComponentDto componentDto = new ComponentDto()
+      .setOrganizationUuid("org1")
       .setKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
@@ -410,15 +411,15 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     return dbTester
       .select(
         "SELECT analysis_uuid as \"analysisUuid\", component_uuid as \"componentUuid\", metric_id as \"metricId\", person_id as \"developerId\", "
-        +
-        "value as \"value\", text_value as \"textValue\", " +
-        "variation_value_1 as \"variation_value_1\", " +
-        "variation_value_2 as \"variation_value_2\", " +
-        "variation_value_3 as \"variation_value_3\", " +
-        "variation_value_4 as \"variation_value_4\", " +
-        "variation_value_5 as \"variation_value_5\"" +
-        "FROM project_measures " +
-        "ORDER by id asc");
+          +
+          "value as \"value\", text_value as \"textValue\", " +
+          "variation_value_1 as \"variation_value_1\", " +
+          "variation_value_2 as \"variation_value_2\", " +
+          "variation_value_3 as \"variation_value_3\", " +
+          "variation_value_4 as \"variation_value_4\", " +
+          "variation_value_5 as \"variation_value_5\"" +
+          "FROM project_measures " +
+          "ORDER by id asc");
   }
 
   @Override

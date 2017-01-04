@@ -7,7 +7,8 @@
          plugin_config_key="[null]"
          plugin_name="squid"/>
 
-  <projects uuid="PROJECT1"
+  <projects organization_uuid="org1"
+            uuid="PROJECT1"
             uuid_path="NOT_USED"
             root_uuid="PROJECT1"
             path="[null]"
@@ -17,7 +18,8 @@
             qualifier="TRK"
             kee="struts"
             name="Struts"/>
-  <projects uuid="MODULE1"
+  <projects organization_uuid="org1"
+            uuid="MODULE1"
             uuid_path="NOT_USED"
             root_uuid="PROJECT1"
             path="[null]"
@@ -27,7 +29,8 @@
             qualifier="BRC"
             kee="struts:struts-tiles"
             name="Struts Tiles"/>
-  <projects uuid="DIR1"
+  <projects organization_uuid="org1"
+            uuid="DIR1"
             uuid_path="NOT_USED"
             root_uuid="MODULE1"
             path="src/main/java"
@@ -37,7 +40,8 @@
             qualifier="DIR"
             kee="struts:struts-tiles:/"
             name="src/main/java/"/>
-  <projects uuid="FILE1"
+  <projects organization_uuid="org1"
+            uuid="FILE1"
             uuid_path="NOT_USED"
             root_uuid="MODULE1"
             path="src/main/java/Action.java"

@@ -7,13 +7,15 @@
   <metrics id="12"
            name="ncloc"/>
 
-  <projects uuid="uuid_1"
+  <projects organization_uuid="org1"
+            uuid="uuid_1"
             uuid_path="NOT_USED"
             root_uuid="uuid_1"
             id="1"
             kee="org.struts:struts-core:src/org/struts/RequestContext.java"
             enabled="[true]"/>
-  <projects uuid="333"
+  <projects organization_uuid="org1"
+            uuid="333"
             uuid_path="NOT_USED"
             root_uuid="333"
             id="333"

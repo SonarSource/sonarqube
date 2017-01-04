@@ -7,7 +7,8 @@
          plugin_config_key="[null]"
          plugin_name="squid"/>
 
-  <projects uuid="THE_PROJECT"
+  <projects organization_uuid="org1"
+            uuid="THE_PROJECT"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT"
             module_uuid="[null]"
@@ -18,7 +19,8 @@
             qualifier="TRK"
             kee="the_project"
             name="TheProject"/>
-  <projects uuid="THE_FILE"
+  <projects organization_uuid="org1"
+            uuid="THE_FILE"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT"
             module_uuid="THE_PROJECT"

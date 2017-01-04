@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_id="[null]"
             uuid="ABCD"
             project_uuid="EFGH"
@@ -21,7 +22,8 @@
             deprecated_kee="org.struts:struts:org.struts.Action"
             authorization_updated_at="123456789"/>
 
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_id="[null]"
             uuid="BCDE"
             project_uuid="FGHI"

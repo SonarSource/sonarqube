@@ -4,6 +4,7 @@
 
   <sql id="componentColumns">
     p.id,
+    p.organization_uuid as organizationUuid,
     p.uuid as uuid,
     p.uuid_path as uuidPath,
     p.project_uuid as projectUuid,
@@ -24,26 +25,6 @@
     p.developer_uuid as developerUuid,
     p.authorization_updated_at as authorizationUpdatedAt,
     p.created_at as createdAt
-  </sql>
-
-  <sql id="viewsComponentColumns">
-    p.id,
-    p.name,
-    p.uuid as uuid,
-    p.uuid_path as uuidPath,
-    p.kee as kee,
-    p.qualifier as qualifier,
-    p.scope as scope,
-    P.copy_component_uuid as copyComponentUuid,
-    p.module_uuid as moduleUuid
-  </sql>
-
-  <sql id="authorizedComponentColumns">
-    p.id,
-    p.uuid as uuid,
-    p.kee as kee,
-    p.qualifier as qualifier,
-    p.scope as scope
   </sql>
 
   <select id="selectByKey" parameterType="String" resultType="Component">
@@ -489,7 +470,9 @@
   </sql>
 
   <sql id="insertSql">
-    INSERT INTO projects (kee,
+    INSERT INTO projects (
+    organization_uuid,
+    kee,
     deprecated_kee,
     uuid,
     uuid_path,
@@ -522,6 +505,7 @@
     b_qualifier
     )
     VALUES (
+    #{organizationUuid,jdbcType=VARCHAR},
     #{kee,jdbcType=VARCHAR},
     #{deprecatedKey,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},

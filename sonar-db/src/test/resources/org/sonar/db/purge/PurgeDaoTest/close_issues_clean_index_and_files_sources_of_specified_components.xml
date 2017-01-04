@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- the project -->
-  <projects uuid="P1"
+  <projects organization_uuid="org1"
+            uuid="P1"
             uuid_path="NOT_USED"
             project_uuid="P1"
             module_uuid="[null]"
@@ -36,7 +37,8 @@
             b_qualifier="[null]"/>
 
   <!-- the directory -->
-  <projects uuid="EFGH"
+  <projects organization_uuid="org1"
+            uuid="EFGH"
             uuid_path="NOT_USED"
             project_uuid="P1"
             module_uuid="P1"
@@ -71,7 +73,8 @@
             b_qualifier="[null]"/>
 
   <!-- the file -->
-  <projects uuid="GHIJ"
+  <projects organization_uuid="org1"
+            uuid="GHIJ"
             uuid_path="NOT_USED"
             project_uuid="P1"
             module_uuid="P1"

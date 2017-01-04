@@ -15,7 +15,8 @@
            hidden="[false]"
            delete_historical_data="[null]"/>
 
-  <projects uuid="UUID_JAVA_PROJECT"
+  <projects organization_uuid="org1"
+            uuid="UUID_JAVA_PROJECT"
             uuid_path="."
             project_uuid="UUID_JAVA_PROJECT"
             description="[null]"

@@ -41,6 +41,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,31 +61,29 @@ public class ComponentServiceUpdateKeyTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  I18nRule i18n = new I18nRule();
+  private I18nRule i18n = new I18nRule();
 
-  ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
+  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
 
-  ComponentService underTest;
+  private ComponentService underTest;
 
   @Before
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer,
+        TestDefaultOrganizationProvider.from(db));
   }
 
   @Test

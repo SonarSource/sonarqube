@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- Simple View -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             uuid="ABCD"
             uuid_path="ABCD."
             root_uuid="ABCD"
@@ -16,7 +17,8 @@
             name="All projects"
             path="[null]"/>
 
-  <projects id="110"
+  <projects organization_uuid="org1"
+            id="110"
             uuid="BCDE"
             uuid_path="ABCD.BCDE."
             root_uuid="ABCD"
@@ -32,7 +34,8 @@
             path="[null]"/>
 
   <!-- View with sub view -->
-  <projects id="11"
+  <projects organization_uuid="org1"
+            id="11"
             uuid="EFGH"
             uuid_path="EFGH."
             root_uuid="EFGH"
@@ -46,7 +49,8 @@
             qualifier="VW"
             name="By Language"
             path="[null]"/>
-  <projects id="112"
+  <projects organization_uuid="org1"
+            id="112"
             uuid="GHIJ"
             uuid_path="EFGH.GHIJ."
             root_uuid="EFGH"
@@ -62,7 +66,8 @@
             path="[null]"/>
 
   <!-- Sub view -->
-  <projects id="13"
+  <projects organization_uuid="org1"
+            id="13"
             uuid="FGHI"
             uuid_path="EFGH.FGHI."
             root_uuid="FGHI"
@@ -77,7 +82,8 @@
             name="Java projects"
             path="[null]"/>
 
-  <projects id="113"
+  <projects organization_uuid="org1"
+            id="113"
             uuid="HIJK"
             uuid_path="EFGH.FGHI.HIJK."
             root_uuid="EFGH"
@@ -93,7 +99,8 @@
             path="[null]"/>
 
   <!-- View without project -->
-  <projects id="14"
+  <projects organization_uuid="org1"
+            id="14"
             uuid="IJKL"
             uuid_path="IJKL.."
             root_uuid="IJKL"
@@ -109,7 +116,8 @@
             path="[null]"/>
 
   <!-- Real projects -->
-  <projects id="100"
+  <projects organization_uuid="org1"
+            id="100"
             uuid="JKLM"
             uuid_path="JKLM."
             root_uuid="JKLM"
@@ -123,7 +131,8 @@
             enabled="[true]"
             copy_component_uuid="[null]"
             path="[null]"/>
-  <projects id="101"
+  <projects organization_uuid="org1"
+            id="101"
             uuid="KLMN"
             uuid_path="KLMN."
             root_uuid="KLMN"

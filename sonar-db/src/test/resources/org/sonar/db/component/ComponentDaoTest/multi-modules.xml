@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="ABCD"
             kee="org.struts:struts"
             name="Struts"
@@ -32,7 +33,8 @@
              />
 
   <!-- module -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="ABCD"
             kee="org.struts:struts-core"
             name="Struts Core"
@@ -57,7 +59,8 @@
              />
 
   <!-- sub module -->
-  <projects id="3"
+  <projects organization_uuid="org1"
+            id="3"
             root_uuid="ABCD"
             kee="org.struts:struts-data"
             name="Struts Data"
@@ -82,7 +85,8 @@
              />
 
   <!-- directory -->
-  <projects id="4"
+  <projects organization_uuid="org1"
+            id="4"
             root_uuid="FGHI"
             scope="DIR"
             qualifier="DIR"
@@ -108,7 +112,8 @@
              />
 
   <!-- file -->
-  <projects id="5"
+  <projects organization_uuid="org1"
+            id="5"
             root_uuid="FGHI"
             scope="FIL"
             qualifier="FIL"
@@ -134,7 +139,8 @@
   />
 
   <!-- removed sub module -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             root_uuid="ABCD"
             kee="org.struts:struts-data-removed"
             name="Struts Data Removed"
@@ -154,7 +160,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- removed directory -->
-  <projects id="11"
+  <projects organization_uuid="org1"
+            id="11"
             root_uuid="IHGF"
             scope="DIR"
             qualifier="DIR"
@@ -175,7 +182,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- removed file -->
-  <projects id="12"
+  <projects organization_uuid="org1"
+            id="12"
             root_uuid="IHGF"
             scope="FIL"
             qualifier="FIL"

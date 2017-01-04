@@ -45,6 +45,11 @@ public class ComponentDto implements Component {
   private Long id;
 
   /**
+   * The UUID of the organization the component belongs to. Can't be null in DB.
+   */
+  private String organizationUuid;
+
+  /**
    * Non-empty and unique functional key
    */
   private String kee;
@@ -119,6 +124,15 @@ public class ComponentDto implements Component {
 
   public ComponentDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public ComponentDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
     return this;
   }
 

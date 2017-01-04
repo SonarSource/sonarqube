@@ -66,32 +66,29 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyActionTest {
-  static final String MY_PROJECT_KEY = "my_project";
-  static final String FROM = "my_";
-  static final String TO = "your_";
+  private static final String MY_PROJECT_KEY = "my_project";
+  private static final String FROM = "my_";
+  private static final String TO = "your_";
 
   private System2 system2 = System2.INSTANCE;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
-  WsActionTester ws = new WsActionTester(
-    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client())), userSession));
+  private WsActionTester ws = new WsActionTester(
+    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client()), null), userSession));
 
   @Before
   public void setUp() {

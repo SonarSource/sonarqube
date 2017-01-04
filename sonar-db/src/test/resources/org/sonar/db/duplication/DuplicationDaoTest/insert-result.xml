@@ -12,7 +12,8 @@
              status="U"
              islast="0"
   />
-  <projects uuid="1"
+  <projects organization_uuid="org1"
+            uuid="1"
             uuid_path="NOT_USED"
             kee="foo"
             enabled="1"

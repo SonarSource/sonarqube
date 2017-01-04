@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             kee="org.struts:struts-core:src/org/struts/RequestContext.java"
             name="RequestContext.java"
             long_name="org.struts.RequestContext"

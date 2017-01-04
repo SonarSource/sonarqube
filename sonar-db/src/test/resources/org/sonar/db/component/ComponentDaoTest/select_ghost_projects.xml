@@ -8,7 +8,8 @@
                organization_uuid="org1"/>
 
   <!-- Ghost project -->
-  <projects id="42"
+  <projects organization_uuid="org1"
+            id="42"
             root_uuid="PPAA"
             scope="PRJ"
             qualifier="TRK"
@@ -29,7 +30,8 @@
             authorization_updated_at="123456789"/>
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="ABCD"
             scope="PRJ"
             qualifier="TRK"
@@ -126,7 +128,8 @@
              />
 
   <!-- module -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="ABCD"
             kee="org.struts:struts-core"
             name="Struts Core"
@@ -171,7 +174,8 @@
              />
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="3"
             scope="DIR"
             qualifier="DIR"
@@ -217,7 +221,8 @@
              />
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="4"
             scope="FIL"
             qualifier="FIL"
@@ -264,7 +269,8 @@
              />
 
   <!-- Disabled projects -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             root_uuid="DCBA"
             scope="PRJ"
             qualifier="TRK"
@@ -285,7 +291,8 @@
             authorization_updated_at="123456789"/>
 
   <!-- Developer and technical project copy -->
-  <projects id="11"
+  <projects organization_uuid="org1"
+            id="11"
             root_uuid="OPQR"
             scope="PRJ"
             qualifier="DEV"
@@ -304,7 +311,8 @@
             developer_uuid="[null]"
             path="[null]"
             authorization_updated_at="123456789"/>
-  <projects id="12"
+  <projects organization_uuid="org1"
+            id="12"
             root_uuid="OPQR"
             scope="PRJ"
             qualifier="DEV_PRJ"

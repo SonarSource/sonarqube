@@ -208,6 +208,7 @@ public class CreateActionTest {
 
   private ComponentDto insertProject() {
     ComponentDto project = new ComponentDto()
+      .setOrganizationUuid("org1")
       .setUuid(PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setUuidPath("")

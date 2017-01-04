@@ -7,7 +7,8 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 <dataset>
 
   <!-- the project -->
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="."
             project_uuid="ABCD"
             module_uuid="[null]"
@@ -43,7 +44,8 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
   />
 
   <!-- the directory -->
-  <projects uuid="EFGH"
+  <projects organization_uuid="org1"
+            uuid="EFGH"
             uuid_path=".ABCD."
             project_uuid="ABCD"
             module_uuid="ABCD"
@@ -79,7 +81,8 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
   />
 
   <!-- the file -->
-  <projects uuid="GHIJ"
+  <projects organization_uuid="org1"
+            uuid="GHIJ"
             uuid_path=".ABCD.EFGH."
             project_uuid="ABCD"
             module_uuid="ABCD"
