@@ -19,6 +19,7 @@
  */
 package it.settings;
 
+import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category1Suite;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
 import util.user.UserRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.ws.Settings.Setting;
@@ -136,6 +138,24 @@ public class SettingsTest {
     assertThat(getSetting("setting.license.secured", anonymousSettingsService)).isNull();
     assertThat(getSetting("setting.license.secured", userSettingsService).getValue()).isEqualTo("test");
     assertThat(getSetting("setting.license.secured", adminSettingsService).getValue()).isEqualTo("test");
+  }
+
+  @Test
+  public void multi_values_setting() throws Exception {
+    adminSettingsService.set(SetRequest.builder().setKey("multi").setValues(asList("value1", "value2", "value3")).build());
+    assertThat(getSetting("multi", anonymousSettingsService).getValues().getValuesList()).containsOnly("value1", "value2", "value3");
+  }
+
+  @Test
+  public void property_set_setting() throws Exception {
+    adminSettingsService.set(SetRequest.builder().setKey("sonar.jira").setFieldValues(asList(
+      "{\"key\":\"jira1\", \"url\":\"http://jira1\", \"port\":\"12345\", \"type\":\"A\"}",
+      "{\"key\":\"jira2\", \"url\":\"http://jira2\", \"port\":\"54321\"}"))
+      .build());
+
+    assertThat(getSetting("sonar.jira", anonymousSettingsService).getFieldValues().getFieldValuesList()).extracting(Settings.FieldValues.Value::getValue).containsOnly(
+      ImmutableMap.of("key", "jira1", "url", "http://jira1", "port", "12345", "type", "A"),
+      ImmutableMap.of("key", "jira2", "url", "http://jira2", "port", "54321"));
   }
 
   @Test

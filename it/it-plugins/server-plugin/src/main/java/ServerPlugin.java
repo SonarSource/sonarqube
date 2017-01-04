@@ -23,26 +23,45 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
+import org.sonar.api.PropertyField;
 import org.sonar.api.SonarPlugin;
+
+import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.FLOAT;
+import static org.sonar.api.PropertyType.INTEGER;
+import static org.sonar.api.PropertyType.LICENSE;
+import static org.sonar.api.PropertyType.LONG;
+import static org.sonar.api.PropertyType.METRIC;
+import static org.sonar.api.PropertyType.METRIC_LEVEL;
+import static org.sonar.api.PropertyType.PASSWORD;
+import static org.sonar.api.PropertyType.PROPERTY_SET;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
+import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.api.PropertyType.TEXT;
+import static org.sonar.api.PropertyType.USER_LOGIN;
 
 @Properties({
   @Property(key = "some-property", name = "Some Property", defaultValue = "aDefaultValue", global = true, project = false),
-  @Property(key = "boolean", name = "Boolean", defaultValue = "true", type = PropertyType.BOOLEAN, global = true, project = false),
-  @Property(key = "user", name = "User", type = PropertyType.USER_LOGIN, global = true, project = false),
-  @Property(key = "list", name = "List", type = PropertyType.SINGLE_SELECT_LIST, options = {"A", "B", "C"}, global = true, project = false),
-  @Property(key = "metric", name = "Metric", type = PropertyType.METRIC, global = true, project = false),
-  @Property(key = "metric_level", name = "Metric Level", type = PropertyType.METRIC_LEVEL, global = true, project = false),
-  @Property(key = "float", name = "Float", type = PropertyType.FLOAT, global = true, project = false),
-  @Property(key = "int", name = "Integer", type = PropertyType.INTEGER, global = true, project = false),
-  @Property(key = "string", name = "String", type = PropertyType.STRING, global = true, project = false),
-  @Property(key = "setting.license.secured", name = "License", type = PropertyType.LICENSE, global = true, project = false),
-  @Property(key = "long", name = "Long", type = PropertyType.LONG, global = true, project = false),
-  @Property(key = "password", name = "Password", type = PropertyType.PASSWORD, global = true, project = false),
-  @Property(key = "text", name = "Text", type = PropertyType.TEXT, global = true, project = false),
-  @Property(key = "multi", name = "Multi", type = PropertyType.STRING, multiValues = true, global = true, project = false),
-  @Property(key = "hidden", name = "Hidden", type = PropertyType.STRING, global = false, project = false),
-  @Property(key = "setting.secured", name = "Secured", type = PropertyType.STRING, global = true, project = false)
+  @Property(key = "boolean", name = "Boolean", defaultValue = "true", type = BOOLEAN, global = true, project = false),
+  @Property(key = "user", name = "User", type = USER_LOGIN, global = true, project = false),
+  @Property(key = "list", name = "List", type = SINGLE_SELECT_LIST, options = {"A", "B", "C"}, global = true, project = false),
+  @Property(key = "metric", name = "Metric", type = METRIC, global = true, project = false),
+  @Property(key = "metric_level", name = "Metric Level", type = METRIC_LEVEL, global = true, project = false),
+  @Property(key = "float", name = "Float", type = FLOAT, global = true, project = false),
+  @Property(key = "int", name = "Integer", type = INTEGER, global = true, project = false),
+  @Property(key = "string", name = "String", type = STRING, global = true, project = false),
+  @Property(key = "setting.license", name = "License", type = LICENSE, global = true, project = false),
+  @Property(key = "long", name = "Long", type = LONG, global = true, project = false),
+  @Property(key = "password", name = "Password", type = PASSWORD, global = true, project = false),
+  @Property(key = "text", name = "Text", type = TEXT, global = true, project = false),
+  @Property(key = "multi", name = "Multi", type = STRING, multiValues = true, global = true, project = false),
+  @Property(key = "hidden", name = "Hidden", type = STRING, global = false, project = false),
+  @Property(key = "setting.secured", name = "Secured", type = STRING, global = true, project = false),
+  @Property(key = "sonar.jira", name = "Jira Server", type = PROPERTY_SET, propertySetKey = "jira", fields = {
+    @PropertyField(key = "key", name = "Key", description = "Server key"),
+    @PropertyField(key = "type", name = "Type", options = {"A", "B"}),
+    @PropertyField(key = "url", name = "URL"),
+    @PropertyField(key = "port", name = "Port", type = INTEGER)}),
 })
 public class ServerPlugin extends SonarPlugin {
   public List getExtensions() {
