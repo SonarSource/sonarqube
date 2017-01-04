@@ -80,10 +80,10 @@ public class QualityGateUiTest {
 
     // with this configuration, project should have an Orange alert
     QualityGateCondition lowThresholds = qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("GT").warningThreshold("5").errorThreshold("50"));
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
     // with this configuration, project should have a Green alert
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
-    scanSampleWithDate("2012-01-02");
+    scanSampleWithDate("2016-01-02");
 
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("display-alerts-history-page",
@@ -106,7 +106,7 @@ public class QualityGateUiTest {
     qgClient.setDefault(qGate.id());
 
     // No alert
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
 
     // Red alert because lines number has not changed since previous analysis
     scanSample();

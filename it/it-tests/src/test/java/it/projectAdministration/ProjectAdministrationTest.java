@@ -63,7 +63,7 @@ public class ProjectAdministrationTest {
 
   @Test
   public void delete_project_by_web_service() {
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
@@ -77,7 +77,7 @@ public class ProjectAdministrationTest {
   @Test
   public void fail_when_trying_to_delete_a_file() {
     expectedException.expect(HttpException.class);
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
@@ -89,7 +89,7 @@ public class ProjectAdministrationTest {
   @Test
   public void fail_when_insufficient_privilege() {
     expectedException.expect(HttpException.class);
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
 
     assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
 
@@ -164,7 +164,7 @@ public class ProjectAdministrationTest {
    */
   @Test
   public void project_settings() {
-    scanSampleWithDate("2012-01-01");
+    scanSampleWithDate("2016-01-01");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-settings",
       // SONAR-3425
