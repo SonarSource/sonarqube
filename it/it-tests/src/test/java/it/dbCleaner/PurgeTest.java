@@ -246,11 +246,11 @@ public class PurgeTest {
    */
   @Test
   public void should_delete_historical_data_of_directories_by_default() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, "2016-01-01");
     String select = "snapshots where scope='DIR'";
     int directorySnapshots = count(select);
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, "2016-02-02");
     assertThat(count(select)).isEqualTo(directorySnapshots);
   }
 
@@ -259,14 +259,14 @@ public class PurgeTest {
    */
   @Test
   public void should_not_delete_historical_data_of_directories() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, "2016-01-01");
 
     String select = "snapshots where scope='DIR'";
     int directorySnapshots = count(select);
 
     setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", "false");
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, "2016-02-02");
 
     assertThat(count(select)).isEqualTo(2 * directorySnapshots);
   }
@@ -276,7 +276,7 @@ public class PurgeTest {
    */
   @Test
   public void should_delete_historical_data_of_flagged_metrics() {
-    scan(PROJECT_SAMPLE_PATH, "2012-01-01");
+    scan(PROJECT_SAMPLE_PATH, "2016-01-01");
 
     // historical data of complexity_in_classes is supposed to be deleted (see CoreMetrics)
     String selectNcloc = "project_measures where metric_id in (select id from metrics where name='ncloc')";
@@ -284,7 +284,7 @@ public class PurgeTest {
     int nclocCount = count(selectNcloc);
     int complexitInClassesCount = count(selectComplexityInClasses);
 
-    scan(PROJECT_SAMPLE_PATH, "2012-02-02");
+    scan(PROJECT_SAMPLE_PATH, "2016-02-02");
     assertThat(count(selectNcloc)).isGreaterThan(nclocCount);
     assertThat(count(selectComplexityInClasses)).isEqualTo(complexitInClassesCount);
   }
