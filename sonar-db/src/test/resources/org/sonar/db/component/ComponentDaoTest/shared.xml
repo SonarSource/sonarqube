@@ -9,7 +9,8 @@
 
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             scope="PRJ"
             qualifier="TRK"
             kee="org.struts:struts"
@@ -81,7 +82,8 @@
              />
 
   <!-- module -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             kee="org.struts:struts-core"
             name="Struts Core"
             uuid="U2"
@@ -126,7 +128,8 @@
              />
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="3"
             scope="DIR"
             qualifier="DIR"
@@ -172,7 +175,8 @@
              />
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="4"
             scope="FIL"
             qualifier="FIL"
@@ -219,7 +223,8 @@
              />
 
   <!-- Disabled projects -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             scope="PRJ"
             qualifier="TRK"
             kee="org.disabled.project"
@@ -240,7 +245,8 @@
             authorization_updated_at="123456789"/>
 
   <!-- Developer and technical project copy -->
-  <projects id="11"
+  <projects organization_uuid="org1"
+            id="11"
             scope="PRJ"
             qualifier="DEV"
             kee="DEV:anakin@skywalker.name"
@@ -259,7 +265,8 @@
             developer_uuid="[null]"
             path="[null]"
             authorization_updated_at="123456789"/>
-  <projects id="12"
+  <projects organization_uuid="org1"
+            id="12"
             scope="PRJ"
             qualifier="DEV_PRJ"
             kee="DEV:anakin@skywalker.name:org.struts:struts"

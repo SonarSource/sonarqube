@@ -19,21 +19,24 @@
                   created_at="[null]"
                   updated_at="[null]"/>
 
-  <projects uuid="A"
+  <projects organization_uuid="org1"
+            uuid="A"
             uuid_path="NOT_USED"
             root_uuid="A"
             kee="org.codehaus.sonar:sonar"
             name="SonarQube"
             enabled="[true]"
             id="1"/>
-  <projects uuid="B"
+  <projects organization_uuid="org1"
+            uuid="B"
             uuid_path="NOT_USED"
             root_uuid="B"
             kee="org.codehaus.sonar-plugins.java:java"
             name="SonarQube Java"
             enabled="[true]"
             id="2"/>
-  <projects uuid="C"
+  <projects organization_uuid="org1"
+            uuid="C"
             uuid_path="NOT_USED"
             root_uuid="C"
             kee="disabled:project"

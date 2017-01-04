@@ -9,7 +9,8 @@
 
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="ABCD"
             scope="PRJ"
             qualifier="TRK"
@@ -81,7 +82,8 @@
   />
 
   <!-- module -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="ABCD"
             kee="org.struts:struts-core"
             name="Struts Core"
@@ -102,7 +104,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="3"
             scope="DIR"
             qualifier="DIR"
@@ -124,7 +127,8 @@
             authorization_updated_at="[null]"/>
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="4"
             scope="FIL"
             qualifier="FIL"

@@ -39,6 +39,7 @@ import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
@@ -66,20 +67,21 @@ public class AddProjectActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession session = dbTester.getSession();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
 
-  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
-  QualityProfileDbTester qualityProfileDbTester = new QualityProfileDbTester(dbTester);
-  QProfileProjectOperations qProfileProjectOperations = new QProfileProjectOperations(dbClient);
-  Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
-  ProjectAssociationParameters projectAssociationParameters = new ProjectAssociationParameters(languages);
+  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
+  private QualityProfileDbTester qualityProfileDbTester = new QualityProfileDbTester(dbTester);
+  private QProfileProjectOperations qProfileProjectOperations = new QProfileProjectOperations(dbClient);
+  private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
+  private ProjectAssociationParameters projectAssociationParameters = new ProjectAssociationParameters(languages);
 
-  ComponentDto project;
+  private ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
+  private WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
     qProfileProjectOperations, new ProjectAssociationFinder(new QProfileLookup(dbClient),
-      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()))),
+      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()),
+        TestDefaultOrganizationProvider.from(dbTester))),
     userSession));
 
   @Before

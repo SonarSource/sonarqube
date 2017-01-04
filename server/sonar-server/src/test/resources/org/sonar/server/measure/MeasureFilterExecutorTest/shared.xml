@@ -64,7 +64,8 @@
            delete_historical_data="[null]"/>
 
   <!-- java project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             uuid="UUID_JAVA_PROJECT"
             uuid_path="."
             project_uuid="UUID_JAVA_PROJECT"
@@ -81,7 +82,8 @@
             copy_component_uuid="[null]"
   />
 
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             uuid="UUID_JAVA_DIR"
             uuid_path=".UUID_JAVA_PROJECT."
             project_uuid="UUID_JAVA_PROJECT"
@@ -98,7 +100,8 @@
             copy_component_uuid="[null]"
   />
 
-  <projects id="3"
+  <projects organization_uuid="org1"
+            id="3"
             uuid="UUID_JAVA_BIG_FILE"
             uuid_path=".UUID_JAVA_PROJECT.UUID_JAVA_DIR."
             project_uuid="UUID_JAVA_PROJECT"
@@ -115,7 +118,8 @@
             copy_component_uuid="[null]"
   />
 
-  <projects id="4"
+  <projects organization_uuid="org1"
+            id="4"
             uuid="UUID_JAVA_TINY_FILE"
             uuid_path=".UUID_JAVA_PROJECT.UUID_JAVA_DIR."
             project_uuid="UUID_JAVA_PROJECT"
@@ -251,7 +255,8 @@
                     description="[null]"/>
 
   <!-- php project -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             uuid="UUID_PHP_PROJECT"
             uuid_path="."
             project_uuid="UUID_PHP_PROJECT"

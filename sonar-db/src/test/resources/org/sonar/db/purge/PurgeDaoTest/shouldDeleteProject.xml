@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- root -->
-  <projects uuid="A"
+  <projects organization_uuid="org1"
+            uuid="A"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="[null]"
@@ -114,7 +115,8 @@
                  change_data="abc"/>
 
   <!-- modules -->
-  <projects uuid="B"
+  <projects organization_uuid="org1"
+            uuid="B"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="A"
@@ -145,7 +147,8 @@
             b_qualifier="[null]"
   />
 
-  <projects uuid="C"
+  <projects organization_uuid="org1"
+            uuid="C"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="A"
@@ -177,7 +180,8 @@
   />
 
   <!-- file of module 2-->
-  <projects uuid="D"
+  <projects organization_uuid="org1"
+            uuid="D"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="C"

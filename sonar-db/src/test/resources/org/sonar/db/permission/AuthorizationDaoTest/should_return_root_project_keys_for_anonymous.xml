@@ -13,7 +13,8 @@
                role="user"
                organization_uuid="org1"/>
 
-  <projects id="300"
+  <projects organization_uuid="org1"
+            id="300"
             uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
@@ -22,7 +23,8 @@
             scope="PRJ"
             qualifier="TRK"
             enabled="[true]"/>
-  <projects id="301"
+  <projects organization_uuid="org1"
+            id="301"
             uuid="BCDE"
             uuid_path="NOT_USED"
             root_uuid="BCDE"
@@ -31,7 +33,8 @@
             scope="PRJ"
             qualifier="TRK"
             enabled="[true]"/>
-  <projects id="302"
+  <projects organization_uuid="org1"
+            id="302"
             uuid="CDEF"
             uuid_path="NOT_USED"
             root_uuid="CDEF"
@@ -41,7 +44,8 @@
             qualifier="TRK"
             enabled="[true]"/>
 
-  <projects id="303"
+  <projects organization_uuid="org1"
+            id="303"
             uuid="DEFG"
             uuid_path="NOT_USED"
             root_uuid="DEFG"

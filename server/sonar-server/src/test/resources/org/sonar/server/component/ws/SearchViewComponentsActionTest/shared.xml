@@ -13,7 +13,8 @@
                organization_uuid="org1"/>
 
   <!-- View with sub view -->
-  <projects uuid="EFGH"
+  <projects organization_uuid="org1"
+            uuid="EFGH"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -28,7 +29,8 @@
             path="[null]"
             id="11"/>
 
-  <projects uuid="GHIJ"
+  <projects organization_uuid="org1"
+            uuid="GHIJ"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -44,7 +46,8 @@
             id="112"/>
 
   <!-- Sub view -->
-  <projects uuid="FGHI"
+  <projects organization_uuid="org1"
+            uuid="FGHI"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -59,7 +62,8 @@
             path="[null]"
             id="13"/>
 
-  <projects uuid="HIJK"
+  <projects organization_uuid="org1"
+            uuid="HIJK"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
             project_uuid="EFGH"
@@ -76,7 +80,8 @@
 
   <!-- Real projects -->
 
-  <projects uuid="JKLM"
+  <projects organization_uuid="org1"
+            uuid="JKLM"
             uuid_path="NOT_USED"
             root_uuid="JKLM"
             project_uuid="JKLM"
@@ -91,7 +96,8 @@
             kee="org.struts:struts"
             name="Struts"/>
 
-  <projects uuid="KLMN"
+  <projects organization_uuid="org1"
+            uuid="KLMN"
             uuid_path="NOT_USED"
             root_uuid="KLMN"
             project_uuid="KLMN"

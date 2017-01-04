@@ -45,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,14 +63,18 @@ public class ComponentService {
   private final System2 system2;
   private final ComponentFinder componentFinder;
   private final ProjectMeasuresIndexer projectMeasuresIndexer;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer) {
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2,
+    ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
     this.system2 = system2;
     this.componentFinder = componentFinder;
     this.projectMeasuresIndexer = projectMeasuresIndexer;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public ComponentDto getByKey(String key) {
@@ -157,6 +162,7 @@ public class ComponentService {
 
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
+      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setRootUuid(uuid)

@@ -1,9 +1,24 @@
 <dataset>
-  <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
-         plugin_config_key="[null]" plugin_name="squid"/>
+  <rules tags="[null]"
+         system_tags="[null]"
+         id="200"
+         name="Avoid Cycles"
+         plugin_rule_key="AvoidCycles"
+         plugin_config_key="[null]"
+         plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts"/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action"/>
+  <projects organization_uuid="org1"
+            id="10"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="struts"
+            name="Struts"/>
+  <projects organization_uuid="org1"
+            id="100"
+            scope="FIL"
+            qualifier="CLA"
+            kee="struts:Action"
+            name="Action"/>
 
   <issues id="1"
           kee="ABCDE"
@@ -31,5 +46,5 @@
           issue_close_date="[null]"
           locations="[null]"
           issue_type="2"
-    />
+  />
 </dataset>

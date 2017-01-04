@@ -47,6 +47,7 @@ import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisi
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
@@ -64,15 +65,18 @@ public class PersistComponentsStep implements ComputationStep {
   private final MutableDbIdsRepository dbIdsRepository;
   private final System2 system2;
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
     MutableDbIdsRepository dbIdsRepository, System2 system2,
-    MutableDisabledComponentsHolder disabledComponentsHolder) {
+    MutableDisabledComponentsHolder disabledComponentsHolder,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.dbIdsRepository = dbIdsRepository;
     this.system2 = system2;
     this.disabledComponentsHolder = disabledComponentsHolder;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -345,6 +349,7 @@ public class PersistComponentsStep implements ComputationStep {
     String componentUuid = component.getUuid();
 
     ComponentDto componentDto = new ComponentDto();
+    componentDto.setOrganizationUuid(defaultOrganizationProvider.get().getUuid());
     componentDto.setUuid(componentUuid);
     componentDto.setKey(componentKey);
     componentDto.setDeprecatedKey(componentKey);

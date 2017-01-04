@@ -16,7 +16,8 @@
            delete_historical_data="[null]"/>
 
   <!-- java project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             uuid="UUID_JAVA_PROJECT"
             uuid_path="."
             project_uuid="UUID_JAVA_PROJECT"
@@ -76,7 +77,8 @@
                     description="[null]"/>
 
   <!-- php project -->
-  <projects id="10"
+  <projects organization_uuid="org1"
+            id="10"
             uuid="UUID_PHP_PROJECT"
             uuid_path="."
             project_uuid="UUID_PHP_PROJECT"
@@ -136,7 +138,8 @@
                     description="[null]"/>
 
   <!-- js project -->
-  <projects uuid="UUID_JS_PROJECT"
+  <projects organization_uuid="org1"
+            uuid="UUID_JS_PROJECT"
             uuid_path="."
             project_uuid="UUID_JS_PROJECT"
             description="[null]"

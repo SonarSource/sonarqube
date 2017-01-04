@@ -5,7 +5,8 @@
 -->
 <dataset>
 
-  <projects uuid="1"
+  <projects organization_uuid="org1"
+            uuid="1"
             uuid_path="NOT_USED"
             enabled="[true]"
             root_id="[null]"

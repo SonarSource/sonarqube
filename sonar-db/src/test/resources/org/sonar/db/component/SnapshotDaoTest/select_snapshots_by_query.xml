@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- PROJECT_ID = 1 -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="ABCD"
             scope="PRJ"
             qualifier="TRK"
@@ -98,7 +99,8 @@
   />
 
   <!-- PROJECT_ID = 2 -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="ABCD"
             kee="org.struts:struts-core"
             name="Struts Core"
@@ -143,7 +145,8 @@
              version="2.1-SNAPSHOT"
   />
   <!-- Unprocessed snapshot -->
-  <snapshots id="5"
+  <snapshots organization_uuid="org1"
+             id="5"
              uuid="u5"
              component_uuid="EFGH"
              status="U"
@@ -170,7 +173,8 @@
   />
 
   <!-- PROJECT_ID = 3 - no last snapshot -->
-  <projects id="3"
+  <projects organization_uuid="org1"
+            id="3"
             root_uuid="ABCD"
             kee="org.struts:struts-data"
             name="Struts Data"
@@ -216,7 +220,8 @@
   />
 
   <!-- PROJECT_ID = 4 - no snapshot -->
-  <projects id="4"
+  <projects organization_uuid="org1"
+            id="4"
             root_uuid="ABCD"
             kee="org.struts:struts-deprecated"
             name="Struts Deprecated"

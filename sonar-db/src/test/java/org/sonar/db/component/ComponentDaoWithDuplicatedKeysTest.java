@@ -36,16 +36,15 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentDaoWithDuplicatedKeysTest {
 
-  static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, ComponentDaoWithDuplicatedKeysTest.class, "schema.sql");
 
-  DbClient dbClient = db.getDbClient();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  final DbSession dbSession = db.getSession();
-
-  ComponentDao underTest = new ComponentDao();
+  private ComponentDao underTest = new ComponentDao();
 
   @Test
   public void select_components_having_same_key() {

@@ -6,7 +6,8 @@
                role="user"
                organization_uuid="org1"/>
 
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             project_uuid="ABCD"
@@ -16,7 +17,8 @@
             qualifier="TRK"
             scope="PRJ"
             id="399"/>
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             project_uuid="ABCD"
@@ -26,7 +28,8 @@
             qualifier="BRC"
             scope="PRJ"
             id="400"/>
-  <projects uuid="CDEF"
+  <projects organization_uuid="org1"
+            uuid="CDEF"
             uuid_path="NOT_USED"
             root_uuid="BCDE"
             project_uuid="ABCD"
@@ -36,7 +39,8 @@
             qualifier="CLA"
             scope="PRJ"
             id="401"/>
-  <projects uuid="DEFG"
+  <projects organization_uuid="org1"
+            uuid="DEFG"
             uuid_path="NOT_USED"
             root_uuid="CDEF"
             project_uuid="ABCD"

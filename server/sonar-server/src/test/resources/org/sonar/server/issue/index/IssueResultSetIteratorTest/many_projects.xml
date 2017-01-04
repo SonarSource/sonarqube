@@ -8,7 +8,8 @@
          plugin_name="squid"/>
 
   <!-- Project 1 -->
-  <projects uuid="THE_PROJECT_1"
+  <projects organization_uuid="org1"
+            uuid="THE_PROJECT_1"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT_1"
             module_uuid="[null]"
@@ -19,7 +20,8 @@
             qualifier="TRK"
             kee="the_project_1"
             name="TheProject1"/>
-  <projects uuid="THE_FILE_1"
+  <projects organization_uuid="org1"
+            uuid="THE_FILE_1"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT_1"
             module_uuid="THE_PROJECT_1"
@@ -88,7 +90,8 @@
   />
 
   <!-- Project 2 -->
-  <projects uuid="THE_PROJECT_2"
+  <projects organization_uuid="org1"
+            uuid="THE_PROJECT_2"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT_2"
             module_uuid="[null]"
@@ -99,7 +102,8 @@
             qualifier="TRK"
             kee="the_project_2"
             name="TheProject2"/>
-  <projects uuid="THE_FILE_2"
+  <projects organization_uuid="org1"
+            uuid="THE_FILE_2"
             uuid_path="NOT_USED"
             root_uuid="THE_PROJECT_2"
             module_uuid="THE_PROJECT_2"

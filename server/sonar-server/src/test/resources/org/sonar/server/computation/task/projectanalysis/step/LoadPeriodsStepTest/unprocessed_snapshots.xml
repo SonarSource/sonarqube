@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="[null]"

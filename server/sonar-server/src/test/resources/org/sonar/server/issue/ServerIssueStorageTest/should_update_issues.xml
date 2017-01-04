@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             id="10"
@@ -13,7 +14,8 @@
              component_uuid="ABCD"
              islast="[true]"/>
 
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
             id="100"

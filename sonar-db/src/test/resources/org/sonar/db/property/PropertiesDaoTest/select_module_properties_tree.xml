@@ -68,7 +68,8 @@
 
 
   <!-- root project -->
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="[null]"
@@ -89,7 +90,8 @@
             name="Struts"/>
 
   <!-- module -->
-  <projects uuid="EFGH"
+  <projects organization_uuid="org1"
+            uuid="EFGH"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="[null]"
@@ -109,7 +111,8 @@
             name="Struts Core"/>
 
   <!-- sub module -->
-  <projects uuid="FGHI"
+  <projects organization_uuid="org1"
+            uuid="FGHI"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="EFGH"
@@ -129,7 +132,8 @@
             name="Struts Data"/>
 
   <!-- directory -->
-  <projects uuid="GHIJ"
+  <projects organization_uuid="org1"
+            uuid="GHIJ"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="FGHI"
@@ -150,7 +154,8 @@
             kee="org.struts:struts-core:src/org/struts"/>
 
   <!-- file -->
-  <projects uuid="HIJK"
+  <projects organization_uuid="org1"
+            uuid="HIJK"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="GHIJ"

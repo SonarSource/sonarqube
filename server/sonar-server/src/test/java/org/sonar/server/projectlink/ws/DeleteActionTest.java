@@ -47,24 +47,23 @@ import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARA
 
 public class DeleteActionTest {
 
-  private final String PROJECT_KEY = KEY_PROJECT_EXAMPLE_001;
-  private final String PROJECT_UUID = UUID_EXAMPLE_01;
+  private static final String PROJECT_KEY = KEY_PROJECT_EXAMPLE_001;
+  private static final String PROJECT_UUID = UUID_EXAMPLE_01;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  WsActionTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DeleteAction underTest;
+  private WsActionTester ws;
+
+  private DeleteAction underTest;
 
   @Before
   public void setUp() {
@@ -162,6 +161,7 @@ public class DeleteActionTest {
 
   private ComponentDto insertProject(String projectKey, String projectUuid) {
     return componentDb.insertComponent(new ComponentDto()
+      .setOrganizationUuid("org1")
       .setUuid(projectUuid)
       .setKey(projectKey)
       .setUuidPath("")

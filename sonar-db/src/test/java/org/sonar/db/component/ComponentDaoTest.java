@@ -61,15 +61,12 @@ public class ComponentDaoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-
-  final DbSession dbSession = db.getSession();
-
-  ComponentDao underTest = new ComponentDao();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbSession dbSession = db.getSession();
+  private ComponentDao underTest = new ComponentDao();
 
   @Test
   public void get_by_uuid() {
@@ -567,6 +564,7 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     ComponentDto componentDto = new ComponentDto()
+      .setOrganizationUuid("org1")
       .setUuid("GHIJ")
       .setUuidPath("ABCD.EFGH.GHIJ.")
       .setProjectUuid("ABCD")
@@ -601,6 +599,7 @@ public class ComponentDaoTest {
       db.prepareDbUnit(getClass(), "empty.xml");
 
       ComponentDto componentDto = new ComponentDto()
+        .setOrganizationUuid("org1")
         .setUuid("GHIJ")
         .setUuidPath("ABCD.EFGH.GHIJ.")
         .setProjectUuid("ABCD")
@@ -635,6 +634,7 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     ComponentDto componentDto = new ComponentDto()
+      .setOrganizationUuid("org1")
       .setId(1L)
       .setUuid("GHIJ")
       .setUuidPath("ABCD.EFGH.GHIJ.")

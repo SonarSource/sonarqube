@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects long_name="[null]"
+  <projects organization_uuid="org1"
+            long_name="[null]"
             id="1"
             scope="PRJ"
             qualifier="TRK"

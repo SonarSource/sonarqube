@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- root project -->
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             root_uuid="A"
             scope="PRJ"
             qualifier="TRK"
@@ -40,7 +41,8 @@
   <!-- **************** First sub project **************** -->
   <!-- ONLY THIS PROJECT MUST HAVE BEEN UPDATED            -->
   <!--                                                     -->
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             root_uuid="A"
             kee="struts:core"
             name="Struts Core"
@@ -74,7 +76,8 @@
   />
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="3"
             scope="DIR"
             qualifier="DIR"
@@ -108,7 +111,8 @@
   />
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="4"
             scope="FIL"
             qualifier="CLA"
@@ -143,7 +147,8 @@
 
 
   <!-- **************** Second sub project **************** -->
-  <projects id="5"
+  <projects organization_uuid="org1"
+            id="5"
             root_uuid="A"
             kee="org.struts:struts-ui"
             name="Struts UI"
@@ -177,7 +182,8 @@
   />
 
   <!-- directory -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="6"
             scope="DIR"
             qualifier="DIR"
@@ -211,7 +217,8 @@
   />
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="7"
             scope="FIL"
             qualifier="CLA"
@@ -246,7 +253,8 @@
 
 
   <!-- **************** Another independent project **************** -->
-  <projects id="8"
+  <projects organization_uuid="org1"
+            id="8"
             root_uuid="A"
             kee="foo:struts-core"
             name="Foo Struts Core"

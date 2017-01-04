@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- project "struts" -> module "struts-core" -> package org.struts -> file "RequestContext" -->
-  <projects long_name="[null]"
+  <projects organization_uuid="org1"
+            long_name="[null]"
             id="1"
             scope="PRJ"
             qualifier="TRK"
@@ -18,7 +19,8 @@
             copy_resource_id="[null]"
             person_id="[null]"/>
 
-  <projects long_name="[null]"
+  <projects organization_uuid="org1"
+            long_name="[null]"
             id="2"
             scope="PRJ"
             qualifier="BRC"
@@ -37,7 +39,8 @@
             person_id="[null]"/>
 
   <!-- note that the root_id of package/file is wrong. It references the module but not the root project -->
-  <projects long_name="org.struts"
+  <projects organization_uuid="org1"
+            long_name="org.struts"
             id="3"
             scope="DIR"
             qualifier="DIR"
@@ -55,7 +58,8 @@
             copy_resource_id="[null]"
             person_id="[null]"/>
 
-  <projects long_name="org.struts.RequestContext"
+  <projects organization_uuid="org1"
+            long_name="org.struts.RequestContext"
             id="4"
             scope="FIL"
             qualifier="FIL"

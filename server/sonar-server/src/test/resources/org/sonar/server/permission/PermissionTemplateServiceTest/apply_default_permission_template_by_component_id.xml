@@ -1,5 +1,6 @@
 <dataset>
-  <projects uuid="A"
+  <projects organization_uuid="org1"
+            uuid="A"
             uuid_path="NOT_USED"
             root_uuid="A"
             scope="PRJ"

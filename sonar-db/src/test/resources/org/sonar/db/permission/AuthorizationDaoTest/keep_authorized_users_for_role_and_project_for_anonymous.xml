@@ -35,13 +35,15 @@
                role="user"
                organization_uuid="org1"/>
 
-  <projects id="300"
+  <projects organization_uuid="org1"
+            id="300"
             kee="pj-w-snapshot"
             uuid="DEFG"
             uuid_path="NOT_USED"
             root_uuid="DEFG"
             module_uuid="[null]"/>
-  <projects id="400"
+  <projects organization_uuid="org1"
+            id="400"
             kee="pj-wo-snapshot"
             uuid="EFGH"
             uuid_path="NOT_USED"

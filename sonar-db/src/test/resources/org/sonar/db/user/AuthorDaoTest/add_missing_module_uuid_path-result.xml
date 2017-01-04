@@ -1,5 +1,6 @@
 <dataset>
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             project_uuid="ABCD"
             module_uuid="[null]"
@@ -12,7 +13,8 @@
            person_id="1"
            login="developer@company.net"/>
 
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             project_uuid="BCDE"
             module_uuid="[null]"

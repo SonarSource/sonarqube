@@ -1,10 +1,12 @@
 <dataset>
-  <projects uuid="ABCD"
+  <projects organization_uuid="org1"
+            uuid="ABCD"
             uuid_path="NOT_USED"
             id="1"
             kee="struts"
             root_uuid="ABCD"/>
-  <projects uuid="BCDE"
+  <projects organization_uuid="org1"
+            uuid="BCDE"
             uuid_path="NOT_USED"
             id="2"
             kee="struts:Action.java"

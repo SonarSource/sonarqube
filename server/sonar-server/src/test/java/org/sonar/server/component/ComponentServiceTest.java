@@ -43,6 +43,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -67,13 +69,10 @@ public class ComponentServiceTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -82,6 +81,7 @@ public class ComponentServiceTest {
   private DbSession dbSession = dbTester.getSession();
   private I18nRule i18n = new I18nRule();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   private ComponentService underTest;
 
@@ -89,7 +89,8 @@ public class ComponentServiceTest {
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
+      projectMeasuresIndexer, defaultOrganizationProvider);
   }
 
   @Test
@@ -255,7 +256,8 @@ public class ComponentServiceTest {
       ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
       ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)));
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer,
+      defaultOrganizationProvider);
     underTest.create(session, NewComponent.create(projectKey, projectKey));
 
     verify(componentDao).delete(session, 2L);

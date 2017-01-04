@@ -35,7 +35,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto subProjectOrProject, @Nullable ComponentDto directory) {
-    return newFileDto(subProjectOrProject, directory, Uuids.create());
+    return newFileDto(subProjectOrProject, directory, Uuids.createFast());
   }
 
   public static ComponentDto newFileDto(ComponentDto module, @Nullable ComponentDto directory, String fileUuid) {
@@ -52,7 +52,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDirectory(ComponentDto module, String path) {
-    return newDirectory(module, Uuids.create(), path);
+    return newDirectory(module, Uuids.createFast(), path);
   }
 
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
@@ -87,15 +87,16 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
-    return newModuleDto(Uuids.create(), subProjectOrProject);
+    return newModuleDto(Uuids.createFast(), subProjectOrProject);
   }
 
   public static ComponentDto newProjectDto() {
-    return newProjectDto(Uuids.create());
+    return newProjectDto(Uuids.createFast());
   }
 
   public static ComponentDto newProjectDto(String uuid) {
     return new ComponentDto()
+      .setOrganizationUuid(Uuids.createFast())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -113,8 +114,9 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDeveloper(String name) {
-    String uuid = Uuids.create();
+    String uuid = Uuids.createFast();
     return new ComponentDto()
+      .setOrganizationUuid(Uuids.createFast())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -133,6 +135,7 @@ public class ComponentTesting {
 
   public static ComponentDto newDeveloper(String name, String uuid) {
     return new ComponentDto()
+      .setOrganizationUuid(Uuids.createFast())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -157,7 +160,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newView() {
-    return newView(Uuids.create());
+    return newView(Uuids.createFast());
   }
 
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
@@ -190,6 +193,7 @@ public class ComponentTesting {
 
   public static ComponentDto newChildComponent(String uuid, ComponentDto moduleOrProject, ComponentDto parent) {
     return new ComponentDto()
+      .setOrganizationUuid(parent.getOrganizationUuid())
       .setUuid(uuid)
       .setUuidPath(ComponentDto.formatUuidPathFromParent(parent))
       .setProjectUuid(moduleOrProject.projectUuid())

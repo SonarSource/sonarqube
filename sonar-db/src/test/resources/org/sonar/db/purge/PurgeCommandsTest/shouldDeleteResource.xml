@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             uuid="uuid_1"
             uuid_path="NOT_USED"
             enabled="[true]"
@@ -18,7 +19,7 @@
   <snapshots id="1"
              uuid="u1"
              component_uuid="uuid_1"
-           status="P"
+             status="P"
              islast="[false]"
              purge_status="[null]"
              period1_mode="[null]"
@@ -39,7 +40,7 @@
              created_at="1228222680000"
              build_date="1228222680000"
              version="[null]"
-/>
+  />
 
   <events id="1"
           uuid="P1"

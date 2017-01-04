@@ -1,7 +1,8 @@
 <dataset>
 
   <!-- view -->
-  <projects uuid="A"
+  <projects organization_uuid="org1"
+            uuid="A"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="[null]"
@@ -21,7 +22,8 @@
             root_uuid="A"/>
 
   <!-- sub views -->
-  <projects uuid="B"
+  <projects organization_uuid="org1"
+            uuid="B"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="A"
@@ -40,7 +42,8 @@
             enabled="[true]"
             root_uuid="A"/>
 
-  <projects uuid="C"
+  <projects organization_uuid="org1"
+            uuid="C"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="A"
@@ -60,7 +63,8 @@
             root_uuid="A"/>
 
   <!-- technical project of module 2-->
-  <projects uuid="D"
+  <projects organization_uuid="org1"
+            uuid="D"
             uuid_path="NOT_USED"
             project_uuid="A"
             module_uuid="C"

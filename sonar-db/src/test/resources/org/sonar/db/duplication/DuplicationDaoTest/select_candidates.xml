@@ -14,7 +14,8 @@
              islast="[false]"
              purge_status="[null]"
   />
-  <projects id="1"
+  <projects organization_uuid="org1"
+            id="1"
             uuid="uuid_1"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_1"
@@ -38,7 +39,8 @@
              islast="[true]"
              purge_status="[null]"
   />
-  <projects id="2"
+  <projects organization_uuid="org1"
+            id="2"
             uuid="uuid_2"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_2"
@@ -62,7 +64,8 @@
              islast="[false]"
              purge_status="[null]"
   />
-  <projects id="3"
+  <projects organization_uuid="org1"
+            id="3"
             uuid="uuid_3"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_3"
@@ -86,7 +89,8 @@
              islast="[true]"
              purge_status="[null]"
   />
-  <projects id="4"
+  <projects organization_uuid="org1"
+            id="4"
             uuid="uuid_4"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_4"
@@ -110,7 +114,8 @@
              islast="[false]"
              purge_status="[null]"
   />
-  <projects id="5"
+  <projects organization_uuid="org1"
+            id="5"
             uuid="uuid_5"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_5"
@@ -127,7 +132,8 @@
              status="P"
              islast="[true]"
   />
-  <projects id="6"
+  <projects organization_uuid="org1"
+            id="6"
             uuid="uuid_6"
             uuid_path="NOT_USED"
             root_uuid="uuid_root_1"
