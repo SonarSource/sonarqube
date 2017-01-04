@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -34,9 +35,15 @@ import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
+import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonarqube.ws.Settings.Setting;
+import static org.sonarqube.ws.Settings.ValuesWsResponse;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
+import static util.ItUtils.newWsClient;
 import static util.ItUtils.resetSettings;
 
 public class SettingsTest {
@@ -49,16 +56,29 @@ public class SettingsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  static SettingsService SETTINGS;
+  @ClassRule
+  public static UserRule userRule = UserRule.from(orchestrator);
+
+  static SettingsService anonymousSettingsService;
+  static SettingsService userSettingsService;
+  static SettingsService adminSettingsService;
 
   @BeforeClass
   public static void initSettingsService() throws Exception {
-    SETTINGS = newAdminWsClient(orchestrator).settingsService();
+    userRule.createUser("setting-user", "setting-user");
+    anonymousSettingsService = newWsClient(orchestrator).settingsService();
+    userSettingsService = newUserWsClient(orchestrator, "setting-user", "setting-user").settingsService();
+    adminSettingsService = newAdminWsClient(orchestrator).settingsService();
+  }
+
+  @AfterClass
+  public static void tearDown() throws Exception {
+    userRule.deactivateUsers("setting-user");
   }
 
   @After
   public void reset_settings() throws Exception {
-    resetSettings(orchestrator, null, PLUGIN_SETTING_KEY);
+    resetSettings(orchestrator, null, PLUGIN_SETTING_KEY, "globalPropertyChange.received", "hidden", "setting.secured", "setting.license.secured");
   }
 
   /**
@@ -66,45 +86,77 @@ public class SettingsTest {
    */
   @Test
   public void global_property_change_extension_point() throws IOException {
-    SETTINGS.set(SetRequest.builder().setKey("globalPropertyChange.received").setValue("NEWVALUE").build());
+    adminSettingsService.set(SetRequest.builder().setKey("globalPropertyChange.received").setValue("NEWVALUE").build());
     assertThat(FileUtils.readFileToString(orchestrator.getServer().getWebLogs()))
-        .contains("Received change: [key=globalPropertyChange.received, newValue=NEWVALUE]");
+      .contains("Received change: [key=globalPropertyChange.received, newValue=NEWVALUE]");
   }
 
   @Test
-  public void get_default_value() throws Exception {
-    Settings.Setting setting = getSetting(PLUGIN_SETTING_KEY);
+  public void get_default_value() {
+    Setting setting = getSetting(PLUGIN_SETTING_KEY, anonymousSettingsService);
     assertThat(setting.getValue()).isEqualTo("aDefaultValue");
     assertThat(setting.getInherited()).isTrue();
   }
 
   @Test
-  public void set_setting() throws Exception {
-    SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+  public void set_setting() {
+    adminSettingsService.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
 
-    String value = getSetting(PLUGIN_SETTING_KEY).getValue();
+    String value = getSetting(PLUGIN_SETTING_KEY, anonymousSettingsService).getValue();
     assertThat(value).isEqualTo("some value");
   }
 
   @Test
-  public void remove_setting() throws Exception {
-    SETTINGS.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
-    SETTINGS.set(SetRequest.builder().setKey("sonar.links.ci").setValue("http://localhost").build());
+  public void remove_setting() {
+    adminSettingsService.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+    adminSettingsService.set(SetRequest.builder().setKey("sonar.links.ci").setValue("http://localhost").build());
 
-    SETTINGS.reset(ResetRequest.builder().setKeys(PLUGIN_SETTING_KEY, "sonar.links.ci").build());
-    assertThat(getSetting(PLUGIN_SETTING_KEY).getValue()).isEqualTo("aDefaultValue");
-    assertThat(getSetting("sonar.links.ci")).isNull();
+    adminSettingsService.reset(ResetRequest.builder().setKeys(PLUGIN_SETTING_KEY, "sonar.links.ci").build());
+    assertThat(getSetting(PLUGIN_SETTING_KEY, anonymousSettingsService).getValue()).isEqualTo("aDefaultValue");
+    assertThat(getSetting("sonar.links.ci", anonymousSettingsService)).isNull();
   }
 
   @Test
-  public void hidden_setting() throws Exception {
-    SETTINGS.set(SetRequest.builder().setKey("hidden").setValue("test").build());
-    assertThat(getSetting("hidden").getValue()).isEqualTo("test");
+  public void hidden_setting() {
+    adminSettingsService.set(SetRequest.builder().setKey("hidden").setValue("test").build());
+    assertThat(getSetting("hidden", anonymousSettingsService).getValue()).isEqualTo("test");
+  }
+
+  @Test
+  public void secured_setting() {
+    adminSettingsService.set(SetRequest.builder().setKey("setting.secured").setValue("test").build());
+    assertThat(getSetting("setting.secured", anonymousSettingsService)).isNull();
+    assertThat(getSetting("setting.secured", userSettingsService)).isNull();
+    assertThat(getSetting("setting.secured", adminSettingsService).getValue()).isEqualTo("test");
+  }
+
+  @Test
+  public void license_setting() {
+    adminSettingsService.set(SetRequest.builder().setKey("setting.license.secured").setValue("test").build());
+    assertThat(getSetting("setting.license.secured", anonymousSettingsService)).isNull();
+    assertThat(getSetting("setting.license.secured", userSettingsService).getValue()).isEqualTo("test");
+    assertThat(getSetting("setting.license.secured", adminSettingsService).getValue()).isEqualTo("test");
+  }
+
+  @Test
+  public void return_defined_settings_when_no_key_provided() throws Exception {
+    adminSettingsService.set(SetRequest.builder().setKey(PLUGIN_SETTING_KEY).setValue("some value").build());
+    adminSettingsService.set(SetRequest.builder().setKey("hidden").setValue("test").build());
+
+    assertThat(adminSettingsService.values(ValuesRequest.builder().build()).getSettingsList())
+      .extracting(Setting::getKey)
+      .contains(PLUGIN_SETTING_KEY, "hidden", "sonar.forceAuthentication", "sonar.defaultGroup",
+        // Settings for scanner
+        "sonar.core.startTime");
+
+    assertThat(adminSettingsService.values(ValuesRequest.builder().build()).getSettingsList())
+      .extracting(Setting::getKey, Setting::getValue)
+      .contains(tuple(PLUGIN_SETTING_KEY, "some value"), tuple("hidden", "test"));
   }
 
   @CheckForNull
-  private Settings.Setting getSetting(String key) {
-    Settings.ValuesWsResponse response = SETTINGS.values(ValuesRequest.builder().setKeys(key).build());
+  private static Setting getSetting(String key, SettingsService settingsService) {
+    ValuesWsResponse response = settingsService.values(ValuesRequest.builder().setKeys(key).build());
     List<Settings.Setting> settings = response.getSettingsList();
     return settings.isEmpty() ? null : settings.get(0);
   }
