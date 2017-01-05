@@ -33,7 +33,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -53,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -87,7 +87,8 @@ public class ListDefinitionsActionTest {
 
   PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
 
-  WsActionTester ws = new WsActionTester(new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions));
+  WsActionTester ws = new WsActionTester(
+    new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions, new SettingsPermissionPredicates(userSession)));
 
   @Before
   public void setUp() throws Exception {
@@ -96,7 +97,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions() {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .name("Foo")
@@ -124,7 +125,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions_with_minimum_fields() {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -147,7 +148,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions_with_deprecated_key() {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .name("Foo")
@@ -165,7 +166,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_default_category() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build(), "default");
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").category("").build(), "default");
 
@@ -178,7 +179,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_single_select_list_property() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.SINGLE_SELECT_LIST)
@@ -195,7 +196,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_property_set() throws Exception {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -225,8 +226,8 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void return_license_type_property_set() throws Exception {
-    setUserAsSystemAdmin();
+  public void return_license_type_in_property_set() throws Exception {
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -241,7 +242,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_global_settings_definitions() {
-    setUserAsSystemAdmin();
+    setAuthenticatedUser();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     ListDefinitionsWsResponse result = executeRequest();
@@ -251,7 +252,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_project_settings_def_by_project_key() {
-    setUserAsProjectAdmin();
+    setUserWithBrowsePermissionOnProject();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .onQualifiers(PROJECT)
@@ -264,7 +265,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_only_global_properties_when_no_component_parameter() throws Exception {
-    setUserAsSystemAdmin();
+    setUserWithBrowsePermissionOnProject();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
@@ -278,7 +279,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_only_properties_available_for_component_qualifier() throws Exception {
-    setUserAsProjectAdmin();
+    setUserWithBrowsePermissionOnProject();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
@@ -311,18 +312,59 @@ public class ListDefinitionsActionTest {
   }
 
   @Test
-  public void fail_when_not_system_admin() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-    propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
+  public void does_not_returned_secured_settings_when_not_authenticated() throws Exception {
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
 
-    expectedException.expect(ForbiddenException.class);
+    ListDefinitionsWsResponse result = executeRequest();
 
-    executeRequest();
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo");
   }
 
   @Test
-  public void fail_when_not_project_admin() throws Exception {
-    userSession.login("project-admin").addProjectUuidPermissions(USER, project.uuid());
+  public void return_license_settings_when_authenticated_but_not_admin() throws Exception {
+    setUserWithBrowsePermissionOnProject();
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "plugin.license.secured");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_system_admin() throws Exception {
+    setUserAsSystemAdmin();
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_when_project_admin() throws Exception {
+    setUserAsProjectAdmin();
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
+      PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build(),
+      PropertyDefinition.builder("plugin.license.secured").onQualifiers(PROJECT).type(PropertyType.LICENSE).build()));
+
+    ListDefinitionsWsResponse result = executeRequest(project.key());
+
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+  }
+
+  @Test
+  public void fail_when_user_has_not_project_browse_permission() throws Exception {
+    userSession.login("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -408,12 +450,22 @@ public class ListDefinitionsActionTest {
     }
   }
 
+  private void setAuthenticatedUser() {
+    userSession.login("user");
+  }
+
+  private void setUserWithBrowsePermissionOnProject() {
+    userSession.login("user").addProjectUuidPermissions(USER, project.uuid());
+  }
+
   private void setUserAsSystemAdmin() {
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   private void setUserAsProjectAdmin() {
-    userSession.login("project-admin").addProjectUuidPermissions(ADMIN, project.uuid());
+    userSession.login("project-admin")
+      .addProjectUuidPermissions(ADMIN, project.uuid())
+      .addProjectUuidPermissions(USER, project.uuid());
   }
 
 }

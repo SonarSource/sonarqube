@@ -85,7 +85,8 @@ public class ValuesActionTest {
 
   ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder));
+  WsActionTester ws = new WsActionTester(
+    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, new SettingsPermissionPredicates(userSession)));
 
   @Before
   public void setUp() throws Exception {

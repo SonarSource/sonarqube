@@ -41,7 +41,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.ResetRequest;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
@@ -82,7 +82,9 @@ public class ResetAction implements SettingsWsAction {
       .setDescription("Setting keys")
       .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
-    addComponentParameter(action);
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

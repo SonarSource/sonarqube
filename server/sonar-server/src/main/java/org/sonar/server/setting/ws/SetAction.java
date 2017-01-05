@@ -58,7 +58,7 @@ import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.setting.SetRequest;
 
-import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
@@ -122,7 +122,9 @@ public class SetAction implements SettingsWsAction {
       .setDescription("Setting field values. To set several values, the parameter must be called once for each value.")
       .setExampleValue(PARAM_FIELD_VALUES + "={\"firstField\":\"first value\", \"secondField\":\"second value\", \"thirdField\":\"third value\"}");
 
-    addComponentParameter(action);
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

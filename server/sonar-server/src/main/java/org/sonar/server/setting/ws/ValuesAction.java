@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.config.PropertyDefinition;
@@ -38,7 +37,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -55,9 +53,10 @@ import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
+import static org.sonar.server.setting.ws.SettingsPermissionPredicates.LICENSE_HASH_SUFFIX;
+import static org.sonar.server.setting.ws.SettingsPermissionPredicates.LICENSE_SUFFIX;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
@@ -68,10 +67,6 @@ public class ValuesAction implements SettingsWsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
-  private static final String SECURED_SUFFIX = ".secured";
-  private static final String LICENSE_SUFFIX = ".license.secured";
-  private static final String LICENSE_HASH_SUFFIX = ".licenseHash.secured";
-
   private static final Set<String> ADDITIONAL_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME);
 
   private final DbClient dbClient;
@@ -79,13 +74,16 @@ public class ValuesAction implements SettingsWsAction {
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsFinder settingsFinder;
+  private final SettingsPermissionPredicates settingsPermissionPredicates;
 
-  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder) {
+  public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
+    SettingsPermissionPredicates settingsPermissionPredicates) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsFinder = settingsFinder;
+    this.settingsPermissionPredicates = settingsPermissionPredicates;
   }
 
   @Override
@@ -101,9 +99,11 @@ public class ValuesAction implements SettingsWsAction {
           "<li>'Administer' rights on the specified component</li>" +
           "</ul>")
       .setResponseExample(getClass().getResource("values-example.json"))
-      .setSince("6.1")
+      .setSince("6.3")
       .setHandler(this);
-    addComponentParameter(action);
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
       .setExampleValue("sonar.technicalDebt.hoursInDay,sonar.dbcleaner.cleanDirectory");
@@ -171,22 +171,8 @@ public class ValuesAction implements SettingsWsAction {
     settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
     component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
-      .filter(isVisible(component))
+      .filter(settingsPermissionPredicates.isSettingVisible(component))
       .collect(Collectors.toList());
-  }
-
-  private Predicate<Setting> isVisible(Optional<ComponentDto> component) {
-    return setting -> !setting.getKey().endsWith(SECURED_SUFFIX)
-      || hasAdminPermission(component)
-      || (isLicenseRelated(setting) && userSession.isLoggedIn());
-  }
-
-  private boolean hasAdminPermission(Optional<ComponentDto> component) {
-    return component.isPresent() ? userSession.hasComponentUuidPermission(ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
-  private static boolean isLicenseRelated(Setting setting) {
-    return setting.getKey().endsWith(LICENSE_SUFFIX) || setting.getKey().endsWith(LICENSE_HASH_SUFFIX);
   }
 
   private List<Setting> loadDefaultSettings(Set<String> keys) {

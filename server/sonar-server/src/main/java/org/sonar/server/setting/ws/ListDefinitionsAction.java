@@ -27,8 +27,6 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -39,8 +37,9 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.setting.ws.SettingsWsComponentParameter.addComponentParameter;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_LIST_DEFINITIONS;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
@@ -51,27 +50,34 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
+  private final SettingsPermissionPredicates settingsPermissionPredicates;
 
-  public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions) {
+  public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
+    SettingsPermissionPredicates settingsPermissionPredicates) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
+    this.settingsPermissionPredicates = settingsPermissionPredicates;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_LIST_DEFINITIONS)
       .setDescription("List settings definitions.<br>" +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>")
+        "Requires 'Browse' permission when a component is specified<br/>",
+        "To access licensed settings, authentication is required<br/>" +
+          "To access secured settings, one of the following permissions is required: " +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified component</li>" +
+          "</ul>")
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
-      .setSince("6.1")
+      .setSince("6.3")
       .setHandler(this);
-    addComponentParameter(action);
+    action.createParam(PARAM_COMPONENT)
+      .setDescription("Component key")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
@@ -81,11 +87,12 @@ public class ListDefinitionsAction implements SettingsWsAction {
 
   private ListDefinitionsWsResponse doHandle(Request request) {
     ListDefinitionsRequest wsRequest = toWsRequest(request);
-    Optional<String> qualifier = getQualifier(wsRequest);
+    Optional<ComponentDto> component = loadComponent(wsRequest);
+    Optional<String> qualifier = getQualifier(component);
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
-
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
+      .filter(settingsPermissionPredicates.isDefinitionVisible(component))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
   }
@@ -96,30 +103,19 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .build();
   }
 
-  private Optional<String> getQualifier(ListDefinitionsRequest wsRequest) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Optional<ComponentDto> component = getComponent(dbSession, wsRequest);
-      checkAdminPermission(component);
-      return component.isPresent() ? Optional.of(component.get().qualifier()) : Optional.empty();
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+  private static Optional<String> getQualifier(Optional<ComponentDto> component) {
+    return component.isPresent() ? Optional.of(component.get().qualifier()) : Optional.empty();
   }
 
-  private Optional<ComponentDto> getComponent(DbSession dbSession, ListDefinitionsRequest wsRequest) {
-    String componentKey = wsRequest.getComponent();
-    if (componentKey == null) {
-      return Optional.empty();
-    }
-    return Optional.of(componentFinder.getByKey(dbSession, componentKey));
-  }
-
-  private void checkAdminPermission(Optional<ComponentDto> component) {
-    if (component.isPresent()) {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.get().uuid());
-    } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+  private Optional<ComponentDto> loadComponent(ListDefinitionsRequest valuesRequest) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String componentKey = valuesRequest.getComponent();
+      if (componentKey == null) {
+        return Optional.empty();
+      }
+      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+      userSession.checkComponentUuidPermission(USER, component.projectUuid());
+      return Optional.of(component);
     }
   }
 
