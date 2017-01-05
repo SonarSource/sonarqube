@@ -38,6 +38,6 @@ public class DbVersion63 implements DbVersion {
       .add(1503, "Add PROJECTS.ORGANIZATION_UUID", AddOrganizationUuidToProjects.class)
       .add(1504, "Populate PROJECTS.ORGANIZATION_UUID", PopulateOrganizationUuidToProjects.class)
       .add(1505, "Make PROJECTS.ORGANIZATION_UUID not nullable", MakeOrganizationUuidOfProjectsNotNullable.class)
-    ;
+      .add(1506, "Add index on PROJECTS.ORGANIZATION_UUID", AddIndexOnOrganizationUuidOfProjects.class);
   }
 }
