@@ -13,29 +13,40 @@ set -euo pipefail
 DEFAULT_LOG="all"
 DEFAULT_LINES="25"
 LOGS="sonar web ce es"
+
+function toLower() {
+  echo "$1" | tr '[:upper:]' '[:lower:]'
+}
+
 function checkLogArgument() {
   local logArg="$1"
-  if [ "${logArg,,}" == "$DEFAULT_LOG" ]; then
+  local lowerLogArg=$(toLower $logArg)
+
+  if [ "$lowerLogArg" == "$DEFAULT_LOG" ]; then
     return
   fi
+
   for t in $LOGS; do
-    if [ "${logArg,,}" == "$t" ]; then
+    if [ "$lowerLogArg" == "$t" ]; then
       return
     fi
   done
+
   echo "Unsupported -l argument $logArg"
   exit 1
 }
 
 function buildTailArgs() {
-  local logArg="$1"
+  local logArg=$(toLower $logArg)
   local logLines="$2"
   local res=""
+
   for t in $LOGS; do
-    if [ "${logArg,,}" == "$DEFAULT_LOG" ] || [ "${logArg,,}" == "$t" ]; then
+    if [ "$logArg" == "$DEFAULT_LOG" ] || [ "$logArg" == "$t" ]; then
       res="$res -Fn $logLines $SQ_HOME/logs/$t.log"
     fi
   done
+
   echo "$res"
 }
 
