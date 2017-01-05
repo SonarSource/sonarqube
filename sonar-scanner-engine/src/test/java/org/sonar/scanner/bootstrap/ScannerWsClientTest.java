@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.MockWsResponse;
 import org.sonarqube.ws.client.WsClient;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchWsClientTest {
+public class ScannerWsClientTest {
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -55,7 +55,7 @@ public class BatchWsClientTest {
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     logTester.setLevel(LoggerLevel.DEBUG);
-    BatchWsClient underTest = new BatchWsClient(wsClient, false);
+    ScannerWsClient underTest = new ScannerWsClient(wsClient, false);
 
     WsResponse result = underTest.call(request);
 
@@ -78,7 +78,7 @@ public class BatchWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, false).call(request);
+    new ScannerWsClient(wsClient, false).call(request);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class BatchWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, /* credentials are configured */true).call(request);
+    new ScannerWsClient(wsClient, /* credentials are configured */true).call(request);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class BatchWsClientTest {
       .setContent("{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, true).call(request);
+    new ScannerWsClient(wsClient, true).call(request);
   }
 
   @Test
@@ -118,7 +118,7 @@ public class BatchWsClientTest {
       .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, true).call(request);
+    new ScannerWsClient(wsClient, true).call(request);
   }
 
   private MockWsResponse newResponse() {

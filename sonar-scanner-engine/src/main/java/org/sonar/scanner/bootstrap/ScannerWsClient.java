@@ -43,14 +43,14 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
-public class BatchWsClient {
+public class ScannerWsClient {
 
-  private static final Logger LOG = Loggers.get(BatchWsClient.class);
+  private static final Logger LOG = Loggers.get(ScannerWsClient.class);
 
   private final WsClient target;
   private final boolean hasCredentials;
 
-  public BatchWsClient(WsClient target, boolean hasCredentials) {
+  public ScannerWsClient(WsClient target, boolean hasCredentials) {
     this.target = target;
     this.hasCredentials = hasCredentials;
   }

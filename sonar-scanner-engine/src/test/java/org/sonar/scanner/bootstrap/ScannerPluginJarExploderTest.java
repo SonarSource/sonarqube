@@ -30,24 +30,24 @@ import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
-import org.sonar.scanner.bootstrap.BatchPluginJarExploder;
+import org.sonar.scanner.bootstrap.ScannerPluginJarExploder;
 import org.sonar.scanner.bootstrap.Slf4jLogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchPluginJarExploderTest {
+public class ScannerPluginJarExploderTest {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
   File userHome;
-  BatchPluginJarExploder underTest;
+  ScannerPluginJarExploder underTest;
 
   @Before
   public void setUp() throws IOException {
     userHome = temp.newFolder();
     FileCache fileCache = new FileCacheBuilder(new Slf4jLogger()).setUserHome(userHome).build();
-    underTest = new BatchPluginJarExploder(fileCache);
+    underTest = new ScannerPluginJarExploder(fileCache);
   }
 
   @Test

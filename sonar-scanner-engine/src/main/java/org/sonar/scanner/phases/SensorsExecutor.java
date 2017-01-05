@@ -24,7 +24,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import java.util.Collection;
 
@@ -33,9 +33,9 @@ public class SensorsExecutor {
 
   private EventBus eventBus;
   private Project module;
-  private BatchExtensionDictionnary selector;
+  private ScannerExtensionDictionnary selector;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus) {
+  public SensorsExecutor(ScannerExtensionDictionnary selector, Project project, EventBus eventBus) {
     this.selector = selector;
     this.eventBus = eventBus;
     this.module = project;

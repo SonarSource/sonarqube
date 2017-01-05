@@ -31,15 +31,15 @@ import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 @ScannerSide
-public class BatchWsClientProvider extends ProviderAdapter {
+public class ScannerWsClientProvider extends ProviderAdapter {
 
   static final int CONNECT_TIMEOUT_MS = 5_000;
   static final String READ_TIMEOUT_SEC_PROPERTY = "sonar.ws.timeout";
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
-  public synchronized BatchWsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
+  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
     if (wsClient == null) {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
@@ -59,7 +59,7 @@ public class BatchWsClientProvider extends ProviderAdapter {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
 
-      wsClient = new BatchWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null);
+      wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null);
     }
     return wsClient;
   }

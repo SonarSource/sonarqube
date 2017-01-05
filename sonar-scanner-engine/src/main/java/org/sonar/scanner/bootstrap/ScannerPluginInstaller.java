@@ -50,16 +50,16 @@ import static java.lang.String.format;
  * Downloads the plugins installed on server and stores them in a local user cache
  * (see {@link FileCacheProvider}).
  */
-public class BatchPluginInstaller implements PluginInstaller {
+public class ScannerPluginInstaller implements PluginInstaller {
 
-  private static final Logger LOG = Loggers.get(BatchPluginInstaller.class);
+  private static final Logger LOG = Loggers.get(ScannerPluginInstaller.class);
   private static final String PLUGINS_INDEX_URL = "/deploy/plugins/index.txt";
 
   private final FileCache fileCache;
-  private final BatchPluginPredicate pluginPredicate;
-  private final BatchWsClient wsClient;
+  private final ScannerPluginPredicate pluginPredicate;
+  private final ScannerWsClient wsClient;
 
-  public BatchPluginInstaller(BatchWsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
+  public ScannerPluginInstaller(ScannerWsClient wsClient, FileCache fileCache, ScannerPluginPredicate pluginPredicate) {
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
     this.wsClient = wsClient;

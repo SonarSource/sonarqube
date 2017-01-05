@@ -53,7 +53,7 @@ import org.sonar.scanner.sensor.SensorWrapper;
 /**
  * @since 2.6
  */
-public class BatchExtensionDictionnary {
+public class ScannerExtensionDictionnary {
 
   private final ComponentContainer componentContainer;
   private final SensorContext sensorContext;
@@ -61,7 +61,7 @@ public class BatchExtensionDictionnary {
   private final PostJobContext postJobContext;
   private final PostJobOptimizer postJobOptimizer;
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext, SensorOptimizer sensorOptimizer, PostJobContext postJobContext,
+  public ScannerExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext, SensorOptimizer sensorOptimizer, PostJobContext postJobContext,
     PostJobOptimizer postJobOptimizer) {
     this.componentContainer = componentContainer;
     this.sensorContext = sensorContext;

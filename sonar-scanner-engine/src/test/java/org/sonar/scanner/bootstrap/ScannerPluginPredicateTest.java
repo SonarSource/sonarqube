@@ -28,14 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchPluginPredicateTest {
+public class ScannerPluginPredicateTest {
 
   Settings settings = new MapSettings();
   GlobalMode mode = mock(GlobalMode.class);
 
   @Test
   public void accept_if_no_inclusions_nor_exclusions() {
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.getWhites()).isEmpty();
     assertThat(predicate.getBlacks()).isEmpty();
     assertThat(predicate.apply("pmd")).isTrue();
@@ -45,7 +45,7 @@ public class BatchPluginPredicateTest {
   @Test
   public void exclude_buildbreaker_in_preview_mode() {
     when(mode.isPreview()).thenReturn(true);
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("buildbreaker")).isFalse();
   }
 
@@ -55,7 +55,7 @@ public class BatchPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura,pmd");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }
 
@@ -65,7 +65,7 @@ public class BatchPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("checkstyle")).isTrue();
     assertThat(predicate.apply("pmd")).isTrue();
     assertThat(predicate.apply("cobertura")).isFalse();
@@ -77,7 +77,7 @@ public class BatchPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("checkstyle")).isTrue();
     assertThat(predicate.apply("pmd")).isTrue();
     assertThat(predicate.apply("cobertura")).isFalse();
@@ -87,7 +87,7 @@ public class BatchPluginPredicateTest {
   public void test_exclusions_without_any_inclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("checkstyle")).isFalse();
     assertThat(predicate.apply("pmd")).isFalse();
     assertThat(predicate.apply("cobertura")).isTrue();
@@ -98,7 +98,7 @@ public class BatchPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle, pmd, findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura, pmd");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }
 

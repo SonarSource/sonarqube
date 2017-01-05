@@ -29,13 +29,13 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.BatchUtils;
 
 public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
-  public DefaultServerLineHashesLoader(BatchWsClient wsClient) {
+  public DefaultServerLineHashesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

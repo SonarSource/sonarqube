@@ -73,18 +73,18 @@ public class GlobalContainer extends ComponentContainer {
     Version apiVersion = ApiVersion.load(System2.INSTANCE);
     add(
       // plugins
-      BatchPluginRepository.class,
+      ScannerPluginRepository.class,
       PluginLoader.class,
       PluginClassloaderFactory.class,
-      BatchPluginJarExploder.class,
-      BatchPluginPredicate.class,
+      ScannerPluginJarExploder.class,
+      ScannerPluginPredicate.class,
       ExtensionInstaller.class,
 
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
       StoragesManager.class,
       GlobalSettings.class,
-      new BatchWsClientProvider(),
+      new ScannerWsClientProvider(),
       DefaultServer.class,
       new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,
@@ -93,7 +93,7 @@ public class GlobalContainer extends ComponentContainer {
       System2.INSTANCE,
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);
-    addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
   }
 

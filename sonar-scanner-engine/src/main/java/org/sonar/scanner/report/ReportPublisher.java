@@ -44,7 +44,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.sonarqube.ws.MediaTypes;
@@ -64,7 +64,7 @@ public class ReportPublisher implements Startable {
   public static final String METADATA_DUMP_FILENAME = "report-task.txt";
 
   private final Settings settings;
-  private final BatchWsClient wsClient;
+  private final ScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final ImmutableProjectReactor projectReactor;
   private final DefaultAnalysisMode analysisMode;
@@ -75,7 +75,7 @@ public class ReportPublisher implements Startable {
   private File reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Settings settings, BatchWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(Settings settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;

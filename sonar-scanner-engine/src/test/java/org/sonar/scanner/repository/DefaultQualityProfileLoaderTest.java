@@ -25,7 +25,7 @@ import org.sonarqube.ws.QualityProfiles;
 import com.google.common.io.Resources;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -48,12 +48,12 @@ public class DefaultQualityProfileLoaderTest {
   public ExpectedException exception = ExpectedException.none();
 
   private DefaultQualityProfileLoader qpLoader;
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
   private InputStream is;
 
   @Before
   public void setUp() throws IOException {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     is = mock(InputStream.class);
     when(is.read()).thenReturn(-1);
     WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232", is);

@@ -27,16 +27,16 @@ import org.sonarqube.ws.client.HttpConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchWsClientProviderTest {
+public class ScannerWsClientProviderTest {
 
-  private BatchWsClientProvider underTest = new BatchWsClientProvider();
+  private ScannerWsClientProvider underTest = new ScannerWsClientProvider();
   private EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.3");
 
   @Test
   public void provide_client_with_default_settings() {
     GlobalProperties settings = new GlobalProperties(new HashMap<>());
 
-    BatchWsClient client = underTest.provide(settings, env);
+    ScannerWsClient client = underTest.provide(settings, env);
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
@@ -56,7 +56,7 @@ public class BatchWsClientProviderTest {
     props.put("sonar.ws.timeout", "42");
     GlobalProperties settings = new GlobalProperties(props);
 
-    BatchWsClient client = underTest.provide(settings, env);
+    ScannerWsClient client = underTest.provide(settings, env);
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
@@ -67,8 +67,8 @@ public class BatchWsClientProviderTest {
   @Test
   public void build_singleton() {
     GlobalProperties settings = new GlobalProperties(new HashMap<>());
-    BatchWsClient first = underTest.provide(settings, env);
-    BatchWsClient second = underTest.provide(settings, env);
+    ScannerWsClient first = underTest.provide(settings, env);
+    ScannerWsClient second = underTest.provide(settings, env);
     assertThat(first).isSameAs(second);
   }
 }

@@ -28,7 +28,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
@@ -36,9 +36,9 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 public class DefaultServer extends Server {
 
   private final Settings settings;
-  private final BatchWsClient client;
+  private final ScannerWsClient client;
 
-  public DefaultServer(Settings settings, BatchWsClient client) {
+  public DefaultServer(Settings settings, ScannerWsClient client) {
     this.settings = settings;
     this.client = client;
   }

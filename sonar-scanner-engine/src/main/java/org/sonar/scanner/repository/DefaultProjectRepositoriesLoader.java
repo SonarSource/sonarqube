@@ -31,7 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.BatchUtils;
 import org.sonarqube.ws.WsBatch;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
@@ -44,9 +44,9 @@ import org.sonarqube.ws.client.WsResponse;
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
   private static final String BATCH_PROJECT_URL = "/batch/project.protobuf";
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
-  public DefaultProjectRepositoriesLoader(BatchWsClient wsClient) {
+  public DefaultProjectRepositoriesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

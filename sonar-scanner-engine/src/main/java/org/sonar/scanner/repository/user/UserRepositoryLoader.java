@@ -22,7 +22,7 @@ package org.sonar.scanner.repository.user;
 import org.apache.commons.io.IOUtils;
 import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.util.BatchUtils;
 import org.sonarqube.ws.client.GetRequest;
@@ -35,9 +35,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserRepositoryLoader {
-  private final BatchWsClient wsClient;
+  private final ScannerWsClient wsClient;
 
-  public UserRepositoryLoader(BatchWsClient wsClient) {
+  public UserRepositoryLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

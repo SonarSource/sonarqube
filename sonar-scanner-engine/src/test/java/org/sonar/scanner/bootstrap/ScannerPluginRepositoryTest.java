@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.scanner.bootstrap.BatchPluginRepository;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.bootstrap.PluginInstaller;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,11 +34,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class BatchPluginRepositoryTest {
+public class ScannerPluginRepositoryTest {
 
   PluginInstaller installer = mock(PluginInstaller.class);
   PluginLoader loader = mock(PluginLoader.class);
-  BatchPluginRepository underTest = new BatchPluginRepository(installer, loader);
+  ScannerPluginRepository underTest = new ScannerPluginRepository(installer, loader);
 
   @Test
   public void install_and_load_plugins() {

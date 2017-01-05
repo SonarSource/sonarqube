@@ -31,7 +31,7 @@ import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.DefaultProjectTree;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
@@ -140,7 +140,7 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultPostJobContext.class,
       DefaultSensorStorage.class,
       DeprecatedSensorContext.class,
-      BatchExtensionDictionnary.class,
+      ScannerExtensionDictionnary.class,
       IssueFilters.class,
       CoverageExclusions.class,
 

@@ -20,7 +20,7 @@
 package org.sonar.scanner.repository;
 
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.BatchUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.apache.commons.io.IOUtils;
@@ -35,9 +35,9 @@ import java.util.List;
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
-  public DefaultQualityProfileLoader(BatchWsClient wsClient) {
+  public DefaultQualityProfileLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

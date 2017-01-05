@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 
 import static org.mockito.Matchers.any;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultGlobalRepositoriesLoaderTest {
   private static final String BATCH_GLOBAL_URL = "/batch/global";
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
   private DefaultGlobalRepositoriesLoader globalRepositoryLoader;
 
   @Rule
@@ -46,7 +46,7 @@ public class DefaultGlobalRepositoriesLoaderTest {
 
   @Before
   public void setUp() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     WsTestUtil.mockReader(wsClient, BATCH_GLOBAL_URL, new StringReader(new GlobalRepositories().toJson()));
     globalRepositoryLoader = new DefaultGlobalRepositoriesLoader(wsClient);
   }

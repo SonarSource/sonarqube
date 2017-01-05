@@ -37,7 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.BatchPluginRepository;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -51,7 +51,7 @@ public class AnalysisContextReportPublisher {
 
   private static final String ENV_PROP_PREFIX = "env.";
   private static final String SONAR_PROP_PREFIX = "sonar.";
-  private final BatchPluginRepository pluginRepo;
+  private final ScannerPluginRepository pluginRepo;
   private final AnalysisMode mode;
   private final System2 system;
   private final ProjectRepositories projectRepos;
@@ -59,7 +59,7 @@ public class AnalysisContextReportPublisher {
 
   private ScannerReportWriter writer;
 
-  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system,
+  public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
     ProjectRepositories projectRepos, GlobalRepositories globalRepositories) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;

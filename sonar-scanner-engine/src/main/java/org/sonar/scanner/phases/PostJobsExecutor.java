@@ -28,7 +28,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.util.BatchUtils;
 
@@ -36,11 +36,11 @@ import org.sonar.scanner.util.BatchUtils;
 public class PostJobsExecutor {
   private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
-  private final BatchExtensionDictionnary selector;
+  private final ScannerExtensionDictionnary selector;
   private final Project project;
   private final EventBus eventBus;
 
-  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus) {
+  public PostJobsExecutor(ScannerExtensionDictionnary selector, Project project, EventBus eventBus) {
     this.selector = selector;
     this.project = project;
     this.eventBus = eventBus;

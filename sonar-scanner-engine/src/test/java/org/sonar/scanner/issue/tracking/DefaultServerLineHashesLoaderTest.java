@@ -28,20 +28,20 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class DefaultServerLineHashesLoaderTest {
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void before() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
   }
 
   @Test

@@ -21,7 +21,7 @@ package org.sonar.scanner.rule;
 
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import com.google.common.io.Resources;
@@ -38,11 +38,11 @@ import org.junit.Before;
 
 public class DefaultActiveRulesLoaderTest {
   private DefaultActiveRulesLoader loader;
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
   @Before
   public void setUp() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     loader = new DefaultActiveRulesLoader(wsClient);
   }
 
