@@ -32,8 +32,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.PathUtils;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
-import org.sonar.scanner.mediumtest.BatchMediumTester.TaskBuilder;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester.TaskBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Changeset;
 import org.sonar.scanner.repository.FileData;
@@ -61,7 +61,7 @@ public class ScmMediumTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addFileData("com.foo.project", CHANGED_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))

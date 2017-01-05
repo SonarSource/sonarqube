@@ -89,7 +89,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
 
   /**
    * Returns empty on purpose. This method is used only by tests.
-   * @see org.sonar.scanner.mediumtest.BatchMediumTester
+   * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
   @Override
   public Map<String, Plugin> installLocals() {

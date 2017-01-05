@@ -33,7 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure;
 import org.sonar.xoo.XooPlugin;
@@ -53,7 +53,7 @@ public class MeasuresMediumTest {
   private File baseDir;
   private File srcDir;
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();

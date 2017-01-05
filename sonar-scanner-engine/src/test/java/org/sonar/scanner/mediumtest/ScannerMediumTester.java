@@ -72,7 +72,7 @@ import org.sonarqube.ws.Rules.ListResponse.Rule;
  * Main utility class for writing scanner medium tests.
  * 
  */
-public class BatchMediumTester {
+public class ScannerMediumTester {
 
   private Batch batch;
   private static Path workingDir = null;
@@ -126,8 +126,8 @@ public class BatchMediumTester {
     private boolean associated = true;
     private LogOutput logOutput = null;
 
-    public BatchMediumTester build() {
-      return new BatchMediumTester(this);
+    public ScannerMediumTester build() {
+      return new ScannerMediumTester(this);
     }
 
     public BatchMediumTesterBuilder setAssociated(boolean associated) {
@@ -272,7 +272,7 @@ public class BatchMediumTester {
     batch.syncProject(projectKey);
   }
 
-  private BatchMediumTester(BatchMediumTesterBuilder builder) {
+  private ScannerMediumTester(BatchMediumTesterBuilder builder) {
     Batch.Builder batchBuilder = Batch.builder()
       .setEnableLoggingConfiguration(true)
       .addComponents(
@@ -315,10 +315,10 @@ public class BatchMediumTester {
 
   public static class TaskBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
-    private BatchMediumTester tester;
+    private ScannerMediumTester tester;
     private IssueListener issueListener = null;
 
-    public TaskBuilder(BatchMediumTester tester) {
+    public TaskBuilder(ScannerMediumTester tester) {
       this.tester = tester;
     }
 

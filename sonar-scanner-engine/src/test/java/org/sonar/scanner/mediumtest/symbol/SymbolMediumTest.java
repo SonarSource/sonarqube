@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
@@ -40,7 +40,7 @@ public class SymbolMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();

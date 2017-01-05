@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.rule.LoadedActiveRule;
@@ -47,7 +47,7 @@ public class ChecksMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")

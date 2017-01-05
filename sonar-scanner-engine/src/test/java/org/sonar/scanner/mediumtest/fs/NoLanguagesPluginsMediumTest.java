@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.issuesmode.IssueModeAndReportsMediumTest;
 
 public class NoLanguagesPluginsMediumTest {
@@ -40,7 +40,7 @@ public class NoLanguagesPluginsMediumTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .setPreviousAnalysisDate(null)
     .build();
 
