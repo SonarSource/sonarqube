@@ -25,36 +25,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OracleTest {
 
-  Oracle dialect = new Oracle();
+  private Oracle underTest = new Oracle();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(dialect.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
-    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(underTest.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
+    assertThat(underTest.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(dialect.getTrueSqlValue()).isEqualTo("1");
-    assertThat(dialect.getFalseSqlValue()).isEqualTo("0");
+    assertThat(underTest.getTrueSqlValue()).isEqualTo("1");
+    assertThat(underTest.getFalseSqlValue()).isEqualTo("0");
   }
 
   @Test
   public void should_configure() {
-    assertThat(dialect.getId()).isEqualTo("oracle");
-    assertThat(dialect.getActiveRecordDialectCode()).isEqualTo("oracle");
-    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
-    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
+    assertThat(underTest.getId()).isEqualTo("oracle");
+    assertThat(underTest.getActiveRecordDialectCode()).isEqualTo("oracle");
+    assertThat(underTest.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
+    assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
   }
 
   @Test
   public void testFetchSizeForScrolling() throws Exception {
-    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
-    assertThat(dialect.getScrollSingleRowFetchSize()).isEqualTo(1);
+    assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(200);
+    assertThat(underTest.getScrollSingleRowFetchSize()).isEqualTo(1);
   }
 
   @Test
   public void oracle_does_supportMigration() {
-    assertThat(dialect.supportsMigration()).isTrue();
+    assertThat(underTest.supportsMigration()).isTrue();
   }
 }

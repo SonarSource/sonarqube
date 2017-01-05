@@ -19,6 +19,8 @@
  */
 package org.sonar.db.dialect;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -27,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 public class Oracle extends AbstractDialect {
 
   public static final String ID = "oracle";
+  private static final List<String> INIT_STATEMENTS = ImmutableList.of("ALTER SESSION SET NLS_SORT='BINARY'");
 
   public Oracle() {
     super(ID, "oracle", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
@@ -40,5 +43,10 @@ public class Oracle extends AbstractDialect {
   @Override
   public boolean supportsMigration() {
     return true;
+  }
+
+  @Override
+  public List<String> getConnectionInitStatements() {
+    return INIT_STATEMENTS;
   }
 }
