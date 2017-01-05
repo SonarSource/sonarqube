@@ -191,7 +191,7 @@ public class ValuesAction implements SettingsWsAction {
         }));
   }
 
-  private static class ValuesResponseBuilder {
+  private class ValuesResponseBuilder {
     private final List<Setting> settings;
     private final Optional<ComponentDto> requestedComponent;
 
@@ -233,7 +233,7 @@ public class ValuesAction implements SettingsWsAction {
       valueBuilder.setInherited(isDefault || !isSet);
     }
 
-    private static void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
+    private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
       PropertyDefinition definition = setting.getDefinition();
       String value = setting.getValue();
       if (definition == null) {
@@ -241,7 +241,7 @@ public class ValuesAction implements SettingsWsAction {
         return;
       }
       if (definition.type().equals(PROPERTY_SET)) {
-        valueBuilder.setFieldValues(createFieldValuesBuilder(setting.getPropertySets()));
+        valueBuilder.setFieldValues(createFieldValuesBuilder(filterVisiblePropertySets(setting.getPropertySets())));
       } else if (definition.multiValues()) {
         valueBuilder.setValues(createValuesBuilder(value));
       } else {
@@ -260,7 +260,8 @@ public class ValuesAction implements SettingsWsAction {
         }
 
         if (definition.type().equals(PROPERTY_SET)) {
-          valueBuilder.setParentFieldValues(createFieldValuesBuilder(valueBuilder.getInherited() ? setting.getPropertySets() : parent.getPropertySets()));
+          valueBuilder.setParentFieldValues(
+            createFieldValuesBuilder(valueBuilder.getInherited() ? filterVisiblePropertySets(setting.getPropertySets()) : filterVisiblePropertySets(parent.getPropertySets())));
         } else if (definition.multiValues()) {
           valueBuilder.setParentValues(createValuesBuilder(value));
         } else {
@@ -270,17 +271,29 @@ public class ValuesAction implements SettingsWsAction {
       settingsByParentKey.put(setting.getKey(), setting);
     }
 
-    private static Settings.Values.Builder createValuesBuilder(String value) {
+    private Settings.Values.Builder createValuesBuilder(String value) {
       List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
       return Settings.Values.newBuilder().addAllValues(values);
     }
 
-    private static Settings.FieldValues.Builder createFieldValuesBuilder(List<Map<String, String>> fieldValues) {
+    private Settings.FieldValues.Builder createFieldValuesBuilder(List<Map<String, String>> fieldValues) {
       Settings.FieldValues.Builder builder = Settings.FieldValues.newBuilder();
       for (Map<String, String> propertySetMap : fieldValues) {
         builder.addFieldValuesBuilder().putAllValue(propertySetMap);
       }
       return builder;
+    }
+
+    private List<Map<String, String>> filterVisiblePropertySets(List<Map<String, String>> propertySets) {
+      List<Map<String, String>> filteredPropertySets = new ArrayList<>();
+      propertySets.forEach(map -> {
+        Map<String, String> set = new HashMap<>();
+        map.entrySet().stream()
+          .filter(entry -> settingsPermissionPredicates.isVisible(entry.getKey(), null, requestedComponent))
+          .forEach(entry -> set.put(entry.getKey(), entry.getValue()));
+        filteredPropertySets.add(set);
+      });
+      return filteredPropertySets;
     }
   }
 

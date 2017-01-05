@@ -50,7 +50,7 @@ public class SettingsPermissionPredicates {
     return propertyDefinition -> isVisible(propertyDefinition.key(), propertyDefinition, component);
   }
 
-  private boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+  boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
     return verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition));
   }
 

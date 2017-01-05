@@ -90,7 +90,7 @@ public class SettingsFinderTest {
       .type(PROPERTY_SET)
       .fields(asList(
         PropertyFieldDefinition.build("key").name("Key").build(),
-        PropertyFieldDefinition.build("size").name("Size").build()))
+        PropertyFieldDefinition.build("size.value").name("Size").build()))
       .build(),
       PropertyDefinition.builder("another")
         .type(PROPERTY_SET)
@@ -99,14 +99,14 @@ public class SettingsFinderTest {
     insertProperties(
       newGlobalPropertyDto().setKey("set1").setValue("1,2"),
       newGlobalPropertyDto().setKey("set1.1.key").setValue("key1"),
-      newGlobalPropertyDto().setKey("set1.1.size").setValue("size1"),
+      newGlobalPropertyDto().setKey("set1.1.size.value").setValue("size1"),
       newGlobalPropertyDto().setKey("set1.2.key").setValue("key2"),
       newGlobalPropertyDto().setKey("set2").setValue("1"),
       newGlobalPropertyDto().setKey("another.1.key").setValue("key1"));
 
     List<Setting> settings = underTest.loadGlobalSettings(dbSession, newHashSet("set1"));
     assertThat(settings).hasSize(1);
-    assertSetting(settings.get(0), "set1", "1,2", null, true, ImmutableMap.of("key", "key1", "size", "size1"), ImmutableMap.of("key", "key2"));
+    assertSetting(settings.get(0), "set1", "1,2", null, true, ImmutableMap.of("key", "key1", "size.value", "size1"), ImmutableMap.of("key", "key2"));
   }
 
   @Test

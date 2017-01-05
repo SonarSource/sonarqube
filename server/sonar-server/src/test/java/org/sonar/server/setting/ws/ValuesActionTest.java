@@ -471,6 +471,23 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void does_not_returned_secured_and_license_settings_in_property_set_when_not_authenticated() throws Exception {
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
+        PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
+      .build());
+    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+
+    assertFieldValues(result.getSettings(0), ImmutableMap.of("key", "key1"));
+  }
+
+  @Test
   public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
     setUserWithBrowsePermissionOnProject();
     definitions.addComponents(asList(
@@ -524,6 +541,24 @@ public class ValuesActionTest {
     ValuesWsResponse result = executeRequestForProjectProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
+  public void return_secured_and_license_settings_in_property_set_when_system_admin() throws Exception {
+    setUserAsSystemAdmin();
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build("key").name("Key").build(),
+        PropertyFieldDefinition.build("plugin.license.secured").name("License").type(LICENSE).build(),
+        PropertyFieldDefinition.build("secret.secured").name("Secured").build()))
+      .build());
+    propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+
+    assertFieldValues(result.getSettings(0), ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
   }
 
   @Test

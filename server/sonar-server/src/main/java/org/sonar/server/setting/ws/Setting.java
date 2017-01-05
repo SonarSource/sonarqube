@@ -100,9 +100,10 @@ public class Setting {
     }
     ImmutableTable.Builder<String, String, String> tableBuilder = new ImmutableTable.Builder<>();
     propertySets.forEach(property -> {
-      List<String> setIdWithFieldKey = DOT_SPLITTER.splitToList(property.getKey().replace(propertyKey + ".", ""));
+      String keyWithoutSettingKey = property.getKey().replace(propertyKey + ".", "");
+      List<String> setIdWithFieldKey = DOT_SPLITTER.splitToList(keyWithoutSettingKey);
       String setId = setIdWithFieldKey.get(0);
-      String fieldKey = setIdWithFieldKey.get(1);
+      String fieldKey = keyWithoutSettingKey.replaceFirst(setId + ".", "");
       tableBuilder.put(setId, fieldKey, property.getValue());
     });
     ImmutableTable<String, String, String> table = tableBuilder.build();
