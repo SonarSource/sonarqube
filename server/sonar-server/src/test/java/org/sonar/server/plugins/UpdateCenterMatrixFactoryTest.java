@@ -21,7 +21,7 @@ package org.sonar.server.plugins;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
-import org.sonar.api.platform.Server;
+import org.sonar.api.SonarRuntime;
 import org.sonar.updatecenter.common.UpdateCenter;
 
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -31,14 +31,14 @@ import static org.mockito.Mockito.when;
 
 public class UpdateCenterMatrixFactoryTest {
 
-  UpdateCenterMatrixFactory underTest;
+  private UpdateCenterMatrixFactory underTest;
 
   @Test
   public void return_absent_update_center() {
     UpdateCenterClient updateCenterClient = mock(UpdateCenterClient.class);
-    when(updateCenterClient.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterClient.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
-    underTest = new UpdateCenterMatrixFactory(updateCenterClient, mock(Server.class), mock(InstalledPluginReferentialFactory.class));
+    underTest = new UpdateCenterMatrixFactory(updateCenterClient, mock(SonarRuntime.class), mock(InstalledPluginReferentialFactory.class));
 
     Optional<UpdateCenter> updateCenter = underTest.getUpdateCenter(false);
 

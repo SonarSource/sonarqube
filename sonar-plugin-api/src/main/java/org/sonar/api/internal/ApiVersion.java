@@ -33,7 +33,7 @@ import org.sonar.api.utils.Version;
  */
 public class ApiVersion {
 
-  private static final String FILE_PATH = "/sq-version.txt";
+  private static final String FILE_PATH = "/sonar-api-version.txt";
 
   private ApiVersion() {
     // only static methods
