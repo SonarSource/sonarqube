@@ -256,7 +256,7 @@ public class RealmAuthenticatorTest {
     when(authenticator.doAuthenticate(any(Authenticator.Context.class))).thenReturn(false);
 
     expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("realm returned authenticate=false");
+    expectedException.expectMessage("Realm returned authenticate=false");
     try {
       underTest.authenticate(LOGIN, PASSWORD, request, BASIC);
     } finally {

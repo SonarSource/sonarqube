@@ -77,7 +77,7 @@ public class BasicAuthenticator {
     if (semiColonPos <= 0) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(Method.BASIC))
-        .setMessage("decoded basic auth does not contain ':'")
+        .setMessage("Decoded basic auth does not contain ':'")
         .build();
     }
     String login = basicAuthDecoded.substring(0, semiColonPos);
