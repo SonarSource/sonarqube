@@ -69,7 +69,8 @@ public interface NewIssue {
 
   /**
    * Register a flow for this issue. A flow is an ordered list of issue locations that help to understand the issue.
-   * It could be a path leading to the primary location. Several flows can be registered.
+   * It should be a <b>path that backtracks the issue from its primary location to the start of the flow</b>. 
+   * Several flows can be registered.
    * @since 5.2
    */
   NewIssue addFlow(Iterable<NewIssueLocation> flowLocations);
