@@ -28,6 +28,7 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Call;
 import okhttp3.Credentials;
+import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -107,42 +108,53 @@ public class HttpConnector implements WsConnector {
 
   private WsResponse get(GetRequest getRequest) {
     HttpUrl.Builder urlBuilder = prepareUrlBuilder(getRequest);
+    completeUrlQueryParameters(getRequest, urlBuilder);
+
     Request.Builder okRequestBuilder = prepareOkRequestBuilder(getRequest, urlBuilder).get();
     return doCall(okRequestBuilder.build());
   }
 
   private WsResponse post(PostRequest postRequest) {
     HttpUrl.Builder urlBuilder = prepareUrlBuilder(postRequest);
-    Request.Builder okRequestBuilder = prepareOkRequestBuilder(postRequest, urlBuilder);
 
+    RequestBody body;
     Map<String, PostRequest.Part> parts = postRequest.getParts();
     if (parts.isEmpty()) {
-      okRequestBuilder.post(RequestBody.create(null, ""));
+      // parameters are defined in the body (application/x-www-form-urlencoded)
+      FormBody.Builder formBody = new FormBody.Builder();
+      postRequest.getParameters().getKeys()
+        .forEach(key -> postRequest.getParameters().getValues(key)
+          .forEach(value -> formBody.add(key, value)));
+      body = formBody.build();
+
     } else {
-      MultipartBody.Builder bodyBuilder = new MultipartBody.Builder();
-      bodyBuilder.setType(MultipartBody.FORM);
-      for (Map.Entry<String, PostRequest.Part> param : parts.entrySet()) {
+      // parameters are defined in the URL (as GET)
+      completeUrlQueryParameters(postRequest, urlBuilder);
+
+      MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+      parts.entrySet().forEach(param -> {
         PostRequest.Part part = param.getValue();
         bodyBuilder.addPart(
           Headers.of("Content-Disposition", format("form-data; name=\"%s\"", param.getKey())),
           RequestBody.create(MediaType.parse(part.getMediaType()), part.getFile()));
-      }
-      okRequestBuilder.post(bodyBuilder.build());
+      });
+      body = bodyBuilder.build();
     }
-
-    return doCall(okRequestBuilder.build());
+    Request.Builder reqBuilder = prepareOkRequestBuilder(postRequest, urlBuilder);
+    return doCall(reqBuilder.post(body).build());
   }
 
   private HttpUrl.Builder prepareUrlBuilder(WsRequest wsRequest) {
     String path = wsRequest.getPath();
-    HttpUrl.Builder urlBuilder = baseUrl
+    return baseUrl
       .resolve(path.startsWith("/") ? path.replaceAll("^(/)+", "") : path)
       .newBuilder();
-    wsRequest.getParameters().getKeys()
-      .forEach(key -> wsRequest.getParameters().getValues(key)
-        .forEach(value -> urlBuilder.addQueryParameter(key, value)));
+  }
 
-    return urlBuilder;
+  private static void completeUrlQueryParameters(BaseRequest request, HttpUrl.Builder urlBuilder) {
+    request.getParameters().getKeys()
+      .forEach(key -> request.getParameters().getValues(key)
+        .forEach(value -> urlBuilder.addQueryParameter(key, value)));
   }
 
   private Request.Builder prepareOkRequestBuilder(WsRequest getRequest, HttpUrl.Builder urlBuilder) {

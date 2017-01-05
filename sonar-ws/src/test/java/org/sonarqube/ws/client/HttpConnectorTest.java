@@ -213,7 +213,8 @@ public class HttpConnectorTest {
     // verify the request received by server
     RecordedRequest recordedRequest = server.takeRequest();
     assertThat(recordedRequest.getMethod()).isEqualTo("POST");
-    assertThat(recordedRequest.getPath()).isEqualTo("/api/issues/search?severity=MAJOR");
+    assertThat(recordedRequest.getPath()).isEqualTo("/api/issues/search");
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo("severity=MAJOR");
   }
 
   @Test
