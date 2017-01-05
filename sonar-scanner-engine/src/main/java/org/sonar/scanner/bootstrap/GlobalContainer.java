@@ -42,6 +42,8 @@ import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesProvider;
+import org.sonar.scanner.repository.settings.DefaultSettingsLoader;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.storage.StoragesManager;
 import org.sonar.scanner.task.TaskContainer;
 
@@ -94,6 +96,7 @@ public class GlobalContainer extends ComponentContainer {
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);
     addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(DefaultSettingsLoader.class, SettingsLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
   }
 

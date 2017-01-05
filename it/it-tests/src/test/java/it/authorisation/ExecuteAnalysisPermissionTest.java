@@ -82,10 +82,10 @@ public class ExecuteAnalysisPermissionTest {
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
+    removeProjectPermission("anyone", "sample", "user");
     try {
       // Execute anonymous analysis
       executeAnonymousAnalysis();
-      ;
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(

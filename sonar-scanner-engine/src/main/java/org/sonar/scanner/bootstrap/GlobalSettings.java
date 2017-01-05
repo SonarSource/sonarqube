@@ -30,7 +30,7 @@ import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class GlobalSettings extends Settings {
 
@@ -47,23 +47,23 @@ public class GlobalSettings extends Settings {
     "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE);
 
   private final GlobalProperties bootstrapProps;
-  private final GlobalRepositories globalReferentials;
+  private final SettingsLoader settingsLoader;
   private final GlobalMode mode;
   private final Map<String, String> properties = new HashMap<>();
 
   public GlobalSettings(GlobalProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
-    GlobalRepositories globalReferentials, GlobalMode mode) {
+    SettingsLoader settingsLoader, GlobalMode mode) {
 
     super(propertyDefinitions, new Encryption(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
     this.mode = mode;
     this.bootstrapProps = bootstrapProps;
-    this.globalReferentials = globalReferentials;
+    this.settingsLoader = settingsLoader;
     init();
     new DroppedPropertyChecker(this.getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   private void init() {
-    addProperties(globalReferentials.globalSettings());
+    addProperties(settingsLoader.load(null));
     addProperties(bootstrapProps.properties());
 
     if (hasKey(CoreProperties.PERMANENT_SERVER_ID)) {
