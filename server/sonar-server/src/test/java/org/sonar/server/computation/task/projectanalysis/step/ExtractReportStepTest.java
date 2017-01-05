@@ -57,7 +57,7 @@ public class ExtractReportStepTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private MutableBatchReportDirectoryHolder reportDirectoryHolder = new BatchReportDirectoryHolderImpl();
-  private CeTask ceTask = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid(TASK_UUID).build();
+  private CeTask ceTask = new CeTask.Builder().setOrganizationUuid("org1").setType(CeTaskTypes.REPORT).setUuid(TASK_UUID).build();
 
   private ExtractReportStep underTest = new ExtractReportStep(dbTester.getDbClient(), ceTask, tempFolder, reportDirectoryHolder);
 

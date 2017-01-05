@@ -35,10 +35,9 @@ import static org.mockito.Mockito.when;
 
 public class LoadReportAnalysisMetadataHolderStepTest {
 
-  public static final String PROJECT_KEY = "project_key";
-  static long ANALYSIS_DATE = 123456789L;
-
-  static String BRANCH = "origin/master";
+  private static final String PROJECT_KEY = "project_key";
+  private static final String BRANCH = "origin/master";
+  private static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -177,6 +176,17 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     }
   }
 
+  @Test
+  public void execute_set_organization_uuid_from_ce_task() {
+    reportReader.setMetadata(
+      newBatchReportBuilder()
+        .build());
+
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.getOrganizationUuid()).isEqualTo(ceTask.getOrganizationUuid());
+  }
+
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
     return ScannerReport.Metadata.newBuilder()
       .setProjectKey(PROJECT_KEY);
@@ -184,6 +194,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private CeTask createCeTask(String projectKey) {
     CeTask res = mock(CeTask.class);
+    when(res.getOrganizationUuid()).thenReturn("org1");
     when(res.getComponentKey()).thenReturn(projectKey);
     return res;
   }

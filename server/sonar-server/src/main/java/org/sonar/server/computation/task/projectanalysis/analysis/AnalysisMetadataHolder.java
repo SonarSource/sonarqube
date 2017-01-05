@@ -26,6 +26,12 @@ import org.sonar.server.qualityprofile.QualityProfile;
 public interface AnalysisMetadataHolder {
 
   /**
+   * Returns the UUID of the organization the analysis belongs to.
+   * @throws IllegalStateException if organization uuid has not been set
+   */
+  String getOrganizationUuid();
+
+  /**
    * Returns the UUID generated for this analysis.
    * @throws IllegalStateException if uuid has not been set
    */
