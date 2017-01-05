@@ -22,7 +22,6 @@ package org.sonar.server.setting.ws;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
-import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,6 +48,7 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -237,7 +237,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    assertThat(result.getDefinitions(0).getFieldsList()).extracting(Settings.Field::getKey, Settings.Field::getType).containsOnly(Tuple.tuple("license", LICENSE));
+    assertThat(result.getDefinitions(0).getFieldsList()).extracting(Settings.Field::getKey, Settings.Field::getType).containsOnly(tuple("license", LICENSE));
   }
 
   @Test
@@ -304,19 +304,23 @@ public class ListDefinitionsActionTest {
   @Test
   public void return_license_type() throws Exception {
     setUserAsSystemAdmin();
-    propertyDefinitions.addComponent(PropertyDefinition.builder("license").type(PropertyType.LICENSE).build());
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
+      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey, Settings.Definition::getType).containsOnly(Tuple.tuple("license", LICENSE));
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey, Settings.Definition::getType)
+      .containsOnly(tuple("plugin.license.secured", LICENSE), tuple("commercial.plugin", LICENSE));
   }
 
   @Test
-  public void does_not_returned_secured_settings_when_not_authenticated() throws Exception {
+  public void does_not_returned_secured_and_license_settings_when_not_authenticated() throws Exception {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
+      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
@@ -329,11 +333,12 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
-      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build()));
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
+      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "plugin.license.secured");
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "plugin.license.secured", "commercial.plugin");
   }
 
   @Test

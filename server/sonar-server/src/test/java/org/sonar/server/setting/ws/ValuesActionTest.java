@@ -453,17 +453,19 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void does_not_returned_secured_settings_when_not_authenticated() throws Exception {
+  public void does_not_returned_secured_and_license_settings_when_not_authenticated() throws Exception {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("commercial.plugin").type(LICENSE).build(),
       PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured");
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "commercial.plugin", "plugin.license.secured");
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo");
   }
@@ -474,16 +476,18 @@ public class ValuesActionTest {
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("commercial.plugin").type(LICENSE).build(),
       PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "plugin.license.secured", "plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
   }
 
   @Test

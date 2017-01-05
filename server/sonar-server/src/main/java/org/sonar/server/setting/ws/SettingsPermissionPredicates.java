@@ -21,11 +21,13 @@ package org.sonar.server.setting.ws;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 public class SettingsPermissionPredicates {
@@ -41,24 +43,30 @@ public class SettingsPermissionPredicates {
   }
 
   Predicate<Setting> isSettingVisible(Optional<ComponentDto> component) {
-    return setting -> isVisible(setting.getKey(), component);
+    return setting -> isVisible(setting.getKey(), setting.getDefinition(), component);
   }
 
   Predicate<PropertyDefinition> isDefinitionVisible(Optional<ComponentDto> component) {
-    return propertyDefinition -> isVisible(propertyDefinition.key(), component);
+    return propertyDefinition -> isVisible(propertyDefinition.key(), propertyDefinition, component);
   }
 
-  boolean isVisible(String settingKey, Optional<ComponentDto> component) {
-    return !settingKey.endsWith(SECURED_SUFFIX)
-      || hasAdminPermission(component)
-      || (isLicenseRelated(settingKey) && userSession.isLoggedIn());
+  private boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+    return verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition));
+  }
+
+  private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
+    return isLicense(key, definition) || (!key.endsWith(SECURED_SUFFIX) || hasAdminPermission(component));
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {
     return component.isPresent() ? userSession.hasComponentUuidPermission(ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private static boolean isLicenseRelated(String settingKey) {
-    return settingKey.endsWith(LICENSE_SUFFIX) || settingKey.endsWith(LICENSE_HASH_SUFFIX);
+  private boolean verifyLicenseSetting(String key, @Nullable PropertyDefinition definition) {
+    return !isLicense(key, definition) || userSession.isLoggedIn();
+  }
+
+  private static boolean isLicense(String key, @Nullable PropertyDefinition definition) {
+    return key.endsWith(LICENSE_SUFFIX) || key.endsWith(LICENSE_HASH_SUFFIX) || (definition != null && definition.type() == LICENSE);
   }
 }
