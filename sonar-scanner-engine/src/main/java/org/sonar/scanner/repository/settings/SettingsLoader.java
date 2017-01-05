@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.repository.settings;
 
-import java.util.List;
-import org.sonarqube.ws.Settings.Setting;
+import java.util.Map;
 
 public interface SettingsLoader {
-  List<Setting> load(String componentKey);
+  Map<String, String> load(String componentKey);
 }

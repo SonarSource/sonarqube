@@ -69,7 +69,6 @@ import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonarqube.ws.Settings.Setting;
 
 /**
  * Main utility class for writing scanner medium tests.
@@ -481,8 +480,8 @@ public class ScannerMediumTester {
   private static class FakeSettingsLoader implements SettingsLoader {
 
     @Override
-    public List<Setting> load(String componentKey) {
-      return Collections.emptyList();
+    public Map<String, String> load(String componentKey) {
+      return Collections.emptyMap();
     }
   }
 

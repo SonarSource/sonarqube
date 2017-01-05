@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,8 +35,6 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,43 +48,37 @@ public class ProjectSettingsTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private ProjectRepositories projectRef;
   private ProjectDefinition project;
   private GlobalSettings bootstrapProps;
-  private Table<String, String, FileData> emptyFileData;
-  private Table<String, String, String> emptySettings;
 
   private GlobalMode globalMode;
   private DefaultAnalysisMode mode;
+  private SettingsLoader settingsLoader;
 
   @Before
   public void prepare() {
-    emptyFileData = ImmutableTable.of();
-    emptySettings = ImmutableTable.of();
     project = ProjectDefinition.create().setKey("struts");
     globalMode = mock(GlobalMode.class);
     mode = mock(DefaultAnalysisMode.class);
-    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), mock(SettingsLoader.class), globalMode);
+    settingsLoader = mock(SettingsLoader.class);
+    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), settingsLoader, globalMode);
   }
 
   @Test
   public void should_load_project_props() {
     project.setProperty("project.prop", "project");
 
-    projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
 
   @Test
   public void should_load_project_root_settings() {
-    Table<String, String, String> settings = HashBasedTable.create();
-    settings.put("struts", "sonar.cpd.cross", "true");
-    settings.put("struts", "sonar.java.coveragePlugin", "jacoco");
-
-    projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
+    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
+      "sonar.cpd.cross", "true",
+      "sonar.java.coveragePlugin", "jacoco"));
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
@@ -96,25 +86,22 @@ public class ProjectSettingsTest {
   public void should_load_project_root_settings_on_branch() {
     project.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
 
-    Table<String, String, String> settings = HashBasedTable.create();
-    settings.put("struts:mybranch", "sonar.cpd.cross", "true");
-    settings.put("struts:mybranch", "sonar.java.coveragePlugin", "jacoco");
+    when(settingsLoader.load("struts:mybranch")).thenReturn(ImmutableMap.of(
+      "sonar.cpd.cross", "true",
+      "sonar.java.coveragePlugin", "jacoco"));
 
-    projectRef = new ProjectRepositories(settings, emptyFileData, null);
-
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    Table<String, String, String> settings = HashBasedTable.create();
-    settings.put("struts", "sonar.foo.secured", "bar");
-    settings.put("struts", "sonar.foo.license.secured", "bar2");
+    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
+      "sonar.foo.secured", "bar",
+      "sonar.foo.license.secured", "bar2"));
 
-    projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -122,14 +109,13 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues_mode() {
-    Table<String, String, String> settings = HashBasedTable.create();
-    settings.put("struts", "sonar.foo.secured", "bar");
-    settings.put("struts", "sonar.foo.license.secured", "bar2");
+    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
+      "sonar.foo.secured", "bar",
+      "sonar.foo.license.secured", "bar2"));
 
     when(mode.isIssues()).thenReturn(true);
 
-    projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);

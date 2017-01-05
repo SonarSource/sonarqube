@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,13 +29,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.repository.settings.SettingsLoader;
-import org.sonarqube.ws.Settings.FieldValues;
-import org.sonarqube.ws.Settings.FieldValues.Value;
-import org.sonarqube.ws.Settings.FieldValues.Value.Builder;
-import org.sonarqube.ws.Settings.Setting;
-import org.sonarqube.ws.Settings.Values;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,7 +56,7 @@ public class GlobalSettingsTest {
 
   @Test
   public void should_load_global_settings() {
-    when(settingsLoader.load(null)).thenReturn(asList(Setting.newBuilder().setKey("sonar.cpd.cross").setValue("true").build()));
+    when(settingsLoader.load(null)).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
     GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
 
@@ -69,47 +64,10 @@ public class GlobalSettingsTest {
   }
 
   @Test
-  public void should_load_global_multivalue_settings() {
-    when(settingsLoader.load(null))
-      .thenReturn(asList(Setting.newBuilder()
-        .setKey("sonar.preview.supportedPlugins")
-        .setValues(Values.newBuilder().addValues("java").addValues("php")).build()));
-
-    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
-
-    assertThat(batchSettings.getStringArray("sonar.preview.supportedPlugins")).containsExactly("java", "php");
-  }
-
-  @Test
-  public void should_load_global_propertyset_settings() {
-    Builder valuesBuilder = Value.newBuilder();
-    valuesBuilder.getMutableValue().put("filepattern", "**/*.xml");
-    valuesBuilder.getMutableValue().put("rulepattern", "*:S12345");
-    Value value1 = valuesBuilder.build();
-    valuesBuilder.clear();
-    valuesBuilder.getMutableValue().put("filepattern", "**/*.java");
-    valuesBuilder.getMutableValue().put("rulepattern", "*:S456");
-    Value value2 = valuesBuilder.build();
-    when(settingsLoader.load(null))
-      .thenReturn(asList(Setting.newBuilder()
-        .setKey("sonar.issue.exclusions.multicriteria")
-        .setFieldValues(FieldValues.newBuilder().addFieldValues(value1).addFieldValues(value2)).build()));
-
-    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
-
-    assertThat(batchSettings.getStringArray("sonar.issue.exclusions.multicriteria")).containsExactly("1", "2");
-    assertThat(batchSettings.getString("sonar.issue.exclusions.multicriteria.1.filepattern")).isEqualTo("**/*.xml");
-    assertThat(batchSettings.getString("sonar.issue.exclusions.multicriteria.1.rulepattern")).isEqualTo("*:S12345");
-    assertThat(batchSettings.getString("sonar.issue.exclusions.multicriteria.2.filepattern")).isEqualTo("**/*.java");
-    assertThat(batchSettings.getString("sonar.issue.exclusions.multicriteria.2.rulepattern")).isEqualTo("*:S456");
-  }
-
-  @Test
   public void should_log_warn_msg_for_each_jdbc_property_if_present() {
-    when(settingsLoader.load(null)).thenReturn(asList(
-      Setting.newBuilder().setKey("sonar.jdbc.url").setValue(SOME_VALUE).build(),
-      Setting.newBuilder().setKey("sonar.jdbc.username").setValue(SOME_VALUE).build(),
-      Setting.newBuilder().setKey("sonar.jdbc.password").setValue(SOME_VALUE).build()));
+    when(settingsLoader.load(null)).thenReturn(ImmutableMap.of("sonar.jdbc.url", "SOME_VALUE",
+      "sonar.jdbc.username", "SOME_VALUE",
+      "sonar.jdbc.password", "SOME_VALUE"));
 
     new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
 

@@ -27,27 +27,27 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class ProjectSettings extends Settings {
 
   private final GlobalSettings globalSettings;
-  private final ProjectRepositories projectRepositories;
   private final DefaultAnalysisMode mode;
   private final Map<String, String> properties = new HashMap<>();
+  private final SettingsLoader settingsLoader;
 
-  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, SettingsLoader settingsLoader, DefaultAnalysisMode mode) {
     super(globalSettings.getDefinitions(), globalSettings.getEncryption());
+    this.settingsLoader = settingsLoader;
     this.mode = mode;
     this.globalSettings = globalSettings;
-    this.projectRepositories = projectRepositories;
     init(reactor);
   }
 
   private void init(ProjectReactor reactor) {
     addProperties(globalSettings.getProperties());
 
-    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
+    addProperties(settingsLoader.load(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().properties());
   }

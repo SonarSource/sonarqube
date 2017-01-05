@@ -19,11 +19,8 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -34,8 +31,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.settings.SettingsLoader;
-import org.sonarqube.ws.Settings.FieldValues.Value;
-import org.sonarqube.ws.Settings.Setting;
 
 public class GlobalSettings extends Settings {
 
@@ -68,42 +63,12 @@ public class GlobalSettings extends Settings {
   }
 
   private void init() {
-    List<Setting> globalSettings = settingsLoader.load(null);
-    for (Setting s : globalSettings) {
-      if (!s.getInherited()) {
-        switch (s.getValueOneOfCase()) {
-          case VALUE:
-            setProperty(s.getKey(), s.getValue());
-            break;
-          case VALUES:
-            setProperty(s.getKey(), Joiner.on(',').join(s.getValues().getValuesList()));
-            break;
-          case FIELDVALUES:
-            convertPropertySetToProps(s);
-            break;
-          default:
-            throw new IllegalStateException("Unknow property value for " + s.getKey());
-        }
-      }
-    }
+    addProperties(settingsLoader.load(null));
     addProperties(bootstrapProps.properties());
 
     if (hasKey(CoreProperties.PERMANENT_SERVER_ID)) {
       LOG.info("Server id: " + getString(CoreProperties.PERMANENT_SERVER_ID));
     }
-  }
-
-  private void convertPropertySetToProps(Setting s) {
-    List<String> ids = new ArrayList<>();
-    int id = 1;
-    for (Value v : s.getFieldValues().getFieldValuesList()) {
-      for (Map.Entry<String, String> entry : v.getValue().entrySet()) {
-        setProperty(s.getKey() + "." + id + "." + entry.getKey(), entry.getValue());
-      }
-      ids.add(String.valueOf(id));
-      id++;
-    }
-    setProperty(s.getKey(), Joiner.on(',').join(ids));
   }
 
   @Override
