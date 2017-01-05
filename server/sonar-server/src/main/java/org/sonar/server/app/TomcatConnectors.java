@@ -42,6 +42,7 @@ class TomcatConnectors {
 
   static void configure(Tomcat tomcat, Props props) {
     Connector httpConnector = newHttpConnector(props);
+    tomcat.setConnector(httpConnector);
     tomcat.getService().addConnector(httpConnector);
   }
 

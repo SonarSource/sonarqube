@@ -19,6 +19,9 @@
  */
 package org.sonar.server.app;
 
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +35,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Configures Tomcat contexts:
@@ -98,6 +98,7 @@ public class TomcatContexts {
     try {
       StandardContext context = (StandardContext) tomcat.addWebapp(contextPath, dir.getAbsolutePath());
       context.setClearReferencesHttpClientKeepAliveThread(false);
+      context.setClearReferencesStatic(false);
       context.setClearReferencesStopThreads(false);
       context.setClearReferencesStopTimerThreads(false);
       context.setClearReferencesStopTimerThreads(false);
