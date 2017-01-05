@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -62,6 +63,7 @@ import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
 import org.sonar.scanner.rule.RulesLoader;
@@ -283,7 +285,8 @@ public class ScannerMediumTester {
         builder.rulesLoader,
         builder.projectRefProvider,
         builder.activeRules,
-        new DefaultDebtModel())
+        new DefaultDebtModel(),
+        new FakeSettingsLoader())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput);
 
@@ -471,6 +474,14 @@ public class ScannerMediumTester {
       for (ServerIssue serverIssue : serverIssues) {
         consumer.apply(serverIssue);
       }
+    }
+  }
+
+  private static class FakeSettingsLoader implements SettingsLoader {
+
+    @Override
+    public Map<String, String> load(String componentKey) {
+      return Collections.emptyMap();
     }
   }
 

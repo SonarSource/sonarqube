@@ -20,6 +20,7 @@
 package org.sonar.xoo;
 
 import org.sonar.api.Plugin;
+import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -80,6 +81,11 @@ public class XooPlugin implements Plugin {
         .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
         .subCategory("General")
         .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+      // Used by DuplicationsTest. If not declared it is not returned by api/settings
+      PropertyDefinition.builder("sonar.cpd.xoo.minimumTokens")
+        .onQualifiers(Qualifiers.PROJECT)
+        .type(PropertyType.INTEGER)
         .build(),
       Xoo.class,
       Xoo2.class,

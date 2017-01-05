@@ -36,10 +36,10 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -157,6 +157,6 @@ public class ModuleSettingsTest {
   private GlobalSettings newGlobalSettings(Map<String, String> props) {
     GlobalProperties globalProps = new GlobalProperties(props);
     return new GlobalSettings(globalProps, new PropertyDefinitions(),
-      new GlobalRepositories(), new GlobalMode(globalProps));
+      mock(SettingsLoader.class), new GlobalMode(globalProps));
   }
 }

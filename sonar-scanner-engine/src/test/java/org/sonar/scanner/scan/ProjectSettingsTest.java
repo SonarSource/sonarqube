@@ -37,9 +37,9 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -68,7 +68,7 @@ public class ProjectSettingsTest {
     project = ProjectDefinition.create().setKey("struts");
     globalMode = mock(GlobalMode.class);
     mode = mock(DefaultAnalysisMode.class);
-    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalRepositories(), globalMode);
+    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), mock(SettingsLoader.class), globalMode);
   }
 
   @Test

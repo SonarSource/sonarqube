@@ -20,30 +20,29 @@
 package org.sonar.scanner.mediumtest.log;
 
 import java.util.Collections;
-
-import org.hamcrest.Matchers;
+import java.util.Map;
 import org.hamcrest.Description;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
-import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonar.scanner.repository.GlobalRepositoriesLoader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
+import org.sonar.batch.bootstrapper.Batch;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 public class ExceptionHandlingMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private Batch batch;
-  private static ErrorGlobalRepositoriesLoader loader;
+  private static ErrorSettingsLoader loader;
 
   @BeforeClass
   public static void beforeClass() {
-    loader = new ErrorGlobalRepositoriesLoader();
+    loader = new ErrorSettingsLoader();
   }
 
   public void setUp(boolean verbose) {
@@ -64,7 +63,7 @@ public class ExceptionHandlingMediumTest {
     setUp(false);
     loader.withCause = false;
     thrown.expect(MessageException.class);
-    thrown.expectMessage("Error loading repository");
+    thrown.expectMessage("Error loading settings");
     thrown.expectCause(Matchers.nullValue(Throwable.class));
 
     batch.start();
@@ -76,7 +75,7 @@ public class ExceptionHandlingMediumTest {
     loader.withCause = true;
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("Error loading repository");
+    thrown.expectMessage("Error loading settings");
     thrown.expectCause(new TypeSafeMatcher<Throwable>() {
       @Override
       public void describeTo(Description description) {
@@ -99,16 +98,16 @@ public class ExceptionHandlingMediumTest {
     batch.start();
   }
 
-  private static class ErrorGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
+  private static class ErrorSettingsLoader implements SettingsLoader {
     boolean withCause = false;
 
     @Override
-    public GlobalRepositories load() {
+    public Map<String, String> load(String componentKey) {
       if (withCause) {
         IllegalStateException cause = new IllegalStateException("Code 401");
-        throw MessageException.of("Error loading repository", cause);
+        throw MessageException.of("Error loading settings", cause);
       } else {
-        throw MessageException.of("Error loading repository");
+        throw MessageException.of("Error loading settings");
       }
     }
   }
