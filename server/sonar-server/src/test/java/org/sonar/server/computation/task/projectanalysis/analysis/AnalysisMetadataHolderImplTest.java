@@ -27,20 +27,72 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnalysisMetadataHolderImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  static Analysis baseProjectAnalysis = new Analysis.Builder()
+  private static Analysis baseProjectAnalysis = new Analysis.Builder()
     .setId(1)
     .setUuid("uuid_1")
     .setCreatedAt(123456789L)
     .build();
+  private static long SOME_DATE = 10000000L;
 
-  static long SOME_DATE = 10000000L;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+  @Test
+  public void getOrganizationUuid_throws_ISE_if_organization_uuid_is_not_set() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Organization uuid has not been set");
+
+    underTest.getOrganizationUuid();
+  }
+
+  @Test
+  public void setOrganizationUuid_throws_NPE_is_parameter_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Organization uuid can't be null");
+
+    underTest.setOrganizationUuid(null);
+  }
+
+  @Test
+  public void setOrganizationUuid_throws_ISE_if_called_twice() {
+    underTest.setOrganizationUuid("org1");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Organization uuid has already been set");
+
+    underTest.setOrganizationUuid("org1");
+  }
+
+  @Test
+  public void getUuid_throws_ISE_if_organization_uuid_is_not_set() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Analysis uuid has not been set");
+
+    underTest.getUuid();
+  }
+
+  @Test
+  public void setUuid_throws_NPE_is_parameter_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Analysis uuid can't be null");
+
+    underTest.setUuid(null);
+  }
+
+  @Test
+  public void setUuid_throws_ISE_if_called_twice() {
+    underTest.setUuid("org1");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Analysis uuid has already been set");
+
+    underTest.setUuid("org1");
+  }
 
   @Test
   public void getAnalysisDate_returns_date_with_same_time_as_the_one_set_with_setAnalysisDate() throws InterruptedException {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setAnalysisDate(SOME_DATE);
 
@@ -175,7 +227,7 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void branch_throws_ISE_when_holder_is_not_initialized() {
+  public void getBranch_throws_ISE_when_holder_is_not_initialized() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Branch has not been set");
 

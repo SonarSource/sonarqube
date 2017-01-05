@@ -36,6 +36,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,17 +45,19 @@ import static org.hamcrest.Matchers.startsWith;
 
 public class CeQueueImplTest {
 
+  private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
-
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-  DbSession session = dbTester.getSession();
 
-  UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory);
+  private DbSession session = dbTester.getSession();
+
+  private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+
+  private CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory, defaultOrganizationProvider);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -176,6 +180,11 @@ public class CeQueueImplTest {
   }
 
   private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {
+    if (componentDto == null) {
+      assertThat(task.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
+    } else {
+      assertThat(task.getOrganizationUuid()).isEqualTo(componentDto.getOrganizationUuid());
+    }
     assertThat(task.getUuid()).isEqualTo(taskSubmit.getUuid());
     assertThat(task.getComponentUuid()).isEqualTo(task.getComponentUuid());
     assertThat(task.getType()).isEqualTo(taskSubmit.getType());

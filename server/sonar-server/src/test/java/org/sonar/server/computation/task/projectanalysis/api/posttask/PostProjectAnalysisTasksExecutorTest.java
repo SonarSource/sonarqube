@@ -76,6 +76,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   private System2 system2 = mock(System2.class);
   private ArgumentCaptor<PostProjectAnalysisTask.ProjectAnalysis> projectAnalysisArgumentCaptor = ArgumentCaptor.forClass(PostProjectAnalysisTask.ProjectAnalysis.class);
   private CeTask ceTask = new CeTask.Builder()
+    .setOrganizationUuid("org1")
     .setType("type")
     .setUuid("uuid")
     .setComponentKey("component key")
@@ -245,12 +246,12 @@ public class PostProjectAnalysisTasksExecutorTest {
     InOrder inOrder = inOrder(postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3);
 
     doThrow(new RuntimeException("Faking a listener throws an exception"))
-        .when(postProjectAnalysisTask2)
-        .finished(any(PostProjectAnalysisTask.ProjectAnalysis.class));
+      .when(postProjectAnalysisTask2)
+      .finished(any(PostProjectAnalysisTask.ProjectAnalysis.class));
 
     new PostProjectAnalysisTasksExecutor(
-        ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
-        system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
+      ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader,
+      system2, new PostProjectAnalysisTask[] {postProjectAnalysisTask1, postProjectAnalysisTask2, postProjectAnalysisTask3})
         .finished(allStepsExecuted);
 
     inOrder.verify(postProjectAnalysisTask1).finished(projectAnalysisArgumentCaptor.capture());

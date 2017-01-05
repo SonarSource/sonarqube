@@ -26,6 +26,11 @@ import org.sonar.server.qualityprofile.QualityProfile;
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
   /**
+   * @throws IllegalStateException if the organization uuid has already been set
+   */
+  MutableAnalysisMetadataHolder setOrganizationUuid(String organizationUuid);
+
+  /**
    * @throws IllegalStateException if the analysis uuid has already been set
    */
   MutableAnalysisMetadataHolder setUuid(String uuid);

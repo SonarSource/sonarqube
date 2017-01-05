@@ -49,11 +49,11 @@ public class CeWorkerCallableImplTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  InternalCeQueue queue = mock(InternalCeQueue.class);
-  ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
-  CeLogging ceLogging = spy(CeLogging.class);
-  CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);
-  InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+  private InternalCeQueue queue = mock(InternalCeQueue.class);
+  private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
+  private CeLogging ceLogging = spy(CeLogging.class);
+  private CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);
+  private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
@@ -212,7 +212,12 @@ public class CeWorkerCallableImplTest {
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {
-    return new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(submitterLogin).build();
+    return new CeTask.Builder()
+      .setOrganizationUuid("org1")
+      .setUuid("TASK_1").setType(CeTaskTypes.REPORT)
+      .setComponentUuid("PROJECT_1")
+      .setSubmitterLogin(submitterLogin)
+      .build();
   }
 
   private IllegalStateException makeTaskProcessorFail(CeTask task) {

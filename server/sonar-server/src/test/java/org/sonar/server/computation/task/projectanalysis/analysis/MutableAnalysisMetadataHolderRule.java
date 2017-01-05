@@ -35,12 +35,27 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public String getUuid() {
-    return delegate.getUuid();
+  public MutableAnalysisMetadataHolder setOrganizationUuid(String organizationUuid) {
+    return delegate.setOrganizationUuid(organizationUuid);
+  }
+
+  @Override
+  public String getOrganizationUuid() {
+    return delegate.getOrganizationUuid();
   }
 
   public MutableAnalysisMetadataHolderRule setUuid(String s) {
     delegate.setUuid(s);
+    return this;
+  }
+
+  @Override
+  public String getUuid() {
+    return delegate.getUuid();
+  }
+
+  public MutableAnalysisMetadataHolderRule setAnalysisDate(long date) {
+    delegate.setAnalysisDate(date);
     return this;
   }
 
@@ -52,11 +67,6 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   @Override
   public boolean hasAnalysisDateBeenSet() {
     return delegate.hasAnalysisDateBeenSet();
-  }
-
-  public MutableAnalysisMetadataHolderRule setAnalysisDate(long date) {
-    delegate.setAnalysisDate(date);
-    return this;
   }
 
   @Override

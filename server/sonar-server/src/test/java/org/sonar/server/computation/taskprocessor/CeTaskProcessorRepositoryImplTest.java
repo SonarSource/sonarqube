@@ -109,6 +109,7 @@ public class CeTaskProcessorRepositoryImplTest {
 
   private static CeTask createCeTask(String ceTaskType, String key) {
     return new CeTask.Builder()
+      .setOrganizationUuid("org1")
       .setType(ceTaskType)
       .setUuid("task_uuid_" + key)
       .setComponentKey(key).setComponentUuid("uuid_" + key).setComponentName("name_" + key)

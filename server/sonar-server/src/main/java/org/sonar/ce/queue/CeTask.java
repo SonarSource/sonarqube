@@ -30,6 +30,7 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class CeTask {
 
+  private final String organizationUuid;
   private final String type;
   private final String uuid;
   private final String componentUuid;
@@ -38,12 +39,17 @@ public class CeTask {
   private final String submitterLogin;
 
   private CeTask(Builder builder) {
-    this.uuid = requireNonNull(emptyToNull(builder.uuid));
-    this.type = requireNonNull(emptyToNull(builder.type));
+    this.organizationUuid = requireNonNull(emptyToNull(builder.organizationUuid), "organizationUuid can't be null nor empty");
+    this.uuid = requireNonNull(emptyToNull(builder.uuid), "uuid can't be null nor empty");
+    this.type = requireNonNull(emptyToNull(builder.type), "type can't be null nor empty");
     this.componentUuid = emptyToNull(builder.componentUuid);
     this.componentKey = emptyToNull(builder.componentKey);
     this.componentName = emptyToNull(builder.componentName);
     this.submitterLogin = emptyToNull(builder.submitterLogin);
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String getUuid() {
@@ -77,9 +83,12 @@ public class CeTask {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("componentUuid", componentUuid)
-      .add("uuid", uuid)
+      .add("organizationUuid", organizationUuid)
       .add("type", type)
+      .add("uuid", uuid)
+      .add("componentUuid", componentUuid)
+      .add("componentKey", componentKey)
+      .add("componentName", componentName)
       .add("submitterLogin", submitterLogin)
       .toString();
   }
@@ -102,12 +111,23 @@ public class CeTask {
   }
 
   public static final class Builder {
+    private String organizationUuid;
     private String uuid;
     private String type;
     private String componentUuid;
     private String componentKey;
     private String componentName;
     private String submitterLogin;
+
+    public Builder setOrganizationUuid(String organizationUuid) {
+      this.organizationUuid = organizationUuid;
+      return this;
+    }
+
+    // FIXME remove this method when organization support is added to the Compute Engine queue
+    public boolean hasOrganizationUuid() {
+      return organizationUuid != null;
+    }
 
     public Builder setUuid(String uuid) {
       this.uuid = uuid;

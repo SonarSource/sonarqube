@@ -27,34 +27,38 @@ import org.sonar.server.computation.util.InitializedProperty;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
 
+  private final InitializedProperty<String> organizationUuid = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
-
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
-
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
-
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
-
   private final InitializedProperty<String> branch = new InitializedProperty<>();
-
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
-
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   @Override
-  public MutableAnalysisMetadataHolder setUuid(String s) {
-    checkState(!uuid.isInitialized(), "Analysis uuid has already been set");
-    this.uuid.setProperty(s);
+  public MutableAnalysisMetadataHolder setOrganizationUuid(String organizationUuid) {
+    checkState(!this.organizationUuid.isInitialized(), "Organization uuid has already been set");
+    requireNonNull(organizationUuid, "Organization uuid can't be null");
+    this.organizationUuid.setProperty(organizationUuid);
     return this;
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setAnalysisDate(long date) {
-    checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
-    this.analysisDate.setProperty(date);
+  public String getOrganizationUuid() {
+    checkState(organizationUuid.isInitialized(), "Organization uuid has not been set");
+    return organizationUuid.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setUuid(String s) {
+    checkState(!uuid.isInitialized(), "Analysis uuid has already been set");
+    requireNonNull(s, "Analysis uuid can't be null");
+    this.uuid.setProperty(s);
     return this;
   }
 
@@ -62,6 +66,13 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public String getUuid() {
     checkState(uuid.isInitialized(), "Analysis uuid has not been set");
     return this.uuid.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setAnalysisDate(long date) {
+    checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
+    this.analysisDate.setProperty(date);
+    return this;
   }
 
   @Override

@@ -39,6 +39,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -53,8 +54,9 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   // state
   private AtomicBoolean peekPaused = new AtomicBoolean(false);
 
-  public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus) {
-    super(dbClient, uuidFactory);
+  public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
+    super(dbClient, uuidFactory, defaultOrganizationProvider);
     this.system2 = system2;
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
@@ -127,7 +129,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   @CheckForNull
   private static String getStackTraceForPersistence(Throwable error) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-         LineReturnEnforcedPrintStream printStream = new LineReturnEnforcedPrintStream(out)) {
+      LineReturnEnforcedPrintStream printStream = new LineReturnEnforcedPrintStream(out)) {
       error.printStackTrace(printStream);
       printStream.flush();
       return out.toString();

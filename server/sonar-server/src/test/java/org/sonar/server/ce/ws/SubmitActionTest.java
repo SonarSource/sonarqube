@@ -22,14 +22,14 @@ package org.sonar.server.ce.ws;
 import java.io.InputStream;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.queue.ReportSubmitter;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,14 +41,21 @@ import static org.mockito.Mockito.when;
 
 public class SubmitActionTest {
 
-  ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
-  SubmitAction underTest = new SubmitAction(reportSubmitter);
-  WsActionTester tester = new WsActionTester(underTest);
+  private static final CeTask A_CE_TASK = new CeTask.Builder()
+    .setOrganizationUuid("org1")
+    .setUuid("TASK_1")
+    .setType(CeTaskTypes.REPORT)
+    .setComponentUuid("PROJECT_1").setSubmitterLogin("robert")
+    .build();
+
+  private ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
+  private SubmitAction underTest = new SubmitAction(reportSubmitter);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
+      .thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -67,8 +74,8 @@ public class SubmitActionTest {
 
   @Test
   public void test_example_json_response() {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
+      .thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -86,8 +93,8 @@ public class SubmitActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class)))
+      .thenReturn(A_CE_TASK);
 
     tester.newRequest()
       .setParam("projectKey", "my_project")

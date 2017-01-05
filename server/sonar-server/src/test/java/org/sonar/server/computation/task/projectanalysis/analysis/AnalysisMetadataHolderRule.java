@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -31,6 +32,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+
+  private final InitializedProperty<String> organizationUuid = new InitializedProperty<>();
 
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
 
@@ -47,9 +50,16 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   @Override
-  public String getUuid() {
-    checkState(uuid.isInitialized(), "Analysis UUID has not been set");
-    return this.uuid.getProperty();
+  public AnalysisMetadataHolderRule setOrganizationUuid(String organizationUuid) {
+    Objects.requireNonNull(organizationUuid, "organizationUuid can't be null");
+    this.organizationUuid.setProperty(organizationUuid);
+    return this;
+  }
+
+  @Override
+  public String getOrganizationUuid() {
+    checkState(organizationUuid.isInitialized(), "Organization UUID has not been set");
+    return this.organizationUuid.getProperty();
   }
 
   @Override
@@ -57,6 +67,12 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
     checkNotNull(s, "UUID must not be null");
     this.uuid.setProperty(s);
     return this;
+  }
+
+  @Override
+  public String getUuid() {
+    checkState(uuid.isInitialized(), "Analysis UUID has not been set");
+    return this.uuid.getProperty();
   }
 
   public AnalysisMetadataHolderRule setAnalysisDate(Date date) {

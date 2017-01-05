@@ -69,6 +69,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
+    mutableAnalysisMetadataHolder.setOrganizationUuid(ceTask.getOrganizationUuid());
   }
 
   private void checkProjectKeyConsistency(ScannerReport.Metadata reportMetadata) {

@@ -31,14 +31,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -64,12 +63,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setOrganizationUuid("org1");
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
   private Date now;
   private MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private PersistComponentsStep underTest;
 
   @Before
@@ -77,7 +78,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, defaultOrganizationProvider);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder);
   }
 
   @Override
@@ -113,7 +114,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
     ComponentDto projectDto = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
-    assertThat(projectDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
+    assertThat(projectDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
     assertThat(projectDto.name()).isEqualTo("Project");
     assertThat(projectDto.description()).isEqualTo("Project description");
     assertThat(projectDto.path()).isNull();
@@ -128,7 +129,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto moduleDto = dbClient.componentDao().selectByKey(dbTester.getSession(), MODULE_KEY).get();
-    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
+    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
     assertThat(moduleDto.name()).isEqualTo("Module");
     assertThat(moduleDto.description()).isEqualTo("Module description");
     assertThat(moduleDto.path()).isEqualTo("module");
@@ -143,7 +144,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
+    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
@@ -158,7 +159,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(defaultOrganizationProvider.get().getUuid());
+    assertThat(fileDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");
@@ -246,9 +247,9 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
               builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
                 .setPath("src/main/java/dir")
                 .addChildren(
-                    builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                        .setPath("src/main/java/dir/Foo.java")
-                        .build())
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
                 .build())
             .build())
         .build());
@@ -298,13 +299,13 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
               builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY")
                 .setName("Sub Module 1")
                 .addChildren(
-                    builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY")
-                        .setName("Sub Module 2")
-                        .addChildren(
-                            builder(DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir")
-                                .setPath("src/main/java/dir")
-                                .build())
+                  builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY")
+                    .setName("Sub Module 2")
+                    .addChildren(
+                      builder(DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir")
+                        .setPath("src/main/java/dir")
                         .build())
+                    .build())
                 .build())
             .build())
         .build());
@@ -389,7 +390,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), module);
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(module, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto file = ComponentTesting.newFileDto(module, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
@@ -403,9 +405,9 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
               builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
                 .setPath("src/main/java/dir")
                 .addChildren(
-                    builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                        .setPath("src/main/java/dir/Foo.java")
-                        .build())
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
                 .build())
             .build())
         .build());
@@ -534,7 +536,8 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
       .setName("Module B");
     dbClient.componentDao().insert(dbTester.getSession(), moduleA, moduleB);
     ComponentDto directory = ComponentTesting.newDirectory(moduleB, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_B:src/main/java/dir");
-    ComponentDto file = ComponentTesting.newFileDto(moduleB, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_B:src/main/java/dir/Foo.java");
+    ComponentDto file = ComponentTesting.newFileDto(moduleB, directory, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setKey("MODULE_B:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
@@ -647,9 +650,9 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
               builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
                 .setPath("src/main/java/dir")
                 .addChildren(
-                    builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
-                        .setPath("src/main/java/dir/Foo.java")
-                        .build())
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
                 .build())
             .build())
         .build());
