@@ -38,9 +38,8 @@ import static org.mockito.Mockito.verify;
 
 public class TomcatConnectorsTest {
 
-  Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
-
-  // ---- connectors
+  private static final int DEFAULT_PORT = 9000;
+  private Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
 
   @Test
   public void configure_thread_pool() {
@@ -52,53 +51,27 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new PropertiesMatcher(
-      ImmutableMap.<String, Object>of("minSpareThreads", 2, "maxThreads", 30, "acceptCount", 20))));
+    verifyHttpConnector(DEFAULT_PORT, ImmutableMap.of("minSpareThreads", 2, "maxThreads", 30, "acceptCount", 20));
   }
 
   @Test
-  public void configure_default_thread_pool() {
+  public void configure_defaults() {
     Props props = new Props(new Properties());
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new PropertiesMatcher(
-      ImmutableMap.<String, Object>of("minSpareThreads", 5, "maxThreads", 50, "acceptCount", 25))));
+    verifyHttpConnector(DEFAULT_PORT, ImmutableMap.of("minSpareThreads", 5, "maxThreads", 50, "acceptCount", 25));
   }
 
   @Test
   public void different_thread_pools_for_connectors() {
     Properties p = new Properties();
-    p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.web.http.minThreads", "2");
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getPort() == 9000 && c.getProperty("minSpareThreads").equals(2);
-      }
-    }));
-  }
-
-  @Test
-  public void http_connector_is_enabled() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.port", "9000");
-    Props props = new Props(p);
-
-    TomcatConnectors.configure(tomcat, props);
-
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("http") && c.getPort() == 9000 && c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL);
-      }
-    }));
+    verifyHttpConnector(DEFAULT_PORT, ImmutableMap.of("minSpareThreads", 2));
   }
 
   @Test
@@ -149,11 +122,9 @@ public class TomcatConnectorsTest {
 
   @Test
   public void test_max_http_header_size_for_http_connection() {
-    Properties properties = new Properties();
+    TomcatConnectors.configure(tomcat, new Props(new Properties()));
 
-    Props props = new Props(properties);
-    TomcatConnectors.configure(tomcat, props);
-    verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
+    verifyHttpConnector(DEFAULT_PORT, ImmutableMap.of("maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES));
   }
 
   @Test
@@ -171,32 +142,27 @@ public class TomcatConnectorsTest {
     }));
   }
 
-  private static void verifyConnectorProperty(Tomcat tomcat, final String connectorScheme,
-                                              final String property, final Object propertyValue) {
+  private void verifyHttpConnector(int expectedPort, Map<String,Object> expectedProps) {
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals(connectorScheme) && c.getProperty(property).equals(propertyValue);
-      }
-    }));
-  }
-
-  private static class PropertiesMatcher extends ArgumentMatcher<Connector> {
-    private final Map<String, Object> expected;
-
-    PropertiesMatcher(Map<String, Object> expected) {
-      this.expected = expected;
-    }
-
-    public boolean matches(Object o) {
-      Connector c = (Connector) o;
-      for (Map.Entry<String, Object> entry : expected.entrySet()) {
-        if (!entry.getValue().equals(c.getProperty(entry.getKey()))) {
+        if (!c.getScheme().equals("http")) {
           return false;
         }
+        if (!c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL)) {
+          return false;
+        }
+        if (c.getPort() != expectedPort) {
+          return false;
+        }
+        for (Map.Entry<String, Object> expectedProp : expectedProps.entrySet()) {
+          if (!expectedProp.getValue().equals(c.getProperty(expectedProp.getKey()))) {
+            return false;
+          }
+        }
+        return true;
       }
-      return true;
-    }
+    }));
   }
 }
