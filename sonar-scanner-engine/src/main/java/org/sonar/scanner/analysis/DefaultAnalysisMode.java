@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.AbstractAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.mediumtest.FakePluginInstaller;
 
 /**
  * @since 4.0
@@ -67,7 +66,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
+    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, MEDIUM_TEST_ENABLED));
     String scanAllStr = getPropertyWithFallback(analysisProps, globalProps, KEY_SCAN_ALL);
     scanAllFiles = !issues || "true".equals(scanAllStr);
   }

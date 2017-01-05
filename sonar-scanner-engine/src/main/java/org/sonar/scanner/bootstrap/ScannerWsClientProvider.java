@@ -39,7 +39,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
   private ScannerWsClient wsClient;
 
-  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
+  public synchronized ScannerWsClient provide(final GlobalProperties settings, final EnvironmentInformation env, GlobalMode globalMode) {
     if (wsClient == null) {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
@@ -59,7 +59,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
 
-      wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null);
+      wsClient = new ScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
     }
     return wsClient;
   }

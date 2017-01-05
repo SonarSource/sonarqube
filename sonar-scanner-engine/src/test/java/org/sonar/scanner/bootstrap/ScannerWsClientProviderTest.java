@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ScannerWsClientProviderTest {
   public void provide_client_with_default_settings() {
     GlobalProperties settings = new GlobalProperties(new HashMap<>());
 
-    ScannerWsClient client = underTest.provide(settings, env);
+    ScannerWsClient client = underTest.provide(settings, env, new GlobalMode(new GlobalProperties(Collections.emptyMap())));
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
@@ -56,7 +57,7 @@ public class ScannerWsClientProviderTest {
     props.put("sonar.ws.timeout", "42");
     GlobalProperties settings = new GlobalProperties(props);
 
-    ScannerWsClient client = underTest.provide(settings, env);
+    ScannerWsClient client = underTest.provide(settings, env, new GlobalMode(new GlobalProperties(Collections.emptyMap())));
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
@@ -67,8 +68,8 @@ public class ScannerWsClientProviderTest {
   @Test
   public void build_singleton() {
     GlobalProperties settings = new GlobalProperties(new HashMap<>());
-    ScannerWsClient first = underTest.provide(settings, env);
-    ScannerWsClient second = underTest.provide(settings, env);
+    ScannerWsClient first = underTest.provide(settings, env, new GlobalMode(new GlobalProperties(Collections.emptyMap())));
+    ScannerWsClient second = underTest.provide(settings, env, new GlobalMode(new GlobalProperties(Collections.emptyMap())));
     assertThat(first).isSameAs(second);
   }
 }

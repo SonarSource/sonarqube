@@ -27,7 +27,6 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.PluginInstaller;
 
 public class FakePluginInstaller implements PluginInstaller {
-  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
 
   private final Map<String, PluginInfo> infosByKeys = new HashMap<>();
   private final Map<String, Plugin> instancesByKeys = new HashMap<>();
