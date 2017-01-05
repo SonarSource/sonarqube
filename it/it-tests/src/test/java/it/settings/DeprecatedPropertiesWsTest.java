@@ -26,7 +26,6 @@ import it.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -34,9 +33,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.setting.SetRequest;
+import org.sonarqube.ws.client.setting.SettingsService;
 import util.user.UserRule;
 
 import static java.net.URLEncoder.encode;
@@ -68,6 +68,8 @@ public class DeprecatedPropertiesWsTest {
   static WsClient userWsClient;
   static WsClient anonymousWsClient;
 
+  static SettingsService adminSettingsService;
+
   @BeforeClass
   public static void init() throws Exception {
     orchestrator.resetData();
@@ -75,6 +77,7 @@ public class DeprecatedPropertiesWsTest {
     adminWsClient = newAdminWsClient(orchestrator);
     userWsClient = newUserWsClient(orchestrator, USER_LOGIN, "password");
     anonymousWsClient = newWsClient(orchestrator);
+    adminSettingsService = newAdminWsClient(orchestrator).settingsService();
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
   }
 
@@ -100,15 +103,15 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void get_and_set_global_value() throws Exception {
+  public void get_global_value() throws Exception {
     setProperty("some-property", "value", null);
 
     assertThat(getProperty("some-property", null).getValue()).isEqualTo("value");
   }
 
   @Test
-  public void get_and_set_multi_values() throws Exception {
-    setProperty("multi", "value1,value2", null);
+  public void get_multi_values() throws Exception {
+    setProperty("multi", asList("value1", "value2"), null);
 
     Properties.Property setting = getProperty("multi", null);
     assertThat(setting.getValue()).isEqualTo("value1,value2");
@@ -116,28 +119,28 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void get_and_set_hidden_setting() throws Exception {
+  public void get_hidden_setting() throws Exception {
     setProperty("hidden", "value", null);
 
     assertThat(getProperty("hidden", null).getValue()).isEqualTo("value");
   }
 
   @Test
-  public void get_and_set_secured_setting() throws Exception {
+  public void get_secured_setting() throws Exception {
     setProperty("setting.secured", "value", null);
 
     assertThat(getProperty("setting.secured", null).getValue()).isEqualTo("value");
   }
 
   @Test
-  public void get_and_set_license_setting() throws Exception {
+  public void get_license_setting() throws Exception {
     setProperty("setting.license", "value", null);
 
     assertThat(getProperty("setting.license", null).getValue()).isEqualTo("value");
   }
 
   @Test
-  public void get_and_set_not_defined_setting() throws Exception {
+  public void get_not_defined_setting() throws Exception {
     setProperty("not_defined", "value", null);
 
     assertThat(getProperty("not_defined", null).getValue()).isEqualTo("value");
@@ -169,22 +172,6 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void validate_setting() throws Exception {
-    assertUpdateFails("list", "Z", "Not a valid option");
-    assertUpdateFails("int", "not an int", "Only digits are allowed");
-    assertUpdateFails("boolean", "not a boolean", "Valid options are \\\"true\\\" and \\\"false\\\"");
-  }
-
-  @Test
-  public void delete_global_value() throws Exception {
-    setProperty("int", "10", null);
-
-    deleteProperty("int", null);
-
-    assertPropertyDoesNotExist("int", null);
-  }
-
-  @Test
   public void get_all_global_settings() throws Exception {
     List<Properties.Property> properties = getProperties(null);
     assertThat(properties).isNotEmpty();
@@ -211,19 +198,10 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
-  public void get_and_set_component_value() throws Exception {
-    setProperty("sonar.coverage.exclusions", "file", PROJECT_KEY);
+  public void get_component_value() throws Exception {
+    setProperty("sonar.coverage.exclusions", asList("file"), PROJECT_KEY);
 
     assertThat(getProperty("sonar.coverage.exclusions", PROJECT_KEY).getValue()).isEqualTo("file");
-  }
-
-  @Test
-  public void delete_component_value() throws Exception {
-    setProperty("sonar.coverage.exclusions", "file", PROJECT_KEY);
-
-    deleteProperty("sonar.coverage.exclusions", PROJECT_KEY);
-
-    assertPropertyDoesNotExist("sonar.coverage.exclusions", PROJECT_KEY);
   }
 
   @Test
@@ -236,20 +214,11 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void setProperty(String key, String value, @Nullable String componentKey) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/properties")
-        .setParam("id", key)
-        .setParam("value", value)
-        .setParam("resource", componentKey))
-      .failIfNotSuccessful();
+    adminSettingsService.set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
   }
 
-  private static void deleteProperty(String key, @Nullable String componentKey) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/properties/destroy")
-        .setParam("id", key)
-        .setParam("resource", componentKey))
-      .failIfNotSuccessful();
+  private static void setProperty(String key, List<String> values, @Nullable String componentKey) {
+    adminSettingsService.set(SetRequest.builder().setKey(key).setValues(values).setComponent(componentKey).build());
   }
 
   private static List<Properties.Property> getProperties(@Nullable String componentKey) {
@@ -275,20 +244,6 @@ public class DeprecatedPropertiesWsTest {
       .failIfNotSuccessful();
     Properties.Property[] properties = Properties.parse(response.content());
     return Arrays.stream(properties).findFirst().orElseThrow(() -> new IllegalArgumentException("Property does not exist : " + key));
-  }
-
-  private static void assertPropertyDoesNotExist(String key, @Nullable String componentKey) {
-    Optional<Properties.Property> property = getProperties(componentKey).stream().filter(p -> p.getKey().equals(key)).findFirst();
-    assertThat(property.isPresent()).isFalse();
-  }
-
-  private static void assertUpdateFails(String key, String value, String expectedError) {
-    WsResponse response = adminWsClient.wsConnector().call(
-      new PostRequest("api/properties")
-        .setParam("id", key)
-        .setParam("value", value));
-    assertThat(response.code()).isEqualTo(400);
-    assertThat(response.content()).contains(expectedError);
   }
 
   public static class Properties {

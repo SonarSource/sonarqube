@@ -443,6 +443,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Settings
       PersistentSettings.class,
       PropertiesWs.class,
+      org.sonar.server.config.ws.IndexAction.class,
       SettingsWsModule.class,
 
       // Licences
