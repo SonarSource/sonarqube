@@ -19,29 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddIndexOnOrganizationUuidOfProjectsTest {
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
+  @Rule
+  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddIndexOnOrganizationUuidOfProjectsTest.class, "projects.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddIndexOnOrganizationUuidOfProjects underTest = new AddIndexOnOrganizationUuidOfProjects(dbTester.database());
 
   @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+  public void execute_adds_index_on_ORGANIZATION_UUID() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertIndex("projects", "projects_organization", "organization_uuid");
   }
 
   @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
+  public void execute_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
-  }
+    expectedException.expect(IllegalStateException.class);
 
+    underTest.execute();
+  }
 }
