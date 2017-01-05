@@ -217,7 +217,7 @@
 
     <resources>
       <resource>
-        <!-- Used to set SonarQube version in sq-version.txt file -->
+        <!-- Used to resolve variables in files sq-version.txt and sonar-api-version.txt -->
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>

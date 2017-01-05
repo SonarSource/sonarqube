@@ -144,9 +144,12 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public interface SonarRuntime {
 
   /**
-  * Version of API (sonar-plugin-api artifact) at runtime.
-  * It can be helpful to call some API classes/methods without checking their availability at
-  * runtime by using reflection.
+   * Version of API (sonar-plugin-api artifact) at runtime.
+   * It can be helpful to call some API classes/methods without checking their availability at
+   * runtime by using reflection.
+   * <br/>
+   * Since 6.3, the returned version includes the build number in the fourth field, for
+   * example {@code "6.3.0.12345"}.
   */
   Version getApiVersion();
 

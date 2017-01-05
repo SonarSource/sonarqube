@@ -26,6 +26,6 @@ package org.sonar.api;
 public enum SonarProduct {
 
   SONARQUBE,
-  SONARLINT;
+  SONARLINT
 
 }

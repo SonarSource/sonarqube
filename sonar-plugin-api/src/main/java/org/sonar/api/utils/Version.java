@@ -24,15 +24,16 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 /**
- * Version composed of 3 integer-sequences (major, minor and patch fields) and optionally a qualifier.
+ * Version composed of maximum four fields (major, minor, patch and build ID numbers) and optionally a qualifier.
  * <p>
- * Examples: 1.0, 1.0.0, 1.2.3, 1.2-beta1, 1.2.1-beta-1
+ * Examples: 1.0, 1.0.0, 1.2.3, 1.2-beta1, 1.2.1-beta-1, 1.2.3.4567
  * <p>
  * <h3>IMPORTANT NOTE</h3>
  * Qualifier is ignored when comparing objects (methods {@link #equals(Object)}, {@link #hashCode()}
@@ -48,6 +49,9 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 @Immutable
 public class Version implements Comparable<Version> {
 
+  private static final long DEFAULT_BUILD_NUMBER = 0L;
+  private static final int DEFAULT_PATCH = 0;
+  private static final String DEFAULT_QUALIFIER = "";
   private static final String QUALIFIER_SEPARATOR = "-";
   private static final char SEQUENCE_SEPARATOR = '.';
   private static final Splitter SEQUENCE_SPLITTER = Splitter.on(SEQUENCE_SEPARATOR);
@@ -55,14 +59,15 @@ public class Version implements Comparable<Version> {
   private final int major;
   private final int minor;
   private final int patch;
+  private final long buildNumber;
   private final String qualifier;
 
-  private Version(int major, int minor, int patch, String qualifier) {
-    requireNonNull(qualifier, "Version qualifier must not be null");
+  private Version(int major, int minor, int patch, long buildNumber, String qualifier) {
     this.major = major;
     this.minor = minor;
     this.patch = patch;
-    this.qualifier = qualifier;
+    this.buildNumber = buildNumber;
+    this.qualifier = requireNonNull(qualifier, "Version qualifier must not be null");
   }
 
   public int major() {
@@ -75,6 +80,15 @@ public class Version implements Comparable<Version> {
 
   public int patch() {
     return patch;
+  }
+
+  /**
+   * Build number if the fourth field, for example {@code 12345} for "6.3.0.12345".
+   * If absent, then value is zero.
+   * @since 6.3
+   */
+  public long buildNumber() {
+    return buildNumber;
   }
 
   /**
@@ -93,11 +107,13 @@ public class Version implements Comparable<Version> {
    *   <li>1-beta-1</li>
    *   <li>1.2-beta-1</li>
    *   <li>1.2.3-beta-1</li>
+   *   <li>1.2.3.4567</li>
+   *   <li>1.2.3.4567-beta-1</li>
    * </ul>
    * Note that the optional qualifier is the part after the first "-".
    *
    * @throws IllegalArgumentException if parameter is badly formatted, for example
-   * if it defines 4 integer-sequences.
+   * if it defines 5 integer-sequences.
    */
   public static Version parse(String text) {
     String s = trimToEmpty(text);
@@ -105,43 +121,58 @@ public class Version implements Comparable<Version> {
     if (!qualifier.isEmpty()) {
       s = substringBefore(s, QUALIFIER_SEPARATOR);
     }
-    List<String> split = SEQUENCE_SPLITTER.splitToList(s);
+    List<String> fields = SEQUENCE_SPLITTER.splitToList(s);
     int major = 0;
     int minor = 0;
-    int patch = 0;
-    int size = split.size();
+    int patch = DEFAULT_PATCH;
+    long buildNumber = DEFAULT_BUILD_NUMBER;
+    int size = fields.size();
     if (size > 0) {
-      major = parseSequence(split.get(0));
+      major = parseFieldAsInt(fields.get(0));
       if (size > 1) {
-        minor = parseSequence(split.get(1));
+        minor = parseFieldAsInt(fields.get(1));
         if (size > 2) {
-          patch = parseSequence(split.get(2));
+          patch = parseFieldAsInt(fields.get(2));
           if (size > 3) {
-            throw new IllegalArgumentException("Only 3 sequences are accepted");
+            buildNumber = parseFieldAsLong(fields.get(3));
+            if (size > 4) {
+              throw new IllegalArgumentException("Maximum 4 fields are accepted: " + text);
+            }
           }
         }
       }
     }
-    return new Version(major, minor, patch, qualifier);
+    return new Version(major, minor, patch, buildNumber, qualifier);
   }
 
   public static Version create(int major, int minor) {
-    return new Version(major, minor, 0, "");
+    return new Version(major, minor, DEFAULT_PATCH, DEFAULT_BUILD_NUMBER, DEFAULT_QUALIFIER);
   }
 
   public static Version create(int major, int minor, int patch) {
-    return new Version(major, minor, patch, "");
+    return new Version(major, minor, patch, DEFAULT_BUILD_NUMBER, DEFAULT_QUALIFIER);
   }
 
+  /**
+   * @deprecated in 6.3 to avoid ambiguity with build number (see {@link #buildNumber()}
+   */
+  @Deprecated
   public static Version create(int major, int minor, int patch, String qualifier) {
-    return new Version(major, minor, patch, qualifier);
+    return new Version(major, minor, patch, DEFAULT_BUILD_NUMBER, qualifier);
   }
 
-  private static int parseSequence(String sequence) {
-    if (sequence.isEmpty()) {
+  private static int parseFieldAsInt(String field) {
+    if (field.isEmpty()) {
       return 0;
     }
-    return parseInt(sequence);
+    return parseInt(field);
+  }
+
+  private static long parseFieldAsLong(String field) {
+    if (field.isEmpty()) {
+      return 0L;
+    }
+    return parseLong(field);
   }
 
   public boolean isGreaterThanOrEqual(Version than) {
@@ -153,11 +184,20 @@ public class Version implements Comparable<Version> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Version)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Version other = (Version) o;
-    return major == other.major && minor == other.minor && patch == other.patch;
+    Version version = (Version) o;
+    if (major != version.major) {
+      return false;
+    }
+    if (minor != version.minor) {
+      return false;
+    }
+    if (patch != version.patch) {
+      return false;
+    }
+    return buildNumber == version.buildNumber;
   }
 
   @Override
@@ -165,6 +205,7 @@ public class Version implements Comparable<Version> {
     int result = major;
     result = 31 * result + minor;
     result = 31 * result + patch;
+    result = 31 * result + (int) (buildNumber ^ (buildNumber >>> 32));
     return result;
   }
 
@@ -175,6 +216,10 @@ public class Version implements Comparable<Version> {
       c = minor - other.minor;
       if (c == 0) {
         c = patch - other.patch;
+        if (c == 0) {
+          long diff = buildNumber - other.buildNumber;
+          c = diff > 0 ? 1 : (diff < 0 ? -1 : 0);
+        }
       }
     }
     return c;
@@ -184,8 +229,11 @@ public class Version implements Comparable<Version> {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(major).append(SEQUENCE_SEPARATOR).append(minor);
-    if (patch > 0) {
+    if (patch > 0 || buildNumber > 0) {
       sb.append(SEQUENCE_SEPARATOR).append(patch);
+      if (buildNumber > 0) {
+        sb.append(SEQUENCE_SEPARATOR).append(buildNumber);
+      }
     }
     if (!qualifier.isEmpty()) {
       sb.append(QUALIFIER_SEPARATOR).append(qualifier);

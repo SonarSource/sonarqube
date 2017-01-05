@@ -46,7 +46,7 @@ public class ApiVersionTest {
   @Test
   public void throw_ISE_if_fail_to_load_version() throws Exception {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not load /sq-version.txt from classpath");
+    expectedException.expectMessage("Can not load /sonar-api-version.txt from classpath");
 
     System2 system = spy(System2.class);
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());

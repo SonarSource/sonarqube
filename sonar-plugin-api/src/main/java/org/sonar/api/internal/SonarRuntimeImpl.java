@@ -40,17 +40,16 @@ public class SonarRuntimeImpl implements SonarRuntime {
   private final SonarQubeSide sonarQubeSide;
 
   private SonarRuntimeImpl(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
-    requireNonNull(version);
     requireNonNull(product);
     checkArgument((product == SonarProduct.SONARQUBE) == (sonarQubeSide != null), "sonarQubeSide should be provided only for SonarQube product");
-    this.version = version;
+    this.version = requireNonNull(version);
     this.product = product;
     this.sonarQubeSide = sonarQubeSide;
   }
 
   @Override
   public Version getApiVersion() {
-    return this.version;
+    return version;
   }
 
   @Override

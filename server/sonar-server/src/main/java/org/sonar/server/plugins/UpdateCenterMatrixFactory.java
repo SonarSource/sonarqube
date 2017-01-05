@@ -20,7 +20,7 @@
 package org.sonar.server.plugins;
 
 import com.google.common.base.Optional;
-import org.sonar.api.platform.Server;
+import org.sonar.api.SonarRuntime;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
@@ -30,20 +30,23 @@ import org.sonar.updatecenter.common.Version;
 public class UpdateCenterMatrixFactory {
 
   private final UpdateCenterClient centerClient;
-  private final Version sonarVersion;
+  private final SonarRuntime sonarRuntime;
   private final InstalledPluginReferentialFactory installedPluginReferentialFactory;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, Server server,
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, SonarRuntime runtime,
     InstalledPluginReferentialFactory installedPluginReferentialFactory) {
     this.centerClient = centerClient;
+    this.sonarRuntime = runtime;
     this.installedPluginReferentialFactory = installedPluginReferentialFactory;
-    this.sonarVersion = Version.create(server.getVersion());
   }
 
   public Optional<UpdateCenter> getUpdateCenter(boolean refreshUpdateCenter) {
     Optional<UpdateCenter> updateCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
     if (updateCenter.isPresent()) {
-      return Optional.of(updateCenter.get().setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
+      org.sonar.api.utils.Version fullVersion = sonarRuntime.getApiVersion();
+      org.sonar.api.utils.Version semanticVersion = org.sonar.api.utils.Version.create(fullVersion.major(), fullVersion.minor(), fullVersion.patch());
+
+      return Optional.of(updateCenter.get().setInstalledSonarVersion(Version.create(semanticVersion.toString())).registerInstalledPlugins(
         installedPluginReferentialFactory.getInstalledPluginReferential())
         .setDate(centerClient.getLastRefreshDate()));
     }
