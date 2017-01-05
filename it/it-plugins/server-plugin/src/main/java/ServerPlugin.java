@@ -50,7 +50,7 @@ import static org.sonar.api.PropertyType.USER_LOGIN;
   @Property(key = "float", name = "Float", type = FLOAT, global = true, project = false),
   @Property(key = "int", name = "Integer", type = INTEGER, global = true, project = false),
   @Property(key = "string", name = "String", type = STRING, global = true, project = false),
-  @Property(key = "setting.license", name = "License", type = LICENSE, global = true, project = false),
+  @Property(key = "setting.license.secured", name = "License", type = LICENSE, global = true, project = false),
   @Property(key = "long", name = "Long", type = LONG, global = true, project = false),
   @Property(key = "password", name = "Password", type = PASSWORD, global = true, project = false),
   @Property(key = "text", name = "Text", type = TEXT, global = true, project = false),

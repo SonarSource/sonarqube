@@ -93,7 +93,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void doResetSettings() {
-    resetSettings(orchestrator, null, "some-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license", "list");
+    resetSettings(orchestrator, null, "some-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list");
     resetSettings(orchestrator, PROJECT_KEY, PROJECT_SETTING_KEY, "sonar.coverage.exclusions");
   }
 
@@ -134,9 +134,9 @@ public class DeprecatedPropertiesWsTest {
 
   @Test
   public void get_license_setting() throws Exception {
-    setProperty("setting.license", "value", null);
+    setProperty("setting.license.secured", "value", null);
 
-    assertThat(getProperty("setting.license", null).getValue()).isEqualTo("value");
+    assertThat(getProperty("setting.license.secured", null).getValue()).isEqualTo("value");
   }
 
   @Test
@@ -160,15 +160,14 @@ public class DeprecatedPropertiesWsTest {
 
   @Test
   public void license_setting_not_returned_to_not_logged() throws Exception {
-    setProperty("setting.license", "value", null);
+    setProperty("setting.license.secured", "value", null);
 
     // Admin and user can see the license setting
-    assertThat(getProperties(null)).extracting(Properties.Property::getKey).contains("setting.license");
-    assertThat(getProperties(userWsClient, null)).extracting(Properties.Property::getKey).contains("setting.license");
+    assertThat(getProperties(null)).extracting(Properties.Property::getKey).contains("setting.license.secured");
+    assertThat(getProperties(userWsClient, null)).extracting(Properties.Property::getKey).contains("setting.license.secured");
 
     // Anonymous cannot see the license setting
-    // FIXME Don't understand why it fails ???
-    // assertThat(getProperties(anonymousWsClient, null)).extracting(Properties.Property::getKey).doesNotContain("setting.license");
+     assertThat(getProperties(anonymousWsClient, null)).extracting(Properties.Property::getKey).doesNotContain("setting.license.secured");
   }
 
   @Test
