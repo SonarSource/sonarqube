@@ -8,16 +8,14 @@
   "snapshotDate": "2016-12-06T11:44:00+0200",
   "extensions": [
     {
-      "id": "/admin/page",
-      "name": "Admin Page"
+      "key": "first_page",
+      "name": "First Page",
+      "path": "/static/my_plugin/first_page.js"
     },
     {
-      "id": "first_page",
-      "name": "First Page"
-    },
-    {
-      "id": "/second/page",
-      "name": "Second Page"
+      "key": "second_page",
+      "name": "Second Page",
+      "path": "/static/my_plugin/second_page.js"
     }
   ],
   "qualityProfiles": [
@@ -47,7 +45,13 @@
     "showHistory": true,
     "showUpdateKey": true,
     "showBackgroundTasks": true,
-    "extensions": []
+    "extensions": [
+      {
+        "key": "admin_page",
+        "name": "Admin Page",
+        "path": "/static/my_plugin/admin_page.js"
+      }
+    ]
   },
   "breadcrumbs": [
     {
