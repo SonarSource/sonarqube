@@ -18,7 +18,7 @@ function installPhantomJs {
 
 function configureTravis {
   mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v31 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v33 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -31,13 +31,6 @@ CI)
   MAVEN_OPTIONS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V"
 
   INITIAL_VERSION=`maven_expression "project.version"`
-  if [[ $INITIAL_VERSION =~ "-SNAPSHOT" ]]; then
-    echo "======= Found SNAPSHOT version ======="
-    # Do not deploy a SNAPSHOT version but the release version related to this build
-    set_maven_build_version $TRAVIS_BUILD_NUMBER
-  else
-    echo "======= Found RELEASE version ======="
-  fi
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Analyse and trigger QA of master branch'
@@ -49,6 +42,8 @@ CI)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
 
+    . set_maven_build_version $TRAVIS_BUILD_NUMBER
+
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
           $MAVEN_OPTIONS \
           -Pdeploy-sonarsource \
@@ -59,7 +54,7 @@ CI)
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'release branch: trigger QA, no analysis'
 
-    export PROJECT_VERSION=`maven_expression "project.version"`
+    . set_maven_build_version $TRAVIS_BUILD_NUMBER
 
     mvn deploy \
         $MAVEN_OPTIONS \
@@ -67,6 +62,8 @@ CI)
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Internal pull request: trigger QA and analysis'
+
+    . set_maven_build_version $TRAVIS_BUILD_NUMBER
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
         $MAVEN_OPTIONS \
