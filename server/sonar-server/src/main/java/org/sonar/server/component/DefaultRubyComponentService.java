@@ -99,9 +99,10 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setQualifier(qualifier)
         .setBranch(branch)
         .build());
-    permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
+    String organizationUuid = defaultOrganizationProvider.get().getUuid();
+    permissionTemplateService.applyDefaultPermissionTemplate(dbSession, organizationUuid, provisionedComponent.getKey());
     if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
-      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {
+      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, provisionedComponent)) {
       favoriteUpdater.add(dbSession, provisionedComponent);
       dbSession.commit();
     }

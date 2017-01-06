@@ -44,7 +44,6 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.user.UserSession;
 
@@ -62,37 +61,20 @@ public class PermissionTemplateService {
   private final Settings settings;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
-   * @deprecated replaced by {@link #applyDefault(DbSession, ComponentDto, Long)}, which <b>does not
+   * @deprecated replaced by {@link #applyDefault(DbSession, String, ComponentDto, Long)}, which <b>does not
    * verify that user is authorized to administrate the component</b>.
    */
   @Deprecated
-  public void applyDefaultPermissionTemplate(String componentKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyDefaultPermissionTemplate(session, componentKey);
-    } finally {
-      session.close();
-    }
-  }
-
-  /**
-   * @deprecated replaced by {@link #applyDefault(DbSession, ComponentDto, Long)}, which <b>does not
-   * verify that user is authorized to administrate the component</b>.
-   */
-  @Deprecated
-  public void applyDefaultPermissionTemplate(DbSession session, String componentKey) {
+  public void applyDefaultPermissionTemplate(DbSession session, String organizationUuid, String componentKey) {
     ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, componentKey), "Component key '%s' not found", componentKey);
     ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
     if (provisioned == null) {
@@ -103,17 +85,18 @@ public class PermissionTemplateService {
 
     Integer currentUserId = userSession.getUserId();
     Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
-    applyDefault(session, component, userId);
+    applyDefault(session, organizationUuid, component, userId);
   }
 
-  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long userId, String permission, @Nullable String branch, String projectKey,
+  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession,
+    String organizationUuid, @Nullable Long userId, String permission, @Nullable String branch, String projectKey,
     String qualifier) {
     if (userSession.hasPermission(permission)) {
       return true;
     }
 
     String effectiveKey = ComponentKeys.createKey(projectKey, branch);
-    PermissionTemplateDto template = findDefaultTemplate(dbSession, new ComponentDto().setKey(effectiveKey).setQualifier(qualifier));
+    PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, new ComponentDto().setKey(effectiveKey).setQualifier(qualifier));
     if (template == null) {
       return false;
     }
@@ -142,22 +125,18 @@ public class PermissionTemplateService {
   /**
    * Apply the default permission template to project. The project can already exist (so it has permissions) or
    * can be provisioned (so has no permissions yet).
-   *
-   * @param dbSession
-   * @param component
    * @param projectCreatorUserId id of the user who creates the project, only if project is provisioned. He will
-   *                             benefit from the permissions defined in the template for "project creator".
    */
-  public void applyDefault(DbSession dbSession, ComponentDto component, @Nullable Long projectCreatorUserId) {
-    PermissionTemplateDto template = findDefaultTemplate(dbSession, component);
+  public void applyDefault(DbSession dbSession, String organizationUuid, ComponentDto component, @Nullable Long projectCreatorUserId) {
+    PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, component);
     checkArgument(template != null, "Cannot retrieve default permission template");
     copyPermissions(dbSession, template, component, projectCreatorUserId);
     dbSession.commit();
     indexProjectPermissions(dbSession, asList(component.uuid()));
   }
 
-  public boolean hasDefaultTemplateWithPermissionOnProjectCreator(DbSession dbSession, ComponentDto component) {
-    PermissionTemplateDto template = findDefaultTemplate(dbSession, component);
+  public boolean hasDefaultTemplateWithPermissionOnProjectCreator(DbSession dbSession, String organizationUuid, ComponentDto component) {
+    PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, component);
     return hasProjectCreatorPermission(dbSession, template);
   }
 
@@ -214,8 +193,8 @@ public class PermissionTemplateService {
    * template for the component qualifier.
    */
   @CheckForNull
-  private PermissionTemplateDto findDefaultTemplate(DbSession dbSession, ComponentDto component) {
-    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, defaultOrganizationProvider.get().getUuid(), null);
+  private PermissionTemplateDto findTemplate(DbSession dbSession, String organizationUuid, ComponentDto component) {
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, organizationUuid, null);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();

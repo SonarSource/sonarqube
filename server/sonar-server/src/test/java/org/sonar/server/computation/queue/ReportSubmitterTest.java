@@ -73,6 +73,7 @@ public class ReportSubmitterTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private String defaultOrganizationKey;
+  private String defaultOrganizationUuid;
   private CeQueue queue = mock(CeQueueImpl.class);
   private ComponentService componentService = mock(ComponentService.class);
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
@@ -83,6 +84,7 @@ public class ReportSubmitterTest {
   @Before
   public void setUp() throws Exception {
     defaultOrganizationKey = db.getDefaultOrganization().getKey();
+    defaultOrganizationUuid = db.getDefaultOrganization().getUuid();
   }
 
   @Test
@@ -137,14 +139,14 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(createdProject), anyLong());
+    verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(organization.getUuid()), eq(createdProject), anyLong());
     verify(favoriteUpdater).add(any(DbSession.class), eq(createdProject));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
@@ -167,9 +169,9 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(false);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
@@ -182,7 +184,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
       .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
