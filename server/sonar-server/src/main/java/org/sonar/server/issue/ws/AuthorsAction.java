@@ -60,7 +60,7 @@ public class AuthorsAction implements IssuesWsAction {
     NewAction action = controller.createAction(ACTION_AUTHORS)
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-authors.json"))
+      .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)

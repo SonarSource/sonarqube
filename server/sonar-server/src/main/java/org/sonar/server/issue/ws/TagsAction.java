@@ -46,7 +46,7 @@ public class TagsAction implements IssuesWsAction {
       .setHandler(this)
       .setSince("5.1")
       .setDescription("List tags matching a given query")
-      .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
+      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"));
     action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match tags against")
       .setExampleValue("misra");

@@ -73,7 +73,7 @@ public class ChangelogAction implements IssuesWsAction {
         "Since 6.3, changes on effort are returning raw value in minutes, it doesn't return anymore the duration.")
       .setSince("4.1")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(IssuesWs.class, "example-changelog.json"));
+      .setResponseExample(Resources.getResource(IssuesWs.class, "changelog-example.json"));
     action.createParam(PARAM_ISSUE)
       .setDescription("Issue key")
       .setRequired(true)

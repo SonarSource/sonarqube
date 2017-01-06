@@ -261,7 +261,7 @@ public class ChangelogActionTest {
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("example-changelog.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("changelog-example.json"));
   }
 
   @Test

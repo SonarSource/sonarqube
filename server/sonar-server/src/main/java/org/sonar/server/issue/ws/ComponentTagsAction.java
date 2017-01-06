@@ -59,7 +59,7 @@ public class ComponentTagsAction implements IssuesWsAction {
       .setSince("5.1")
       .setInternal(true)
       .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)")
-      .setResponseExample(Resources.getResource(getClass(), "example-component-tags.json"));
+      .setResponseExample(Resources.getResource(getClass(), "component-tags-example.json"));
     action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("A component UUID")
       .setRequired(true)

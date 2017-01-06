@@ -128,7 +128,7 @@ public class SearchAction implements IssuesWsAction {
           "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped.",
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
-      .setResponseExample(getClass().getResource("example-search.json"));
+      .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
