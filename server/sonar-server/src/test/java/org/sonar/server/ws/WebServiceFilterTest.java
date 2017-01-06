@@ -20,13 +20,6 @@
 
 package org.sonar.server.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.server.ws.WebServiceFilterTest.WsUrl.newWsUrl;
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.FilterChain;
@@ -42,6 +35,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.ws.WebServiceFilterTest.WsUrl.newWsUrl;
 
 public class WebServiceFilterTest {
 
@@ -79,6 +79,7 @@ public class WebServiceFilterTest {
     assertThat(underTest.doGetPattern().matches("/api/resources/index")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/issues/deprecatedSearch")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();
   }
 

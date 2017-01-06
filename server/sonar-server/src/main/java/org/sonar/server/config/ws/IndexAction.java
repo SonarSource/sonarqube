@@ -63,7 +63,7 @@ public class IndexAction implements WsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
-  private static final String PARAM_KEY = "key";
+  public static final String PARAM_KEY = "key";
   private static final String PARAM_COMPONENT = "resource";
 
   private final DbClient dbClient;
