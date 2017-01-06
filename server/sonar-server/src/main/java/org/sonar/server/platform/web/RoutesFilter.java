@@ -19,7 +19,11 @@
  */
 package org.sonar.server.platform.web;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -28,32 +32,34 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.core.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
 public class RoutesFilter implements Filter {
 
   private static final String EMPTY = "";
-  private static final String BATCH_WS = "/batch";
-  private static final String API_SOURCES_WS = "/api/sources";
+
+  private static final List<Route> ROUTES = ImmutableList.of(
+    new BatchRoute(),
+    new BatchBootstrapRoute(),
+    new ApiSourcesRoute());
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
-    String path = request.getRequestURI().replaceFirst(request.getContextPath(), EMPTY);
-    if (path.startsWith(BATCH_WS + "/") && path.endsWith(".jar")) {
-      // Old scanners were using /batch/file.jar url (see SCANNERAPI-167)
-      response.sendRedirect(format("%s%s/file?name=%s", request.getContextPath(), BATCH_WS, path.replace(BATCH_WS + "/", EMPTY)));
-    } else if ("/batch_bootstrap/index".equals(path)) {
-      // Old scanners were using /batch_bootstrap url (see SCANNERAPI-167)
-      response.sendRedirect(format("%s%s/index", request.getContextPath(), BATCH_WS));
-    } else if (API_SOURCES_WS.equals(path)) {
-      // SONAR-7852 /api/sources?resource url is still used
-      response.sendRedirect(format("%s%s/index?%s", request.getContextPath(), API_SOURCES_WS, request.getQueryString()));
-    } else {
+    String path = extractPath(request);
+    List<Route> routes = ROUTES.stream()
+      .filter(route -> route.test(path))
+      .collect(Collectors.toList());
+    checkState(routes.isEmpty() || routes.size() == 1, "Multiple routes have been found for '%s'", path);
+    if (routes.isEmpty()) {
       chain.doFilter(request, response);
+      return;
     }
+    response.sendRedirect(routes.get(0).apply(request));
   }
 
   @Override
@@ -64,5 +70,70 @@ public class RoutesFilter implements Filter {
   @Override
   public void destroy() {
     // Nothing
+  }
+
+  private interface Route extends Predicate<String>, Function<HttpServletRequest, String> {
+    @Override
+    boolean test(String path);
+
+    @Override
+    String apply(HttpServletRequest request);
+  }
+
+  /**
+   * Old scanners were using /batch/file.jar url (see SCANNERAPI-167)
+   */
+  private static class BatchRoute implements Route {
+
+    private static final String BATCH_WS = "/batch";
+
+    @Override
+    public boolean test(String path) {
+      return path.startsWith(BATCH_WS + "/") && path.endsWith(".jar");
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      String path = extractPath(request);
+      return format("%s%s/file?name=%s", request.getContextPath(), BATCH_WS, path.replace(BATCH_WS + "/", EMPTY));
+    }
+  }
+
+  /**
+   * Old scanners were using /batch_bootstrap url (see SCANNERAPI-167)
+   */
+  private static class BatchBootstrapRoute implements Route {
+
+    @Override
+    public boolean test(String path) {
+      return "/batch_bootstrap/index".equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s%s/index", request.getContextPath(), "/batch");
+    }
+  }
+
+  /**
+   * SONAR-7852 /api/sources?resource url is still used
+   */
+  private static class ApiSourcesRoute implements Route {
+
+    private static final String API_SOURCES_WS = "/api/sources";
+
+    @Override
+    public boolean test(String path) {
+      return API_SOURCES_WS.equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s%s/index?%s", request.getContextPath(), API_SOURCES_WS, request.getQueryString());
+    }
+  }
+
+  private static String extractPath(HttpServletRequest request) {
+    return request.getRequestURI().replaceFirst(request.getContextPath(), EMPTY);
   }
 }

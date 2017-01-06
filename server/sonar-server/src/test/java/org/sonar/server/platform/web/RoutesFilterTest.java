@@ -20,17 +20,21 @@
 
 package org.sonar.server.platform.web;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
+import java.io.IOException;
+import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.platform.web.RoutesFilter;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class RoutesFilterTest {
 
@@ -47,42 +51,44 @@ public class RoutesFilterTest {
 
   @Test
   public void send_redirect_when_url_contains_batch_with_jar() throws Exception {
-    when(request.getRequestURI()).thenReturn("/batch/file.jar");
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sonarqube/batch/file?name=file.jar");
-    verifyZeroInteractions(chain);
+    verifyRedirection("/batch/file.jar", null, "/sonarqube/batch/file?name=file.jar");
   }
 
   @Test
   public void send_redirect_when_url_contains_batch_bootstrap() throws Exception {
-    when(request.getRequestURI()).thenReturn("/batch_bootstrap/index");
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sonarqube/batch/index");
-    verifyZeroInteractions(chain);
+    verifyRedirection("/batch_bootstrap/index", null, "/sonarqube/batch/index");
   }
 
   @Test
   public void send_redirect_when_url_contains_api_sources() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/sources");
-    when(request.getQueryString()).thenReturn("resource=my.project");
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sonarqube/api/sources/index?resource=my.project");
-    verifyZeroInteractions(chain);
+    verifyRedirection("/api/sources", "resource=my.project", "/sonarqube/api/sources/index?resource=my.project");
   }
 
   @Test
   public void does_not_redirect_and_execute_remaining_filter_on_unknown_path() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/issues/search");
+    verifyNoRedirection("/api/issues/search", null);
+  }
+
+  private void verifyRedirection(String requestUrl, @Nullable String queryString, String expectedRedirection) throws Exception {
+    when(request.getRequestURI()).thenReturn(requestUrl);
+    when(request.getQueryString()).thenReturn(queryString);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect(expectedRedirection);
+    verifyZeroInteractions(chain);
+    reset(response, chain);
+  }
+
+  private void verifyNoRedirection(String requestUrl, @Nullable String queryString) throws IOException, ServletException {
+    when(request.getRequestURI()).thenReturn(requestUrl);
+    when(request.getQueryString()).thenReturn(queryString);
+    when(request.getParameter(anyString())).thenReturn(null);
 
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
     verifyZeroInteractions(response);
+    reset(response, chain);
   }
 }
