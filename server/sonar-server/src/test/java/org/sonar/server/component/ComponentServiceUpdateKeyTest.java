@@ -41,7 +41,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,14 +75,11 @@ public class ComponentServiceUpdateKeyTest {
 
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
 
-  private ComponentService underTest;
+  private ComponentService underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
 
   @Before
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
-
-    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer,
-        TestDefaultOrganizationProvider.from(db));
   }
 
   @Test

@@ -33,13 +33,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 @ServerSide
@@ -62,17 +67,36 @@ public class ReportSubmitter {
     this.favoriteUpdater = favoriteUpdater;
   }
 
-  public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
+  /**
+   * @throws NotFoundException if the organization with the specified key does not exist
+   * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
+   */
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
+      OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
-      ComponentDto project = opt.or(() -> createProject(dbSession, projectKey, projectBranch, projectName));
+      ensureOrganizationIsConsistent(opt, organizationDto);
+      ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto.getUuid(), projectKey, projectBranch, projectName));
       userSession.checkComponentUuidPermission(SCAN_EXECUTION, project.uuid());
       return submitReport(dbSession, reportInput, project);
     }
   }
 
-  private ComponentDto createProject(DbSession dbSession, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+  private OrganizationDto getOrganizationDtoOrFail(DbSession dbSession, String organizationKey) {
+    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+      .orElseThrow(() -> new NotFoundException(format("Organization with key '%s' does not exist", organizationKey)));
+  }
+
+  private void ensureOrganizationIsConsistent(Optional<ComponentDto> project, OrganizationDto organizationDto) {
+    if (project.isPresent()) {
+      checkArgument(project.get().getOrganizationUuid().equals(organizationDto.getUuid()),
+        "Organization of component with key '%s' does not match specified organization '%s'",
+        project.get().key(), organizationDto.getKey());
+    }
+  }
+
+  private ComponentDto createProject(DbSession dbSession, String organizationUuid, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
     Integer userId = userSession.getUserId();
     Long projectCreatorUserId = userId == null ? null : userId.longValue();
 
@@ -82,9 +106,13 @@ public class ReportSubmitter {
       throw insufficientPrivilegesException();
     }
 
-    NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
-    newProject.setBranch(projectBranch);
-    newProject.setQualifier(Qualifiers.PROJECT);
+    NewComponent newProject = newComponentBuilder()
+      .setOrganizationUuid(organizationUuid)
+      .setKey(projectKey)
+      .setName(StringUtils.defaultIfBlank(projectName, projectKey))
+      .setBranch(projectBranch)
+      .setQualifier(Qualifiers.PROJECT)
+      .build();
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, project)) {

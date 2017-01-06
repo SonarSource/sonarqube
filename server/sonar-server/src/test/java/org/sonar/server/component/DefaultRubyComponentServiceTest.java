@@ -39,6 +39,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
@@ -71,13 +72,15 @@ public class DefaultRubyComponentServiceTest {
 
   private ResourceDao resourceDao = dbClient.resourceDao();
   private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
-    new ProjectMeasuresIndexer(system2, dbClient, es.client()), TestDefaultOrganizationProvider.from(db));
+    new ProjectMeasuresIndexer(system2, dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService, permissionTemplateService, favoriteUpdater);
+  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService,
+    permissionTemplateService, favoriteUpdater, defaultOrganizationProvider);
 
   @Test
   public void find_by_key() {

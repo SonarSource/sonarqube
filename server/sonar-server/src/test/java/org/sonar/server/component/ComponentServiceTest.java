@@ -43,8 +43,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -60,10 +58,13 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ComponentServiceTest {
+
+  private static final String ORGANIZATION_UUID = "org 1A";
 
   private System2 system2 = System2.INSTANCE;
 
@@ -81,7 +82,6 @@ public class ComponentServiceTest {
   private DbSession dbSession = dbTester.getSession();
   private I18nRule i18n = new I18nRule();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   private ComponentService underTest;
 
@@ -89,8 +89,7 @@ public class ComponentServiceTest {
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
-      projectMeasuresIndexer, defaultOrganizationProvider);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
   }
 
   @Test
@@ -123,9 +122,17 @@ public class ComponentServiceTest {
   public void create_project() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = underTest.create(dbSession, NewComponent.create("struts", "Struts project")).getKey();
+    String key = underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("struts")
+        .setName("Struts project")
+        .build())
+      .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
+    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(project.key()).isEqualTo("struts");
     assertThat(project.deprecatedKey()).isEqualTo("struts");
     assertThat(project.uuid()).isNotNull();
@@ -145,9 +152,18 @@ public class ComponentServiceTest {
   public void create_new_project_with_branch() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = underTest.create(dbSession, NewComponent.create("struts", "Struts project").setBranch("origin/branch")).getKey();
+    String key = underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("struts")
+        .setName("Struts project")
+        .setBranch("origin/branch")
+        .build())
+      .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
+    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(project.key()).isEqualTo("struts:origin/branch");
     assertThat(project.deprecatedKey()).isEqualTo("struts:origin/branch");
   }
@@ -156,9 +172,18 @@ public class ComponentServiceTest {
   public void create_view() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    String key = underTest.create(dbSession, NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW)).getKey();
+    String key = underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("all-project")
+        .setName("All Projects")
+        .setQualifier(Qualifiers.VIEW)
+        .build())
+      .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
+    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(project.key()).isEqualTo("all-project");
     assertThat(project.deprecatedKey()).isEqualTo("all-project");
     assertThat(project.uuid()).isNotNull();
@@ -179,10 +204,19 @@ public class ComponentServiceTest {
     // No permission should be required to create a developer
     userSession.anonymous();
 
-    String key = underTest.createDeveloper(dbTester.getSession(), NewComponent.create("DEV:jon.name@mail.com", "John").setQualifier("DEV")).getKey();
+    String key = underTest.createDeveloper(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("DEV:jon.name@mail.com")
+        .setName("John")
+        .setQualifier("DEV")
+        .build())
+      .getKey();
     dbTester.getSession().commit();
 
     ComponentDto dev = underTest.getNullableByKey(key);
+    assertThat(dev.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(dev.key()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.deprecatedKey()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.uuid()).isNotNull();
@@ -204,7 +238,13 @@ public class ComponentServiceTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for Project: struts?parent. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    underTest.create(dbSession, NewComponent.create("struts?parent", "Struts project"));
+    underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("struts?parent")
+        .setName("Struts project")
+        .build());
   }
 
   @Test
@@ -214,7 +254,14 @@ public class ComponentServiceTest {
 
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    underTest.create(dbSession, NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
+    underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("struts")
+        .setName("Struts project")
+        .setBranch("origin?branch")
+        .build());
   }
 
   @Test
@@ -227,7 +274,13 @@ public class ComponentServiceTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    underTest.create(dbSession, NewComponent.create("struts", "Struts project"));
+    underTest.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey("struts")
+        .setName("Struts project")
+        .build());
   }
 
   @Test
@@ -256,9 +309,14 @@ public class ComponentServiceTest {
       ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
       ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)));
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer,
-      defaultOrganizationProvider);
-    underTest.create(session, NewComponent.create(projectKey, projectKey));
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest.create(
+      session,
+      newComponentBuilder()
+        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setKey(projectKey)
+        .setName(projectKey)
+        .build());
 
     verify(componentDao).delete(session, 2L);
     verify(componentDao).delete(session, 3L);

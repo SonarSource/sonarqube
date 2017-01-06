@@ -24,6 +24,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -72,6 +73,14 @@ public class ComponentDbTester {
 
   public ComponentDto insertProject() {
     ComponentDto project = newProjectDto();
+    dbClient.componentDao().insert(dbSession, project);
+    db.commit();
+
+    return project;
+  }
+
+  public ComponentDto insertProject(OrganizationDto organizationDto) {
+    ComponentDto project = newProjectDto().setOrganizationUuid(organizationDto.getUuid());
     dbClient.componentDao().insert(dbSession, project);
     db.commit();
 

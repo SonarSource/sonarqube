@@ -27,20 +27,24 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
 public class SubmitAction implements CeWsAction {
 
-  public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_PROJECT_BRANCH = "projectBranch";
-  public static final String PARAM_PROJECT_NAME = "projectName";
-  public static final String PARAM_REPORT_DATA = "report";
+  private static final String PARAM_ORGANIZATION_KEY = "organization";
+  private static final String PARAM_PROJECT_KEY = "projectKey";
+  private static final String PARAM_PROJECT_BRANCH = "projectBranch";
+  private static final String PARAM_PROJECT_NAME = "projectName";
+  private static final String PARAM_REPORT_DATA = "report";
 
   private final ReportSubmitter reportSubmitter;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SubmitAction(ReportSubmitter reportSubmitter) {
+  public SubmitAction(ReportSubmitter reportSubmitter, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.reportSubmitter = reportSubmitter;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -53,6 +57,12 @@ public class SubmitAction implements CeWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(getClass().getResource("submit-example.json"));
+
+    action.createParam(PARAM_ORGANIZATION_KEY)
+      .setDescription("Key of the organization the project belongs to")
+      .setExampleValue("my-org")
+      .setSince("6.3")
+      .setInternal(true);
 
     action
       .createParam(PARAM_PROJECT_KEY)
@@ -79,13 +89,16 @@ public class SubmitAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    String organizationKey = wsRequest.getParam(PARAM_ORGANIZATION_KEY)
+      .emptyAsNull()
+      .or(defaultOrganizationProvider.get()::getKey);
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
     String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
 
     CeTask task;
     try (InputStream report = new BufferedInputStream(wsRequest.paramAsInputStream(PARAM_REPORT_DATA))) {
-      task = reportSubmitter.submit(projectKey, projectBranch, projectName, report);
+      task = reportSubmitter.submit(organizationKey, projectKey, projectBranch, projectName, report);
     }
 
     WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
