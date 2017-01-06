@@ -37,13 +37,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.PropertyDeleteQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.resetSettings;
+import static util.ItUtils.setServerProperty;
 
 public class ScannerTest {
 
@@ -92,14 +92,12 @@ public class ScannerTest {
   // SONAR-4680
   @Test
   public void module_should_load_own_settings_from_database() {
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-
-    Sonar sonar = orchestrator.getServer().getAdminWsClient();
-    String propKey = "myFakeProperty";
     String rootModuleKey = "com.sonarsource.it.samples:multi-modules-sample";
+    orchestrator.getServer().provisionProject(rootModuleKey, "Sonar :: Integration Tests :: Multi-modules Sample");
+
+    String propKey = "myFakeProperty";
     String moduleBKey = rootModuleKey + ":module_b";
-    sonar.delete(new PropertyDeleteQuery(propKey, rootModuleKey));
-    sonar.delete(new PropertyDeleteQuery(propKey, moduleBKey));
+    resetSettings(orchestrator, rootModuleKey, propKey);
 
     BuildResult result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
@@ -107,7 +105,7 @@ public class ScannerTest {
     assertThat(result.getLogs()).doesNotContain(moduleBKey + ":" + propKey);
 
     // Set property only on root project
-    sonar.update(new PropertyUpdateQuery(propKey, "project", rootModuleKey));
+    setServerProperty(orchestrator, rootModuleKey, propKey, "project");
 
     result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
@@ -115,7 +113,7 @@ public class ScannerTest {
     assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = project");
 
     // Override property on moduleB
-    sonar.update(new PropertyUpdateQuery(propKey, "moduleB", moduleBKey));
+    setServerProperty(orchestrator, moduleBKey, propKey, "moduleB");
 
     result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
@@ -126,16 +124,14 @@ public class ScannerTest {
   // SONAR-4680
   @Test
   public void module_should_load_settings_from_parent() {
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-
-    Sonar sonar = orchestrator.getServer().getAdminWsClient();
-    String propKey = "myFakeProperty";
     String rootModuleKey = "com.sonarsource.it.samples:multi-modules-sample";
+    orchestrator.getServer().provisionProject(rootModuleKey, "Sonar :: Integration Tests :: Multi-modules Sample");
+
+    String propKey = "myFakeProperty";
     String moduleBKey = rootModuleKey + ":module_b";
 
-    // Set property on provisionned project
-    sonar.update(new PropertyUpdateQuery(propKey, "project", rootModuleKey));
-    sonar.delete(new PropertyDeleteQuery(propKey, moduleBKey));
+    // Set property on provisioned project
+    setServerProperty(orchestrator, rootModuleKey, propKey, "project");
 
     BuildResult result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
@@ -190,21 +186,21 @@ public class ScannerTest {
 
   @Test
   public void should_create_project_without_name_version() {
-    //some of the sub-modules have a name defined, others don't
+    // some of the sub-modules have a name defined, others don't
     BuildResult buildResult = scan("shared/xoo-multi-module-sample-without-project-name-version");
     assertThat(buildResult.isSuccess()).isTrue();
 
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample", "not provided");
-    
+
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b", "not provided");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1", "not provided");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2", "not provided");
-    
+
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A", "not provided");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1", "not provided");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2", "not provided");
   }
-  
+
   @Test
   public void should_analyze_project_without_name_version() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "My project name");
@@ -212,21 +208,21 @@ public class ScannerTest {
       "sonar.projectName", "My project name",
       "sonar.projectVersion", "1.0");
     assertThat(buildResult.isSuccess()).isTrue();
-    
+
     buildResult = scan("shared/xoo-multi-module-sample-without-project-name-version");
     assertThat(buildResult.isSuccess()).isTrue();
 
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample", "My project name", "1.0");
-    
+
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b", "module_b", "1.0");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1", "module_b1", "1.0");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b2", "Sub-module B2", "1.0");
-    
+
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a", "Module A", "1.0");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1", "Sub-module A1", "1.0");
     assertNameAndVersion("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a2", "Sub-module A2", "1.0");
   }
-  
+
   private void assertNameAndVersion(String projectKey, String expectedProjectName, String expectedProjectVersion) {
     // new WS Client with api/components doesn't return the project version, so use the old one
     Resource resource = orchestrator.getServer().getAdminWsClient().find(new ResourceQuery(projectKey));
@@ -308,11 +304,11 @@ public class ScannerTest {
     assertThat(result.getLogs()).contains("/dashboard/index/com.sonarsource.it.samples:multi-modules-sample:mybranch");
 
     try {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.core.serverBaseURL", "http://foo:123/sonar"));
+      setServerProperty(orchestrator, null, "sonar.core.serverBaseURL", "http://foo:123/sonar");
       result = scan("shared/xoo-multi-modules-sample");
       assertThat(result.getLogs()).contains("http://foo:123/sonar/dashboard/index/com.sonarsource.it.samples:multi-modules-sample");
     } finally {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.core.serverBaseURL", null));
+      resetSettings(orchestrator, null, "sonar.core.serverBaseURL");
     }
   }
 

@@ -30,12 +30,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.junit.rules.ExternalResource;
-import org.sonar.wsclient.services.PropertyDeleteQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
+import static util.ItUtils.resetSettings;
 
 /**
  * Rule wrapping around an {@link Orchestrator} instance which handle:
@@ -111,17 +110,11 @@ public class ProjectAnalysisRule extends ExternalResource {
   }
 
   private void resetServerProperties() {
-    for (String serverProperty : serverProperties) {
-      setServerPropertyImpl(serverProperty, null);
-    }
+    resetSettings(orchestrator, null, serverProperties.toArray(new String[] {}));
   }
 
   public void setServerPropertyImpl(String key, @Nullable String value) {
-    if (value == null) {
-      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key));
-    } else {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery().setKey(key).setValue(value));
-    }
+    ItUtils.setServerProperty(orchestrator, key, value);
   }
 
   public ProjectAnalysisRule setServerProperty(String key, String value) {

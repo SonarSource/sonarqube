@@ -230,7 +230,9 @@ public class ItUtils {
   }
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
-    newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
+    if (keys.length > 0) {
+      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
+    }
   }
 
   public static void resetEmailSettings(Orchestrator orchestrator) {
