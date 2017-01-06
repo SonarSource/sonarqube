@@ -42,10 +42,7 @@ public class JwtCsrfVerifier {
 
   private static final Set<String> UPDATE_METHODS = ImmutableSet.of("POST", "PUT", "DELETE");
   private static final String API_URL = "/api";
-  private static final Set<String> RAILS_UPDATE_API_URLS = ImmutableSet.of(
-    "/api/projects/create",
-    "/api/properties/create",
-    "/api/user_properties");
+  private static final Set<String> RAILS_UPDATE_API_URLS = ImmutableSet.of("/api/projects/create", "/api/user_properties");
 
   public String generateState(HttpServletRequest request, HttpServletResponse response, int timeoutInSeconds) {
     // Create a state token to prevent request forgery.

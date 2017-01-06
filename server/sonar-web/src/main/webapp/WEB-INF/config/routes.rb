@@ -9,8 +9,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
 
-  map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }
-
   # page plugins
   map.connect 'plugins/configuration/:page', :controller => 'plugins/configuration', :action => 'index', :requirements => { :page => /.*/ }
   map.connect 'plugins/home/:page', :controller => 'plugins/home', :action => 'index', :requirements => { :page => /.*/ }

@@ -149,7 +149,6 @@ public class JwtCsrfVerifierTest {
   @Test
   public void ignore_rails_ws_requests() throws Exception {
     executeVerifyStateDoesNotFailOnRequest("/api/projects/create?key=ABCD", "POST");
-    executeVerifyStateDoesNotFailOnRequest("/api/properties/create?key=ABCD", "POST");
     executeVerifyStateDoesNotFailOnRequest("/api/user_properties", "POST");
   }
 
