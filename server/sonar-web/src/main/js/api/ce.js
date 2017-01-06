@@ -21,7 +21,7 @@
 import { getJSON, post } from '../helpers/request';
 
 export const getActivity = (data?: Object): Promise<*> => (
-    getJSON(window.baseUrl + '/api/ce/activity', data)
+    getJSON('/api/ce/activity', data)
 );
 
 export const getStatus = (componentId?: string): Promise<*> => {
