@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.Lists;
@@ -25,9 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -37,8 +38,8 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -54,11 +55,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
-import org.sonar.server.ui.ViewProxy;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -75,22 +74,39 @@ public class ComponentAction implements NavigationWsAction {
   private static final String PROPERTY_UPDATABLE_KEY = "updatable_key";
 
   private final DbClient dbClient;
-  private final Views views;
-  private final I18n i18n;
+  private final PageRepository pageRepository;
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
 
-  public ComponentAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
-                         ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
+  public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
+    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
-    this.views = views;
-    this.i18n = i18n;
+    this.pageRepository = pageRepository;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
+  }
+
+  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
+    return profile -> json.beginObject()
+      .prop("key", profile.getQpKey())
+      .prop("name", profile.getQpName())
+      .prop("language", profile.getLanguageKey())
+      .endObject();
+  }
+
+  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
+    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
+  }
+
+  private static void writePage(JsonWriter json, Page page) {
+    json.beginObject()
+      .prop("key", page.getKey())
+      .prop("name", page.getName())
+      .endObject();
   }
 
   @Override
@@ -141,7 +157,7 @@ public class ComponentAction implements NavigationWsAction {
     if (analysis != null) {
       json.prop("version", analysis.getVersion())
         .prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
-      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language());
+      List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
       writeExtensions(json, component, pages);
     }
   }
@@ -165,18 +181,6 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
-    return profile -> json.beginObject()
-      .prop("key", profile.getQpKey())
-      .prop("name", profile.getQpName())
-      .prop("language", profile.getLanguageKey())
-      .endObject();
-  }
-
-  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
-    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
-  }
-
   private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
     Optional<QualityGateFinder.QualityGateData> qualityGateData = qualityGateFinder.getQualityGate(session, component.getId());
     if (!qualityGateData.isPresent()) {
@@ -190,11 +194,15 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages) {
+  private void writeExtensions(JsonWriter json, ComponentDto component, List<Page> pages) {
     json.name("extensions").beginArray();
+    Predicate<Page> isAuthorized = page -> {
+      String requiredPermission = page.isAdmin() ? UserRole.ADMIN : UserRole.USER;
+      return userSession.hasComponentUuidPermission(requiredPermission, component.uuid());
+    };
     pages.stream()
-      .filter(page -> page.isUserAuthorized(component))
-      .forEach(page -> writePage(json, page.getId(), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle())));
+      .filter(isAuthorized)
+      .forEach(page -> writePage(json, page));
     json.endArray();
   }
 
@@ -206,8 +214,8 @@ public class ComponentAction implements NavigationWsAction {
 
     if (isAdmin) {
       json.name("extensions").beginArray();
-      List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language());
-      configPages.forEach(page -> writePage(json, page.getId(), i18n.message(ENGLISH, page.getId() + ".page", page.getTitle())));
+      List<Page> configPages = pageRepository.getComponentPages(true, component.qualifier());
+      configPages.forEach(page -> writePage(json, page));
       json.endArray();
     }
     json.endObject();
@@ -231,13 +239,6 @@ public class ComponentAction implements NavigationWsAction {
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
     ResourceType resourceType = resourceTypes.get(component.qualifier());
     return resourceType != null && resourceType.getBooleanProperty(resourceTypeProperty);
-  }
-
-  private static void writePage(JsonWriter json, String id, String name) {
-    json.beginObject()
-      .prop("id", id)
-      .prop("name", name)
-      .endObject();
   }
 
   private void writeBreadCrumbs(JsonWriter json, DbSession session, ComponentDto component) {
