@@ -23,7 +23,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ServerException;
 
-import javax.servlet.http.HttpServletResponse;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 
 public class RequestVerifier {
   private RequestVerifier() {
@@ -31,9 +31,17 @@ public class RequestVerifier {
   }
 
   public static void verifyRequest(WebService.Action action, Request request) {
-    // verify the HTTP verb
-    if (action.isPost() && !"POST".equals(request.method())) {
-      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
+    switch (request.method()) {
+      case "GET":
+        if (action.isPost()) {
+          throw new ServerException(SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
+        }
+        return;
+      case "PUT":
+      case "DELETE":
+        throw new ServerException(SC_METHOD_NOT_ALLOWED, String.format("HTTP method %s is not allowed", request.method()));
+      default:
+        // Nothing to do
     }
   }
 }

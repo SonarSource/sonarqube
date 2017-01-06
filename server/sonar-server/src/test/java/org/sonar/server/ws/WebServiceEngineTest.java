@@ -148,6 +148,24 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  public void method_put_not_allowed() {
+    ValidatingRequest request = new TestRequest().setMethod("PUT").setPath("/api/system/ping");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method PUT is not allowed\"}]}");
+  }
+
+  @Test
+  public void method_delete_not_allowed() {
+    ValidatingRequest request = new TestRequest().setMethod("DELETE").setPath("/api/system/ping");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method DELETE is not allowed\"}]}");
+  }
+
+  @Test
   public void method_post_required() {
     ValidatingRequest request = new TestRequest().setMethod("POST").setPath("/api/system/ping");
     DumbResponse response = new DumbResponse();
