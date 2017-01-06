@@ -445,7 +445,7 @@ public abstract class Request {
   /**
    * Extends {@link Param} with convenience methods specific to the type {@link String}.
    */
-  interface StringParam extends Param<String> {
+  public interface StringParam extends Param<String> {
     /**
      * Returns a {@link StringParam} object which methods {@link #getValue()} and {@link #or(Supplier)} will
      * return {@code null} rather than an empty String when the param is present and its value is an empty String.

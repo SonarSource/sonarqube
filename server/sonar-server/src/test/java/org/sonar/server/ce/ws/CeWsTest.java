@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +32,7 @@ public class CeWsTest {
 
   @Test
   public void define() throws Exception {
-    CeWsAction wsAction = new SubmitAction(mock(ReportSubmitter.class));
+    CeWsAction wsAction = new SubmitAction(mock(ReportSubmitter.class), mock(DefaultOrganizationProvider.class));
 
     CeWs ws = new CeWs(wsAction);
     WebService.Context context = mock(WebService.Context.class, Mockito.RETURNS_DEEP_STUBS);

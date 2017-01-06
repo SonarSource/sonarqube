@@ -19,33 +19,77 @@
  */
 package org.sonar.server.organization;
 
+import java.util.Date;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 public class TestDefaultOrganizationProvider implements DefaultOrganizationProvider {
 
-  private final DbTester dbTester;
+  private final DefaultOrganizationProvider delegate;
 
-  private TestDefaultOrganizationProvider(DbTester dbTester) {
-    this.dbTester = dbTester;
+  private TestDefaultOrganizationProvider(DefaultOrganizationProvider delegate) {
+    this.delegate = delegate;
   }
 
   public static TestDefaultOrganizationProvider from(DbTester dbTester) {
-    return new TestDefaultOrganizationProvider(dbTester);
+    return new TestDefaultOrganizationProvider(new DbTesterDefaultOrganizationProvider(dbTester));
+  }
+
+  public static TestDefaultOrganizationProvider fromUuid(String uuid) {
+    long createdAt = new Date().getTime();
+    return new TestDefaultOrganizationProvider(
+      new ImmutableDefaultOrganizationProvider(
+        DefaultOrganization.newBuilder()
+          .setUuid(uuid)
+          .setKey("key_" + uuid)
+          .setName("name_" + uuid)
+          .setCreatedAt(createdAt)
+          .setUpdatedAt(createdAt)
+          .build()));
   }
 
   @Override
   public DefaultOrganization get() {
-    return toDefaultOrganization(dbTester.getDefaultOrganization());
+    return delegate.get();
   }
 
-  private static DefaultOrganization toDefaultOrganization(OrganizationDto organizationDto) {
-    return DefaultOrganization.newBuilder()
-      .setUuid(organizationDto.getUuid())
-      .setKey(organizationDto.getKey())
-      .setName(organizationDto.getName())
-      .setCreatedAt(organizationDto.getCreatedAt())
-      .setUpdatedAt(organizationDto.getUpdatedAt())
-      .build();
+  private static final class ImmutableDefaultOrganizationProvider implements DefaultOrganizationProvider {
+    private final DefaultOrganization defaultOrganization;
+
+    private ImmutableDefaultOrganizationProvider(DefaultOrganization defaultOrganization) {
+      this.defaultOrganization = defaultOrganization;
+    }
+
+    @Override
+    public DefaultOrganization get() {
+      return defaultOrganization;
+    }
+  }
+
+  private static final class DbTesterDefaultOrganizationProvider implements DefaultOrganizationProvider {
+    private final DbTester dbTester;
+    private DefaultOrganization defaultOrganization = null;
+
+    private DbTesterDefaultOrganizationProvider(DbTester dbTester) {
+      this.dbTester = dbTester;
+    }
+
+    @Override
+    public DefaultOrganization get() {
+      if (defaultOrganization == null) {
+        defaultOrganization = toDefaultOrganization(dbTester.getDefaultOrganization());
+      }
+      return defaultOrganization;
+    }
+
+    private static DefaultOrganization toDefaultOrganization(OrganizationDto organizationDto) {
+      return DefaultOrganization.newBuilder()
+        .setUuid(organizationDto.getUuid())
+        .setKey(organizationDto.getKey())
+        .setName(organizationDto.getName())
+        .setCreatedAt(organizationDto.getCreatedAt())
+        .setUpdatedAt(organizationDto.getUpdatedAt())
+        .build();
+    }
   }
 }

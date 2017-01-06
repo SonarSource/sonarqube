@@ -88,7 +88,7 @@ public class BulkUpdateKeyActionTest {
   private ComponentFinder componentFinder = new ComponentFinder(dbClient);
 
   private WsActionTester ws = new WsActionTester(
-    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client()), null), userSession));
+    new BulkUpdateKeyAction(dbClient, componentFinder, new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client())), userSession));
 
   @Before
   public void setUp() {

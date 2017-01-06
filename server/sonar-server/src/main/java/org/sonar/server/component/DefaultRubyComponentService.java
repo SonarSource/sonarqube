@@ -33,8 +33,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.util.RubyUtils;
+
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
@@ -43,14 +46,17 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ComponentService componentService;
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService, PermissionTemplateService permissionTemplateService,
-    FavoriteUpdater favoriteUpdater) {
+  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService,
+    PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.resourceDao = resourceDao;
     this.componentService = componentService;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -84,7 +90,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
-    ComponentDto provisionedComponent = componentService.create(dbSession, NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+    ComponentDto provisionedComponent = componentService.create(
+      dbSession,
+      newComponentBuilder()
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .setKey(key)
+        .setName(name)
+        .setQualifier(qualifier)
+        .setBranch(branch)
+        .build());
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, provisionedComponent.getKey());
     if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, provisionedComponent)) {

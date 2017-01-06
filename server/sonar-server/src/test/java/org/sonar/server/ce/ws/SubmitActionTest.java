@@ -26,6 +26,8 @@ import org.sonar.ce.queue.CeTask;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.queue.ReportSubmitter;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
@@ -48,13 +50,15 @@ public class SubmitActionTest {
     .setComponentUuid("PROJECT_1").setSubmitterLogin("robert")
     .build();
 
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("org1");
+  private String organizationKey = defaultOrganizationProvider.get().getKey();
   private ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
-  private SubmitAction underTest = new SubmitAction(reportSubmitter);
+  private SubmitAction underTest = new SubmitAction(reportSubmitter, defaultOrganizationProvider);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
       .thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
@@ -65,7 +69,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
 
     WsCe.SubmitResponse submitResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.SubmitResponse.PARSER);
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
@@ -74,7 +78,7 @@ public class SubmitActionTest {
 
   @Test
   public void test_example_json_response() {
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
       .thenReturn(A_CE_TASK);
 
     TestResponse wsResponse = tester.newRequest()
@@ -93,7 +97,7 @@ public class SubmitActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class)))
+    when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class)))
       .thenReturn(A_CE_TASK);
 
     tester.newRequest()
@@ -103,7 +107,7 @@ public class SubmitActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class));
+    verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class));
 
   }
 }
