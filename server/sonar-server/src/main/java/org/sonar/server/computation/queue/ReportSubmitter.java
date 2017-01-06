@@ -57,8 +57,8 @@ public class ReportSubmitter {
   private final DbClient dbClient;
   private final FavoriteUpdater favoriteUpdater;
 
-  public ReportSubmitter(CeQueue queue, UserSession userSession,
-    ComponentService componentService, PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
+  public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentService componentService,
+    PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentService = componentService;
@@ -88,7 +88,7 @@ public class ReportSubmitter {
       .orElseThrow(() -> new NotFoundException(format("Organization with key '%s' does not exist", organizationKey)));
   }
 
-  private void ensureOrganizationIsConsistent(Optional<ComponentDto> project, OrganizationDto organizationDto) {
+  private static void ensureOrganizationIsConsistent(Optional<ComponentDto> project, OrganizationDto organizationDto) {
     if (project.isPresent()) {
       checkArgument(project.get().getOrganizationUuid().equals(organizationDto.getUuid()),
         "Organization of component with key '%s' does not match specified organization '%s'",
@@ -101,7 +101,7 @@ public class ReportSubmitter {
     Long projectCreatorUserId = userId == null ? null : userId.longValue();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(
-      dbSession, projectCreatorUserId, SCAN_EXECUTION, projectBranch, projectKey, Qualifiers.PROJECT);
+      dbSession, organizationUuid, projectCreatorUserId, SCAN_EXECUTION, projectBranch, projectKey, Qualifiers.PROJECT);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
@@ -115,12 +115,12 @@ public class ReportSubmitter {
       .build();
     // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
-    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, project)) {
+    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, project)) {
       favoriteUpdater.add(dbSession, project);
       dbSession.commit();
     }
 
-    permissionTemplateService.applyDefault(dbSession, project, projectCreatorUserId);
+    permissionTemplateService.applyDefault(dbSession, organizationUuid, project, projectCreatorUserId);
 
     return project;
   }

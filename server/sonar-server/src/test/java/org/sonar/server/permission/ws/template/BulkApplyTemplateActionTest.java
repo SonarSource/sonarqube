@@ -34,8 +34,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
@@ -58,12 +56,11 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
   private PermissionIndexer issuePermissionIndexer = mock(PermissionIndexer.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), new MapSettings(),
-      issuePermissionIndexer, userSession, defaultOrganizationProvider);
+      issuePermissionIndexer, userSession);
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

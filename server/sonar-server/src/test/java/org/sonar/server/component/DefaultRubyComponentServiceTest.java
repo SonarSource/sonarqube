@@ -21,6 +21,7 @@ package org.sonar.server.component;
 
 import java.util.List;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -82,6 +83,13 @@ public class DefaultRubyComponentServiceTest {
   private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService,
     permissionTemplateService, favoriteUpdater, defaultOrganizationProvider);
 
+  private String defaultOrganizationUuid;
+
+  @Before
+  public void setUp() throws Exception {
+    defaultOrganizationUuid = db.getDefaultOrganization().getUuid();
+  }
+
   @Test
   public void find_by_key() {
     ComponentDto componentDto = componentDb.insertProject();
@@ -109,7 +117,7 @@ public class DefaultRubyComponentServiceTest {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(true);
 
     Long result = underTest.createComponent(componentKey, componentName, qualifier);
 
@@ -118,7 +126,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.name()).isEqualTo(componentName);
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
-    verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(componentKey));
+    verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(defaultOrganizationUuid), eq(componentKey));
     verify(favoriteUpdater).add(any(DbSession.class), eq(project));
   }
 

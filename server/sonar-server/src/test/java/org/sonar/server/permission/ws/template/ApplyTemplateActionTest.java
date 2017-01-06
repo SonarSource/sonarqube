@@ -40,8 +40,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -72,12 +70,11 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template2;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
   private PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), esTester.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-      new MapSettings(), permissionIndexer, userSession, defaultOrganizationProvider);
+      new MapSettings(), permissionIndexer, userSession);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 
