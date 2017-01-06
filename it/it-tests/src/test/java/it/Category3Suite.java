@@ -28,7 +28,6 @@ import it.analysis.IssuesModeTest;
 import it.analysis.LinksTest;
 import it.analysis.MultiLanguageTest;
 import it.analysis.ProjectBuilderTest;
-import it.analysis.ProjectProvisioningTest;
 import it.analysis.ReportDumpTest;
 import it.analysis.SSLTest;
 import it.analysis.ScannerTest;
@@ -55,7 +54,6 @@ import static util.ItUtils.xooPlugin;
   TempFolderTest.class,
   MultiLanguageTest.class,
   IssueJsonReportTest.class,
-  ProjectProvisioningTest.class,
   ScannerTest.class,
   IssuesModeTest.class,
   SettingsEncryptionTest.class,
