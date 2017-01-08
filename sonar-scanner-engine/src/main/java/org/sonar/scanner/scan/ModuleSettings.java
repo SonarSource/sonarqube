@@ -29,24 +29,21 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 /**
  * @since 2.12
  */
 public class ModuleSettings extends Settings {
 
-  private final ProjectRepositories projectRepos;
+  private final ServerSideProjectData serverSideProjectData;
   private final DefaultAnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
-  private final SettingsLoader settingsLoader;
 
-  public ModuleSettings(ProjectSettings projectSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectRepos, SettingsLoader settingsLoader,
+  public ModuleSettings(ProjectSettings projectSettings, ProjectDefinition moduleDefinition, ServerSideProjectData serverSideProjectData,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(projectSettings.getDefinitions(), projectSettings.getEncryption());
-    this.projectRepos = projectRepos;
-    this.settingsLoader = settingsLoader;
+    this.serverSideProjectData = serverSideProjectData;
     this.analysisMode = analysisMode;
 
     init(moduleDefinition, projectSettings);
@@ -55,20 +52,9 @@ public class ModuleSettings extends Settings {
 
   private ModuleSettings init(ProjectDefinition moduleDefinition, ProjectSettings projectSettings) {
     addProperties(projectSettings.getProperties());
-    loadServerSettings(moduleDefinition);
     addServerSettingsRecursively(moduleDefinition);
     addScannerProperties(moduleDefinition);
     return this;
-  }
-
-  /**
-   * Load settings from server for this particular module (if it exists) and
-   * store them in ProjectRepositories for later use in child modules
-   */
-  private void loadServerSettings(ProjectDefinition def) {
-    if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-      projectRepos.settings(def.getKeyWithBranch()).putAll(settingsLoader.load(def.getKeyWithBranch()));
-    }
   }
 
   private void addServerSettingsRecursively(ProjectDefinition def) {
@@ -77,8 +63,8 @@ public class ModuleSettings extends Settings {
       return;
     }
     addServerSettingsRecursively(def.getParent());
-    if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-      addProperties(projectRepos.settings(def.getKeyWithBranch()));
+    if (serverSideProjectData.moduleExists(def.getKeyWithBranch())) {
+      addProperties(serverSideProjectData.settings(def.getKeyWithBranch()));
     }
   }
 

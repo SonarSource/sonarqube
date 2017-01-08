@@ -22,6 +22,8 @@ package org.sonar.scanner.scan;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,13 +38,11 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectSettingsTest {
@@ -57,40 +57,30 @@ public class ProjectSettingsTest {
 
   private GlobalMode globalMode;
   private DefaultAnalysisMode mode;
-  private SettingsLoader settingsLoader;
 
   @Before
   public void prepare() {
     project = ProjectDefinition.create().setKey("struts");
     globalMode = mock(GlobalMode.class);
     mode = mock(DefaultAnalysisMode.class);
-    settingsLoader = mock(SettingsLoader.class);
-    globalSettings = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), settingsLoader, globalMode);
+    globalSettings = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), mock(SettingsLoader.class), globalMode);
   }
 
   @Test
-  public void should_load_project_props() {
+  public void should_load_project_props_for_new_project() {
     project.setProperty("project.prop", "project");
 
-    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(), settingsLoader, mode);
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ServerSideProjectData(), mode);
 
     assertThat(projectSettings.getString("project.prop")).isEqualTo("project");
   }
 
   @Test
-  public void should_not_load_project_server_settings_for_new_project() {
-    new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(), settingsLoader, mode);
-
-    verify(settingsLoader).load(null);
-    verifyNoMoreInteractions(settingsLoader);
-  }
-
-  @Test
   public void should_load_project_root_settings() {
-    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
-      "sonar.cpd.cross", "true",
-      "sonar.java.coveragePlugin", "jacoco"));
-    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings,
+      newServerSideProjectData("struts", ImmutableMap.of(
+        "sonar.cpd.cross", "true",
+        "sonar.java.coveragePlugin", "jacoco")),
       mode);
     assertThat(projectSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -99,11 +89,9 @@ public class ProjectSettingsTest {
   public void should_load_project_root_settings_on_branch() {
     project.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
 
-    when(settingsLoader.load("struts:mybranch")).thenReturn(ImmutableMap.of(
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, newServerSideProjectData("struts:mybranch", ImmutableMap.of(
       "sonar.cpd.cross", "true",
-      "sonar.java.coveragePlugin", "jacoco"));
-
-    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      "sonar.java.coveragePlugin", "jacoco")),
       mode);
 
     assertThat(projectSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
@@ -111,11 +99,9 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, newServerSideProjectData("struts", ImmutableMap.of(
       "sonar.foo.secured", "bar",
-      "sonar.foo.license.secured", "bar2"));
-
-    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      "sonar.foo.license.secured", "bar2")),
       mode);
 
     assertThat(projectSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
@@ -124,13 +110,11 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues_mode() {
-    when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
-      "sonar.foo.secured", "bar",
-      "sonar.foo.license.secured", "bar2"));
-
     when(mode.isIssues()).thenReturn(true);
 
-    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, newServerSideProjectData("struts", ImmutableMap.of(
+      "sonar.foo.secured", "bar",
+      "sonar.foo.license.secured", "bar2")),
       mode);
 
     assertThat(projectSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
@@ -139,6 +123,12 @@ public class ProjectSettingsTest {
       .expectMessage(
         "Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     projectSettings.getString("sonar.foo.secured");
+  }
+
+  private ServerSideProjectData newServerSideProjectData(String projectKey, Map<String, String> serverSideSettings) {
+    HashBasedTable<String, String, String> settingsByModule = HashBasedTable.create();
+    serverSideSettings.entrySet().stream().forEach(e -> settingsByModule.put(projectKey, e.getKey(), e.getValue()));
+    return new ServerSideProjectData(new HashSet<>(), settingsByModule, HashBasedTable.create(), null);
   }
 
 }

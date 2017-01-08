@@ -69,15 +69,15 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.report.TestExecutionAndCoveragePublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
-import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositoriesProvider;
+import org.sonar.scanner.repository.DefaultServerSideProjectDataLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.ServerSideProjectData;
+import org.sonar.scanner.repository.ServerSideProjectDataLoader;
+import org.sonar.scanner.repository.ServerSideProjectDataProvider;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
@@ -143,7 +143,7 @@ public class ProjectScanContainer extends ComponentContainer {
       BatchComponentCache.class,
       DefaultIssueCallback.class,
       new RulesProvider(),
-      new ProjectRepositoriesProvider(),
+      new ServerSideProjectDataProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -204,7 +204,7 @@ public class ProjectScanContainer extends ComponentContainer {
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
-    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
+    addIfMissing(DefaultServerSideProjectDataLoader.class, ServerSideProjectDataLoader.class);
   }
 
   private void addIssueTrackingComponents() {
@@ -216,7 +216,7 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private boolean isTherePreviousAnalysis() {
-    return getComponentByType(ProjectRepositories.class).lastAnalysisDate() != null;
+    return getComponentByType(ServerSideProjectData.class).lastAnalysisDate() != null;
   }
 
   private void addBatchExtensions() {

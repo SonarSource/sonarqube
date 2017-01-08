@@ -40,7 +40,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 @ScannerSide
 public class AnalysisContextReportPublisher {
@@ -54,17 +54,17 @@ public class AnalysisContextReportPublisher {
   private final ScannerPluginRepository pluginRepo;
   private final AnalysisMode mode;
   private final System2 system;
-  private final ProjectRepositories projectRepos;
+  private final ServerSideProjectData serverSideProjectData;
   private final GlobalRepositories globalRepositories;
 
   private ScannerReportWriter writer;
 
   public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalRepositories globalRepositories) {
+    ServerSideProjectData serverSideProjectData, GlobalRepositories globalRepositories) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
-    this.projectRepos = projectRepos;
+    this.serverSideProjectData = serverSideProjectData;
     this.globalRepositories = globalRepositories;
   }
 
@@ -149,8 +149,8 @@ public class AnalysisContextReportPublisher {
    */
   private Map<String, String> collectModuleSpecificProps(ProjectDefinition moduleDefinition) {
     Map<String, String> moduleSpecificProps = new HashMap<>();
-    if (projectRepos.moduleExists(moduleDefinition.getKeyWithBranch())) {
-      moduleSpecificProps.putAll(projectRepos.settings(moduleDefinition.getKeyWithBranch()));
+    if (serverSideProjectData.moduleExists(moduleDefinition.getKeyWithBranch())) {
+      moduleSpecificProps.putAll(serverSideProjectData.settings(moduleDefinition.getKeyWithBranch()));
     }
     ProjectDefinition parent = moduleDefinition.getParent();
     if (parent == null) {

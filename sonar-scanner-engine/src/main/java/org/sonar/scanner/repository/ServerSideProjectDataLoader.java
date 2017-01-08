@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.repository;
 
-
-public interface ProjectRepositoriesLoader {
-  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode);
+public interface ServerSideProjectDataLoader {
+  ServerSideProjectData load(String projectKeyWithBranch, boolean issuesMode);
 }

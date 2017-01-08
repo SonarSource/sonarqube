@@ -21,26 +21,32 @@ package org.sonar.scanner.repository;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class ProjectRepositories {
+public class ServerSideProjectData {
+  private final Set<String> moduleKeys;
   private final Table<String, String, String> settingsByModule;
   private final Table<String, String, FileData> fileDataByModuleAndPath;
   private final Date lastAnalysisDate;
   private final boolean exists;
 
-  public ProjectRepositories() {
+  public ServerSideProjectData() {
     this.exists = false;
+    this.moduleKeys = Collections.emptySet();
     this.settingsByModule = HashBasedTable.create();
     this.fileDataByModuleAndPath = HashBasedTable.create();
     this.lastAnalysisDate = null;
   }
 
-  public ProjectRepositories(Table<String, String, FileData> fileDataByModuleAndPath, @Nullable Date lastAnalysisDate) {
-    this.settingsByModule = HashBasedTable.create();
+  public ServerSideProjectData(Set<String> moduleKeys, Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
+    @Nullable Date lastAnalysisDate) {
+    this.moduleKeys = moduleKeys;
+    this.settingsByModule = settingsByModule;
     this.fileDataByModuleAndPath = fileDataByModuleAndPath;
     this.lastAnalysisDate = lastAnalysisDate;
     this.exists = true;
@@ -59,7 +65,7 @@ public class ProjectRepositories {
   }
 
   public boolean moduleExists(String moduleKey) {
-    return fileDataByModuleAndPath.containsRow(moduleKey);
+    return moduleKeys.contains(moduleKey);
   }
 
   public Map<String, String> settings(String moduleKey) {

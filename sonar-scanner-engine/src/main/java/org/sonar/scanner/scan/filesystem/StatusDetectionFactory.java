@@ -20,18 +20,18 @@
 package org.sonar.scanner.scan.filesystem;
 
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 @ScannerSide
 public class StatusDetectionFactory {
 
-  private final ProjectRepositories projectReferentials;
+  private final ServerSideProjectData serverSideProjectData;
 
-  public StatusDetectionFactory(ProjectRepositories projectReferentials) {
-    this.projectReferentials = projectReferentials;
+  public StatusDetectionFactory(ServerSideProjectData serverSideProjectData) {
+    this.serverSideProjectData = serverSideProjectData;
   }
 
   StatusDetection create() {
-    return new StatusDetection(projectReferentials);
+    return new StatusDetection(serverSideProjectData);
   }
 }

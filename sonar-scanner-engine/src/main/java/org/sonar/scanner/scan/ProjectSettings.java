@@ -22,27 +22,23 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 public class ProjectSettings extends Settings {
 
   private final GlobalSettings globalSettings;
   private final DefaultAnalysisMode mode;
   private final Map<String, String> properties = new HashMap<>();
-  private final SettingsLoader settingsLoader;
-  private final ProjectRepositories projectRepositories;
+  private final ServerSideProjectData serverSideProjectData;
 
-  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, SettingsLoader settingsLoader, DefaultAnalysisMode mode) {
+  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ServerSideProjectData serverSideProjectData, DefaultAnalysisMode mode) {
     super(globalSettings.getDefinitions(), globalSettings.getEncryption());
-    this.projectRepositories = projectRepositories;
-    this.settingsLoader = settingsLoader;
+    this.serverSideProjectData = serverSideProjectData;
     this.mode = mode;
     this.globalSettings = globalSettings;
     init(reactor);
@@ -51,22 +47,11 @@ public class ProjectSettings extends Settings {
   private void init(ProjectReactor reactor) {
     addProperties(globalSettings.getProperties());
 
-    loadServerSettings(reactor.getRoot());
-    if (projectRepositories.exists()) {
-      addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
+    if (serverSideProjectData.exists()) {
+      addProperties(serverSideProjectData.settings(reactor.getRoot().getKeyWithBranch()));
     }
 
     addProperties(reactor.getRoot().properties());
-  }
-
-  /**
-   * Load settings from server for this project (if it exists) and
-   * store them in ProjectRepositories for later use in children modules
-   */
-  private void loadServerSettings(ProjectDefinition def) {
-    if (projectRepositories.exists()) {
-      projectRepositories.settings(def.getKeyWithBranch()).putAll(settingsLoader.load(def.getKeyWithBranch()));
-    }
   }
 
   @Override

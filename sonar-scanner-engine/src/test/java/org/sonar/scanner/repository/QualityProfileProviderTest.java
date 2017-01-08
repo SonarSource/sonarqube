@@ -32,9 +32,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
@@ -62,7 +59,7 @@ public class QualityProfileProviderTest {
   @Mock
   private ProjectKey key;
   @Mock
-  private ProjectRepositories projectRepo;
+  private ServerSideProjectData serverSideProjectData;
 
   private List<QualityProfile> response;
 
@@ -72,7 +69,7 @@ public class QualityProfileProviderTest {
     qualityProfileProvider = new QualityProfileProvider();
 
     when(key.get()).thenReturn("project");
-    when(projectRepo.exists()).thenReturn(true);
+    when(serverSideProjectData.exists()).thenReturn(true);
 
     response = new ArrayList<>(1);
     response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build());
@@ -81,7 +78,7 @@ public class QualityProfileProviderTest {
   @Test
   public void testProvide() {
     when(loader.load(eq("project"), isNull(String.class))).thenReturn(response);
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, serverSideProjectData, props, mode);
     assertResponse(qps);
 
     verify(loader).load(eq("project"), isNull(String.class));
@@ -90,9 +87,9 @@ public class QualityProfileProviderTest {
 
   @Test
   public void testProjectDoesntExist() {
-    when(projectRepo.exists()).thenReturn(false);
+    when(serverSideProjectData.exists()).thenReturn(false);
     when(loader.loadDefault(anyString())).thenReturn(response);
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, serverSideProjectData, props, mode);
     assertResponse(qps);
 
     verify(loader).loadDefault(anyString());
@@ -105,7 +102,7 @@ public class QualityProfileProviderTest {
     when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
     when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
 
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, serverSideProjectData, props, mode);
     assertResponse(qps);
 
     verify(loader).load(eq("project"), eq("custom"));
@@ -120,7 +117,7 @@ public class QualityProfileProviderTest {
     when(loader.load(eq("project"), (String) eq(null))).thenReturn(response);
     when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
 
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, serverSideProjectData, props, mode);
     assertResponse(qps);
 
     verify(loader).load(eq("project"), (String) eq(null));
@@ -129,12 +126,12 @@ public class QualityProfileProviderTest {
 
   @Test
   public void testProfilePropDefault() {
-    when(projectRepo.exists()).thenReturn(false);
+    when(serverSideProjectData.exists()).thenReturn(false);
     when(loader.loadDefault(eq("custom"))).thenReturn(response);
     when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
     when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
 
-    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, serverSideProjectData, props, mode);
     assertResponse(qps);
 
     verify(loader).loadDefault(eq("custom"));

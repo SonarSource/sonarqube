@@ -22,6 +22,7 @@ package org.sonar.scanner.repository;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.Date;
+import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,12 +37,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ProjectRepositoriesProviderTest {
-  private ProjectRepositoriesProvider provider;
-  private ProjectRepositories project;
+public class ServerSideProjectDataProviderTest {
+  private ServerSideProjectDataProvider provider;
+  private ServerSideProjectData data;
 
   @Mock
-  private ProjectRepositoriesLoader loader;
+  private ServerSideProjectDataLoader loader;
   @Mock
   private ProjectKey projectKey;
   @Mock
@@ -53,8 +54,8 @@ public class ProjectRepositoriesProviderTest {
 
     Table<String, String, FileData> t2 = HashBasedTable.create();
 
-    project = new ProjectRepositories(t2, new Date());
-    provider = new ProjectRepositoriesProvider();
+    data = new ServerSideProjectData(new HashSet<>(), HashBasedTable.create(), t2, new Date());
+    provider = new ServerSideProjectDataProvider();
 
     when(projectKey.get()).thenReturn("key");
   }
@@ -62,7 +63,7 @@ public class ProjectRepositoriesProviderTest {
   @Test
   public void testValidation() {
     when(mode.isIssues()).thenReturn(true);
-    when(loader.load(eq("key"), eq(true))).thenReturn(project);
+    when(loader.load(eq("key"), eq(true))).thenReturn(data);
 
     provider.provide(loader, projectKey, mode);
   }
@@ -70,12 +71,12 @@ public class ProjectRepositoriesProviderTest {
   @Test
   public void testAssociated() {
     when(mode.isIssues()).thenReturn(false);
-    when(loader.load(eq("key"), eq(false))).thenReturn(project);
+    when(loader.load(eq("key"), eq(false))).thenReturn(data);
 
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode);
+    ServerSideProjectData data = provider.provide(loader, projectKey, mode);
 
-    assertThat(repo.exists()).isEqualTo(true);
-    assertThat(repo.lastAnalysisDate()).isNotNull();
+    assertThat(data.exists()).isEqualTo(true);
+    assertThat(data.lastAnalysisDate()).isNotNull();
 
     verify(mode, times(2)).isIssues();
     verify(projectKey).get();

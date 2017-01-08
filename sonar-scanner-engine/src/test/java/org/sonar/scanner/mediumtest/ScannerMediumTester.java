@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +60,10 @@ import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.GlobalRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.ServerSideProjectData;
+import org.sonar.scanner.repository.ServerSideProjectDataLoader;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.LoadedActiveRule;
@@ -117,7 +118,7 @@ public class ScannerMediumTester {
 
   public static class BatchMediumTesterBuilder {
     private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
-    private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
+    private final FakeServerSideProjectDataLoader projectRefProvider = new FakeServerSideProjectDataLoader();
     private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
@@ -414,22 +415,22 @@ public class ScannerMediumTester {
 
   }
 
-  private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
+  private static class FakeServerSideProjectDataLoader implements ServerSideProjectDataLoader {
 
     private Table<String, String, FileData> fileDataTable = HashBasedTable.create();
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
-      return new ProjectRepositories(fileDataTable, lastAnalysisDate);
+    public ServerSideProjectData load(String projectKey, boolean isIssuesMode) {
+      return new ServerSideProjectData(new HashSet<>(), HashBasedTable.create(), fileDataTable, lastAnalysisDate);
     }
 
-    public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
+    public FakeServerSideProjectDataLoader addFileData(String moduleKey, String path, FileData fileData) {
       fileDataTable.put(moduleKey, path, fileData);
       return this;
     }
 
-    public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
+    public FakeServerSideProjectDataLoader setLastAnalysisDate(Date d) {
       lastAnalysisDate = d;
       return this;
     }

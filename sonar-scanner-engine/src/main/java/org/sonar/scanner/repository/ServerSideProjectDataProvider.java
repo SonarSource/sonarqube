@@ -19,34 +19,34 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
-public class ProjectRepositoriesProvider extends ProviderAdapter {
-  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
-  private static final String LOG_MSG = "Load project repositories";
-  private ProjectRepositories project = null;
+public class ServerSideProjectDataProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(ServerSideProjectDataProvider.class);
+  private static final String LOG_MSG = "Load server side project data";
+  private ServerSideProjectData serverSideProjectDef = null;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
-    if (project == null) {
+  public ServerSideProjectData provide(ServerSideProjectDataLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
+    if (serverSideProjectDef == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(projectKey.get(), mode.isIssues());
+      serverSideProjectDef = loader.load(projectKey.get(), mode.isIssues());
       checkProject(mode);
       profiler.stopInfo();
     }
 
-    return project;
+    return serverSideProjectDef;
   }
 
   private void checkProject(DefaultAnalysisMode mode) {
     if (mode.isIssues()) {
-      if (!project.exists()) {
+      if (!serverSideProjectDef.exists()) {
         LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
-      } else if (project.lastAnalysisDate() == null) {
+      } else if (serverSideProjectDef.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }
     }

@@ -38,8 +38,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.AnalysisContextReportPublisher;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +63,7 @@ public class AnalysisContextReportPublisherTest {
   private AnalysisContextReportPublisher publisher;
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;
-  private ProjectRepositories projectRepos;
+  private ServerSideProjectData serverSideProjectData;
   private GlobalRepositories globalRepositories;
 
   @Before
@@ -72,9 +71,9 @@ public class AnalysisContextReportPublisherTest {
     logTester.setLevel(LoggerLevel.INFO);
     system2 = mock(System2.class);
     when(system2.properties()).thenReturn(new Properties());
-    projectRepos = mock(ProjectRepositories.class);
+    serverSideProjectData = mock(ServerSideProjectData.class);
     globalRepositories = mock(GlobalRepositories.class);
-    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, projectRepos, globalRepositories);
+    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, serverSideProjectData, globalRepositories);
   }
 
   @Test
@@ -120,8 +119,8 @@ public class AnalysisContextReportPublisherTest {
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
 
-    when(projectRepos.moduleExists("foo")).thenReturn(true);
-    when(projectRepos.settings("foo")).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
+    when(serverSideProjectData.moduleExists("foo")).thenReturn(true);
+    when(serverSideProjectData.settings("foo")).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
 
     publisher.dumpModuleSettings(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "foo"));
