@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
@@ -30,12 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.bootstrap.GlobalSettings;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -51,20 +46,12 @@ public class ModuleSettingsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultAnalysisMode mode;
+  private SettingsLoader settingsLoader;
 
   @Before
   public void before() {
     mode = mock(DefaultAnalysisMode.class);
-  }
-
-  private ProjectRepositories createSettings(String module, Map<String, String> settingsMap) {
-    Table<String, String, FileData> fileData = ImmutableTable.of();
-    Table<String, String, String> settings = HashBasedTable.create();
-
-    for (Map.Entry<String, String> e : settingsMap.entrySet()) {
-      settings.put(module, e.getKey(), e.getValue());
-    }
-    return new ProjectRepositories(settings, fileData, null);
+    settingsLoader = mock(SettingsLoader.class);
   }
 
   @Test
@@ -83,15 +70,15 @@ public class ModuleSettingsTest {
 
   @Test
   public void test_loading_of_module_settings() {
-    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
+    ProjectSettings projectSettings = newProjectSettings(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
-    ProjectRepositories projRepos = createSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
+    ProjectRepositories projRepos = createProjectRepos("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projRepos, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(projectSettings, module, projRepos, settingsLoader, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -101,16 +88,16 @@ public class ModuleSettingsTest {
   // SONAR-6386
   @Test
   public void test_loading_of_parent_module_settings_for_new_module() {
-    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
+    ProjectSettings projectSettings = newProjectSettings(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"));
 
-    ProjectRepositories projRepos = createSettings("struts", ImmutableMap.of("on-module", "true", "overridding", "module"));
+    ProjectRepositories projRepos = createProjectRepos("struts", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     ProjectDefinition.create().setKey("struts").addSubProject(module);
 
-    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projRepos, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(projectSettings, module, projRepos, settingsLoader, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -119,14 +106,14 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
+    ProjectSettings projectSettings = newProjectSettings(ImmutableMap.of(
       "sonar.foo.secured", "bar"));
 
-    ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+    ProjectRepositories projSettingsRepo = createProjectRepos("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(projectSettings, module, projSettingsRepo, settingsLoader, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -134,16 +121,16 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues() {
-    GlobalSettings globalSettings = newGlobalSettings(ImmutableMap.of(
+    ProjectSettings projectSettings = newProjectSettings(ImmutableMap.of(
       "sonar.foo.secured", "bar"));
 
-    ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+    ProjectRepositories projSettingsRepo = createProjectRepos("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     when(mode.isIssues()).thenReturn(true);
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(projectSettings, module, projSettingsRepo, settingsLoader, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
@@ -154,9 +141,15 @@ public class ModuleSettingsTest {
     moduleSettings.getString("sonar.foo.secured");
   }
 
-  private GlobalSettings newGlobalSettings(Map<String, String> props) {
-    GlobalProperties globalProps = new GlobalProperties(props);
-    return new GlobalSettings(globalProps, new PropertyDefinitions(),
-      mock(SettingsLoader.class), new GlobalMode(globalProps));
+  private ProjectSettings newProjectSettings(Map<String, String> props) {
+    ProjectSettings result = mock(ProjectSettings.class);
+    when(result.getProperties()).thenReturn(props);
+    return result;
+  }
+
+  private ProjectRepositories createProjectRepos(String module) {
+    Table<String, String, FileData> fileData = ImmutableTable.of();
+
+    return new ProjectRepositories(fileData, null);
   }
 }

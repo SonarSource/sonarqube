@@ -421,8 +421,7 @@ public class ScannerMediumTester {
 
     @Override
     public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
-      Table<String, String, String> settings = HashBasedTable.create();
-      return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
+      return new ProjectRepositories(fileDataTable, lastAnalysisDate);
     }
 
     public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {

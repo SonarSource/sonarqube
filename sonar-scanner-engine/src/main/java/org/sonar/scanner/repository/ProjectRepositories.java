@@ -39,9 +39,8 @@ public class ProjectRepositories {
     this.lastAnalysisDate = null;
   }
 
-  public ProjectRepositories(Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
-    @Nullable Date lastAnalysisDate) {
-    this.settingsByModule = settingsByModule;
+  public ProjectRepositories(Table<String, String, FileData> fileDataByModuleAndPath, @Nullable Date lastAnalysisDate) {
+    this.settingsByModule = HashBasedTable.create();
     this.fileDataByModuleAndPath = fileDataByModuleAndPath;
     this.lastAnalysisDate = lastAnalysisDate;
     this.exists = true;
@@ -60,7 +59,7 @@ public class ProjectRepositories {
   }
 
   public boolean moduleExists(String moduleKey) {
-    return settingsByModule.containsRow(moduleKey);
+    return fileDataByModuleAndPath.containsRow(moduleKey);
   }
 
   public Map<String, String> settings(String moduleKey) {

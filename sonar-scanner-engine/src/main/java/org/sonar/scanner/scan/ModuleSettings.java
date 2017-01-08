@@ -28,9 +28,9 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalSettings;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 
 /**
  * @since 2.12
@@ -40,35 +40,49 @@ public class ModuleSettings extends Settings {
   private final ProjectRepositories projectRepos;
   private final DefaultAnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
+  private final SettingsLoader settingsLoader;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
+  public ModuleSettings(ProjectSettings projectSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectRepos, SettingsLoader settingsLoader,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
-    super(batchSettings.getDefinitions(), batchSettings.getEncryption());
-    this.projectRepos = projectSettingsRepo;
+    super(projectSettings.getDefinitions(), projectSettings.getEncryption());
+    this.projectRepos = projectRepos;
+    this.settingsLoader = settingsLoader;
     this.analysisMode = analysisMode;
 
-    init(moduleDefinition, batchSettings);
+    init(moduleDefinition, projectSettings);
     contextReportPublisher.dumpModuleSettings(moduleDefinition);
   }
 
-  private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
-    addProjectProperties(moduleDefinition, batchSettings);
-    addBuildProperties(moduleDefinition);
+  private ModuleSettings init(ProjectDefinition moduleDefinition, ProjectSettings projectSettings) {
+    addProperties(projectSettings.getProperties());
+    loadServerSettings(moduleDefinition);
+    addServerSettingsRecursively(moduleDefinition);
+    addScannerProperties(moduleDefinition);
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition def, GlobalSettings batchSettings) {
-    addProperties(batchSettings.getProperties());
-    do {
-      if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-        addProperties(projectRepos.settings(def.getKeyWithBranch()));
-        break;
-      }
-      def = def.getParent();
-    } while (def != null);
+  /**
+   * Load settings from server for this particular module (if it exists) and
+   * store them in ProjectRepositories for later use in child modules
+   */
+  private void loadServerSettings(ProjectDefinition def) {
+    if (projectRepos.moduleExists(def.getKeyWithBranch())) {
+      projectRepos.settings(def.getKeyWithBranch()).putAll(settingsLoader.load(def.getKeyWithBranch()));
+    }
   }
 
-  private void addBuildProperties(ProjectDefinition project) {
+  private void addServerSettingsRecursively(ProjectDefinition def) {
+    if (def.getParent() == null) {
+      // Root module = project -> settings already added
+      return;
+    }
+    addServerSettingsRecursively(def.getParent());
+    if (projectRepos.moduleExists(def.getKeyWithBranch())) {
+      addProperties(projectRepos.settings(def.getKeyWithBranch()));
+    }
+  }
+
+  private void addScannerProperties(ProjectDefinition project) {
     List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
       addProperties(p.properties());

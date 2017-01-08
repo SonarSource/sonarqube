@@ -20,21 +20,18 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.filesystem.StatusDetection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    Table<String, String, String> t = ImmutableTable.of();
-    ProjectRepositories ref = new ProjectRepositories(t, createTable(), null);
+    ProjectRepositories ref = new ProjectRepositories(createTable(), null);
     StatusDetection statusDetection = new StatusDetection(ref);
 
     assertThat(statusDetection.status("foo", "src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);

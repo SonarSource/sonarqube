@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.Before;
@@ -35,10 +36,13 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalSettings;
+import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectSettingsTest {
@@ -49,7 +53,7 @@ public class ProjectSettingsTest {
   public LogTester logTester = new LogTester();
 
   private ProjectDefinition project;
-  private GlobalSettings bootstrapProps;
+  private GlobalSettings globalSettings;
 
   private GlobalMode globalMode;
   private DefaultAnalysisMode mode;
@@ -61,16 +65,24 @@ public class ProjectSettingsTest {
     globalMode = mock(GlobalMode.class);
     mode = mock(DefaultAnalysisMode.class);
     settingsLoader = mock(SettingsLoader.class);
-    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), settingsLoader, globalMode);
+    globalSettings = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), settingsLoader, globalMode);
   }
 
   @Test
   public void should_load_project_props() {
     project.setProperty("project.prop", "project");
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(), settingsLoader, mode);
 
-    assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
+    assertThat(projectSettings.getString("project.prop")).isEqualTo("project");
+  }
+
+  @Test
+  public void should_not_load_project_server_settings_for_new_project() {
+    new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(), settingsLoader, mode);
+
+    verify(settingsLoader).load(null);
+    verifyNoMoreInteractions(settingsLoader);
   }
 
   @Test
@@ -78,8 +90,9 @@ public class ProjectSettingsTest {
     when(settingsLoader.load("struts")).thenReturn(ImmutableMap.of(
       "sonar.cpd.cross", "true",
       "sonar.java.coveragePlugin", "jacoco"));
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
-    assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      mode);
+    assertThat(projectSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
@@ -90,9 +103,10 @@ public class ProjectSettingsTest {
       "sonar.cpd.cross", "true",
       "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      mode);
 
-    assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
+    assertThat(projectSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
@@ -101,10 +115,11 @@ public class ProjectSettingsTest {
       "sonar.foo.secured", "bar",
       "sonar.foo.license.secured", "bar2"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      mode);
 
-    assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
-    assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
+    assertThat(projectSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
+    assertThat(projectSettings.getString("sonar.foo.secured")).isEqualTo("bar");
   }
 
   @Test
@@ -115,14 +130,15 @@ public class ProjectSettingsTest {
 
     when(mode.isIssues()).thenReturn(true);
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, settingsLoader, mode);
+    ProjectSettings projectSettings = new ProjectSettings(new ProjectReactor(project), globalSettings, new ProjectRepositories(HashBasedTable.create(), null), settingsLoader,
+      mode);
 
-    assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
+    assertThat(projectSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
     thrown
       .expectMessage(
         "Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
-    batchSettings.getString("sonar.foo.secured");
+    projectSettings.getString("sonar.foo.secured");
   }
 
 }
