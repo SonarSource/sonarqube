@@ -35,15 +35,10 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
 
-  private boolean mediumTestMode;
   private boolean scanAllFiles;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
-  }
-
-  public boolean isMediumTest() {
-    return mediumTestMode;
   }
 
   public boolean scanAllFiles() {
