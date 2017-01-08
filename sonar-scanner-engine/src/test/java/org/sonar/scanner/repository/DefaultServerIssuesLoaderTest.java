@@ -20,7 +20,7 @@
 package org.sonar.scanner.repository;
 
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
@@ -40,11 +40,11 @@ import static org.mockito.Mockito.when;
 
 public class DefaultServerIssuesLoaderTest {
   private DefaultServerIssuesLoader loader;
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
   @Before
   public void prepare() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     loader = new DefaultServerIssuesLoader(wsClient);
   }
 

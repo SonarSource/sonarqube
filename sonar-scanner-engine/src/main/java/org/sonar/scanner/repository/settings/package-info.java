@@ -17,30 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+@ParametersAreNonnullByDefault
+package org.sonar.scanner.repository.settings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-
-public class GlobalMode extends AbstractAnalysisMode {
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
-
-  public GlobalMode(GlobalProperties props) {
-    String mode = props.property(CoreProperties.ANALYSIS_MODE);
-    validate(mode);
-    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
-    if (preview) {
-      LOG.debug("Preview global mode");
-    } else if (issues) {
-      LOG.debug("Issues global mode");
-    } else {
-      LOG.debug("Publish global mode");
-    }
-    if (mediumTestMode) {
-      LOG.info("Medium test mode");
-    }
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

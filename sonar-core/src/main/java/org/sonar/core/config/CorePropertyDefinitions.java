@@ -112,14 +112,16 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
         .name("Plugins accepted for Preview mode")
-        .description("Comma-separated list of plugin keys. Those plugins will be used during preview analyses.")
+        .description("List of plugin keys. Those plugins will be used during preview analyses.")
         .category(CoreProperties.CATEGORY_GENERAL)
+        .multiValues(true)
         .defaultValue(CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_EXCLUDE_PLUGINS)
         .name("Plugins excluded for Preview mode")
-        .description("Comma-separated list of plugin keys. Those plugins will not be used during preview analyses.")
+        .description("List of plugin keys. Those plugins will not be used during preview analyses.")
         .category(CoreProperties.CATEGORY_GENERAL)
+        .multiValues(true)
         .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)

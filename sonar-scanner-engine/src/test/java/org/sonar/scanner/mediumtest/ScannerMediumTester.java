@@ -19,38 +19,9 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.batch.bootstrapper.LogOutput;
-import com.google.common.collect.Table;
-import com.google.common.collect.HashBasedTable;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.apache.commons.io.FileUtils;
-
-import javax.annotation.Nullable;
-
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.mediumtest.FakePluginInstaller;
-import org.sonar.scanner.mediumtest.TaskResult;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.GlobalRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.ServerIssuesLoader;
-import org.sonar.scanner.rule.ActiveRulesLoader;
-import org.sonar.scanner.rule.LoadedActiveRule;
-import org.sonar.scanner.rule.RulesLoader;
 import com.google.common.base.Function;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,25 +30,53 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.bootstrapper.Batch;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.IssueListener;
+import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
+import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
+import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.repository.FileData;
+import org.sonar.scanner.repository.GlobalRepositoriesLoader;
+import org.sonar.scanner.repository.QualityProfileLoader;
+import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.repository.ServerSideProjectData;
+import org.sonar.scanner.repository.ServerSideProjectDataLoader;
+import org.sonar.scanner.repository.settings.SettingsLoader;
+import org.sonar.scanner.rule.ActiveRulesLoader;
+import org.sonar.scanner.rule.LoadedActiveRule;
+import org.sonar.scanner.rule.RulesLoader;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 /**
- * Main utility class for writing batch medium tests.
+ * Main utility class for writing scanner medium tests.
  * 
  */
-public class BatchMediumTester {
+public class ScannerMediumTester {
 
-  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
   private Batch batch;
   private static Path workingDir = null;
   private static Path globalWorkingDir = null;
@@ -110,7 +109,7 @@ public class BatchMediumTester {
     }
 
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
-    builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
+    builder.bootstrapProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, workingDir.toString());
     builder.bootstrapProperties.put("sonar.userHome", globalWorkingDir.toString());
@@ -119,7 +118,7 @@ public class BatchMediumTester {
 
   public static class BatchMediumTesterBuilder {
     private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
-    private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
+    private final FakeServerSideProjectDataLoader projectRefProvider = new FakeServerSideProjectDataLoader();
     private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
@@ -130,8 +129,8 @@ public class BatchMediumTester {
     private boolean associated = true;
     private LogOutput logOutput = null;
 
-    public BatchMediumTester build() {
-      return new BatchMediumTester(this);
+    public ScannerMediumTester build() {
+      return new ScannerMediumTester(this);
     }
 
     public BatchMediumTesterBuilder setAssociated(boolean associated) {
@@ -276,7 +275,7 @@ public class BatchMediumTester {
     batch.syncProject(projectKey);
   }
 
-  private BatchMediumTester(BatchMediumTesterBuilder builder) {
+  private ScannerMediumTester(BatchMediumTesterBuilder builder) {
     Batch.Builder batchBuilder = Batch.builder()
       .setEnableLoggingConfiguration(true)
       .addComponents(
@@ -287,7 +286,8 @@ public class BatchMediumTester {
         builder.rulesLoader,
         builder.projectRefProvider,
         builder.activeRules,
-        new DefaultDebtModel())
+        new DefaultDebtModel(),
+        new FakeSettingsLoader())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput);
 
@@ -319,10 +319,10 @@ public class BatchMediumTester {
 
   public static class TaskBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
-    private BatchMediumTester tester;
+    private ScannerMediumTester tester;
     private IssueListener issueListener = null;
 
-    public TaskBuilder(BatchMediumTester tester) {
+    public TaskBuilder(ScannerMediumTester tester) {
       this.tester = tester;
     }
 
@@ -415,23 +415,22 @@ public class BatchMediumTester {
 
   }
 
-  private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
+  private static class FakeServerSideProjectDataLoader implements ServerSideProjectDataLoader {
 
     private Table<String, String, FileData> fileDataTable = HashBasedTable.create();
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
-      Table<String, String, String> settings = HashBasedTable.create();
-      return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
+    public ServerSideProjectData load(String projectKey, boolean isIssuesMode) {
+      return new ServerSideProjectData(new HashSet<>(), HashBasedTable.create(), fileDataTable, lastAnalysisDate);
     }
 
-    public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
+    public FakeServerSideProjectDataLoader addFileData(String moduleKey, String path, FileData fileData) {
       fileDataTable.put(moduleKey, path, fileData);
       return this;
     }
 
-    public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
+    public FakeServerSideProjectDataLoader setLastAnalysisDate(Date d) {
       lastAnalysisDate = d;
       return this;
     }
@@ -475,6 +474,14 @@ public class BatchMediumTester {
       for (ServerIssue serverIssue : serverIssues) {
         consumer.apply(serverIssue);
       }
+    }
+  }
+
+  private static class FakeSettingsLoader implements SettingsLoader {
+
+    @Override
+    public Map<String, String> load(String componentKey) {
+      return Collections.emptyMap();
     }
   }
 

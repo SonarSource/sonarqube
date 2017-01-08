@@ -32,7 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
@@ -46,7 +46,7 @@ public class BranchMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();

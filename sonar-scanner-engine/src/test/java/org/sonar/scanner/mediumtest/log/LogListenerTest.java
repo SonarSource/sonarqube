@@ -39,7 +39,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.bootstrapper.LogOutput.Level;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class LogListenerTest {
   private static PrintStream savedStdOut;
   private static PrintStream savedStdErr;
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .setLogOutput(new SimpleLogListener())

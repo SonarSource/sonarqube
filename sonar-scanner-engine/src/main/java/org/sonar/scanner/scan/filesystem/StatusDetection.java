@@ -22,18 +22,18 @@ package org.sonar.scanner.scan.filesystem;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 class StatusDetection {
 
-  private final ProjectRepositories projectSettings;
+  private final ServerSideProjectData serverSideProjectData;
 
-  StatusDetection(ProjectRepositories projectSettings) {
-    this.projectSettings = projectSettings;
+  StatusDetection(ServerSideProjectData serverSideProjectData) {
+    this.serverSideProjectData = serverSideProjectData;
   }
 
   InputFile.Status status(String projectKey, String relativePath, String hash) {
-    FileData fileDataPerPath = projectSettings.fileData(projectKey, relativePath);
+    FileData fileDataPerPath = serverSideProjectData.fileData(projectKey, relativePath);
     if (fileDataPerPath == null) {
       return InputFile.Status.ADDED;
     }

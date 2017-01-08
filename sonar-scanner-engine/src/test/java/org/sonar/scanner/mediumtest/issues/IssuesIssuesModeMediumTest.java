@@ -25,7 +25,7 @@ import org.junit.Before;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -42,7 +42,7 @@ public class IssuesIssuesModeMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public BatchMediumTester testerPreview = BatchMediumTester.builder()
+  public ScannerMediumTester testerPreview = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())

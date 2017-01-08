@@ -38,7 +38,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 public final class ScmSensor implements Sensor {
 
@@ -47,15 +47,15 @@ public final class ScmSensor implements Sensor {
   private final ProjectDefinition projectDefinition;
   private final ScmConfiguration configuration;
   private final FileSystem fs;
-  private final ProjectRepositories projectRepositories;
+  private final ServerSideProjectData serverSideProjectData;
   private final BatchComponentCache componentCache;
   private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectRepositories, FileSystem fs, BatchComponentCache componentCache, ReportPublisher publishReportJob) {
+    ServerSideProjectData serverSideProjectData, FileSystem fs, BatchComponentCache componentCache, ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
-    this.projectRepositories = projectRepositories;
+    this.serverSideProjectData = serverSideProjectData;
     this.fs = fs;
     this.componentCache = componentCache;
     this.publishReportJob = publishReportJob;
@@ -102,7 +102,7 @@ public final class ScmSensor implements Sensor {
         addIfNotEmpty(filesToBlame, f);
       } else {
         // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
+        FileData fileData = serverSideProjectData.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {

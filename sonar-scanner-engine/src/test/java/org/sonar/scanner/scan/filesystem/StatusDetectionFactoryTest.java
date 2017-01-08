@@ -20,9 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import org.junit.Test;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.filesystem.StatusDetection;
-import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,7 +28,7 @@ import static org.mockito.Mockito.mock;
 public class StatusDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectRepositories.class));
+    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ServerSideProjectData.class));
     StatusDetection detection = factory.create();
     assertThat(detection).isNotNull();
   }

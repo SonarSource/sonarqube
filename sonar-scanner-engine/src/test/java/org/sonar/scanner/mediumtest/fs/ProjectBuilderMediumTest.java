@@ -40,7 +40,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
@@ -59,7 +59,7 @@ public class ProjectBuilderMediumTest {
 
   private ProjectBuilder projectBuilder = mock(ProjectBuilder.class);
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPluginWithBuilder(projectBuilder))
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")

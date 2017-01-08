@@ -42,6 +42,8 @@ import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesLoader;
 import org.sonar.scanner.repository.GlobalRepositoriesProvider;
+import org.sonar.scanner.repository.settings.DefaultSettingsLoader;
+import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.storage.StoragesManager;
 import org.sonar.scanner.task.TaskContainer;
 
@@ -73,18 +75,18 @@ public class GlobalContainer extends ComponentContainer {
     Version apiVersion = ApiVersion.load(System2.INSTANCE);
     add(
       // plugins
-      BatchPluginRepository.class,
+      ScannerPluginRepository.class,
       PluginLoader.class,
       PluginClassloaderFactory.class,
-      BatchPluginJarExploder.class,
-      BatchPluginPredicate.class,
+      ScannerPluginJarExploder.class,
+      ScannerPluginPredicate.class,
       ExtensionInstaller.class,
 
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER),
       StoragesManager.class,
       GlobalSettings.class,
-      new BatchWsClientProvider(),
+      new ScannerWsClientProvider(),
       DefaultServer.class,
       new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,
@@ -93,7 +95,8 @@ public class GlobalContainer extends ComponentContainer {
       System2.INSTANCE,
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);
-    addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(DefaultSettingsLoader.class, SettingsLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
   }
 

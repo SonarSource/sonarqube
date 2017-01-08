@@ -40,7 +40,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
@@ -61,7 +61,7 @@ public class ReportPublisherTest {
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
   Settings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
-  BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  ScannerWsClient wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   Server server = mock(Server.class);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;

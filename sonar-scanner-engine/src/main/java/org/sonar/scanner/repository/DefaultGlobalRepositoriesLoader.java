@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonarqube.ws.client.GetRequest;
 import java.io.IOException;
@@ -30,9 +30,9 @@ import org.apache.commons.io.IOUtils;
 public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
   private static final String BATCH_GLOBAL_URL = "/batch/global";
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
-  public DefaultGlobalRepositoriesLoader(BatchWsClient wsClient) {
+  public DefaultGlobalRepositoriesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

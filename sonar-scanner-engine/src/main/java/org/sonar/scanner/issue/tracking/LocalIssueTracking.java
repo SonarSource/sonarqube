@@ -42,7 +42,7 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.issue.IssueTransformer;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ServerSideProjectData;
 
 @ScannerSide
 public class LocalIssueTracking {
@@ -55,13 +55,13 @@ public class LocalIssueTracking {
   private boolean hasServerAnalysis;
 
   public LocalIssueTracking(Tracker<TrackedIssue, ServerIssueFromWs> tracker, ServerLineHashesLoader lastLineHashes,
-    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ServerSideProjectData serverSideProjectData, DefaultAnalysisMode mode) {
     this.tracker = tracker;
     this.lastLineHashes = lastLineHashes;
     this.serverIssueRepository = serverIssueRepository;
     this.mode = mode;
     this.activeRules = activeRules;
-    this.hasServerAnalysis = projectRepositories.lastAnalysisDate() != null;
+    this.hasServerAnalysis = serverSideProjectData.lastAnalysisDate() != null;
   }
 
   public void init() {

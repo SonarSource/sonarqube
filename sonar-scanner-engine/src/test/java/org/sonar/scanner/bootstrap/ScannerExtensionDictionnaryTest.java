@@ -37,7 +37,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.sensor.DefaultSensorContext;
@@ -47,14 +47,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-public class BatchExtensionDictionnaryTest {
+public class ScannerExtensionDictionnaryTest {
 
-  private BatchExtensionDictionnary newSelector(Object... extensions) {
+  private ScannerExtensionDictionnary newSelector(Object... extensions) {
     ComponentContainer iocContainer = new ComponentContainer();
     for (Object extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+    return new ScannerExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
       mock(PostJobOptimizer.class));
   }
 
@@ -63,7 +63,7 @@ public class BatchExtensionDictionnaryTest {
     final Sensor sensor1 = new FakeSensor();
     final Sensor sensor2 = new FakeSensor();
 
-    BatchExtensionDictionnary selector = newSelector(sensor1, sensor2);
+    ScannerExtensionDictionnary selector = newSelector(sensor1, sensor2);
     Collection<Sensor> sensors = selector.select(Sensor.class, null, true, new ExtensionMatcher() {
       @Override
       public boolean accept(Object extension) {
@@ -81,7 +81,7 @@ public class BatchExtensionDictionnaryTest {
     Sensor sensor2 = new FakeSensor();
     Decorator decorator = mock(Decorator.class);
 
-    BatchExtensionDictionnary selector = newSelector(sensor1, sensor2, decorator);
+    ScannerExtensionDictionnary selector = newSelector(sensor1, sensor2, decorator);
     Collection<Sensor> sensors = selector.select(Sensor.class, null, true, null);
 
     assertThat(sensors).containsOnly(sensor1, sensor2);
@@ -102,7 +102,7 @@ public class BatchExtensionDictionnaryTest {
     ComponentContainer child = parent.createChild();
     child.addSingleton(c);
 
-    BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+    ScannerExtensionDictionnary dictionnary = new ScannerExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
       mock(PostJobOptimizer.class));
     assertThat(dictionnary.select(Sensor.class, null, true, null)).containsOnly(a, b, c);
   }
@@ -113,7 +113,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension b = new MethodDependentOf(a);
     BatchExtension c = new MethodDependentOf(b);
 
-    BatchExtensionDictionnary selector = newSelector(b, c, a);
+    ScannerExtensionDictionnary selector = newSelector(b, c, a);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(3);
@@ -127,7 +127,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension a = new GeneratesSomething("foo");
     BatchExtension b = new MethodDependentOf("foo");
 
-    BatchExtensionDictionnary selector = newSelector(a, b);
+    ScannerExtensionDictionnary selector = newSelector(a, b);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions.size()).isEqualTo(2);
@@ -148,7 +148,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension a = new GeneratesSomething("foo");
     BatchExtension b = new MethodDependentOf(Arrays.asList("foo"));
 
-    BatchExtensionDictionnary selector = newSelector(a, b);
+    ScannerExtensionDictionnary selector = newSelector(a, b);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(2);
@@ -169,7 +169,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension a = new GeneratesSomething("foo");
     BatchExtension b = new MethodDependentOf(new String[] {"foo"});
 
-    BatchExtensionDictionnary selector = newSelector(a, b);
+    ScannerExtensionDictionnary selector = newSelector(a, b);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(2);
@@ -190,7 +190,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension a = new ClassDependedUpon();
     BatchExtension b = new ClassDependsUpon();
 
-    BatchExtensionDictionnary selector = newSelector(a, b);
+    ScannerExtensionDictionnary selector = newSelector(a, b);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(2);
@@ -213,7 +213,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension b = new InterfaceDependsUpon() {
     };
 
-    BatchExtensionDictionnary selector = newSelector(a, b);
+    ScannerExtensionDictionnary selector = newSelector(a, b);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(2);
@@ -234,7 +234,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension ok = new CheckProjectOK();
     BatchExtension ko = new CheckProjectKO();
 
-    BatchExtensionDictionnary selector = newSelector(ok, ko);
+    ScannerExtensionDictionnary selector = newSelector(ok, ko);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, new Project("key"), true, null));
 
     assertThat(extensions).hasSize(1);
@@ -246,7 +246,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension a = new SubClass("foo");
     BatchExtension b = new MethodDependentOf("foo");
 
-    BatchExtensionDictionnary selector = newSelector(b, a);
+    ScannerExtensionDictionnary selector = newSelector(b, a);
     List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(2);
@@ -264,7 +264,7 @@ public class BatchExtensionDictionnaryTest {
 
   @Test(expected = IllegalStateException.class)
   public void annotatedMethodsCanNotBePrivate() {
-    BatchExtensionDictionnary selector = newSelector();
+    ScannerExtensionDictionnary selector = newSelector();
     BatchExtension wrong = new BatchExtension() {
       @DependsUpon
       private Object foo() {
@@ -280,7 +280,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension analyze = new GeneratesSomething("something");
     BatchExtension post = new PostSensor();
 
-    BatchExtensionDictionnary selector = newSelector(analyze, post, pre);
+    ScannerExtensionDictionnary selector = newSelector(analyze, post, pre);
     List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(3);
@@ -295,7 +295,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtension analyze = new GeneratesSomething("something");
     BatchExtension post = new PostSensorSubclass();
 
-    BatchExtensionDictionnary selector = newSelector(analyze, post, pre);
+    ScannerExtensionDictionnary selector = newSelector(analyze, post, pre);
     List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
 
     assertThat(extensions).hasSize(3);
@@ -311,7 +311,7 @@ public class BatchExtensionDictionnaryTest {
       }
     };
 
-    BatchExtensionDictionnary selector = newSelector(new FakePostJob(), checker, new FakePostJob());
+    ScannerExtensionDictionnary selector = newSelector(new FakePostJob(), checker, new FakePostJob());
     List extensions = Lists.newArrayList(selector.select(PostJob.class, null, true, null));
 
     assertThat(extensions).hasSize(3);

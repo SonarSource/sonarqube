@@ -33,7 +33,7 @@ import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.bootstrap.MockHttpServer;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,7 @@ public class TasksMediumTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("faketask", new FakeTaskPlugin())
     .build();
 
@@ -96,7 +96,7 @@ public class TasksMediumTest {
 
   @Test(expected = MessageException.class)
   public void unsupportedTask() throws Exception {
-    tester = BatchMediumTester.builder()
+    tester = ScannerMediumTester.builder()
       .build();
     tester.start();
     tester.newTask()

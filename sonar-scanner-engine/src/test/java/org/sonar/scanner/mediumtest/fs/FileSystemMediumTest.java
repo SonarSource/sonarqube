@@ -31,7 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
@@ -48,7 +48,7 @@ public class FileSystemMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  public BatchMediumTester tester = BatchMediumTester.builder()
+  public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();

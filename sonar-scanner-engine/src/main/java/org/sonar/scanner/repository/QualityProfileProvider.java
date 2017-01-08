@@ -36,11 +36,12 @@ public class QualityProfileProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load quality profiles";
   private ModuleQProfiles profiles = null;
 
-  public ModuleQProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ProjectRepositories projectRepositories, AnalysisProperties props, DefaultAnalysisMode mode) {
+  public ModuleQProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ServerSideProjectData serverSideProjectDefinition, AnalysisProperties props,
+    DefaultAnalysisMode mode) {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      if (!projectRepositories.exists()) {
+      if (!serverSideProjectDefinition.exists()) {
         profileList = loader.loadDefault(getSonarProfile(props, mode));
       } else {
         profileList = loader.load(projectKey.get(), getSonarProfile(props, mode));

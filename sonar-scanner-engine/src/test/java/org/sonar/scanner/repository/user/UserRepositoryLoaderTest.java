@@ -20,7 +20,7 @@
 package org.sonar.scanner.repository.user;
 
 import org.assertj.core.util.Lists;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.WsTestUtil;
@@ -45,12 +45,12 @@ public class UserRepositoryLoaderTest {
   @Rule
   public final ExpectedException exception = ExpectedException.none();
 
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
   private UserRepositoryLoader userRepo;
 
   @Before
   public void setUp() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     userRepo = new UserRepositoryLoader(wsClient);
   }
 
