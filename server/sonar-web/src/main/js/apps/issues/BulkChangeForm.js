@@ -153,11 +153,6 @@ export default ModalForm.extend({
     this.prepareTagsInput();
   },
 
-  handleErrors (response) {
-    const message = response['err_msg'] ? translate(response['err_msg']) : translate('default_error_message');
-    this.showErrors([{ msg: message }]);
-  },
-
   onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     const actions = [];
@@ -222,7 +217,7 @@ export default ModalForm.extend({
         (e: Object) => {
           this.enableForm();
           this.hideSpinner();
-          e.response.json().then(r => this.handleErrors(r));
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
         }
     );
   },
