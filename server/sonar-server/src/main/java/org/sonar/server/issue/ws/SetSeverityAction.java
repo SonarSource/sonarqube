@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -46,6 +47,7 @@ public class SetSeverityAction implements IssuesWsAction {
       .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "set_severity-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUE)

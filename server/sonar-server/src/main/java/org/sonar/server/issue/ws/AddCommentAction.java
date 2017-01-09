@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import java.util.Date;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -72,6 +73,7 @@ public class AddCommentAction implements IssuesWsAction {
         "Since 6.3, the response contains the issue with all details, not only the added comment")
       .setSince("3.6")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "add_comment-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUE)

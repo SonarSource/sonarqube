@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -52,8 +53,8 @@ public class AssignAction implements IssuesWsAction {
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "assign-example.json"))
       .setPost(true);
-    // TODO add example of response
 
     action.createParam(PARAM_ISSUE)
       .setDescription("Issue key")

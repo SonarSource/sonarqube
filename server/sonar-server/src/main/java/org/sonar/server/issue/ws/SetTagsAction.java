@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -49,12 +50,13 @@ public class SetTagsAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction(ACTION_SET_TAGS)
-      .setHandler(this)
       .setPost(true)
       .setSince("5.1")
       .setDescription("Set tags on an issue. <br/>" +
-        "Requires authentication and Browse permission on project<br/>" +
-        "Since 6.3, the parameter 'key' has been replaced by '%s'", PARAM_ISSUE);
+    "Requires authentication and Browse permission on project<br/>" +
+    "Since 6.3, the parameter 'key' has been replaced by '%s'", PARAM_ISSUE)
+      .setResponseExample(Resources.getResource(this.getClass(), "set_tags-example.json"))
+      .setHandler(this);
     action.createParam(PARAM_ISSUE)
       .setDescription("Issue key")
       .setSince("6.3")

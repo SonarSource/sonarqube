@@ -68,8 +68,8 @@ public class ChangelogAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_CHANGELOG)
-      .setDescription("Display changelog of an issue<br/>." +
-        "Require the 'Browse' permission on the project of the specified issue<br/>." +
+      .setDescription("Display changelog of an issue.<br/>" +
+        "Require the 'Browse' permission on the project of the specified issue.<br/>" +
         "Since 6.3, changes on effort are returning raw value in minutes, it doesn't return anymore the duration.")
       .setSince("4.1")
       .setHandler(this)

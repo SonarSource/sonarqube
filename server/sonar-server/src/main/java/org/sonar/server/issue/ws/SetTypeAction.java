@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -46,6 +47,7 @@ public class SetTypeAction implements IssuesWsAction {
       .setDescription("Change type of issue, for instance from 'code smell' to 'bug'. Requires authentication and Browse permission on project.")
       .setSince("5.5")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "set_type-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUE)

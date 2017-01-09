@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -123,6 +124,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setDescription("Bulk change on issues. Requires authentication and User role on project(s)")
       .setSince("3.7")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "bulk_change-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUES)

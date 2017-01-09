@@ -1,0 +1,100 @@
+{
+  "issue": {
+    "key": "AVibidgv1LF0E-ru2DVv",
+    "rule": "squid:S2301",
+    "severity": "MAJOR",
+    "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
+    "componentId": 87163,
+    "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
+    "line": 78,
+    "textRange": {
+      "startLine": 78,
+      "endLine": 78,
+      "startOffset": 14,
+      "endOffset": 39
+    },
+    "flows": [],
+    "status": "CONFIRMED",
+    "message": "Provide multiple methods instead of using \"modal\" to determine which action to take.",
+    "effort": "15min",
+    "debt": "15min",
+    "assignee": "john.smith",
+    "author": "john.smith@email.com",
+    "tags": [
+      "design"
+    ],
+    "transitions": [
+      "unconfirm",
+      "resolve",
+      "falsepositive",
+      "wontfix"
+    ],
+    "actions": [
+      "comment",
+      "assign",
+      "set_tags",
+      "set_type",
+      "assign_to_me",
+      "set_severity"
+    ],
+    "comments": [
+      {
+        "key": "AVmDRx8Zm-z8OYZYRSxo",
+        "login": "jane.doo",
+        "htmlText": "Please fix this",
+        "markdown": "Please fix this",
+        "updatable": true,
+        "createdAt": "2017-01-09T13:49:53+0100"
+      }
+    ],
+    "creationDate": "2016-11-25T13:50:24+0100",
+    "updateDate": "2017-01-09T13:51:12+0100",
+    "type": "CODE_SMELL"
+  },
+  "components": [
+    {
+      "id": 87163,
+      "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
+      "uuid": "AVfTIlxMwczdZ2UaLhnt",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ServerIssueUpdater.java",
+      "longName": "src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
+      "path": "src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
+      "projectId": 23498,
+      "subProjectId": 23498
+    },
+    {
+      "id": 23498,
+      "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
+      "uuid": "8b745480-b598-4e34-af4a-cb2de1808e50",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarLint for IntelliJ IDEA",
+      "longName": "SonarLint for IntelliJ IDEA"
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S2301",
+      "name": "Public methods should not contain selector arguments",
+      "lang": "java",
+      "status": "READY",
+      "langName": "Java"
+    }
+  ],
+  "users": [
+    {
+      "login": "john.smith",
+      "name": "John Smith",
+      "email": "john.smith@email.com",
+      "active": true
+    },
+    {
+      "login": "jane.doo",
+      "name": "Jane Doo",
+      "email": "jane.doo@mail.net",
+      "active": true
+    }
+  ]
+}

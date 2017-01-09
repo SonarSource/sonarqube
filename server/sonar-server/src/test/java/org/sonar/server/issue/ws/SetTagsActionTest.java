@@ -53,7 +53,7 @@ public class SetTagsActionTest {
   public void should_define() {
     Action action = tester.controller("api/issues").action("set_tags");
     assertThat(action.description()).isNotEmpty();
-    assertThat(action.responseExampleAsString()).isNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isEqualTo(sut);

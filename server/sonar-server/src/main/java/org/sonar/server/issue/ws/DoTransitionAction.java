@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import java.util.Date;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Request;
@@ -65,6 +66,7 @@ public class DoTransitionAction implements IssuesWsAction {
         "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.")
       .setSince("3.6")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "do_transition-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUE)

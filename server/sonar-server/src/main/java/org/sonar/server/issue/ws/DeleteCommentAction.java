@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.io.Resources;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,6 +66,7 @@ public class DeleteCommentAction implements IssuesWsAction {
         "Since 6.3, 'key' parameter has been renamed to %s", PARAM_COMMENT)
       .setSince("3.6")
       .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "delete_comment-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_COMMENT)

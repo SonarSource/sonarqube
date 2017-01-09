@@ -402,7 +402,7 @@ public class BulkChangeActionTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.params()).hasSize(11);
-    assertThat(action.responseExample()).isNull();
+    assertThat(action.responseExample()).isNotNull();
   }
 
   private BulkChangeWsResponse call(BulkChangeRequest bulkChangeRequest) {
