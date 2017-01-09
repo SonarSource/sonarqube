@@ -90,6 +90,10 @@ export default class MeasureHistory extends React.Component {
   }
 
   fetchEvents () {
+    if (this.props.component.qualifier !== 'TRK') {
+      return Promise.resolve([]);
+    }
+
     return getProjectActivity(this.props.component.key, { category: 'VERSION' }).then(({ analyses }) => {
       const events = analyses.map(analysis => {
         const version = analysis.events.find(event => event.category === 'VERSION');
