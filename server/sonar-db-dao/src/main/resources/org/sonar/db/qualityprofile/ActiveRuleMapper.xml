@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.ActiveRuleMapper">
+
+  <sql id="activeRuleKeyColumns">
+    a.id,
+    a.profile_id as "profileId",
+    a.rule_id as "ruleId",
+    a.failure_level as "severity",
+    a.inheritance as "inheritance",
+    r.plugin_rule_key as "rulefield",
+    r.plugin_name as "repository",
+    qp.kee as "profileKey",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
+  </sql>
+
+  <sql id="activeRuleKeyJoin">
+    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
+    INNER JOIN rules r ON r.id = a.rule_id
+  </sql>
+
+  <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
+    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <update id="update" parameterType="ActiveRule">
+    UPDATE active_rules SET
+    failure_level=#{severity},
+    inheritance=#{inheritance},
+    updated_at=#{updatedAt}
+    WHERE id=#{id}
+  </update>
+
+  <update id="delete" parameterType="int">
+    DELETE FROM active_rules WHERE id=#{id}
+  </update>
+
+  <select id="selectByKey" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE
+    qp.kee = #{profileKey}
+    AND r.plugin_rule_key = #{rule}
+    AND r.plugin_name = #{repository}
+  </select>
+
+  <select id="selectByKeys" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE
+    <foreach collection="keys" item="key" open="(" separator=" or " close=")">
+      (qp.kee = #{key.qualityProfileKey}
+      AND r.plugin_rule_key = #{key.ruleKey.rule}
+      AND r.plugin_name = #{key.ruleKey.repository}
+      )
+    </foreach>
+  </select>
+
+  <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
+    INNER JOIN rules r ON r.id = a.rule_id AND r.status != 'REMOVED'
+    where qp.kee=#{id}
+  </select>
+
+  <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE a.rule_id=#{ruleId}
+  </select>
+
+  <select id="selectByRuleIds" parameterType="List" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE
+    a.rule_id in
+    <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">
+      #{ruleId}
+    </foreach>
+  </select>
+
+  <select id="selectAll" parameterType="map" resultType="ActiveRule">
+    select
+    <include refid="activeRuleKeyColumns"/>
+    from active_rules a
+    <include refid="activeRuleKeyJoin"/>
+  </select>
+
+  <!-- Parameters -->
+
+  <sql id="activeRuleParamColumns">
+    p.id,
+    p.active_rule_id as activeRuleId,
+    p.rules_parameter_id as rulesParameterId,
+    p.rules_parameter_key as kee,
+    p.value as value
+  </sql>
+
+  <insert id="insertParameter" parameterType="ActiveRuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO active_rule_parameters (active_rule_id, rules_parameter_id, rules_parameter_key, value)
+    VALUES (#{activeRuleId}, #{rulesParameterId}, #{key}, #{value})
+  </insert>
+
+  <update id="updateParameter" parameterType="ActiveRuleParam">
+    UPDATE active_rule_parameters SET
+    value=#{value}
+    WHERE id=#{id}
+  </update>
+
+  <update id="deleteParameters" parameterType="int">
+    DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
+  </update>
+
+  <update id="deleteParameter" parameterType="int">
+    DELETE FROM active_rule_parameters WHERE id=#{id}
+  </update>
+
+  <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+    <where>
+      p.active_rule_id=#{id}
+    </where>
+  </select>
+
+  <select id="selectParamsByActiveRuleIds" parameterType="map" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+    <where>
+      <foreach collection="ids" item="id" open="(" separator=" or " close=")">
+        p.active_rule_id=#{id}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectParamByActiveRuleAndKey" parameterType="map" resultType="ActiveRuleParam">
+    SELECT
+    <include refid="activeRuleParamColumns"/>
+    FROM active_rule_parameters p
+    <where>
+      AND p.active_rule_id=#{activeRuleId}
+      AND p.rules_parameter_key=#{key}
+    </where>
+  </select>
+
+  <select id="selectAllParams" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+  </select>
+
+</mapper>
+

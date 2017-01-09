@@ -1,0 +1,8 @@
+<dataset>
+  <permission_templates id="1"
+                        name="my template"
+                        kee="my_template_20130102_010405"
+                        description="my description"
+                        key_pattern="myregexp"
+                        organization_uuid="org1"/>
+</dataset>

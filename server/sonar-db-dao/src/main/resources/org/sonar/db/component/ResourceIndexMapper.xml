@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.component.ResourceIndexMapper">
+  <select id="selectProjectIdsFromQueryAndViewOrSubViewUuid" parameterType="map" resultType="long">
+    SELECT original.id FROM resource_index r
+    INNER JOIN projects original ON r.component_uuid = original.uuid
+    INNER JOIN projects copy ON original.uuid = copy.copy_component_uuid
+    <where>
+      AND copy.module_uuid_path LIKE #{viewUuidQuery}
+      AND r.kee LIKE #{query}
+    </where>
+    ORDER BY r.name_size
+  </select>
+
+  <select id="selectResources" parameterType="map" resultType="Resource">
+    select
+    p.name as "name", p.id as "id", p.uuid as "uuid", p.scope as "scope", p.qualifier as "qualifier", p.project_uuid as "projectUuid"
+    from projects p, snapshots s
+    <where>
+      p.enabled=${_true}
+      and p.copy_component_uuid is null
+      and p.project_uuid=s.component_uuid
+      and s.islast=${_true}
+      <if test="scopes != null">
+        and p.scope in
+        <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
+      </if>
+      <if test="qualifiers != null">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+      <if test="rootComponentUuid != null">
+        and p.project_uuid=#{rootComponentUuid}
+      </if>
+      <if test="nonIndexedOnly">
+        and not exists(select * from resource_index ri where ri.component_uuid=p.uuid)
+      </if>
+    </where>
+    order by p.id
+  </select>
+
+  <select id="selectMasterIndexByComponentUuid" parameterType="String" resultType="ResourceIndex">
+    select kee as "key", component_uuid as "componentUuid"
+    from resource_index
+    where component_uuid=#{componentUuid} and position=0
+  </select>
+
+  <select id="selectResourceToIndex" parameterType="String" resultType="Resource">
+    select p.id, p.uuid as "uuid", p.name, p.project_uuid as "projectUuid", p.qualifier
+    from projects p
+    where
+    p.uuid=#{componentUuid}
+    and p.enabled=${_true}
+  </select>
+
+  <delete id="deleteByComponentUuid" parameterType="String">
+    delete from resource_index
+    where component_uuid=#{componentUuid}
+  </delete>
+
+  <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
+    insert into resource_index (
+    kee,
+    position,
+    name_size,
+    component_uuid,
+    root_component_uuid,
+    qualifier)
+    values (
+    #{key, jdbcType=VARCHAR},
+    #{position, jdbcType=INTEGER},
+    #{nameSize, jdbcType=INTEGER},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{rootComponentUuid, jdbcType=VARCHAR},
+    #{qualifier, jdbcType=VARCHAR}
+    )
+  </insert>
+
+</mapper>
+

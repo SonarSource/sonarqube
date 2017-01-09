@@ -1,0 +1,90 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2016 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+// Structure of db column FILE_SOURCES.BINARY_DATA
+
+syntax = "proto2";
+
+// Package must not be changed for backward-compatibility
+// with the DB rows inserted in DB before 5.2
+package org.sonar.server.source.db;
+
+// The java package can be changed without breaking compatibility.
+// it impacts only the generated Java code.
+option java_package = "org.sonar.db.protobuf";
+option optimize_for = SPEED;
+
+message Line {
+  optional int32 line = 1;
+  optional string source = 2;
+
+  // SCM
+  optional string scm_revision = 3;
+  optional string scm_author = 4;
+  optional int64 scm_date = 5;
+
+  // Deprecated fields in 6.2 (has been deprecated when merging coverage into a single metric)
+  // They are still used to read coverage info from sources that have not be re-analyzed
+  optional int32 deprecated_ut_line_hits = 6;
+  optional int32 deprecated_ut_conditions = 7;
+  optional int32 deprecated_ut_covered_conditions = 8;
+  optional int32 deprecated_it_line_hits = 9;
+  optional int32 deprecated_it_conditions = 10;
+  optional int32 deprecated_it_covered_conditions = 11;
+  optional int32 deprecated_overall_line_hits = 12;
+  optional int32 deprecated_overall_conditions = 13;
+  optional int32 deprecated_overall_covered_conditions = 14;
+
+  optional string highlighting = 15;
+  optional string symbols = 16;
+  repeated int32 duplication = 17 [packed = true];
+
+  // coverage info (since 6.2)
+  optional int32 line_hits = 18;
+  optional int32 conditions = 19;
+  optional int32 covered_conditions = 20;
+}
+
+// TODO should be dropped as it prevents streaming
+message Data {
+  repeated Line lines = 1;
+}
+
+message Test {
+  optional string uuid = 1;
+  optional string name = 2;
+  optional TestStatus status = 3;
+  optional int64 execution_time_ms = 4;
+  optional string stacktrace = 5;
+  optional string msg = 6;
+  repeated CoveredFile covered_file = 7;
+
+  message CoveredFile {
+    optional string file_uuid = 1;
+    repeated int32 covered_line = 2 [packed = true];
+  }
+
+  enum TestStatus {
+    OK = 1;
+    FAILURE = 2;
+    ERROR = 3;
+    SKIPPED = 4;
+  }
+}

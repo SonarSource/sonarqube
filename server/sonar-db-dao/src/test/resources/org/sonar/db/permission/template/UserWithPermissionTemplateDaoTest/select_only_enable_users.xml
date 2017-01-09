@@ -1,0 +1,42 @@
+<dataset>
+
+  <users id="200"
+         login="user1"
+         name="User1"
+         active="[true]"
+         is_root="[false]"/>
+  <users id="201"
+         login="user2"
+         name="User2"
+         active="[true]"
+         is_root="[false]"/>
+  <users id="202"
+         login="user3"
+         name="User3"
+         active="[true]"
+         is_root="[false]"/>
+  <users id="999"
+         login="disabledUser"
+         name="disabledUser"
+         active="[false]"
+         is_root="[false]"/>
+
+  <perm_templates_users id="1"
+                        user_id="200"
+                        permission_reference="user"
+                        template_id="50"/>
+  <perm_templates_users id="2"
+                        user_id="200"
+                        permission_reference="admin"
+                        template_id="50"/>
+  <perm_templates_users id="3"
+                        user_id="200"
+                        permission_reference="codeviewer"
+                        template_id="50"/>
+
+  <perm_templates_users id="4"
+                        user_id="201"
+                        permission_reference="user"
+                        template_id="50"/>
+
+</dataset>

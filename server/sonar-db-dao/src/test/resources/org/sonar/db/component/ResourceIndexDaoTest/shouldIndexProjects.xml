@@ -1,0 +1,67 @@
+<dataset>
+
+  <!-- project -->
+  <projects long_name="[null]"
+            id="1"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            uuid="ABCD"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            root_id="[null]"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <!-- directory -->
+  <projects long_name="org.struts"
+            id="2"
+            scope="DIR"
+            qualifier="PAC"
+            kee="org.struts:struts:org.struts"
+            uuid="BCDE"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            name="org.struts"
+            root_id="1"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <!-- file -->
+  <projects long_name="org.struts.RequestContext"
+            id="3"
+            scope="FIL"
+            qualifier="CLA"
+            kee="org.struts:struts:org.struts.RequestContext"
+            uuid="CDEF"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            name="RequestContext"
+            root_id="1"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <snapshots purge_status="[null]"
+             id="1"
+             islast="[true]"
+             root_project_id="1"
+             project_id="1"
+             scope="PRJ"
+             qualifier="TRK"/>
+
+</dataset>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.organization.OrganizationMapper">
+  <sql id="selectColumns">
+    org.uuid as "uuid",
+    org.kee as "key",
+    org.name as "name",
+    org.description as "description",
+    org.url as "url",
+    org.avatar_url as "avatarUrl",
+    org.created_at as "createdAt",
+    org.updated_at as "updatedAt"
+  </sql>
+  
+  <select id="selectByUuid" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    where
+      org.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByKey" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    where
+      org.kee = #{key, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    <include refid="sqlSelectByQuery" />
+    order by
+      org.created_at desc
+    limit #{pageSize} offset #{offset}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Organization" databaseId="mssql">
+    select * from (
+      select row_number() over(order by org.created_at desc) as number,
+        <include refid="selectColumns"/>
+      <include refid="sqlSelectByQuery" />
+    ) as query
+    where
+      query.number between (#{offset} + 1) and ((#{offset} + 1) * #{pageSize})
+    order by
+      query.createdAt desc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Organization" databaseId="oracle">
+    select * from (
+      select rownum as rn, t.* from (
+        select
+          <include refid="selectColumns"/>
+        <include refid="sqlSelectByQuery" />
+        ORDER BY org.created_at desc
+      ) t
+    ) t
+    where t.rn between (#{offset} + 1) and ((#{offset} + 1) * #{pageSize})
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from organizations org
+  </sql>
+
+  <insert id="insert" parameterType="Organization" useGeneratedKeys="false">
+    insert into organizations
+    (
+      uuid,
+      kee,
+      name,
+      description,
+      url,
+      avatar_url,
+      created_at,
+      updated_at
+    )
+    values
+    (
+      #{organization.uuid, jdbcType=VARCHAR},
+      #{organization.key, jdbcType=VARCHAR},
+      #{organization.name, jdbcType=VARCHAR},
+      #{organization.description, jdbcType=VARCHAR},
+      #{organization.url, jdbcType=VARCHAR},
+      #{organization.avatarUrl, jdbcType=VARCHAR},
+      #{organization.createdAt, jdbcType=BIGINT},
+      #{organization.updatedAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="Organization">
+    update organizations
+    set
+      name = #{organization.name, jdbcType=VARCHAR},
+      description = #{organization.description, jdbcType=VARCHAR},
+      url = #{organization.url, jdbcType=VARCHAR},
+      avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
+      updated_at = #{organization.updatedAt, jdbcType=BIGINT}
+    where
+      uuid = #{organization.uuid}
+  </update>
+
+  <delete id="deleteByUuid">
+    delete from organizations
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByKey">
+    delete from organizations
+    where
+      kee = #{key, jdbcType=VARCHAR}
+  </delete>
+</mapper>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.ce.CeActivityMapper">
+
+
+  <!--assumes query includes an left left outer join on table ce_scanner_context with alias csc -->
+  <sql id="hasScannerContextColumn" databaseId="mssql">
+    cast(case when csc.task_uuid is null then 0 else 1 end as bit) as hasScannerContext
+  </sql>
+  <sql id="hasScannerContextColumn" databaseId="oracle">
+    case when csc.task_uuid is null then 0 else 1 end as hasScannerContext
+  </sql>
+  <sql id="hasScannerContextColumn">
+    csc.task_uuid is not null as hasScannerContext
+  </sql>
+
+  <sql id="columns">
+    ca.id,
+    ca.uuid,
+    ca.task_type as taskType,
+    ca.component_uuid as componentUuid,
+    ca.analysis_uuid as analysisUuid,
+    ca.status as status,
+    ca.submitter_login as submitterLogin,
+    ca.submitted_at as submittedAt,
+    ca.started_at as startedAt,
+    ca.executed_at as executedAt,
+    ca.created_at as createdAt,
+    ca.updated_at as updatedAt,
+    ca.is_last as isLast,
+    ca.is_last_key as isLastKey,
+    ca.execution_time_ms as executionTimeMs,
+    ca.error_message as errorMessage,
+    <include refid="hasScannerContextColumn"/>
+  </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+    <include refid="columns"/>,
+    ca.error_stacktrace as errorStacktrace
+    from ce_activity ca
+    left outer join ce_scanner_context csc on ca.uuid = csc.task_uuid
+    where ca.uuid=#{uuid}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+    SELECT
+    <include refid="columns"/>
+    <include refid="sqlSelectByQuery" />
+    ORDER BY ca.id desc
+    LIMIT #{pageSize} OFFSET #{offset}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
+    SELECT * FROM (
+    SELECT ROW_NUMBER() OVER(ORDER BY id desc) AS NUMBER,
+      <include refid="columns"/>
+      <include refid="sqlSelectByQuery" />
+      ) AS QUERY
+    WHERE NUMBER BETWEEN (#{offset} + 1) AND ((#{offset} + 1) * #{pageSize})
+    ORDER BY id desc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
+    SELECT * FROM (
+      SELECT ROWNUM AS rn, t.* FROM (
+        SELECT
+        <include refid="columns"/>
+        <include refid="sqlSelectByQuery" />
+        ORDER BY ca.id desc
+      ) t
+    ) t
+    WHERE rn BETWEEN (#{offset} + 1) AND ((#{offset} + 1) * #{pageSize})
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from ce_activity ca
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+    <where>
+      <if test="query.onlyCurrents">
+        and ca.is_last=${_true}
+      </if>
+      <if test="query.componentUuids != null and query.componentUuids.size()>0">
+        and ca.component_uuid in
+        <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
+          #{cUuid}
+        </foreach>
+      </if>
+      <if test="query.statuses != null and !query.statuses.isEmpty()">
+        and ca.status in
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status}
+        </foreach>
+      </if>
+      <if test="query.type != null">
+        and ca.task_type=#{query.type}
+      </if>
+      <if test="query.minSubmittedAt != null">
+        and ca.submitted_at &gt;= #{query.minSubmittedAt}
+      </if>
+      <if test="query.maxExecutedAt != null">
+        and ca.executed_at &lt;= #{query.maxExecutedAt}
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+      <include refid="columns"/>
+    from ce_activity ca
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+    where
+      ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
+  </select>
+  
+  <select id="countLastByStatusAndComponentUuid" resultType="int">
+    select
+      count(1)
+    from
+      ce_activity
+    where
+      status=#{status}
+      and is_last=${_true}
+      <if test="componentUuid!=null">
+        and component_uuid=#{componentUuid}
+      </if>
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
+    insert into ce_activity (
+      uuid,
+      component_uuid,
+      analysis_uuid,
+      status,
+      task_type,
+      is_last,
+      is_last_key,
+      submitter_login,
+      submitted_at,
+      started_at,
+      executed_at,
+      created_at,
+      updated_at,
+      execution_time_ms,
+      error_message,
+      error_stacktrace
+    )
+    values (
+      #{uuid,jdbcType=VARCHAR},
+      #{componentUuid,jdbcType=VARCHAR},
+      #{analysisUuid,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR},
+      #{taskType,jdbcType=VARCHAR},
+      #{isLast,jdbcType=BOOLEAN},
+      #{isLastKey,jdbcType=VARCHAR},
+      #{submitterLogin,jdbcType=VARCHAR},
+      #{submittedAt,jdbcType=BIGINT},
+      #{startedAt,jdbcType=BIGINT},
+      #{executedAt,jdbcType=BIGINT},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT},
+      #{executionTimeMs,jdbcType=BIGINT},
+      #{errorMessage,jdbcType=VARCHAR},
+      #{errorStacktrace,jdbcType=CLOB}
+    )
+  </insert>
+
+  <update id="updateIsLastToFalseForLastKey" parameterType="map">
+    update ce_activity
+    set is_last=${_false},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
+    where is_last=${_true} and is_last_key=#{isLastKey}
+  </update>
+
+  <delete id="deleteByUuids" parameterType="string">
+    delete
+      from ce_activity
+    where
+      uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+  </delete>
+</mapper>

@@ -1,0 +1,47 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+// Structure of table ISSUES
+
+syntax = "proto2";
+
+package sonarqube.db.issues;
+
+import "db-commons.proto";
+
+// The java package can be changed without breaking compatibility.
+// it impacts only the generated Java code.
+option java_package = "org.sonar.db.protobuf";
+option optimize_for = SPEED;
+
+message Locations {
+  optional sonarqube.db.commons.TextRange text_range = 1;
+  repeated Flow flow = 2;
+}
+
+message Flow {
+  repeated Location location = 1;
+}
+
+message Location {
+  optional string component_id = 1;
+  // Only when component is a file. Can be empty for a file if this is an issue global to the file.
+  optional sonarqube.db.commons.TextRange text_range = 2;
+  optional string msg = 3;
+}

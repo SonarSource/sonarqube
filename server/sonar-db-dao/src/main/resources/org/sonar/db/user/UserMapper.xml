@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserMapper">
+
+  <sql id="userColumns">
+    u.id as id,
+    u.login as login,
+    u.name as name,
+    u.email as email,
+    u.active as "active",
+    u.scm_accounts as "scmAccounts",
+    u.salt as "salt",
+    u.crypted_password as "cryptedPassword",
+    u.external_identity as "externalIdentity",
+    u.external_identity_provider as "externalIdentityProvider",
+    u.user_local as "local",
+    u.is_root as "root",
+    u.created_at as "createdAt",
+    u.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectByLogin" parameterType="String" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login=#{login}
+  </select>
+
+  <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE
+    u.login=#{scmAccount}
+    OR u.email=#{scmAccount}
+    OR u.scm_accounts like #{likeScmAccount}
+  </select>
+
+  <select id="selectUser" parameterType="long" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.id=#{id}
+  </select>
+
+  <select id="selectUserByLogin" parameterType="string" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login=#{id} AND u.active=${_true}
+  </select>
+
+  <select id="selectByLogins" parameterType="string" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login in
+    <foreach collection="list" open="(" close=")" item="login" separator=",">
+      #{login}
+    </foreach>
+  </select>
+
+  <select id="selectByIds" parameterType="string" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="selectUsers" parameterType="map" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    <where>
+      <if test="logins != null and logins.size() > 0">
+        u.login IN
+        <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
+          #{login}
+        </foreach>
+      </if>
+      <if test="includeDeactivated==false">
+        AND u.active=${_true}
+      </if>
+      <if test="searchText != null">
+        AND (u.login LIKE #{searchTextSql} ESCAPE '/' OR u.name LIKE #{searchTextSql} ESCAPE '/')
+      </if>
+      <if test="mustBeRoot != null and mustBeRoot==true">
+        AND u.is_root = ${_true}
+      </if>
+      <if test="mustBeRoot != null and mustBeRoot==false">
+        AND u.is_root = ${_false}
+      </if>
+    </where>
+    ORDER BY u.name
+  </select>
+
+  <select id="countByEmail" parameterType="String" resultType="long">
+    SELECT count(1)
+    FROM users u
+    where lower(u.email)=#{email} AND u.active=${_true}
+  </select>
+
+  <select id="countRootUsersButLogin" parameterType="String" resultType="long">
+    select
+      count(1)
+    from
+      users u
+    where
+      u.active = ${_true}
+      and u.is_root = ${_true}
+      and u.login &lt;&gt; #{login}
+  </select>
+
+  <delete id="removeUserFromGroups" parameterType="long">
+    DELETE FROM groups_users WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserRoles" parameterType="long">
+    DELETE FROM user_roles WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserProperties" parameterType="long">
+    DELETE FROM properties WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deletePropertiesMatchingLogin" parameterType="String">
+    DELETE FROM properties
+    <where>
+      text_value LIKE #{login}
+      AND prop_key IN
+      <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
+        #{property}
+      </foreach>
+    </where>
+  </delete>
+
+  <update id="deactivateUser" parameterType="long">
+    UPDATE users SET
+      active=${_false},
+      email=null,
+      scm_accounts=null,
+      external_identity=null,
+      external_identity_provider=null,
+      salt=null,
+      crypted_password=null,
+      updated_at=#{now,jdbcType=BIGINT}
+    WHERE
+      id=#{id}
+  </update>
+
+  <update id="setRoot">
+    update users set
+      is_root = #{root,jdbcType=BOOLEAN},
+      updated_at=#{now,jdbcType=BIGINT}
+    where
+      login = #{login,jdbcType=VARCHAR}
+      and active = ${_true}
+  </update>
+
+  <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO users (
+      login,
+      name,
+      email,
+      active,
+      scm_accounts,
+      external_identity,
+      external_identity_provider,
+      user_local,
+      salt,
+      crypted_password,
+      is_root,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{login,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR},
+      #{email,jdbcType=VARCHAR},
+      #{active,jdbcType=BOOLEAN},
+      #{scmAccounts,jdbcType=VARCHAR},
+      #{externalIdentity,jdbcType=VARCHAR},
+      #{externalIdentityProvider,jdbcType=VARCHAR},
+      #{local,jdbcType=BOOLEAN},
+      #{salt,jdbcType=VARCHAR},
+      #{cryptedPassword,jdbcType=VARCHAR},
+      #{root,jdbcType=BOOLEAN},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <insert id="update" parameterType="User" useGeneratedKeys="false">
+    UPDATE users set
+      name=#{name,jdbcType=VARCHAR},
+      email=#{email,jdbcType=VARCHAR},
+      active=#{active,jdbcType=BOOLEAN},
+      scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
+      external_identity=#{externalIdentity,jdbcType=VARCHAR},
+      external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
+      user_local=#{local,jdbcType=BOOLEAN},
+      salt=#{salt,jdbcType=VARCHAR},
+      crypted_password=#{cryptedPassword,jdbcType=BIGINT},
+      updated_at=#{updatedAt,jdbcType=BIGINT}
+    WHERE
+      login = #{login}
+  </insert>
+
+  <update id="updateRootUser">
+    update users u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id = #{userId,jdbcType=BIGINT}
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateRootUser" databaseId="mssql">
+    update u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id = #{userId,jdbcType=BIGINT}
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateNonRootUser">
+    update users u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id = #{userId,jdbcType=BIGINT}
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateNonRootUser" databaseId="mssql">
+    update u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id = #{userId,jdbcType=BIGINT}
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <sql id="userPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      user_roles ur
+    where
+      ur.user_id = u.id
+      and ur.role = 'admin'
+      and ur.resource_id is null
+      and ur.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
+
+  <sql id="groupPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      groups_users gu,
+      group_roles gr
+    where
+      gu.user_id = u.id
+      and gu.group_id = gr.group_id
+      and gr.role = 'admin'
+      and gr.resource_id is null
+      and gr.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
+
+</mapper>

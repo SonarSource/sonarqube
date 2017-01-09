@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.rule.RuleMapper">
+
+  <sql id="selectColumns">
+    r.id,
+    r.plugin_rule_key as "ruleKey",
+    r.plugin_name as "repositoryKey",
+    r.description,
+    r.description_format as "descriptionFormat",
+    r.status,
+    r.name,
+    r.plugin_config_key as "configKey",
+    r.priority as "severity",
+    r.is_template as "isTemplate",
+    r.language as "language",
+    r.template_id as "templateId",
+    r.note_data as "noteData",
+    r.note_user_login as "noteUserLogin",
+    r.note_created_at as "noteCreatedAt",
+    r.note_updated_at as "noteUpdatedAt",
+    r.remediation_function as "remediationFunction",
+    r.def_remediation_function as "defRemediationFunction",
+    r.remediation_gap_mult as "remediationGapMultiplier",
+    r.def_remediation_gap_mult as "defRemediationGapMultiplier",
+    r.remediation_base_effort as "remediationBaseEffort",
+    r.def_remediation_base_effort as "defRemediationBaseEffort",
+    r.gap_description as "gapDescription",
+    r.tags as "tagsField",
+    r.system_tags as "systemTagsField",
+    r.rule_type as "type",
+    r.created_at as "createdAt",
+    r.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectAll" resultType="Rule">
+    select
+    <include refid="selectColumns"/>
+    from rules r
+  </select>
+
+  <select id="selectEnabled" resultType="Rule">
+    select
+    <include refid="selectColumns"/>
+    from rules r
+    where r.status != 'REMOVED'
+  </select>
+
+  <select id="selectById" parameterType="Long" resultType="Rule">
+    select
+    <include refid="selectColumns"/>
+    from rules r WHERE r.id=#{id}
+  </select>
+
+  <select id="selectByIds" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    WHERE
+    <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+      r.id=#{id}
+    </foreach>
+  </select>
+
+  <select id="selectByKey" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+  </select>
+
+  <select id="selectByKeys" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    WHERE
+    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (r.plugin_name=#{ruleKey.repository} and r.plugin_rule_key=#{ruleKey.rule})
+    </foreach>
+  </select>
+
+  <select id="selectByName" parameterType="String" resultType="Rule">
+    select
+    <include refid="selectColumns"/>
+    from rules r WHERE r.name=#{name}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    <where>
+      AND r.status != 'REMOVED'
+      <if test="query.repositoryKey!=null">
+        AND r.plugin_name = #{query.repositoryKey}
+      </if>
+      <if test="query.key!=null">
+        AND r.plugin_rule_key = #{query.key}
+      </if>
+      <if test="query.configKey!=null">
+        AND r.plugin_config_key = #{query.configKey}
+      </if>
+    </where>
+    ORDER BY r.updated_at DESC
+  </select>
+
+  <update id="update" parameterType="Rule">
+    UPDATE rules SET
+    plugin_rule_key=#{ruleKey},
+    plugin_name=#{repositoryKey},
+    description=#{description},
+    description_format=#{descriptionFormat},
+    status=#{status},
+    name=#{name},
+    plugin_config_key=#{configKey},
+    priority=#{severity},
+    is_template=#{isTemplate},
+    language=#{language},
+    template_id=#{templateId},
+    note_data=#{noteData},
+    note_user_login=#{noteUserLogin},
+    note_created_at=#{noteCreatedAt},
+    note_updated_at=#{noteUpdatedAt},
+    remediation_function=#{remediationFunction},
+    def_remediation_function=#{defRemediationFunction},
+    remediation_gap_mult=#{remediationGapMultiplier},
+    def_remediation_gap_mult=#{defRemediationGapMultiplier},
+    remediation_base_effort=#{remediationBaseEffort},
+    def_remediation_base_effort=#{defRemediationBaseEffort},
+    gap_description=#{gapDescription},
+    tags=#{tagsField},
+    system_tags=#{systemTagsField},
+    rule_type=#{type},
+    updated_at=#{updatedAt}
+    WHERE id=#{id}
+  </update>
+
+  <sql id="insertColumns">
+    (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority,
+    is_template, language, template_id,
+    remediation_function, def_remediation_function,
+    remediation_gap_mult, def_remediation_gap_mult, remediation_base_effort, def_remediation_base_effort,
+    gap_description, tags, system_tags, rule_type, note_data, note_user_login, note_created_at, note_updated_at,
+    created_at, updated_at)
+  </sql>
+
+  <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into rules
+    <include refid="insertColumns"/>
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
+    #{severity}, #{isTemplate}, #{language}, #{templateId},
+    #{remediationFunction}, #{defRemediationFunction},
+    #{remediationGapMultiplier}, #{defRemediationGapMultiplier}, #{remediationBaseEffort}, #{defRemediationBaseEffort},
+    #{gapDescription}, #{tagsField}, #{systemTagsField}, #{type,jdbcType=INTEGER}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
+    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <delete id="deleteParams" parameterType="Integer">
+    delete from active_rule_parameters where rules_parameter_id=#{id}
+  </delete>
+
+  <sql id="paramColumns">
+    p.id as "id", p.rule_id as "ruleId", p.name as "name", p.param_type as "type", p.default_value as "defaultValue",
+    p.description as "description"
+  </sql>
+
+  <select id="selectParamsByRuleIds" resultType="RuleParam">
+    SELECT
+    <include refid="paramColumns"/>
+    FROM rules_parameters p
+    <where>
+      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
+      p.rule_id=#{id}</foreach>)
+    </where>
+  </select>
+
+  <select id="selectParamsByRuleKey" resultType="RuleParam" parameterType="org.sonar.api.rule.RuleKey">
+    SELECT
+    <include refid="paramColumns"/>
+    FROM rules_parameters p, rules r
+    WHERE p.rule_id=r.id
+    AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+  </select>
+
+  <select id="selectParamsByRuleKeys" resultType="RuleParam" parameterType="map">
+    SELECT
+    <include refid="paramColumns"/>
+    FROM rules_parameters p
+    INNER JOIN rules r ON r.id=p.rule_id
+    WHERE
+    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (r.plugin_name=#{ruleKey.repository} AND r.plugin_rule_key=#{ruleKey.rule})
+    </foreach>
+  </select>
+
+  <delete id="deleteParameter" parameterType="Integer">
+    delete from rules_parameters where id=#{id}
+  </delete>
+
+  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
+    VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
+  </insert>
+
+  <update id="updateParameter" parameterType="RuleParam">
+    UPDATE rules_parameters SET
+    param_type=#{type},
+    default_value=#{defaultValue},
+    description=#{description}
+    WHERE id=#{id}
+  </update>
+</mapper>
+

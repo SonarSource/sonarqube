@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.issue.IssueMapper">
+
+  <sql id="issueColumns">
+    i.id,
+    i.kee as kee,
+    i.rule_id as ruleId,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.message as message,
+    i.line as line,
+    i.locations as locations,
+    i.gap as gap,
+    i.effort as effort,
+    i.status as status,
+    i.resolution as resolution,
+    i.checksum as checksum,
+    i.assignee as assignee,
+    i.author_login as authorLogin,
+    i.tags as tagsString,
+    i.issue_attributes as issueAttributes,
+    i.issue_creation_date as issueCreationTime,
+    i.issue_update_date as issueUpdateTime,
+    i.issue_close_date as issueCloseTime,
+    i.created_at as createdAt,
+    i.updated_at as updatedAt,
+    r.plugin_rule_key as ruleKey,
+    r.plugin_name as ruleRepo,
+    r.language as language,
+    p.kee as componentKey,
+    i.component_uuid as componentUuid,
+    p.module_uuid as moduleUuid,
+    p.module_uuid_path as moduleUuidPath,
+    p.path as filePath,
+    root.kee as projectKey,
+    i.project_uuid as projectUuid,
+    i.issue_type as type
+  </sql>
+
+  <sql id="sortColumn">
+    <if test="query.sort() != null">,
+      <choose>
+        <when test="'SEVERITY'.equals(query.sort())">
+          i.severity as severity
+        </when>
+        <when test="'STATUS'.equals(query.sort())">
+          i.status as status
+        </when>
+        <when test="'ASSIGNEE'.equals(query.sort())">
+          i.assignee as assignee
+        </when>
+        <when test="'CREATION_DATE'.equals(query.sort())">
+          i.issue_creation_date as issueCreationTime
+        </when>
+        <when test="'UPDATE_DATE'.equals(query.sort())">
+          i.issue_update_date as issueUpdateTime
+        </when>
+        <when test="'CLOSE_DATE'.equals(query.sort())">
+          i.issue_close_date as issueCloseTime
+        </when>
+      </choose>
+    </if>
+  </sql>
+
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
+    INSERT INTO issues (kee, rule_id, severity, manual_severity,
+    message, line, locations, gap, effort, status, tags,
+    resolution, checksum, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type)
+    VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER},
+    #{severity,jdbcType=VARCHAR},
+    #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
+    #{locations,jdbcType=BINARY},
+    #{gap,jdbcType=DOUBLE}, #{effort,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR},
+    #{tagsString,jdbcType=VARCHAR}, #{resolution,jdbcType=VARCHAR}, #{checksum,jdbcType=VARCHAR},
+    #{assignee,jdbcType=VARCHAR}, #{authorLogin,jdbcType=VARCHAR},
+    #{issueAttributes,jdbcType=VARCHAR},
+    #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
+    #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
+    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER})
+  </insert>
+
+  <!--
+    IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
+  -->
+  <update id="update" parameterType="Issue">
+    update issues set
+    severity=#{severity,jdbcType=VARCHAR},
+    manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
+    message=#{message,jdbcType=VARCHAR},
+    line=#{line,jdbcType=INTEGER},
+    locations=#{locations,jdbcType=BINARY},
+    gap=#{gap,jdbcType=DOUBLE},
+    effort=#{effort,jdbcType=INTEGER},
+    status=#{status,jdbcType=VARCHAR},
+    resolution=#{resolution,jdbcType=VARCHAR},
+    checksum=#{checksum,jdbcType=VARCHAR},
+    assignee=#{assignee,jdbcType=VARCHAR},
+    author_login=#{authorLogin,jdbcType=VARCHAR},
+    tags=#{tagsString,jdbcType=VARCHAR},
+    project_uuid=#{projectUuid,jdbcType=VARCHAR},
+    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
+    issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
+    issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
+    issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT},
+    issue_type=#{type,jdbcType=INTEGER}
+    where kee = #{kee}
+  </update>
+
+  <!--
+   IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
+ -->
+  <update id="updateIfBeforeSelectedDate" parameterType="Issue">
+    update issues set
+    severity=#{severity,jdbcType=VARCHAR},
+    manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
+    message=#{message,jdbcType=VARCHAR},
+    line=#{line,jdbcType=INTEGER},
+    locations=#{locations,jdbcType=BINARY},
+    gap=#{gap,jdbcType=DOUBLE},
+    effort=#{effort,jdbcType=INTEGER},
+    status=#{status,jdbcType=VARCHAR},
+    resolution=#{resolution,jdbcType=VARCHAR},
+    checksum=#{checksum,jdbcType=VARCHAR},
+    assignee=#{assignee,jdbcType=VARCHAR},
+    author_login=#{authorLogin,jdbcType=VARCHAR},
+    tags=#{tagsString,jdbcType=VARCHAR},
+    component_uuid=#{componentUuid,jdbcType=VARCHAR},
+    project_uuid=#{projectUuid,jdbcType=VARCHAR},
+    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
+    issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
+    issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
+    issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT},
+    issue_type=#{type,jdbcType=INTEGER}
+    where kee = #{kee} and updated_at &lt;= #{selectedAt}
+  </update>
+
+  <select id="selectByKey" parameterType="String" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where i.kee=#{kee}
+  </select>
+
+  <select id="selectNonClosedByComponentUuid" parameterType="String" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where
+    i.component_uuid=#{componentUuid} and
+    i.status &lt;&gt; 'CLOSED'
+  </select>
+
+  <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
+    select distinct(i.component_uuid)
+    from issues i
+    where i.project_uuid=#{projectUuid} and i.status &lt;&gt; 'CLOSED'
+  </select>
+
+  <select id="selectByKeys" parameterType="map" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where i.kee in
+    <foreach collection="list" open="(" close=")" item="key" separator=",">
+      #{key}
+    </foreach>
+  </select>
+</mapper>
+

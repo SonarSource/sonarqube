@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.GroupMapper">
+
+  <sql id="groupColumns">
+    g.id as id,
+    g.name as name,
+    g.description as description,
+    g.organization_uuid as organizationUuid,
+    g.created_at as "createdAt",
+    g.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectByName" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and g.name = #{name,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByIds" parameterType="long" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.id in
+    <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+      #{id,jdbcType=BIGINT}
+    </foreach>
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    <where>
+      g.id=#{id,jdbcType=BIGINT}
+    </where>
+  </select>
+
+  <delete id="deleteById" parameterType="long">
+    DELETE FROM groups
+    <where>
+      id=#{id,jdbcType=BIGINT}
+    </where>
+  </delete>
+
+  <delete id="deleteByOrganization" parameterType="String">
+    delete from
+      groups
+    where
+      organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectByUserLogin" parameterType="string" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    inner join groups_users gu on gu.group_id = g.id
+    inner join users u on u.id = gu.user_id
+    where  u.login=#{login,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByNames" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where
+      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      g.name in
+      <foreach item="name" index="index" collection="names" open="(" separator="," close=")">
+        #{name,jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
+  <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into groups (
+    organization_uuid,
+    name,
+    description,
+    created_at,
+    updated_at
+    ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+  <update id="update" parameterType="Group">
+    UPDATE groups SET
+    name=#{name,jdbcType=VARCHAR},
+    description=#{description,jdbcType=VARCHAR},
+    updated_at=#{updatedAt,jdbcType=TIMESTAMP}
+    WHERE id=#{id}
+  </update>
+
+  <select id="selectByQuery" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    <if test="query!=null">
+      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
+    </if>
+    order by upper(g.name)
+  </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select count(1)
+    from groups g
+    where
+    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    <if test="query!=null">
+      and upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
+    </if>
+  </select>
+
+  <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">
+    select
+    <include refid="groupColumns"/>
+    from groups g
+    where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    order by upper(g.name)
+  </select>
+
+  <update id="updateRootUsersOfGroup">
+    update users u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateRootUsersOfGroup" databaseId="mssql">
+    update u set
+      is_root = ${_true},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateNonRootUsersOfGroup">
+    update users u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <update id="updateNonRootUsersOfGroup" databaseId="mssql">
+    update u set
+      is_root = ${_false},
+      updated_at = #{now,jdbcType=BIGINT}
+    from users u
+    where
+      u.id in (<include refid="userIdsForGroupId"/>)
+      and not exists (
+        <include refid="userPermissionAdminInDefaultOrganizationForUser"/>
+        union
+        <include refid="groupPermissionAdminInDefaultOrganizationForUser"/>
+      )
+  </update>
+
+  <sql id="userIdsForGroupId">
+    select
+      gu.user_id
+    from
+      groups_users gu
+    where
+      gu.group_id = #{groupId,jdbcType=BIGINT}
+  </sql>
+
+  <sql id="userPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      user_roles ur
+    where
+      ur.user_id = u.id
+      and ur.role = 'admin'
+      and ur.resource_id is null
+      and ur.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
+
+  <sql id="groupPermissionAdminInDefaultOrganizationForUser">
+    select
+      1
+    from
+      groups_users gu,
+      group_roles gr
+    where
+      gu.user_id = u.id
+      and gu.group_id = gr.group_id
+      and gr.role = 'admin'
+      and gr.resource_id is null
+      and gr.organization_uuid = #{defaultOrganizationUuid,jdbcType=VARCHAR}
+  </sql>
+</mapper>

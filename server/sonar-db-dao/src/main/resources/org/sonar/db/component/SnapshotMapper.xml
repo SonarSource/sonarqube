@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.SnapshotMapper">
+
+  <sql id="snapshotColumns">
+    s.id,
+    s.uuid as uuid,
+    s.component_uuid as componentUuId,
+    s.created_at as createdAt,
+    s.build_date as buildDate,
+    s.status as status,
+    s.purge_status as purgeStatus,
+    s.islast as last,
+    s.version as version,
+    s.period1_mode as period1Mode,
+    s.period2_mode as period2Mode,
+    s.period3_mode as period3Mode,
+    s.period4_mode as period4Mode,
+    s.period5_mode as period5Mode,
+    s.period1_param as period1Param,
+    s.period2_param as period2Param,
+    s.period3_param as period3Param,
+    s.period4_param as period4Param,
+    s.period5_param as period5Param,
+    s.period1_date as period1Date,
+    s.period2_date as period2Date,
+    s.period3_date as period3Date,
+    s.period4_date as period4Date,
+    s.period5_date as period5Date
+  </sql>
+
+  <sql id="viewsSnapshotColumns">
+    s.uuid,
+    s.created_at as createdAt
+  </sql>
+
+  <select id="selectByKey" parameterType="Long" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns" />
+    FROM snapshots s
+    <where>
+      AND s.id=#{key}
+    </where>
+  </select>
+
+  <select id="selectByIds" parameterType="Long" resultType="Snapshot">
+    SELECT
+      <include refid="snapshotColumns" />
+    FROM
+      snapshots s
+    WHERE
+      s.id in
+      <foreach collection="ids" item="id" separator="," open="(" close=")">
+        #{id}
+      </foreach>
+  </select>
+
+  <select id="selectByUuids" parameterType="List" resultType="Snapshot">
+    SELECT
+      <include refid="snapshotColumns"/>
+    FROM
+      snapshots s
+    WHERE
+      s.uuid in
+      <foreach collection="uuids" item="uuid" separator="," open="(" close=")">
+        #{uuid}
+      </foreach>
+  </select>
+
+  <select id="selectLastSnapshotByComponentUuid" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
+    from snapshots s
+    inner join projects p on s.component_uuid = p.project_uuid
+    where
+      s.islast=${_true}
+      and p.uuid = #{componentUuid}
+  </select>
+
+  <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
+    from snapshots s
+    where s.islast=${_true} and s.component_uuid = #{componentUuid}
+  </select>
+
+  <select id="selectLastSnapshotsByRootComponentUuids" resultType="Snapshot">
+    select <include refid="snapshotColumns" />
+    from snapshots s
+    where
+      s.islast=${_true}
+      and s.component_uuid in
+      <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
+        #{componentUuid}
+      </foreach>
+      </select>
+
+  <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns" />
+    FROM snapshots s
+    <if test="query.componentUuid != null">
+      INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid}
+    </if>
+    <where>
+      <if test="query.status != null">
+        AND s.status=#{query.status}
+      </if>
+      <if test="query.version != null">
+        AND s.version=#{query.version}
+      </if>
+      <if test="query.isLast != null">
+        AND s.islast=#{query.isLast}
+      </if>
+      <if test="query.createdAfter != null">
+        AND s.created_at>=#{query.createdAfter}
+      </if>
+      <if test="query.createdBefore != null">
+        AND s.created_at&lt;#{query.createdBefore}
+      </if>
+    </where>
+    <if test="query.sortField != null">
+      ORDER BY
+      <if test="query.sortField == 'created_at'">
+        s.created_at
+      </if>
+      <if test="query.sortOrder == 'asc'">
+        asc
+      </if>
+      <if test="query.sortOrder == 'desc'">
+        desc
+      </if>
+    </if>
+  </select>
+
+  <select id="selectPreviousVersionSnapshots" parameterType="map" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns" />
+    FROM snapshots s
+    INNER JOIN events e ON s.uuid = e.analysis_uuid AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
+    <where>
+      s.component_uuid=#{componentUuid}
+    </where>
+    ORDER BY e.event_date DESC
+  </select>
+
+  <select id="selectOldestSnapshots" parameterType="map" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns" />
+    FROM snapshots s
+    <where>
+      s.component_uuid=#{componentUuid}
+    </where>
+    ORDER BY s.created_at ASC
+  </select>
+
+  <select id="selectSnapshotBefore" resultType="ViewsSnapshot">
+    SELECT
+    <include refid="viewsSnapshotColumns" />
+    FROM snapshots s
+    <where>
+      and s.component_uuid = #{componentUuid}
+      and s.status = 'P'
+      and s.created_at &lt; #{date}
+    </where>
+    order by created_at desc
+  </select>
+
+  <update id="unsetIsLastFlagForComponentUuid" parameterType="map">
+    update snapshots
+    set islast = ${_false}
+    where component_uuid = #{componentUuid}
+    and islast = ${_true}
+  </update>
+
+  <update id="setIsLastFlagForAnalysisUuid" parameterType="map">
+    update snapshots
+    set islast = ${_true}, status = 'P'
+    where uuid = #{analysisUuid}
+  </update>
+
+  <update id="update" parameterType="Snapshot">
+    update snapshots
+    set version = #{version, jdbcType=VARCHAR},
+        status = #{status, jdbcType=VARCHAR}
+    where uuid = #{uuid}
+  </update>
+
+  <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into snapshots (
+    uuid,
+    component_uuid,
+    created_at,
+    build_date,
+    status,
+    purge_status,
+    islast,
+    version,
+    period1_mode,
+    period2_mode,
+    period3_mode,
+    period4_mode,
+    period5_mode,
+    period1_param,
+    period2_param,
+    period3_param,
+    period4_param,
+    period5_param,
+    period1_date,
+    period2_date,
+    period3_date,
+    period4_date,
+    period5_date)
+    values (
+    #{uuid, jdbcType=VARCHAR},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{createdAt, jdbcType=BIGINT},
+    #{buildDate, jdbcType=BIGINT},
+    #{status, jdbcType=VARCHAR},
+    #{purgeStatus, jdbcType=INTEGER},
+    #{last, jdbcType=BOOLEAN},
+    #{version, jdbcType=VARCHAR},
+    #{period1Mode, jdbcType=VARCHAR},
+    #{period2Mode, jdbcType=VARCHAR},
+    #{period3Mode, jdbcType=VARCHAR},
+    #{period4Mode, jdbcType=VARCHAR},
+    #{period5Mode, jdbcType=VARCHAR},
+    #{period1Param, jdbcType=VARCHAR},
+    #{period2Param, jdbcType=VARCHAR},
+    #{period3Param, jdbcType=VARCHAR},
+    #{period4Param, jdbcType=VARCHAR},
+    #{period5Param, jdbcType=VARCHAR},
+    #{period1Date, jdbcType=BIGINT},
+    #{period2Date, jdbcType=BIGINT},
+    #{period3Date, jdbcType=BIGINT},
+    #{period4Date, jdbcType=BIGINT},
+    #{period5Date, jdbcType=BIGINT})
+  </insert>
+</mapper>
+

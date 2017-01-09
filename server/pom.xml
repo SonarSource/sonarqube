@@ -14,7 +14,9 @@
     <module>sonar-process</module>
     <module>sonar-process-monitor</module>
     <module>sonar-search</module>
+    <module>sonar-db-core</module>
     <module>sonar-db-migration</module>
+    <module>sonar-db-dao</module>
     <module>sonar-server</module>
     <module>sonar-ce</module>
     <module>sonar-plugin-bridge</module>

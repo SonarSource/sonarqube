@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.RoleMapper">
+
+  <select id="selectComponentIdsByPermissionAndUserId" parameterType="map" resultType="long">
+    select ur.resource_id
+    from user_roles ur
+    <where>
+      and ur.user_id = #{userId}
+      and ur.role = #{permission}
+      and ur.resource_id IS NOT NULL
+    </where>
+    UNION
+    select gr.resource_id
+    from group_roles gr
+    inner join groups_users gu on gr.group_id=gu.group_id
+    <where>
+      and gr.role = #{permission}
+      and gr.resource_id is not null
+      and gu.user_id=#{userId}
+    </where>
+    ORDER by resource_id
+  </select>
+
+  <delete id="deleteGroupRolesByGroupId" parameterType="long">
+    delete from group_roles where group_id=#{id}
+  </delete>
+</mapper>

@@ -1,0 +1,56 @@
+<dataset>
+
+  <projects long_name="[null]"
+            id="1"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="AS"
+            uuid="ABCD"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            root_uuid="ABCD"
+            description="[null]"
+            enabled="[true]"
+            language="java"/>
+
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]"
+             component_uuid="ABCD"
+  />
+
+  <!-- the index is on the old name "ST" but not on "AS" -->
+  <resource_index id="1"
+                  kee="struts"
+                  position="0"
+                  name_size="6"
+                  component_uuid="ABCD"
+                  root_component_uuid="ABCD"
+                  qualifier="TRK"/>
+  <resource_index id="2"
+                  kee="truts"
+                  position="1"
+                  name_size="6"
+                  component_uuid="ABCD"
+                  root_component_uuid="ABCD"
+                  qualifier="TRK"/>
+  <resource_index id="3"
+                  kee="ruts"
+                  position="2"
+                  name_size="6"
+                  component_uuid="ABCD"
+                  root_component_uuid="ABCD"
+                  qualifier="TRK"/>
+  <resource_index id="4"
+                  kee="uts"
+                  position="3"
+                  name_size="6"
+                  component_uuid="ABCD"
+                  root_component_uuid="ABCD"
+                  qualifier="TRK"/>
+
+</dataset>

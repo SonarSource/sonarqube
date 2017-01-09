@@ -1,0 +1,131 @@
+<!--
+  ~ SonarQube, open source software quality management tool.
+  ~ Copyright (C) 2008-2016 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ SonarQube is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ SonarQube is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<dataset>
+
+  <!-- Open Issue on a file -->
+  <issues
+    id="100"
+    kee="100"
+    component_uuid="CDEF"
+    project_uuid="uuid-111"
+    rule_id="500"
+    severity="BLOCKER"
+    manual_severity="[false]"
+    message="[null]"
+    line="200"
+    gap="[null]"
+    status="OPEN"
+    resolution="[null]"
+    checksum="[null]"
+    reporter="[null]"
+    assignee="user"
+    author_login="[null]"
+    issue_attributes="[null]"
+    issue_creation_date="1366063200000"
+    issue_update_date="1366063200000"
+    issue_close_date="1366063200000"
+    created_at="1400000000000"
+    updated_at="[null]"
+    locations="[null]"
+    />
+
+  <!-- Open Issue on a file -->
+  <issues
+    id="101"
+    kee="101"
+    component_uuid="DEFG"
+    project_uuid="uuid-111"
+    rule_id="501"
+    severity="MAJOR"
+    manual_severity="[false]"
+    message="[null]"
+    line="120"
+    gap="[null]"
+    status="OPEN"
+    resolution="[null]"
+    checksum="[null]"
+    reporter="[null]"
+    assignee="user"
+    author_login="[null]"
+    issue_attributes="[null]"
+    issue_creation_date="1366063200000"
+    issue_update_date="1366063200000"
+    issue_close_date="1366063200000"
+    created_at="1400000000000"
+    updated_at="[null]"
+    locations="[null]"
+    />
+
+  <!-- Closed Issue on a file -->
+  <issues
+    id="102"
+    kee="102"
+    component_uuid="DEFG"
+    project_uuid="uuid-111"
+    rule_id="501"
+    severity="MAJOR"
+    manual_severity="[false]"
+    message="[null]"
+    line="120"
+    gap="[null]"
+    status="CLOSED"
+    resolution="FIXED"
+    checksum="[null]"
+    reporter="[null]"
+    assignee="user"
+    author_login="[null]"
+    issue_attributes="[null]"
+    issue_creation_date="1366063200000"
+    issue_update_date="1366063200000"
+    issue_close_date="1366063200000"
+    created_at="1400000000000"
+    updated_at="[null]"
+    locations="[null]"
+    />
+
+  <!-- Open Issue on a sub module -->
+  <issues
+    id="103"
+    kee="103"
+    component_uuid="BCDE"
+    project_uuid="uuid-111"
+    rule_id="501"
+    severity="MAJOR"
+    manual_severity="[false]"
+    message="[null]"
+    line="[null]"
+    gap="[null]"
+    status="OPEN"
+    resolution="[null]"
+    checksum="[null]"
+    reporter="[null]"
+    assignee="user"
+    author_login="[null]"
+    issue_attributes="[null]"
+    issue_creation_date="1366063200000"
+    issue_update_date="1366063200000"
+    issue_close_date="1366063200000"
+    created_at="1400000000000"
+    updated_at="[null]"
+    locations="[null]"
+    />
+
+</dataset>

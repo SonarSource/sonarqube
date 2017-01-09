@@ -1,0 +1,8 @@
+<dataset>
+  <resource_index kee="ziputils" position="0" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+  <resource_index kee="iputils" position="1" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+  <resource_index kee="putils" position="2" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+  <resource_index kee="utils" position="3" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+  <resource_index kee="tils" position="4" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+  <resource_index kee="ils" position="5" name_size="8" component_uuid="cpt_uuid" root_component_uuid="ABCD" qualifier="FIL"/>
+</dataset>

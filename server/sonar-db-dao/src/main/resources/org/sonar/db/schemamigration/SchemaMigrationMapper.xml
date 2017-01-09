@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.schemamigration.SchemaMigrationMapper">
+
+  <select id="selectVersions" resultType="int">
+    select version from schema_migrations
+  </select>
+
+  <insert id="insert" parameterType="string" useGeneratedKeys="false">
+    insert into schema_migrations(version) values (#{version,jdbcType=VARCHAR})
+  </insert>
+</mapper>
+

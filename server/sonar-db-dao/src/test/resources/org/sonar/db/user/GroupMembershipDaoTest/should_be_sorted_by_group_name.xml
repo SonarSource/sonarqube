@@ -1,0 +1,24 @@
+<dataset>
+
+  <groups id="100"
+          name="sonar-users"
+          description="Any new users created will automatically join this group"
+          organization_uuid="org1"/>
+  <groups id="101"
+          name="sonar-administrators"
+          description="System administrators"
+          organization_uuid="org1"/>
+  <groups id="102"
+          name="sonar-reviewers"
+          description="Reviewers"
+          organization_uuid="org1"/>
+
+  <!-- user 200 is in all groups -->
+  <groups_users user_id="200"
+                group_id="100"/>
+  <groups_users user_id="200"
+                group_id="101"/>
+  <groups_users user_id="200"
+                group_id="102"/>
+
+</dataset>

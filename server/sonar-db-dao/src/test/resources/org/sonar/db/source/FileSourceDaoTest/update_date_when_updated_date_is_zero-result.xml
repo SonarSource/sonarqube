@@ -1,0 +1,18 @@
+<dataset>
+
+  <!-- Updated -->
+  <file_sources id="101" project_uuid="ABCD" file_uuid="FILE1_UUID" revision="123456789"
+                binary_data="abcde" data_hash="hash" line_hashes="ABC\nDEF\nGHI" src_hash="FILE_HASH"
+                created_at="1500000000000" updated_at="1500000000002" data_type="SOURCE" />
+
+  <!-- Not updated because updated_at is not null -->
+  <file_sources id="102" project_uuid="ABCD" file_uuid="FILE2_UUID" revision="123456789"
+                binary_data="abcde" data_hash="hash" line_hashes="ABC\nDEF\nGHI" src_hash="FILE_HASH"
+                created_at="1500000000000" updated_at="1500000000000" data_type="SOURCE" />
+
+  <!-- Not updated because on another project -->
+  <file_sources id="103" project_uuid="BCDE" file_uuid="FILE3_UUID" revision="123456789"
+                binary_data="abcde" data_hash="hash" line_hashes="ABC\nDEF\nGHI" src_hash="FILE_HASH"
+                created_at="1500000000000" updated_at="0" data_type="SOURCE" />
+
+</dataset>

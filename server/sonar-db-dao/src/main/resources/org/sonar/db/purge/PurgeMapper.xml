@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.purge.PurgeMapper">
+
+  <select id="selectAnalysisIdsAndUuids" parameterType="map" resultType="IdUuidPair">
+    select
+      s.id as id, s.uuid as uuid
+    from
+      snapshots s
+    <where>
+      <if test="islast != null">
+        and s.islast=#{islast}
+      </if>
+      <if test="notPurged != null and notPurged">
+        and (s.purge_status is null or s.purge_status=0)
+      </if>
+      <if test="componentUuid != null">
+        and s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      </if>
+      <if test="status != null">
+        and s.status in
+        <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
+      </if>
+    </where>
+  </select>
+
+  <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
+    select
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
+    from
+      snapshots s
+    where
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and s.status='P'
+      and exists(select e.id from events e where e.analysis_uuid=s.uuid)
+  </select>
+
+  <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
+    select
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast"
+    from
+      snapshots s
+    where
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and s.status='P'
+      and not exists(select e.id from events e where e.analysis_uuid=s.uuid)
+  </select>
+
+  <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
+    select id from metrics where delete_historical_data=${_true}
+  </select>
+
+  <select id="selectComponentsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
+    select id, uuid from projects where project_uuid=#{uuid,jdbcType=VARCHAR} or uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteAnalysisMeasures" parameterType="map">
+    delete from project_measures
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteSnapshotMeasures" parameterType="map">
+    delete from project_measures
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentMeasures" parameterType="map">
+    delete from project_measures
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+      and component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAnalysisDuplications" parameterType="map">
+    delete from duplications_index
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAnalysisEvents" parameterType="map">
+    delete from events
+    where
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAnalyses" parameterType="map">
+    delete from snapshots
+    where
+      uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAnalysisWastedMeasures" parameterType="map">
+    delete from project_measures
+    <where>
+      analysis_uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid}
+      </foreach>
+      and (person_id is not null
+      <if test="metricIds.size()>0">
+        or metric_id in
+        <foreach collection="metricIds" open="(" item="metricId" separator="," close=")">
+          #{metricId}
+        </foreach>
+      </if>
+      )
+    </where>
+  </delete>
+
+  <update id="updatePurgeStatusToOne" parameterType="map">
+    update
+      snapshots
+    set
+      purge_status = 1
+    where
+      uuid in
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </update>
+
+  <update id="resolveComponentIssuesNotAlreadyResolved" parameterType="map">
+    update
+      issues
+    set
+      status='CLOSED',
+      resolution='REMOVED',
+      updated_at=#{dateAsLong},
+      issue_close_date=#{dateAsLong},
+      issue_update_date=#{dateAsLong}
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+      and resolution is null
+  </update>
+
+  <delete id="deleteResourceIndex" parameterType="map">
+    delete from resource_index
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentLinks" parameterType="map">
+    delete from project_links
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentProperties" parameterType="map">
+    delete from properties
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponents" parameterType="map">
+    delete from projects
+    where
+      uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentGroupRoles" parameterType="map">
+    delete from group_roles
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentUserRoles" parameterType="map">
+    delete from user_roles
+    where
+      resource_id in
+      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+        #{componentId}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentManualMeasures" parameterType="map">
+    delete from manual_measures where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteComponentEvents" parameterType="map">
+    delete from events
+    where
+      component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <delete id="deleteAuthors" parameterType="map">
+    delete from authors
+    where
+      person_id in
+      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+        #{resourceId}
+      </foreach>
+  </delete>
+
+  <delete id="deleteComponentIssueChanges" parameterType="map">
+    delete from issue_changes ic
+    where exists (select * from issues i where i.kee=ic.issue_key and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid,jdbcType=VARCHAR}
+    </foreach>
+    )
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteComponentIssueChanges" databaseId="mssql" parameterType="map">
+    delete issue_changes from issue_changes
+    inner join issues on issue_changes.issue_key=issues.kee
+    where issues.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteComponentIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteComponentIssues" parameterType="map">
+    delete from issues where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteFileSourcesByProjectUuid">
+    delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteFileSourcesByUuid">
+    delete from file_sources
+    where
+      file_uuid in
+      <foreach collection="fileUuids" open="(" close=")" item="fileUuid" separator=",">
+        #{fileUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <select id="selectOldClosedIssueKeys" parameterType="map" resultType="String">
+    SELECT kee FROM issues
+    WHERE project_uuid=#{projectUuid,jdbcType=VARCHAR}
+    <choose>
+      <when test="toDate == null">
+        AND issue_close_date IS NOT NULL
+      </when>
+      <otherwise>
+        AND issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </select>
+
+  <delete id="deleteIssuesFromKeys" parameterType="map">
+    DELETE FROM issues
+    WHERE kee IN
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteIssueChangesFromIssueKeys" parameterType="map">
+    DELETE FROM issue_changes
+    WHERE issue_key IN
+    <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
+      #{issueKey,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteCeActivityByProjectUuid">
+      delete from ce_activity where component_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteWebhookDeliveriesByProjectUuid">
+    delete from webhook_deliveries where component_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>
+

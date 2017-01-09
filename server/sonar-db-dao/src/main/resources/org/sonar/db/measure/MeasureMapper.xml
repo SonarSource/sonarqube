@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.measure.MeasureMapper">
+
+  <sql id="measureColumns">
+    pm.metric_id as metricId,
+    pm.person_id as developerId,
+    pm.component_uuid as componentUuid,
+    pm.analysis_uuid as analysisUuid,
+    pm.value as value,
+    pm.text_value as textValue,
+    pm.alert_status as alertStatus,
+    pm.alert_text as alertText,
+    pm.measure_data as dataValue,
+    pm.variation_value_1 as variation1,
+    pm.variation_value_2 as variation2,
+    pm.variation_value_3 as variation3,
+    pm.variation_value_4 as variation4,
+    pm.variation_value_5 as variation5
+  </sql>
+
+  <sql id="extendedMeasureColumns">
+    <include refid="measureColumns"/>,
+    metric.name as metricKey
+  </sql>
+
+  <select id="selectByQueryOnProjects" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/> from project_measures pm
+    <include refid="selectByQueryCommonJoins"/>
+    where
+    <include refid="selectByQueryCommonFilters"/>
+    and analysis.component_uuid=pm.component_uuid
+    and analysis.component_uuid in
+    <foreach item="projectUuid" collection="query.getProjectUuids()" open="(" separator="," close=")">
+      #{projectUuid}
+    </foreach>
+  </select>
+
+  <select id="selectByQueryOnComponents" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/> from project_measures pm
+    <include refid="selectByQueryCommonJoins"/>
+    where
+    <include refid="selectByQueryCommonFilters"/>
+    and analysis.component_uuid=#{query.projectUuid}
+    and pm.component_uuid in
+    <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
+      #{componentUuid}
+    </foreach>
+  </select>
+
+  <select id="selectByQueryOnSingleComponent" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/> from project_measures pm
+    <include refid="selectByQueryCommonJoins"/>
+    inner join projects p on p.project_uuid=analysis.component_uuid
+      and p.uuid=pm.component_uuid
+    where
+    <include refid="selectByQueryCommonFilters"/>
+    and pm.component_uuid=#{query.componentUuid}
+  </select>
+
+  <sql id="selectByQueryCommonJoins">
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    <if test="query.getMetricKeys() != null">
+      inner join metrics m on m.id = pm.metric_id
+    </if>
+  </sql>
+
+  <sql id="selectByQueryCommonFilters">
+    <if test="query.getAnalysisUuid() == null">
+      analysis.islast=${_true}
+    </if>
+    <if test="query.getAnalysisUuid() != null">
+      analysis.uuid = #{query.analysisUuid}
+    </if>
+    <if test="query.getMetricIds() != null">
+      and pm.metric_id in
+      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <if test="query.getMetricKeys() != null">
+      and m.name in
+      <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">
+        #{metricKey}
+      </foreach>
+    </if>
+    <choose>
+      <when test="query.getPersonId() != null">
+        and pm.person_id = #{query.personId}
+      </when>
+      <otherwise>
+        and pm.person_id is null
+      </otherwise>
+    </choose>
+  </sql>
+
+  <select id="selectTreeByQuery" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/> from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
+    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
+    <where>
+      <include refid="selectTreeByQueryFilters"/>
+    </where>
+    -- Add measures of base component
+    union all
+    select <include refid="measureColumns"/> from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid and pm.component_uuid=#{baseUuid}
+    <where>
+      <include refid="selectTreeByQueryFilters"/>
+    </where>
+  </select>
+
+  <sql id="selectTreeByQueryFilters">
+    and analysis.islast=${_true}
+    <if test="query.getMetricIds() != null">
+      and pm.metric_id in
+      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <choose>
+      <when test="query.getPersonId() != null">
+        and pm.person_id = #{query.personId}
+      </when>
+      <otherwise>
+        and pm.person_id is null
+      </otherwise>
+    </choose>
+    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
+  </sql>
+
+  <select id="selectPastMeasures" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
+    select pm.id as id, pm.metric_id as metricId, pm.person_id as personId, pm.value as value
+    from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    where
+      pm.component_uuid = #{componentUuid}
+      and analysis.uuid = #{analysisUuid}
+      and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+      and pm.person_id is null
+  </select>
+
+  <select id="selectProjectMeasuresOfDeveloper" parameterType="map" resultType="Measure">
+    SELECT
+      <include refid="measureColumns"/>
+    from
+      project_measures pm, snapshots s, projects p
+    where
+      pm.person_id=#{developerId}
+      and pm.metric_id in
+        <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
+          #{metricId}
+        </foreach>
+      and s.uuid=pm.analysis_uuid
+      and s.islast=${_true}
+      and p.uuid=pm.component_uuid
+      and p.scope='PRJ'
+      and p.qualifier='TRK'
+  </select>
+
+  <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
+    insert into project_measures (
+    value,
+    metric_id,
+    component_uuid,
+    analysis_uuid,
+    text_value,
+    alert_status,
+    alert_text,
+    description,
+    person_id,
+    variation_value_1,
+    variation_value_2,
+    variation_value_3,
+    variation_value_4,
+    variation_value_5,
+    measure_data)
+    VALUES (
+    #{value, jdbcType=DOUBLE},
+    #{metricId, jdbcType=INTEGER},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{analysisUuid, jdbcType=VARCHAR},
+    #{textValue, jdbcType=VARCHAR},
+    #{alertStatus, jdbcType=VARCHAR},
+    #{alertText, jdbcType=VARCHAR},
+    #{description, jdbcType=VARCHAR},
+    #{developerId, jdbcType=INTEGER},
+    #{variation1, jdbcType=DOUBLE},
+    #{variation2, jdbcType=DOUBLE},
+    #{variation3, jdbcType=DOUBLE},
+    #{variation4, jdbcType=DOUBLE},
+    #{variation5, jdbcType=DOUBLE},
+    #{dataValue, jdbcType=BINARY}
+    )
+  </insert>
+
+</mapper>

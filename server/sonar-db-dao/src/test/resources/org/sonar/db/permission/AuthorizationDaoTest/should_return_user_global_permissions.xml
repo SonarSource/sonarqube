@@ -1,0 +1,44 @@
+<dataset>
+
+  <!-- user 10 has no group, but has direct role 'user' and 'admin' -->
+  <users id="10"
+         login="john"
+         is_root="[false]"/>
+  <!-- user 11 has no group, but has direct role 'user' -->
+  <users id="11"
+         login="arthur"
+         is_root="[false]"/>
+
+  <user_roles id="1"
+              user_id="10"
+              resource_id="[null]"
+              role="user"
+              organization_uuid="org1"/>
+  <user_roles id="2"
+              user_id="10"
+              resource_id="[null]"
+              role="admin"
+              organization_uuid="org1"/>
+  <user_roles id="3"
+              user_id="11"
+              resource_id="[null]"
+              role="user"
+              organization_uuid="org1"/>
+
+  <groups_users user_id="999"
+                group_id="200"/>
+  <groups_users user_id="999"
+                group_id="201"/>
+
+  <group_roles id="200"
+               group_id="200"
+               resource_id="[null]"
+               role="user"
+               organization_uuid="org1"/>
+  <group_roles id="201"
+               group_id="200"
+               resource_id="[null]"
+               role="admin"
+               organization_uuid="org1"/>
+
+</dataset>

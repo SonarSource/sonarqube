@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserTokenMapper">
+
+  <sql id="userTokensColumns">
+    t.login as "login",
+    t.name as "name",
+    t.token_hash as "tokenHash",
+    t.created_at as "createdAt"
+  </sql>
+
+  <insert id="insert" parameterType="UserToken" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into user_tokens (
+    login,
+    name,
+    token_hash,
+    created_at
+    ) values (
+    #{login,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{tokenHash,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="selectByTokenHash" parameterType="String" resultType="UserToken">
+    SELECT
+    <include refid="userTokensColumns"/>
+    FROM user_tokens t
+    WHERE t.token_hash=#{tokenHash}
+  </select>
+
+  <select id="selectByLoginAndName" parameterType="map" resultType="UserToken">
+    SELECT
+    <include refid="userTokensColumns"/>
+    FROM user_tokens t
+    WHERE t.login=#{login} and t.name=#{name}
+  </select>
+
+  <select id="selectByLogin" parameterType="map" resultType="UserToken">
+    SELECT
+    <include refid="userTokensColumns"/>
+    FROM user_tokens t
+    WHERE t.login=#{login}
+  </select>
+  
+  <select id="countTokensByLogins" parameterType="map" resultType="UserTokenCount">
+    SELECT t.login as "login", count(t.name) as "tokenCount"
+    FROM user_tokens t
+    WHERE t.login in
+    <foreach collection="logins" open="(" close=")" item="login" separator=",">
+      #{login}
+    </foreach>
+    GROUP BY t.login
+  </select>
+
+  <delete id="deleteByLogin">
+    DELETE FROM user_tokens WHERE login=#{login}
+  </delete>
+
+  <delete id="deleteByLoginAndName">
+    DELETE FROM user_tokens WHERE login=#{login} and name=#{name}
+  </delete>
+
+</mapper>

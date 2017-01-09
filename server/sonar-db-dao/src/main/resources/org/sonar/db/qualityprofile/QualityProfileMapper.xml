@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.QualityProfileMapper">
+
+  <sql id="profilesColumns">
+    p.id as id,
+    p.kee as kee,
+    p.name as name,
+    p.language as language,
+    p.parent_kee as parentKee,
+    p.is_default as isDefault,
+    p.created_at as createdAt,
+    p.updated_at as updatedAt,
+    p.rules_updated_at as rulesUpdatedAt,
+    p.last_used as lastUsed,
+    p.user_updated_at as userUpdatedAt
+  </sql>
+
+  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used, user_updated_at)
+    VALUES (
+    #{kee, jdbcType=VARCHAR},
+    #{parentKee, jdbcType=VARCHAR},
+    #{name, jdbcType=VARCHAR},
+    #{language, jdbcType=VARCHAR},
+    #{isDefault, jdbcType=BOOLEAN},
+    #{createdAt, jdbcType=TIMESTAMP},
+    #{updatedAt, jdbcType=TIMESTAMP},
+    #{rulesUpdatedAt, jdbcType=VARCHAR},
+    #{lastUsed, jdbcType=BIGINT},
+    #{userUpdatedAt, jdbcType=BIGINT})
+  </insert>
+
+  <update id="update" parameterType="QualityProfile">
+    UPDATE rules_profiles SET
+    name=#{name, jdbcType=VARCHAR},
+    language=#{language, jdbcType=VARCHAR},
+    is_default=#{isDefault, jdbcType=BOOLEAN},
+    parent_kee=#{parentKee, jdbcType=VARCHAR},
+    updated_at=#{updatedAt, jdbcType=TIMESTAMP},
+    rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
+    last_used=#{lastUsed, jdbcType=BIGINT},
+    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT}
+    WHERE id=#{id}
+  </update>
+
+  <update id="delete" parameterType="int">
+    DELETE FROM rules_profiles WHERE id=#{id}
+  </update>
+
+  <select id="selectAll" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    ORDER BY p.name, p.language
+  </select>
+
+  <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.name=#{name} AND p.language=#{language}
+  </select>
+
+  <select id="selectByNameAndLanguages" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    <where>
+      p.name=#{name}
+      AND p.language in
+      <foreach collection="languages" open="(" close=")" item="language" separator=",">
+        #{language}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectByKey" parameterType="string" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.kee=#{id}
+  </select>
+
+  <select id="selectByKeys" parameterType="string" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.kee in
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key}
+    </foreach>
+  </select>
+
+  <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.language=#{language}
+    ORDER BY p.name
+  </select>
+
+  <select id="selectById" parameterType="Integer" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.id=#{id}
+  </select>
+
+  <select id="selectParentById" parameterType="int" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    INNER JOIN rules_profiles child ON child.parent_kee=p.kee and child.id=#{id}
+  </select>
+
+  <select id="selectChildren" parameterType="string" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.parent_kee=#{id}
+    ORDER BY p.name
+  </select>
+
+  <select id="selectDefaultProfile" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    <where>
+      p.is_default=${_true}
+      AND p.language=#{language}
+    </where>
+  </select>
+
+  <select id="selectDefaultProfiles" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    <where>
+      p.is_default=${_true}
+      AND p.language in
+      <foreach collection="languages" open="(" close=")" item="language" separator=",">
+        #{language}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectProjects" resultType="Component">
+    SELECT projects.id as id, projects.name as name, projects.kee as kee, projects.uuid as uuid
+    FROM projects projects
+    JOIN project_qprofiles pp ON pp.project_uuid = projects.uuid
+    JOIN rules_profiles prof ON pp.profile_key = prof.kee
+    <where>
+      AND prof.name = #{profileName}
+      AND prof.language = #{language}
+    </where>
+  </select>
+
+  <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    FROM projects pj
+    JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    AND pp.profile_key = #{profileKey}
+    <where>
+      AND pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery}
+    </where>
+    ORDER BY pj.name ASC
+  </select>
+
+  <select id="selectDeselectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    FROM projects pj
+    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    AND pp.profile_key = #{profileKey}
+    <where>
+      AND pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery}
+      AND pp.profile_key IS NULL
+    </where>
+    ORDER BY pj.name ASC
+  </select>
+
+  <select id="selectProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    FROM projects pj
+    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    AND pp.profile_key = #{profileKey}
+    <where>
+      AND pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery}
+    </where>
+    ORDER BY pj.name ASC
+  </select>
+
+  <select id="countProjectsByProfile" resultType="org.sonar.db.qualityprofile.QualityProfileProjectCount">
+    SELECT pp.profile_key as profileKey, count(projects.id) as projectCount
+    FROM projects projects
+    INNER JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
+    INNER JOIN rules_profiles prof ON pp.profile_key=prof.kee
+    WHERE projects.enabled=${_true}
+    GROUP BY pp.profile_key
+  </select>
+
+  <select id="selectByProjectIdAndLanguage" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    JOIN project_qprofiles pp ON pp.profile_key=p.kee
+    JOIN projects project ON pp.project_uuid=project.uuid
+    AND project.id=#{projectId}
+    WHERE p.language=#{language}
+  </select>
+
+  <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    JOIN project_qprofiles pp ON pp.profile_key=p.kee
+    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey}
+    WHERE p.language=#{language}
+  </select>
+
+  <select id="selectByProjectAndLanguages" parameterType="map" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    JOIN project_qprofiles pp ON pp.profile_key=p.kee
+    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey}
+    <where>
+      p.language in
+      <foreach collection="languages" open="(" close=")" item="language" separator=",">
+        #{language}
+      </foreach>
+    </where>
+  </select>
+
+  <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
+    INSERT INTO project_qprofiles (project_uuid, profile_key) VALUES (#{projectUuid}, #{profileKey})
+  </insert>
+
+  <update id="updateProjectProfileAssociation">
+    UPDATE project_qprofiles SET profile_key=#{profileKey} WHERE project_uuid=#{projectUuid} AND profile_key=#{oldProfileKey}
+  </update>
+
+  <update id="deleteProjectProfileAssociation">
+    DELETE FROM project_qprofiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
+  </update>
+
+  <update id="deleteAllProjectProfileAssociation">
+    DELETE FROM project_qprofiles WHERE profile_key=#{profileKey}
+  </update>
+
+</mapper>
+

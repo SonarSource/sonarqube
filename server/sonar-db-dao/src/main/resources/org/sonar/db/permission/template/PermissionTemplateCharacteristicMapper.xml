@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper">
+  <sql id="columns">
+    ptc.id,
+    ptc.template_id as templateId,
+    ptc.permission_key as permission,
+    ptc.with_project_creator as withProjectCreator,
+    ptc.created_at as createdAt,
+    ptc.updated_at as updatedAt
+  </sql>
+
+  <select id="selectById" parameterType="long" resultType="PermissionTemplateCharacteristic">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.id=#{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByTemplateIds" parameterType="long" resultType="PermissionTemplateCharacteristic">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where
+    ptc.template_id in
+    <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+      #{templateId}
+    </foreach>
+    order by id
+  </select>
+
+  <select id="selectByPermissionAndTemplateId" parameterType="map" resultType="PermissionTemplateCharacteristic">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.template_id=#{templateId}
+    and ptc.permission_key=#{permission}
+    order by id
+  </select>
+
+  <insert id="insert" parameterType="PermissionTemplateCharacteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into perm_tpl_characteristics(template_id, permission_key, with_project_creator, created_at, updated_at)
+    values(#{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR}, #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})
+  </insert>
+
+  <update id="update" parameterType="PermissionTemplateCharacteristic" useGeneratedKeys="false">
+    update perm_tpl_characteristics set
+    with_project_creator=#{withProjectCreator, jdbcType=BOOLEAN},
+    updated_at=#{updatedAt, jdbcType=BIGINT}
+    where id=#{id}
+  </update>
+
+  <delete id="deleteByTemplateId" parameterType="long">
+    DELETE FROM perm_tpl_characteristics
+    WHERE template_id = #{permissionTemplateId}
+  </delete>
+
+  <delete id="deleteByTemplateIds" parameterType="long">
+    delete from
+      perm_tpl_characteristics
+    where
+      template_id in
+      <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+        #{templateId}
+      </foreach>
+  </delete>
+</mapper>

@@ -1,0 +1,138 @@
+<!--
+
+Changes:
+* snapshot.purge_status=1
+* commented-out rows are deleted
+
+Note that measures, events and reviews are not deleted.
+
+-->
+<dataset>
+  <snapshots id="1"
+             uuid="u1"
+             component_uuid="uuid_1"
+             status="P"
+             islast="[false]"
+             purge_status="1"
+             period1_mode="[null]"
+             period1_param="[null]"
+             period1_date="[null]"
+             period2_mode="[null]"
+             period2_param="[null]"
+             period2_date="[null]"
+             period3_mode="[null]"
+             period3_param="[null]"
+             period3_date="[null]"
+             period4_mode="[null]"
+             period4_param="[null]"
+             period4_date="[null]"
+             period5_mode="[null]"
+             period5_param="[null]"
+             period5_date="[null]"
+             created_at="1228222680000"
+             build_date="1228222680000"
+             version="[null]"
+  />
+
+  <!--switched_off="[null]" permanent_id="[null]" FAILURE_LEVEL="2"-->
+  <!--MESSAGE="msg1" LINE="[null]" COST="[null]"-->
+  <!--created_at="2008-12-02 13:58:00.00"-->
+  <!--checksum="[null]" person_id="[null]"/>-->
+
+  <project_measures ID="1"
+                    component_uuid="1"
+                    analysis_uuid="u1"
+                    variation_value_1="[null]"
+                    variation_value_2="[null]"
+                    variation_value_3="[null]"
+                    variation_value_4="[null]"
+                    variation_value_5="[null]"
+                    alert_text="[null]"
+                    VALUE="10.0"
+                    METRIC_ID="1"
+                    person_id="[null]"
+                    text_value="[null]"
+                    alert_status="[null]"
+                    description="[null]"
+                    measure_data="[null]"/>
+
+  <events id="1"
+          uuid="E1"
+          analysis_uuid="u1"
+          component_uuid="1"
+          category="VERSION"
+          description="[null]"
+          name="Version 1.0"
+          event_date="1228222680000"
+          created_at="1228222680000"
+          event_data="[null]"/>
+
+  <!--<duplications_index id="1" project_snapshot_id="1" snapshot_id="1"-->
+  <!--hash="bb" index_in_file="0" start_line="0" end_line="0"/>-->
+
+
+  <!-- The following is not purged but is kept for DBUnit -->
+  <snapshots id="2"
+             uuid="u2"
+             component_uuid="uuid_2"
+             status="P"
+             islast="[false]"
+             purge_status="1"
+             period1_mode="[null]"
+             period1_param="[null]"
+             period1_date="[null]"
+             period2_mode="[null]"
+             period2_param="[null]"
+             period2_date="[null]"
+             period3_mode="[null]"
+             period3_param="[null]"
+             period3_date="[null]"
+             period4_mode="[null]"
+             period4_param="[null]"
+             period4_date="[null]"
+             period5_mode="[null]"
+             period5_param="[null]"
+             period5_date="[null]"
+             created_at="1228222680000"
+             build_date="1228222680000"
+             version="[null]"
+  />
+
+
+  <project_measures ID="2"
+                    component_uuid="2"
+                    analysis_uuid="u2"
+                    variation_value_1="[null]"
+                    variation_value_2="[null]"
+                    variation_value_3="[null]"
+                    variation_value_4="[null]"
+                    variation_value_5="[null]"
+                    alert_text="[null]"
+                    VALUE="10.0"
+                    METRIC_ID="1"
+                    person_id="[null]"
+                    text_value="[null]"
+                    alert_status="[null]"
+                    description="[null]"
+                    measure_data="[null]"/>
+
+  <events id="2"
+          uuid="E2"
+          analysis_uuid="u2"
+          component_uuid="2"
+          category="VERSION"
+          description="[null]"
+          name="Version 1.0"
+          event_date="1228222680000"
+          created_at="1228222680000"
+          event_data="[null]"/>
+
+  <duplications_index id="2"
+                      analysis_uuid="u2"
+                      component_uuid="uuid_2"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
+                      end_line="0"/>
+
+</dataset>

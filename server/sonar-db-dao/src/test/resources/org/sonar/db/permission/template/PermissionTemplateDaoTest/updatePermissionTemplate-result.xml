@@ -1,0 +1,18 @@
+<dataset>
+  <permission_templates id="1"
+                        name="new_name"
+                        kee="template1_20130102_030405"
+                        description="new_description"
+                        key_pattern="new_regexp"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+  <permission_templates id="2"
+                        name="template2"
+                        kee="template2_20130102_030405"
+                        description="description2"
+                        key_pattern="barregexp"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+</dataset>

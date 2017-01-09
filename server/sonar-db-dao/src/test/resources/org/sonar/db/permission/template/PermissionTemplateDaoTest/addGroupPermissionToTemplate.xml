@@ -1,0 +1,9 @@
+<dataset>
+  <permission_templates id="1"
+                        name="my template"
+                        kee="my_template_20130102_030405"
+                        description="my description"
+                        organization_uuid="org1"/>
+  <perm_templates_users/>
+  <perm_templates_groups/>
+</dataset>

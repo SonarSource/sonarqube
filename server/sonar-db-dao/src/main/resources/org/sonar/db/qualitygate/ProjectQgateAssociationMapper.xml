@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
+
+  <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
+    SELECT proj.id as id, proj.name as name, prop.text_value as gateId
+    FROM projects proj
+    <if test="query.projectSearch() != null">
+      JOIN resource_index ind ON ind.root_component_uuid=proj.uuid
+    </if>
+    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value LIKE
+    #{query.gateId}
+    <where>
+      <choose>
+        <when test="query.membership() == 'selected'">
+          AND prop.text_value IS NOT NULL
+        </when>
+        <when test="query.membership() == 'deselected'">
+          AND prop.text_value IS NULL
+        </when>
+      </choose>
+      <if test="query.projectSearch() != null">
+        AND ind.kee LIKE #{query.projectSearchSql}
+      </if>
+      AND proj.qualifier='TRK'
+      AND proj.scope='PRJ'
+      <if test="query.projectSearch() != null">
+        AND ind.qualifier='TRK'
+      </if>
+    </where>
+    ORDER BY proj.name
+  </select>
+
+  <select id="selectQGateIdByComponentId" parameterType="long" resultType="string">
+    SELECT text_value
+    FROM properties
+    <where>
+      AND resource_id=#{componentId}
+      AND prop_key='sonar.qualitygate'
+    </where>
+  </select>
+
+</mapper>

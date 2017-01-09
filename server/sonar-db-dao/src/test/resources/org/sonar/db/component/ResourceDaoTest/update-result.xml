@@ -1,0 +1,24 @@
+<dataset>
+
+  <projects id="1"
+            root_id="[null]"
+            uuid="ABCD"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            description="MVC Framework"
+            long_name="Apache Struts"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"
+            created_at="[null]"
+            path="/foo/bar"
+            deprecated_kee="deprecated key"
+            authorization_updated_at="[null]"/>
+
+</dataset>

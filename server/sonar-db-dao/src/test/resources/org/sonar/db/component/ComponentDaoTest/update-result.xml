@@ -1,0 +1,26 @@
+<dataset>
+
+  <projects id="1"
+            kee="org.struts:struts-core:src/org/struts/RequestContext2.java"
+            deprecated_kee="org.struts:struts-core:src/org/struts/RequestContext2.java"
+            name="RequestContext2.java"
+            long_name="org.struts.RequestContext2"
+            uuid="GHIJ"
+            uuid_path="GHIJ."
+            project_uuid="DCBA"
+            module_uuid="HGFE"
+            module_uuid_path=".DCBA.HGFE."
+            qualifier="LIF"
+            scope="LIF"
+            language="java2"
+            path="src/org/struts/RequestContext2.java"
+            root_uuid="uuid_4"
+            description="description2"
+            enabled="[false]"
+            copy_component_uuid="uuid_6"
+            developer_uuid="uuid_9"
+            authorization_updated_at="12345678910"
+            created_at="2014-06-18"
+  />
+
+</dataset>

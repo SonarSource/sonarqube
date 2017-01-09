@@ -1,0 +1,20 @@
+<dataset>
+  <project_measures
+      id="1"
+      analysis_uuid="u2"
+      metric_id="3"
+      component_uuid="FILE1"
+      person_id="23"
+      value="2.0"
+      text_value="measure-value"
+      measure_data="[null]"
+      variation_value_1="1.0"
+      variation_value_2="2.0"
+      variation_value_3="3.0"
+      variation_value_4="4.0"
+      variation_value_5="5.0"
+      alert_status="alert"
+      alert_text="alert-text"
+      description="measure-description"
+  />
+</dataset>

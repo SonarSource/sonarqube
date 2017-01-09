@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.ce.CeTaskInputMapper">
+
+  <select id="selectUuidsNotInQueue" resultType="String">
+    select d.task_uuid
+    from ce_task_input d
+    left join ce_queue q on d.task_uuid = q.uuid
+    where q.uuid is null
+  </select>
+
+  <delete id="deleteByUuids" parameterType="String">
+    delete from ce_task_input
+    where task_uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+  </delete>
+
+</mapper>

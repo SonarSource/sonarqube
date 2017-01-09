@@ -1,0 +1,25 @@
+<dataset>
+
+  <user_roles id="1"
+              user_id="100"
+              resource_id="[null]"
+              role="user"
+              organization_uuid="org1"/>
+
+  <groups_users user_id="1"
+                group_id="200"/>
+  <groups_users user_id="1"
+                group_id="201"/>
+
+  <group_roles id="200"
+               group_id="[null]"
+               resource_id="[null]"
+               role="user"
+               organization_uuid="org1"/>
+  <group_roles id="201"
+               group_id="[null]"
+               resource_id="[null]"
+               role="admin"
+               organization_uuid="org1"/>
+
+</dataset>

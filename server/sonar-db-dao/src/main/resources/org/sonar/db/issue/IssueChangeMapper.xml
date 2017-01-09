@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.issue.IssueChangeMapper">
+
+  <sql id="issueChangeColumns">
+    c.id,
+    c.kee as kee,
+    c.issue_key as issueKey,
+    c.user_login as userLogin,
+    c.change_type as changeType,
+    c.change_data as changeData,
+    c.created_at as createdAt,
+    c.updated_at as updatedAt,
+    c.issue_change_creation_date as issueChangeCreationDate
+  </sql>
+
+  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id">
+    INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at,
+    issue_change_creation_date)
+    VALUES (#{kee,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userLogin,jdbcType=VARCHAR},
+    #{changeType,jdbcType=VARCHAR}, #{changeData,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT}, #{issueChangeCreationDate,jdbcType=BIGINT})
+  </insert>
+
+  <delete id="delete" parameterType="string">
+    delete from issue_changes where kee=#{id}
+  </delete>
+
+  <update id="update" parameterType="map">
+    update issue_changes set change_data=#{changeData}, updated_at=#{updatedAt} where kee=#{kee}
+  </update>
+
+  <select id="selectByIssuesAndType" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.change_type=#{changeType} and c.issue_key in
+    <foreach collection="issueKeys" open="(" close=")" item="key" separator=",">
+      #{key}
+    </foreach>
+    order by c.created_at
+  </select>
+
+  <select id="selectByKeyAndType" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.change_type=#{changeType} and c.kee=#{key}
+  </select>
+
+  <select id="selectByIssue" parameterType="string" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.issue_key=#{id}
+    order by created_at asc
+  </select>
+
+  <select id="selectChangelogOfNonClosedIssuesByComponent" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    inner join issues i on i.kee = c.issue_key
+    where i.component_uuid=#{componentUuid}
+    and c.change_type=#{changeType}
+    and i.status &lt;&gt; 'CLOSED'
+  </select>
+</mapper>
+

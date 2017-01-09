@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.webhook.WebhookDeliveryMapper">
+
+  <sql id="sqlLiteColumns">
+    uuid,
+    component_uuid as componentUuid,
+    ce_task_uuid as ceTaskUuid,
+    name,
+    url,
+    success,
+    http_status as httpStatus,
+    duration_ms as durationMs,
+    created_at as createdAt
+  </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryDto">
+    select
+    <include refid="sqlLiteColumns" />,
+    payload,
+    error_stacktrace as errorStacktrace
+    from webhook_deliveries
+    where uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectOrderedByComponentUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+    select <include refid="sqlLiteColumns" />
+    from webhook_deliveries
+    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    order by created_at desc
+  </select>
+
+  <select id="selectOrderedByCeTaskUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+    select <include refid="sqlLiteColumns" />
+    from webhook_deliveries
+    where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
+    order by created_at desc
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.webhook.WebhookDeliveryDto" useGeneratedKeys="false">
+    insert into webhook_deliveries (
+    uuid,
+    component_uuid,
+    ce_task_uuid,
+    name,
+    url,
+    success,
+    http_status,
+    duration_ms,
+    payload,
+    error_stacktrace,
+    created_at
+    ) values (
+    #{uuid,jdbcType=VARCHAR},
+    #{componentUuid,jdbcType=VARCHAR},
+    #{ceTaskUuid,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{url,jdbcType=VARCHAR},
+    #{success,jdbcType=BOOLEAN},
+    #{httpStatus,jdbcType=INTEGER},
+    #{durationMs,jdbcType=INTEGER},
+    #{payload,jdbcType=VARCHAR},
+    #{errorStacktrace,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+  <delete id="deleteComponentBeforeDate" parameterType="map">
+    delete from webhook_deliveries
+    where
+    component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    created_at &lt; #{beforeDate,jdbcType=BIGINT}
+  </delete>
+</mapper>

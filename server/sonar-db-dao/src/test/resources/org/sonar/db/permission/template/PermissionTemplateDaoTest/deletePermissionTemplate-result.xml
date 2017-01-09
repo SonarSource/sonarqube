@@ -1,0 +1,26 @@
+<dataset>
+  <permission_templates id="2"
+                        name="other template"
+                        kee="my_template_20130102_030405"
+                        description="other description"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+
+  <perm_templates_users id="4"
+                        template_id="2"
+                        user_id="2"
+                        permission_reference="user_permission2"/>
+
+  <perm_templates_groups id="4"
+                         template_id="2"
+                         group_id="[null]"
+                         permission_reference="group_permission2"/>
+
+  <perm_tpl_characteristics id="2"
+                            template_id="2"
+                            permission_key="user"
+                            with_project_creator="[true]"
+                            created_at="1000000"
+                            updated_at="1000000"/>
+</dataset>

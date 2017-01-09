@@ -1,0 +1,64 @@
+<dataset>
+  <permission_templates id="1"
+                        name="my template"
+                        kee="my_template_20130102_030405"
+                        description="my description"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+  <permission_templates id="2"
+                        name="other template"
+                        kee="my_template_20130102_030405"
+                        description="other description"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+
+  <perm_templates_users id="1"
+                        template_id="1"
+                        user_id="1"
+                        permission_reference="user_permission1"/>
+  <perm_templates_users id="2"
+                        template_id="1"
+                        user_id="2"
+                        permission_reference="user_permission1"/>
+  <perm_templates_users id="3"
+                        template_id="1"
+                        user_id="2"
+                        permission_reference="user_permission2"/>
+  <perm_templates_users id="4"
+                        template_id="2"
+                        user_id="2"
+                        permission_reference="user_permission2"/>
+
+  <perm_templates_groups id="1"
+                         template_id="1"
+                         group_id="1"
+                         permission_reference="group_permission1"/>
+  <perm_templates_groups id="2"
+                         template_id="1"
+                         group_id="2"
+                         permission_reference="group_permission1"/>
+  <perm_templates_groups id="3"
+                         template_id="1"
+                         group_id="[null]"
+                         permission_reference="group_permission2"/>
+  <perm_templates_groups id="4"
+                         template_id="2"
+                         group_id="[null]"
+                         permission_reference="group_permission2"/>
+
+  <perm_tpl_characteristics id="1"
+                            template_id="1"
+                            permission_key="user"
+                            with_project_creator="[true]"
+                            created_at="1000000"
+                            updated_at="1000000"/>
+  <perm_tpl_characteristics id="2"
+                            template_id="2"
+                            permission_key="user"
+                            with_project_creator="[true]"
+                            created_at="1000000"
+                            updated_at="1000000"/>
+
+</dataset>

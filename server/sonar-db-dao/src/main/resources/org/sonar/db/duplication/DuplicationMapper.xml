@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.duplication.DuplicationMapper">
+
+  <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
+    SELECT DISTINCT
+    duplication_block.id as id,
+    duplication_block.analysis_uuid as analysisUuid,
+    duplication_block.component_uuid as componentUuid,
+    duplication_block.hash as hash,
+    duplication_block.index_in_file as indexInFile,
+    duplication_block.start_line as startLine,
+    duplication_block.end_line as endLine,
+    file_component.kee as componentKey
+    FROM duplications_index duplication_block
+    INNER JOIN snapshots snapshot ON duplication_block.analysis_uuid=snapshot.uuid AND snapshot.islast=${_true}
+    INNER JOIN projects file_component ON file_component.uuid=duplication_block.component_uuid AND file_component.language=#{language}
+    AND file_component.enabled=${_true}
+    <where>
+      AND duplication_block.hash in
+      <foreach collection="hashes" open="(" close=")" item="hash" separator=",">#{hash}</foreach>
+      <if test="analysisUuid != null">
+        AND duplication_block.analysis_uuid &lt;&gt; #{analysisUuid}
+      </if>
+    </where>
+  </select>
+
+  <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
+    INSERT INTO duplications_index (
+    analysis_uuid, component_uuid, hash,
+    index_in_file, start_line, end_line
+    )
+    VALUES (
+    #{analysisUuid,jdbcType=VARCHAR}, #{componentUuid,jdbcType=VARCHAR}, #{hash,jdbcType=VARCHAR},
+    #{indexInFile,jdbcType=INTEGER}, #{startLine,jdbcType=INTEGER}, #{endLine,jdbcType=INTEGER}
+    )
+  </insert>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserGroupMapper">
+
+  <insert id="insert" parameterType="UserGroup" useGeneratedKeys="false">
+    insert into groups_users (
+    user_id,
+    group_id
+    ) values (
+    #{userId,jdbcType=BIGINT},
+    #{groupId,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="map">
+    delete from groups_users
+    where user_id = #{userId,jdbcType=BIGINT} and
+    group_id = #{groupId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteByGroupId" parameterType="long">
+    delete from groups_users
+    where group_id = #{groupId,jdbcType=BIGINT}
+  </delete>
+
+</mapper>

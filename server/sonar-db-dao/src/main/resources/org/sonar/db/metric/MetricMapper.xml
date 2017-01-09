@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.metric.MetricMapper">
+
+  <sql id="metricColumns">
+    m.id,
+    m.name as kee,
+    m.description,
+    m.direction,
+    m.domain,
+    m.short_name as shortName,
+    m.qualitative,
+    m.val_type as valueType,
+    m.user_managed as userManaged,
+    m.enabled,
+    m.worst_value as worstValue,
+    m.best_value as bestValue,
+    m.optimized_best_value as optimizedBestValue,
+    m.hidden,
+    m.delete_historical_data as deleteHistoricalData,
+    m.decimal_scale as decimalScale
+  </sql>
+
+  <select id="selectByKey" parameterType="map" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.name=#{key}
+    </where>
+  </select>
+
+  <select id="selectAll" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    ORDER BY UPPER(m.short_name), m.short_name
+  </select>
+
+  <select id="selectAllEnabled" parameterType="map" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.enabled=${_true}
+      <if test="isCustom!=null">
+        <if test="isCustom.equals(true)">
+          AND m.user_managed=${_true}
+        </if>
+        <if test="isCustom.equals(false)">
+          AND m.user_managed=${_false}
+        </if>
+      </if>
+    </where>
+    ORDER BY UPPER(m.short_name), m.short_name
+  </select>
+
+  <select id="selectAvailableCustomMetricsByComponentUuid" resultType="org.sonar.db.metric.MetricDto">
+    select
+    <include refid="metricColumns"/>
+    from metrics m
+    left join manual_measures mm on mm.metric_id = m.id and mm.component_uuid=#{componentUuid}
+    where m.enabled=${_true}
+    and m.user_managed=${_true}
+    and mm.id is null
+    ORDER BY UPPER(m.short_name), m.short_name
+  </select>
+
+  <select id="countEnabled" resultType="Integer">
+    SELECT COUNT(1)
+    FROM metrics m
+    <where>
+      AND m.enabled=${_true}
+      <if test="isCustom!=null">
+        <if test="isCustom.equals(true)">
+          AND m.user_managed=${_true}
+        </if>
+        <if test="isCustom.equals(false)">
+          AND m.user_managed=${_false}
+        </if>
+      </if>
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.metric.MetricDto" useGeneratedKeys="true" keyColumn="id"
+          keyProperty="id">
+    INSERT INTO metrics (
+    name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
+    best_value, optimized_best_value, hidden, delete_historical_data, decimal_scale)
+    VALUES (
+    #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
+    #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
+    #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
+    #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
+    #{optimizedBestValue, jdbcType=BOOLEAN}, #{hidden, jdbcType=BOOLEAN}, #{deleteHistoricalData, jdbcType=BOOLEAN},
+    #{decimalScale, jdbcType=INTEGER}
+    )
+  </insert>
+
+  <update id="update" parameterType="org.sonar.db.metric.MetricDto">
+    update metrics
+    set
+    name=#{key, jdbcType=VARCHAR},
+    short_name=#{shortName, jdbcType=VARCHAR},
+    val_type=#{valueType, jdbcType=VARCHAR},
+    enabled=#{enabled, jdbcType=BOOLEAN},
+    domain=#{domain, jdbcType=VARCHAR},
+    description=#{description, jdbcType=VARCHAR},
+    direction=#{direction, jdbcType=INTEGER},
+    hidden=#{hidden, jdbcType=BOOLEAN},
+    qualitative=#{qualitative, jdbcType=BOOLEAN},
+    decimal_scale=#{decimalScale, jdbcType=INTEGER}
+    where id=#{id}
+  </update>
+
+  <select id="selectDomains" resultType="String">
+    select distinct domain
+    from metrics m
+    where m.domain is not null and m.enabled=${_true}
+  </select>
+
+  <update id="disableByIds">
+    update metrics
+    set enabled=${_false}
+    <where>
+      AND user_managed=${_true}
+      AND id in
+      <foreach item="id" collection="ids" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </update>
+
+  <update id="disableByKey" parameterType="string">
+    update metrics
+    set enabled=${_false}
+    where name=#{key}
+    and enabled=${_true}
+  </update>
+
+  <select id="selectByKeys" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.name in
+      <foreach item="key" collection="keys" open="(" separator="," close=")">
+        #{key}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectByIds" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.id in
+      <foreach item="id" collection="ids" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectById" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.id=#{id}
+    </where>
+  </select>
+
+</mapper>

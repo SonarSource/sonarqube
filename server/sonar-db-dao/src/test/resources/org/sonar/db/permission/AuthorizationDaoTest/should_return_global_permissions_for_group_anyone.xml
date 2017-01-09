@@ -1,0 +1,22 @@
+<dataset>
+
+  <users id="10"
+         login="anyone_user"
+         is_root="[false]"/>
+
+  <user_roles id="1"
+              user_id="10"
+              resource_id="[null]"
+              role="user"
+              organization_uuid="org1"/>
+
+  <groups_users user_id="10"
+                group_id="[null]"/>
+
+  <group_roles id="1"
+               group_id="[null]"
+               resource_id="[null]"
+               role="profileadmin"
+               organization_uuid="org1"/>
+
+</dataset>

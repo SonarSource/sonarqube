@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.QProfileChangeMapper">
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    insert into qprofile_changes
+    (
+    kee,
+    qprofile_key,
+    created_at,
+    user_login,
+    change_type,
+    change_data
+    ) values (
+    #{key,jdbcType=VARCHAR},
+    #{profileKey,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT},
+    #{login,jdbcType=VARCHAR},
+    #{changeType,jdbcType=VARCHAR},
+    #{data,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <select id="countForProfileKey" resultType="int">
+    select count(kee) from qprofile_changes
+    where qprofile_key = #{profileKey}
+  </select>
+
+  <select id="selectByQuery" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    <include refid="sqlSelectByQuery" />
+    limit #{query.limit}
+    offset #{query.offset}
+  </select>
+
+  <select id="selectByQuery" databaseId="mssql" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    <include refid="sqlSelectByQuery" />
+    offset #{query.offset} rows
+    fetch next #{query.limit} rows only
+  </select>
+
+  <select id="selectByQuery" databaseId="oracle" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    select "key", profileKey, createdAt, login, changeType, data from (
+    select rownum rnum, "key", profileKey, createdAt, login, changeType, data from (
+    <include refid="sqlSelectByQuery" />
+    )
+    where rownum &lt;= #{query.total}
+    )
+    where rnum > #{query.offset}
+  </select>
+
+  <sql id="sqlColumns">
+    kee as "key",
+    qprofile_key as profileKey,
+    created_at as createdAt,
+    user_login as login,
+    change_type as changeType,
+    change_data as data
+  </sql>
+
+  <sql id="sqlSelectByQuery">
+    select <include refid="sqlColumns" />
+    from qprofile_changes
+    where qprofile_key = #{query.profileKey}
+    <if test="query.fromIncluded != null">
+      and created_at &gt;= #{query.fromIncluded}
+    </if>
+    <if test="query.toExcluded != null">
+      and created_at &lt; #{query.toExcluded}
+    </if>
+    order by created_at desc
+  </sql>
+</mapper>
+

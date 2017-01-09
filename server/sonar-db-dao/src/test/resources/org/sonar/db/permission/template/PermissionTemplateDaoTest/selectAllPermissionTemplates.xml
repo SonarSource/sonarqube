@@ -1,0 +1,23 @@
+<dataset>
+  <permission_templates id="1"
+                        name="template1"
+                        kee="template1_20130102_030405"
+                        description="description1"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+  <permission_templates id="2"
+                        name="template2"
+                        kee="template2_20130102_030405"
+                        description="description2"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+  <permission_templates id="3"
+                        name="template3"
+                        kee="template3_20130102_030405"
+                        description="description3"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+</dataset>

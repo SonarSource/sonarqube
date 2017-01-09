@@ -1,0 +1,6 @@
+<dataset>
+  <resource_index kee="struts" position="0" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="truts" position="1" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="ruts" position="2" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="uts" position="3" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+</dataset>

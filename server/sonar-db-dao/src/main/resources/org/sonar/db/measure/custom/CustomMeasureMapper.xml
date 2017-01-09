@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.measure.custom.CustomMeasureMapper">
+  <sql id="selectColumns">
+    m.id,
+    m.metric_id as metricId,
+    m.component_uuid as componentUuid,
+    m.value,
+    m.text_value as textValue,
+    m.user_login as userLogin,
+    m.description,
+    m.created_at as createdAt,
+    m.updated_at as updatedAt
+  </sql>
+
+  <select id="selectById" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.id=#{id}
+  </select>
+
+  <select id="selectByMetricId" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.metric_id=#{metricId}
+  </select>
+
+  <select id="selectByComponentUuid" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.component_uuid=#{componentUuid}
+  </select>
+
+  <select id="selectByMetricKeyAndTextValue" resultType="CustomMeasure">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM manual_measures m
+    INNER JOIN metrics metric ON metric.id=m.metric_id AND metric.name=#{metricKey}
+    <where>
+      m.text_value=#{textValue}
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    INSERT INTO manual_measures (
+    metric_id, component_uuid, value, text_value, user_login, description, created_at, updated_at
+    )
+    VALUES (
+    #{metricId, jdbcType=INTEGER}, #{componentUuid, jdbcType=VARCHAR},
+    #{value, jdbcType=DOUBLE}, #{textValue, jdbcType=VARCHAR}, #{userLogin, jdbcType=VARCHAR},
+    #{description, jdbcType=VARCHAR}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="CustomMeasure">
+    update manual_measures
+    set value = #{value, jdbcType=DOUBLE},
+    text_value = #{textValue, jdbcType=VARCHAR},
+    description = #{description, jdbcType=VARCHAR},
+    user_login = #{userLogin, jdbcType=VARCHAR},
+    updated_at = #{updatedAt, jdbcType=BIGINT}
+    where id = #{id}
+  </update>
+
+  <delete id="deleteByMetricIds">
+    delete from manual_measures
+    where metric_id in
+    <foreach collection="metricIds" item="metricId" open="(" close=")" separator=",">
+      #{metricId}
+    </foreach>
+  </delete>
+
+  <delete id="delete">
+    delete from manual_measures
+    where id=#{id}
+  </delete>
+
+  <select id="countByComponentUuid" resultType="Integer">
+    select count(1)
+    from manual_measures m
+    where m.component_uuid=#{componentUuid}
+  </select>
+
+  <select id="countByComponentIdAndMetricId" resultType="Integer">
+    select count(1)
+    from manual_measures m
+    where m.metric_id=#{metricId} and m.component_uuid=#{componentUuid}
+  </select>
+</mapper>

@@ -1,0 +1,21 @@
+<dataset>
+
+  <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" status="READY"
+         note_data="Rule note with accents éèà" note_user_login="polop.palap" note_created_at="2013-12-25" description_format="HTML"
+         remediation_function="LINEAR" def_remediation_function="LINEAR_OFFSET"
+         remediation_gap_mult="1h" def_remediation_gap_mult="5d"
+         remediation_base_effort="5min" def_remediation_base_effort="10h"
+         gap_description="squid.S115.effortToFix"
+         created_at="1500000000000" updated_at="1600000000000"
+  />
+
+  <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="AvoidNull" plugin_name="squid" name="Avoid Null" description="Should avoid NULL" status="REMOVED"
+         note_data="[null]" note_user_login="[null]" note_created_at="[null]" description_format="HTML"
+         remediation_function="[null]" def_remediation_function="[null]"
+         remediation_gap_mult="[null]" def_remediation_gap_mult="[null]"
+         remediation_base_effort="[null]" def_remediation_base_effort="[null]"
+         gap_description="[null]"
+         created_at="1500000000000" updated_at="1600000000000"
+  />
+
+</dataset>

@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.permission.AuthorizationMapper">
+
+  <select id="selectOrganizationPermissions" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    inner join groups_users gu on gr.group_id=gu.group_id
+    where
+    gr.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gu.user_id=#{userId,jdbcType=BIGINT}
+
+    union
+
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    gr.group_id is null and
+    gr.resource_id is null
+
+    union
+
+    select ur.role
+    from user_roles ur
+    where
+    ur.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    ur.user_id=#{userId,jdbcType=BIGINT}
+    and ur.resource_id is null
+  </select>
+
+  <select id="selectOrganizationPermissionsOfAnonymous" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is null
+  </select>
+
+  <select id="selectRootComponentPermissions" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    inner join groups_users gu on gr.group_id=gu.group_id
+    where
+    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    gu.user_id=#{userId,jdbcType=BIGINT}
+
+    union
+    select gr.role
+    from group_roles gr
+    where
+    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    gr.group_id is null
+
+    union
+
+    select ur.role
+    from user_roles ur
+    where
+    ur.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    ur.user_id=#{userId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectRootComponentPermissionsOfAnonymous" parameterType="map" resultType="string">
+    select gr.role
+    from group_roles gr
+    where
+    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
+    gr.group_id is null
+  </select>
+
+  <select id="countUsersWithGlobalPermissionExcludingGroup" parameterType="map" resultType="int">
+    select count(1) from
+    (
+      select gu.user_id
+      from groups_users gu
+      inner join group_roles gr on gr.group_id = gu.group_id
+      where
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.role = #{permission,jdbcType=VARCHAR} and
+      gr.resource_id is null and
+      gr.group_id is not null and
+      gr.group_id != #{excludedGroupId,jdbcType=BIGINT}
+
+      union
+
+      select ur.user_id
+      from user_roles ur
+      where
+      ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      ur.resource_id is null and
+      ur.role = #{permission,jdbcType=VARCHAR}
+    ) remaining
+  </select>
+
+  <select id="countUsersWithGlobalPermissionExcludingUser" parameterType="map" resultType="int">
+    select count(1) from
+    (
+    select gu.user_id
+    from groups_users gu
+    inner join group_roles gr on gr.group_id = gu.group_id
+    where
+    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is not null and
+    gu.user_id != #{excludedUserId,jdbcType=BIGINT}
+
+    union
+
+    select ur.user_id
+    from user_roles ur
+    where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    ur.resource_id is null and
+    ur.role = #{permission,jdbcType=VARCHAR} and
+    ur.user_id != #{excludedUserId,jdbcType=BIGINT}
+    ) remaining
+  </select>
+
+  <select id="countUsersWithGlobalPermissionExcludingGroupMember" parameterType="map" resultType="int">
+    select count(1) from
+    (
+    select gu.user_id
+    from groups_users gu
+    inner join group_roles gr on gr.group_id = gu.group_id
+    where
+    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is not null and
+    (gu.group_id != #{groupId,jdbcType=BIGINT} or gu.user_id != #{userId,jdbcType=BIGINT})
+
+    union
+
+    select ur.user_id
+    from user_roles ur
+    where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    ur.resource_id is null and
+    ur.role = #{permission,jdbcType=VARCHAR}
+    ) remaining
+  </select>
+
+  <select id="countUsersWithGlobalPermissionExcludingUserPermission" parameterType="map" resultType="int">
+    select count(1) from
+    (
+    select gu.user_id
+    from groups_users gu
+    inner join group_roles gr on gr.group_id = gu.group_id
+    where
+    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is not null
+
+    union
+
+    select ur.user_id
+    from user_roles ur
+    where
+    ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    ur.resource_id is null and
+    ur.role = #{permission,jdbcType=VARCHAR} and
+    ur.user_id != #{userId,jdbcType=BIGINT}
+    ) remaining
+  </select>
+
+  <select id="selectOrganizationUuidsOfUserWithGlobalPermission" parameterType="map" resultType="String">
+    select gr.organization_uuid
+    from group_roles gr
+    inner join groups_users gu on gr.group_id = gu.group_id
+    where
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    gr.group_id is not null and
+    gu.user_id = #{userId,jdbcType=BIGINT}
+
+    union
+
+    select ur.organization_uuid
+    from user_roles ur
+    where
+    ur.resource_id is null and
+    ur.role = #{permission,jdbcType=VARCHAR} and
+    ur.user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
+    SELECT gr.resource_id
+    FROM group_roles gr
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+      gr.resource_id=#{element,jdbcType=BIGINT}
+    </foreach>
+    UNION
+    SELECT p.id
+    FROM user_roles ur
+    INNER JOIN projects p on p.id = ur.resource_id
+    WHERE
+    ur.role=#{role,jdbcType=VARCHAR}
+    and ur.user_id=#{userId,jdbcType=BIGINT} and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+      p.id=#{element,jdbcType=BIGINT}
+    </foreach>
+  </select>
+
+  <select id="keepAuthorizedProjectIdsForAnonymous" parameterType="map" resultType="long">
+    SELECT gr.resource_id
+    FROM group_roles gr
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and gr.group_id is null
+    and
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+      gr.resource_id=#{element,jdbcType=BIGINT}
+    </foreach>
+  </select>
+
+  <select id="selectAuthorizedRootProjectsKeys" parameterType="map" resultType="string">
+    <include refid="selectAuthorizedRootProjectsKeysQuery"/>
+  </select>
+
+  <sql id="selectAuthorizedRootProjectsKeysQuery">
+    <choose>
+      <when test="userId != null">
+        SELECT p.kee as root_project_kee
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
+        gu.user_id=#{userId,jdbcType=BIGINT}))
+        UNION
+        SELECT p.kee as root_project_kee
+        FROM user_roles ur
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
+        where
+        ur.role=#{role,jdbcType=VARCHAR}
+        and ur.user_id = #{userId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        SELECT p.kee as root_project_kee
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and gr.group_id is null
+      </otherwise>
+    </choose>
+  </sql>
+
+  <select id="selectAuthorizedRootProjectsUuids" parameterType="map" resultType="string">
+    <choose>
+      <when test="userId != null">
+        SELECT p.uuid as root_project_uuid
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
+        gu.user_id=#{userId,jdbcType=BIGINT}))
+        UNION
+        SELECT p.uuid as root_project_uuid
+        FROM user_roles ur
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
+        where
+        ur.role=#{role,jdbcType=VARCHAR}
+        and ur.user_id = #{userId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        SELECT p.uuid as root_project_uuid
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and gr.group_id is null
+      </otherwise>
+    </choose>
+  </select>
+
+  <!-- same as selectAuthorizedRootProjectsKeysQuery but returns ids instead of keys -->
+  <sql id="selectAuthorizedRootProjectIdsQuery">
+    <choose>
+      <when test="userId != null">
+        SELECT p.id as root_project_id
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where
+        gu.user_id=#{userId,jdbcType=BIGINT}))
+        UNION
+        SELECT p.id as root_project_id
+        FROM user_roles ur
+        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
+        where
+        ur.role=#{role,jdbcType=VARCHAR} and
+        ur.user_id = #{userId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        SELECT p.id as root_project_id
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
+        where
+        gr.role=#{role,jdbcType=VARCHAR}
+        and gr.group_id is null
+      </otherwise>
+    </choose>
+  </sql>
+
+  <select id="selectGlobalPermissions" parameterType="map" resultType="String">
+    <choose>
+      <when test="userLogin != null">
+        SELECT gr.role
+        FROM group_roles gr
+        INNER JOIN groups_users gu on gu.group_id=gr.group_id
+        INNER JOIN users u on u.id=gu.user_id
+        where u.login=#{userLogin,jdbcType=VARCHAR} and gr.resource_id is null
+        UNION
+        SELECT gr.role
+        FROM group_roles gr
+        WHERE gr.group_id IS NULL AND gr.resource_id IS NULL
+        UNION
+        SELECT ur.role
+        FROM user_roles ur
+        INNER JOIN users u on u.id=ur.user_id
+        where u.login=#{userLogin,jdbcType=VARCHAR} and ur.resource_id is null
+      </when>
+      <otherwise>
+        SELECT gr.role
+        FROM group_roles gr
+        where gr.resource_id is null and gr.group_id is null
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="keepAuthorizedComponentKeysForAnonymous" parameterType="map" resultType="string">
+    SELECT p.kee
+    FROM group_roles gr, projects p
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and gr.group_id is null
+    and gr.resource_id = p.id
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element,jdbcType=VARCHAR}
+    </foreach>
+    UNION
+    SELECT p.kee
+    FROM group_roles gr, projects root, projects p
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and gr.group_id is null
+    and gr.resource_id = root.id
+    and p.root_uuid = root.uuid
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <select id="keepAuthorizedComponentKeysForUser" parameterType="map" resultType="string">
+    SELECT p.kee
+    FROM group_roles gr, projects p
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and gr.resource_id = p.id
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element,jdbcType=VARCHAR}
+    </foreach>
+    UNION
+    SELECT p.kee
+    FROM group_roles gr, projects root, projects p
+    WHERE
+    gr.role=#{role,jdbcType=VARCHAR}
+    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and gr.resource_id = root.id
+    and p.root_uuid = root.uuid
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element,jdbcType=VARCHAR}
+    </foreach>
+    UNION
+    SELECT p.kee
+    FROM user_roles ur
+    INNER JOIN projects p on p.id = ur.resource_id
+    WHERE
+    ur.role=#{role,jdbcType=VARCHAR}
+    and ur.user_id=#{userId,jdbcType=BIGINT}
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="Long">
+    SELECT gu.user_id
+    FROM groups_users gu
+    INNER JOIN group_roles gr ON gr.group_id=gu.group_id
+    WHERE
+    gr.resource_id=#{componentId,jdbcType=BIGINT}
+    AND gr.role=#{role,jdbcType=VARCHAR}
+    AND gu.user_id in
+    <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+      #{id,jdbcType=BIGINT}
+    </foreach>
+    UNION
+    SELECT ur.user_id
+    FROM user_roles ur
+    WHERE
+    ur.resource_id=#{componentId,jdbcType=BIGINT}
+    AND ur.role=#{role,jdbcType=VARCHAR}
+    AND ur.user_id IN
+    <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+      #{id,jdbcType=BIGINT}
+    </foreach>
+  </select>
+</mapper>

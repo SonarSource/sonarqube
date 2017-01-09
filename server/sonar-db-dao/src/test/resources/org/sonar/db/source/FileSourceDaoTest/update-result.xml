@@ -1,0 +1,11 @@
+<dataset>
+
+  <file_sources id="101" project_uuid="PRJ_UUID" file_uuid="FILE1_UUID"
+                binary_data="[ignore]"
+                data_hash="NEW_DATA_HASH"
+                line_hashes="NEW_LINE_HASHES"
+                src_hash="NEW_FILE_HASH" revision="987654321"
+                created_at="1500000000000" updated_at="1500000000002"  data_type="SOURCE" />
+
+
+</dataset>

@@ -1,0 +1,41 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.db.commons;
+
+// The java package can be changed without breaking compatibility.
+// it impacts only the generated Java code.
+option java_package = "org.sonar.db.protobuf";
+option optimize_for = SPEED;
+
+// Lines start at 1 and line offsets start at 0
+message TextRange {
+  // Start line. Should never be absent
+  optional int32 start_line = 1;
+
+  // End line (inclusive). Absent means it is same as start line
+  optional int32 end_line = 2;
+
+  // If absent it means range starts at the first offset of start line
+  optional int32 start_offset = 3;
+
+  // If absent it means range ends at the last offset of end line
+  optional int32 end_offset = 4;
+}

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.event.EventMapper">
+
+  <sql id="eventColumns">
+    e.id,
+    e.uuid,
+    e.analysis_uuid as "analysisUuid",
+    e.component_uuid as "componentUuid",
+    e.name,
+    e.category,
+    e.description,
+    e.event_data as "data",
+    e.event_date as "date",
+    e.created_at as "createdAt"
+  </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.uuid=#{uuid}
+    </where>
+  </select>
+
+  <select id="selectByComponentUuid" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.component_uuid=#{uuid}
+    </where>
+  </select>
+
+  <select id="selectByAnalysisUuid" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.analysis_uuid=#{analysisUuid}
+    </where>
+  </select>
+
+  <select id="selectByAnalysisUuids" parameterType="String" resultType="Event">
+    SELECT
+    <include refid="eventColumns"/>
+    FROM events e
+    <where>
+      AND e.analysis_uuid in <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">#{analysisUuid}</foreach>
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
+    VALUES (
+      #{uuid, jdbcType=VARCHAR},
+      #{analysisUuid, jdbcType=VARCHAR},
+      #{componentUuid, jdbcType=VARCHAR},
+      #{name, jdbcType=VARCHAR},
+      #{category, jdbcType=VARCHAR},
+      #{description, jdbcType=VARCHAR},
+      #{data, jdbcType=VARCHAR},
+      #{date, jdbcType=BIGINT},
+      #{createdAt, jdbcType=BIGINT})
+  </insert>
+
+  <update id="update" parameterType="map">
+    update events
+    set name = #{name, jdbcType=VARCHAR},
+        description = #{description, jdbcType=VARCHAR}
+    where uuid = #{uuid}
+  </update>
+
+  <delete id="deleteById" parameterType="Long">
+    DELETE FROM events WHERE id=#{id}
+  </delete>
+
+  <delete id="deleteByUuid" parameterType="String">
+    DELETE FROM events WHERE uuid=#{uuid}
+  </delete>
+
+</mapper>
+

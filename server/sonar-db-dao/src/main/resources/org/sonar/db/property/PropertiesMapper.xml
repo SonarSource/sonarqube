@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.property.PropertiesMapper">
+
+  <select id="findUsersForNotification" parameterType="map" resultType="String">
+    select
+      u.login
+    from
+      users u
+    inner join properties p on
+      p.user_id=u.id
+    <choose>
+      <when test="projectUuid == null">
+        where
+          p.prop_key = #{notifKey}
+          and p.text_value = 'true'
+          and p.resource_id is null
+      </when>
+      <otherwise>
+        inner join projects c on
+          c.id=p.resource_id
+        where
+          p.prop_key = #{notifKey}
+          and p.text_value = 'true'
+          and c.uuid = #{projectUuid}
+          and p.resource_id is not null
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="findNotificationSubscribers" parameterType="map" resultType="String">
+    select
+      u.login
+    from
+      properties p
+    inner join users u on
+      p.user_id = u.id
+      <if test="componentKey != null">
+        left outer join projects p1 on p.resource_id=p1.id and p1.kee=#{componentKey}
+      </if>
+    where
+      p.prop_key = #{propKey}
+      and p.text_value like 'true'
+      and (
+        p.resource_id is null
+        <if test="componentKey != null">
+          or p.resource_id=p1.id
+        </if>
+      )
+  </select>
+
+  <sql id="columnsToScrapPropertyDto">
+    p.prop_key as "key",
+    p.is_empty as empty,
+    p.text_value as textValue,
+    p.clob_value as clobValue,
+    p.resource_id as resourceId,
+    p.user_id as userId
+  </sql>
+
+  <select id="selectGlobalProperties" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      p.resource_id is null
+      and p.user_id is null
+  </select>
+
+  <select id="selectProjectProperties" parameterType="String" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p,
+      projects r
+    where
+      p.resource_id=r.id
+      and p.user_id is null
+      and r.kee=#{resourceKey}
+  </select>
+
+  <select id="selectDescendantModuleProperties" parameterType="String" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    inner join (select p.id from projects p<include refid="org.sonar.db.component.ComponentMapper.modulesTreeQuery"/>) modules
+      on modules.id=p.resource_id
+    where
+      p.user_id is null
+  </select>
+
+  <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from 
+      properties p
+    where 
+      p.prop_key=#{key}
+      <if test="resourceId == null">
+        and p.resource_id is null
+      </if>
+      <if test="resourceId != null">
+        and p.resource_id=#{resourceId}
+      </if>
+      <if test="userId == null">
+        and p.user_id is null
+      </if>
+      <if test="userId != null">
+        and p.user_id=#{userId}
+      </if>
+  </select>
+
+  <select id="selectByKeys" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    where
+      p.prop_key in
+        <foreach collection="keys" open="(" close=")" item="key" separator=",">
+          #{key}
+        </foreach>
+      <if test="componentId == null">
+        and p.resource_id is null
+      </if>
+      <if test="componentId != null">
+        and p.resource_id=#{componentId}
+      </if>
+      and p.user_id is null
+    order by p.id
+  </select>
+
+  <select id="selectByKeysAndComponentIds" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from 
+      properties p
+    where
+      p.prop_key in
+        <foreach collection="keys" open="(" close=")" item="key" separator=",">
+          #{key}
+        </foreach>
+      and p.resource_id in
+        <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
+          #{componentId}
+        </foreach>
+      and p.user_id is null
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
+    select
+      <include refid="columnsToScrapPropertyDto"/>
+    from
+      properties p
+    <where>
+      <if test="query.key() != null">
+        and p.prop_key=#{query.key}
+      </if>
+      <if test="query.componentId() != null">
+        and p.resource_id=#{query.componentId}
+      </if>
+      <if test="query.userId() != null">
+        and p.user_id=#{query.userId}
+      </if>
+    </where>
+  </select>
+
+  <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
+    insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_true},
+      #{now}
+    )
+  </insert>
+
+  <insert id="insertAsText" parameterType="Map" useGeneratedKeys="false">
+    insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      text_value,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_false},
+      #{value},
+      #{now}
+    )
+  </insert>
+
+  <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
+   insert into properties
+    (
+      prop_key,
+      resource_id,
+      user_id,
+      is_empty,
+      clob_value,
+      created_at
+    )
+    values (
+      #{key},
+      #{componentId},
+      #{userId},
+      ${_false},
+      #{value},
+      #{now}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="map">
+    delete from properties
+    where
+      prop_key=#{key}
+    <choose>
+      <when test="componentId != null &amp;&amp; userId != null">
+        and resource_id=#{componentId}
+        and user_id=#{userId}
+      </when>
+      <when test="componentId != null">
+        and resource_id=#{componentId}
+        and user_id is null
+      </when>
+      <when test="userId != null">
+        and resource_id is null
+        and user_id=#{userId}
+      </when>
+      <otherwise>
+        and resource_id is null
+        and user_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteProjectProperty" parameterType="map">
+    delete from properties
+    where
+      prop_key=#{key}
+      and resource_id=#{rId}
+      and user_id is null
+  </delete>
+
+  <delete id="deleteProjectProperties" parameterType="map">
+    delete from properties
+    where
+      prop_key=#{key}
+      and text_value = #{value}
+      and resource_id is not null
+      and user_id is null
+  </delete>
+
+  <delete id="deleteGlobalProperty" parameterType="string">
+    delete from properties
+    where
+      prop_key=#{key}
+      and resource_id is null
+      and user_id is null
+  </delete>
+
+  <delete id="deleteGlobalProperties">
+    delete from properties
+    where
+      resource_id is null
+      and user_id is null
+  </delete>
+
+  <delete id="deleteByQuery">
+    delete from properties
+    <where>
+      <if test="query.key() != null">
+        and prop_key=#{query.key}
+      </if>
+      <if test="query.componentId() != null">
+        and resource_id=#{query.componentId}
+      </if>
+      <if test="query.userId() != null">
+        and user_id=#{query.userId}
+      </if>
+    </where>
+  </delete>
+
+  <update id="renamePropertyKey" parameterType="map">
+    update properties set
+      prop_key=#{newKey}
+    where
+      prop_key=#{oldKey}
+  </update>
+
+</mapper>

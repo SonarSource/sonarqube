@@ -1,0 +1,11 @@
+<dataset>
+
+  <groups id="101"
+          name="sonar-users"
+          description="Any new users created will automatically join this group"
+          organization_uuid="org1"/>
+
+  <groups_users user_id="201"
+                group_id="101"/>
+
+</dataset>

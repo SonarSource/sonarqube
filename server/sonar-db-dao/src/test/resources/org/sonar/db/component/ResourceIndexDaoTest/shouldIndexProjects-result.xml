@@ -1,0 +1,166 @@
+<dataset>
+
+  <!-- project -->
+  <projects long_name="[null]"
+            id="1"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            uuid="ABCD"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            root_id="[null]"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <!-- directory -->
+  <projects long_name="org.struts"
+            id="2"
+            scope="DIR"
+            qualifier="PAC"
+            kee="org.struts:struts:org.struts"
+            uuid="BCDE"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            name="org.struts"
+            root_id="1"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <!-- file -->
+  <projects long_name="org.struts.RequestContext"
+            id="3"
+            scope="CLA"
+            qualifier="CLA"
+            uuid="CDEF"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            kee="org.struts:struts:org.struts.RequestContext"
+            name="RequestContext"
+            root_id="1"
+            description="[null]"
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"/>
+
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]"
+
+  />
+
+  <!-- RequestContext -->
+  <resource_index kee="requestcontext"
+                  position="0"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="equestcontext"
+                  position="1"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="questcontext"
+                  position="2"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="uestcontext"
+                  position="3"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="estcontext"
+                  position="4"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="stcontext"
+                  position="5"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="tcontext"
+                  position="6"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="context"
+                  position="7"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="ontext"
+                  position="8"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="ntext"
+                  position="9"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="text"
+                  position="10"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+  <resource_index kee="ext"
+                  position="11"
+                  name_size="14"
+                  resource_id="3"
+                  root_project_id="1"
+                  qualifier="CLA"/>
+
+  <!-- Struts -->
+  <resource_index kee="struts"
+                  position="0"
+                  name_size="6"
+                  resource_id="1"
+                  root_project_id="1"
+                  qualifier="TRK"/>
+  <resource_index kee="truts"
+                  position="1"
+                  name_size="6"
+                  resource_id="1"
+                  root_project_id="1"
+                  qualifier="TRK"/>
+  <resource_index kee="ruts"
+                  position="2"
+                  name_size="6"
+                  resource_id="1"
+                  root_project_id="1"
+                  qualifier="TRK"/>
+  <resource_index kee="uts"
+                  position="3"
+                  name_size="6"
+                  resource_id="1"
+                  root_project_id="1"
+                  qualifier="TRK"/>
+
+</dataset>

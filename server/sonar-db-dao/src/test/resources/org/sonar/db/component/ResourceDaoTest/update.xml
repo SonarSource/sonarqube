@@ -1,0 +1,24 @@
+<dataset>
+
+  <projects id="1"
+            root_id="200"
+            uuid="ABCD"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            scope="PRJ"
+            qualifier="TRK"
+            kee="old key"
+            name="old name"
+            description="old name"
+            long_name="old long name"
+            enabled="[false]"
+            language="old"
+            copy_resource_id="2"
+            person_id="3"
+            created_at="[null]"
+            path="/old/foo/bar"
+            deprecated_kee="old deprecated key"
+            authorization_updated_at="[null]"/>
+
+</dataset>

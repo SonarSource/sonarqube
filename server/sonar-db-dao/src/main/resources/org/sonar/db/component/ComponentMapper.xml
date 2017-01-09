@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.ComponentMapper">
+
+  <sql id="componentColumns">
+    p.id,
+    p.uuid as uuid,
+    p.uuid_path as uuidPath,
+    p.project_uuid as projectUuid,
+    p.module_uuid as moduleUuid,
+    p.module_uuid_path as moduleUuidPath,
+    p.kee as kee,
+    p.deprecated_kee as deprecatedKey,
+    p.name as name,
+    p.long_name as longName,
+    p.description as description,
+    p.qualifier as qualifier,
+    p.scope as scope,
+    p.language as language,
+    p.root_uuid as rootUuid,
+    p.path as path,
+    p.enabled as enabled,
+    p.copy_component_uuid as copyComponentUuid,
+    p.developer_uuid as developerUuid,
+    p.authorization_updated_at as authorizationUpdatedAt,
+    p.created_at as createdAt
+  </sql>
+
+  <sql id="viewsComponentColumns">
+    p.id,
+    p.name,
+    p.uuid as uuid,
+    p.uuid_path as uuidPath,
+    p.kee as kee,
+    p.qualifier as qualifier,
+    p.scope as scope,
+    P.copy_component_uuid as copyComponentUuid,
+    p.module_uuid as moduleUuid
+  </sql>
+
+  <sql id="authorizedComponentColumns">
+    p.id,
+    p.uuid as uuid,
+    p.kee as kee,
+    p.qualifier as qualifier,
+    p.scope as scope
+  </sql>
+
+  <select id="selectByKey" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      AND p.kee=#{key}
+    </where>
+  </select>
+
+  <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      AND p.kee=#{key}
+    </where>
+    ORDER BY p.id ASC
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="selectByUuid" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      AND p.uuid=#{uuid}
+    </where>
+  </select>
+
+  <select id="selectByProjectUuid" parameterType="string" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      p.project_uuid=#{projectUuid}
+    </where>
+  </select>
+
+  <select id="countById" parameterType="long" resultType="long">
+    SELECT count(p.id)
+    FROM projects p
+    <where>
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="selectByKeys" parameterType="String" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      and p.kee in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectByIds" parameterType="long" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      and p.id in
+      <foreach collection="ids" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectByUuids" parameterType="String" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      and p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectExistingUuids" parameterType="String" resultType="String">
+    select p.uuid
+    from projects p
+    <where>
+      and p.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectSubProjectsByComponentUuids" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN projects child ON child.root_uuid=p.uuid AND child.enabled=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND child.uuid in
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectDescendantModules" parameterType="map" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <include refid="modulesTreeQuery"/>
+  </select>
+
+  <sql id="modulesTreeQuery">
+    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND
+    module.scope='PRJ' AND module.enabled = ${_true}
+    <where>
+      <if test="excludeDisabled">
+        p.enabled = ${_true}
+      </if>
+      AND p.scope = #{scope}
+      AND
+      <choose>
+        <when test="_databaseId == 'mssql'">
+          p.module_uuid_path LIKE module.module_uuid_path + '%'
+        </when>
+        <when test="_databaseId == 'mysql'">
+          p.module_uuid_path LIKE concat(module.module_uuid_path, '%')
+        </when>
+        <otherwise>
+          p.module_uuid_path LIKE module.module_uuid_path || '%'
+        </otherwise>
+      </choose>
+    </where>
+  </sql>
+
+  <select id="selectEnabledFilesFromProject" parameterType="map" resultType="FilePathWithHash">
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
+    FROM projects p
+    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
+    <where>
+      AND p.project_uuid=#{projectUuid}
+      AND p.enabled=${_true}
+      AND p.scope='FIL'
+    </where>
+  </select>
+
+  <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
+    FROM projects p
+    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
+    <include refid="modulesTreeQuery"/>
+  </select>
+
+  <select id="selectProjectUuids" resultType="String">
+    SELECT p.uuid
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND p.qualifier='TRK'
+    </where>
+  </select>
+
+  <select id="selectProjects" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND p.qualifier='TRK'
+    </where>
+  </select>
+
+  <select id="selectComponentsByQualifiers" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
+        p.qualifier=#{qualifier}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectComponents" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.copy_component_uuid is null
+      AND p.qualifier in
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
+        #{qualifier}
+      </foreach>
+      <if test="query!=null">
+        and (
+        UPPER(p.name) like #{query}
+        or UPPER(p.kee) like #{query}
+        )
+      </if>
+    </where>
+    ORDER BY UPPER(p.name), p.name
+  </select>
+
+  <select id="selectByQuery" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    <include refid="sqlSelectByQuery"/>
+    ORDER BY LOWER(p.name), p.name, p.id
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(p.id)
+    <include refid="sqlSelectByQuery"/>
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.copy_component_uuid is null
+      <if test="query.qualifiers!=null">
+      AND p.qualifier in
+        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+          #{qualifier}
+        </foreach>
+      </if>
+      <if test="query.language!=null">
+        AND p.language = #{query.language}
+      </if>
+      <if test="query.componentIds!=null">
+        AND p.id in
+        <foreach collection="query.componentIds" item="componentId" open="(" close=")" separator=",">
+          #{componentId}
+        </foreach>
+      </if>
+      <if test="query.nameOrKeyQuery!=null">
+        AND (
+          p.kee=#{query.nameOrKeyQuery}
+          OR
+          p.uuid IN (
+            SELECT ri.component_uuid
+            FROM resource_index ri
+            WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+            <if test="query.qualifiers!=null">
+            AND ri.qualifier in
+              <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+                #{qualifier}
+              </foreach>
+            </if>
+          )
+        )
+      </if>
+    </where>
+  </sql>
+
+  <!-- "p" is ancestors -->
+  <select id="selectAncestors" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects base
+    inner join projects p on p.project_uuid = base.project_uuid
+    where
+    base.uuid = #{query.baseUuid}
+    and base.uuid_path like #{baseUuidPathLike}
+    and p.uuid != base.uuid
+    and p.enabled = ${_true}
+    order by ${query.sqlSort}
+  </select>
+
+  <select id="selectDescendants" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <include refid="selectDescendantsJoins"/>
+    <where>
+      <include refid="selectDescendantsFilters"/>
+    </where>
+  </select>
+
+  <sql id="selectDescendantsJoins">
+    inner join projects base on base.project_uuid = p.project_uuid and base.uuid = #{baseUuid}
+    <choose>
+      <when test="query.getStrategy().name() == 'CHILDREN'">
+        and p.uuid_path = #{baseUuidPath}
+      </when>
+      <otherwise>
+        and p.uuid_path like #{baseUuidPath} ESCAPE '/'
+      </otherwise>
+    </choose>
+  </sql>
+
+  <sql id="selectDescendantsFilters">
+    and p.enabled = ${_true}
+    <if test="query.qualifiers != null">
+      and p.qualifier in
+      <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+        #{qualifier}
+      </foreach>
+    </if>
+    <if test="query.nameOrKeyQuery != null">
+      and (
+      p.kee=#{query.nameOrKeyQuery}
+      or
+      p.uuid IN (
+      SELECT ri.component_uuid
+      FROM resource_index ri
+      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+      )
+      or
+      p.copy_component_uuid IN (
+      SELECT ri.component_uuid
+      FROM resource_index ri
+      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+      )
+      )
+    </if>
+  </sql>
+
+  <select id="countRootComponents" resultType="int">
+    select count(p.id)
+    from projects p
+    <where>
+      p.enabled=${_true}
+      AND p.copy_component_uuid is null
+      AND p.qualifier in
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
+        #{qualifier}
+      </foreach>
+      <if test="query!=null">
+        and (
+        UPPER(p.name) like #{query}
+        or UPPER(p.kee) like #{query}
+        )
+      </if>
+    </where>
+  </select>
+
+  <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
+    SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM projects p
+    <where>
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
+        p.qualifier=#{qualifier}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectProjectsFromView" resultType="String">
+    SELECT p.uuid FROM projects technical_projects
+    INNER JOIN projects p on p.uuid=technical_projects.copy_component_uuid AND p.enabled=${_true}
+    <where>
+      technical_projects.enabled=${_true} AND technical_projects.project_uuid=#{projectViewUuid}
+      AND technical_projects.module_uuid_path LIKE #{viewUuidLikeQuery}
+    </where>
+  </select>
+
+  <select id="selectComponentsFromProjectKeyAndScope" parameterType="map" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey}
+    <where>
+      <if test="excludeDisabled">
+        p.enabled = ${_true}
+      </if>
+      <if test="scope != null">
+        AND p.scope=#{scope}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectProvisionedProjects" parameterType="map" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <include refid="provisionClauses"/>
+  </select>
+
+  <select id="countProvisionedProjects" parameterType="map" resultType="int">
+    select count(p.id)
+    from projects p
+    <include refid="provisionClauses"/>
+  </select>
+
+  <sql id="provisionClauses">
+    left join snapshots s on s.component_uuid=p.uuid
+    where
+    s.id is null
+    and p.enabled=${_true}
+    and p.qualifier=#{qualifier}
+    and p.copy_component_uuid is null
+    <if test="query!=null">
+      and (
+      UPPER(p.name) like #{query}
+      or UPPER(p.kee) like #{query}
+      )
+    </if>
+  </sql>
+
+  <select id="selectGhostProjects" parameterType="map" resultType="Component">
+    select distinct
+    <include refid="componentColumns"/>
+    from projects p
+    <include refid="ghostClauses"/>
+  </select>
+
+  <select id="countGhostProjects" parameterType="map" resultType="long">
+    select count(p.id)
+    from projects p
+    <include refid="ghostClauses"/>
+  </select>
+
+  <sql id="ghostClauses">
+    inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
+    left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
+    where
+    s2.id is null
+    and p.qualifier=#{qualifier}
+    and p.copy_component_uuid is null
+    <if test="query!=null">
+      and (
+      UPPER(p.name) like #{query}
+      or UPPER(p.kee) like #{query}
+      )
+    </if>
+  </sql>
+
+  <sql id="insertSql">
+    INSERT INTO projects (kee,
+    deprecated_kee,
+    uuid,
+    uuid_path,
+    project_uuid,
+    module_uuid,
+    module_uuid_path,
+    name,
+    long_name,
+    qualifier,
+    scope,
+    language,
+    description,
+    root_uuid,
+    path,
+    copy_component_uuid,
+    developer_uuid,
+    enabled,
+    created_at,
+    authorization_updated_at,
+    b_changed,
+    b_copy_component_uuid,
+    b_description,
+    b_enabled,
+    b_language,
+    b_long_name,
+    b_module_uuid,
+    b_module_uuid_path,
+    b_name,
+    b_path,
+    b_qualifier
+    )
+    VALUES (
+    #{kee,jdbcType=VARCHAR},
+    #{deprecatedKey,jdbcType=VARCHAR},
+    #{uuid,jdbcType=VARCHAR},
+    #{uuidPath,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{moduleUuid,jdbcType=VARCHAR},
+    #{moduleUuidPath,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{longName,jdbcType=VARCHAR},
+    #{qualifier,jdbcType=VARCHAR},
+    #{scope,jdbcType=VARCHAR},
+    #{language,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{rootUuid,jdbcType=VARCHAR},
+    #{path,jdbcType=VARCHAR},
+    #{copyComponentUuid,jdbcType=VARCHAR},
+    #{developerUuid,jdbcType=VARCHAR},
+    #{enabled,jdbcType=BOOLEAN},
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{authorizationUpdatedAt,jdbcType=BIGINT},
+    ${_false},
+    null,
+    null,
+    ${_false},
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+    )
+  </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <include refid="insertSql"/>
+  </insert>
+
+  <insert id="insertBatch" parameterType="Component" useGeneratedKeys="false">
+    <include refid="insertSql"/>
+  </insert>
+
+  <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
+    update projects set
+    b_changed = #{bChanged,jdbcType=BOOLEAN},
+    b_copy_component_uuid = #{bCopyComponentUuid,jdbcType=VARCHAR},
+    b_description = #{bDescription,jdbcType=VARCHAR},
+    b_enabled = #{bEnabled,jdbcType=BOOLEAN},
+    b_uuid_path = #{bUuidPath,jdbcType=VARCHAR},
+    b_language = #{bLanguage,jdbcType=VARCHAR},
+    b_long_name = #{bLongName,jdbcType=VARCHAR},
+    b_module_uuid = #{bModuleUuid,jdbcType=VARCHAR},
+    b_module_uuid_path = #{bModuleUuidPath,jdbcType=VARCHAR},
+    b_name = #{bName,jdbcType=VARCHAR},
+    b_path = #{bPath,jdbcType=VARCHAR},
+    b_qualifier = #{bQualifier,jdbcType=VARCHAR}
+    where
+    uuid = #{uuid}
+  </update>
+
+  <update id="updateBEnabledToFalse" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
+    update projects set
+    b_changed = ${_true},
+    b_copy_component_uuid = copy_component_uuid,
+    b_description = description,
+    b_enabled = ${_false},
+    b_uuid_path = uuid_path,
+    b_language = language,
+    b_long_name = long_name,
+    b_module_uuid = module_uuid,
+    b_module_uuid_path = module_uuid_path,
+    b_name = name,
+    b_path = path,
+    b_qualifier = qualifier
+    where
+    uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+  </update>
+
+
+  <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
+    update projects set
+    copy_component_uuid = b_copy_component_uuid,
+    description = b_description,
+    enabled = b_enabled,
+    uuid_path = b_uuid_path,
+    language = b_language,
+    long_name = b_long_name,
+    module_uuid = b_module_uuid,
+    module_uuid_path = b_module_uuid_path,
+    name = b_name,
+    path = b_path,
+    qualifier = b_qualifier,
+    b_changed = ${_false},
+    b_copy_component_uuid = null,
+    b_description = null,
+    b_enabled = ${_false},
+    b_language = null,
+    b_long_name = null,
+    b_module_uuid = null,
+    b_module_uuid_path = null,
+    b_name = null,
+    b_path = null,
+    b_qualifier = null
+    where
+    project_uuid = #{projectUuid} and
+    b_changed = ${_true}
+  </update>
+
+  <update id="resetBChangedForRootComponentUuid" parameterType="map" >
+    update projects
+    set b_changed = ${_false}
+    where
+    project_uuid = #{projectUuid} and
+    b_changed = ${_true}
+  </update>
+
+  <delete id="delete" parameterType="long">
+    DELETE FROM projects WHERE id=#{id}
+  </delete>
+
+</mapper>

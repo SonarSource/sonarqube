@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.permission.GroupPermissionMapper">
+
+  <select id="groupsCountByProjectIdAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountPerProjectPermission">
+    SELECT count(1) as count, permission, componentId
+    FROM
+    (SELECT g.name as name, group_role.role as permission, group_role.resource_id as componentId
+    FROM groups g
+    INNER JOIN group_roles group_role ON group_role.group_id=g.id
+    UNION
+    -- Add Anyone group permission
+    SELECT #{anyoneGroup} as name, group_role.role as permission, group_role.resource_id as componentId
+    FROM group_roles group_role
+    where group_role.group_id IS NULL
+    ) groups
+    where
+      groups.componentId in
+      <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
+        #{id,jdbcType=BIGINT}
+      </foreach>
+    GROUP BY groups.permission, groups.componentId
+  </select>
+
+  <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
+    select distinct sub.name, lower(sub.name), sub.groupId
+    <include refid="groupsByQuery" />
+    order by lower(sub.name), sub.name, sub.groupId
+  </select>
+
+  <select id="countGroupsByQuery" parameterType="map" resultType="int">
+    select count(1)
+    from (
+      select distinct sub.groupId
+      <include refid="groupsByQuery" />) g
+  </select>
+
+  <sql id="groupsByQuery">
+    from (
+      select g.id as groupId, g.name as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
+      from groups g
+      left join group_roles gr on g.id = gr.group_id
+      where
+      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+
+    union all
+
+    select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.resource_id as componentId, gr.id as id
+    from group_roles gr
+    <if test="query.withAtLeastOnePermission()">
+      where
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.group_id is null
+    </if>
+
+    ) sub
+    left join projects p on sub.componentId = p.id
+    <where>
+      <if test="query.searchQueryToSql != null">
+        and lower(sub.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+      </if>
+      <!-- filter rows with group permissions -->
+      <if test="query.withAtLeastOnePermission()">
+        and sub.permission is not null
+        <if test="query.componentUuid==null">
+          and sub.componentId is null
+        </if>
+        <if test="query.componentUuid!=null">
+          and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
+        </if>
+        <if test="query.permission!=null">
+          and sub.permission = #{query.permission,jdbcType=VARCHAR}
+        </if>
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByGroupIds" parameterType="map" resultType="GroupPermission">
+    select sub.groupId as groupId, sub.componentId as resourceId, sub.permission as role, sub.organizationUuid as organizationUuid
+    from
+      (
+      select gr.group_id as groupId, gr.resource_id as componentId, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
+      from group_roles gr
+      inner join groups g ON g.id = gr.group_id
+      where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+      gr.group_id is not null
+
+      union all
+
+      select 0 as groupId, gr.resource_id as componentId, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
+      from group_roles gr
+      where
+      gr.group_id is null and
+      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      ) sub
+    where
+      sub.groupId in
+      <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">
+        #{groupId,jdbcType=BIGINT}
+      </foreach>
+      <if test="projectId != null">
+        and sub.componentId=#{projectId,jdbcType=BIGINT}
+      </if>
+      <if test="projectId==null">
+        and sub.componentId is null
+      </if>
+  </select>
+
+  <select id="selectGlobalPermissionsOfGroup" parameterType="map" resultType="String">
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id is null and
+    <choose>
+      <when test="groupId != null">
+        gr.group_id = #{groupId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        gr.group_id is null
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="selectProjectPermissionsOfGroup" parameterType="map" resultType="String">
+    select gr.role
+    from group_roles gr
+    where
+    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
+    gr.resource_id = #{projectId,jdbcType=BIGINT} and
+    <choose>
+      <when test="groupId != null">
+        gr.group_id = #{groupId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        gr.group_id is null
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="countRowsByRootComponentId" parameterType="long" resultType="int">
+    select count(1)
+    from group_roles
+    where resource_id=#{rootComponentId,jdbcType=BIGINT}
+  </select>
+
+  <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into group_roles (
+    organization_uuid,
+    group_id,
+    resource_id,
+    role
+    ) values (
+    #{organizationUuid,jdbcType=VARCHAR},
+    #{groupId,jdbcType=BIGINT},
+    #{resourceId,jdbcType=BIGINT},
+    #{role,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <delete id="deleteByRootComponentId" parameterType="long">
+    delete from group_roles
+    where resource_id=#{rootComponentId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="delete" parameterType="map">
+    delete from group_roles
+    where
+    role=#{permission,jdbcType=VARCHAR} and
+    organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
+    <choose>
+      <when test="rootComponentId != null">
+        resource_id=#{rootComponentId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        resource_id is null
+      </otherwise>
+    </choose>
+    and
+    <choose>
+      <when test="groupId != null">
+        group_id=#{groupId,jdbcType=BIGINT}
+      </when>
+      <otherwise>
+        group_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteByOrganization" parameterType="String">
+    delete from
+      group_roles
+    where
+      organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

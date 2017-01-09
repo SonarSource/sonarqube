@@ -1,0 +1,46 @@
+<dataset>
+
+  <!-- Users 100 and 101 are 'user' on project 300 -->
+  <user_roles id="1"
+              user_id="100"
+              resource_id="300"
+              role="user"
+              organization_uuid="org1"/>
+  <user_roles id="2"
+              user_id="101"
+              resource_id="300"
+              role="user"
+              organization_uuid="org1"/>
+  <user_roles id="3"
+              user_id="102"
+              resource_id="300"
+              role="admin"
+              organization_uuid="org1"/>
+  <user_roles id="4"
+              user_id="100"
+              resource_id="400"
+              role="user"
+              organization_uuid="org1"/>
+
+  <groups_users user_id="100"
+                group_id="200"/>
+  <group_roles id="1"
+               group_id="200"
+               resource_id="400"
+               role="user"
+               organization_uuid="org1"/>
+
+  <projects id="300"
+            kee="pj-w-snapshot"
+            uuid="DEFG"
+            uuid_path="NOT_USED"
+            root_uuid="DEFG"
+            module_uuid="[null]"/>
+  <projects id="400"
+            kee="pj-wo-snapshot"
+            uuid="EFGH"
+            uuid_path="NOT_USED"
+            root_uuid="EFGH"
+            module_uuid="[null]"/>
+
+</dataset>

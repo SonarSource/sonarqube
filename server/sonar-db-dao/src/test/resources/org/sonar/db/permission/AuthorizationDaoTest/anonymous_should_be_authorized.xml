@@ -1,0 +1,52 @@
+<dataset>
+
+  <user_roles id="1"
+              user_id="100"
+              resource_id="999"
+              role="user"
+              organization_uuid="org1"/>
+  <groups_users user_id="100"
+                group_id="200"/>
+  <group_roles id="1"
+               group_id="[null]"
+               resource_id="300"
+               role="user"
+               organization_uuid="org1"/>
+  <group_roles id="2"
+               group_id="[null]"
+               resource_id="400"
+               role="user"
+               organization_uuid="org1"/>
+
+  <projects id="301"
+            kee="pj-w-snapshot:package"
+            root_uuid="EDFG"
+            uuid="ABCD"
+            uuid_path="NOT_USED"
+            module_uuid="EDFG"/>
+  <projects id="302"
+            kee="pj-w-snapshot:file"
+            root_uuid="EDFG"
+            uuid="BCDE"
+            uuid_path="NOT_USED"
+            module_uuid="EDFG"/>
+  <projects id="303"
+            kee="pj-w-snapshot:other"
+            root_uuid="EDFG"
+            uuid="CDEF"
+            uuid_path="NOT_USED"
+            module_uuid="EDFG"/>
+  <projects id="300"
+            kee="pj-w-snapshot"
+            uuid="EDFG"
+            uuid_path="NOT_USED"
+            root_uuid="EDFG"
+            module_uuid="[null]"/>
+  <projects id="400"
+            kee="pj-wo-snapshot"
+            uuid="FGHI"
+            uuid_path="NOT_USED"
+            root_uuid="FGHI"
+            project_uuid="FGHI"/>
+
+</dataset>

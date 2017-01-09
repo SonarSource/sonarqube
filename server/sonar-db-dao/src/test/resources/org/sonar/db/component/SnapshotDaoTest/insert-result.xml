@@ -1,0 +1,29 @@
+<dataset>
+
+  <snapshots id="1"
+             uuid="u1"
+             component_uuid="uuid_3"
+             status="P"
+             islast="[true]"
+             purge_status="1"
+             period1_mode="days1"
+             period1_param="30"
+             period1_date="1500000000001"
+             period2_mode="days2"
+             period2_param="31"
+             period2_date="1500000000002"
+             period3_mode="days3"
+             period3_param="32"
+             period3_date="1500000000003"
+             period4_mode="days4"
+             period4_param="33"
+             period4_date="1500000000004"
+             period5_mode="days5"
+             period5_param="34"
+             period5_date="1500000000005"
+             created_at="1403042400000"
+             build_date="1500000000006"
+             version="2.1-SNAPSHOT"
+  />
+
+</dataset>

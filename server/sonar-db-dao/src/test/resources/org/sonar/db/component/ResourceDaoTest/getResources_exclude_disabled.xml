@@ -1,0 +1,40 @@
+<dataset>
+
+  <!-- disabled -->
+  <projects id="1"
+            root_id="[null]"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            description="the description"
+            long_name="Apache Struts"
+            uuid="DISABLED"
+            project_uuid="[null]"
+            module_uuid="[null]"
+            module_uuid_path="."
+            enabled="[false]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- enabled -->
+  <projects id="2"
+            root_id="[null]"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            description="the description"
+            long_name="Apache Struts"
+            uuid="ENABLED"
+            project_uuid="[null]"
+            module_uuid="[null]"
+            module_uuid_path="."
+            enabled="[true]"
+            language="java"
+            copy_resource_id="[null]"
+            person_id="[null]"
+            authorization_updated_at="[null]"/>
+</dataset>

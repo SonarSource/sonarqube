@@ -1,0 +1,30 @@
+<dataset>
+
+  <!-- user 100 has the role "user" on the project 300 -->
+  <user_roles id="1"
+              user_id="100"
+              resource_id="300"
+              role="user"
+              organization_uuid="org1"/>
+  <user_roles id="2"
+              user_id="100"
+              resource_id="400"
+              role="codeviewer"
+              organization_uuid="org1"/>
+
+  <projects id="300"
+            kee="pj-w-snapshot"
+            uuid="DEFG"
+            uuid_path="NOT_USED"
+            root_uuid="DEFG"
+            module_uuid="[null]"
+            enabled="[true]"/>
+  <projects id="400"
+            kee="pj-wo-snapshot"
+            uuid="EFGH"
+            uuid_path="NOT_USED"
+            root_uuid="EFGH"
+            module_uuid="[null]"
+            enabled="[true]"/>
+
+</dataset>

@@ -1,0 +1,58 @@
+<dataset>
+  <permission_templates id="1"
+                        name="my template"
+                        kee="my_template_20130102_030405"
+                        description="my description"
+                        created_at="[null]"
+                        updated_at="[null]"
+                        organization_uuid="org1"/>
+
+  <perm_templates_users id="1"
+                        template_id="1"
+                        user_id="1"
+                        permission_reference="user_permission1"/>
+  <perm_templates_users id="2"
+                        template_id="1"
+                        user_id="2"
+                        permission_reference="user_permission1"/>
+  <perm_templates_users id="3"
+                        template_id="1"
+                        user_id="2"
+                        permission_reference="user_permission2"/>
+
+  <users id="1"
+         login="login1"
+         name="user1"
+         is_root="[false]"/>
+  <users id="2"
+         login="login2"
+         name="user2"
+         is_root="[false]"/>
+         name="user1"/>
+
+  <perm_templates_groups id="1"
+                         template_id="1"
+                         group_id="1"
+                         permission_reference="group_permission1"/>
+  <perm_templates_groups id="2"
+                         template_id="1"
+                         group_id="2"
+                         permission_reference="group_permission1"/>
+  <!-- Anyone group -->
+  <perm_templates_groups id="3"
+                         template_id="1"
+                         group_id="[null]"
+                         permission_reference="group_permission2"/>
+  <!-- Unmatched group -->
+  <perm_templates_groups id="4"
+                         template_id="1"
+                         group_id="999999"
+                         permission_reference="group_permission2"/>
+
+  <groups id="1"
+          name="group1"
+          organization_uuid="org1"/>
+  <groups id="2"
+          name="group2"
+          organization_uuid="org1"/>
+</dataset>

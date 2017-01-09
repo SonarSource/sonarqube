@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.activity.ActivityMapper">
+
+  <insert id="insert" parameterType="Activity" useGeneratedKeys="false">
+    insert into activities
+    (created_at, log_key, log_type, log_action, user_login, data_field, log_message, profile_key)
+    values (#{createdAt,jdbcType=TIMESTAMP}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+    #{action,jdbcType=VARCHAR},
+    #{author,jdbcType=VARCHAR}, #{data,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR}, #{profileKey, jdbcType=VARCHAR})
+  </insert>
+
+</mapper>
+
