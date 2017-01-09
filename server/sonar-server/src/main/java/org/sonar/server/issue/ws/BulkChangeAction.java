@@ -256,11 +256,11 @@ public class BulkChangeAction implements IssuesWsAction {
       .build();
   }
 
-  private static class ActionContext implements Action.Context {
+  public static class ActionContext implements Action.Context {
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
 
-    ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
+    public ActionContext(DefaultIssue issue, IssueChangeContext changeContext) {
       this.issue = issue;
       this.changeContext = changeContext;
     }

@@ -19,74 +19,113 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.ws.BulkChangeAction;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class SetTypeActionTest {
 
+  private static final Date NOW = new Date(10_000_000_000L);
+  private static final String USER_LOGIN = "john";
+
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  UserSession userSessionMock = mock(UserSession.class);
-  IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
-  SetTypeAction underTest;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Before
-  public void before() {
-    underTest = new SetTypeAction(issueUpdater);
-    userSessionRule.set(userSessionMock);
+  @Rule
+  public DbTester db = DbTester.create();
+
+  private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
+
+  private SetTypeAction action = new SetTypeAction(issueUpdater, userSession);
+
+  @Test
+  public void set_type() {
+    DefaultIssue issue = newIssue().setType(BUG).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+
+    action.execute(ImmutableMap.of("type", VULNERABILITY.name()), new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin())));
+
+    assertThat(issue.type()).isEqualTo(VULNERABILITY);
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.updateDate()).isEqualTo(NOW);
+    assertThat(issue.mustSendNotifications()).isFalse();
+    Map<String, FieldDiffs.Diff> change = issue.currentChange().diffs();
+    assertThat(change.get("type").newValue()).isEqualTo(VULNERABILITY);
+    assertThat(change.get("type").oldValue()).isEqualTo(BUG);
   }
 
   @Test
-  public void should_execute() {
-    String type = "BUG";
-    Map<String, Object> properties = newHashMap();
-    properties.put("type", "BUG");
-    DefaultIssue issue = mock(DefaultIssue.class);
+  public void verify_fail_if_parameter_not_found() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing parameter : 'type'");
 
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
-
-    underTest.execute(properties, context);
-    verify(issueUpdater).setType(eq(issue), eq(RuleType.BUG), any(IssueChangeContext.class));
+    action.verify(ImmutableMap.of("unknwown", VULNERABILITY.name()), Lists.newArrayList(), userSession);
   }
 
   @Test
-  public void should_verify_fail_if_parameter_not_found() {
-    Map<String, Object> properties = newHashMap();
-    try {
-      underTest.verify(properties, Lists.newArrayList(), new AnonymousMockUserSession());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter: 'type'");
-    }
-    verifyZeroInteractions(issueUpdater);
+  public void verify_fail_if_type_is_invalid() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unknown type : unknown");
+
+    action.verify(ImmutableMap.of("type", "unknown"), Lists.newArrayList(), userSession);
   }
 
   @Test
-  public void should_support_only_unresolved_issues() {
-    assertThat(underTest.supports(new DefaultIssue().setResolution(null))).isTrue();
-    assertThat(underTest.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+  public void support_only_unresolved_issues() {
+    DefaultIssue issue = newIssue().setType(BUG).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+
+    assertThat(action.supports(issue.setResolution(null))).isTrue();
+    assertThat(action.supports(issue.setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+  }
+
+  @Test
+  public void support_only_issues_with_issue_admin_permission() {
+    DefaultIssue authorizedIssue = newIssue().setType(BUG).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(authorizedIssue.projectUuid());
+    DefaultIssue unauthorizedIssue = newIssue().setType(BUG).toDefaultIssue();
+
+    assertThat(action.supports(authorizedIssue.setResolution(null))).isTrue();
+    assertThat(action.supports(unauthorizedIssue.setResolution(null))).isFalse();
+  }
+
+  private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
+    userSession.login(USER_LOGIN)
+      .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
+      .addProjectUuidPermissions(USER, projectUuid);
+  }
+
+  private IssueDto newIssue() {
+    RuleDto rule = db.rules().insertRule(newRuleDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    return newDto(rule, file, project);
   }
 
 }

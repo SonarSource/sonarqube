@@ -26,11 +26,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
@@ -81,40 +79,6 @@ public class IssueService {
         issueUpdater.saveIssue(session, issue, context, null);
       }
 
-    } finally {
-      session.close();
-    }
-  }
-
-  public void setSeverity(String issueKey, String severity) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
-      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
-
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
-      }
-    } finally {
-      session.close();
-    }
-  }
-
-  public void setType(String issueKey, RuleType type) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
-      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
-
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueFieldsSetter.setType(issue, type, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
-      }
     } finally {
       session.close();
     }

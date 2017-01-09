@@ -19,14 +19,15 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class SetTypeAction extends Action {
@@ -35,29 +36,35 @@ public class SetTypeAction extends Action {
   public static final String TYPE_PARAMETER = "type";
 
   private final IssueFieldsSetter issueUpdater;
+  private final UserSession userSession;
 
-  public SetTypeAction(IssueFieldsSetter issueUpdater) {
+  public SetTypeAction(IssueFieldsSetter issueUpdater, UserSession userSession) {
     super(SET_TYPE_KEY);
     this.issueUpdater = issueUpdater;
-    super.setConditions(new IsUnResolved());
+    this.userSession = userSession;
+    super.setConditions(new IsUnResolved(), issue -> isCurrentUserIssueAdmin(issue.projectUuid()));
+  }
+
+  private boolean isCurrentUserIssueAdmin(String projectUuid) {
+    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-    newValue(properties);
+    verifyTypeParameter(properties);
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    String type = newValue(properties);
+    String type = verifyTypeParameter(properties);
     return issueUpdater.setType(context.issue(), RuleType.valueOf(type), context.issueChangeContext());
   }
 
-  private static String newValue(Map<String, Object> properties) {
+  private static String verifyTypeParameter(Map<String, Object> properties) {
     String type = (String) properties.get(TYPE_PARAMETER);
-    Preconditions.checkArgument(!isNullOrEmpty(type), "Missing parameter: '%s'", TYPE_PARAMETER);
-    Preconditions.checkArgument(RuleType.names().contains(type), "Unknown type: %s", type);
+    checkArgument(!isNullOrEmpty(type), "Missing parameter : '%s'", TYPE_PARAMETER);
+    checkArgument(RuleType.names().contains(type), "Unknown type : %s", type);
     return type;
   }
 }

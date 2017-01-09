@@ -27,8 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -150,42 +148,6 @@ public class IssueServiceMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown user: unknown");
     }
-  }
-
-  @Test
-  public void set_severity() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john")
-      .addProjectUuidPermissions(UserRole.USER, project.uuid())
-      .addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
-
-    assertThat(issueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.BLOCKER);
-
-    service.setSeverity(issue.getKey(), Severity.MINOR);
-
-    assertThat(issueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
-  }
-
-  @Test
-  public void set_type() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john")
-      .addProjectUuidPermissions(UserRole.USER, project.uuid())
-      .addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setType(RuleType.CODE_SMELL));
-
-    assertThat(issueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.CODE_SMELL);
-
-    service.setType(issue.getKey(), RuleType.BUG);
-
-    assertThat(issueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.BUG);
   }
 
   @Test

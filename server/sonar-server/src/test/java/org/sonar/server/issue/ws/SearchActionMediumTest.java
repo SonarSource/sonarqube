@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -31,6 +32,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -58,6 +60,8 @@ import org.sonar.server.ws.WsTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
@@ -223,8 +227,8 @@ public class SearchActionMediumTest {
     db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
-    setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    setProjectPermission(project, USER);
 
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -234,10 +238,30 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "_all").execute();
     result.assertJson(this.getClass(), "load_additional_fields.json");
+  }
+
+  @Test
+  public void load_additional_fields_with_issue_admin_permission() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
+    setProjectPermission(project, USER, ISSUE_ADMIN);
+
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setAuthorLogin("John")
+      .setAssignee("simon");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
+      .setParam("additionalFields", "_all").execute();
+    result.assertJson(this.getClass(), "load_additional_fields_with_issue_admin_permission.json");
   }
 
   @Test
@@ -665,6 +689,16 @@ public class SearchActionMediumTest {
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO"));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
+  }
+
+  private void setProjectPermission(ComponentDto project, String... permissions) {
+    // project can be seen by anyone and by code viewer
+    userSessionRule.login("admin");
+    Arrays.stream(permissions).forEach(permission -> userSessionRule.addProjectUuidPermissions(permission, project.uuid()));
+    tester.get(PermissionUpdater.class).apply(session, Arrays.stream(permissions)
+      // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone" for each organization
+      .map(permission -> new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO")))
+      .collect(Collectors.toList()));
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

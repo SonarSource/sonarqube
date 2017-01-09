@@ -53,12 +53,12 @@ public class ActionFinderTest {
   private ActionFinder underTest = new ActionFinder(userSession);
 
   @Test
-  public void return_provided_actions_without_set_severity_when_not_issue_admin() {
-    assertThat(underTest.listAvailableActions(issue)).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me");
+  public void return_provided_actions_without_set_severity_and_set_tpye_when_not_issue_admin() {
+    assertThat(underTest.listAvailableActions(issue)).containsOnly("comment", "assign", "set_tags", "assign_to_me");
   }
 
   @Test
-  public void return_provided_actions_with_set_severity_when_issue_admin() {
+  public void return_provided_actions_with_set_severity_and_set_type_when_issue_admin() {
     userSession.addProjectUuidPermissions(ISSUE_ADMIN, PROJECT_UUID);
     assertThat(underTest.listAvailableActions(issue)).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "set_severity");
   }

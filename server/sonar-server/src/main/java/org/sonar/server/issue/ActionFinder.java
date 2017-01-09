@@ -19,16 +19,19 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.server.issue.AssignAction.ASSIGN_KEY;
+import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
+import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;
+import static org.sonar.server.issue.SetTypeAction.SET_TYPE_KEY;
 
-/**
- * @since 3.6
- */
 public class ActionFinder {
 
   private final UserSession userSession;
@@ -40,20 +43,22 @@ public class ActionFinder {
   public List<String> listAvailableActions(IssueDto issue) {
     List<String> availableActions = newArrayList();
     String login = userSession.getLogin();
-    if (login != null) {
-      availableActions.add("comment");
-      if (issue.getResolution() == null) {
-        availableActions.add("assign");
-        availableActions.add("set_tags");
-        availableActions.add("set_type");
-        if (!login.equals(issue.getAssignee())) {
-          availableActions.add("assign_to_me");
-        }
-        String projectUuid = issue.getProjectUuid();
-        if (projectUuid != null && userSession.hasComponentUuidPermission(ISSUE_ADMIN, projectUuid)) {
-          availableActions.add("set_severity");
-        }
-      }
+    if (login == null) {
+      return Collections.emptyList();
+    }
+    availableActions.add(COMMENT_KEY);
+    if (issue.getResolution() != null) {
+      return availableActions;
+    }
+    availableActions.add(ASSIGN_KEY);
+    availableActions.add("set_tags");
+    if (!login.equals(issue.getAssignee())) {
+      // This action will be removed by
+      availableActions.add("assign_to_me");
+    }
+    if (userSession.hasComponentUuidPermission(ISSUE_ADMIN, requireNonNull(issue.getProjectUuid()))) {
+      availableActions.add(SET_TYPE_KEY);
+      availableActions.add(SET_SEVERITY_KEY);
     }
     return availableActions;
   }

@@ -19,85 +19,108 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.ws.BulkChangeAction;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class SetSeverityActionTest {
 
+  private static final Date NOW = new Date(10_000_000_000L);
+  private static final String USER_LOGIN = "john";
+
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private UserSession userSessionMock = mock(UserSession.class);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private SetSeverityAction action;
+  @Rule
+  public DbTester db = DbTester.create();
 
-  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
+  private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
 
-  @Before
-  public void before() {
-    action = new SetSeverityAction(issueUpdater, userSessionRule);
-    userSessionRule.set(userSessionMock);
+  private SetSeverityAction action = new SetSeverityAction(issueUpdater, userSession);
+
+  @Test
+  public void set_severity() {
+    DefaultIssue issue = newIssue().setSeverity(MAJOR).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+    BulkChangeAction.ActionContext context = new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin()));
+
+    action.execute(ImmutableMap.of("severity", MINOR), context);
+
+    assertThat(issue.severity()).isEqualTo(MINOR);
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.manualSeverity()).isTrue();
+    assertThat(issue.updateDate()).isEqualTo(NOW);
+    assertThat(issue.mustSendNotifications()).isTrue();
+    Map<String, FieldDiffs.Diff> change = issue.currentChange().diffs();
+    assertThat(change.get("severity").newValue()).isEqualTo(MINOR);
+    assertThat(change.get("severity").oldValue()).isEqualTo(MAJOR);
   }
 
   @Test
-  public void should_execute() {
-    String severity = "MINOR";
-    Map<String, Object> properties = newHashMap();
-    properties.put("severity", severity);
-    DefaultIssue issue = mock(DefaultIssue.class);
+  public void fail_if_parameter_not_found() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing parameter : 'severity'");
 
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
-
-    action.execute(properties, context);
-    verify(issueUpdater).setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
+    action.verify(ImmutableMap.of("unknwown", MINOR), Lists.newArrayList(), new AnonymousMockUserSession());
   }
 
   @Test
-  public void should_verify_fail_if_parameter_not_found() {
-    Map<String, Object> properties = newHashMap();
-    properties.put("unknwown", "unknown value");
-    try {
-      action.verify(properties, Lists.newArrayList(), new AnonymousMockUserSession());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'severity'");
-    }
-    verifyZeroInteractions(issueUpdater);
+  public void support_only_unresolved_issues() {
+    DefaultIssue issue = newIssue().setSeverity(MAJOR).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+
+    assertThat(action.supports(issue.setResolution(null))).isTrue();
+    assertThat(action.supports(issue.setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 
   @Test
-  public void should_support_only_unresolved_issues() {
-    when(userSessionMock.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
-    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
+  public void support_only_issues_with_issue_admin_permission() {
+    DefaultIssue authorizedIssue = newIssue().setSeverity(MAJOR).toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(authorizedIssue.projectUuid());
+    DefaultIssue unauthorizedIssue = newIssue().setSeverity(MAJOR).toDefaultIssue();
+
+    assertThat(action.supports(authorizedIssue.setResolution(null))).isTrue();
+    assertThat(action.supports(unauthorizedIssue.setResolution(null))).isFalse();
   }
 
-  @Test
-  public void should_support_only_issues_with_issue_admin_permission() {
-    when(userSessionMock.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
-    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar").setResolution(null))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setProjectUuid("foo:bar2").setResolution(null))).isFalse();
+  private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
+    userSession.login(USER_LOGIN)
+      .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
+      .addProjectUuidPermissions(USER, projectUuid);
+  }
+
+  private IssueDto newIssue() {
+    RuleDto rule = db.rules().insertRule(newRuleDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    return newDto(rule, file, project);
   }
 
 }

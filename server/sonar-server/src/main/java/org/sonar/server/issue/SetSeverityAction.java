@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.condition.IsUnResolved;
@@ -27,6 +26,9 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 @ServerSide
 public class SetSeverityAction extends Action {
@@ -50,20 +52,18 @@ public class SetSeverityAction extends Action {
 
   @Override
   public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-    severity(properties);
+    verifySeverityParameter(properties);
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.setManualSeverity(context.issue(), severity(properties), context.issueChangeContext());
+    return issueUpdater.setManualSeverity(context.issue(), verifySeverityParameter(properties), context.issueChangeContext());
   }
 
-  private static String severity(Map<String, Object> properties) {
+  private static String verifySeverityParameter(Map<String, Object> properties) {
     String param = (String) properties.get(SEVERITY_PARAMETER);
-    if (Strings.isNullOrEmpty(param)) {
-      throw new IllegalArgumentException("Missing parameter : 'severity'");
-    }
+    checkArgument(!isNullOrEmpty(param), "Missing parameter : '%s'", SEVERITY_PARAMETER);
     return param;
   }
 }
