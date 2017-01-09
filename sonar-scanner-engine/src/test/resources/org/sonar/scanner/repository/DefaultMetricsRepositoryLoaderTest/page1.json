@@ -1,0 +1,27 @@
+{
+	"metrics": [
+		{
+			"id": "10",
+			"key": "accessors",
+			"type": "INT",
+			"name": "Accessors",
+			"description": "Accessors",
+			"direction": -1,
+			"qualitative": false,
+			"custom": false
+		},
+		{
+			"id": "227",
+			"key": "new_technical_debt",
+			"type": "WORK_DUR",
+			"name": "Added Technical Debt",
+			"description": "Added technical debt",
+			"direction": -1,
+			"qualitative": true,
+			"custom": false
+		}
+	],
+	"total": 3,
+	"p": 1,
+	"ps": 2
+}

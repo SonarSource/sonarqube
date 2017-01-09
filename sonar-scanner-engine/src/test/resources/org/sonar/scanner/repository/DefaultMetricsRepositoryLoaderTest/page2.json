@@ -1,0 +1,17 @@
+{
+	"metrics": [
+		{
+			"id": "282",
+			"key": "afferent_coupling_average",
+			"type": "FLOAT",
+			"name": "Afferent Coupling (Average)",
+			"description": "Shows the Afferent Coupling for a package. This is a count of the number of other packages that depend on the classes within this package. It is an indicator of the package's responsibility.",
+			"direction": -1,
+			"qualitative": true,
+			"custom": false
+		}
+	],
+	"total": 3,
+	"p": 2,
+	"ps": 2
+}

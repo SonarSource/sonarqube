@@ -22,58 +22,63 @@ package org.sonar.scanner.repository;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class DefaultGlobalRepositoriesLoaderTest {
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
+public class DefaultMetricsRepositoryLoaderTest {
+  private static final String WS_URL = "/api/metrics/search?f=name,description,direction,qualitative,custom&ps=500&p=";
   private ScannerWsClient wsClient;
-  private DefaultGlobalRepositoriesLoader globalRepositoryLoader;
+  private DefaultMetricsRepositoryLoader metricsRepositoryLoader;
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     wsClient = mock(ScannerWsClient.class);
-    WsTestUtil.mockReader(wsClient, BATCH_GLOBAL_URL, new StringReader(new GlobalRepositories().toJson()));
-    globalRepositoryLoader = new DefaultGlobalRepositoriesLoader(wsClient);
+    WsTestUtil.mockReader(wsClient, WS_URL + "1", new StringReader(IOUtils.toString(this.getClass().getResourceAsStream("DefaultMetricsRepositoryLoaderTest/page1.json"))));
+    WsTestUtil.mockReader(wsClient, WS_URL + "2", new StringReader(IOUtils.toString(this.getClass().getResourceAsStream("DefaultMetricsRepositoryLoaderTest/page2.json"))));
+    metricsRepositoryLoader = new DefaultMetricsRepositoryLoader(wsClient);
   }
 
   @Test
   public void test() {
-    globalRepositoryLoader.load();
-    WsTestUtil.verifyCall(wsClient, BATCH_GLOBAL_URL);
+    MetricsRepository metricsRepository = metricsRepositoryLoader.load();
+    assertThat(metricsRepository.metrics()).hasSize(3);
+    WsTestUtil.verifyCall(wsClient, WS_URL + "1");
+    WsTestUtil.verifyCall(wsClient, WS_URL + "2");
     verifyNoMoreInteractions(wsClient);
   }
 
   @Test
   public void testIOError() throws IOException {
     Reader reader = mock(Reader.class);
-    when(reader.read(any(char[].class))).thenThrow(new IOException());
+    when(reader.read(any(char[].class), anyInt(), anyInt())).thenThrow(new IOException());
     WsTestUtil.mockReader(wsClient, reader);
     exception.expect(IllegalStateException.class);
-    globalRepositoryLoader.load();
+    metricsRepositoryLoader.load();
   }
 
   @Test
   public void testCloseError() throws IOException {
     Reader reader = mock(Reader.class);
-    when(reader.read(any(char[].class))).thenReturn(-1);
+    when(reader.read(any(char[].class), anyInt(), anyInt())).thenReturn(-1);
     doThrow(new IOException()).when(reader).close();
     WsTestUtil.mockReader(wsClient, reader);
     exception.expect(IllegalStateException.class);
-    globalRepositoryLoader.load();
+    metricsRepositoryLoader.load();
   }
 }

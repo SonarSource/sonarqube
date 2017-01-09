@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-
-public interface GlobalRepositoriesLoader {
-  GlobalRepositories load();
+public interface MetricsRepositoryLoader {
+  MetricsRepository load();
 }

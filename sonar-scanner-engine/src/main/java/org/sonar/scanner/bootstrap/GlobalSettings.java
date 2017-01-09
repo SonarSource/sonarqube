@@ -46,8 +46,9 @@ public class GlobalSettings extends Settings {
     "sonar.jdbc.username", JDBC_SPECIFIC_MESSAGE,
     "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE);
 
+  private final Map<String, String> serverSideSettings;
+
   private final GlobalProperties bootstrapProps;
-  private final SettingsLoader settingsLoader;
   private final GlobalMode mode;
   private final Map<String, String> properties = new HashMap<>();
 
@@ -57,18 +58,22 @@ public class GlobalSettings extends Settings {
     super(propertyDefinitions, new Encryption(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
     this.mode = mode;
     this.bootstrapProps = bootstrapProps;
-    this.settingsLoader = settingsLoader;
+    this.serverSideSettings = ImmutableMap.copyOf(settingsLoader.load(null));
     init();
     new DroppedPropertyChecker(this.getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   private void init() {
-    addProperties(settingsLoader.load(null));
+    addProperties(serverSideSettings);
     addProperties(bootstrapProps.properties());
 
     if (hasKey(CoreProperties.PERMANENT_SERVER_ID)) {
       LOG.info("Server id: " + getString(CoreProperties.PERMANENT_SERVER_ID));
     }
+  }
+
+  public Map<String, String> getServerSideSettings() {
+    return serverSideSettings;
   }
 
   @Override

@@ -39,9 +39,9 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.scanner.platform.DefaultServer;
-import org.sonar.scanner.repository.DefaultGlobalRepositoriesLoader;
-import org.sonar.scanner.repository.GlobalRepositoriesLoader;
-import org.sonar.scanner.repository.GlobalRepositoriesProvider;
+import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
+import org.sonar.scanner.repository.MetricsRepositoryLoader;
+import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.settings.DefaultSettingsLoader;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 import org.sonar.scanner.storage.StoragesManager;
@@ -93,11 +93,11 @@ public class GlobalContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,
-      new GlobalRepositoriesProvider(),
+      new MetricsRepositoryProvider(),
       UuidFactoryImpl.INSTANCE);
     addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
     addIfMissing(DefaultSettingsLoader.class, SettingsLoader.class);
-    addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
+    addIfMissing(DefaultMetricsRepositoryLoader.class, MetricsRepositoryLoader.class);
   }
 
   @Override
