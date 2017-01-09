@@ -56,6 +56,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String MODULE_KEY = "MODULE_KEY";
+  private static final String ORGANIZATION_UUID = "org1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -65,7 +66,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid("org1");
+    .setOrganizationUuid(ORGANIZATION_UUID);
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
@@ -114,7 +115,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
     ComponentDto projectDto = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
-    assertThat(projectDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(projectDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(projectDto.name()).isEqualTo("Project");
     assertThat(projectDto.description()).isEqualTo("Project description");
     assertThat(projectDto.path()).isNull();
@@ -129,7 +130,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto moduleDto = dbClient.componentDao().selectByKey(dbTester.getSession(), MODULE_KEY).get();
-    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(moduleDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(moduleDto.name()).isEqualTo("Module");
     assertThat(moduleDto.description()).isEqualTo("Module description");
     assertThat(moduleDto.path()).isEqualTo("module");
@@ -144,7 +145,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto directoryDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
-    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(directoryDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
@@ -159,7 +160,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
-    assertThat(fileDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(fileDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");

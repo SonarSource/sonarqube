@@ -65,6 +65,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private static final String PROJECT_VIEW_1_KEY = "PV1_KEY";
   private static final String PROJECT_VIEW_1_NAME = "PV1_NAME";
   private static final String PROJECT_VIEW_1_UUID = "PV1_UUID";
+  private static final String ORGANIZATION_UUID = "org1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -74,7 +75,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-      .setOrganizationUuid("org1");
+      .setOrganizationUuid(ORGANIZATION_UUID);
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
@@ -250,7 +251,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     ComponentDto project = newProjectDto();
     persistComponents(view, project);
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project, view)
-      .setOrganizationUuid(analysisMetadataHolder.getOrganizationUuid())
+      .setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(PROJECT_VIEW_1_KEY)
       .setName("Old name")
       .setCreatedAt(now);
@@ -336,7 +337,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   private ComponentDto newViewDto() {
     return ComponentTesting.newView(VIEW_UUID)
-      .setOrganizationUuid(analysisMetadataHolder.getOrganizationUuid())
+      .setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(VIEW_KEY)
       .setName(VIEW_NAME);
   }
@@ -345,7 +346,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
    * Assertions to verify the DTO created from {@link #createViewBuilder()}
    */
   private void assertDtoIsView(ComponentDto projectDto) {
-    assertThat(projectDto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(projectDto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(projectDto.name()).isEqualTo(VIEW_NAME);
     assertThat(projectDto.longName()).isEqualTo(VIEW_NAME);
     assertThat(projectDto.description()).isEqualTo(VIEW_DESCRIPTION);
@@ -365,7 +366,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
    * Assertions to verify the DTO created from {@link #createProjectView1Builder(ComponentDto, Long)}
    */
   private void assertDtoIsSubView1(ComponentDto viewDto, ComponentDto sv1Dto) {
-    assertThat(sv1Dto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(sv1Dto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(sv1Dto.name()).isEqualTo(SUBVIEW_1_NAME);
     assertThat(sv1Dto.longName()).isEqualTo(SUBVIEW_1_NAME);
     assertThat(sv1Dto.description()).isEqualTo(SUBVIEW_1_DESCRIPTION);
@@ -382,7 +383,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private void assertDtoIsProjectView1(ComponentDto pv1Dto, ComponentDto viewDto, ComponentDto parentViewDto, ComponentDto project) {
-    assertThat(pv1Dto.getOrganizationUuid()).isEqualTo(analysisMetadataHolder.getOrganizationUuid());
+    assertThat(pv1Dto.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
     assertThat(pv1Dto.name()).isEqualTo(PROJECT_VIEW_1_NAME);
     assertThat(pv1Dto.longName()).isEqualTo(PROJECT_VIEW_1_NAME);
     assertThat(pv1Dto.description()).isNull();

@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,29 +41,30 @@ public class AnalysisMetadataHolderImplTest {
   private AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
   @Test
-  public void getOrganizationUuid_throws_ISE_if_organization_uuid_is_not_set() {
+  public void getOrganization_throws_ISE_if_organization_is_not_set() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization uuid has not been set");
+    expectedException.expectMessage("Organization has not been set");
 
-    underTest.getOrganizationUuid();
+    underTest.getOrganization();
   }
 
   @Test
-  public void setOrganizationUuid_throws_NPE_is_parameter_is_null() {
+  public void setOrganization_throws_NPE_is_parameter_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Organization uuid can't be null");
+    expectedException.expectMessage("Organization can't be null");
 
-    underTest.setOrganizationUuid(null);
+    underTest.setOrganization(null);
   }
 
   @Test
-  public void setOrganizationUuid_throws_ISE_if_called_twice() {
-    underTest.setOrganizationUuid("org1");
+  public void setOrganization_throws_ISE_if_called_twice() {
+    Organization organization = Organization.from(new OrganizationDto().setUuid("uuid").setKey("key").setName("name"));
+    underTest.setOrganization(organization);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization uuid has already been set");
+    expectedException.expectMessage("Organization has already been set");
 
-    underTest.setOrganizationUuid("org1");
+    underTest.setOrganization(organization);
   }
 
   @Test

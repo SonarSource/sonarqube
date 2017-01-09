@@ -84,6 +84,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.sql.ResultSetMetaData.columnNoNulls;
 import static java.sql.ResultSetMetaData.columnNullable;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -100,6 +101,7 @@ public class DbTester extends ExternalResource {
   private DbSession session = null;
   private boolean disableDefaultOrganization = false;
   private boolean started = false;
+  private String defaultOrganizationUuid = randomAlphanumeric(40);
   private OrganizationDto defaultOrganization;
 
   private final UserDbTester userTester;
@@ -163,6 +165,12 @@ public class DbTester extends ExternalResource {
     return this;
   }
 
+  public DbTester setDefaultOrganizationUuid(String uuid) {
+    checkState(!started, "DbTester is already started");
+    this.defaultOrganizationUuid = uuid;
+    return this;
+  }
+
   @Override
   protected void before() throws Throwable {
     db.start();
@@ -175,7 +183,7 @@ public class DbTester extends ExternalResource {
   }
 
   private void insertDefaultOrganization() {
-    defaultOrganization = OrganizationTesting.newOrganizationDto();
+    defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid);
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
       client.organizationDao().insert(dbSession, defaultOrganization);
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
