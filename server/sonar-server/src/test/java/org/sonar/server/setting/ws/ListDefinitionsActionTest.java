@@ -54,6 +54,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
@@ -339,6 +340,20 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "plugin.license.secured", "commercial.plugin");
+  }
+
+  @Test
+  public void return_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
+    userSession.setGlobalPermissions(SCAN_EXECUTION);
+    propertyDefinitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
+      PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "commercial.plugin");
   }
 
   @Test
