@@ -19,32 +19,23 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonarqube.ws.client.GetRequest;
-import java.io.IOException;
-import java.io.Reader;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
-import org.apache.commons.io.IOUtils;
+public class MetricsRepositoryProvider extends ProviderAdapter {
 
-public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
+  private static final Logger LOG = Loggers.get(MetricsRepositoryProvider.class);
+  private static final String LOG_MSG = "Load metrics repository";
+  private MetricsRepository metricsRepository;
 
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
-  private ScannerWsClient wsClient;
-
-  public DefaultGlobalRepositoriesLoader(ScannerWsClient wsClient) {
-    this.wsClient = wsClient;
-  }
-
-  @Override
-  public GlobalRepositories load() {
-    GetRequest getRequest = new GetRequest(BATCH_GLOBAL_URL);
-    String str;
-    try (Reader reader = wsClient.call(getRequest).contentReader()) {
-      str = IOUtils.toString(reader);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
+  public MetricsRepository provide(MetricsRepositoryLoader loader) {
+    if (metricsRepository == null) {
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+      metricsRepository = loader.load();
+      profiler.stopInfo();
     }
-    return GlobalRepositories.fromJson(str);
+    return metricsRepository;
   }
 }

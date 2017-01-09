@@ -27,16 +27,15 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
+import org.sonar.scanner.repository.MetricsRepository;
 
 public class DefaultMetricFinder implements MetricFinder {
 
   private Map<String, Metric<Serializable>> metricsByKey = new LinkedHashMap<>();
 
-  public DefaultMetricFinder(GlobalRepositories globalReferentials) {
-    for (org.sonar.scanner.protocol.input.Metric metric : globalReferentials.metrics()) {
-      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create());
+  public DefaultMetricFinder(MetricsRepository metricsRepository) {
+    for (org.sonar.api.measures.Metric metric : metricsRepository.metrics()) {
+      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), metric.getType()).create());
     }
   }
 

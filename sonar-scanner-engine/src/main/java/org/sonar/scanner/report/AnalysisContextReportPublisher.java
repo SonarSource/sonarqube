@@ -37,8 +37,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.scanner.bootstrap.GlobalSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
 
@@ -55,17 +55,17 @@ public class AnalysisContextReportPublisher {
   private final AnalysisMode mode;
   private final System2 system;
   private final ProjectRepositories projectRepos;
-  private final GlobalRepositories globalRepositories;
+  private final GlobalSettings globalSettings;
 
   private ScannerReportWriter writer;
 
   public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalRepositories globalRepositories) {
+    ProjectRepositories projectRepos, GlobalSettings globalSettings) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
     this.projectRepos = projectRepos;
-    this.globalRepositories = globalRepositories;
+    this.globalSettings = globalSettings;
   }
 
   public void init(ScannerReportWriter writer) {
@@ -114,7 +114,7 @@ public class AnalysisContextReportPublisher {
 
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Global properties:\n");
-    Map<String, String> props = globalRepositories.globalSettings();
+    Map<String, String> props = globalSettings.getServerSideSettings();
     for (String prop : new TreeSet<>(props.keySet())) {
       dumpPropIfNotSensitive(fileWriter, prop, props.get(prop));
     }

@@ -54,11 +54,11 @@ import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.bootstrap.GlobalMode;
 import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.GlobalRepositoriesLoader;
+import org.sonar.scanner.repository.MetricsRepository;
+import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
@@ -116,7 +116,7 @@ public class ScannerMediumTester {
   }
 
   public static class BatchMediumTesterBuilder {
-    private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
+    private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
     private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
     private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
@@ -201,7 +201,6 @@ public class ScannerMediumTester {
 
     public BatchMediumTesterBuilder addDefaultQProfile(String language, String name) {
       addQProfile(language, name);
-      globalRefProvider.globalSettings().put("sonar.profile." + language, name);
       return this;
     }
 
@@ -380,34 +379,20 @@ public class ScannerMediumTester {
     }
   }
 
-  private static class FakeGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
+  private static class FakeMetricsRepositoryLoader implements MetricsRepositoryLoader {
 
     private int metricId = 1;
 
-    private GlobalRepositories ref = new GlobalRepositories();
+    private List<Metric> metrics = new ArrayList<>();
 
     @Override
-    public GlobalRepositories load() {
-      return ref;
+    public MetricsRepository load() {
+      return new MetricsRepository(metrics);
     }
 
-    public Map<String, String> globalSettings() {
-      return ref.globalSettings();
-    }
-
-    public FakeGlobalRepositoriesLoader add(Metric<?> metric) {
-      Boolean optimizedBestValue = metric.isOptimizedBestValue();
-      ref.metrics().add(new org.sonar.scanner.protocol.input.Metric(metricId,
-        metric.key(),
-        metric.getType().name(),
-        metric.getDescription(),
-        metric.getDirection(),
-        metric.getName(),
-        metric.getQualitative(),
-        metric.getUserManaged(),
-        metric.getWorstValue(),
-        metric.getBestValue(),
-        optimizedBestValue != null ? optimizedBestValue : false));
+    public FakeMetricsRepositoryLoader add(Metric<?> metric) {
+      metric.setId(metricId++);
+      metrics.add(metric);
       metricId++;
       return this;
     }

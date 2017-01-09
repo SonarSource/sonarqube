@@ -25,29 +25,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
+import org.sonar.scanner.repository.MetricsRepository;
 
 public final class DeprecatedMetricFinder implements MetricFinder {
 
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
   private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
 
-  public DeprecatedMetricFinder(GlobalRepositories globalReferentials) {
-    for (org.sonar.scanner.protocol.input.Metric metric : globalReferentials.metrics()) {
-      Metric hibernateMetric = new Metric.Builder(metric.key(), metric.name(), ValueType.valueOf(metric.valueType()))
-        .create()
-        .setDirection(metric.direction())
-        .setQualitative(metric.isQualitative())
-        .setUserManaged(metric.isUserManaged())
-        .setDescription(metric.description())
-        .setOptimizedBestValue(metric.isOptimizedBestValue())
-        .setBestValue(metric.bestValue())
-        .setWorstValue(metric.worstValue())
-        .setId(metric.id());
-      metricsByKey.put(metric.key(), hibernateMetric);
-      metricsById.put(metric.id(), new Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
+  public DeprecatedMetricFinder(MetricsRepository metricsRepository) {
+    for (Metric metric : metricsRepository.metrics()) {
+      metricsByKey.put(metric.key(), metric);
+      metricsById.put(metric.getId(), metric);
     }
   }
 

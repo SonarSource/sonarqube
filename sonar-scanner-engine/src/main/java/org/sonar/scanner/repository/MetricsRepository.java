@@ -19,24 +19,20 @@
  */
 package org.sonar.scanner.repository;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.sonar.api.measures.Metric;
 
-public class GlobalRepositoriesProvider extends ProviderAdapter {
+public class MetricsRepository {
 
-  private static final Logger LOG = Loggers.get(GlobalRepositoriesProvider.class);
-  private static final String LOG_MSG = "Load global repositories";
-  private GlobalRepositories globalReferentials;
+  private Collection<Metric> metrics = new ArrayList<>();
 
-  public GlobalRepositories provide(GlobalRepositoriesLoader loader) {
-    if (globalReferentials == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      globalReferentials = loader.load();
-      profiler.stopInfo();
-    }
-    return globalReferentials;
+  public MetricsRepository(List<Metric> metrics) {
+    this.metrics = metrics;
+  }
+
+  public Collection<Metric> metrics() {
+    return metrics;
   }
 }
