@@ -78,8 +78,8 @@ public class ComponentDaoTest {
     assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U1");
     assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U1");
-    assertThat(result.getRootUuid()).isEqualTo("root_uuid_of_U1");
-    assertThat(result.projectUuid()).isEqualTo("project_uuid_of_U1");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
+    assertThat(result.projectUuid()).isEqualTo("U1");
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isEqualTo("path_of_U1");
     assertThat(result.name()).isEqualTo("Struts");
@@ -195,7 +195,8 @@ public class ComponentDaoTest {
     assertThat(result.description()).isEqualTo("the description");
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
-    assertThat(result.getRootUuid()).isEqualTo("root_uuid_of_U1");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
+    assertThat(result.projectUuid()).isEqualTo("U1");
     assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123_456_789L);
   }
 
@@ -556,7 +557,7 @@ public class ComponentDaoTest {
 
     List<ComponentDto> components = underTest.selectByProjectUuid("U1", dbSession);
 
-    assertThat(components).extracting("id").containsOnly(2l, 3l, 4l);
+    assertThat(components).extracting("id").containsOnly(1L, 2L, 3L, 4L);
   }
 
   @Test
