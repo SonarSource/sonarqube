@@ -88,9 +88,10 @@ const fetchProjectMeasures = projects => dispatch => {
 };
 
 const handleFavorites = (dispatch, projects) => {
-  const favorites = projects.filter(project => project.isFavorite);
-  if (favorites.length) {
-    dispatch(receiveFavorites(favorites));
+  const toAdd = projects.filter(project => project.isFavorite);
+  const toRemove = projects.filter(project => project.isFavorite === false);
+  if (toAdd.length || toRemove.length) {
+    dispatch(receiveFavorites(toAdd, toRemove));
   }
 };
 

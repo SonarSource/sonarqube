@@ -26,9 +26,10 @@ export const actions = {
   REMOVE_FAVORITE: 'REMOVE_FAVORITE'
 };
 
-export const receiveFavorites = favorites => ({
+export const receiveFavorites = (favorites, notFavorites = []) => ({
   type: actions.RECEIVE_FAVORITES,
-  favorites
+  favorites,
+  notFavorites
 });
 
 export const addFavorite = componentKey => ({
@@ -43,7 +44,9 @@ export const removeFavorite = componentKey => ({
 
 export default (state = [], action = {}) => {
   if (action.type === actions.RECEIVE_FAVORITES) {
-    return uniq([...state, ...action.favorites.map(f => f.key)]);
+    const toAdd = action.favorites.map(f => f.key);
+    const toRemove = action.notFavorites.map(f => f.key);
+    return without(uniq([...state, ...toAdd]), ...toRemove);
   }
 
   if (action.type === actions.ADD_FAVORITE) {
