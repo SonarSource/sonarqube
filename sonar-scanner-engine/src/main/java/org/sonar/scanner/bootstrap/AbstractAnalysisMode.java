@@ -19,18 +19,19 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-
-import java.util.Arrays;
-
 import org.sonar.api.batch.AnalysisMode;
 
 public abstract class AbstractAnalysisMode implements AnalysisMode {
+
   private static final String[] VALID_MODES = {CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_PUBLISH, CoreProperties.ANALYSIS_MODE_ISSUES};
+  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
 
   protected boolean preview;
   protected boolean issues;
+  protected boolean mediumTestMode;
 
   protected AbstractAnalysisMode() {
   }
@@ -48,6 +49,10 @@ public abstract class AbstractAnalysisMode implements AnalysisMode {
   @Override
   public boolean isPublish() {
     return !preview && !issues;
+  }
+
+  public boolean isMediumTest() {
+    return mediumTestMode;
   }
 
   protected static void validate(String mode) {

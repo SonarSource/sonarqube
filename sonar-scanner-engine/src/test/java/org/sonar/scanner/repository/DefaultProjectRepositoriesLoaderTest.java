@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
@@ -46,11 +46,11 @@ public class DefaultProjectRepositoriesLoaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultProjectRepositoriesLoader loader;
-  private BatchWsClient wsClient;
+  private ScannerWsClient wsClient;
 
   @Before
   public void prepare() throws IOException {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
     InputStream is = mockData();
     WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
     loader = new DefaultProjectRepositoriesLoader(wsClient);

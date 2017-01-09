@@ -26,7 +26,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import java.util.Collection;
 
@@ -35,10 +35,10 @@ public class InitializersExecutor {
   private static final Logger LOG = Loggers.get(SensorsExecutor.class);
 
   private Project project;
-  private BatchExtensionDictionnary selector;
+  private ScannerExtensionDictionnary selector;
   private EventBus eventBus;
 
-  public InitializersExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus) {
+  public InitializersExecutor(ScannerExtensionDictionnary selector, Project project, EventBus eventBus) {
     this.selector = selector;
     this.project = project;
     this.eventBus = eventBus;

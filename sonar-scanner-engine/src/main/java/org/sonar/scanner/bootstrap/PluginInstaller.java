@@ -36,7 +36,7 @@ public interface PluginInstaller {
 
   /**
    * Used only by tests.
-   * @see org.sonar.scanner.mediumtest.BatchMediumTester
+   * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
   Map<String, Plugin> installLocals();
 }

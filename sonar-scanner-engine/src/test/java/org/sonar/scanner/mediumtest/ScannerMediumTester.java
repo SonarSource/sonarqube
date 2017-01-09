@@ -19,38 +19,9 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.batch.bootstrapper.LogOutput;
-import com.google.common.collect.Table;
-import com.google.common.collect.HashBasedTable;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.apache.commons.io.FileUtils;
-
-import javax.annotation.Nullable;
-
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
-import org.sonar.scanner.mediumtest.FakePluginInstaller;
-import org.sonar.scanner.mediumtest.TaskResult;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.GlobalRepositoriesLoader;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.ProjectRepositoriesLoader;
-import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.ServerIssuesLoader;
-import org.sonar.scanner.rule.ActiveRulesLoader;
-import org.sonar.scanner.rule.LoadedActiveRule;
-import org.sonar.scanner.rule.RulesLoader;
 import com.google.common.base.Function;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,19 +36,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.bootstrapper.Batch;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.IssueListener;
+import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.scanner.bootstrap.GlobalMode;
+import org.sonar.scanner.issue.tracking.ServerLineHashesLoader;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
+import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
+import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.repository.FileData;
+import org.sonar.scanner.repository.GlobalRepositoriesLoader;
+import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.repository.ProjectRepositoriesLoader;
+import org.sonar.scanner.repository.QualityProfileLoader;
+import org.sonar.scanner.repository.ServerIssuesLoader;
+import org.sonar.scanner.rule.ActiveRulesLoader;
+import org.sonar.scanner.rule.LoadedActiveRule;
+import org.sonar.scanner.rule.RulesLoader;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 /**
- * Main utility class for writing batch medium tests.
+ * Main utility class for writing scanner medium tests.
  * 
  */
-public class BatchMediumTester {
+public class ScannerMediumTester {
 
-  public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
   private Batch batch;
   private static Path workingDir = null;
   private static Path globalWorkingDir = null;
@@ -110,7 +106,7 @@ public class BatchMediumTester {
     }
 
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
-    builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
+    builder.bootstrapProperties.put(GlobalMode.MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, workingDir.toString());
     builder.bootstrapProperties.put("sonar.userHome", globalWorkingDir.toString());
@@ -130,8 +126,8 @@ public class BatchMediumTester {
     private boolean associated = true;
     private LogOutput logOutput = null;
 
-    public BatchMediumTester build() {
-      return new BatchMediumTester(this);
+    public ScannerMediumTester build() {
+      return new ScannerMediumTester(this);
     }
 
     public BatchMediumTesterBuilder setAssociated(boolean associated) {
@@ -276,7 +272,7 @@ public class BatchMediumTester {
     batch.syncProject(projectKey);
   }
 
-  private BatchMediumTester(BatchMediumTesterBuilder builder) {
+  private ScannerMediumTester(BatchMediumTesterBuilder builder) {
     Batch.Builder batchBuilder = Batch.builder()
       .setEnableLoggingConfiguration(true)
       .addComponents(
@@ -319,10 +315,10 @@ public class BatchMediumTester {
 
   public static class TaskBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
-    private BatchMediumTester tester;
+    private ScannerMediumTester tester;
     private IssueListener issueListener = null;
 
-    public TaskBuilder(BatchMediumTester tester) {
+    public TaskBuilder(ScannerMediumTester tester) {
       this.tester = tester;
     }
 

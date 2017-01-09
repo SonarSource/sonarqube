@@ -41,9 +41,9 @@ import static com.google.common.collect.Sets.newHashSet;
  * Filters the plugins to be enabled during analysis
  */
 @ScannerSide
-public class BatchPluginPredicate implements Predicate<String> {
+public class ScannerPluginPredicate implements Predicate<String> {
 
-  private static final Logger LOG = Loggers.get(BatchPluginPredicate.class);
+  private static final Logger LOG = Loggers.get(ScannerPluginPredicate.class);
 
   private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
@@ -52,7 +52,7 @@ public class BatchPluginPredicate implements Predicate<String> {
   private final Set<String> blacks = newHashSet();
   private final GlobalMode mode;
 
-  public BatchPluginPredicate(Settings settings, GlobalMode mode) {
+  public ScannerPluginPredicate(Settings settings, GlobalMode mode) {
     this.mode = mode;
     if (mode.isPreview() || mode.isIssues()) {
       // These default values are not supported by Settings because the class CorePlugin

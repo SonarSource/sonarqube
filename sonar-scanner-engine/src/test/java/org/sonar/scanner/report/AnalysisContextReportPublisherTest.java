@@ -35,7 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.BatchPluginRepository;
+import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
@@ -60,7 +60,7 @@ public class AnalysisContextReportPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private BatchPluginRepository pluginRepo = mock(BatchPluginRepository.class);
+  private ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
   private AnalysisContextReportPublisher publisher;
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;

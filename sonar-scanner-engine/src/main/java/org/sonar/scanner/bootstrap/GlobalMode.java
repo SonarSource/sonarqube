@@ -30,7 +30,7 @@ public class GlobalMode extends AbstractAnalysisMode {
     String mode = props.property(CoreProperties.ANALYSIS_MODE);
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    
+    mediumTestMode = "true".equals(props.property(MEDIUM_TEST_ENABLED));
     if (preview) {
       LOG.debug("Preview global mode");
     } else if (issues) {
@@ -38,5 +38,9 @@ public class GlobalMode extends AbstractAnalysisMode {
     } else {
       LOG.debug("Publish global mode");
     }
+    if (mediumTestMode) {
+      LOG.info("Medium test mode");
+    }
   }
+
 }

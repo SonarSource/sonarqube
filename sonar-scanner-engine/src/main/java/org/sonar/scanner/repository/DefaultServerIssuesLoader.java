@@ -23,16 +23,16 @@ import com.google.common.base.Function;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.util.BatchUtils;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
-  private final BatchWsClient wsClient;
+  private final ScannerWsClient wsClient;
 
-  public DefaultServerIssuesLoader(BatchWsClient wsClient) {
+  public DefaultServerIssuesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

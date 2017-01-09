@@ -37,7 +37,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchPluginInstallerTest {
+public class ScannerPluginInstallerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,18 +46,18 @@ public class BatchPluginInstallerTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private FileCache fileCache = mock(FileCache.class);
-  private BatchWsClient wsClient;
-  private BatchPluginPredicate pluginPredicate = mock(BatchPluginPredicate.class);
+  private ScannerWsClient wsClient;
+  private ScannerPluginPredicate pluginPredicate = mock(ScannerPluginPredicate.class);
 
   @Before
   public void setUp() {
-    wsClient = mock(BatchWsClient.class);
+    wsClient = mock(ScannerWsClient.class);
   }
 
   @Test
   public void listRemotePlugins() {
     WsTestUtil.mockReader(wsClient, "/deploy/plugins/index.txt", new StringReader("checkstyle\nsqale"));
-    BatchPluginInstaller underTest = new BatchPluginInstaller(wsClient, fileCache, pluginPredicate);
+    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
 
     List<RemotePlugin> remotePlugins = underTest.listRemotePlugins();
     assertThat(remotePlugins).extracting("key").containsOnly("checkstyle", "sqale");
@@ -68,7 +68,7 @@ public class BatchPluginInstallerTest {
     File pluginJar = temp.newFile();
     when(fileCache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
-    BatchPluginInstaller underTest = new BatchPluginInstaller(wsClient, fileCache, pluginPredicate);
+    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
 
     RemotePlugin remote = new RemotePlugin("checkstyle").setFile("checkstyle-plugin.jar", "fakemd5_1");
     File file = underTest.download(remote);
@@ -81,6 +81,6 @@ public class BatchPluginInstallerTest {
     WsTestUtil.mockException(wsClient, "/deploy/plugins/index.txt", new IllegalStateException());
     thrown.expect(IllegalStateException.class);
 
-    new BatchPluginInstaller(wsClient, fileCache, pluginPredicate).installRemotes();
+    new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate).installRemotes();
   }
 }

@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class ExtensionInstallerTest {
 
   GlobalMode mode;
-  BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+  ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
 
   private static SonarPlugin newPluginInstance(final Object... extensions) {
     return new SonarPlugin() {

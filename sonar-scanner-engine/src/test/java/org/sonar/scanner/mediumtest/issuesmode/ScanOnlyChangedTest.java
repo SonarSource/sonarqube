@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.mediumtest.BatchMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.Constants.Severity;
@@ -56,7 +56,7 @@ public class ScanOnlyChangedTest {
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-  private BatchMediumTester tester;
+  private ScannerMediumTester tester;
 
   private static Long date(String date) {
     try {
@@ -72,7 +72,7 @@ public class ScanOnlyChangedTest {
     String md5sum = DigestUtils.md5Hex(FileUtils.readFileToString(new File(
       Resources.getResource("mediumtest/xoo/sample/" + filePath).getPath())));
 
-    tester = BatchMediumTester.builder()
+    tester = ScannerMediumTester.builder()
       .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
       .registerPlugin("xoo", new XooPlugin())
       .addDefaultQProfile("xoo", "Sonar Way")

@@ -20,7 +20,7 @@
 package org.sonar.scanner.rule;
 
 import org.apache.commons.io.IOUtils;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.Rules.ListResponse;
@@ -32,9 +32,9 @@ import java.util.List;
 public class DefaultRulesLoader implements RulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf";
 
-  private final BatchWsClient wsClient;
+  private final ScannerWsClient wsClient;
 
-  public DefaultRulesLoader(BatchWsClient wsClient) {
+  public DefaultRulesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 

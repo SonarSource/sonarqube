@@ -34,8 +34,8 @@ import org.sonar.core.platform.PluginRepository;
 /**
  * Orchestrates the installation and loading of plugins
  */
-public class BatchPluginRepository implements PluginRepository, Startable {
-  private static final Logger LOG = Loggers.get(BatchPluginRepository.class);
+public class ScannerPluginRepository implements PluginRepository, Startable {
+  private static final Logger LOG = Loggers.get(ScannerPluginRepository.class);
 
   private final PluginInstaller installer;
   private final PluginLoader loader;
@@ -43,7 +43,7 @@ public class BatchPluginRepository implements PluginRepository, Startable {
   private Map<String, Plugin> pluginInstancesByKeys;
   private Map<String, PluginInfo> infosByKeys;
 
-  public BatchPluginRepository(PluginInstaller installer, PluginLoader loader) {
+  public ScannerPluginRepository(PluginInstaller installer, PluginLoader loader) {
     this.installer = installer;
     this.loader = loader;
   }

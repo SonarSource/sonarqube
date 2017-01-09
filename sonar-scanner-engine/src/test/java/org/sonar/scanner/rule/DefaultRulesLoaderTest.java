@@ -27,7 +27,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ public class DefaultRulesLoaderTest {
 
   @Test
   public void testParseServerResponse() throws IOException {
-    BatchWsClient wsClient = mock(BatchWsClient.class);
+    ScannerWsClient wsClient = mock(ScannerWsClient.class);
     InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoaderTest/response.protobuf")).openBufferedStream();
     WsTestUtil.mockStream(wsClient, is);
     DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
@@ -49,7 +49,7 @@ public class DefaultRulesLoaderTest {
 
   @Test
   public void testError() throws IOException {
-    BatchWsClient wsClient = mock(BatchWsClient.class);
+    ScannerWsClient wsClient = mock(ScannerWsClient.class);
     InputStream is = ByteSource.wrap(new String("trash").getBytes()).openBufferedStream();
     WsTestUtil.mockStream(wsClient, is);
     DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);

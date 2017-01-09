@@ -21,6 +21,7 @@ package org.sonar.scanner.bootstrap;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,16 +44,18 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
-public class BatchWsClient {
+public class ScannerWsClient {
 
-  private static final Logger LOG = Loggers.get(BatchWsClient.class);
+  private static final Logger LOG = Loggers.get(ScannerWsClient.class);
 
   private final WsClient target;
   private final boolean hasCredentials;
+  private final GlobalMode globalMode;
 
-  public BatchWsClient(WsClient target, boolean hasCredentials) {
+  public ScannerWsClient(WsClient target, boolean hasCredentials, GlobalMode globalMode) {
     this.target = target;
     this.hasCredentials = hasCredentials;
+    this.globalMode = globalMode;
   }
 
   /**
@@ -65,6 +68,7 @@ public class BatchWsClient {
    * @throws HttpException if the response code is not in range [200..300)
    */
   public WsResponse call(WsRequest request) {
+    Preconditions.checkState(!globalMode.isMediumTest(), "No WS call should be made in medium test mode");
     Profiler profiler = Profiler.createIfDebug(LOG).start();
     WsResponse response = target.wsConnector().call(request);
     profiler.stopDebug(format("%s %d %s", request.getMethod(), response.code(), response.requestUrl()));

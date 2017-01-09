@@ -34,11 +34,11 @@ import java.io.IOException;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @ScannerSide
-public class BatchPluginJarExploder extends PluginJarExploder {
+public class ScannerPluginJarExploder extends PluginJarExploder {
 
   private final FileCache fileCache;
 
-  public BatchPluginJarExploder(FileCache fileCache) {
+  public ScannerPluginJarExploder(FileCache fileCache) {
     this.fileCache = fileCache;
   }
 

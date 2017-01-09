@@ -136,7 +136,7 @@ public final class Batch {
 
   private void checkStarted() {
     if (!started) {
-      throw new IllegalStateException("Batch is not started. Unable to execute task.");
+      throw new IllegalStateException("Scanner engine is not started. Unable to execute task.");
     }
   }
 

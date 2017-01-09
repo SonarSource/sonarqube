@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.scanner.bootstrap.BatchExtensionDictionnary;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.phases.PostJobsExecutor;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class PostJobsExecutorTest {
   PostJobsExecutor executor;
 
   Project project = new Project("project");
-  BatchExtensionDictionnary selector = mock(BatchExtensionDictionnary.class);
+  ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
   PostJob job1 = mock(PostJob.class);
   PostJob job2 = mock(PostJob.class);
   SensorContext context = mock(SensorContext.class);

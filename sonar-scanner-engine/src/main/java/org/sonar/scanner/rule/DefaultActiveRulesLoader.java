@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.bootstrap.BatchWsClient;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.BatchUtils;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
@@ -40,9 +40,9 @@ import org.sonarqube.ws.client.GetRequest;
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
 
-  private final BatchWsClient wsClient;
+  private final ScannerWsClient wsClient;
 
-  public DefaultActiveRulesLoader(BatchWsClient wsClient) {
+  public DefaultActiveRulesLoader(ScannerWsClient wsClient) {
     this.wsClient = wsClient;
   }
 
