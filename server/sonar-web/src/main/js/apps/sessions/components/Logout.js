@@ -22,16 +22,28 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { doLogout } from '../../../store/rootActions';
+import { translate } from '../../../helpers/l10n';
+import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 
 class Logout extends React.Component {
   componentDidMount () {
     this.props.doLogout()
-        .then(() => window.location = window.baseUrl + '/')
-        .catch(() => { /* do nothing */ });
+        .then(() => {
+          RecentHistory.clear();
+          window.location = window.baseUrl + '/';
+        })
+        .catch(() => {
+          /* do nothing */
+        });
   }
 
   render () {
-    return <GlobalMessagesContainer/>;
+    return (
+        <div>
+          <GlobalMessagesContainer/>
+          {translate('logging_out')}
+        </div>
+    );
   }
 }
 

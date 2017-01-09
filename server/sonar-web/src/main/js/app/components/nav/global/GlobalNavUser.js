@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Link } from 'react-router';
+import { Link, withRouter } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
-import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../../helpers/l10n';
 
-export default class GlobalNavUser extends React.Component {
+class GlobalNavUser extends React.Component {
   handleLogin = e => {
     e.preventDefault();
     const returnTo = window.location.pathname + window.location.search;
@@ -32,8 +31,7 @@ export default class GlobalNavUser extends React.Component {
 
   handleLogout = e => {
     e.preventDefault();
-    RecentHistory.clear();
-    window.location = `${window.baseUrl}/sessions/logout`;
+    this.props.router.push('/sessions/logout');
   };
 
   renderAuthenticated () {
@@ -68,3 +66,5 @@ export default class GlobalNavUser extends React.Component {
     return this.props.currentUser.isLoggedIn ? this.renderAuthenticated() : this.renderAnonymous();
   }
 }
+
+export default withRouter(GlobalNavUser);
