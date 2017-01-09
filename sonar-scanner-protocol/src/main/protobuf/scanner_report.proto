@@ -31,11 +31,12 @@ option optimize_for = SPEED;
 message Metadata {
   int64 analysis_date = 1;
   // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
-  string project_key = 2;
-  string branch = 3;
-  int32 root_component_ref = 4;
-  bool cross_project_duplication_activated = 5;
-  map<string, QProfile> qprofiles_per_language = 6;
+  string organization_key = 2;
+  string project_key = 3;
+  string branch = 4;
+  int32 root_component_ref = 5;
+  bool cross_project_duplication_activated = 6;
+  map<string, QProfile> qprofiles_per_language = 7;
 
   message QProfile {
     string key = 1;
