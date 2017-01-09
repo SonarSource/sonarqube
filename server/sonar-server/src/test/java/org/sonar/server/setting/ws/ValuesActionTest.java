@@ -56,6 +56,7 @@ import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -465,7 +466,7 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "commercial.plugin", "plugin.license.secured");
+    ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo");
   }
@@ -482,7 +483,7 @@ public class ValuesActionTest {
       .build());
     propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+    ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertFieldValues(result.getSettings(0), ImmutableMap.of("key", "key1"));
   }
@@ -502,9 +503,29 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
+    ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
+  }
+
+  @Test
+  public void return_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
+    userSession.setGlobalPermissions(SCAN_EXECUTION);
+    definitions.addComponents(asList(
+      PropertyDefinition.builder("foo").build(),
+      PropertyDefinition.builder("secret.secured").build(),
+      PropertyDefinition.builder("commercial.plugin").type(LICENSE).build(),
+      PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build()));
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("foo").setValue("one"),
+      newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
+      newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
+      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties();
+
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
   }
 
   @Test
@@ -520,7 +541,7 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+    ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
   }
@@ -538,7 +559,7 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
       newComponentPropertyDto(project).setKey("plugin.licenseHash.secured").setValue("987654321"));
 
-    ValuesWsResponse result = executeRequestForProjectProperties("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+    ValuesWsResponse result = executeRequestForProjectProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
   }
@@ -556,7 +577,7 @@ public class ValuesActionTest {
       .build());
     propertyDb.insertPropertySet("foo", null, ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
 
-    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+    ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertFieldValues(result.getSettings(0), ImmutableMap.of("key", "key1", "plugin.license.secured", "ABCD", "secret.secured", "123456"));
   }

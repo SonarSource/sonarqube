@@ -29,6 +29,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class SettingsPermissionPredicates {
 
@@ -52,7 +53,7 @@ public class SettingsPermissionPredicates {
   }
 
   boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition));
+    return userSession.hasPermission(SCAN_EXECUTION) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
   }
 
   private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
