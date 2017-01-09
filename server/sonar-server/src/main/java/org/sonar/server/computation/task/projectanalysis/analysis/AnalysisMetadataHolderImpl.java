@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
 
-  private final InitializedProperty<String> organizationUuid = new InitializedProperty<>();
+  private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseProjectSnapshot = new InitializedProperty<>();
@@ -41,17 +41,17 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   @Override
-  public MutableAnalysisMetadataHolder setOrganizationUuid(String organizationUuid) {
-    checkState(!this.organizationUuid.isInitialized(), "Organization uuid has already been set");
-    requireNonNull(organizationUuid, "Organization uuid can't be null");
-    this.organizationUuid.setProperty(organizationUuid);
+  public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
+    checkState(!this.organization.isInitialized(), "Organization has already been set");
+    requireNonNull(organization, "Organization can't be null");
+    this.organization.setProperty(organization);
     return this;
   }
 
   @Override
-  public String getOrganizationUuid() {
-    checkState(organizationUuid.isInitialized(), "Organization uuid has not been set");
-    return organizationUuid.getProperty();
+  public Organization getOrganization() {
+    checkState(organization.isInitialized(), "Organization has not been set");
+    return organization.getProperty();
   }
 
   @Override

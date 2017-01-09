@@ -35,13 +35,13 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setOrganizationUuid(String organizationUuid) {
-    return delegate.setOrganizationUuid(organizationUuid);
+  public MutableAnalysisMetadataHolder setOrganization(Organization organization) {
+    return delegate.setOrganization(organization);
   }
 
   @Override
-  public String getOrganizationUuid() {
-    return delegate.getOrganizationUuid();
+  public Organization getOrganization() {
+    return delegate.getOrganization();
   }
 
   public MutableAnalysisMetadataHolderRule setUuid(String s) {
