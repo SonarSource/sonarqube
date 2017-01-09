@@ -65,12 +65,12 @@
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="Component">
-    SELECT
+    select
     <include refid="componentColumns"/>
-    FROM projects p
-    <where>
-      p.project_uuid=#{projectUuid}
-    </where>
+    from projects root
+    inner join projects p on p.project_uuid=root.uuid and p.organization_uuid=root.organization_uuid
+    where
+      root.uuid=#{projectUuid}
   </select>
 
   <select id="countById" parameterType="long" resultType="long">
@@ -134,15 +134,17 @@
     SELECT
     <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN projects child ON child.root_uuid=p.uuid AND child.enabled=${_true}
-    <where>
-      AND p.enabled=${_true}
-      AND p.scope='PRJ'
-      AND child.uuid in
-      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
-        #{uuid}
-      </foreach>
-    </where>
+    INNER JOIN projects child ON
+      child.root_uuid=p.uuid
+      and child.enabled=${_true}
+      and child.organization_uuid=p.organization_uuid
+    where
+      p.enabled=${_true}
+      and p.scope='PRJ'
+      and child.uuid in
+        <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+          #{uuid}
+        </foreach>
   </select>
 
   <select id="selectDescendantModules" parameterType="map" resultType="Component">
@@ -153,8 +155,11 @@
   </select>
 
   <sql id="modulesTreeQuery">
-    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND
-    module.scope='PRJ' AND module.enabled = ${_true}
+    INNER JOIN projects module ON
+      module.project_uuid = p.project_uuid
+      and module.organization_uuid = p.organization_uuid
+      and module.uuid = #{moduleUuid}
+      and module.scope='PRJ' AND module.enabled = ${_true}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -176,20 +181,36 @@
   </sql>
 
   <select id="selectEnabledFilesFromProject" parameterType="map" resultType="FilePathWithHash">
-    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
-    FROM projects p
-    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
-    <where>
-      AND p.project_uuid=#{projectUuid}
-      AND p.enabled=${_true}
-      AND p.scope='FIL'
-    </where>
+    SELECT
+      p.uuid,
+      p.path,
+      p.module_uuid as moduleUuid,
+      fs.src_hash as srcHash,
+      fs.revision
+    FROM projects root
+    INNER JOIN projects p on
+      p.project_uuid=root.uuid
+      and p.organization_uuid=root.organization_uuid
+      and p.enabled=${_true}
+      and p.scope='FIL'
+    INNER JOIN file_sources fs ON
+      fs.file_uuid=p.uuid
+      and fs.data_type='SOURCE'
+    where
+      root.uuid=#{projectUuid}
   </select>
 
   <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
-    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
+    SELECT
+      p.uuid,
+      p.path,
+      p.module_uuid as moduleUuid,
+      fs.src_hash as srcHash,
+      fs.revision
     FROM projects p
-    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
+    INNER JOIN file_sources fs ON
+      fs.file_uuid=p.uuid
+      and fs.data_type='SOURCE'
     <include refid="modulesTreeQuery"/>
   </select>
 
