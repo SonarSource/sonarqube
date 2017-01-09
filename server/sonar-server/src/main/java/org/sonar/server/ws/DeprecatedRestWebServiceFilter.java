@@ -30,9 +30,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.web.ServletFilter;
-import org.sonar.server.config.ws.IndexAction;
+import org.sonar.server.property.ws.IndexAction;
 
-import static org.sonar.server.config.ws.PropertiesWs.CONTROLLER_PROPERTIES;
+import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 
 /**
  * This filter is used to execute some deprecated Java WS, that were using REST

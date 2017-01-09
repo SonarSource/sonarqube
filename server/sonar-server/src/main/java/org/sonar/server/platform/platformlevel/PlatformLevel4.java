@@ -42,7 +42,6 @@ import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.es.ProjectsEsModule;
 import org.sonar.server.component.ws.ComponentsWsModule;
-import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.debt.DebtModelBackup;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
@@ -134,6 +133,7 @@ import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ProjectAnalysisModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.property.InternalPropertiesImpl;
+import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -445,7 +445,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Settings
       PersistentSettings.class,
       PropertiesWs.class,
-      org.sonar.server.config.ws.IndexAction.class,
+      org.sonar.server.property.ws.IndexAction.class,
       SettingsWsModule.class,
 
       // Licences

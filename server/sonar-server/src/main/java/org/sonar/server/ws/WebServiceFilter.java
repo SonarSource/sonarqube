@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 
-import static org.sonar.server.config.ws.PropertiesWs.CONTROLLER_PROPERTIES;
+import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 
 /**
  * This filter is used to execute Java WS.
