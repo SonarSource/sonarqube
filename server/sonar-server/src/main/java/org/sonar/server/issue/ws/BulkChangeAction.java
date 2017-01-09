@@ -121,7 +121,9 @@ public class BulkChangeAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
-      .setDescription("Bulk change on issues. Requires authentication and User role on project(s)")
+      .setDescription("Bulk change on issues.<br/>" +
+        "Requires authentication.<br/>" +
+        "Since 6.3, 'actions' parameter is useless.")
       .setSince("3.7")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "bulk_change-example.json"))
