@@ -196,14 +196,14 @@ public class RuleIndex extends BaseIndex {
 
   private static QueryBuilder termQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + SEARCH_PARTIAL_SUFFIX)
+      field, field + "." + SEARCH_WORDS_SUFFIX)
       .operator(MatchQueryBuilder.Operator.AND)
       .boost(boost);
   }
 
   private static QueryBuilder termAnyQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + SEARCH_PARTIAL_SUFFIX)
+      field, field + "." + SEARCH_WORDS_SUFFIX)
       .operator(MatchQueryBuilder.Operator.OR)
       .boost(boost);
   }

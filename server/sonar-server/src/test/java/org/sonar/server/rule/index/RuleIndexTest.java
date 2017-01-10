@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
@@ -205,15 +204,17 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // empty list => no filter
-    query = new RuleQuery().setRepositories(Collections.<String>emptyList());
+    query = new RuleQuery().setRepositories(Collections.emptyList());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
   }
 
   @Test
-  public void search_by_tags() {
+  public void search_by_tags_in_query_text() {
+    RuleKey key1 = RuleKey.of("java", "S001");
+    RuleKey key2 = RuleKey.of("java", "S002");
     indexRules(
-      newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("tag1")),
-      newDoc(RuleKey.of("java", "S002")).setAllTags(singleton("tag2")));
+      newDoc(key1).setAllTags(singleton("tag1")),
+      newDoc(key2).setAllTags(singleton("tag2")));
 
     // find all
     RuleQuery query = new RuleQuery();
@@ -221,7 +222,7 @@ public class RuleIndexTest {
 
     // tag1 in query
     query = new RuleQuery().setQueryText("tag1");
-    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S001"));
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(key1);
 
     // tag1 OR tag2
     // note: should it be AND instead of OR ?
@@ -230,7 +231,48 @@ public class RuleIndexTest {
     // tag2 OR tag1
     query = new RuleQuery().setQueryText("tag2 tag1");
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
+  }
 
+  @Test
+  public void search_by_tag_words_in_query_text() {
+    indexRules(newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("brain-overload")));
+
+    RuleQuery query = new RuleQuery();
+
+    // match
+
+    query = new RuleQuery().setQueryText("brain");
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
+
+    query = new RuleQuery().setQueryText("brain-overload");
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
+
+    query = new RuleQuery().setQueryText("overload");
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
+
+    // do not match
+
+    query = new RuleQuery().setQueryText("brai");
+    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
+
+    query = new RuleQuery().setQueryText("overl");
+    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
+
+    query = new RuleQuery().setQueryText("verload");
+    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
+
+    query = new RuleQuery().setQueryText("brainoverload");
+    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_tags() {
+    indexRules(
+      newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("tag1")),
+      newDoc(RuleKey.of("java", "S002")).setAllTags(singleton("tag2")));
+
+    // find all
+    RuleQuery query = new RuleQuery();
     // tag2 in filter
     query = new RuleQuery().setTags(ImmutableSet.of("tag2"));
     assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S002"));
@@ -244,7 +286,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S002"));
 
     // null list => no filter
-    query = new RuleQuery().setTags(Collections.<String>emptySet());
+    query = new RuleQuery().setTags(Collections.emptySet());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // null list => no filter
@@ -287,7 +329,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // null list => no filter
-    query = new RuleQuery().setTypes(Collections.<RuleType>emptySet());
+    query = new RuleQuery().setTypes(Collections.emptySet());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(4);
 
     // null list => no filter
@@ -357,7 +399,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // empty list => no filter
-    query = new RuleQuery().setLanguages(Collections.<String>emptyList());
+    query = new RuleQuery().setLanguages(Collections.emptyList());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // null list => no filter
@@ -380,7 +422,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // empty list => no filter
-    query = new RuleQuery().setSeverities(Collections.<String>emptyList());
+    query = new RuleQuery().setSeverities(Collections.emptyList());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // null list => no filter
@@ -403,7 +445,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
 
     // empty list => no filter
-    query = new RuleQuery().setStatuses(Collections.<RuleStatus>emptyList());
+    query = new RuleQuery().setStatuses(Collections.emptyList());
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // null list => no filter
@@ -612,14 +654,14 @@ public class RuleIndexTest {
   @Test
   public void sticky_facets() {
     indexRules(
-      newDoc(RuleKey.of("xoo", "S001")).setLanguage("java").setAllTags(Collections.<String>emptyList()).setType(BUG),
-      newDoc(RuleKey.of("xoo", "S002")).setLanguage("java").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("xoo", "S001")).setLanguage("java").setAllTags(Collections.emptyList()).setType(BUG),
+      newDoc(RuleKey.of("xoo", "S002")).setLanguage("java").setAllTags(Collections.emptyList()).setType(CODE_SMELL),
       newDoc(RuleKey.of("xoo", "S003")).setLanguage("java").setAllTags(asList("T1", "T2")).setType(CODE_SMELL),
-      newDoc(RuleKey.of("xoo", "S011")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
-      newDoc(RuleKey.of("xoo", "S012")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()).setType(BUG),
+      newDoc(RuleKey.of("xoo", "S011")).setLanguage("cobol").setAllTags(Collections.emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("xoo", "S012")).setLanguage("cobol").setAllTags(Collections.emptyList()).setType(BUG),
       newDoc(RuleKey.of("foo", "S013")).setLanguage("cobol").setAllTags(asList("T3", "T4")).setType(VULNERABILITY),
-      newDoc(RuleKey.of("foo", "S111")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()).setType(BUG),
-      newDoc(RuleKey.of("foo", "S112")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("foo", "S111")).setLanguage("cpp").setAllTags(Collections.emptyList()).setType(BUG),
+      newDoc(RuleKey.of("foo", "S112")).setLanguage("cpp").setAllTags(Collections.emptyList()).setType(CODE_SMELL),
       newDoc(RuleKey.of("foo", "S113")).setLanguage("cpp").setAllTags(asList("T2", "T3")).setType(CODE_SMELL));
 
     // 0 assert Base
