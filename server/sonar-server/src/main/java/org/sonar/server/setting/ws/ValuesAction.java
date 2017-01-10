@@ -50,6 +50,7 @@ import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
+import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
@@ -67,7 +68,7 @@ public class ValuesAction implements SettingsWsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
-  private static final Set<String> ADDITIONAL_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME);
+  private static final Set<String> ADDITIONAL_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;

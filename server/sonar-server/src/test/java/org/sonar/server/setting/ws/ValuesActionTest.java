@@ -622,13 +622,14 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("sonar.server_id").setValue("12345"),
+      newGlobalPropertyDto().setKey("sonar.core.id").setValue("ID"),
       newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.startTime", "plugin.license.secured",
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.id", "sonar.core.startTime", "plugin.license.secured",
       "plugin.licenseHash.secured");
   }
 
