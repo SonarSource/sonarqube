@@ -50,7 +50,7 @@ public class PageTest {
 
     assertThat(result.getKey()).isEqualTo("governance/project_dump");
     assertThat(result.getName()).isEqualTo("Project Dump");
-    assertThat(result.getComponentQualifiers()).containsExactly(PROJECT, MODULE);
+    assertThat(result.getComponentQualifiers()).containsOnly(PROJECT, MODULE);
     assertThat(result.getScope()).isEqualTo(COMPONENT);
     assertThat(result.isAdmin()).isTrue();
   }
@@ -83,7 +83,7 @@ public class PageTest {
   public void all_qualifiers_when_component_page() {
     Page result = underTest.setScope(COMPONENT).build();
 
-    assertThat(result.getComponentQualifiers()).containsExactly(Qualifier.values());
+    assertThat(result.getComponentQualifiers()).containsOnly(Qualifier.values());
   }
 
   @Test

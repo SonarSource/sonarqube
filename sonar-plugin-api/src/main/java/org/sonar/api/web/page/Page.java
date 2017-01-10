@@ -21,33 +21,32 @@
 package org.sonar.api.web.page;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
 
 import static java.lang.String.format;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
 
 /**
+ * @see PageDefinition
  * @since 6.3
  */
-@Immutable
 public final class Page {
   private final String key;
   private final String name;
   private final boolean isAdmin;
   private final Scope scope;
-  private final List<Qualifier> qualifiers;
+  private final Set<Qualifier> qualifiers;
 
   private Page(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
-    this.qualifiers = unmodifiableList(Stream.of(builder.qualifiers).sorted().collect(Collectors.toList()));
+    this.qualifiers = unmodifiableSet(Stream.of(builder.qualifiers).sorted().collect(Collectors.toSet()));
     this.isAdmin = builder.isAdmin;
     this.scope = builder.scope;
   }
@@ -64,7 +63,7 @@ public final class Page {
     return name;
   }
 
-  public List<Qualifier> getComponentQualifiers() {
+  public Set<Qualifier> getComponentQualifiers() {
     return qualifiers;
   }
 
@@ -112,25 +111,42 @@ public final class Page {
     private Scope scope = GLOBAL;
     private Qualifier[] qualifiers = new Qualifier[] {};
 
+    /**
+     * @param key It must respect the format plugin_key/page_identifier. Example: <code>my_plugin/my_page</code>
+     */
     private Builder(String key) {
       this.key = requireNonNull(key, "Key must not be null");
     }
 
+    /**
+     * Page name displayed in the UI. Mandatory.
+     */
     public Builder setName(String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * if set to true, display the page in the administration section, depending on the scope
+     */
     public Builder setAdmin(boolean admin) {
       this.isAdmin = admin;
       return this;
     }
 
+    /**
+     * Define where the page is displayed, either in the global menu or in a component page
+     * @param scope - default is GLOBAL
+     */
     public Builder setScope(Scope scope) {
       this.scope = requireNonNull(scope, "Scope must not be null");
       return this;
     }
 
+    /**
+     * Define the components where the page is displayed. If set, {@link #setScope(Scope)} must be set to COMPONENT
+     * @see Qualifier
+     */
     public Builder setComponentQualifiers(Qualifier... qualifiers) {
       this.qualifiers = requireNonNull(qualifiers);
       return this;

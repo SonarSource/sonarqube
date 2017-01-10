@@ -20,30 +20,22 @@
 
 package org.sonar.api.web.page;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.Test;
 
-import static java.lang.String.format;
-import static java.util.Collections.unmodifiableCollection;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @see PageDefinition
- * @since 6.3
+ * Used for the documentation
  */
-public final class Context {
-  private final Map<String, Page> pagesByPath = new HashMap<>();
+public class PageDefinitionTest {
+  @Test
+  public void test_page_definition() {
+    PageDefinition underTest = context -> context.addPage(Page.builder("my_plugin/my_page").setName("My Page").build());
+    Context context = new Context();
 
-  public Context addPage(Page page) {
-    Page existingPageWithSameKey = pagesByPath.putIfAbsent(page.getKey(), page);
-    if (existingPageWithSameKey != null) {
-      throw new IllegalArgumentException(format("Page '%s' cannot be loaded. Another page with key '%s' already exists.", page.getName(), page.getKey()));
-    }
+    underTest.define(context);
 
-    return this;
+    assertThat(context.getPages()).extracting(Page::getKey).contains("my_plugin/my_page");
   }
 
-  public Collection<Page> getPages() {
-    return unmodifiableCollection(pagesByPath.values());
-  }
 }
