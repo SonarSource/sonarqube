@@ -27,9 +27,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.BatchSession;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.Select.Row;
 import org.sonar.server.platform.db.migration.step.Select.RowReader;
 
@@ -40,7 +39,7 @@ import static org.junit.Assert.fail;
 public class DataChangeTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DataChangeTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DataChangeTest.class, "schema.sql");
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 

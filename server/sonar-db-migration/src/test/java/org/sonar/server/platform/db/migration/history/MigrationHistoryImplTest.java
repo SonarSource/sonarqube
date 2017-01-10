@@ -19,14 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.history;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.schemamigration.SchemaMigrationMapper;
+import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
@@ -34,14 +34,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MigrationHistoryImplTest {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrationHistoryImplTest.class, "schema_migration.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbSession session = dbTester.getSession();
-  private SchemaMigrationMapper schemaMigrationMapper = session.getMapper(SchemaMigrationMapper.class);
-
-  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.getDbClient());
+  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database());
 
   @Test
   public void start_does_not_fail_if_table_history_exists() {
@@ -54,8 +51,8 @@ public class MigrationHistoryImplTest {
   }
 
   @Test
-  public void getLastMigrationNumber_returns_last_version_assuming_version_are_only_number() {
-    insert("12", "5", "30", "8");
+  public void getLastMigrationNumber_returns_last_version_assuming_version_are_only_number() throws SQLException {
+    insert(12, 5, 30, 8);
 
     assertThat(underTest.getLastMigrationNumber()).contains(30L);
   }
@@ -74,8 +71,19 @@ public class MigrationHistoryImplTest {
     assertThat(underTest.getLastMigrationNumber()).contains(12L);
   }
 
-  private void insert(String... versions) {
-    Arrays.stream(versions).forEach(version -> schemaMigrationMapper.insert(version));
-    session.commit();
+  private void insert(int... versions) throws SQLException {
+    try (Connection connection = dbTester.database().getDataSource().getConnection()) {
+      Arrays.stream(versions).forEach(version -> insert(connection, version));
+    }
+  }
+
+  private void insert(Connection connection, long version) {
+    try (PreparedStatement statement = connection.prepareStatement("insert into schema_migrations(version) values (?)")) {
+      statement.setString(1, String.valueOf(version));
+      statement.execute();
+      connection.commit();
+    } catch (SQLException e) {
+      throw new IllegalStateException(String.format("Failed to insert row with value %s", version), e);
+    }
   }
 }

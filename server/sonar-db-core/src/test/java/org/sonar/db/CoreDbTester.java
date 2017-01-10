@@ -90,6 +90,12 @@ public class CoreDbTester extends ExternalResource {
     return new CoreDbTester(schemaPath);
   }
 
+  public static CoreDbTester createEmpty() {
+    String path = StringUtils.replaceChars(CoreDbTester.class.getCanonicalName(), '.', '/');
+    String schemaPath = path + "/empty.sql";
+    return new CoreDbTester(schemaPath);
+  }
+
   @Override
   protected void before() throws Throwable {
     db.start();
@@ -107,6 +113,7 @@ public class CoreDbTester extends ExternalResource {
   public void executeUpdateSql(String sql, Object... params) {
     try (Connection connection = getConnection()) {
       new QueryRunner().update(connection, sql, params);
+      connection.commit();
     } catch (SQLException e) {
       SQLException nextException = e.getNextException();
       if (nextException != null) {
@@ -588,8 +595,7 @@ public class CoreDbTester extends ExternalResource {
     }
   }
 
-  @Deprecated
-  public Connection openConnection() throws Exception {
+  public Connection openConnection() throws SQLException {
     return getConnection();
   }
 
@@ -597,7 +603,6 @@ public class CoreDbTester extends ExternalResource {
     return db.getDatabase().getDataSource().getConnection();
   }
 
-  @Deprecated
   public Database database() {
     return db.getDatabase();
   }

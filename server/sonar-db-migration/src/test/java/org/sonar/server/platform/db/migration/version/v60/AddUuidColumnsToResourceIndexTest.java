@@ -24,15 +24,14 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
 public class AddUuidColumnsToResourceIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToResourceIndexTest.class, "old_resourceindex.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddUuidColumnsToResourceIndexTest.class, "old_resourceindex.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -57,7 +56,6 @@ public class AddUuidColumnsToResourceIndexTest {
         "ROOT_PROJECT_ID", valueOf(i + 20),
         "QUALIFIER", (i % 2 == 0 ? "FILE" : "PROJECT"));
     }
-    db.commit();
 
     underTest.execute();
 

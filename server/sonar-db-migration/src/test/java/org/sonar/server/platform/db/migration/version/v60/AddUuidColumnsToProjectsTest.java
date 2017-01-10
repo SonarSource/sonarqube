@@ -24,15 +24,14 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class AddUuidColumnsToProjectsTest {
 
   private static final String PROJECTS_TABLE = "projects";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToProjectsTest.class, "old_projects.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddUuidColumnsToProjectsTest.class, "old_projects.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -53,7 +52,6 @@ public class AddUuidColumnsToProjectsTest {
         "KEE", "key_" + i,
         "ENABLED", "true");
     }
-    db.commit();
 
     underTest.execute();
 

@@ -25,8 +25,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -35,7 +34,7 @@ public class MakeAnalysisUuidNotNullOnMeasuresTest {
   private static final String TABLE_MEASURES = "project_measures";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeAnalysisUuidNotNullOnMeasuresTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeAnalysisUuidNotNullOnMeasuresTest.class,
     "in_progress_measures.sql");
 
   @Rule

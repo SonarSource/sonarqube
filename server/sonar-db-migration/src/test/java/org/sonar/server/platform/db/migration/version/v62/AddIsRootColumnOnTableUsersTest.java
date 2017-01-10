@@ -25,11 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 public class AddIsRootColumnOnTableUsersTest {
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, AddIsRootColumnOnTableUsersTest.class, "table_users.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddIsRootColumnOnTableUsersTest.class, "table_users.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

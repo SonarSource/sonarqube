@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -34,7 +34,7 @@ public class MakeOrganizationUuidNotNullOnGroupRolesTest {
   private static final String TABLE_GROUP_ROLES = "group_roles";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeOrganizationUuidNotNullOnGroupRolesTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeOrganizationUuidNotNullOnGroupRolesTest.class,
     "in_progress_group_roles.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

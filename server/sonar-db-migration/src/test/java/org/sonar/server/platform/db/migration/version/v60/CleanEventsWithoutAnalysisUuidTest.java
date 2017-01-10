@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ public class CleanEventsWithoutAnalysisUuidTest {
   private static final String TABLE_EVENTS = "events";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanEventsWithoutAnalysisUuidTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(CleanEventsWithoutAnalysisUuidTest.class,
     "in_progress_events.sql");
 
   private CleanEventsWithoutAnalysisUuid underTest = new CleanEventsWithoutAnalysisUuid(db.database());
@@ -53,7 +52,6 @@ public class CleanEventsWithoutAnalysisUuidTest {
     insertEvent(2, false, true);
     insertEvent(3, false, false);
     insertEvent(4, true, true);
-    db.commit();
 
     underTest.execute();
 

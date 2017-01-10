@@ -24,23 +24,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.db.DbClient;
-import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 
 public class MigrationHistoryTableImpl implements MigrationHistoryTable {
   private static final String VERSION_COLUMN_NAME = "version";
 
-  private final DbClient dbClient;
+  private final Database database;
 
-  public MigrationHistoryTableImpl(DbClient dbClient) {
-    this.dbClient = dbClient;
+  public MigrationHistoryTableImpl(Database database) {
+    this.database = database;
   }
 
   @Override
   public void start() {
-    try (Connection connection = createDdlConnection(dbClient)) {
+    try (Connection connection = createDdlConnection(database)) {
       if (!DatabaseUtils.tableExists(NAME, connection)) {
         createTable(connection);
       }
@@ -50,7 +50,7 @@ public class MigrationHistoryTableImpl implements MigrationHistoryTable {
   }
 
   private void createTable(Connection connection) throws SQLException {
-    List<String> sqls = new CreateTableBuilder(dbClient.getDatabase().getDialect(), NAME)
+    List<String> sqls = new CreateTableBuilder(database.getDialect(), NAME)
       .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder().setColumnName(VERSION_COLUMN_NAME).setIsNullable(false).setLimit(255).build())
       .build();
 
@@ -60,8 +60,8 @@ public class MigrationHistoryTableImpl implements MigrationHistoryTable {
     }
   }
 
-  private static Connection createDdlConnection(DbClient dbClient) throws SQLException {
-    Connection res = dbClient.getDatabase().getDataSource().getConnection();
+  private static Connection createDdlConnection(Database database) throws SQLException {
+    Connection res = database.getDataSource().getConnection();
     res.setAutoCommit(false);
     return res;
   }

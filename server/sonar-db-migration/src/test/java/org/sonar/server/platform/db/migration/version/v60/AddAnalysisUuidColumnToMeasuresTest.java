@@ -24,8 +24,7 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 
@@ -34,7 +33,7 @@ public class AddAnalysisUuidColumnToMeasuresTest {
   private static final String TABLE = "project_measures";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddAnalysisUuidColumnToMeasuresTest.class, "old_measures.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddAnalysisUuidColumnToMeasuresTest.class, "old_measures.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -57,7 +56,6 @@ public class AddAnalysisUuidColumnToMeasuresTest {
         "snapshot_id", valueOf(i + 100),
         "component_uuid", valueOf(i + 1_000));
     }
-    db.commit();
 
     underTest.execute();
 

@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CleanOrphanRowsInResourceIndexTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanOrphanRowsInResourceIndexTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(CleanOrphanRowsInResourceIndexTest.class,
     "in_progress_resourceindex.sql");
 
   private CleanOrphanRowsInResourceIndex underTest = new CleanOrphanRowsInResourceIndex(db.database());
@@ -52,7 +51,6 @@ public class CleanOrphanRowsInResourceIndexTest {
     insertResourceIndex(3, true, false);
     insertResourceIndex(4, false, true);
     insertResourceIndex(5, true, true);
-    db.commit();
 
     underTest.execute();
 

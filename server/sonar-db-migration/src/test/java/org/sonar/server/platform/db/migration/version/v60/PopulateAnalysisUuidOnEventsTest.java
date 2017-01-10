@@ -26,8 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +37,7 @@ public class PopulateAnalysisUuidOnEventsTest {
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateAnalysisUuidOnEventsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateAnalysisUuidOnEventsTest.class,
     "in_progress_events_with_snapshots.sql");
 
   private PopulateAnalysisUuidOnEvents underTest = new PopulateAnalysisUuidOnEvents(db.database());
@@ -75,7 +74,6 @@ public class PopulateAnalysisUuidOnEventsTest {
     insertEvent(210, 9L);
     insertEvent(211, 10L);
     insertEvent(212, 11L);
-    db.commit();
 
     underTest.execute();
 

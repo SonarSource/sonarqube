@@ -25,8 +25,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +37,7 @@ public class PopulateAnalysisUuidColumnOnCeActivityTest {
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateAnalysisUuidColumnOnCeActivityTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateAnalysisUuidColumnOnCeActivityTest.class,
     "in_progress_ce_activity.sql");
 
   private PopulateAnalysisUuidColumnOnCeActivity underTest = new PopulateAnalysisUuidColumnOnCeActivity(db.database());
@@ -57,7 +56,6 @@ public class PopulateAnalysisUuidColumnOnCeActivityTest {
     insertCeActivity(1, null);
     insertCeActivity(2, 1L);
     insertCeActivity(3, 2L);
-    db.commit();
 
     underTest.execute();
 

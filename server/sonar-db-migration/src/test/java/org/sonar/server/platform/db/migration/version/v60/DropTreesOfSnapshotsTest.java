@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ public class DropTreesOfSnapshotsTest {
   private static final String SNAPSHOTS_TABLE = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DropTreesOfSnapshotsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(DropTreesOfSnapshotsTest.class,
     "in_progress_snapshots.sql");
 
   private DropTreesOfSnapshots underTest = new DropTreesOfSnapshots(db.database());
@@ -54,7 +53,6 @@ public class DropTreesOfSnapshotsTest {
     insertSnapshot(3L, 1);
     insertSnapshot(4L, 0);
     insertSnapshot(5L, 3);
-    db.commit();
 
     underTest.execute();
 
@@ -65,7 +63,6 @@ public class DropTreesOfSnapshotsTest {
   public void migration_is_reentrant() throws SQLException {
     insertSnapshot(1L, 0);
     insertSnapshot(2L, 2);
-    db.commit();
 
     underTest.execute();
     verifySnapshots(1L);

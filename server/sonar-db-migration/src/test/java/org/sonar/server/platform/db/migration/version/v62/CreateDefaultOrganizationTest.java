@@ -20,13 +20,14 @@
 package org.sonar.server.platform.db.migration.version.v62;
 
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +41,7 @@ public class CreateDefaultOrganizationTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(system2, CreateDefaultOrganizationTest.class, "organizations_and_internal_properties.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateDefaultOrganizationTest.class, "organizations_and_internal_properties.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -56,15 +57,15 @@ public class CreateDefaultOrganizationTest {
 
     underTest.execute();
 
-    OrganizationDto organizationDto = dbTester.getDbClient().organizationDao().selectByKey(dbTester.getSession(), DEFAULT_ORGANIZATION_KEY).get();
-    assertThat(organizationDto.getUuid()).isEqualTo(uuid);
-    assertThat(organizationDto.getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
-    assertThat(organizationDto.getName()).isEqualTo(DEFAULT_ORGANIZATION_NAME);
-    assertThat(organizationDto.getDescription()).isNull();
-    assertThat(organizationDto.getUrl()).isNull();
-    assertThat(organizationDto.getAvatarUrl()).isNull();
-    assertThat(organizationDto.getCreatedAt()).isEqualTo(now);
-    assertThat(organizationDto.getUpdatedAt()).isEqualTo(now);
+    Map<String, Object> row = selectOrganizationByKey(DEFAULT_ORGANIZATION_KEY);
+    assertThat(row.get("UUID")).isEqualTo(uuid);
+    assertThat(row.get("KEE")).isEqualTo(DEFAULT_ORGANIZATION_KEY);
+    assertThat(row.get("NAME")).isEqualTo(DEFAULT_ORGANIZATION_NAME);
+    assertThat(row.get("DESCRIPTION")).isNull();
+    assertThat(row.get("URL")).isNull();
+    assertThat(row.get("AVATAR_URL")).isNull();
+    assertThat(row.get("CREATED_AT")).isEqualTo(now);
+    assertThat(row.get("UPDATED_AT")).isEqualTo(now);
 
     verifyInternalProperty(uuid);
   }
@@ -86,8 +87,14 @@ public class CreateDefaultOrganizationTest {
   }
 
   private void verifyInternalProperty(String expectedUuid) {
-    assertThat(dbTester.getDbClient().internalPropertiesDao().selectByKey(dbTester.getSession(), INTERNAL_PROPERTY_ORGANIZATION_DEFAULT))
-      .contains(expectedUuid);
+
+    Map<String, Object> row = dbTester.selectFirst("select" +
+      " kee as \"KEE\"," +
+      " is_empty as \"IS_EMPTY\"," +
+      " text_value as \"TEXT_VALUE\"" +
+      " from internal_properties" +
+      " where kee = '" + INTERNAL_PROPERTY_ORGANIZATION_DEFAULT + "'");
+    assertThat(row.get("TEXT_VALUE")).isEqualTo(expectedUuid);
   }
 
   @Test
@@ -116,29 +123,45 @@ public class CreateDefaultOrganizationTest {
   }
 
   private void insertExistingInternalProperty(String uuid) {
-    dbTester.getDbClient().internalPropertiesDao().save(dbTester.getSession(), INTERNAL_PROPERTY_ORGANIZATION_DEFAULT, uuid);
-    dbTester.commit();
+    dbTester.executeInsert("INTERNAL_PROPERTIES",
+      "KEE", INTERNAL_PROPERTY_ORGANIZATION_DEFAULT,
+      "TEXT_VALUE", uuid,
+      "CREATED_AT", new Date().getTime(),
+      "IS_EMPTY", false);
   }
 
   private void insertExistingOrganization(String uuid, long past) {
-    when(system2.now()).thenReturn(past);
-    dbTester.getDbClient().organizationDao().insert(dbTester.getSession(),
-      new OrganizationDto()
-        .setUuid(uuid)
-        .setKey(DEFAULT_ORGANIZATION_KEY)
-        .setName("whatever"));
-    dbTester.commit();
+    dbTester.executeInsert("ORGANIZATIONS",
+      "UUID", uuid,
+      "KEE", DEFAULT_ORGANIZATION_KEY,
+      "NAME", "whatever",
+      "CREATED_AT", past,
+      "UPDATED_AT", past);
   }
 
   private void verifyExistingOrganization(String uuid, long past) {
-    OrganizationDto organizationDto = dbTester.getDbClient().organizationDao().selectByKey(dbTester.getSession(), DEFAULT_ORGANIZATION_KEY).get();
-    assertThat(organizationDto.getUuid()).isEqualTo(uuid);
-    assertThat(organizationDto.getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
-    assertThat(organizationDto.getName()).isEqualTo("whatever");
-    assertThat(organizationDto.getDescription()).isNull();
-    assertThat(organizationDto.getUrl()).isNull();
-    assertThat(organizationDto.getAvatarUrl()).isNull();
-    assertThat(organizationDto.getCreatedAt()).isEqualTo(past);
-    assertThat(organizationDto.getUpdatedAt()).isEqualTo(past);
+    Map<String, Object> row = selectOrganizationByKey(DEFAULT_ORGANIZATION_KEY);
+    assertThat(row.get("UUID")).isEqualTo(uuid);
+    assertThat(row.get("KEE")).isEqualTo(DEFAULT_ORGANIZATION_KEY);
+    assertThat(row.get("NAME")).isEqualTo("whatever");
+    assertThat(row.get("DESCRIPTION")).isNull();
+    assertThat(row.get("URL")).isNull();
+    assertThat(row.get("AVATAR_URL")).isNull();
+    assertThat(row.get("CREATED_AT")).isEqualTo(past);
+    assertThat(row.get("UPDATED_AT")).isEqualTo(past);
+  }
+
+  private Map<String, Object> selectOrganizationByKey(String key) {
+    return dbTester.selectFirst("select" +
+      " uuid as \"UUID\"," +
+      " kee as \"KEE\"," +
+      " name as \"NAME\"," +
+      " description as \"DESCRIPTION\"," +
+      " url as \"URL\"," +
+      " avatar_url as \"AVATAR_URL\"," +
+      " created_at as \"CREATED_AT\"," +
+      " updated_at as \"UPDATED_AT\"" +
+      " from organizations" +
+      " where kee = '" + key + "'");
   }
 }

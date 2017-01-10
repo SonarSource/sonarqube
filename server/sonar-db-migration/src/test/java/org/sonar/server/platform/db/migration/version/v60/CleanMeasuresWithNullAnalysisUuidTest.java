@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +35,7 @@ public class CleanMeasuresWithNullAnalysisUuidTest {
   private static final String TABLE_MEASURES = "project_measures";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanMeasuresWithNullAnalysisUuidTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(CleanMeasuresWithNullAnalysisUuidTest.class,
     "in_progress_measures.sql");
 
   private CleanMeasuresWithNullAnalysisUuid underTest = new CleanMeasuresWithNullAnalysisUuid(db.database());
@@ -53,7 +52,6 @@ public class CleanMeasuresWithNullAnalysisUuidTest {
     insertMeasure(1, "U1");
     insertMeasure(2, "U1");
     insertMeasure(3, null);
-    db.commit();
 
     underTest.execute();
 
@@ -64,7 +62,6 @@ public class CleanMeasuresWithNullAnalysisUuidTest {
   public void migration_is_reentrant() throws SQLException {
     insertMeasure(1, "U1");
     insertMeasure(2, null);
-    db.commit();
 
     underTest.execute();
     assertThat(idsOfRows()).containsOnly(1L);

@@ -23,6 +23,10 @@
       <artifactId>sonar-db-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-db-migration</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>

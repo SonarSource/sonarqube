@@ -26,9 +26,7 @@ import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,11 +34,11 @@ public class MigrationHistoryTableImplTest {
   private static final String TABLE_SCHEMA_MIGRATIONS = "schema_migrations";
 
   @Rule
-  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, MigrationHistoryTableImplTest.class, "empty.sql");
+  public CoreDbTester dbTester = CoreDbTester.createEmpty();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrationHistoryTableImpl underTest = new MigrationHistoryTableImpl(dbTester.getDbClient());
+  private MigrationHistoryTableImpl underTest = new MigrationHistoryTableImpl(dbTester.database());
 
   @Test
   public void start_creates_table_on_empty_schema() {
@@ -60,8 +58,7 @@ public class MigrationHistoryTableImplTest {
   }
 
   private void executeDdl(String sql) throws SQLException {
-    try (DbSession dbSession = dbTester.getDbClient().openSession(false);
-      Connection connection = dbSession.getConnection()) {
+    try (Connection connection = dbTester.database().getDataSource().getConnection()) {
       connection.setAutoCommit(false);
       try (Statement statement = connection.createStatement()) {
         statement.execute(sql);

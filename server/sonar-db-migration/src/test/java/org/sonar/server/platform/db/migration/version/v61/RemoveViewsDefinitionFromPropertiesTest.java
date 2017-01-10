@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -39,7 +39,7 @@ public class RemoveViewsDefinitionFromPropertiesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveViewsDefinitionFromPropertiesTest.class, "properties_and_internal_properties.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(RemoveViewsDefinitionFromPropertiesTest.class, "properties_and_internal_properties.sql");
 
   private System2 system2 = spy(System2.INSTANCE);
   private RemoveViewsDefinitionFromProperties underTest = new RemoveViewsDefinitionFromProperties(db.database(), system2);

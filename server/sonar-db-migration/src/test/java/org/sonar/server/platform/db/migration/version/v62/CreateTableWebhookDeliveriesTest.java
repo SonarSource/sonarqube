@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ public class CreateTableWebhookDeliveriesTest {
   private static final String TABLE = "webhook_deliveries";
 
   @Rule
-  public final DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, CreateTableWebhookDeliveriesTest.class, "empty.sql");
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(CreateTableWebhookDeliveriesTest.class, "empty.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

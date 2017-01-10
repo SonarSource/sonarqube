@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ public class DeletePermissionShareDashboardTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeletePermissionShareDashboardTest.class, "roles.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DeletePermissionShareDashboardTest.class, "roles.sql");
 
   private DeletePermissionShareDashboard underTest = new DeletePermissionShareDashboard(db.database());
 

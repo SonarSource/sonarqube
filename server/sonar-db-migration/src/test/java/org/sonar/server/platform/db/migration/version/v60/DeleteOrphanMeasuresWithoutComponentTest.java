@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeleteOrphanMeasuresWithoutComponentTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteOrphanMeasuresWithoutComponentTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(DeleteOrphanMeasuresWithoutComponentTest.class,
     "in_progress_project_measures.sql");
 
   private DeleteOrphanMeasuresWithoutComponent underTest = new DeleteOrphanMeasuresWithoutComponent(db.database());
@@ -51,7 +50,6 @@ public class DeleteOrphanMeasuresWithoutComponentTest {
     insertMeasure(2, false);
     insertMeasure(3, false);
     insertMeasure(4, true);
-    db.commit();
 
     underTest.execute();
 

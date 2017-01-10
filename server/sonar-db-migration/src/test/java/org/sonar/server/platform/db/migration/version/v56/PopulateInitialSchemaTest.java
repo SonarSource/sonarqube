@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.Collectors;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public class PopulateInitialSchemaTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateInitialSchemaTest.class, "v56.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v56.sql");
 
   private PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2);
 

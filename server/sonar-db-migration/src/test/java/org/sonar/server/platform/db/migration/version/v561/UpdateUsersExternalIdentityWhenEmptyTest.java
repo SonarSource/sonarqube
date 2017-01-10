@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,7 +38,7 @@ public class UpdateUsersExternalIdentityWhenEmptyTest {
   private static final long NOW = 1_500_000_000_000L;
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, UpdateUsersExternalIdentityWhenEmptyTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(UpdateUsersExternalIdentityWhenEmptyTest.class, "schema.sql");
 
   private System2 system = mock(System2.class);
 

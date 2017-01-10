@@ -22,8 +22,7 @@ package org.sonar.server.platform.db.migration.sql;
 import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
@@ -40,9 +39,9 @@ import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.Colu
 
 public class CreateTableBuilderDbTesterTest {
   @ClassRule
-  public static final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public static final CoreDbTester dbTester = CoreDbTester.createEmpty();
 
-  private Dialect dialect = dbTester.getDbClient().getDatabase().getDialect();
+  private Dialect dialect = dbTester.database().getDialect();
   private static int tableNameGenerator = 0;
 
   @Test
@@ -117,7 +116,6 @@ public class CreateTableBuilderDbTesterTest {
 
   private void verifyAutoIncrementIsWorking(String tableName) {
     dbTester.executeInsert(tableName, "val", "toto");
-    dbTester.commit();
 
     Map<String, Object> row = dbTester.selectFirst("select id as \"id\", val as \"val\" from " + tableName);
     assertThat(row.get("id")).isNotNull();

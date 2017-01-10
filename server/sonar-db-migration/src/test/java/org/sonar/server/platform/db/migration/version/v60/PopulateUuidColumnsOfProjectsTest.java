@@ -25,8 +25,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PopulateUuidColumnsOfProjectsTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnsOfProjectsTest.class,
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateUuidColumnsOfProjectsTest.class,
     "in_progress_projects.sql");
 
   private PopulateUuidColumnsOfProjects underTest = new PopulateUuidColumnsOfProjects(db.database());
@@ -58,7 +57,6 @@ public class PopulateUuidColumnsOfProjectsTest {
     insertComponent(8, 200L, 1L, 200L); // a project copy of project 1 for developer 200 (does't exist)
     insertComponent(9, 6L, 300L, null); // a project view of project 300 (doesn't exist)
     insertComponent(10, 400L, null, null); // a module of a non existing project
-    db.commit();
 
     underTest.execute();
 
