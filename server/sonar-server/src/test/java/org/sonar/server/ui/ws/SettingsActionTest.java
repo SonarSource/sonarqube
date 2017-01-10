@@ -17,29 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
-import java.util.Locale;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.View;
+import org.sonar.api.web.page.Page;
+import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.config.WebConstants;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SettingsActionTest {
 
@@ -48,14 +45,7 @@ public class SettingsActionTest {
 
   private Settings settings = new MapSettings();
 
-  private I18n i18n = mock(I18n.class);
-
   private WsActionTester ws;
-
-  @Before
-  public void before() {
-    when(i18n.message(any(Locale.class), anyString(), anyString())).thenAnswer(invocation -> invocation.getArgumentAt(2, String.class));
-  }
 
   @Test
   public void empty() throws Exception {
@@ -74,11 +64,11 @@ public class SettingsActionTest {
   }
 
   @Test
-  public void with_views() throws Exception {
-    init(createViews());
+  public void with_pages() throws Exception {
+    init(createPages());
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    executeAndVerify("with_views.json");
+    executeAndVerify("with_pages.json");
   }
 
   @Test
@@ -92,50 +82,32 @@ public class SettingsActionTest {
 
   @Test
   public void with_views_and_update_center_but_not_admin() throws Exception {
-    init(createViews());
+    init(createPages());
     settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
 
     executeAndVerify("empty.json");
   }
 
-  private void init(View... views) {
-    ws = new WsActionTester(new SettingsAction(settings, new Views(userSessionRule, views), i18n, userSessionRule));
+  private void init(Page... pages) {
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+      for (Page page : pages) {
+        context.addPage(page);
+      }
+    }});
+    ws = new WsActionTester(new SettingsAction(pageRepository, settings, userSessionRule));
+    pageRepository.start();
   }
 
   private void executeAndVerify(String json) {
-    JsonAssert.assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("SettingsActionTest/" + json));
+    assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("SettingsActionTest/" + json));
   }
 
-  private View[] createViews() {
+  private Page[] createPages() {
+    Page firstPage = Page.builder("my_plugin/first_page").setName("First Page").setAdmin(true).build();
+    Page secondPage = Page.builder("my_plugin/second_page").setName("Second Page").setAdmin(true).build();
 
-    @NavigationSection(NavigationSection.CONFIGURATION)
-    class FirstPage implements Page {
-      @Override
-      public String getTitle() {
-        return "First Page";
-      }
-
-      @Override
-      public String getId() {
-        return "first_page";
-      }
-    }
-
-    @NavigationSection(NavigationSection.CONFIGURATION)
-    class SecondPage implements Page {
-      @Override
-      public String getTitle() {
-        return "Second Page";
-      }
-
-      @Override
-      public String getId() {
-        return "second_page";
-      }
-    }
-
-    Page page = new FirstPage();
-    Page controller = new SecondPage();
-    return new View[] {page, controller};
+    return new Page[] {firstPage, secondPage};
   }
 }
