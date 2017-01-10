@@ -56,6 +56,7 @@ import static org.sonar.api.PropertyType.USER_LOGIN;
   @Property(key = "text", name = "Text", type = TEXT, global = true, project = false),
   @Property(key = "multi", name = "Multi", type = STRING, multiValues = true, global = true, project = false),
   @Property(key = "hidden", name = "Hidden", type = STRING, global = false, project = false),
+  @Property(key = "project.setting", name = "Project setting", type = STRING, global = false, project = true),
   @Property(key = "setting.secured", name = "Secured", type = STRING, global = true, project = false),
   @Property(key = "sonar.jira", name = "Jira Server", type = PROPERTY_SET, propertySetKey = "jira", fields = {
     @PropertyField(key = "key", name = "Key", description = "Server key"),

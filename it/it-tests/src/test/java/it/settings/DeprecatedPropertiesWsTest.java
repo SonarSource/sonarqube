@@ -20,13 +20,22 @@
 
 package it.settings;
 
+import com.google.common.base.Throwables;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category1Suite;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import okhttp3.Credentials;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -93,8 +102,8 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void doResetSettings() {
-    resetSettings(orchestrator, null, "some-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list");
-    resetSettings(orchestrator, PROJECT_KEY, PROJECT_SETTING_KEY, "sonar.coverage.exclusions");
+    resetSettings(orchestrator, null, "some-property", "custom-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list");
+    resetSettings(orchestrator, PROJECT_KEY, PROJECT_SETTING_KEY, "sonar.coverage.exclusions", "project.setting");
   }
 
   @Test
@@ -167,7 +176,7 @@ public class DeprecatedPropertiesWsTest {
     assertThat(getProperties(userWsClient, null)).extracting(Properties.Property::getKey).contains("setting.license.secured");
 
     // Anonymous cannot see the license setting
-     assertThat(getProperties(anonymousWsClient, null)).extracting(Properties.Property::getKey).doesNotContain("setting.license.secured");
+    assertThat(getProperties(anonymousWsClient, null)).extracting(Properties.Property::getKey).doesNotContain("setting.license.secured");
   }
 
   @Test
@@ -212,6 +221,38 @@ public class DeprecatedPropertiesWsTest {
       .doesNotContain("hidden");
   }
 
+  @Test
+  public void put_property() throws Exception {
+    putProperty("some-property", "some-value", null);
+
+    assertThat(getProperty("some-property", null).getValue()).isEqualTo("some-value");
+  }
+
+  @Test
+  public void put_property_on_project() throws Exception {
+    putProperty("project.setting", "some-value", PROJECT_KEY);
+
+    assertThat(getProperty("project.setting", PROJECT_KEY).getValue()).isEqualTo("some-value");
+  }
+
+  @Test
+  public void delete_property() throws Exception {
+    setProperty("custom-property", "value", null);
+
+    deleteProperty("custom-property", null);
+
+    assertThat(getProperty("custom-property", null)).isNull();
+  }
+
+  @Test
+  public void delete_property_on_project() throws Exception {
+    setProperty("project.setting", "value", PROJECT_KEY);
+
+    deleteProperty("project.setting", PROJECT_KEY);
+
+    assertThat(getProperty("project.setting", PROJECT_KEY)).isNull();
+  }
+
   private static void setProperty(String key, String value, @Nullable String componentKey) {
     adminSettingsService.set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
   }
@@ -236,13 +277,46 @@ public class DeprecatedPropertiesWsTest {
     return getProperty(adminWsClient, key, componentKey);
   }
 
+  @CheckForNull
   private static Properties.Property getProperty(WsClient wsClient, String key, @Nullable String componentKey) throws UnsupportedEncodingException {
     WsResponse response = wsClient.wsConnector()
       .call(new GetRequest("api/properties/" + encode(key, "UTF-8"))
         .setParam("resource", componentKey))
       .failIfNotSuccessful();
     Properties.Property[] properties = Properties.parse(response.content());
-    return Arrays.stream(properties).findFirst().orElseThrow(() -> new IllegalArgumentException("Property does not exist : " + key));
+    return Arrays.stream(properties).findFirst().orElseGet(() -> null);
+  }
+
+  private static void putProperty(String key, String value, @Nullable String componentKey) throws UnsupportedEncodingException {
+    String url = orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8") + "?value=" + value;
+    url += componentKey != null ? "&resource=" + componentKey : "";
+    call(new Request.Builder()
+      .put(new FormBody.Builder().build())
+      .url(url));
+  }
+
+  private static void deleteProperty(String key, @Nullable String componentKey) throws UnsupportedEncodingException {
+    String url = orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8");
+    url += componentKey != null ? "?resource=" + componentKey : "";
+    call(new Request.Builder()
+      .delete(new FormBody.Builder().build())
+      .url(url));
+  }
+
+  public static Response call(Request.Builder requestBuilder) {
+    try {
+      requestBuilder.header("Authorization", Credentials.basic("admin", "admin"));
+      Response response = new OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+        .newCall(requestBuilder.build())
+        .execute();
+      assertThat(response.isSuccessful()).as("Error code is '%s', error message is '%s'", Integer.toString(response.code()), response.body().string()).isTrue();
+      return response;
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   public static class Properties {
