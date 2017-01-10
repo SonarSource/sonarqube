@@ -155,48 +155,40 @@ export default ModalForm.extend({
 
   onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    const actions = [];
     const query = {};
 
     const assignee = this.$('#assignee').val();
     if (this.$('#assign-action').is(':checked') && assignee != null) {
-      actions.push('assign');
       query['assign'] = assignee;
     }
 
     const type = this.$('#type').val();
     if (this.$('#set-type-action').is(':checked') && type) {
-      actions.push('set_type');
       query['set_type'] = type;
     }
 
     const severity = this.$('#severity').val();
     if (this.$('#set-severity-action').is(':checked') && severity) {
-      actions.push('set_severity');
       query['set_severity'] = severity;
     }
 
     const addedTags = this.$('#add_tags').val();
     if (this.$('#add-tags-action').is(':checked') && addedTags) {
-      actions.push('add_tags');
       query['add_tags'] = addedTags;
     }
 
     const removedTags = this.$('#remove_tags').val();
     if (this.$('#remove-tags-action').is(':checked') && removedTags) {
-      actions.push('remove_tags');
       query['remove_tags'] = removedTags;
     }
 
     const transition = this.$('[name="do_transition.transition"]:checked').val();
     if (transition) {
-      actions.push('do_transition');
       query['do_transition'] = transition;
     }
 
     const comment = this.$('#comment').val();
     if (comment) {
-      actions.push('comment');
       query['comment'] = comment;
     }
 
@@ -209,7 +201,7 @@ export default ModalForm.extend({
     this.showSpinner();
 
     const issueKeys = this.issues.map(issue => issue.key);
-    bulkChangeIssues(issueKeys, { ...query, actions: actions.join() }).then(
+    bulkChangeIssues(issueKeys, query).then(
         () => {
           this.destroy();
           this.options.onChange();
