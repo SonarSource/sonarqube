@@ -32,6 +32,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddGroupWsRequest;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
@@ -61,21 +65,39 @@ public class SettingsTest {
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
 
-  static SettingsService anonymousSettingsService;
-  static SettingsService userSettingsService;
-  static SettingsService adminSettingsService;
+  private static WsClient adminWsClient;
+  private static SettingsService anonymousSettingsService;
+  private static SettingsService userSettingsService;
+  private static SettingsService scanSettingsService;
+  private static SettingsService adminSettingsService;
 
   @BeforeClass
   public static void initSettingsService() throws Exception {
     userRule.createUser("setting-user", "setting-user");
+    userRule.createUser("scanner-user", "scanner-user");
+    adminWsClient = newAdminWsClient(orchestrator);
+    // Remove 'Execute Analysis' permission from anyone
+    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName("anyone").setPermission("scan"));
+
+    // Anonymous user, without 'Execute Analysis' permission
     anonymousSettingsService = newWsClient(orchestrator).settingsService();
+
+    // Authenticated user, without 'Execute Analysis' permission
     userSettingsService = newUserWsClient(orchestrator, "setting-user", "setting-user").settingsService();
-    adminSettingsService = newAdminWsClient(orchestrator).settingsService();
+
+    // User with 'Execute Analysis' permission
+    adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin("scanner-user").setPermission("scan"));
+    scanSettingsService = newUserWsClient(orchestrator, "scanner-user", "scanner-user").settingsService();
+
+    // User with 'Administer System' permission but without 'Execute Analysis' permission
+    adminSettingsService = adminWsClient.settingsService();
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
-    userRule.deactivateUsers("setting-user");
+    userRule.deactivateUsers("setting-user", "scanner-user");
+    // Restore 'Execute Analysis' permission to anyone
+    adminWsClient.permissions().addGroup(new AddGroupWsRequest().setGroupName("anyone").setPermission("scan"));
   }
 
   @After
@@ -128,7 +150,8 @@ public class SettingsTest {
   public void secured_setting() {
     adminSettingsService.set(SetRequest.builder().setKey("setting.secured").setValue("test").build());
     assertThat(getSetting("setting.secured", anonymousSettingsService)).isNull();
-    assertThat(getSetting("setting.secured", userSettingsService)).isNull();
+//    assertThat(getSetting("setting.secured", userSettingsService)).isNull();
+    assertThat(getSetting("setting.secured", scanSettingsService).getValue()).isEqualTo("test");
     assertThat(getSetting("setting.secured", adminSettingsService).getValue()).isEqualTo("test");
   }
 
@@ -137,6 +160,7 @@ public class SettingsTest {
     adminSettingsService.set(SetRequest.builder().setKey("setting.license.secured").setValue("test").build());
     assertThat(getSetting("setting.license.secured", anonymousSettingsService)).isNull();
     assertThat(getSetting("setting.license.secured", userSettingsService).getValue()).isEqualTo("test");
+    assertThat(getSetting("setting.license.secured", scanSettingsService).getValue()).isEqualTo("test");
     assertThat(getSetting("setting.license.secured", adminSettingsService).getValue()).isEqualTo("test");
   }
 

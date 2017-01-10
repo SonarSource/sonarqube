@@ -95,6 +95,7 @@ public class ValuesAction implements SettingsWsAction {
         "To access licensed settings, authentication is required<br/>" +
           "To access secured settings, one of the following permissions is required: " +
           "<ul>" +
+          "<li>'Execute Analysis'</li>" +
           "<li>'Administer System'</li>" +
           "<li>'Administer' rights on the specified component</li>" +
           "</ul>")
