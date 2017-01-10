@@ -19,9 +19,10 @@
  */
 package org.sonar.db.user;
 
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class UserGroupDao {
+public class UserGroupDao implements Dao {
 
   public UserGroupDto insert(DbSession session, UserGroupDto dto) {
     mapper(session).insert(dto);

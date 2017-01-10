@@ -19,23 +19,35 @@
  */
 package org.sonar.db;
 
-import org.sonar.api.utils.System2;
+import javax.annotation.Nullable;
 
-public abstract class AbstractDao implements Dao {
+class TestDb extends CoreTestDb {
 
-  private final MyBatis myBatis;
-  private final System2 system2;
+  private static TestDb SINGLETON;
 
-  public AbstractDao(MyBatis myBatis, System2 system2) {
-    this.myBatis = myBatis;
-    this.system2 = system2;
+  private MyBatis myBatis;
+
+  private TestDb(@Nullable String schemaPath) {
+    super(schemaPath);
   }
 
-  protected MyBatis myBatis() {
+  static TestDb create(@Nullable String schemaPath) {
+    if (schemaPath == null) {
+      if (SINGLETON == null) {
+        SINGLETON = new TestDb(null);
+      }
+      return SINGLETON;
+    }
+    return new TestDb(schemaPath);
+  }
+
+  @Override
+  protected void extendStart(Database db) {
+    myBatis = new MyBatis(db);
+    myBatis.start();
+  }
+
+  MyBatis getMyBatis() {
     return myBatis;
-  }
-
-  protected long now() {
-    return system2.now();
   }
 }

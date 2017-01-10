@@ -20,6 +20,7 @@
 package org.sonar.core.properties;
 
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.MyBatis;
 
 /**
  * Kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core

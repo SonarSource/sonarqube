@@ -23,13 +23,14 @@ import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static java.lang.String.format;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class UserTokenDao {
+public class UserTokenDao implements Dao {
   public void insert(DbSession dbSession, UserTokenDto userTokenDto) {
     mapper(dbSession).insert(userTokenDto);
   }

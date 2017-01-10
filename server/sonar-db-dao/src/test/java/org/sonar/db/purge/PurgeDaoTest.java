@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;

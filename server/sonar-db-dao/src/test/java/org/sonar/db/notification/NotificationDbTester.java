@@ -23,6 +23,7 @@ package org.sonar.db.notification;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;

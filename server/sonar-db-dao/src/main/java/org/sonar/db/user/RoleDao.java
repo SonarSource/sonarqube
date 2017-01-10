@@ -20,9 +20,10 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class RoleDao {
+public class RoleDao implements Dao {
 
   /**
    * All the projects on which the user has {@code permission}, directly or through

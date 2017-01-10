@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
@@ -31,7 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class UserPermissionDao {
+public class UserPermissionDao implements Dao {
 
   /**
    * List of user permissions ordered by alphabetical order of user names

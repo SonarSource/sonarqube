@@ -29,10 +29,11 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
-public class CeTaskInputDao {
+public class CeTaskInputDao implements Dao {
 
   private final System2 system;
 

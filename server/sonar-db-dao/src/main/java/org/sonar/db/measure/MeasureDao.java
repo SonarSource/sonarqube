@@ -26,13 +26,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
-public class MeasureDao {
+public class MeasureDao implements Dao {
 
   public Optional<MeasureDto> selectSingle(DbSession dbSession, MeasureQuery query) {
     List<MeasureDto> measures = selectByQuery(dbSession, query);

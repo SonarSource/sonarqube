@@ -25,13 +25,14 @@ import java.util.List;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class RuleDao {
+public class RuleDao implements Dao {
 
   public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
     return Optional.fromNullable(mapper(session).selectByKey(key));

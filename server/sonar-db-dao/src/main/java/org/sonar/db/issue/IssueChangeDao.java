@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class IssueChangeDao {
+public class IssueChangeDao implements Dao {
 
   private final MyBatis mybatis;
 

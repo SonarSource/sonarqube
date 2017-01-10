@@ -23,9 +23,11 @@ import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
-public class QualityGateDao {
+public class QualityGateDao implements Dao {
 
   private final MyBatis myBatis;
 

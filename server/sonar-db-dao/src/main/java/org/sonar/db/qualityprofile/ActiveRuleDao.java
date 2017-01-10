@@ -23,12 +23,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class ActiveRuleDao {
+public class ActiveRuleDao implements Dao {
 
   private static final String QUALITY_PROFILE_IS_NOT_PERSISTED = "Quality profile is not persisted (missing id)";
   private static final String RULE_IS_NOT_PERSISTED = "Rule is not persisted";

@@ -77,11 +77,11 @@ import static org.junit.Assert.fail;
 public class CoreDbTester extends ExternalResource {
 
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
-  private final TestDb db;
+  private final CoreTestDb db;
   private boolean started = false;
 
   private CoreDbTester(@Nullable String schemaPath) {
-    this.db = TestDb.create(schemaPath);
+    this.db = CoreTestDb.create(schemaPath);
   }
 
   public static CoreDbTester createForSchema(Class testClass, String filename) {
@@ -182,10 +182,6 @@ public class CoreDbTester extends ExternalResource {
     return countRowsOfTable(tableName, new NewConnectionSupplier());
   }
 
-  public int countRowsOfTable(DbSession dbSession, String tableName) {
-    return countRowsOfTable(tableName, new DbSessionConnectionSupplier(dbSession));
-  }
-
   private int countRowsOfTable(String tableName, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
     return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH), connectionSupplier);
@@ -197,10 +193,6 @@ public class CoreDbTester extends ExternalResource {
    */
   public int countSql(String sql) {
     return countSql(sql, new NewConnectionSupplier());
-  }
-
-  public int countSql(DbSession dbSession, String sql) {
-    return countSql(sql, new DbSessionConnectionSupplier(dbSession));
   }
 
   private int countSql(String sql, ConnectionSupplier connectionSupplier) {
@@ -224,10 +216,6 @@ public class CoreDbTester extends ExternalResource {
     return select(selectSql, new NewConnectionSupplier());
   }
 
-  public List<Map<String, Object>> select(DbSession dbSession, String selectSql) {
-    return select(selectSql, new DbSessionConnectionSupplier(dbSession));
-  }
-
   private List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
     try (
       ConnectionSupplier supplier = connectionSupplier;
@@ -241,10 +229,6 @@ public class CoreDbTester extends ExternalResource {
 
   public Map<String, Object> selectFirst(String selectSql) {
     return selectFirst(selectSql, new NewConnectionSupplier());
-  }
-
-  public Map<String, Object> selectFirst(DbSession dbSession, String selectSql) {
-    return selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
   }
 
   private Map<String, Object> selectFirst(String selectSql, ConnectionSupplier connectionSupplier) {
@@ -619,24 +603,6 @@ public class CoreDbTester extends ExternalResource {
 
     @Override
     void close();
-  }
-
-  private static class DbSessionConnectionSupplier implements ConnectionSupplier {
-    private final DbSession dbSession;
-
-    public DbSessionConnectionSupplier(DbSession dbSession) {
-      this.dbSession = dbSession;
-    }
-
-    @Override
-    public Connection get() throws SQLException {
-      return dbSession.getConnection();
-    }
-
-    @Override
-    public void close() {
-      // closing dbSession is not our responsability
-    }
   }
 
   private class NewConnectionSupplier implements ConnectionSupplier {

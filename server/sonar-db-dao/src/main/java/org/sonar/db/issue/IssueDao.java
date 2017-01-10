@@ -28,13 +28,14 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class IssueDao {
+public class IssueDao implements Dao {
 
   public java.util.Optional<IssueDto> selectByKey(DbSession session, String key) {
     return java.util.Optional.ofNullable(mapper(session).selectByKey(key));

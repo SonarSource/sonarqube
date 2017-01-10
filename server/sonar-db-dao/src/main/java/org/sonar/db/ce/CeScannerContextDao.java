@@ -31,12 +31,13 @@ import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class CeScannerContextDao {
+public class CeScannerContextDao implements Dao {
 
   private static final Charset UTF_8 = Charset.forName("UTF-8");
 

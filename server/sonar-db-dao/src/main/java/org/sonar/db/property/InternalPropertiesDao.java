@@ -23,11 +23,12 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class InternalPropertiesDao {
+public class InternalPropertiesDao implements Dao {
 
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");

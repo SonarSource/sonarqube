@@ -44,6 +44,7 @@ public class WebhookDbTesting {
       .setUrl(randomAlphanumeric(10))
       .setDurationMs(nextInt())
       .setHttpStatus(nextInt())
+
       .setSuccess(nextBoolean())
       .setPayload(randomAlphanumeric(10))
       .setCreatedAt(nextLong());

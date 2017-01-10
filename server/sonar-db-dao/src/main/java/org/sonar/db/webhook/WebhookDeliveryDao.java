@@ -21,9 +21,10 @@ package org.sonar.db.webhook;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class WebhookDeliveryDao {
+public class WebhookDeliveryDao implements Dao {
 
   public Optional<WebhookDeliveryDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));

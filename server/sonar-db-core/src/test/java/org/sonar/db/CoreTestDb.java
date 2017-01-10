@@ -48,31 +48,31 @@ import org.sonar.process.logging.LogbackHelper;
  * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
  * <p/>
- * File using {@link TestDb} must be annotated with {@link org.sonar.test.DbTests} so
+ * File using {@link CoreTestDb} must be annotated with {@link org.sonar.test.DbTests} so
  * that they can be executed on all supported DBs (Oracle, MySQL, ...).
  */
-class TestDb {
+class CoreTestDb {
 
-  private static TestDb DEFAULT;
+  private static CoreTestDb DEFAULT;
 
-  private static final Logger LOG = Loggers.get(TestDb.class);
+  private static final Logger LOG = Loggers.get(CoreTestDb.class);
 
   private Database db;
   private DatabaseCommands commands;
   private IDatabaseTester tester;
   private boolean isDefault;
 
-  static TestDb create(@Nullable String schemaPath) {
+  static CoreTestDb create(@Nullable String schemaPath) {
     if (schemaPath == null) {
       if (DEFAULT == null) {
-        DEFAULT = new TestDb(null);
+        DEFAULT = new CoreTestDb(null);
       }
       return DEFAULT;
     }
-    return new TestDb(schemaPath);
+    return new CoreTestDb(schemaPath);
   }
 
-  private TestDb(@Nullable String schemaPath) {
+  CoreTestDb(@Nullable String schemaPath) {
     if (db == null) {
       Settings settings = new MapSettings().addProperties(System.getProperties());
       if (settings.hasKey("orchestrator.configUrl")) {
@@ -104,14 +104,15 @@ class TestDb {
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
 
-      extendStart();
+      extendStart(db);
     }
   }
 
   /**
    * to be overridden by subclasses to extend what's done when db is created
+   * @param db
    */
-  protected void extendStart() {
+  protected void extendStart(Database db) {
     // nothing done here
   }
 

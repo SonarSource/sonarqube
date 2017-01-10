@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.db.BatchSession;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.Select.Row;
 import org.sonar.server.platform.db.migration.step.Select.RowReader;
@@ -37,6 +36,8 @@ import static org.junit.Assert.fail;
 
 
 public class DataChangeTest {
+
+  private static final int MAX_BATCH_SIZE = 250;
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DataChangeTest.class, "schema.sql");
@@ -260,7 +261,7 @@ public class DataChangeTest {
   public void mass_batch_insert() throws Exception {
     db.executeUpdateSql("truncate table persons");
 
-    final int count = BatchSession.MAX_BATCH_SIZE + 10;
+    final int count = MAX_BATCH_SIZE + 10;
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {

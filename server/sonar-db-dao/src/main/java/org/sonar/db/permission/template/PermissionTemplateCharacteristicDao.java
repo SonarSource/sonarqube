@@ -22,13 +22,14 @@ package org.sonar.db.permission.template;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
-public class PermissionTemplateCharacteristicDao {
+public class PermissionTemplateCharacteristicDao implements Dao {
 
   public List<PermissionTemplateCharacteristicDto> selectByTemplateIds(DbSession dbSession, List<Long> templateIds) {
     return templateIds.isEmpty() ? emptyList() : mapper(dbSession).selectByTemplateIds(templateIds);

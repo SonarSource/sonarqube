@@ -25,7 +25,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static org.apache.commons.lang.StringUtils.substring;
 

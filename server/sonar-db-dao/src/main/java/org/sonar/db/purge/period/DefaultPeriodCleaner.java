@@ -34,8 +34,6 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static org.sonar.core.util.stream.Collectors.toList;
-
 public class DefaultPeriodCleaner {
 
   private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);

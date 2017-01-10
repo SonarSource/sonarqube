@@ -21,11 +21,12 @@ package org.sonar.db.component;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Collections.emptyList;
 
-public class ComponentLinkDao {
+public class ComponentLinkDao implements Dao {
 
   public List<ComponentLinkDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(ComponentLinkMapper.class).selectByComponentUuid(componentUuid);

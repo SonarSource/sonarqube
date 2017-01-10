@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
@@ -38,7 +40,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
  * @see GroupPermissionDao for CRUD of table group_roles
  * @see UserPermissionDao for CRUD of table user_roles
  */
-public class AuthorizationDao {
+public class AuthorizationDao implements Dao {
 
   private static final String USER_ID_PARAM = "userId";
 

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;

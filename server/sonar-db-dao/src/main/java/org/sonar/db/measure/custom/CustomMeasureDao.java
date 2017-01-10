@@ -22,11 +22,12 @@ package org.sonar.db.measure.custom;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
-public class CustomMeasureDao {
+public class CustomMeasureDao implements Dao {
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
     mapper(session).insert(customMeasureDto);
   }

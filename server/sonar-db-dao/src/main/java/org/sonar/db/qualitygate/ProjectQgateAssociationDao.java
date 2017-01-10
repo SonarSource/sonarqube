@@ -22,9 +22,10 @@ package org.sonar.db.qualitygate;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class ProjectQgateAssociationDao {
+public class ProjectQgateAssociationDao implements Dao {
 
   public List<ProjectQgateAssociationDto> selectProjects(DbSession dbSession, ProjectQgateAssociationQuery query) {
     return mapper(dbSession).selectProjects(query);

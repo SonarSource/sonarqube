@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
-public class CeActivityDao {
+public class CeActivityDao implements Dao {
 
   private final System2 system2;
 

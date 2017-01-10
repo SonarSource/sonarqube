@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.Lists.newArrayList;

@@ -24,13 +24,14 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
-public class CeQueueDao {
+public class CeQueueDao implements Dao {
 
   private static final RowBounds ONE_ROW_LIMIT = new RowBounds(0, 1);
 

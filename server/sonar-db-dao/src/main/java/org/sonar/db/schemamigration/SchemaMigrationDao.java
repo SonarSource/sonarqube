@@ -20,12 +20,13 @@
 package org.sonar.db.schemamigration;
 
 import java.util.List;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public class SchemaMigrationDao {
+public class SchemaMigrationDao implements Dao {
   public List<Integer> selectVersions(DbSession dbSession) {
     return getMapper(dbSession).selectVersions();
   }

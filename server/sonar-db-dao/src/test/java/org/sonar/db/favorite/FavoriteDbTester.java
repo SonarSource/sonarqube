@@ -21,6 +21,7 @@
 package org.sonar.db.favorite;
 
 import java.util.List;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;

@@ -20,9 +20,11 @@
 package org.sonar.db.loadedtemplate;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
-public class LoadedTemplateDao {
+public class LoadedTemplateDao implements Dao {
 
   private MyBatis mybatis;
 

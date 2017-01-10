@@ -31,10 +31,12 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.source.FileSourceDto.Type;
 
-public class FileSourceDao {
+public class FileSourceDao implements Dao {
 
   private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
   private final MyBatis mybatis;

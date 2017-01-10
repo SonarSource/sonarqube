@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.db.permission.PermissionQuery;
@@ -39,7 +40,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
-public class PermissionTemplateDao {
+public class PermissionTemplateDao implements Dao {
 
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 

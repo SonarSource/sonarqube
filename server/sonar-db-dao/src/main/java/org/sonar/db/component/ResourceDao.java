@@ -29,7 +29,9 @@ import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.System2;
+import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 

@@ -22,11 +22,12 @@ package org.sonar.db.duplication;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class DuplicationDao {
+public class DuplicationDao implements Dao {
 
   /**
    * @param analysisUuid snapshot id of the project from the previous analysis (islast=true)

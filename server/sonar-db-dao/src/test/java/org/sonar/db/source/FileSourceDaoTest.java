@@ -20,9 +20,7 @@
 package org.sonar.db.source;
 
 import com.google.common.base.Function;
-import com.google.common.base.Throwables;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -35,7 +33,6 @@ import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
 
 
 public class FileSourceDaoTest {

@@ -22,11 +22,12 @@ package org.sonar.db.event;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class EventDao {
+public class EventDao implements Dao {
 
   public Optional<EventDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));

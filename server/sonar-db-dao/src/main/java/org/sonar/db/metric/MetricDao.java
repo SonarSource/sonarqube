@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -39,7 +40,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
-public class MetricDao {
+public class MetricDao implements Dao {
 
   @CheckForNull
   public MetricDto selectByKey(DbSession session, String key) {

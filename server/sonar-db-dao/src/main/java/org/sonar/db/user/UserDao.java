@@ -30,7 +30,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -38,7 +40,7 @@ import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class UserDao {
+public class UserDao implements Dao {
 
   private final MyBatis mybatis;
   private final System2 system2;

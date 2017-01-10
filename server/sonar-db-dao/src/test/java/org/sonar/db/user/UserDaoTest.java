@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;

@@ -32,13 +32,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class PropertiesDao {
+public class PropertiesDao implements Dao {
 
   private static final String NOTIFICATION_PREFIX = "notification.";
   private static final int VARCHAR_MAXSIZE = 4000;

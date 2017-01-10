@@ -32,7 +32,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.component.ComponentKeys.checkModuleKey;
@@ -43,7 +45,7 @@ import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
  *
  * @since 3.2
  */
-public class ComponentKeyUpdaterDao {
+public class ComponentKeyUpdaterDao implements Dao {
   private static final Set<String> PROJECT_OR_MODULE_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.MODULE);
 
   private MyBatis mybatis;

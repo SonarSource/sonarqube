@@ -26,12 +26,13 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
-public class GroupPermissionDao {
+public class GroupPermissionDao implements Dao {
 
   private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 

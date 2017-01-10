@@ -27,11 +27,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class GroupMembershipDao {
+public class GroupMembershipDao implements Dao {
 
   public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, Long userId, int offset, int limit) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);

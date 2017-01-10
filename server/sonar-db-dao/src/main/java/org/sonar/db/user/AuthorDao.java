@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -30,7 +31,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 /**
  * Be careful when updating this class because it's used by the Dev Cockpit plugin.
  */
-public class AuthorDao {
+public class AuthorDao implements Dao {
 
   public AuthorDto selectByLogin(DbSession session, String login) {
     return getMapper(session).selectByLogin(login);

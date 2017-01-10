@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
+import org.sonar.db.Dto;
 
 public class QualityProfileDto extends Dto<String> {
 

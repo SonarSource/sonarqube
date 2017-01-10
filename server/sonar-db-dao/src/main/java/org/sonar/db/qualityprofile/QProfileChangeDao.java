@@ -22,11 +22,12 @@ package org.sonar.db.qualityprofile;
 import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class QProfileChangeDao {
+public class QProfileChangeDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;

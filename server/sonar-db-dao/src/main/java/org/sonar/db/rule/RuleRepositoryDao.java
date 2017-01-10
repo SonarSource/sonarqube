@@ -23,9 +23,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-public class RuleRepositoryDao {
+public class RuleRepositoryDao implements Dao {
 
   private final System2 system2;
 

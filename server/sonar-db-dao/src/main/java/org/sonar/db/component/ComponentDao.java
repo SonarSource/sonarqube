@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -42,7 +43,7 @@ import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
-public class ComponentDao {
+public class ComponentDao implements Dao {
 
   public ComponentDto selectOrFailById(DbSession session, long id) {
     Optional<ComponentDto> componentDto = selectById(session, id);

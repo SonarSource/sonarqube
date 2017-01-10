@@ -30,13 +30,15 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-public class QualityProfileDao {
+public class QualityProfileDao implements Dao {
 
   private final MyBatis mybatis;
   private final System2 system;

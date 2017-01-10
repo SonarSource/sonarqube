@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.List;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 

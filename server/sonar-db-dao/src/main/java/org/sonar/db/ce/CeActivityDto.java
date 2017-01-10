@@ -23,7 +23,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;

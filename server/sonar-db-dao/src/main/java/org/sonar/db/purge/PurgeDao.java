@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.Collectors;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
@@ -42,7 +43,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 /**
  * @since 2.14
  */
-public class PurgeDao {
+public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
   private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
 

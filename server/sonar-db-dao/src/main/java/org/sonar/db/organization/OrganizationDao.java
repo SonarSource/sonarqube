@@ -22,11 +22,12 @@ package org.sonar.db.organization;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Objects.requireNonNull;
 
-public class OrganizationDao {
+public class OrganizationDao implements Dao {
 
   private final System2 system2;
 
