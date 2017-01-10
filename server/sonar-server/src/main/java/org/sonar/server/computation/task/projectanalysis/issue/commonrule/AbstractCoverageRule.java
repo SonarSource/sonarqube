@@ -49,9 +49,14 @@ public abstract class AbstractCoverageRule extends CommonRule {
   @Override
   protected CommonRuleIssue doProcessFile(Component file, ActiveRule activeRule) {
     Optional<Measure> coverageMeasure = measureRepository.getRawMeasure(file, coverageMetric);
+    Optional<Measure> baseCoverageMeasure = measureRepository.getBaseMeasure(file, coverageMetric);
+    Double baseCoverage = null;
+    if (baseCoverageMeasure.isPresent()) {
+        baseCoverage = baseCoverageMeasure.get().getDoubleValue();
+    }
     if (!file.getFileAttributes().isUnitTest() && coverageMeasure.isPresent()) {
       double coverage = coverageMeasure.get().getDoubleValue();
-      double minimumCoverage = getMinDensityParam(activeRule, minPropertyKey);
+      double minimumCoverage = getMinDensityParam(activeRule, minPropertyKey, baseCoverage);
       if (coverage < minimumCoverage) {
         return generateIssue(file, minimumCoverage);
       }
