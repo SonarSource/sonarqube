@@ -20,7 +20,6 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Request;
@@ -49,14 +47,8 @@ import org.sonarqube.ws.client.setting.ValuesRequest;
 import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
-import static org.sonar.api.CoreProperties.SERVER_ID;
-import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
-import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.setting.ws.SettingsPermissionPredicates.LICENSE_HASH_SUFFIX;
-import static org.sonar.server.setting.ws.SettingsPermissionPredicates.LICENSE_SUFFIX;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
@@ -68,23 +60,23 @@ public class ValuesAction implements SettingsWsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
-  private static final Set<String> ADDITIONAL_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME, SERVER_ID);
-
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsFinder settingsFinder;
   private final SettingsPermissionPredicates settingsPermissionPredicates;
+  private final ScannerSettings scannerSettings;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
-    SettingsPermissionPredicates settingsPermissionPredicates) {
+    SettingsPermissionPredicates settingsPermissionPredicates, ScannerSettings scannerSettings) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsFinder = settingsFinder;
     this.settingsPermissionPredicates = settingsPermissionPredicates;
+    this.scannerSettings = scannerSettings;
   }
 
   @Override
@@ -142,18 +134,7 @@ public class ValuesAction implements SettingsWsAction {
     if (!keys.isEmpty()) {
       return new HashSet<>(keys);
     }
-    return concat(
-      concat(loadLicenseHashKeys(), propertyDefinitions.getAll().stream().map(PropertyDefinition::key)),
-      ADDITIONAL_KEYS.stream())
-        .collect(Collectors.toSet());
-  }
-
-  private Stream<String> loadLicenseHashKeys() {
-    return propertyDefinitions.getAll()
-      .stream()
-      .filter(setting -> setting.type().equals(LICENSE))
-      .map(PropertyDefinition::key)
-      .map(setting -> setting.replace(LICENSE_SUFFIX, LICENSE_HASH_SUFFIX));
+    return concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), scannerSettings.getScannerSettingKeys().stream()).collect(Collectors.toSet());
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {

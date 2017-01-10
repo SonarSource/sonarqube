@@ -35,6 +35,8 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -51,7 +53,10 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -78,19 +83,25 @@ public class ValuesActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  PropertyDefinitions definitions = new PropertyDefinitions();
-  SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
+  private DbClient dbClient = db.getDbClient();
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
+  private PluginRepository repository = mock(PluginRepository.class);
+  private ScannerSettings scannerSettings = new ScannerSettings(definitions, repository);
 
-  ComponentDto project;
+  private ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(
-    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, new SettingsPermissionPredicates(userSession)));
+  private WsActionTester ws = new WsActionTester(
+    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, new SettingsPermissionPredicates(userSession), scannerSettings));
 
   @Before
   public void setUp() throws Exception {
+    PluginInfo pluginInfo = mock(PluginInfo.class);
+    when(pluginInfo.getKey()).thenReturn("plugin");
+    when(repository.getPluginInfos()).thenReturn(singletonList(pluginInfo));
+    scannerSettings.start();
     project = componentDb.insertComponent(newProjectDto());
   }
 
@@ -501,11 +512,11 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
       newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured", "sonar.plugin.licenseHash.secured");
   }
 
   @Test
@@ -521,11 +532,12 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
       newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "commercial.plugin", "plugin.license.secured", "plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "commercial.plugin", "plugin.license.secured",
+      "sonar.plugin.licenseHash.secured");
   }
 
   @Test
@@ -539,11 +551,11 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "sonar.plugin.licenseHash.secured");
   }
 
   @Test
@@ -557,11 +569,11 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
       newComponentPropertyDto(project).setKey("plugin.license.secured").setValue("ABCD"),
-      newComponentPropertyDto(project).setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newComponentPropertyDto(project).setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForProjectProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "sonar.plugin.licenseHash.secured");
   }
 
   @Test
@@ -625,12 +637,12 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("sonar.core.id").setValue("ID"),
       newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"),
       newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.id", "sonar.core.startTime", "plugin.license.secured",
-      "plugin.licenseHash.secured");
+      "sonar.plugin.licenseHash.secured");
   }
 
   @Test
