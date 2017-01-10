@@ -17,34 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
-import java.util.Locale;
 import org.sonar.api.config.Settings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
+import org.sonar.api.web.page.Page;
 import org.sonar.core.config.WebConstants;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.ui.ViewProxy;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
 public class SettingsAction implements NavigationWsAction {
 
+  private final PageRepository pageRepository;
   private final Settings settings;
-  private final Views views;
-  private final I18n i18n;
   private final UserSession userSession;
 
-  public SettingsAction(Settings settings, Views views, I18n i18n, UserSession userSession) {
-    this.views = views;
+  public SettingsAction(PageRepository pageRepository, Settings settings, UserSession userSession) {
+    this.pageRepository = pageRepository;
     this.settings = settings;
-    this.i18n = i18n;
     this.userSession = userSession;
   }
 
@@ -72,10 +67,10 @@ public class SettingsAction implements NavigationWsAction {
 
     json.name("extensions").beginArray();
     if (isAdmin) {
-      for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION, null, null, null)) {
+      for (Page page : pageRepository.getGlobalPages(true)) {
         json.beginObject()
-          .prop("id", page.getId())
-          .prop("name", i18n.message(Locale.ENGLISH, String.format("%s.page", page.getTitle()), page.getTitle()))
+          .prop("key", page.getKey())
+          .prop("name", page.getName())
           .endObject();
       }
     }
