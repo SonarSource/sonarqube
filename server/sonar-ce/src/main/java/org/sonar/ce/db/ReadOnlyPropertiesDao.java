@@ -21,9 +21,9 @@ package org.sonar.ce.db;
 
 import java.util.Map;
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.property.PropertyDto;
 
 /**

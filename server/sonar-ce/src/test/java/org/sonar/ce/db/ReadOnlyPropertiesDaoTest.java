@@ -21,8 +21,8 @@ package org.sonar.ce.db;
 
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.property.PropertyDto;
 
 import static org.mockito.Mockito.mock;

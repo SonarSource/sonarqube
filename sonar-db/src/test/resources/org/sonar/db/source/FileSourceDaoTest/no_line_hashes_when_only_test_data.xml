@@ -1,9 +1,0 @@
-<dataset>
-
-    <file_sources id="101" project_uuid="PRJ_UUID" file_uuid="FILE1_UUID"
-                  binary_data="abcde" data_hash="[null]"
-                  line_hashes="[null]"
-                  src_hash="[null]"
-                  created_at="1500000000000" updated_at="1500000000000"  data_type="TEST" />
-
-</dataset>

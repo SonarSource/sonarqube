@@ -24,7 +24,6 @@
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
-    <module>sonar-db</module>
     <module>sonar-duplications</module>
     <module>sonar-home</module>
     <module>sonar-markdown</module>
@@ -406,11 +405,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-db</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -109,6 +109,5 @@ public class CeTaskInputDaoTest {
 
   private void insertData(String uuid) {
     dbTester.executeInsert(TABLE_NAME, "task_uuid", uuid, "created_at", NOW, "updated_at", NOW);
-    dbTester.commit();
   }
 }

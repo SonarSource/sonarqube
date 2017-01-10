@@ -1,7 +1,0 @@
-<dataset>
-
-  <metrics id="1" name="manual" val_type="INT" description="Manual metric" domain="" short_name="Manual metric"
-           qualitative="[false]" enabled="[true]" worst_value="[null]" optimized_best_value="[false]" best_value="[null]" direction="0" hidden="[false]"
-            delete_historical_data="[false]" user_managed="[true]"/>
-
-</dataset>

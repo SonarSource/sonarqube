@@ -44,12 +44,8 @@ import org.sonar.db.dialect.H2;
 import org.sonar.process.logging.LogbackHelper;
 
 /**
- * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
+ * This class should be call using @ClassRule in order to create the schema once (if @Rule is used
  * the schema will be recreated before each test).
- * Data will be truncated each time you call prepareDbUnit().
- * <p/>
- * File using {@link CoreTestDb} must be annotated with {@link org.sonar.test.DbTests} so
- * that they can be executed on all supported DBs (Oracle, MySQL, ...).
  */
 class CoreTestDb {
 

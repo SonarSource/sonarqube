@@ -59,26 +59,9 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.rules.ExternalResource;
-import org.picocontainer.containers.TransientPicoContainer;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.util.SequenceUuidFactory;
-import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.event.EventDbTester;
-import org.sonar.db.favorite.FavoriteDbTester;
-import org.sonar.db.issue.IssueDbTester;
-import org.sonar.db.notification.NotificationDbTester;
-import org.sonar.db.organization.OrganizationDbTester;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.permission.template.PermissionTemplateDbTester;
-import org.sonar.db.qualitygate.QualityGateDbTester;
-import org.sonar.db.rule.RuleDbTester;
-import org.sonar.db.user.RootFlagAssertions;
-import org.sonar.db.user.UserDbTester;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.asList;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -87,178 +70,20 @@ import static java.sql.ResultSetMetaData.columnNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-/**
- * This class should be called using @Rule.
- * Data is truncated between each tests. The schema is created between each test.
- */
-public class DbTester extends ExternalResource {
+public class AbstractDbTester<T extends CoreTestDb> extends ExternalResource {
+  protected static final Joiner COMMA_JOINER = Joiner.on(", ");
+  protected final T db;
 
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
-  private final System2 system2;
-  private final TestDb db;
-  private DbClient client;
-  private DbSession session = null;
-  private boolean disableDefaultOrganization = false;
-  private boolean started = false;
-  private OrganizationDto defaultOrganization;
-
-  private final UserDbTester userTester;
-  private final ComponentDbTester componentTester;
-  private final FavoriteDbTester favoriteTester;
-  private final EventDbTester eventTester;
-  private final OrganizationDbTester organizationTester;
-  private final PermissionTemplateDbTester permissionTemplateTester;
-  private final QualityGateDbTester qualityGateDbTester;
-  private final IssueDbTester issueDbTester;
-  private final RuleDbTester ruleDbTester;
-  private final NotificationDbTester notificationDbTester;
-  private final RootFlagAssertions rootFlagAssertions;
-
-  private DbTester(System2 system2, @Nullable String schemaPath) {
-    this.system2 = system2;
-    this.db = TestDb.create(schemaPath);
-    initDbClient();
-    this.userTester = new UserDbTester(this);
-    this.componentTester = new ComponentDbTester(this);
-    this.favoriteTester = new FavoriteDbTester(this);
-    this.eventTester = new EventDbTester(this);
-    this.organizationTester = new OrganizationDbTester(this);
-    this.permissionTemplateTester = new PermissionTemplateDbTester(this);
-    this.qualityGateDbTester = new QualityGateDbTester(this);
-    this.issueDbTester = new IssueDbTester(this);
-    this.ruleDbTester = new RuleDbTester(this);
-    this.notificationDbTester = new NotificationDbTester(this);
-    this.rootFlagAssertions = new RootFlagAssertions(this);
-  }
-
-  public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null);
-  }
-
-  public static DbTester create(System2 system2) {
-    return new DbTester(system2, null);
-  }
-
-  public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
-    String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
-    String schemaPath = path + "/" + filename;
-    return new DbTester(system2, schemaPath).setDisableDefaultOrganization(true);
-  }
-
-  private void initDbClient() {
-    TransientPicoContainer ioc = new TransientPicoContainer();
-    ioc.addComponent(db.getMyBatis());
-    ioc.addComponent(system2);
-    ioc.addComponent(new SequenceUuidFactory());
-    for (Class daoClass : DaoModule.classes()) {
-      ioc.addComponent(daoClass);
-    }
-    List<Dao> daos = ioc.getComponents(Dao.class);
-    client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
-  }
-
-  public DbTester setDisableDefaultOrganization(boolean b) {
-    checkState(!started, "DbTester is already started");
-    this.disableDefaultOrganization = b;
-    return this;
-  }
-
-  @Override
-  protected void before() throws Throwable {
-    db.start();
-    db.truncateTables();
-    initDbClient();
-    if (!disableDefaultOrganization) {
-      insertDefaultOrganization();
-    }
-    started = true;
-  }
-
-  private void insertDefaultOrganization() {
-    defaultOrganization = OrganizationTesting.newOrganizationDto();
-    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
-      client.organizationDao().insert(dbSession, defaultOrganization);
-      client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
-      dbSession.commit();
-    }
-  }
-
-  public OrganizationDto getDefaultOrganization() {
-    checkState(defaultOrganization != null, "Default organization has not been created");
-    return defaultOrganization;
-  }
-
-  public UserDbTester users() {
-    return userTester;
-  }
-
-  public ComponentDbTester components() {
-    return componentTester;
-  }
-
-  public FavoriteDbTester favorites() {
-    return favoriteTester;
-  }
-
-  public EventDbTester events() {
-    return eventTester;
-  }
-
-  public OrganizationDbTester organizations() {
-    return organizationTester;
-  }
-
-  public PermissionTemplateDbTester permissionTemplates() {
-    return permissionTemplateTester;
-  }
-
-  public QualityGateDbTester qualityGates() {
-    return qualityGateDbTester;
-  }
-
-  public RootFlagAssertions rootFlag() {
-    return rootFlagAssertions;
-  }
-
-  public IssueDbTester issues() {
-    return issueDbTester;
-  }
-
-  public RuleDbTester rules() {
-    return ruleDbTester;
-  }
-
-  public NotificationDbTester notifications() {
-    return notificationDbTester;
-  }
-
-  @Override
-  protected void after() {
-    if (session != null) {
-      MyBatis.closeQuietly(session);
-    }
-    db.stop();
-    started = false;
-  }
-
-  public DbSession getSession() {
-    if (session == null) {
-      session = db.getMyBatis().openSession(false);
-    }
-    return session;
-  }
-
-  public void commit() {
-    getSession().commit();
-  }
-
-  public DbClient getDbClient() {
-    return client;
+  public AbstractDbTester(T db) {
+    this.db = db;
   }
 
   public void executeUpdateSql(String sql, Object... params) {
     try (Connection connection = getConnection()) {
       new QueryRunner().update(connection, sql, params);
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
     } catch (SQLException e) {
       SQLException nextException = e.getNextException();
       if (nextException != null) {
@@ -327,11 +152,7 @@ public class DbTester extends ExternalResource {
     return countRowsOfTable(tableName, new NewConnectionSupplier());
   }
 
-  public int countRowsOfTable(DbSession dbSession, String tableName) {
-    return countRowsOfTable(tableName, new DbSessionConnectionSupplier(dbSession));
-  }
-
-  private int countRowsOfTable(String tableName, ConnectionSupplier connectionSupplier) {
+  protected int countRowsOfTable(String tableName, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
     return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH), connectionSupplier);
   }
@@ -344,11 +165,7 @@ public class DbTester extends ExternalResource {
     return countSql(sql, new NewConnectionSupplier());
   }
 
-  public int countSql(DbSession dbSession, String sql) {
-    return countSql(sql, new DbSessionConnectionSupplier(dbSession));
-  }
-
-  private int countSql(String sql, ConnectionSupplier connectionSupplier) {
+  protected int countSql(String sql, ConnectionSupplier connectionSupplier) {
     checkArgument(StringUtils.contains(sql, "count("),
       "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     try (
@@ -369,11 +186,7 @@ public class DbTester extends ExternalResource {
     return select(selectSql, new NewConnectionSupplier());
   }
 
-  public List<Map<String, Object>> select(DbSession dbSession, String selectSql) {
-    return select(selectSql, new DbSessionConnectionSupplier(dbSession));
-  }
-
-  private List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
+  protected List<Map<String, Object>> select(String selectSql, ConnectionSupplier connectionSupplier) {
     try (
       ConnectionSupplier supplier = connectionSupplier;
       PreparedStatement stmt = supplier.get().prepareStatement(selectSql);
@@ -388,11 +201,7 @@ public class DbTester extends ExternalResource {
     return selectFirst(selectSql, new NewConnectionSupplier());
   }
 
-  public Map<String, Object> selectFirst(DbSession dbSession, String selectSql) {
-    return selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
-  }
-
-  private Map<String, Object> selectFirst(String selectSql, ConnectionSupplier connectionSupplier) {
+  protected Map<String, Object> selectFirst(String selectSql, ConnectionSupplier connectionSupplier) {
     List<Map<String, Object>> rows = select(selectSql, connectionSupplier);
     if (rows.isEmpty()) {
       throw new IllegalStateException("No results for " + selectSql);
@@ -656,26 +465,6 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  private static class PK {
-    @CheckForNull
-    private final String name;
-    private final List<String> columns;
-
-    private PK(@Nullable String name, List<String> columns) {
-      this.name = name;
-      this.columns = ImmutableList.copyOf(columns);
-    }
-
-    @CheckForNull
-    public String getName() {
-      return name;
-    }
-
-    public List<String> getColumns() {
-      return columns;
-    }
-  }
-
   @CheckForNull
   private Integer getColumnIndex(ResultSet res, String column) {
     try {
@@ -716,16 +505,6 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  private void closeQuietly(@Nullable IDatabaseConnection connection) {
-    try {
-      if (connection != null) {
-        connection.close();
-      }
-    } catch (SQLException e) {
-      // ignore
-    }
-  }
-
   public static RuntimeException translateException(String msg, Exception cause) {
     RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
     runtimeException.setStackTrace(cause.getStackTrace());
@@ -740,13 +519,17 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  @Deprecated
-  public MyBatis myBatis() {
-    return db.getMyBatis();
+  private void closeQuietly(@Nullable IDatabaseConnection connection) {
+    try {
+      if (connection != null) {
+        connection.close();
+      }
+    } catch (SQLException e) {
+      // ignore
+    }
   }
 
-  @Deprecated
-  public Connection openConnection() throws Exception {
+  public Connection openConnection() throws SQLException {
     return getConnection();
   }
 
@@ -754,7 +537,6 @@ public class DbTester extends ExternalResource {
     return db.getDatabase().getDataSource().getConnection();
   }
 
-  @Deprecated
   public Database database() {
     return db.getDatabase();
   }
@@ -766,28 +548,30 @@ public class DbTester extends ExternalResource {
   /**
    * An {@link AutoCloseable} supplier of {@link Connection}.
    */
-  private interface ConnectionSupplier extends AutoCloseable {
+  protected interface ConnectionSupplier extends AutoCloseable {
     Connection get() throws SQLException;
 
     @Override
     void close();
   }
 
-  private static class DbSessionConnectionSupplier implements ConnectionSupplier {
-    private final DbSession dbSession;
+  private static class PK {
+    @CheckForNull
+    private final String name;
+    private final List<String> columns;
 
-    public DbSessionConnectionSupplier(DbSession dbSession) {
-      this.dbSession = dbSession;
+    private PK(@Nullable String name, List<String> columns) {
+      this.name = name;
+      this.columns = ImmutableList.copyOf(columns);
     }
 
-    @Override
-    public Connection get() throws SQLException {
-      return dbSession.getConnection();
+    @CheckForNull
+    public String getName() {
+      return name;
     }
 
-    @Override
-    public void close() {
-      // closing dbSession is not our responsability
+    public List<String> getColumns() {
+      return columns;
     }
   }
 
@@ -808,7 +592,7 @@ public class DbTester extends ExternalResource {
         try {
           this.connection.close();
         } catch (SQLException e) {
-          Loggers.get(DbTester.class).warn("Fail to close connection", e);
+          Loggers.get(CoreDbTester.class).warn("Fail to close connection", e);
           // do not re-throw the exception
         }
       }
