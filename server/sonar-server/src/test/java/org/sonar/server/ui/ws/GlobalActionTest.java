@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
 import org.junit.Rule;
@@ -27,18 +28,18 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.View;
+import org.sonar.api.web.page.Page;
+import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -64,7 +65,7 @@ public class GlobalActionTest {
 
   @Test
   public void return_qualifiers() throws Exception {
-    init(new View[] {}, new ResourceTypeTree[] {
+    init(new Page[] {}, new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
         .addType(ResourceType.builder("LOP").build())
@@ -108,22 +109,22 @@ public class GlobalActionTest {
 
   @Test
   public void return_global_pages_for_anonymous() throws Exception {
-    init(createViews(), new ResourceTypeTree[] {});
+    init(createPages(), new ResourceTypeTree[] {});
 
     executeAndVerify("global_pages_for_anonymous.json");
   }
 
   @Test
   public void return_global_pages_for_user() throws Exception {
-    init(createViews(), new ResourceTypeTree[] {});
+    init(createPages(), new ResourceTypeTree[] {});
     userSessionRule.login("obiwan");
 
     executeAndVerify("global_pages_for_user.json");
   }
 
   @Test
-  public void return_global_pages_for_admin() throws Exception {
-    init(createViews(), new ResourceTypeTree[] {});
+  public void return_global_pages_for_admin_user() throws Exception {
+    init(createPages(), new ResourceTypeTree[] {});
     userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     executeAndVerify("global_pages_for_admin.json");
@@ -147,7 +148,7 @@ public class GlobalActionTest {
 
   @Test
   public void test_example_response() throws Exception {
-    init(createViews(), new ResourceTypeTree[] {
+    init(createPages(), new ResourceTypeTree[] {
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
         .addType(ResourceType.builder("LOP").build())
@@ -175,56 +176,31 @@ public class GlobalActionTest {
   }
 
   private void init() {
-    init(new View[] {}, new ResourceTypeTree[] {});
+    init(new org.sonar.api.web.page.Page[] {}, new ResourceTypeTree[] {});
   }
 
-  private void init(View[] views, ResourceTypeTree[] resourceTypeTrees) {
+  private void init(org.sonar.api.web.page.Page[] pages, ResourceTypeTree[] resourceTypeTrees) {
     when(database.getDialect()).thenReturn(new H2());
-    ws = new WsActionTester(new GlobalAction(new Views(userSessionRule, views), settings, new ResourceTypes(resourceTypeTrees), server, database));
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+      for (Page page : pages) {
+        context.addPage(page);
+      }
+    }});
+    pageRepository.start();
+    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server, database));
   }
 
   private void executeAndVerify(String json) {
     assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalActionTest.class.getSimpleName() + "/" + json));
   }
 
-  private View[] createViews() {
-    Page page = new Page() {
-      @Override
-      public String getTitle() {
-        return "My Plugin Page";
-      }
+  private Page[] createPages() {
+    Page page = Page.builder("my_plugin/page").setName("My Plugin Page").build();
+    Page anotherPage = Page.builder("another_plugin/page").setName("My Another Page").build();
+    Page adminPage = Page.builder("my_plugin/admin_page").setName("Admin Page").setAdmin(true).build();
 
-      @Override
-      public String getId() {
-        return "my_plugin_page";
-      }
-    };
-
-    Page controller = new Page() {
-      @Override
-      public String getTitle() {
-        return "My Rails App";
-      }
-
-      @Override
-      public String getId() {
-        return "my_rails_app";
-      }
-    };
-
-    @NavigationSection(NavigationSection.HOME)
-    @UserRole(GlobalPermissions.SYSTEM_ADMIN)
-    class AdminPage implements Page {
-      @Override
-      public String getTitle() {
-        return "Admin Page";
-      }
-
-      @Override
-      public String getId() {
-        return "admin_page";
-      }
-    }
-    return new View[] {page, controller, new AdminPage()};
+    return new Page[] {page, anotherPage, adminPage};
   }
 }
