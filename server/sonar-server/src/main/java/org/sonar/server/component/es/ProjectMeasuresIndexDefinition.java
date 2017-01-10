@@ -60,7 +60,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
-    mapping.stringFieldBuilder(FIELD_NAME).enableSorting().enableGramSearch().build();
+    mapping.stringFieldBuilder(FIELD_NAME).enableSorting().build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE).build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
     mapping.nestedFieldBuilder(FIELD_MEASURES)
