@@ -17,18 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
+public class Metadata {
+  private final int lines;
+  private final int nonBlankLines;
+  private final String hash;
+  private final int[] originalLineOffsets;
+  private final int lastValidOffset;
 
-/**
- * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
- * and {@link org.sonar.api.batch.fs.FilePredicates}.
- * @since 4.2
- */
-public interface FilePredicate {
-  /**
-   * Test if provided file is valid for this predicate
-   */
-  boolean apply(IndexedFile inputFile);
+  public Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {
+    this.lines = lines;
+    this.nonBlankLines = nonBlankLines;
+    this.hash = hash;
+    this.originalLineOffsets = originalLineOffsets;
+    this.lastValidOffset = lastValidOffset;
+  }
+
+  public int lines() {
+    return lines;
+  }
+
+  public int nonBlankLines() {
+    return nonBlankLines;
+  }
+
+  public String hash() {
+    return hash;
+  }
+
+  public int[] originalLineOffsets() {
+    return originalLineOffsets;
+  }
+
+  public int lastValidOffset() {
+    return lastValidOffset;
+  }
 
 }

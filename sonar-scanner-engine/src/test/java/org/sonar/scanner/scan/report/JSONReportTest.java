@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.config.Settings;
@@ -81,7 +82,7 @@ public class JSONReportTest {
     when(server.getVersion()).thenReturn("3.6");
     userRepository = mock(UserRepositoryLoader.class);
     DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
-    DefaultInputFile inputFile = new DefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
+    DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java").build();
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputPathCache fileCache = mock(InputPathCache.class);
     when(fileCache.allFiles()).thenReturn(Arrays.<InputFile>asList(inputFile));

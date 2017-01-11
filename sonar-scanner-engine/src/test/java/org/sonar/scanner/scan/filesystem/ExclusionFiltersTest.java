@@ -19,34 +19,43 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileExclusions;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExclusionFiltersTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  private Path moduleBaseDir;
+
+  @Before
+  public void setUp() throws IOException {
+    moduleBaseDir = temp.newFolder().toPath();
+  }
 
   @Test
   public void no_inclusions_nor_exclusions() throws IOException {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(new MapSettings()));
     filter.prepare();
 
-    java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
+    assertThat(filter.accept(indexedFile, InputFile.Type.TEST)).isTrue();
   }
 
   @Test
@@ -56,12 +65,11 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
     filter.prepare();
 
-    java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
   }
 
   @Test
@@ -72,13 +80,11 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    java.io.File file = temp.newFile();
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
 
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
-
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDto.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDto.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
   }
 
   @Test
@@ -91,22 +97,20 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    inputFile = new DefaultInputFile("foo", "src/test/java/com/mycompany/FooDao.java").setModuleBaseDir(temp.newFolder().toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/test/java/com/mycompany/FooDao.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.TEST)).isTrue();
   }
 
   @Test
   public void match_exclusion_by_absolute_path() throws IOException {
-    File baseDir = temp.newFile();
-    File excludedFile = new File(baseDir, "src/main/java/org/bar/Bar.java");
+    File excludedFile = new File(moduleBaseDir.toString(), "src/main/java/org/bar/Bar.java");
 
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
@@ -115,11 +119,11 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Foo.java").setModuleBaseDir(baseDir.toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Bar.java").setModuleBaseDir(baseDir.toPath());
-    assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Bar.java");
+    assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
   }
 
   @Test
