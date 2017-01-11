@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -78,9 +79,8 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/properties/index");
-    assertThat(servletRequestCaptor.getValue().hasParam("key")).isFalse();
+    assertRedirection("api/properties/index", "GET");
+    assertNoParam("key", "component", "value", "values");
   }
 
   @Test
@@ -90,10 +90,8 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/properties/index");
-    assertNoParam("key");
-    assertNoParam("component");
+    assertRedirection("api/properties/index", "GET");
+    assertNoParam("key", "component", "value", "values");
   }
 
   @Test
@@ -103,11 +101,9 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/properties/index");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("GET");
+    assertRedirection("api/properties/index", "GET");
     assertParam("key", "my.property");
-    assertNoParam("component");
+    assertNoParam("component", "value", "values");
   }
 
   @Test
@@ -118,11 +114,9 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/properties/index");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("GET");
+    assertRedirection("api/properties/index", "GET");
     assertParam("key", "my.property");
-    assertNoParam("component");
+    assertNoParam("component", "value", "values");
   }
 
   @Test
@@ -133,11 +127,37 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/properties/index");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("GET");
+    assertRedirection("api/properties/index", "GET");
     assertParam("key", "my.property");
-    assertNoParam("component");
+    assertNoParam("component", "value", "values");
+  }
+
+  @Test
+  public void redirect_api_properties_when_resource() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties/my.property");
+    when(request.getParameter("resource")).thenReturn("my_project");
+    when(request.getMethod()).thenReturn("GET");
+
+    underTest.doFilter(request, response, chain);
+
+    assertRedirection("api/properties/index", "GET");
+    assertParam("key", "my.property");
+    assertParam("resource", "my_project");
+    assertNoParam("component", "value", "values");
+  }
+
+  @Test
+  public void redirect_api_properties_when_format() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties/my.property");
+    when(request.getParameter("format")).thenReturn("json");
+    when(request.getMethod()).thenReturn("GET");
+
+    underTest.doFilter(request, response, chain);
+
+    assertRedirection("api/properties/index", "GET");
+    assertParam("key", "my.property");
+    assertParam("format", "json");
+    assertNoParam("component", "value", "values");
   }
 
   @Test
@@ -149,12 +169,11 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/set");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/set", "POST");
     assertParam("key", "my.property");
     assertParam("value", "my_value");
     assertParam("component", "my_project");
+    assertNoParam("values");
   }
 
   @Test
@@ -166,12 +185,11 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/set");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/set", "POST");
     assertParam("key", "my.property");
     assertParam("value", "my_value");
     assertParam("component", "my_project");
+    assertNoParam("values");
   }
 
   @Test
@@ -182,11 +200,25 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/set");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/set", "POST");
     assertParam("key", "my.property");
     assertParam("value", "my_value");
+    assertNoParam("values", "component");
+  }
+
+  @Test
+  public void redirect_post_api_properties_to_api_settings_set_when_multi_values() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties/my.property");
+    when(request.getParameter("value")).thenReturn("value1,value2,value3");
+    when(request.getMethod()).thenReturn("POST");
+
+    underTest.doFilter(request, response, chain);
+
+    assertRedirection("api/settings/set", "POST");
+    assertParam("key", "my.property");
+    assertNoParam("value");
+    assertThat(servletRequestCaptor.getValue().hasParam("values")).as("Parameter '%s' hasn't been found", "values").isTrue();
+    assertThat(servletRequestCaptor.getValue().readMultiParam("values")).containsOnly("value1", "value2", "value3");
   }
 
   @Test
@@ -197,12 +229,10 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/reset");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/reset", "POST");
     assertParam("keys", "my.property");
-    assertNoParam("value");
     assertParam("component", "my_project");
+    assertNoParam("value", "values");
   }
 
   @Test
@@ -214,12 +244,10 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/reset");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/reset", "POST");
     assertParam("keys", "my.property");
-    assertNoParam("value");
     assertParam("component", "my_project");
+    assertNoParam("value", "values");
   }
 
   @Test
@@ -230,11 +258,16 @@ public class DeprecatedRestWebServiceFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
-    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo("api/settings/reset");
-    assertThat(servletRequestCaptor.getValue().method()).isEqualTo("POST");
+    assertRedirection("api/settings/reset", "POST");
     assertParam("keys", "my.property");
     assertParam("component", "my_project");
+    assertNoParam("value", "values");
+  }
+
+  private void assertRedirection(String path, String method) {
+    verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
+    assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo(path);
+    assertThat(servletRequestCaptor.getValue().method()).isEqualTo(method);
   }
 
   private void assertParam(String key, String value) {
@@ -242,8 +275,11 @@ public class DeprecatedRestWebServiceFilterTest {
     assertThat(servletRequestCaptor.getValue().readParam(key)).isEqualTo(value);
   }
 
-  private void assertNoParam(String key) {
-    assertThat(servletRequestCaptor.getValue().hasParam(key)).isFalse();
+  private void assertNoParam(String... keys) {
+    Arrays.stream(keys).forEach(key -> {
+      assertThat(servletRequestCaptor.getValue().hasParam(key)).as(key).isFalse();
+      assertThat(servletRequestCaptor.getValue().readParam(key)).as(key).isNull();
+    });
   }
 
   private static class TestInputStream extends ServletInputStream {

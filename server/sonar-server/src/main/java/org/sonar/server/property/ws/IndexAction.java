@@ -64,7 +64,7 @@ public class IndexAction implements WsAction {
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
   public static final String PARAM_KEY = "key";
-  private static final String PARAM_COMPONENT = "resource";
+  public static final String PARAM_COMPONENT = "resource";
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;

@@ -102,7 +102,7 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void doResetSettings() {
-    resetSettings(orchestrator, null, "some-property", "custom-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list");
+    resetSettings(orchestrator, null, "some-property", "custom-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list", "undefined");
     resetSettings(orchestrator, PROJECT_KEY, PROJECT_SETTING_KEY, "sonar.coverage.exclusions", "project.setting");
   }
 
@@ -120,11 +120,11 @@ public class DeprecatedPropertiesWsTest {
 
   @Test
   public void get_multi_values() throws Exception {
-    setProperty("multi", asList("value1", "value2"), null);
+    setProperty("multi", asList("value1", "value2", "value,3"), null);
 
     Properties.Property setting = getProperty("multi", null);
-    assertThat(setting.getValue()).isEqualTo("value1,value2");
-    assertThat(setting.getValues()).containsOnly("value1", "value2");
+    assertThat(setting.getValue()).isEqualTo("value1,value2,value%2C3");
+    assertThat(setting.getValues()).containsOnly("value1", "value2", "value,3");
   }
 
   @Test
@@ -233,6 +233,22 @@ public class DeprecatedPropertiesWsTest {
     putProperty("project.setting", "some-value", PROJECT_KEY);
 
     assertThat(getProperty("project.setting", PROJECT_KEY).getValue()).isEqualTo("some-value");
+  }
+
+  @Test
+  public void put_property_for_undefined_setting() throws Exception {
+    putProperty("undefined", "some-value", null);
+
+    assertThat(getProperty("undefined", null).getValue()).isEqualTo("some-value");
+  }
+
+  @Test
+  public void put_property_multi_values() throws Exception {
+    putProperty("multi", "value1,value2,value3", null);
+
+    Properties.Property setting = getProperty("multi", null);
+    assertThat(setting.getValue()).isEqualTo("value1,value2,value3");
+    assertThat(setting.getValues()).containsOnly("value1", "value2", "value3");
   }
 
   @Test

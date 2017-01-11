@@ -20,9 +20,14 @@
 
 package org.sonar.server.ws;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.servlet.FilterChain;
@@ -33,9 +38,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.server.property.ws.IndexAction;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.api.server.ws.RailsHandler.PARAM_FORMAT;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
@@ -44,11 +51,14 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONE
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
+import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 
 /**
  * This filter is used to execute some deprecated Java WS, that were using REST
  */
 public class DeprecatedRestWebServiceFilter extends ServletFilter {
+
+  private static final Splitter VALUE_SPLITTER = Splitter.on(",").omitEmptyStrings();
 
   private final WebServiceEngine webServiceEngine;
 
@@ -93,21 +103,22 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
 
     @Override
     public String getPath() {
-      return restResponse.getRedirectedPath();
+      return restResponse.redirectedPath;
     }
 
     @Override
     public boolean hasParam(String key) {
-      return restResponse.getAdditionalParams().containsKey(key) || super.hasParam(key);
+      return restResponse.additionalParams.containsKey(key) || restResponse.additionalMultiParams.containsKey(key);
     }
 
     @Override
     protected String readParam(String key) {
-      String param = restResponse.getAdditionalParams().get(key);
-      if (param != null) {
-        return param;
-      }
-      return super.readParam(key);
+      return restResponse.additionalParams.get(key);
+    }
+
+    @Override
+    protected List<String> readMultiParam(String key) {
+      return new ArrayList<>(restResponse.additionalMultiParams.get(key));
     }
 
     @Override
@@ -119,6 +130,7 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
   private static class Response {
     private final HttpServletRequest request;
     private final Map<String, String> additionalParams = new HashMap<>();
+    private final Multimap<String, String> additionalMultiParams = ArrayListMultimap.create();
     private final String originalPath;
     private String redirectedPath;
     private String redirectedMethod;
@@ -132,29 +144,37 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
     void init() {
       String method = request.getMethod();
       Optional<String> key = getKeyOrId();
-      Optional<String> value = getValue();
-      Optional<String> component = getComponent();
       switch (method) {
         case "POST":
         case "PUT":
-          if (value.isPresent()) {
-            addParameterIfPresent(PARAM_KEY, key);
-            addParameterIfPresent(PARAM_VALUE, value);
-            addParameterIfPresent(PARAM_COMPONENT, component);
-            redirectedPath = CONTROLLER_SETTINGS + "/" + ACTION_SET;
-            redirectedMethod = "POST";
-          } else {
-            redirectToReset(key, component);
-          }
+          handlePutAndPost(key, getValues(), getComponent());
           break;
         case "DELETE":
-          redirectToReset(key, component);
+          handleDelete(key, getComponent());
           break;
         default:
-          addParameterIfPresent(PARAM_KEY, key);
-          redirectedPath = CONTROLLER_PROPERTIES + "/index";
-          redirectedMethod = "GET";
+          handleGet(key, getComponent());
       }
+    }
+
+    private void handlePutAndPost(Optional<String> key, List<String> values, Optional<String> component) {
+      if (values.isEmpty()) {
+        redirectToReset(key, component);
+      } else {
+        redirectToSet(key, values, component);
+      }
+    }
+
+    private void handleDelete(Optional<String> key, Optional<String> component) {
+      redirectToReset(key, component);
+    }
+
+    private void handleGet(Optional<String> key, Optional<String> component) {
+      addParameterIfPresent(PARAM_KEY, key);
+      addParameterIfPresent(IndexAction.PARAM_COMPONENT, component);
+      addParameterIfPresent(PARAM_FORMAT, readParam(PARAM_FORMAT));
+      redirectedPath = CONTROLLER_PROPERTIES + "/index";
+      redirectedMethod = "GET";
     }
 
     private Optional<String> getKeyOrId() {
@@ -171,12 +191,17 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
     }
 
     private Optional<String> getComponent() {
-      return readParam("resource");
+      return readParam(IndexAction.PARAM_COMPONENT);
     }
 
-    private Optional<String> getValue() {
+    private List<String> getValues() {
       Optional<String> value = readParam("value");
-      return value.isPresent() ? value : readBody();
+      if (!value.isPresent()) {
+        List<String> values = new ArrayList<>();
+        readBody().ifPresent(values::add);
+        return values;
+      }
+      return VALUE_SPLITTER.splitToList(value.get());
     }
 
     private Optional<String> readParam(String paramKey) {
@@ -198,6 +223,18 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
       }
     }
 
+    private void redirectToSet(Optional<String> key, List<String> values, Optional<String> component) {
+      addParameterIfPresent(PARAM_KEY, key);
+      if (values.size() == 1) {
+        additionalParams.put(PARAM_VALUE, values.get(0));
+      } else {
+        additionalMultiParams.putAll(PARAM_VALUES, values);
+      }
+      addParameterIfPresent(PARAM_COMPONENT, component);
+      redirectedPath = CONTROLLER_SETTINGS + "/" + ACTION_SET;
+      redirectedMethod = "POST";
+    }
+
     private void redirectToReset(Optional<String> key, Optional<String> component) {
       addParameterIfPresent(PARAM_KEYS, key);
       addParameterIfPresent(PARAM_COMPONENT, component);
@@ -209,13 +246,6 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
       value.ifPresent(s -> additionalParams.put(parameterKey, s));
     }
 
-    String getRedirectedPath() {
-      return redirectedPath;
-    }
-
-    Map<String, String> getAdditionalParams() {
-      return additionalParams;
-    }
   }
 
 }
