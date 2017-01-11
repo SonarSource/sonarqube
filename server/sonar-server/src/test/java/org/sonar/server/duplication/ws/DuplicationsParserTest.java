@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -51,6 +52,8 @@ public class DuplicationsParserTest {
 
   ComponentDao componentDao = db.getDbClient().componentDao();
 
+  OrganizationDto organizationDto;
+
   ComponentDto currentFile;
   ComponentDto fileOnSameProject;
   ComponentDto fileOnDifferentProject;
@@ -62,11 +65,12 @@ public class DuplicationsParserTest {
 
   @Before
   public void setUp() {
-    project1 = newProjectDto()
+    organizationDto = db.organizations().insert();
+    project1 = newProjectDto(organizationDto)
       .setName("SonarQube")
       .setLongName("SonarQube")
       .setKey("org.codehaus.sonar:sonar");
-    project2 = newProjectDto();
+    project2 = newProjectDto(organizationDto);
     componentDao.insert(dbSession, project1, project2);
 
     // Current file
@@ -209,7 +213,7 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnSameProject, 5, 2), new DuplicationsParser.Duplication(fileOnDifferentProject, 2, 2))).isEqualTo(-1);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2), new DuplicationsParser.Duplication(fileOnSameProject, 2, 2))).isEqualTo(1);
     // Files on 2 different projects
-    ComponentDto project3 = newProjectDto().setId(3L);
+    ComponentDto project3 = newProjectDto(organizationDto).setId(3L);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2),
       new DuplicationsParser.Duplication(project3, 2, 2))).isEqualTo(1);
 

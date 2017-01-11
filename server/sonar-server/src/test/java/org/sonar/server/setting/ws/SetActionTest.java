@@ -530,7 +530,7 @@ public class SetActionTest {
       .defaultValue("default")
       .onQualifiers(Qualifiers.PROJECT)
       .build());
-    ComponentDto view = db.components().insertComponent(newView("view-uuid"));
+    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid"));
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Setting 'my.key' cannot be set on a View");

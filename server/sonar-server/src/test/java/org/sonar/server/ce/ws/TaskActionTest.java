@@ -31,7 +31,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -49,10 +48,6 @@ import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
 
-  static final ComponentDto PROJECT = ComponentTesting.newProjectDto()
-    .setUuid("PROJECT_1")
-    .setName("Project One")
-    .setKey("P1");
   private static final String SOME_TASK_UUID = "TASK_1";
 
   @Rule
@@ -64,13 +59,14 @@ public class TaskActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
-  WsActionTester ws = new WsActionTester(underTest);
+  private ComponentDto project;
+  private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
+  private TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), PROJECT);
+    project = dbTester.components().insertProject(dbTester.organizations().insert());
   }
 
   @Test
@@ -80,7 +76,7 @@ public class TaskActionTest {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setComponentUuid(PROJECT.uuid());
+    queueDto.setComponentUuid(project.uuid());
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setSubmitterLogin("john");
     persist(queueDto);
@@ -94,9 +90,9 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo("john");
-    assertThat(taskResponse.getTask().getComponentId()).isEqualTo(PROJECT.uuid());
-    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(PROJECT.key());
-    assertThat(taskResponse.getTask().getComponentName()).isEqualTo(PROJECT.name());
+    assertThat(taskResponse.getTask().getComponentId()).isEqualTo(project.uuid());
+    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(project.key());
+    assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getLogs()).isFalse();
   }
@@ -117,9 +113,9 @@ public class TaskActionTest {
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
-    assertThat(task.getComponentId()).isEqualTo(PROJECT.uuid());
-    assertThat(task.getComponentKey()).isEqualTo(PROJECT.key());
-    assertThat(task.getComponentName()).isEqualTo(PROJECT.name());
+    assertThat(task.getComponentId()).isEqualTo(project.uuid());
+    assertThat(task.getComponentKey()).isEqualTo(project.key());
+    assertThat(task.getComponentName()).isEqualTo(project.name());
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
@@ -290,13 +286,13 @@ public class TaskActionTest {
 
   @Test
   public void not_fail_on_queue_task_linked_on_project_with_project_scan_permission() {
-    userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, PROJECT.uuid());
+    userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
     queueDto.setUuid(SOME_TASK_UUID);
     queueDto.setStatus(CeQueueDto.Status.PENDING);
-    queueDto.setComponentUuid(PROJECT.uuid());
+    queueDto.setComponentUuid(project.uuid());
     persist(queueDto);
 
     ws.newRequest()
@@ -307,10 +303,10 @@ public class TaskActionTest {
 
   @Test
   public void not_fail_on_archived_task_linked_on_project_with_project_scan_permission() throws Exception {
-    userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, PROJECT.uuid());
+    userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
-      .setComponentUuid(PROJECT.uuid());
+      .setComponentUuid(project.uuid());
     persist(activityDto);
 
     ws.newRequest()
@@ -323,7 +319,7 @@ public class TaskActionTest {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(uuid);
-    queueDto.setComponentUuid(PROJECT.uuid());
+    queueDto.setComponentUuid(project.uuid());
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);

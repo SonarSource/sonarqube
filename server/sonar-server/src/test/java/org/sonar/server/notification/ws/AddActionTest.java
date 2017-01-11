@@ -197,7 +197,7 @@ public class AddActionTest {
 
   @Test
   public void fail_when_component_is_not_a_project() {
-    db.components().insertViewAndSnapshot(newView().setKey("VIEW_1"));
+    db.components().insertViewAndSnapshot(newView(db.organizations().insert()).setKey("VIEW_1"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Component 'VIEW_1' must be a project");

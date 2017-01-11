@@ -39,6 +39,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -204,9 +205,10 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_by_component_name() throws IOException {
-    ComponentDto struts = newProjectDto().setName("old apache struts").setUuid("P1").setProjectUuid("P1");
-    ComponentDto zookeeper = newProjectDto().setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
-    ComponentDto eclipse = newProjectDto().setName("eclipse").setUuid("P3").setProjectUuid("P3");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto struts = newProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
+    ComponentDto zookeeper = newProjectDto(organizationDto).setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
+    ComponentDto eclipse = newProjectDto(organizationDto).setName("eclipse").setUuid("P3").setProjectUuid("P3");
     componentDb.insertProjectAndSnapshot(struts);
     componentDb.insertProjectAndSnapshot(zookeeper);
     componentDb.insertProjectAndSnapshot(eclipse);
@@ -224,8 +226,9 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_views_and_developers() {
-    ComponentDto apacheView = newView().setName("Apache View").setUuid("V1").setProjectUuid("V1");
-    ComponentDto developer = newDeveloper("Apache Developer").setUuid("D1").setProjectUuid("D1");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto apacheView = newView(organizationDto).setName("Apache View").setUuid("V1").setProjectUuid("V1");
+    ComponentDto developer = newDeveloper(organizationDto, "Apache Developer").setUuid("D1").setProjectUuid("D1");
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertViewAndSnapshot(apacheView);
     componentDb.indexComponents(developer.uuid(), apacheView.uuid());

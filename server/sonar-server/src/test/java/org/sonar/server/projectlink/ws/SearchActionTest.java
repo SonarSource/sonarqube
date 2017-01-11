@@ -220,7 +220,7 @@ public class SearchActionTest {
   }
 
   private ComponentDto insertProject(String projectKey, String projectUuid) {
-    return componentDb.insertComponent(newProjectDto(projectUuid).setKey(projectKey));
+    return componentDb.insertComponent(newProjectDto(db.organizations().insert(), projectUuid).setKey(projectKey));
   }
 
   private ComponentDto insertProject() {

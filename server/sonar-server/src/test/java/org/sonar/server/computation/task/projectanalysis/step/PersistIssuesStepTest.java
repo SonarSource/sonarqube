@@ -38,6 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -98,7 +99,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void insert_new_issue() {
     RuleDto rule = RuleTesting.newDto(RuleKey.of("xoo", "S01"));
     dbClient.ruleDao().insert(session, rule);
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbClient.componentDao().insert(session, file);

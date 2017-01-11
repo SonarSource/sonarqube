@@ -154,7 +154,7 @@ public class DeleteActionTest {
   public void delete_permissions() throws Exception {
     addAdminToDefaultOrganization();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = componentTester.insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto project = componentTester.insertComponent(ComponentTesting.newProjectDto(db.getDefaultOrganization()));
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, project);
     loginAsAdminOnDefaultOrganization();
 

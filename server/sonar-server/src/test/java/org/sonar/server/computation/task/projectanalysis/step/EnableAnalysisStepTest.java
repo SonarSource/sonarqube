@@ -28,6 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
@@ -54,7 +55,8 @@ public class EnableAnalysisStepTest {
 
   @Test
   public void switch_islast_flag_and_mark_analysis_as_processed() {
-    ComponentDto project = ComponentTesting.newProjectDto(REPORT_PROJECT.getUuid());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = ComponentTesting.newProjectDto(organization, REPORT_PROJECT.getUuid());
     db.getDbClient().componentDao().insert(db.getSession(), project);
     insertAnalysis(project, PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
@@ -70,7 +72,7 @@ public class EnableAnalysisStepTest {
 
   @Test
   public void set_islast_flag_and_mark_as_processed_if_no_previous_analysis() {
-    ComponentDto project = ComponentTesting.newProjectDto(REPORT_PROJECT.getUuid());
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), REPORT_PROJECT.getUuid());
     db.getDbClient().componentDao().insert(db.getSession(), project);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
     db.commit();

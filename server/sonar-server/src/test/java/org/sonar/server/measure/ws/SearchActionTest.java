@@ -43,6 +43,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
@@ -108,7 +109,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures() throws Exception {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
@@ -126,7 +127,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_periods() throws Exception {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
@@ -153,11 +154,12 @@ public class SearchActionTest {
   public void sort_by_metric_key_then_project_name() throws Exception {
     MetricDto coverage = insertCoverageMetric();
     MetricDto complexity = insertComplexityMetric();
-    ComponentDto project1 = newProjectDto().setName("C");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = newProjectDto(organizationDto).setName("C");
     SnapshotDto projectSnapshot1 = componentDb.insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto().setName("A");
+    ComponentDto project2 = newProjectDto(organizationDto).setName("A");
     SnapshotDto projectSnapshot2 = componentDb.insertProjectAndSnapshot(project2);
-    ComponentDto project3 = newProjectDto().setName("B");
+    ComponentDto project3 = newProjectDto(organizationDto).setName("B");
     SnapshotDto projectSnapshot3 = componentDb.insertProjectAndSnapshot(project3);
     setBrowsePermissionOnUser(project1, project2, project3);
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project1, projectSnapshot1).setValue(5.5d));
@@ -179,9 +181,9 @@ public class SearchActionTest {
   @Test
   public void only_returns_authorized_projects() {
     MetricDto metricDto = insertComplexityMetric();
-    ComponentDto project1 = newProjectDto();
+    ComponentDto project1 = newProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot1 = componentDb.insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto();
+    ComponentDto project2 = newProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot2 = componentDb.insertProjectAndSnapshot(project2);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d),
@@ -368,9 +370,10 @@ public class SearchActionTest {
 
   private List<String> insertJsonExampleData() {
     List<String> projectKeys = new ArrayList<>();
-    ComponentDto project1 = newProjectDto().setKey("MY_PROJECT_1").setName("Project 1");
-    ComponentDto project2 = newProjectDto().setKey("MY_PROJECT_2").setName("Project 2");
-    ComponentDto project3 = newProjectDto().setKey("MY_PROJECT_3").setName("Project 3");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = newProjectDto(organizationDto).setKey("MY_PROJECT_1").setName("Project 1");
+    ComponentDto project2 = newProjectDto(organizationDto).setKey("MY_PROJECT_2").setName("Project 2");
+    ComponentDto project3 = newProjectDto(organizationDto).setKey("MY_PROJECT_3").setName("Project 3");
     projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
     componentDb.insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)

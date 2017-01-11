@@ -129,7 +129,7 @@ public class GroupPermissionDaoTest {
     GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
     GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
 
-    ComponentDto project = db.components().insertComponent(newProjectDto());
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
 
     db.users().insertPermissionOnAnyone(SCAN_EXECUTION);
     db.users().insertPermissionOnAnyone(PROVISIONING);
@@ -205,11 +205,13 @@ public class GroupPermissionDaoTest {
 
   @Test
   public void selectByGroupIds_on_global_permissions() {
+    OrganizationDto organizationDto = db.organizations().insert();
+
     GroupDto group1 = addGroupOnDefaultOrganization("Group-1");
     db.users().insertPermissionOnGroup(group1, SCAN_EXECUTION);
 
     GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
-    ComponentDto project = db.components().insertComponent(newProjectDto());
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto));
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
     GroupDto group3 = addGroupOnDefaultOrganization("Group-3");
@@ -246,7 +248,7 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group1, PROVISIONING);
 
     GroupDto group2 = addGroupOnDefaultOrganization("Group-2");
-    ComponentDto project = db.components().insertComponent(newProjectDto());
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
     db.users().insertProjectPermissionOnGroup(group2, USER, project);
 
     GroupDto group3 = addGroupOnDefaultOrganization("Group-3");

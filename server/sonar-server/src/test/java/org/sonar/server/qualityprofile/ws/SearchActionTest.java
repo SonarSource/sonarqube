@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -106,14 +107,15 @@ public class SearchActionTest {
       "sonar-way-xoo1-12345", 1L,
       "my-sonar-way-xoo2-34567", 2L));
 
+    OrganizationDto organizationDto = db.organizations().insert();
     qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2.getKey()).setName("Sonar way"),
       QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456"),
       QualityProfileDto.createFor("sonar-way-other-666").setLanguage("other").setName("Sonar way").setDefault(true));
     new ComponentDao().insert(dbSession,
-      newProjectDto("project-uuid1"),
-      newProjectDto("project-uuid2"));
+      newProjectDto(organizationDto, "project-uuid1"),
+      newProjectDto(organizationDto, "project-uuid2"));
     qualityProfileDao.insertProjectProfileAssociation("project-uuid1", "sonar-way-xoo2-23456", dbSession);
     qualityProfileDao.insertProjectProfileAssociation("project-uuid2", "sonar-way-xoo2-23456", dbSession);
     db.commit();
@@ -167,7 +169,7 @@ public class SearchActionTest {
       .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
       .setLastUsed(time)
       .setName("Another way");
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     qualityProfileDb.insertProjectWithQualityProfileAssociations(project, qualityProfileOnXoo1, qualityProfileOnXoo2);
 
@@ -224,7 +226,7 @@ public class SearchActionTest {
       .setRulesUpdatedAtAsDate(new Date())
       .setName("Another way");
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.key())

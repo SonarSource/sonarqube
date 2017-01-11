@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -37,18 +38,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueDaoTest {
 
-  public static final RuleDto RULE = RuleTesting.newXooX1();
-  public static final ComponentDto PROJECT = ComponentTesting.newProjectDto();
-  public static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT, null);
-  public static final String ISSUE_KEY1 = "I1";
-  public static final String ISSUE_KEY2 = "I2";
+  private static final String PROJECT_UUID = "prj_uuid";
+  private static final String PROJECT_KEY = "prj_key";
+  private static final String FILE_UUID = "file_uuid";
+  private static final String FILE_KEY = "file_key";
+  private static final RuleDto RULE = RuleTesting.newXooX1();
+  private static final String ISSUE_KEY1 = "I1";
+  private static final String ISSUE_KEY2 = "I2";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  IssueDao underTest = dbTester.getDbClient().issueDao();
+
+  private IssueDao underTest = dbTester.getDbClient().issueDao();
 
   @Test
   public void selectByKeyOrFail() {
@@ -57,8 +60,8 @@ public class IssueDaoTest {
     IssueDto issue = underTest.selectOrFailByKey(dbTester.getSession(), ISSUE_KEY1);
     assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
     assertThat(issue.getId()).isGreaterThan(0L);
-    assertThat(issue.getComponentUuid()).isEqualTo(FILE.uuid());
-    assertThat(issue.getProjectUuid()).isEqualTo(PROJECT.uuid());
+    assertThat(issue.getComponentUuid()).isEqualTo(FILE_UUID);
+    assertThat(issue.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(issue.getRuleId()).isEqualTo(RULE.getId());
     assertThat(issue.getLanguage()).isEqualTo(RULE.getLanguage());
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -81,8 +84,8 @@ public class IssueDaoTest {
     assertThat(issue.getUpdatedAt()).isEqualTo(1_440_000_000_000L);
     assertThat(issue.getRuleRepo()).isEqualTo(RULE.getRepositoryKey());
     assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
-    assertThat(issue.getComponentKey()).isEqualTo(FILE.key());
-    assertThat(issue.getProjectKey()).isEqualTo(PROJECT.key());
+    assertThat(issue.getComponentKey()).isEqualTo(FILE_KEY);
+    assertThat(issue.getProjectKey()).isEqualTo(PROJECT_KEY);
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
   }
@@ -147,16 +150,18 @@ public class IssueDaoTest {
 
   private void prepareTables() {
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RULE);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), PROJECT, FILE);
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto projectDto = dbTester.components().insertProject(organizationDto, (t) -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    dbTester.components().insertComponent(ComponentTesting.newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
     underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleId(RULE.getId())
-      .setComponentUuid(FILE.uuid())
-      .setProjectUuid(PROJECT.uuid()));
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID));
     underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY2)
       .setRuleId(RULE.getId())
-      .setComponentUuid(FILE.uuid())
-      .setProjectUuid(PROJECT.uuid()));
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID));
     dbTester.getSession().commit();
   }
 }

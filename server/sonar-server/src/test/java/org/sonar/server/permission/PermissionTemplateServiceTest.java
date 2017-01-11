@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -46,11 +47,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class PermissionTemplateServiceTest {
 
-  private static final ComponentDto PROJECT = newProjectDto().setId(123L).setUuid("THE_PROJECT_UUID");
+  private static final OrganizationDto ORGANIZATION = newOrganizationDto().setUuid("org1");
+  private static final ComponentDto PROJECT = newProjectDto(ORGANIZATION).setId(123L).setUuid("THE_PROJECT_UUID");
   private static final long NOW = 123456789L;
 
   @Rule

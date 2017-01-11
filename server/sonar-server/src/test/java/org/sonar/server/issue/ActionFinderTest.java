@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,7 @@ public class ActionFinderTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().login("arthur");
 
-  private ComponentDto project = newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+  private ComponentDto project = newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setKey(PROJECT_KEY);
   private IssueDto issue = newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY);
 
   private ActionFinder underTest = new ActionFinder(userSession);

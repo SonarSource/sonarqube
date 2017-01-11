@@ -95,16 +95,8 @@ public class ComponentTesting {
     return newProjectDto(organizationDto.getUuid(), Uuids.createFast());
   }
 
-  public static ComponentDto newProjectDto() {
-    return newProjectDto(Uuids.createFast(), Uuids.createFast());
-  }
-
   public static ComponentDto newProjectDto(OrganizationDto organizationDto, String uuid) {
     return newProjectDto(organizationDto.getUuid(), uuid);
-  }
-
-  public static ComponentDto newProjectDto(String uuid) {
-    return newProjectDto(Uuids.createFast(), uuid);
   }
 
   private static ComponentDto newProjectDto(String organizationUuid, String uuid) {
@@ -126,16 +118,8 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
-  public static ComponentDto newDeveloper(String name) {
-    return newDeveloper(Uuids.createFast(), name, Uuids.createFast());
-  }
-
   public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name) {
     return newDeveloper(organizationDto.getUuid(), name, Uuids.createFast());
-  }
-
-  public static ComponentDto newDeveloper(String name, String uuid) {
-    return newDeveloper(Uuids.createFast(), name, uuid);
   }
 
   public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name, String uuid) {
@@ -161,16 +145,8 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
-  public static ComponentDto newView() {
-    return newView(Uuids.createFast());
-  }
-
   public static ComponentDto newView(OrganizationDto organizationDto) {
     return newView(organizationDto.getUuid(), Uuids.createFast());
-  }
-
-  public static ComponentDto newView(String uuid) {
-    return newView(Uuids.createFast(), uuid);
   }
 
   public static ComponentDto newView(OrganizationDto organizationDto, String uuid) {

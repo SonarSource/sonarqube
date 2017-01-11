@@ -32,6 +32,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -113,7 +114,7 @@ public class TransitionActionTest {
 
   private IssueDto newIssue() {
     RuleDto rule = newRuleDto().setId(10);
-    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
     ComponentDto file = (newFileDto(project));
     return newDto(rule, file, project);
   }

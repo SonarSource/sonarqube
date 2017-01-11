@@ -107,7 +107,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
@@ -131,7 +131,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_as_project_admin() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "P1"));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
@@ -145,7 +145,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_version_event() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
@@ -159,7 +159,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_other_event_with_ws_response() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setName("Project Import");
@@ -178,7 +178,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_without_description() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(OTHER)
@@ -193,7 +193,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_2_version_events_on_same_project() {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     SnapshotDto firstAnalysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder firstRequest = CreateEventRequest.builder()
       .setAnalysis(firstAnalysis.getUuid())
@@ -215,7 +215,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_not_blank_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder().setAnalysis(analysis.getUuid()).setName("    ");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -239,7 +239,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_2_version_events_on_the_same_analysis() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
@@ -254,7 +254,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_2_other_events_on_same_analysis_with_same_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(OTHER)
@@ -271,7 +271,7 @@ public class CreateEventActionTest {
   public void fail_if_category_other_than_authorized() {
     expectedException.expect(IllegalArgumentException.class);
 
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()));
     ws.newRequest()
       .setParam(PARAM_ANALYSIS, analysis.getUuid())
       .setParam(PARAM_NAME, "Project Import")
@@ -284,7 +284,7 @@ public class CreateEventActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An event must be created on a project");
 
-    SnapshotDto analysis = db.components().insertViewAndSnapshot(newView());
+    SnapshotDto analysis = db.components().insertViewAndSnapshot(newView(db.organizations().insert()));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)
@@ -310,7 +310,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_insufficient_permissions() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)

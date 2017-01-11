@@ -41,7 +41,6 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -54,8 +53,8 @@ public class UserPermissionDaoTest {
   private UserDto user1 = newUserDto().setLogin("login1").setName("Marius").setActive(true);
   private UserDto user2 = newUserDto().setLogin("login2").setName("Marie").setActive(true);
   private UserDto user3 = newUserDto().setLogin("login3").setName("Bernard").setActive(true);
-  private ComponentDto project1 = newProjectDto();
-  private ComponentDto project2 = newProjectDto();
+  private ComponentDto project1;
+  private ComponentDto project2;
   private DbSession dbSession = dbTester.getSession();
 
   @Before
@@ -64,8 +63,9 @@ public class UserPermissionDaoTest {
     dbClient.userDao().insert(dbSession, user1);
     dbClient.userDao().insert(dbSession, user2);
     dbClient.userDao().insert(dbSession, user3);
-    dbClient.componentDao().insert(dbSession, project1);
-    dbClient.componentDao().insert(dbSession, project2);
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    project1 = dbTester.components().insertProject(organizationDto);
+    project2 = dbTester.components().insertProject(organizationDto);
     dbTester.commit();
   }
 

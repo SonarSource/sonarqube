@@ -77,7 +77,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_in_db_when_admin_on_project() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("project-uuid");
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
     dbClient.componentDao().insert(dbSession, project);
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
     long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("project-uuid"));
@@ -98,7 +98,7 @@ public class DeleteActionTest {
   public void fail_when_insufficient_permissions() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSessionRule.login("login");
-    ComponentDto project = ComponentTesting.newProjectDto("any-uuid");
+    ComponentDto project = ComponentTesting.newProjectDto(db.organizations().insert(), "any-uuid");
     dbClient.componentDao().insert(dbSession, project);
     long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("any-uuid"));
 

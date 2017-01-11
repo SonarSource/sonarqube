@@ -64,7 +64,7 @@ public class ComponentActionTest {
 
   @Test
   public void empty_queue_and_empty_activity() {
-    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
+    componentDbTester.insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
     TestResponse wsResponse = ws.newRequest()
@@ -79,7 +79,7 @@ public class ComponentActionTest {
 
   @Test
   public void project_tasks() {
-    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
+    componentDbTester.insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -118,7 +118,7 @@ public class ComponentActionTest {
 
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
-    componentDbTester.insertComponent(newProjectDto("PROJECT_1"));
+    componentDbTester.insertComponent(newProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);

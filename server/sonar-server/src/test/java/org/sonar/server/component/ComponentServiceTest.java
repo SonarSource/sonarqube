@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceIndexDao;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.component.es.ProjectMeasuresIndexer;
 import org.sonar.server.es.EsTester;
@@ -270,7 +271,7 @@ public class ComponentServiceTest {
     expectedException.expectMessage("Could not create Project, key already exists: struts");
 
     userSession.login("john").setGlobalPermissions(PROVISIONING);
-    ComponentDto project = ComponentTesting.newProjectDto().setKey("struts");
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert()).setKey("struts");
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -304,10 +305,11 @@ public class ComponentServiceTest {
       return null;
     }).when(componentDao).insert(eq(session), any(ComponentDto.class));
 
+    OrganizationDto organizationDto = dbTester.organizations().insert();
     when(componentDao.selectComponentsHavingSameKeyOrderedById(session, projectKey)).thenReturn(newArrayList(
-      ComponentTesting.newProjectDto().setId(1L).setKey(projectKey),
-      ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
-      ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)));
+      ComponentTesting.newProjectDto(organizationDto).setId(1L).setKey(projectKey),
+      ComponentTesting.newProjectDto(organizationDto).setId(2L).setKey(projectKey),
+      ComponentTesting.newProjectDto(organizationDto).setId(3L).setKey(projectKey)));
 
     underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
     underTest.create(
@@ -361,7 +363,7 @@ public class ComponentServiceTest {
 
   @Test
   public void bulk_update() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto().setKey("my_project"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(dbTester.organizations().insert()).setKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
@@ -386,7 +388,7 @@ public class ComponentServiceTest {
   }
 
   private ComponentDto insertSampleProject() {
-    return componentDb.insertComponent(newProjectDto().setKey("sample:root"));
+    return componentDb.insertComponent(newProjectDto(dbTester.organizations().insert()).setKey("sample:root"));
   }
 
   private void assertProjectIsInIndex(String uuid) {

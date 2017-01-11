@@ -71,7 +71,8 @@ public class ServerUserSessionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = db.components().insertComponent(ComponentTesting.newProjectDto(PROJECT_UUID));
+    OrganizationDto organizationDto = db.organizations().insert();
+    project = db.components().insertComponent(ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID));
     db.components().insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     db.users().insertUser(userDto);
   }
@@ -219,7 +220,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentPermission_throws_FE_when_user_has_not_permission_for_specified_key_in_db() {
-    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto(db.organizations().insert()));
     ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null));
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
@@ -241,7 +242,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentPermission_fails_with_FE_when_project_of_specified_uuid_can_not_be_found() {
-    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto(db.organizations().insert()));
     ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null)
       // Simulate file is linked to an invalid project
       .setProjectUuid("INVALID"));

@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -87,8 +88,9 @@ public class QgateProjectFinderTest {
 
   @Test
   public void return_all_projects() throws Exception {
-    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
-    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
+    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
     associateProjectToQualitGate(associatedProject.getId());
 
     Association result = underTest.find(
@@ -105,8 +107,9 @@ public class QgateProjectFinderTest {
 
   @Test
   public void return_only_associated_project() throws Exception {
-    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
-    insertProjectAuthorizedToAnyone(newProjectDto());
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
+    insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
     associateProjectToQualitGate(associatedProject.getId());
 
     Association result = underTest.find(
@@ -122,8 +125,9 @@ public class QgateProjectFinderTest {
 
   @Test
   public void return_only_unassociated_project() throws Exception {
-    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
-    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
+    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto));
     associateProjectToQualitGate(associatedProject.getId());
 
     Association result = underTest.find(
@@ -140,8 +144,9 @@ public class QgateProjectFinderTest {
   @Test
   public void return_only_authorized_projects() throws Exception {
     UserDto user = dbTester.users().insertUser("a_login");
-    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto());
-    componentDbTester.insertComponent(newProjectDto());
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto(organizationDto));
+    componentDbTester.insertComponent(newProjectDto(organizationDto));
 
     // User can only see project 1
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
@@ -157,9 +162,10 @@ public class QgateProjectFinderTest {
 
   @Test
   public void test_paging() throws Exception {
-    ComponentDto project1 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 1"));
-    ComponentDto project2 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 2"));
-    ComponentDto project3 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 3"));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project1 = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto).setName("Project 1"));
+    ComponentDto project2 = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto).setName("Project 2"));
+    ComponentDto project3 = insertProjectAuthorizedToAnyone(newProjectDto(organizationDto).setName("Project 3"));
     associateProjectToQualitGate(project1.getId());
 
     // Return partial result on first page

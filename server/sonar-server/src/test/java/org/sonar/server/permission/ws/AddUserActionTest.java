@@ -101,7 +101,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void add_permission_to_view() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setKey("view-key"));
 
     loginAsAdminOnDefaultOrganization();
     newRequest()
@@ -141,7 +141,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
-    db.components().insertComponent(newFileDto(newProjectDto("project-uuid"), null, "file-uuid"));
+    db.components().insertComponent(newFileDto(newProjectDto(db.organizations().insert(), "project-uuid"), null, "file-uuid"));
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);

@@ -43,14 +43,15 @@ public class EventDaoTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
 
-  EventDao underTest = dbTester.getDbClient().eventDao();
+  private EventDao underTest = dbTester.getDbClient().eventDao();
 
   @Test
   public void select_by_uuid() {
-    SnapshotDto analysis = newAnalysis(newProjectDto());
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto(dbTester.organizations().insert()));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A3"));
@@ -86,7 +87,7 @@ public class EventDaoTest {
 
   @Test
   public void select_by_analysis_uuid() {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization());
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbTester.commit();
@@ -155,7 +156,7 @@ public class EventDaoTest {
 
   @Test
   public void update_name_and_description() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto(dbTester.organizations().insert()));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     underTest.update(dbSession, "E1", "New Name", "New Description");
@@ -177,7 +178,7 @@ public class EventDaoTest {
 
   @Test
   public void delete_by_uuid() {
-    dbTester.events().insertEvent(newEvent(newAnalysis(newProjectDto())).setUuid("E1"));
+    dbTester.events().insertEvent(newEvent(newAnalysis(newProjectDto(dbTester.getDefaultOrganization()))).setUuid("E1"));
 
     underTest.delete(dbTester.getSession(), "E1");
     dbTester.commit();

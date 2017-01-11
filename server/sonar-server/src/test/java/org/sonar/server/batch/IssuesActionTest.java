@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.server.component.ComponentFinder;
@@ -93,7 +94,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_minimal_fields() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath(null);
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
@@ -131,7 +132,8 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_project() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
@@ -169,7 +171,7 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
@@ -207,7 +209,7 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_file() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
@@ -245,7 +247,8 @@ public class IssuesActionTest {
 
   @Test
   public void issues_attached_on_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     db.getDbClient().componentDao().insert(db.getSession(), project, module);
     db.getSession().commit();
@@ -282,7 +285,7 @@ public class IssuesActionTest {
 
   @Test
   public void project_issues_attached_file_on_removed_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     // File and module are removed
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false);
     ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);

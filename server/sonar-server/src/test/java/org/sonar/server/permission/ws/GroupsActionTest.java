@@ -152,15 +152,16 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_with_project_permissions() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
+    OrganizationDto organizationDto = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    GroupDto group = db.users().insertGroup(organizationDto, "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto anotherProject = db.components().insertComponent(newProjectDto());
-    GroupDto anotherGroup = db.users().insertGroup(db.getDefaultOrganization(), "another-project-group-name");
+    ComponentDto anotherProject = db.components().insertComponent(newProjectDto(organizationDto));
+    GroupDto anotherGroup = db.users().insertGroup(organizationDto, "another-project-group-name");
     db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
 
-    GroupDto groupWithoutPermission = db.users().insertGroup(db.getDefaultOrganization(), "group-without-permission");
+    GroupDto groupWithoutPermission = db.users().insertGroup(organizationDto, "group-without-permission");
 
     userSession.login().addProjectUuidPermissions(ADMIN, "project-uuid");
     String result = newRequest()
@@ -176,12 +177,13 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_also_groups_without_permission_when_search_query() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group-with-permission");
+    OrganizationDto organizationDto = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    GroupDto groupWithoutPermission = db.users().insertGroup(db.getDefaultOrganization(), "group-without-permission");
-    GroupDto anotherGroup = db.users().insertGroup(db.getDefaultOrganization(), "another-group");
+    GroupDto groupWithoutPermission = db.users().insertGroup(organizationDto, "group-without-permission");
+    GroupDto anotherGroup = db.users().insertGroup(organizationDto, "another-group");
 
     loginAsAdminOnDefaultOrganization();
     String result = newRequest()
@@ -198,7 +200,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_only_groups_with_permission_when_no_search_query() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -217,8 +219,9 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_anyone_group_when_search_query_and_no_param_permission() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto("project-uuid"));
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group-with-permission");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
     loginAsAdminOnDefaultOrganization();
@@ -233,7 +236,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_on_views() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setKey("view-key"));
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 
@@ -272,7 +275,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
-    db.components().insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
 
     expectedException.expect(BadRequestException.class);
 

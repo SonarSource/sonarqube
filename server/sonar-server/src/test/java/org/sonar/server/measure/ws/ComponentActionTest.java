@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -101,7 +102,7 @@ public class ComponentActionTest {
 
   @Test
   public void provided_project() {
-    componentDb.insertComponent(newProjectDto(PROJECT_UUID));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
     userSession.anonymous().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
     insertNclocMetric();
 
@@ -114,7 +115,7 @@ public class ComponentActionTest {
 
   @Test
   public void without_additional_fields() {
-    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
     insertNclocMetric();
 
     String response = ws.newRequest()
@@ -129,9 +130,9 @@ public class ComponentActionTest {
 
   @Test
   public void reference_uuid_in_the_response() {
-    ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
     componentDb.insertProjectAndSnapshot(project);
-    ComponentDto view = newView("view-uuid");
+    ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
     componentDb.insertComponent(newProjectCopy("project-uuid-copy", project, view));
     insertNclocMetric();
@@ -145,9 +146,10 @@ public class ComponentActionTest {
 
   @Test
   public void developer_measure_by_developer_uuid() {
-    ComponentDto developer = newDeveloper("developer-name");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto developer = newDeveloper(organizationDto, "developer-name");
     componentDb.insertDeveloperAndSnapshot(developer);
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(organizationDto, "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto file = newFileDto(project, null, "file-uuid");
     componentDb.insertComponent(file);
@@ -168,9 +170,10 @@ public class ComponentActionTest {
 
   @Test
   public void developer_measure_by_developer_key() {
-    ComponentDto developer = newDeveloper("developer-name");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto developer = newDeveloper(organizationDto, "developer-name");
     componentDb.insertDeveloperAndSnapshot(developer);
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(organizationDto, PROJECT_UUID);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto file = newFileDto(project, null, "file-uuid");
     componentDb.insertComponent(file);
@@ -194,7 +197,7 @@ public class ComponentActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'unknown-developer-id' not found");
 
-    componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
     insertNclocMetric();
 
     call(ws.newRequest()
@@ -206,7 +209,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_a_metric_is_not_found() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
     insertComplexityMetric();
 
@@ -218,7 +221,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_empty_metric_keys_parameter() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("At least one metric key must be provided");
@@ -229,7 +232,7 @@ public class ComponentActionTest {
   @Test
   public void fail_when_not_enough_permission() {
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
 
     expectedException.expect(ForbiddenException.class);
@@ -310,7 +313,7 @@ public class ComponentActionTest {
   }
 
   private void insertJsonExampleData() {
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project)
       .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode(1, "previous_version")

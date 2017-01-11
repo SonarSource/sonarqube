@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -27,7 +28,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ComponentDbTester {
@@ -62,25 +65,71 @@ public class ComponentDbTester {
   }
 
   public ComponentDto insertComponent(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
-    db.commit();
-    return component;
+    return insertComponentImpl(component, noExtraConfiguration());
   }
 
   public ComponentDto insertProject() {
-    ComponentDto project = newProjectDto();
-    dbClient.componentDao().insert(dbSession, project);
-    db.commit();
+    return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), noExtraConfiguration());
+  }
 
-    return project;
+  public ComponentDto insertProject(Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newProjectDto(db.getDefaultOrganization()), dtoPopulator);
+  }
+
+  public ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newProjectDto(organizationDto), dtoPopulator);
   }
 
   public ComponentDto insertProject(OrganizationDto organizationDto) {
-    ComponentDto project = newProjectDto().setOrganizationUuid(organizationDto.getUuid());
-    dbClient.componentDao().insert(dbSession, project);
+    return insertComponentImpl(newProjectDto(organizationDto), noExtraConfiguration());
+  }
+
+  public ComponentDto insertProject(OrganizationDto organizationDto, String uuid) {
+    return insertComponentImpl(newProjectDto(organizationDto, uuid), noExtraConfiguration());
+  }
+
+  public ComponentDto insertView() {
+    return insertComponentImpl(newView(db.getDefaultOrganization()), noExtraConfiguration());
+  }
+
+  public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newView(db.getDefaultOrganization()), dtoPopulator);
+  }
+
+  public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newView(organizationDto), dtoPopulator);
+  }
+
+  public ComponentDto insertView(String uuid) {
+    return insertComponentImpl(newView(db.getDefaultOrganization(), uuid), noExtraConfiguration());
+  }
+
+  public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
+    return insertComponentImpl(newView(organizationDto, uuid), noExtraConfiguration());
+  }
+
+  public ComponentDto insertDeveloper(String name, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), noExtraConfiguration());
+  }
+
+  public ComponentDto insertDeveloper(String name) {
+    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), noExtraConfiguration());
+  }
+
+  public ComponentDto insertDeveloper(String name, String uuid) {
+    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name, uuid), noExtraConfiguration());
+  }
+
+  private static <T> Consumer<T> noExtraConfiguration() {
+    return (t) -> {};
+  }
+
+  private ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto> dtoPopulator) {
+    dtoPopulator.accept(component);
+    dbClient.componentDao().insert(dbSession, component);
     db.commit();
 
-    return project;
+    return component;
   }
 
   public void insertComponents(ComponentDto... components) {

@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
@@ -70,7 +71,8 @@ public class GetByProjectActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = componentDb.insertComponent(newProjectDto(organizationDto));
     QualityGateDto qualityGate = insertQualityGate("My team QG");
     associateProjectToQualityGate(project.getId(), qualityGate.getId());
 
@@ -83,7 +85,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void empty_response() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     insertQualityGate("Another QG");
 
     String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
@@ -93,7 +95,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void default_quality_gate() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
@@ -107,7 +109,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void project_quality_gate_over_default() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     QualityGateDto defaultDbQualityGate = insertQualityGate("Sonar way");
     QualityGateDto dbQualityGate = insertQualityGate("My team QG");
     setDefaultQualityGate(defaultDbQualityGate.getId());
@@ -122,7 +124,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void get_by_project_key() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
     QualityGateDto dbQualityGate = insertQualityGate("My team QG");
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
 
@@ -133,7 +135,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void get_with_project_admin_permission() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
     userSession.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
@@ -145,7 +147,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void get_with_project_browse_permission() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
@@ -159,7 +161,7 @@ public class GetByProjectActionTest {
   public void fail_when_insufficient_permission() {
     expectedException.expect(ForbiddenException.class);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     userSession.anonymous().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());

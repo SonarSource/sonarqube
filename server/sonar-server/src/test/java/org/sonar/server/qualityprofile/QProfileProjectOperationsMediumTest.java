@@ -30,6 +30,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.UserPermissionDao;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -54,6 +56,7 @@ public class QProfileProjectOperationsMediumTest {
   DbSession dbSession;
   QProfileFactory factory;
   QProfileProjectOperations projectOperations;
+  OrganizationDto organization;
   ComponentDto project;
   QualityProfileDto profile;
   static final String PROJECT_KEY = "SonarQube";
@@ -70,7 +73,9 @@ public class QProfileProjectOperationsMediumTest {
     factory = tester.get(QProfileFactory.class);
     projectOperations = tester.get(QProfileProjectOperations.class);
 
-    project = ComponentTesting.newProjectDto(PROJECT_UUID)
+    organization = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(dbSession, organization);
+    project = ComponentTesting.newProjectDto(organization, PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setName("SonarQube")
       .setLongName("SonarQube");
@@ -121,11 +126,11 @@ public class QProfileProjectOperationsMediumTest {
 
   @Test
   public void remove_all_projects() {
-    ComponentDto project1 = ComponentTesting.newProjectDto("BCDE")
+    ComponentDto project1 = ComponentTesting.newProjectDto(organization, "BCDE")
       .setKey("project1")
       .setName("project1")
       .setLongName("project1");
-    ComponentDto project2 = ComponentTesting.newProjectDto("CDEF")
+    ComponentDto project2 = ComponentTesting.newProjectDto(organization, "CDEF")
       .setKey("project2")
       .setName("project2")
       .setLongName("project2");

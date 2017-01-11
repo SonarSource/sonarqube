@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
@@ -64,7 +65,7 @@ public class ShowActionTest {
   @Mock
   ComponentDao componentDao;
 
-  ComponentDto project = ComponentTesting.newProjectDto();
+  ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
   ComponentDto file = ComponentTesting.newFileDto(project, null);
 
   @Before

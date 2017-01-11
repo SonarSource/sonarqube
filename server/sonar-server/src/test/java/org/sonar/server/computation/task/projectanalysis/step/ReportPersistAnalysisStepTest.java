@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -98,7 +99,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
-    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto projectDto = ComponentTesting.newProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
@@ -139,7 +141,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_periods() {
-    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto projectDto = ComponentTesting.newProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
@@ -162,7 +165,8 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   public void only_persist_snapshots_with_periods_on_project_and_module() {
     periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
 
-    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto projectDto = ComponentTesting.newProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
@@ -197,7 +201,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void set_no_period_on_snapshots_when_no_period() {
-    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    ComponentDto projectDto = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);

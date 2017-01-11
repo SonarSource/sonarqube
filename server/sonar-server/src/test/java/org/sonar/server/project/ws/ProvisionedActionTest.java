@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -68,8 +69,9 @@ public class ProvisionedActionTest {
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
-    componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto analyzedProject = ComponentTesting.newProjectDto(organizationDto, "analyzed-uuid-1");
+    componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"), analyzedProject);
     SnapshotDto snapshot = SnapshotTesting.newAnalysis(analyzedProject);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
@@ -83,8 +85,9 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_with_correct_pagination() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
-      componentDao.insert(db.getSession(), newProvisionedProject(String.valueOf(i)));
+      componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, String.valueOf(i)));
     }
     db.getSession().commit();
 
@@ -100,7 +103,7 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_with_desired_fields() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    componentDao.insert(db.getSession(), newProvisionedProject("1"));
+    componentDao.insert(db.getSession(), newProvisionedProject(db.organizations().insert(), "1"));
     db.getSession().commit();
 
     String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
@@ -115,7 +118,8 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_with_query() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"));
     db.getSession().commit();
 
     String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
@@ -133,11 +137,12 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newProjectDto(organizationDto, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
@@ -153,14 +158,14 @@ public class ProvisionedActionTest {
   public void fail_when_not_enough_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    componentDao.insert(db.getSession(), newProvisionedProject("1"));
+    componentDao.insert(db.getSession(), newProvisionedProject(db.organizations().insert(), "1"));
 
     ws.newGetRequest("api/projects", "provisioned").execute();
   }
 
-  private static ComponentDto newProvisionedProject(String uuid) {
+  private static ComponentDto newProvisionedProject(OrganizationDto organizationDto, String uuid) {
     return ComponentTesting
-      .newProjectDto("provisioned-uuid-" + uuid)
+      .newProjectDto(organizationDto, "provisioned-uuid-" + uuid)
       .setName("provisioned-name-" + uuid)
       .setKey("provisioned-key-" + uuid);
   }

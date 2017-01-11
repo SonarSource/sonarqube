@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
@@ -76,8 +76,8 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() throws IOException {
     String uuid = "COMPONENT_UUID";
-    db.getDbClient().componentDao().insert(db.getSession(),
-      ComponentTesting.newProjectDto(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    db.components().insertProject(organizationDto, (t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");

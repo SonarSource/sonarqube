@@ -172,7 +172,7 @@ public class SearchProjectsActionTest {
     ComponentDto project = newProjectDto(organizationDto).setName("SonarQube");
     ComponentDto directory = newDirectory(project, "path");
     insertProjectInDbAndEs(project);
-    componentDb.insertComponents(newModuleDto(project), newView(), newDeveloper("Sonar Developer"), directory, newFileDto(project, directory));
+    componentDb.insertComponents(newModuleDto(project), newView(organizationDto), newDeveloper(organizationDto, "Sonar Developer"), directory, newFileDto(project, directory));
 
     SearchProjectsWsResponse result = call(request);
 
@@ -199,7 +199,7 @@ public class SearchProjectsActionTest {
   public void filter_projects_on_favorites() {
     long javaId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
     long markDownId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertProjectInDbAndEs(newProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(javaId).setUserId(Long.valueOf(userSession.getUserId())));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(markDownId).setUserId(Long.valueOf(userSession.getUserId())));
     dbSession.commit();

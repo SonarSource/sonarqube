@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +49,8 @@ public class DisplayLogOnDeprecatedProjectsTest {
 
   @Test
   public void display_log_on_deprecated_project() throws Exception {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto()
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
       .setKey(DEPRECATED_PROJECT_KEY)
       .setDeprecatedKey(null));
     dbSession.commit();
@@ -63,7 +65,8 @@ public class DisplayLogOnDeprecatedProjectsTest {
 
   @Test
   public void not_display_log_when_task_already_executed() throws Exception {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto()
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
       .setKey(DEPRECATED_PROJECT_KEY)
       .setDeprecatedKey(null));
     dbSession.commit();
@@ -78,7 +81,8 @@ public class DisplayLogOnDeprecatedProjectsTest {
 
   @Test
   public void nothing_do_when_no_deprecated_project() throws Exception {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto()
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
       .setKey(PROJECT_KEY)
       .setDeprecatedKey(PROJECT_KEY));
     dbSession.commit();

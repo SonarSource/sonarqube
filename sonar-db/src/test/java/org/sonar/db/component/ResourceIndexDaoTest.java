@@ -146,7 +146,7 @@ public class ResourceIndexDaoTest {
   @Test
   public void restrict_indexed_combinations_to_400_characters() {
     String longName = repeat("a", 2_000);
-    ComponentDto project = ComponentTesting.newProjectDto(ROOT_UUID)
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), ROOT_UUID)
       .setProjectUuid(ROOT_UUID)
       .setName(longName);
     DbSession session = dbTester.getSession();

@@ -129,7 +129,7 @@ public class UpdateKeyActionTest {
   }
 
   private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto());
+    return componentDb.insertComponent(newProjectDto(db.organizations().insert()));
   }
 
   private String callByUuid(@Nullable String uuid, @Nullable String newKey) {

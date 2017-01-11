@@ -51,8 +51,8 @@ public class ViewsComputeMeasureVariationsStepTest {
   private static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
   private static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
   private static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
-  private static final ComponentDto VIEW_DTO = ComponentTesting.newView();
-  private static final Component VIEW = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).build();
+  private static final String VIEW_UUID = "view uuid";
+  private static final Component VIEW = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -80,21 +80,22 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
+  private ComponentDto view;
+
   ComputeMeasureVariationsStep underTest;
 
   @Before
   public void setUp() {
-    dbClient.componentDao().insert(session, VIEW_DTO);
-    session.commit();
+    view = dbTester.components().insertView(dbTester.organizations().insert(), VIEW_UUID);
 
     underTest = new ComputeMeasureVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
 
   @Test
   public void do_nothing_when_no_raw_measure() {
-    SnapshotDto period1ViewSnapshot = newAnalysis(VIEW_DTO);
+    SnapshotDto period1ViewSnapshot = newAnalysis(view);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));
@@ -108,7 +109,7 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void do_nothing_when_no_period() {
-    Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).build();
+    Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).build();
     treeRootHolder.setRoot(view);
     periodsHolder.setPeriods();
 
@@ -120,12 +121,12 @@ public class ViewsComputeMeasureVariationsStepTest {
   @Test
   public void set_variation() {
     // View
-    SnapshotDto period1Snapshot = newAnalysis(VIEW_DTO);
+    SnapshotDto period1Snapshot = newAnalysis(view);
     dbClient.snapshotDao().insert(session, period1Snapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1Snapshot.getUuid(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1Snapshot.getUuid(), 60d));
 
     // SubView
-    ComponentDto subviewDto = ComponentTesting.newSubView(VIEW_DTO, "dir", "key");
+    ComponentDto subviewDto = ComponentTesting.newSubView(view, "dir", "key");
     dbClient.componentDao().insert(session, subviewDto);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), subviewDto.uuid(), period1Snapshot.getUuid(), 10d));
     session.commit();
@@ -133,7 +134,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     periodsHolder.setPeriods(newPeriod(1, period1Snapshot));
 
     Component subview = ViewsComponent.builder(Component.Type.SUBVIEW, 2).setUuid(subviewDto.uuid()).build();
-    Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_DTO.uuid()).addChildren(subview).build();
+    Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).addChildren(subview).build();
     treeRootHolder.setRoot(view);
 
     addRawMeasure(view, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
@@ -147,19 +148,19 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variations_on_all_periods() {
-    SnapshotDto period1ViewSnapshot = newAnalysis(VIEW_DTO).setLast(false);
-    SnapshotDto period2ViewSnapshot = newAnalysis(VIEW_DTO).setLast(false);
-    SnapshotDto period3ViewSnapshot = newAnalysis(VIEW_DTO).setLast(false);
-    SnapshotDto period4ViewSnapshot = newAnalysis(VIEW_DTO).setLast(false);
-    SnapshotDto period5ViewSnapshot = newAnalysis(VIEW_DTO).setLast(false);
+    SnapshotDto period1ViewSnapshot = newAnalysis(view).setLast(false);
+    SnapshotDto period2ViewSnapshot = newAnalysis(view).setLast(false);
+    SnapshotDto period3ViewSnapshot = newAnalysis(view).setLast(false);
+    SnapshotDto period4ViewSnapshot = newAnalysis(view).setLast(false);
+    SnapshotDto period5ViewSnapshot = newAnalysis(view).setLast(false);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot, period2ViewSnapshot, period3ViewSnapshot, period4ViewSnapshot, period5ViewSnapshot);
 
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 0d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period2ViewSnapshot.getUuid(), 20d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period3ViewSnapshot.getUuid(), 40d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period4ViewSnapshot.getUuid(), 80d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period5ViewSnapshot.getUuid(), 100d));
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 0d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period2ViewSnapshot.getUuid(), 20d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period3ViewSnapshot.getUuid(), 40d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period4ViewSnapshot.getUuid(), 80d),
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period5ViewSnapshot.getUuid(), 100d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot),
@@ -187,13 +188,13 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variation_on_all_numeric_metrics() {
-    SnapshotDto period1ViewSnapshot = newAnalysis(VIEW_DTO);
+    SnapshotDto period1ViewSnapshot = newAnalysis(view);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 60d),
-      newMeasureDto(DEBT_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 10d),
-      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 2d),
-      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_DTO.uuid(), period1ViewSnapshot.getUuid(), 1d)
+      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 60d),
+      newMeasureDto(DEBT_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 10d),
+      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 2d),
+      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 1d)
       );
     session.commit();
 

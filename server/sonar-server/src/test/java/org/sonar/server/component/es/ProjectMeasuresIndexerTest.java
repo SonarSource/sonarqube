@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 
@@ -67,9 +68,10 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void index_all_project() {
-    componentDbTester.insertProjectAndSnapshot(newProjectDto());
-    componentDbTester.insertProjectAndSnapshot(newProjectDto());
-    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
 
     underTest.index();
 
@@ -87,9 +89,10 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void index_one_project() throws Exception {
-    ComponentDto project = newProjectDto();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project);
-    componentDbTester.insertProjectAndSnapshot(newProjectDto());
+    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
 
     underTest.index(project.uuid());
 
@@ -104,7 +107,7 @@ public class ProjectMeasuresIndexerTest {
       .setKey("Old Key")
       .setName("Old Name")
       .setAnalysedAt(new Date(1_000_000L)));
-    ComponentDto project = newProjectDto(uuid).setKey("New key").setName("New name");
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name");
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
 
     underTest.index(project.uuid());
@@ -124,11 +127,12 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void delete_project() {
-    ComponentDto project1 = newProjectDto();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project1 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto();
+    ComponentDto project2 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project2);
-    ComponentDto project3 = newProjectDto();
+    ComponentDto project3 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project3);
     underTest.index();
     authorizationIndexerTester.indexProjectPermission(project1.uuid(), emptyList(), emptyList());
@@ -143,7 +147,7 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void does_nothing_when_deleting_unknown_project() throws Exception {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(dbTester.organizations().insert());
     componentDbTester.insertProjectAndSnapshot(project);
     underTest.index();
     authorizationIndexerTester.indexProjectPermission(project.uuid(), emptyList(), emptyList());

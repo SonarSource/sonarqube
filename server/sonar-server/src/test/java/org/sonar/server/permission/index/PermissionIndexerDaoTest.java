@@ -129,7 +129,7 @@ public class PermissionIndexerDaoTest {
   public void select_by_projects_with_high_number_of_projects() throws Exception {
     List<String> projects = new ArrayList<>();
     for (int i = 0; i < 350; i++) {
-      ComponentDto project = ComponentTesting.newProjectDto(Integer.toString(i));
+      ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), Integer.toString(i));
       dbClient.componentDao().insert(dbSession, project);
       projects.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()

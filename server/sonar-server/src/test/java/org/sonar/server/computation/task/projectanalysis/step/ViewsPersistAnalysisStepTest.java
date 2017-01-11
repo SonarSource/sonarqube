@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -95,9 +96,10 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_analysis() {
-    ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
     save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
-    save(newProjectDto("proj"));
+    save(newProjectDto(organizationDto, "proj"));
     dbTester.getSession().commit();
 
     Component projectView = ViewsComponent.builder(PROJECT_VIEW, "KEY_PROJECT_COPY").setUuid("UUID_PROJECT_COPY").build();
@@ -121,7 +123,8 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void persist_snapshots_with_periods() {
-    ComponentDto viewDto = save(newView("UUID_VIEW").setKey("KEY_VIEW"));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
     dbTester.getSession().commit();
 

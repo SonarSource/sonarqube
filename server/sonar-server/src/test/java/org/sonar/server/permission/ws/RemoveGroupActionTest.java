@@ -108,7 +108,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void remove_with_view_uuid() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView("view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setKey("view-key"));
     db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, view);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, view);
@@ -180,7 +180,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
-    ComponentDto file = db.components().insertComponent(newFileDto(newProjectDto(), null, "file-uuid"));
+    ComponentDto file = db.components().insertComponent(newFileDto(newProjectDto(db.organizations().insert()), null, "file-uuid"));
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);

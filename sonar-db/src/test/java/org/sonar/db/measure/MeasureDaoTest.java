@@ -33,6 +33,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -324,7 +325,8 @@ public class MeasureDaoTest {
 
   @Test
   public void selectProjectMeasuresOfDeveloper() {
-    ComponentDto dev = db.components().insertComponent(newDeveloper("DEV"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto dev = db.components().insertComponent(newDeveloper(organizationDto, "DEV"));
     insertAnalysis(LAST_ANALYSIS_UUID, dev.uuid(), true);
     insertAnalysis(PREVIOUS_ANALYSIS_UUID, dev.uuid(), false);
     List<Integer> allMetricIds = Arrays.asList(NCLOC_METRIC_ID, COMPLEXITY_METRIC_ID, COVERAGE_METRIC_ID);

@@ -35,6 +35,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -440,7 +442,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void add_project_with_key_and_uuid() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setId(1L);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(session, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
     QualityProfileDto profile = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(session, profile);
@@ -461,7 +465,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void change_project_association_with_key_and_uuid() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setId(1L);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(session, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2();
@@ -478,7 +484,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void add_project_with_name_language_and_key() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setId(1L);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(session, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
     QualityProfileDto profile = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(session, profile);
@@ -535,7 +543,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void remove_project_with_key_and_uuid() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setId(1L);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(session, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
     QualityProfileDto profile = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(session, profile);
@@ -551,7 +561,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void remove_project_with_name_language_and_key() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setId(1L);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    db.organizationDao().insert(session, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD").setId(1L);
     db.componentDao().insert(session, project);
     QualityProfileDto profile = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(session, profile);

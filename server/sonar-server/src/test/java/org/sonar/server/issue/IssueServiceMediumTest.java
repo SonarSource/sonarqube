@@ -37,6 +37,9 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.organization.OrganizationDao;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -263,7 +266,9 @@ public class IssueServiceMediumTest {
   }
 
   private ComponentDto newProject() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+    tester.get(OrganizationDao.class).insert(session, organization);
+    ComponentDto project = ComponentTesting.newProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
 
     userSessionRule.login("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);

@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteFinder;
@@ -73,10 +74,10 @@ public class SearchActionTest {
 
   @Test
   public void return_favorites() {
-    ComponentDto project = newProjectDto("P1").setKey("K1").setName("N1");
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "P1").setKey("K1").setName("N1");
     addComponent(project);
     addComponent(newFileDto(project).setKey("K11").setName("N11"));
-    addComponent(newProjectDto("P2").setKey("K2").setName("N2"));
+    addComponent(newProjectDto(db.getDefaultOrganization(), "P2").setKey("K2").setName("N2"));
 
     SearchResponse result = call();
 
@@ -101,8 +102,9 @@ public class SearchActionTest {
 
   @Test
   public void filter_authorized_components() {
-    addComponent(newProjectDto().setKey("K1"));
-    ComponentDto unauthorizedProject = db.components().insertComponent(newProjectDto());
+    OrganizationDto organizationDto = db.organizations().insert();
+    addComponent(newProjectDto(organizationDto).setKey("K1"));
+    ComponentDto unauthorizedProject = db.components().insertComponent(newProjectDto(organizationDto));
     db.favorites().add(unauthorizedProject, USER_ID);
 
     SearchResponse result = call();
@@ -114,8 +116,8 @@ public class SearchActionTest {
   @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
-      .forEach(i -> addComponent(newProjectDto().setKey("K" + i).setName("N" + i)));
-    ComponentDto unauthorizedProject = db.components().insertComponent(newProjectDto());
+      .forEach(i -> addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K" + i).setName("N" + i)));
+    ComponentDto unauthorizedProject = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
     db.favorites().add(unauthorizedProject, USER_ID);
 
     SearchResponse result = call(2, 3);
@@ -129,8 +131,9 @@ public class SearchActionTest {
 
   @Test
   public void return_only_users_favorite() {
-    addComponent(newProjectDto().setKey("K1"));
-    ComponentDto otherUserFavorite = newProjectDto().setKey("K42");
+    OrganizationDto organizationDto = db.organizations().insert();
+    addComponent(newProjectDto(organizationDto).setKey("K1"));
+    ComponentDto otherUserFavorite = newProjectDto(organizationDto).setKey("K42");
     db.components().insertComponent(otherUserFavorite);
     db.favorites().add(otherUserFavorite, 42L);
     dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto("O1", UserRole.USER, 42L, otherUserFavorite.getId()));
@@ -143,9 +146,10 @@ public class SearchActionTest {
 
   @Test
   public void favorites_ordered_by_name() {
-    addComponent(newProjectDto().setName("N2"));
-    addComponent(newProjectDto().setName("N3"));
-    addComponent(newProjectDto().setName("N1"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    addComponent(newProjectDto(organizationDto).setName("N2"));
+    addComponent(newProjectDto(organizationDto).setName("N3"));
+    addComponent(newProjectDto(organizationDto).setName("N1"));
 
     SearchResponse result = call();
 
@@ -155,9 +159,9 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    addComponent(newProjectDto().setKey("K1").setName("Samba"));
-    addComponent(newProjectDto().setKey("K2").setName("Apache HBase"));
-    addComponent(newProjectDto().setKey("K3").setName("JDK9"));
+    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K1").setName("Samba"));
+    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K2").setName("Apache HBase"));
+    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K3").setName("JDK9"));
 
     String result = ws.newRequest().execute().getInput();
 

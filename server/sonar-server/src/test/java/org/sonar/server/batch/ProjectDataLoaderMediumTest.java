@@ -34,6 +34,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.source.FileSourceDao;
@@ -64,13 +66,15 @@ public class ProjectDataLoaderMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbSession dbSession;
+  DbClient dbClient;
 
   ProjectDataLoader underTest;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
+    dbClient = tester.get(DbClient.class);
+    dbSession = dbClient.openSession(false);
     underTest = tester.get(ProjectDataLoader.class);
   }
 
@@ -81,15 +85,17 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_settings_with_global_scan_permission() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
     dbSession.commit();
 
@@ -103,15 +109,17 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_settings_with_project_scan_permission() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").addProjectUuidPermissions(SCAN_EXECUTION, project.projectUuid());
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
     dbSession.commit();
 
@@ -125,15 +133,17 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void not_returned_secured_settings_when_lgged_but_no_scan_permission() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
     dbSession.commit();
 
@@ -145,24 +155,26 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_with_module_settings() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // Module properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
 
     dbSession.commit();
@@ -179,19 +191,21 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_with_module_settings_inherited_from_project() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // No property on module -> should have the same as project
 
@@ -208,31 +222,33 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_with_module_with_sub_module() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // Module properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module.getId()));
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
+    dbClient.componentDao().insert(dbSession, subModule);
 
     // Sub module properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(
+    dbClient.propertiesDao().saveProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER-DAO").setResourceId(subModule.getId()));
 
     dbSession.commit();
@@ -253,30 +269,32 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_project_with_two_modules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
 
     ComponentDto module1 = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module1);
+    dbClient.componentDao().insert(dbSession, module1);
 
     // Module 1 properties
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()));
     // This property should not be found on the other module
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module1.getId()));
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module2);
+    dbClient.componentDao().insert(dbSession, module2);
 
     // Module 2 property
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION").setResourceId(module2.getId()));
 
     dbSession.commit();
@@ -296,15 +314,17 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_provisioned_project_settings() {
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
     // No snapshot attached on the project -> provisioned project
-    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
 
     dbSession.commit();
 
@@ -316,23 +336,25 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_sub_module_settings() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
     // No project properties
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
     // No module properties
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
+    dbClient.componentDao().insert(dbSession, subModule);
 
     // Sub module properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(subModule.getId()));
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(subModule.getId()));
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
 
     dbSession.commit();
@@ -348,25 +370,27 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_sub_module_settings_including_settings_from_parent_modules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project property
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // Module property
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(module.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(module.getId()));
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
+    dbClient.componentDao().insert(dbSession, subModule);
 
     // Sub module properties
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
 
     dbSession.commit();
@@ -382,23 +406,25 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_sub_module_settings_only_inherited_from_project() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
     // No module property
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
+    dbClient.componentDao().insert(dbSession, subModule);
     // No sub module property
 
     dbSession.commit();
@@ -414,24 +440,26 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_sub_module_settings_inherited_from_project_and_module() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // Project properties
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao()
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
+    dbClient.propertiesDao()
       .saveProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // Module property
-    tester.get(DbClient.class).propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()));
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
+    dbClient.componentDao().insert(dbSession, subModule);
     // No sub module property
 
     dbSession.commit();
@@ -449,8 +477,10 @@ public class ProjectDataLoaderMediumTest {
   public void fail_when_no_browse_permission_and_no_scan_permission() {
     userSessionRule.login("john").setGlobalPermissions();
 
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
     try {
@@ -463,8 +493,10 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void fail_when_not_preview_and_only_browse_permission_without_scan_permission() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.projectUuid());
@@ -477,8 +509,10 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void fail_when_preview_and_only_scan_permission_without_browse_permission() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
     userSessionRule.login("john").addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.projectUuid());
@@ -490,13 +524,15 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_file_data_from_single_project() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     ComponentDto file = ComponentTesting.newFileDto(project, null, "file");
-    tester.get(DbClient.class).componentDao().insert(dbSession, file);
+    dbClient.componentDao().insert(dbSession, file);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(file).setSrcHash("123456"));
 
     dbSession.commit();
@@ -509,22 +545,24 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_file_data_from_multi_modules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // File on project
     ComponentDto projectFile = ComponentTesting.newFileDto(project, null, "projectFile");
-    tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
+    dbClient.componentDao().insert(dbSession, projectFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // File on module
     ComponentDto moduleFile = ComponentTesting.newFileDto(module, null, "moduleFile");
-    tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
+    dbClient.componentDao().insert(dbSession, moduleFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456"));
 
     dbSession.commit();
@@ -536,22 +574,24 @@ public class ProjectDataLoaderMediumTest {
 
   @Test
   public void return_file_data_from_module() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
+    dbClient.organizationDao().insert(dbSession, organizationDto);
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    dbClient.componentDao().insert(dbSession, project);
     addDefaultProfile();
 
     // File on project
     ComponentDto projectFile = ComponentTesting.newFileDto(project, null, "projectFile");
-    tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
+    dbClient.componentDao().insert(dbSession, projectFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456").setRevision("987654321"));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     userSessionRule.login("john").setGlobalPermissions(SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, module);
+    dbClient.componentDao().insert(dbSession, module);
 
     // File on module
     ComponentDto moduleFile = ComponentTesting.newFileDto(module, null, "moduleFile");
-    tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
+    dbClient.componentDao().insert(dbSession, moduleFile);
     tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456").setRevision("123456789"));
 
     dbSession.commit();
@@ -565,7 +605,7 @@ public class ProjectDataLoaderMediumTest {
   private void addDefaultProfile() {
     QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       formatDateTime(new Date())).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
+    dbClient.qualityProfileDao().insert(dbSession, profileDto);
   }
 
   private static FileSourceDto newFileSourceDto(ComponentDto file) {

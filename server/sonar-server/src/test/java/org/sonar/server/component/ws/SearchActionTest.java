@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
@@ -83,9 +84,10 @@ public class SearchActionTest {
 
   @Test
   public void search_json_example() {
-    componentDb.insertComponent(newView());
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDb.insertComponent(newView(organizationDto));
     ComponentDto project = componentDb.insertComponent(
-      newProjectDto("project-uuid")
+      newProjectDto(organizationDto, "project-uuid")
         .setName("Project Name")
         .setKey("project-key"));
     ComponentDto module = componentDb.insertComponent(
@@ -114,9 +116,10 @@ public class SearchActionTest {
 
   @Test
   public void search_with_pagination() throws IOException {
+    OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 1; i <= 9; i++) {
       componentDb.insertComponent(
-        newProjectDto("project-uuid-" + i)
+        newProjectDto(organizationDto, "project-uuid-" + i)
           .setName("Project Name " + i));
     }
     db.commit();
@@ -134,8 +137,8 @@ public class SearchActionTest {
 
   @Test
   public void search_with_key_query() throws IOException {
-    componentDb.insertComponent(newProjectDto().setKey("project-_%-key"));
-    componentDb.insertComponent(newProjectDto().setKey("project-key-without-escaped-characters"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
     db.commit();
 
     InputStream responseStream = newRequest(Qualifiers.PROJECT)
@@ -149,8 +152,9 @@ public class SearchActionTest {
 
   @Test
   public void search_with_language() throws IOException {
-    componentDb.insertComponent(newProjectDto().setKey("java-project").setLanguage("java"));
-    componentDb.insertComponent(newProjectDto().setKey("cpp-project").setLanguage("cpp"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDb.insertComponent(newProjectDto(organizationDto).setKey("java-project").setLanguage("java"));
+    componentDb.insertComponent(newProjectDto(organizationDto).setKey("cpp-project").setLanguage("cpp"));
     db.commit();
 
     InputStream responseStream = newRequest(Qualifiers.PROJECT)

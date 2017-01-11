@@ -90,7 +90,7 @@ public class PermissionIndexerTest {
   public void index_all_with_huge_number_of_projects() throws Exception {
     GroupDto group = userDbTester.insertGroup();
     for (int i = 0; i < 1100; i++) {
-      ComponentDto project = ComponentTesting.newProjectDto();
+      ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization());
       dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
       GroupPermissionDto dto = new GroupPermissionDto()
         .setOrganizationUuid(group.getOrganizationUuid())

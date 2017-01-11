@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -58,7 +59,7 @@ public class DuplicationsJsonWriterTest {
 
   @Before
   public void setUp() {
-    project = ComponentTesting.newProjectDto()
+    project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto())
       .setId(1L)
       .setName("SonarQube")
       .setLongName("SonarQube")

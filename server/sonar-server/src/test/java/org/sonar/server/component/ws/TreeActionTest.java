@@ -110,7 +110,7 @@ public class TreeActionTest {
 
   @Test
   public void return_children() throws IOException {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     componentDb.insertComponent(module);
@@ -140,7 +140,7 @@ public class TreeActionTest {
 
   @Test
   public void return_descendants() throws IOException {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     componentDb.insertComponent(module);
@@ -170,7 +170,7 @@ public class TreeActionTest {
 
   @Test
   public void filter_descendants_by_qualifier() throws IOException {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newFileDto(project, 1));
     componentDb.insertComponent(newFileDto(project, 2));
@@ -188,7 +188,7 @@ public class TreeActionTest {
 
   @Test
   public void return_leaves() throws IOException {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     componentDb.insertComponent(module);
@@ -212,7 +212,7 @@ public class TreeActionTest {
 
   @Test
   public void sort_descendants_by_qualifier() throws IOException {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newFileDto(project, 1));
     componentDb.insertComponent(newFileDto(project, 2));
@@ -287,7 +287,7 @@ public class TreeActionTest {
   public void return_projects_composing_a_view() {
     ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
-    ComponentDto view = newView("view-uuid");
+    ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
 
@@ -304,7 +304,7 @@ public class TreeActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.anonymous().login()
       .addProjectUuidPermissions(UserRole.CODEVIEWER, "project-uuid");
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
@@ -316,7 +316,7 @@ public class TreeActionTest {
   public void fail_when_page_size_above_500() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'ps' parameter must be less than 500");
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
@@ -329,7 +329,7 @@ public class TreeActionTest {
   public void fail_when_search_query_has_less_than_3_characters() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
@@ -341,7 +341,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_sort_is_unknown() {
     expectedException.expect(IllegalArgumentException.class);
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
@@ -353,7 +353,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_strategy_is_unknown() {
     expectedException.expect(IllegalArgumentException.class);
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
 
     ws.newRequest()
@@ -401,7 +401,7 @@ public class TreeActionTest {
   }
 
   private ComponentDto initJsonExampleComponents() throws IOException {
-    ComponentDto project = newProjectDto("MY_PROJECT_ID")
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "MY_PROJECT_ID")
       .setKey("MY_PROJECT_KEY")
       .setName("Project Name");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);

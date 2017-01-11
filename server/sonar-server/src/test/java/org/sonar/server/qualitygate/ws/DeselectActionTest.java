@@ -212,7 +212,7 @@ public class DeselectActionTest {
   }
 
   private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto());
+    return componentDb.insertComponent(newProjectDto(db.organizations().insert()));
   }
 
   private QualityGateDto insertQualityGate() {

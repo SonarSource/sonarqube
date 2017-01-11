@@ -28,6 +28,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -123,7 +124,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Test
   public void search_project_permissions_with_project_permission() throws Exception {
     userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    db.components().insertComponent(newProjectDto("project-uuid"));
+    db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, "project-uuid")
@@ -134,8 +135,9 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void has_projects_ordered_by_name() throws Exception {
+    OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 9; i >= 1; i--) {
-      db.components().insertComponent(newProjectDto()
+      db.components().insertComponent(newProjectDto(organizationDto)
         .setName("project-name-" + i));
     }
 
@@ -151,8 +153,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_by_query_on_name() throws Exception {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-name"));
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("another-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("another-name"));
     componentDb.indexAllComponents();
 
     String result = newRequest()
@@ -165,8 +167,9 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_by_query_on_key_must_match_exactly() throws Exception {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-key"));
-    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("another-key"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("project-key"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("another-key"));
     componentDb.indexAllComponents();
 
     String result = newRequest()
@@ -181,7 +184,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Test
   public void handle_more_than_1000_projects() throws Exception {
     for (int i = 1; i <= 1001; i++) {
-      componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid-" + i));
+      componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid-" + i));
     }
     componentDb.indexAllComponents();
 
@@ -196,9 +199,10 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void filter_by_qualifier() throws Exception {
-    db.components().insertComponent(newView("view-uuid"));
-    db.components().insertComponent(newDeveloper("developer-name"));
-    db.components().insertComponent(newProjectDto("project-uuid"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    db.components().insertComponent(newView(organizationDto, "view-uuid"));
+    db.components().insertComponent(newDeveloper(organizationDto, "developer-name"));
+    db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
 
     InputStream wsResponse = newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -242,7 +246,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertView() {
-    return db.components().insertComponent(newView()
+    return db.components().insertComponent(newView(db.organizations().insert())
       .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
@@ -253,20 +257,20 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertDeveloper() {
-    return db.components().insertComponent(newDeveloper("Simon Brandhof")
+    return db.components().insertComponent(newDeveloper(db.getDefaultOrganization(), "Simon Brandhof")
       .setUuid("4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
       .setKey("simon-brandhof"));
   }
 
   private ComponentDto insertClang() {
-    return db.components().insertComponent(newProjectDto("project-uuid-2")
+    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid-2")
       .setName("Clang")
       .setKey("clang")
       .setUuid("ce4c03d6-430f-40a9-b777-ad877c00aa4d"));
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(newProjectDto("project-uuid-1")
+    return db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid-1")
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

@@ -137,7 +137,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_uuid() {
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY);
 
@@ -146,7 +146,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    componentDb.insertComponent(newProjectDto().setKey("project-key"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
@@ -155,7 +155,7 @@ public class ComponentFinderTest {
 
   @Test
   public void getByIdOrKey_get_component_by_id() {
-    ComponentDto source = componentDb.insertComponent(newProjectDto());
+    ComponentDto source = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
 
     ComponentDto component = underTest.getByIdOrKey(dbSession, source.getId(), null, ID_AND_KEY);
 
@@ -164,7 +164,7 @@ public class ComponentFinderTest {
 
   @Test
   public void getByIdOrKey_get_component_by_key() {
-    componentDb.insertComponent(newProjectDto().setKey("project-key"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByIdOrKey(dbSession, null, "project-key", ID_AND_KEY);
 

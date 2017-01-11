@@ -44,6 +44,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
@@ -104,7 +105,8 @@ public class QualityGatesTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.componentDao()).thenReturn(componentDao);
 
-    when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(newProjectDto(PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
+    when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
+      newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
 
     underTest = new QualityGates(dbClient, metricFinder, userSessionRule);
 

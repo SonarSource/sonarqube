@@ -30,7 +30,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class QualityProfileDaoTest {
@@ -300,9 +298,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto().setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertComponent(newProjectDto().setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertComponent(newProjectDto().setName("Project3 name"));
+    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -326,9 +324,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto().setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertComponent(newProjectDto().setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertComponent(newProjectDto().setName("Project3 name"));
+    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -351,9 +349,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto().setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertComponent(newProjectDto().setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertComponent(newProjectDto().setName("Project3 name"));
+    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -377,7 +375,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void update_project_profile_association() {
-    ComponentDto project = componentDbTester.insertComponent(ComponentTesting.newProjectDto());
+    ComponentDto project = componentDbTester.insertProject();
     QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
     QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
     QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");

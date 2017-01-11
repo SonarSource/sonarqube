@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventTesting;
+import org.sonar.db.organization.OrganizationTesting;
 
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -43,6 +44,6 @@ public class EventValidatorTest {
   }
 
   private EventDto newEvent() {
-    return EventTesting.newEvent(newAnalysis(newProjectDto()));
+    return EventTesting.newEvent(newAnalysis(newProjectDto(OrganizationTesting.newOrganizationDto())));
   }
 }

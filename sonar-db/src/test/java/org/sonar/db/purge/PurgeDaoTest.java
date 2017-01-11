@@ -139,8 +139,8 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_project_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newProjectDto();
-    ComponentDto anotherLivingProject = ComponentTesting.newProjectDto();
+    ComponentDto projectToBeDeleted = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto anotherLivingProject = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization());
     dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
 
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project

@@ -113,7 +113,7 @@ public class RemoveActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY));
+    return db.components().insertComponent(newProjectDto(db.organizations().insert(), PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
   private ComponentDto insertProjectAndPermissions() {

@@ -28,6 +28,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
@@ -77,10 +79,11 @@ public class CoveredFilesActionTest {
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
       new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
       new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(newProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
 
@@ -95,10 +98,11 @@ public class CoveredFilesActionTest {
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
       new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
       new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
+    OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(newProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Test with id 'test-uuid' is not found");

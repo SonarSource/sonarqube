@@ -93,7 +93,7 @@ public class ListDefinitionsActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(newProjectDto());
+    project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
   }
 
   @Test

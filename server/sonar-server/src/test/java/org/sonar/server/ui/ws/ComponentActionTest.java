@@ -22,6 +22,7 @@ package org.sonar.server.ui.ws;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -75,20 +76,12 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
 
-  private static final String DEFAULT_ORGANIZATION_UUID = "defOrgUuid";
   private static final String PROJECT_KEY = "polop";
-  private static final ComponentDto PROJECT = newProjectDto("abcd")
-    .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-    .setKey(PROJECT_KEY)
-    .setName("Polop")
-    .setDescription("test project")
-    .setLanguage("xoo");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE)
-    .setDefaultOrganizationUuid(DEFAULT_ORGANIZATION_UUID);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -99,6 +92,7 @@ public class ComponentActionTest {
 
   private ResourceTypes resourceTypes = mock(ResourceTypes.class);
 
+  private ComponentDto project;
   private WsActionTester ws;
 
   private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
@@ -108,6 +102,15 @@ public class ComponentActionTest {
   private static String qualityProfilesToJson(QualityProfile... qps) {
     List<QualityProfile> qualityProfiles = Arrays.asList(qps);
     return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
+  }
+
+  @Before
+  public void before() {
+    project =  newProjectDto(dbTester.getDefaultOrganization(), "abcd")
+        .setKey(PROJECT_KEY)
+        .setName("Polop")
+        .setDescription("test project")
+        .setLanguage("xoo");
   }
 
   @Test
@@ -123,128 +126,128 @@ public class ComponentActionTest {
     init();
 
     expectedException.expect(NotFoundException.class);
-    execute(PROJECT.key());
+    execute(project.key());
   }
 
   @Test
   public void fail_on_missing_permission() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
 
     expectedException.expect(ForbiddenException.class);
-    execute(PROJECT.key());
+    execute(project.key());
   }
 
   @Test
   public void return_component_info_when_anonymous_no_snapshot() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    componentDbTester.insertComponent(project);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_component_info_when_anonymous_no_snapshot.json");
+    executeAndVerify(project.key(), "return_component_info_when_anonymous_no_snapshot.json");
   }
 
   @Test
   public void return_component_info_with_favourite() throws Exception {
     init();
     UserDto user = userDbTester.insertUser("obiwan");
-    componentDbTester.insertComponent(PROJECT);
-    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(PROJECT.getId()).setUserId(user.getId()));
-    userSessionRule.login(user).addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    componentDbTester.insertComponent(project);
+    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
+    userSessionRule.login(user).addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_component_info_with_favourite.json");
+    executeAndVerify(project.key(), "return_component_info_with_favourite.json");
   }
 
   @Test
   public void return_component_info_when_snapshot() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
-    componentDbTester.insertSnapshot(newAnalysis(PROJECT)
+    componentDbTester.insertComponent(project);
+    componentDbTester.insertSnapshot(newAnalysis(project)
       .setCreatedAt(DateUtils.parseDateTime("2015-04-22T11:44:00+0200").getTime())
       .setVersion("3.14")
       .setLast(true));
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_component_info_when_snapshot.json");
+    executeAndVerify(project.key(), "return_component_info_when_snapshot.json");
   }
 
   @Test
   public void return_quality_profiles() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
-    SnapshotDto analysis = componentDbTester.insertSnapshot(newAnalysis(PROJECT));
-    addQualityProfiles(PROJECT, analysis,
+    componentDbTester.insertComponent(project);
+    SnapshotDto analysis = componentDbTester.insertSnapshot(newAnalysis(project));
+    addQualityProfiles(project, analysis,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_quality_profiles.json");
+    executeAndVerify(project.key(), "return_quality_profiles.json");
   }
 
   @Test
   public void return_empty_quality_profiles_when_no_measure() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    componentDbTester.insertComponent(project);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_empty_quality_profiles_when_no_measure.json");
+    executeAndVerify(project.key(), "return_empty_quality_profiles_when_no_measure.json");
   }
 
   @Test
   public void return_quality_gate_defined_on_project() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
-    dbTester.qualityGates().associateProjectToQualityGate(PROJECT, qualityGateDto);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_quality_gate.json");
+    executeAndVerify(project.key(), "return_quality_gate.json");
   }
 
   @Test
   public void return_default_quality_gate() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
     dbTester.qualityGates().createDefaultQualityGate("Sonar way");
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_default_quality_gate.json");
+    executeAndVerify(project.key(), "return_default_quality_gate.json");
   }
 
   @Test
   public void return_no_quality_gate_when_not_defined_on_project_and_no_default_one() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    componentDbTester.insertComponent(project);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    String json = execute(PROJECT.key());
+    String json = execute(project.key());
     assertThat(json).doesNotContain("qualityGate");
   }
 
   @Test
   public void return_extensions() throws Exception {
     init(createPages());
-    componentDbTester.insertProjectAndSnapshot(PROJECT);
-    userSessionRule.anonymous().addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
+    componentDbTester.insertProjectAndSnapshot(project);
+    userSessionRule.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_extensions.json");
+    executeAndVerify(project.key(), "return_extensions.json");
   }
 
   @Test
   public void return_extensions_for_admin() throws Exception {
     init(createPages());
-    componentDbTester.insertProjectAndSnapshot(PROJECT);
+    componentDbTester.insertProjectAndSnapshot(project);
     userSessionRule.anonymous()
-      .addProjectUuidPermissions(UserRole.USER, PROJECT.uuid())
-      .addProjectUuidPermissions(UserRole.ADMIN, PROJECT.uuid());
+      .addProjectUuidPermissions(UserRole.USER, project.uuid())
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    executeAndVerify(PROJECT.key(), "return_extensions_for_admin.json");
+    executeAndVerify(project.key(), "return_extensions_for_admin.json");
   }
 
   @Test
   public void return_configuration_for_admin() throws Exception {
     UserDto user = userDbTester.insertUser();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
     userSessionRule.login(user)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
@@ -263,18 +266,18 @@ public class ComponentActionTest {
       .build();
 
     init(page1, page2);
-    executeAndVerify(PROJECT.key(), "return_configuration_for_admin.json");
+    executeAndVerify(project.key(), "return_configuration_for_admin.json");
   }
 
   @Test
   public void return_configuration_with_all_properties() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
     userSessionRule.anonymous()
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
-    ResourceType projectResourceType = ResourceType.builder(PROJECT.qualifier())
+    ResourceType projectResourceType = ResourceType.builder(project.qualifier())
       .setProperty("comparable", true)
       .setProperty("configurable", true)
       .setProperty("hasRolePolicy", true)
@@ -282,16 +285,16 @@ public class ComponentActionTest {
       .setProperty("updatable_key", true)
       .setProperty("deletable", true)
       .build();
-    when(resourceTypes.get(PROJECT.qualifier()))
+    when(resourceTypes.get(project.qualifier()))
       .thenReturn(projectResourceType);
 
-    executeAndVerify(PROJECT.key(), "return_configuration_with_all_properties.json");
+    executeAndVerify(project.key(), "return_configuration_with_all_properties.json");
   }
 
   @Test
   public void return_breadcrumbs_on_module() throws Exception {
     init();
-    ComponentDto project = componentDbTester.insertComponent(PROJECT);
+    ComponentDto project = componentDbTester.insertComponent(this.project);
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
     userSessionRule.anonymous()
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -303,18 +306,18 @@ public class ComponentActionTest {
   @Test
   public void return_configuration_for_quality_profile_admin() throws Exception {
     init();
-    componentDbTester.insertComponent(PROJECT);
+    componentDbTester.insertComponent(project);
     userSessionRule.anonymous()
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .setGlobalPermissions(QUALITY_PROFILE_ADMIN);
 
-    executeAndVerify(PROJECT.key(), "return_configuration_for_quality_profile_admin.json");
+    executeAndVerify(project.key(), "return_configuration_for_quality_profile_admin.json");
   }
 
   @Test
   public void return_bread_crumbs_on_several_levels() throws Exception {
     init();
-    ComponentDto project = componentDbTester.insertComponent(PROJECT);
+    ComponentDto project = componentDbTester.insertComponent(this.project);
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
     ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
     ComponentDto file = componentDbTester.insertComponent(newFileDto(directory, directory, "cdef").setName("Source.xoo")
@@ -328,16 +331,18 @@ public class ComponentActionTest {
   @Test
   public void work_with_only_system_admin() throws Exception {
     init(createPages());
-    componentDbTester.insertProjectAndSnapshot(PROJECT);
+    componentDbTester.insertProjectAndSnapshot(project);
     userSessionRule.setGlobalPermissions(SYSTEM_ADMIN);
 
-    execute(PROJECT.key());
+    execute(project.key());
   }
 
   @Test
   public void test_example_response() throws Exception {
     init(createPages());
-    ComponentDto project = newProjectDto("ABCD").setKey("org.codehaus.sonar:sonar").setName("Sonarqube")
+    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD")
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");
     componentDbTester.insertComponent(project);
     SnapshotDto analysis = newAnalysis(project)

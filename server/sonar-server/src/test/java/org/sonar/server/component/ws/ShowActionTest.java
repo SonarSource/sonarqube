@@ -79,7 +79,7 @@ public class ShowActionTest {
   @Test
   public void show_by_key_with_project_permission() {
     userSession.anonymous().login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid").setKey("project-key"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
 
     ShowWsResponse response = newRequest(null, "project-key");
 
@@ -90,7 +90,7 @@ public class ShowActionTest {
   @Test
   public void show_with_browse_permission() {
     userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
-    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -99,7 +99,7 @@ public class ShowActionTest {
 
   @Test
   public void show_provided_project() {
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -110,7 +110,7 @@ public class ShowActionTest {
   public void fail_if_not_enough_privilege() {
     userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     expectedException.expect(ForbiddenException.class);
-    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     newRequest("project-uuid", null);
   }

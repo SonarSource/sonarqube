@@ -38,6 +38,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -92,8 +93,9 @@ public class ActivityStatusActionTest {
     String projectUuid = "project-uuid";
     String anotherProjectUuid = "another-project-uuid";
     userSession.login().addProjectUuidPermissions(UserRole.ADMIN, projectUuid);
-    componentDb.insertComponent(newProjectDto(projectUuid));
-    componentDb.insertComponent(newProjectDto(anotherProjectUuid));
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDb.insertComponent(newProjectDto(organizationDto, projectUuid));
+    componentDb.insertComponent(newProjectDto(organizationDto, anotherProjectUuid));
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
@@ -124,7 +126,7 @@ public class ActivityStatusActionTest {
 
   @Test
   public void fail_if_component_uuid_and_key_are_provided() {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     componentDb.insertComponent(project);
     expectedException.expect(IllegalArgumentException.class);
 

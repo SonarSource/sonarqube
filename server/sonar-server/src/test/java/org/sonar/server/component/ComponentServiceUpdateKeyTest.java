@@ -199,7 +199,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void bulk_update_key() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto().setKey("my_project"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
@@ -234,7 +234,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    ComponentDto project = componentDb.insertComponent(newProjectDto().setKey(key));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(key));
     projectMeasuresIndexer.index(project.uuid());
     return project;
   }

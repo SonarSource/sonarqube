@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.component.MutableDisabledComponentsHolder;
@@ -112,7 +113,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_existing_empty_view() {
     // most of the time view already exists since its supposed to be created when config is uploaded
-    persistComponents(newViewDto());
+    persistComponents(newViewDto(dbTester.organizations().insert()));
 
     treeRootHolder.setRoot(createViewBuilder().build());
 
@@ -125,7 +126,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_view_with_projectView() {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(dbTester.organizations().insert());
     persistComponents(project);
 
     treeRootHolder.setRoot(
@@ -165,7 +166,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_existing_empty_subview_under_existing_view() {
-    ComponentDto viewDto = newViewDto();
+    ComponentDto viewDto = newViewDto(dbTester.organizations().insert());
     persistComponents(viewDto);
     persistComponents(ComponentTesting.newSubView(viewDto, SUBVIEW_1_UUID, SUBVIEW_1_KEY).setName(SUBVIEW_1_NAME));
 
@@ -185,7 +186,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_empty_subview_under_existing_view() {
-    persistComponents(newViewDto());
+    persistComponents(newViewDto(dbTester.organizations().insert()));
 
     treeRootHolder.setRoot(
       createViewBuilder()
@@ -203,7 +204,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_project_view_under_subview() {
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(dbTester.organizations().insert());
     persistComponents(project);
 
     treeRootHolder.setRoot(
@@ -229,7 +230,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_view_name_and_longName() {
-    ComponentDto viewDto = newViewDto().setLongName("another long name").setCreatedAt(now);
+    ComponentDto viewDto = newViewDto(dbTester.organizations().insert()).setLongName("another long name").setCreatedAt(now);
     persistComponents(viewDto);
 
     treeRootHolder.setRoot(createViewBuilder().build());
@@ -247,8 +248,9 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_project_view() {
-    ComponentDto view = newViewDto();
-    ComponentDto project = newProjectDto();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto view = newViewDto(organizationDto);
+    ComponentDto project = newProjectDto(organizationDto);
     persistComponents(view, project);
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project, view)
       .setOrganizationUuid(ORGANIZATION_UUID)
@@ -275,9 +277,10 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_copy_component_uuid_of_project_view() {
-    ComponentDto view = newViewDto();
-    ComponentDto project1 = newProjectDto("P1");
-    ComponentDto project2 = newProjectDto("P2");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto view = newViewDto(organizationDto);
+    ComponentDto project1 = newProjectDto(organizationDto, "P1");
+    ComponentDto project2 = newProjectDto(organizationDto, "P2");
     persistComponents(view, project1, project2);
 
     // Project view in DB is associated to project1
@@ -335,8 +338,8 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(getComponentFromDb(componentKey).getCreatedAt()).isNotEqualTo(now);
   }
 
-  private ComponentDto newViewDto() {
-    return ComponentTesting.newView(VIEW_UUID)
+  private ComponentDto newViewDto(OrganizationDto organizationDto) {
+    return ComponentTesting.newView(organizationDto, VIEW_UUID)
       .setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(VIEW_KEY)
       .setName(VIEW_NAME);

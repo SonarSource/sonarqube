@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
@@ -191,7 +190,7 @@ public class SelectActionTest {
   }
 
   private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto());
+    return componentDb.insertProject(db.organizations().insert());
   }
 
   private QualityGateDto insertQualityGate() {

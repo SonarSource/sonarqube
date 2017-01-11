@@ -25,6 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -48,10 +49,11 @@ public class ComponentDaoWithDuplicatedKeysTest {
 
   @Test
   public void select_components_having_same_key() {
-    insertProject(newProjectDto().setKey(PROJECT_KEY));
-    insertProject(newProjectDto().setKey(PROJECT_KEY));
-    insertProject(newProjectDto().setKey(PROJECT_KEY));
-    insertProject(newProjectDto().setKey("ANOTHER_PROJECT_KEY"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(newProjectDto(organizationDto).setKey("ANOTHER_PROJECT_KEY"));
 
     assertThat(underTest.selectComponentsHavingSameKeyOrderedById(db.getSession(), PROJECT_KEY)).hasSize(3);
   }

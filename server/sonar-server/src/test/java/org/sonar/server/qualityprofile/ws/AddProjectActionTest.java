@@ -84,7 +84,7 @@ public class AddProjectActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(ComponentTesting.newProjectDto());
+    project = componentDb.insertComponent(ComponentTesting.newProjectDto(dbTester.organizations().insert()));
   }
 
   @Test

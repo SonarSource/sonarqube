@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -126,14 +127,15 @@ public class GhostsActionTest {
   @Test
   public void ghost_projects_base_on_json_example() throws Exception {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newProjectDto(organizationDto, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
@@ -156,7 +158,7 @@ public class GhostsActionTest {
 
   private void insertNewGhostProject(String id) {
     ComponentDto project = ComponentTesting
-      .newProjectDto("ghost-uuid-" + id)
+      .newProjectDto(db.organizations().insert(), "ghost-uuid-" + id)
       .setName("ghost-name-" + id)
       .setKey("ghost-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);
@@ -168,7 +170,7 @@ public class GhostsActionTest {
 
   private void insertNewActiveProject(String id) {
     ComponentDto project = ComponentTesting
-      .newProjectDto("analyzed-uuid-" + id)
+      .newProjectDto(db.organizations().insert(), "analyzed-uuid-" + id)
       .setName("analyzed-name-" + id)
       .setKey("analyzed-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);

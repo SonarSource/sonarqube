@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -89,7 +90,7 @@ public class UpdateActionTest {
   @Test
   public void update_text_value_and_description_in_db() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = insertNewProject("project-uuid");
+    ComponentDto component = db.components().insertProject(db.getDefaultOrganization(), "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setTextValue("text-measure-value");
@@ -113,7 +114,8 @@ public class UpdateActionTest {
   @Test
   public void update_double_value_and_description_in_db() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.INT);
-    ComponentDto component = insertNewProject("project-uuid");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto component = db.components().insertProject(organizationDto, "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setValue(42d);
@@ -138,7 +140,8 @@ public class UpdateActionTest {
       .setValueType(ValueType.STRING.name())
       .setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto component = ComponentTesting.newProjectDto("project-uuid").setKey("project-key");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto component = ComponentTesting.newProjectDto(organizationDto, "project-uuid").setKey("project-key");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setCreatedAt(100_000_000L)
@@ -164,7 +167,7 @@ public class UpdateActionTest {
   @Test
   public void update_value_only() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = insertNewProject("project-uuid");
+    ComponentDto component = db.components().insertProject(db.getDefaultOrganization(), "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setTextValue("text-measure-value");
@@ -187,7 +190,8 @@ public class UpdateActionTest {
   @Test
   public void update_description_only() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = insertNewProject("project-uuid");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto component = db.components().insertProject(organizationDto, "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setMetricId(metric.getId())
       .setComponentUuid(component.uuid())
@@ -239,7 +243,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto component = ComponentTesting.newProjectDto("project-uuid");
+    ComponentDto component = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
@@ -263,7 +267,8 @@ public class UpdateActionTest {
     expectedException.expect(UnauthorizedException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto component = ComponentTesting.newProjectDto("project-uuid");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto component = ComponentTesting.newProjectDto(organizationDto, "project-uuid");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
@@ -305,12 +310,6 @@ public class UpdateActionTest {
     dbClient.metricDao().insert(dbSession, metric);
 
     return metric;
-  }
-
-  private ComponentDto insertNewProject(String uuid) {
-    ComponentDto component = ComponentTesting.newProjectDto(uuid);
-    dbClient.componentDao().insert(dbSession, component);
-    return component;
   }
 
   private CustomMeasureDto newCustomMeasure(ComponentDto project, MetricDto metric) {

@@ -667,9 +667,7 @@ public class ComponentDaoTest {
 
   @Test
   public void update() {
-    ComponentDto dto = ComponentTesting.newProjectDto("U1");
-    underTest.insert(dbSession, dto);
-    dbSession.commit();
+    db.components().insertProject(db.getDefaultOrganization(), "U1");
 
     underTest.update(dbSession, new ComponentUpdateDto()
       .setUuid("U1")
@@ -704,9 +702,9 @@ public class ComponentDaoTest {
 
   @Test
   public void updateBEnabledToFalse() {
-    ComponentDto dto1 = ComponentTesting.newProjectDto("U1");
-    ComponentDto dto2 = ComponentTesting.newProjectDto("U2");
-    ComponentDto dto3 = ComponentTesting.newProjectDto("U3");
+    ComponentDto dto1 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U1");
+    ComponentDto dto2 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U2");
+    ComponentDto dto3 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U3");
     underTest.insert(dbSession, dto1, dto2, dto3);
 
     underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
@@ -755,8 +753,8 @@ public class ComponentDaoTest {
 
   @Test
   public void delete() throws Exception {
-    ComponentDto project1 = componentDb.insertComponent(newProjectDto().setKey("PROJECT_1"));
-    componentDb.insertComponent(newProjectDto().setKey("PROJECT_2"));
+    ComponentDto project1 = componentDb.insertProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_1"));
+    componentDb.insertProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_2"));
 
     underTest.delete(dbSession, project1.getId());
     dbSession.commit();
@@ -767,11 +765,12 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_with_paging_query_and_qualifiers() {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("aaaa-name"));
-    componentDb.insertProjectAndSnapshot(newView());
-    componentDb.insertProjectAndSnapshot(newDeveloper("project-name"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setName("aaaa-name"));
+    componentDb.insertProjectAndSnapshot(newView(organizationDto));
+    componentDb.insertProjectAndSnapshot(newDeveloper(organizationDto, "project-name"));
     for (int i = 9; i >= 1; i--) {
-      componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-" + i));
+      componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setName("project-" + i));
     }
     componentDb.indexAllComponents();
 
@@ -786,7 +785,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_name_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-\\_%/-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
     componentDb.indexAllComponents();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
@@ -798,7 +797,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_key_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-_%-key"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert()).setKey("project-_%-key"));
     componentDb.indexAllComponents();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
@@ -810,8 +809,8 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_filter_on_language() {
-    componentDb.insertComponent(newProjectDto().setKey("java-project-key").setLanguage("java"));
-    componentDb.insertComponent(newProjectDto().setKey("cpp-project-key").setLanguage("cpp"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("java-project-key").setLanguage("java"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("cpp-project-key").setLanguage("cpp"));
 
     ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -832,9 +831,10 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_on_component_ids() {
-    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto());
-    ComponentDto jdk8 = componentDb.insertComponent(newProjectDto());
-    ComponentDto cLang = componentDb.insertComponent(newProjectDto());
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto(organizationDto));
+    ComponentDto jdk8 = componentDb.insertComponent(newProjectDto(organizationDto));
+    ComponentDto cLang = componentDb.insertComponent(newProjectDto(organizationDto));
 
     ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
       .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
@@ -848,7 +848,7 @@ public class ComponentDaoTest {
   @Test
   public void selectParent() {
     // project -> module -> file
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);
@@ -890,7 +890,7 @@ public class ComponentDaoTest {
   @Test
   public void select_descendants_with_children_stragegy() {
     // project has 2 children: module and file 1. Other files are part of module.
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(db.organizations().insert(), PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);
@@ -956,7 +956,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_descendants_with_leaves_strategy() {
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newModuleDto("module-1-uuid", project));
     componentDb.insertComponent(newFileDto(project, null, "file-1-uuid"));
@@ -980,13 +980,14 @@ public class ComponentDaoTest {
 
   @Test
   public void select_descendants_of_a_view_and_filter_by_name() {
-    ComponentDto view = newView(A_VIEW_UUID);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto view = newView(organizationDto, A_VIEW_UUID);
     componentDb.insertViewAndSnapshot(view);
     // one subview
     ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
     componentDb.insertComponent(subView);
     // one project and its copy linked to the view
-    ComponentDto project = newProjectDto(PROJECT_UUID).setName("project name");
+    ComponentDto project = newProjectDto(organizationDto, PROJECT_UUID).setName("project name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
     componentDb.indexAllComponents();

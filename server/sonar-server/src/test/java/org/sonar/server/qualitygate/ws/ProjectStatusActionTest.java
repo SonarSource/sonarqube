@@ -85,7 +85,7 @@ public class ProjectStatusActionTest {
   public void json_example() throws IOException {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -114,7 +114,7 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_id() throws IOException {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -143,7 +143,7 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_key() throws IOException {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -172,7 +172,7 @@ public class ProjectStatusActionTest {
   public void return_undefined_status_if_measure_is_not_found() {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
@@ -185,7 +185,7 @@ public class ProjectStatusActionTest {
   @Test
   public void return_undefined_status_if_snapshot_is_not_found() {
     userSession.setGlobalPermissions(SYSTEM_ADMIN);
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ProjectStatusWsResponse result = callByProjectUuid("project-uuid");
 
@@ -197,7 +197,7 @@ public class ProjectStatusActionTest {
   public void not_fail_with_project_admin_permission() {
     userSession.addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
@@ -208,7 +208,7 @@ public class ProjectStatusActionTest {
   public void not_fail_with_browse_permission() {
     userSession.addProjectUuidPermissions(UserRole.USER, "project-uuid");
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 
@@ -229,7 +229,7 @@ public class ProjectStatusActionTest {
   public void fail_if_insufficient_privileges() {
     userSession.setGlobalPermissions(PROVISIONING);
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
 

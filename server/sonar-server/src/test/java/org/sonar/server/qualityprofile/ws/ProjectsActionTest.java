@@ -208,7 +208,7 @@ public class ProjectsActionTest {
   }
 
   private ComponentDto newProject(String uuid, String name) {
-    return ComponentTesting.newProjectDto(uuid).setName(name);
+    return ComponentTesting.newProjectDto(db.organizations().insert(), uuid).setName(name);
   }
 
   private void addBrowsePermissionToAnyone(ComponentDto... projects) {

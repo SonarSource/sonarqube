@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 
@@ -335,7 +336,7 @@ public class PropertiesDaoTest {
   @UseDataProvider("allValuesForSelect")
   public void selectEnabledDescendantModuleProperties_supports_all_values(String dbValue, String expected) throws SQLException {
     String projectUuid = "A";
-    ComponentDto project = ComponentTesting.newProjectDto(projectUuid);
+    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid);
     dbClient.componentDao().insert(session, project);
     long projectId = project.getId();
     insertProperty("project.one", dbValue, projectId, null);
@@ -401,10 +402,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_component_properties_by_keys() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    dbClient.componentDao().insert(session, project);
-    UserDto user = UserTesting.newUserDto();
-    dbClient.userDao().insert(session, user);
+    ComponentDto project = dbTester.components().insertProject();
+    UserDto user = dbTester.users().insertUser();
 
     String key = "key";
     String anotherKey = "anotherKey";
@@ -424,10 +423,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_component_properties_by_ids() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    dbClient.componentDao().insert(session, project);
-    ComponentDto project2 = ComponentTesting.newProjectDto();
-    dbClient.componentDao().insert(session, project2);
+    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project2 = dbTester.components().insertProject();
 
     UserDto user = UserTesting.newUserDto();
     dbClient.userDao().insert(session, user);
@@ -455,10 +452,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_properties_by_keys_and_component_ids() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    dbClient.componentDao().insert(session, project);
-    ComponentDto project2 = ComponentTesting.newProjectDto();
-    dbClient.componentDao().insert(session, project2);
+    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project2 = dbTester.components().insertProject();
 
     UserDto user = UserTesting.newUserDto();
     dbClient.userDao().insert(session, user);
@@ -1014,7 +1009,7 @@ public class PropertiesDaoTest {
 
   private ComponentDto insertProject(String uuid) {
     String key = "project" + uuid;
-    ComponentDto project = ComponentTesting.newProjectDto(uuid).setKey(key);
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey(key);
     dbClient.componentDao().insert(session, project);
     dbTester.commit();
     return project;

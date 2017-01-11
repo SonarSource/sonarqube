@@ -63,7 +63,7 @@ public class WebhookDeliveriesActionTest {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertComponent(newProjectDto().setKey("my-project"));
+    project = db.components().insertComponent(newProjectDto(db.organizations().insert()).setKey("my-project"));
   }
 
   @Test

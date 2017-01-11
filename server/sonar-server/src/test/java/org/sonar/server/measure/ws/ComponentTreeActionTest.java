@@ -639,7 +639,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_with_measures_only_and_no_metric_sort() {
-    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
     expectedException.expect(BadRequestException.class);
     expectedException

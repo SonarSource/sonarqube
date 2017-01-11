@@ -62,7 +62,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_event() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2"));
 
@@ -86,7 +86,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_event_as_project_admin() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
 
@@ -109,7 +109,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_category_different_than_other_and_version() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -128,7 +128,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_not_enough_permission() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.anonymous();
 

@@ -86,7 +86,7 @@ public class DeleteActionTest {
   public void delete_nominal_with_key() throws Exception {
     String profileKey = "sonar-way-xoo1-12345";
 
-    ComponentDto project = ComponentTesting.newProjectDto("polop");
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "polop");
     componentDao.insert(session, project);
     qualityProfileDao.insert(session, QualityProfileDto.createFor(profileKey).setLanguage(xoo1.getKey()).setName("Sonar way"));
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
@@ -104,7 +104,7 @@ public class DeleteActionTest {
   public void delete_nominal_with_language_and_name() throws Exception {
     String profileKey = "sonar-way-xoo1-12345";
 
-    ComponentDto project = ComponentTesting.newProjectDto("polop");
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), "polop");
     componentDao.insert(session, project);
     qualityProfileDao.insert(session, QualityProfileDto.createFor(profileKey).setLanguage(xoo1.getKey()).setName("Sonar way"));
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);

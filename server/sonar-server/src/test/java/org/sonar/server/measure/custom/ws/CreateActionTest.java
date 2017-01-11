@@ -41,6 +41,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -272,7 +273,7 @@ public class CreateActionTest {
   @Test
   public void create_custom_measure_on_a_view() throws Exception {
     String viewUuid = "VIEW_UUID";
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newView(viewUuid));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newView(db.organizations().insert(), viewUuid));
     dbSession.commit();
     MetricDto metric = insertMetric(BOOL);
 
@@ -293,7 +294,7 @@ public class CreateActionTest {
   public void create_custom_measure_on_a_sub_view() throws Exception {
     String subViewUuid = "SUB_VIEW_UUID";
 
-    ComponentDto view = ComponentTesting.newView();
+    ComponentDto view = ComponentTesting.newView(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, view);
     dbClient.componentDao().insert(dbSession, ComponentTesting.newSubView(view, subViewUuid, "SUB_VIEW_KEY"));
     dbSession.commit();
@@ -409,7 +410,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_metric_is_not_found_in_db() throws Exception {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(DEFAULT_PROJECT_UUID));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(db.organizations().insert(), DEFAULT_PROJECT_UUID));
     dbSession.commit();
 
     expectedException.expect(RowNotFoundException.class);
@@ -474,7 +475,7 @@ public class CreateActionTest {
   public void fail_when_not_a_project() throws Exception {
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(STRING.name()).setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto project = ComponentTesting.newProjectDto(DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(db.organizations().insert(), DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
     dbClient.componentDao().insert(dbSession, project);
     dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setKey("directory-key"));
     dbSession.commit();
@@ -501,7 +502,8 @@ public class CreateActionTest {
   }
 
   private void insertProject(String projectUuid) {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(projectUuid).setKey(DEFAULT_PROJECT_KEY));
+    OrganizationDto organizationDto = db.organizations().insert();
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto, projectUuid).setKey(DEFAULT_PROJECT_KEY));
     dbSession.commit();
   }
 }

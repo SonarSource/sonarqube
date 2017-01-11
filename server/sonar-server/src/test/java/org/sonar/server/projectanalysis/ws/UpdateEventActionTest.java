@@ -89,7 +89,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_name_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
     call("E1", "name");
@@ -104,7 +104,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void ws_response_with_updated_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
     ProjectAnalyses.Event result = call("E1", "name").getEvent();
@@ -142,7 +142,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_name_only_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
 
     call("E1", "name");
@@ -154,7 +154,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_as_project_admin() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto("P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
     userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
 
@@ -178,7 +178,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_insufficient_permissions() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.anonymous();
 
@@ -197,7 +197,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_no_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     expectedException.expect(NullPointerException.class);
@@ -207,7 +207,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_blank_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -218,7 +218,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_category_other_than_other_or_version() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -229,7 +229,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_other_event_with_same_name_on_same_analysis() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()).setName("E1 name"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2").setCategory(OTHER.getLabel()).setName("E2 name"));
 

@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -140,11 +141,12 @@ public class ViewIndexerTest {
 
     RuleDto rule = RuleTesting.newXooX1();
     dbClient.ruleDao().insert(dbSession, rule);
-    ComponentDto project1 = addProjectWithIssue(rule);
+    ComponentDto project1 = addProjectWithIssue(rule, dbTester.organizations().insert());
     issueIndexer.indexAll();
     permissionIndexer.index(dbSession, project1.uuid());
 
-    ComponentDto view = ComponentTesting.newView("ABCD");
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto view = ComponentTesting.newView(organizationDto, "ABCD");
     ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
     dbClient.componentDao().insert(dbSession, view, techProject1);
     dbSession.commit();
@@ -157,7 +159,7 @@ public class ViewIndexerTest {
     assertThat(docs.getDocs()).hasSize(1);
 
     // Add a project to the view and index it again
-    ComponentDto project2 = addProjectWithIssue(rule);
+    ComponentDto project2 = addProjectWithIssue(rule, organizationDto);
     issueIndexer.indexAll();
     permissionIndexer.index(dbSession, project2.uuid());
 
@@ -170,8 +172,8 @@ public class ViewIndexerTest {
     assertThat(issueIndex.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
-  private ComponentDto addProjectWithIssue(RuleDto rule) {
-    ComponentDto project = ComponentTesting.newProjectDto();
+  private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto organizationDto) {
+    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbTester.components().insertComponents(project, file);
     dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);

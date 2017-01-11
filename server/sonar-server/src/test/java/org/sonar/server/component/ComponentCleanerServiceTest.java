@@ -146,7 +146,7 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_to_delete_not_project_scope() throws Exception {
     mockResourceTypeAsValidProject();
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     ComponentDto file = newFileDto(project, null);
     dbClient.componentDao().insert(dbSession, file);
@@ -161,7 +161,7 @@ public class ComponentCleanerServiceTest {
     ResourceType resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty("deletable")).thenReturn(false);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -172,7 +172,7 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_to_delete_null_resource_type() throws Exception {
     when(mockResourceTypes.get(anyString())).thenReturn(null);
-    ComponentDto project = newProjectDto();
+    ComponentDto project = newProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -182,7 +182,7 @@ public class ComponentCleanerServiceTest {
 
   private DbData insertDataInDb(int id) {
     String suffix = String.valueOf(id);
-    ComponentDto project = newProjectDto("project-uuid-" + suffix)
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
     dbClient.ruleDao().insert(dbSession, rule);
@@ -219,7 +219,7 @@ public class ComponentCleanerServiceTest {
     mockResourceTypeAsValidProject();
 
     String suffix = String.valueOf(id);
-    ComponentDto project = newProjectDto("project-uuid-" + suffix)
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();

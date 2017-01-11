@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +49,6 @@ public class ComponentKeyUpdaterDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-
   ComponentKeyUpdaterDao underTest = db.getDbClient().componentKeyUpdaterDao();
 
   @Test
@@ -63,11 +62,12 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void update_key_does_not_updated_inactive_components() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("my_project"));
-    ComponentDto directory = componentDb.insertComponent(newDirectory(project, "/directory").setKey("my_project:directory"));
-    componentDb.insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
-    ComponentDto inactiveDirectory = componentDb.insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
-    componentDb.insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "A").setKey("my_project"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setKey("my_project:directory"));
+    db.components().insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
+    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
+    db.components().insertComponent(newFileDto(project, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
     underTest.updateKey("A", "your_project");
     db.commit();
@@ -89,9 +89,9 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void bulk_update_key_does_not_update_inactive_components() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("my_project"));
-    componentDb.insertComponent(newModuleDto(project).setKey("my_project:module"));
-    componentDb.insertComponent(newModuleDto(project).setKey("my_project:inactive_module").setEnabled(false));
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "A").setKey("my_project"));
+    db.components().insertComponent(newModuleDto(project).setKey("my_project:module"));
+    db.components().insertComponent(newModuleDto(project).setKey("my_project:inactive_module").setEnabled(false));
 
     underTest.bulkUpdateKey(dbSession, "A", "my_", "your_");
 
@@ -143,9 +143,10 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void fail_with_functional_exception_when_sub_component_key_is_longer_than_authorized() {
-    ComponentDto project = newProjectDto("project-uuid").setKey("old-project-key");
-    componentDb.insertComponent(project);
-    componentDb.insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = newProjectDto(organizationDto, "project-uuid").setKey("old-project-key");
+    db.components().insertComponent(project);
+    db.components().insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
@@ -155,7 +156,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void fail_when_new_key_is_invalid() {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = db.components().insertProject();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -187,8 +188,9 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void check_component_keys_checks_inactive_components() {
-    componentDb.insertComponent(newProjectDto().setKey("my-project"));
-    componentDb.insertComponent(newProjectDto().setKey("your-project").setEnabled(false));
+    OrganizationDto organizationDto = db.organizations().insert();
+    db.components().insertComponent(newProjectDto(organizationDto).setKey("my-project"));
+    db.components().insertComponent(newProjectDto(organizationDto).setKey("your-project").setEnabled(false));
 
     Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("my-project", "your-project", "new-project"));
 
@@ -210,9 +212,9 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key_do_not_return_disable_components() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("project"));
-    componentDb.insertComponent(newModuleDto(project).setKey("project:enabled-module"));
-    componentDb.insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "A").setKey("project"));
+    db.components().insertComponent(newModuleDto(project).setKey("project:enabled-module"));
+    db.components().insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
 
     Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "project", "new-project");
 
@@ -223,9 +225,10 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto("A").setKey("project"));
-    componentDb.insertComponent(newModuleDto(project).setKey("project:enabled-module"));
-    componentDb.insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "A").setKey("project"));
+    db.components().insertComponent(newModuleDto(project).setKey("project:enabled-module"));
+    db.components().insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
 
     thrown.expect(IllegalArgumentException.class);
 

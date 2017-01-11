@@ -57,7 +57,7 @@ public class QProfilesTest {
 
   @Test
   public void findProfileByProjectAndLanguage() {
-    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
+    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
     QualityProfileDao qProfileDao = dbTester.getDbClient().qualityProfileDao();
     QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto().setLanguage("js");

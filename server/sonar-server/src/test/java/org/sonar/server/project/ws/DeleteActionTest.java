@@ -199,7 +199,7 @@ public class DeleteActionTest {
   @Test
   public void fail_if_scope_is_not_project() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), null, "file-uuid"));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(db.getDefaultOrganization()), null, "file-uuid"));
     dbSession.commit();
 
     newRequest().setParam(PARAM_ID, "file-uuid").execute();
@@ -208,7 +208,7 @@ public class DeleteActionTest {
   @Test
   public void fail_if_qualifier_is_not_deletable() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("project-uuid").setQualifier(Qualifiers.FILE));
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(db.organizations().insert(), "project-uuid").setQualifier(Qualifiers.FILE));
     dbSession.commit();
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
@@ -218,7 +218,7 @@ public class DeleteActionTest {
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = ComponentTesting
-      .newProjectDto("project-uuid-" + suffix)
+      .newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
     dbClient.ruleDao().insert(dbSession, rule);
@@ -234,7 +234,7 @@ public class DeleteActionTest {
   private void insertNewProjectInIndexes(int id) throws Exception {
     String suffix = String.valueOf(id);
     ComponentDto project = ComponentTesting
-      .newProjectDto("project-uuid-" + suffix)
+      .newProjectDto(db.getDefaultOrganization(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();

@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -46,7 +47,8 @@ public class IssueMapperTest {
 
   @Before
   public void setUp() throws Exception {
-    project = ComponentTesting.newProjectDto();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    project = ComponentTesting.newProjectDto(organizationDto);
     dbTester.getDbClient().componentDao().insert(dbSession, project);
     file = ComponentTesting.newFileDto(project, null);
     dbTester.getDbClient().componentDao().insert(dbSession, file);

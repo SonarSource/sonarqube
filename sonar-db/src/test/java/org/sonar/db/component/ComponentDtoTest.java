@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.db.organization.OrganizationTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -92,7 +93,7 @@ public class ComponentDtoTest {
 
   @Test
   public void test_formatUuidPathFromParent() {
-    ComponentDto parent = ComponentTesting.newProjectDto("123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    ComponentDto parent = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(ComponentDto.formatUuidPathFromParent(parent)).isEqualTo(".123.");
   }
 
