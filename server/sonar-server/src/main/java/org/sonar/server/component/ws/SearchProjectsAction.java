@@ -270,6 +270,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     public Component apply(ComponentDto dbComponent) {
       wsComponent
         .clear()
+        .setOrganization(dbComponent.getOrganizationKey())
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
         .setName(dbComponent.name());
