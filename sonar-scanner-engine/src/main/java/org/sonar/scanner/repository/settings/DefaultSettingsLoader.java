@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -58,17 +57,12 @@ public class DefaultSettingsLoader implements SettingsLoader {
     } else {
       profiler.startInfo("Load global settings");
     }
-    InputStream is = wsClient.call(new GetRequest(url)).contentStream();
-    ValuesWsResponse values = null;
-
-    try {
-      values = ValuesWsResponse.parseFrom(is);
+    try (InputStream is = wsClient.call(new GetRequest(url)).contentStream()) {
+      ValuesWsResponse values = ValuesWsResponse.parseFrom(is);
       profiler.stopInfo();
       return toMap(values.getSettingsList());
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load server settings", e);
-    } finally {
-      IOUtils.closeQuietly(is);
     }
   }
 
