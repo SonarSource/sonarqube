@@ -32,6 +32,7 @@ enum SelenideConfig {
   private static final Set<String> SUPPORTED_BROWSERS = ImmutableSet.of("firefox", "phantomjs");
 
   SelenideConfig() {
+    Configuration.timeout = 8000;
     Configuration.reportsFolder = "target/screenshots";
   }
 
