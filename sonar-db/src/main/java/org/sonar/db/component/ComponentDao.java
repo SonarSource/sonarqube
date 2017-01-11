@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -238,6 +239,13 @@ public class ComponentDao implements Dao {
     addPartialQueryParameterIfNotNull(parameters, query);
 
     return mapper(session).countGhostProjects(parameters);
+  }
+
+  /**
+   * Selects all enabled components. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
+   */
+  public void selectAll(DbSession session, ResultHandler handler) {
+    mapper(session).selectAll(handler);
   }
 
   /**

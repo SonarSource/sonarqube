@@ -486,6 +486,13 @@
     </if>
   </sql>
 
+  <select id="selectAll" parameterType="map" resultType="Component">
+    select distinct
+    <include refid="componentColumns"/>
+    from projects p
+    where p.enabled=${_true}
+  </select>
+
   <sql id="insertSql">
     INSERT INTO projects (
     organization_uuid,

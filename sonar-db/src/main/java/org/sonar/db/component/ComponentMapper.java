@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
@@ -130,6 +131,8 @@ public interface ComponentMapper {
   List<ComponentDto> selectComponentsHavingSameKeyOrderedById(String key);
 
   long countGhostProjects(Map<String, Object> parameters);
+
+  void selectAll(ResultHandler handler);
 
   void insert(ComponentDto componentDto);
 

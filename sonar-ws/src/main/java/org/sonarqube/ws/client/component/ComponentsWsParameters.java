@@ -30,6 +30,7 @@ public class ComponentsWsParameters {
   public static final String ACTION_SHOW = "show";
   public static final String ACTION_BULK_UPDATE_KEY = "bulk_update_key";
   public static final String ACTION_SEARCH_PROJECTS = "search_projects";
+  public static final String ACTION_SUGGESTIONS = "suggestions";
 
   // parameters
   public static final String PARAM_QUALIFIERS = "qualifiers";

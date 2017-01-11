@@ -35,6 +35,7 @@ import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -79,7 +80,8 @@ public class AddProjectActionTest {
 
   private WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
     qProfileProjectOperations, new ProjectAssociationFinder(new QProfileLookup(dbClient),
-      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()))),
+      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()),
+        new ComponentIndexer(dbClient, es.client()))),
     userSession));
 
   @Before

@@ -70,7 +70,7 @@ class DefaultIndexSettings {
       .putArray("index.analysis.analyzer.html_analyzer.char_filter", "html_strip")
 
       // Edge NGram filter
-      .put("index.analysis.filter.gram_filter.type", "edgeNGram")
+      .put("index.analysis.filter.gram_filter.type", "nGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")

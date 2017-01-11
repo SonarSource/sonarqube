@@ -42,6 +42,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
@@ -62,15 +63,17 @@ public class ComponentService {
   private final System2 system2;
   private final ComponentFinder componentFinder;
   private final ProjectMeasuresIndexer projectMeasuresIndexer;
+  private final ComponentIndexer componentIndexer;
 
-  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2,
-    ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer) {
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer,
+    ComponentIndexer componentIndexer) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
     this.system2 = system2;
     this.componentFinder = componentFinder;
     this.projectMeasuresIndexer = projectMeasuresIndexer;
+    this.componentIndexer = componentIndexer;
   }
 
   public ComponentDto getByKey(String key) {
@@ -118,13 +121,13 @@ public class ComponentService {
     checkProjectOrModuleKeyFormat(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);
     dbSession.commit();
-    projectMeasuresIndexer.index(component.uuid());
+    index(component.uuid());
   }
 
   public void bulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
     dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectUuid, stringToReplace, replacementString);
     dbSession.commit();
-    projectMeasuresIndexer.index(projectUuid);
+    index(projectUuid);
   }
 
   // Used by SQ and Governance
@@ -133,9 +136,13 @@ public class ComponentService {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto rootComponent = createRootComponent(session, newComponent);
     removeDuplicatedProjects(session, rootComponent.getKey());
-    projectMeasuresIndexer.index(rootComponent.uuid());
-
+    index(rootComponent.uuid());
     return rootComponent;
+  }
+
+  private void index(String projectUuid) {
+    projectMeasuresIndexer.index(projectUuid);
+    componentIndexer.index(projectUuid);
   }
 
   /**

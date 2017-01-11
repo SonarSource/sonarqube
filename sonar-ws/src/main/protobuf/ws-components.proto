@@ -46,6 +46,16 @@ message ShowWsResponse {
   repeated Component ancestors = 3;
 }
 
+// WS api/components/suggestions
+message SuggestionsWsResponse {
+  repeated Qualifier results = 2;
+  
+  message Qualifier {
+  	optional string q = 1;
+  	repeated Component items = 4;
+  }
+}
+
 // WS api/components/prepare_bulk_update_key
 message BulkUpdateKeyWsResponse {
   repeated Key keys = 1;

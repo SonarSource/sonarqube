@@ -26,11 +26,10 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -53,8 +52,8 @@ public class ComponentsWsTest {
     WsTester tester = new WsTester(new ComponentsWs(
       new AppAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
       new SearchViewComponentsAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
-      new SearchAction(mock(org.sonar.db.DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages)
-      ));
+      new SuggestionsAction(mock(DbClient.class), mock(ComponentIndex.class)),
+      new SearchAction(mock(DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages)));
     controller = tester.controller("api/components");
   }
 
@@ -72,9 +71,9 @@ public class ComponentsWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(1);
   }
 
   @Test

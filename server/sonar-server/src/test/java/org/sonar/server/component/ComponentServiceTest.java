@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -81,15 +82,16 @@ public class ComponentServiceTest {
   private DbSession dbSession = dbTester.getSession();
   private I18nRule i18n = new I18nRule();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
-
+  private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
   private OrganizationDto organization;
+
   private ComponentService underTest;
 
   @Before
   public void setUp() {
     i18n.put("qualifier.TRK", "Project");
 
-    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer, componentIndexer);
     organization = dbTester.organizations().insert();
   }
 
@@ -311,7 +313,7 @@ public class ComponentServiceTest {
       ComponentTesting.newProjectDto(organizationDto).setId(2L).setKey(projectKey),
       ComponentTesting.newProjectDto(organizationDto).setId(3L).setKey(projectKey)));
 
-    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    underTest = new ComponentService(dbClient, i18n, userSession, System2.INSTANCE, new ComponentFinder(dbClient), projectMeasuresIndexer, componentIndexer);
     underTest.create(
       session,
       newComponentBuilder()

@@ -34,14 +34,15 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -73,7 +74,7 @@ public class DefaultRubyComponentServiceTest {
 
   private ResourceDao resourceDao = dbClient.resourceDao();
   private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
-    new ProjectMeasuresIndexer(system2, dbClient, es.client()));
+    new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

@@ -1,10 +1,7 @@
 {
-  "total": 101,
   "results": [
     {
       "q": "TRK",
-      "icon": "/images/q/TRK.png",
-      "name": "Projects",
       "items": [
         {
           "id": 2865,
@@ -34,8 +31,6 @@
     },
     {
       "q": "BRC",
-      "icon": "/images/q/BRC.png",
-      "name": "Sub-projects",
       "items": [
         {
           "id": 17221,

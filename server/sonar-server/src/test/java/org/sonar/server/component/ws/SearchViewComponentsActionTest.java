@@ -28,12 +28,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
-
 
 public class SearchViewComponentsActionTest {
 
@@ -50,7 +50,11 @@ public class SearchViewComponentsActionTest {
 
   @Before
   public void setUp() {
-    ws = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchViewComponentsAction(db.getDbClient(), userSessionRule, new ComponentFinder(db.getDbClient()))));
+    ws = new WsTester(
+      new ComponentsWs(
+        mock(AppAction.class),
+        new SearchViewComponentsAction(db.getDbClient(), userSessionRule, new ComponentFinder(db.getDbClient())),
+        new SuggestionsAction(db.getDbClient(), mock(ComponentIndex.class))));
   }
 
   @Test

@@ -67,8 +67,11 @@ public class AppActionTest {
   @Before
   public void setUp() {
     insertMetrics();
-    wsTester = new WsTester(new ComponentsWs(
-      new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient())), mock(SearchViewComponentsAction.class)));
+    wsTester = new WsTester(
+      new ComponentsWs(
+        new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient())),
+        mock(SearchViewComponentsAction.class),
+        mock(SuggestionsAction.class)));
   }
 
   @Test
