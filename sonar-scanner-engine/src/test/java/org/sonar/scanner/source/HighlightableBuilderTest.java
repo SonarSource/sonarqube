@@ -21,8 +21,8 @@ package org.sonar.scanner.source;
 
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.source.Highlightable;
 
@@ -34,7 +34,7 @@ public class HighlightableBuilderTest {
   @Test
   public void should_load_default_perspective() {
     HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class), mock(AnalysisMode.class));
-    Highlightable perspective = builder.loadPerspective(Highlightable.class, new DefaultInputFile("foo", "foo.c"));
+    Highlightable perspective = builder.loadPerspective(Highlightable.class, new TestInputFileBuilder("foo", "foo.c").build());
 
     assertThat(perspective).isNotNull().isInstanceOf(DefaultHighlightable.class);
   }

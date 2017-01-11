@@ -22,38 +22,19 @@ package org.sonar.api.batch.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 
 /**
- * This layer over {@link java.io.File} adds information for code analyzers.
- * For unit testing purpose you can create some {@link DefaultInputFile} and initialize
- * all fields using 
- * 
- * <pre>
- *   new DefaultInputFile("moduleKey", "relative/path/from/module/baseDir.java")
- *     .setModuleBaseDir(path)
- *     .initMetadata(new FileMetadata().readMetadata(someReader));
- * </pre>
- *
- * @since 4.2
+ * @since 6.3 
  */
-public interface InputFile extends IndexedFile, InputPath {
-
-  enum Type {
-    MAIN, TEST
-  }
-
-  /** 
-   * Status regarding previous analysis
-   */
-  enum Status {
-    SAME, CHANGED, ADDED
-  }
-
+public interface IndexedFile extends InputPath {
   /**
    * Path relative to module base directory. Path is unique and identifies file
    * within given <code>{@link FileSystem}</code>. File separator is the forward
@@ -100,14 +81,12 @@ public interface InputFile extends IndexedFile, InputPath {
    * Language, for example "java" or "php". Can be null if indexation of all files is enabled and no language claims to support the file.
    */
   @CheckForNull
-  @Override
   String language();
 
   /**
    * Does it contain main or test code ?
    */
-  @Override
-  Type type();
+  InputFile.Type type();
 
   /**
    * Creates a stream of the file's contents. Depending on the runtime context, the source might be a file in a physical or virtual filesystem.
@@ -115,82 +94,7 @@ public interface InputFile extends IndexedFile, InputPath {
    * Note that there is a default implementation.
    * @since 6.2
    */
-  @Override
   default InputStream inputStream() throws IOException {
     return Files.newInputStream(path());
   }
-
-  /**
-   * Fetches the entire contents of the file, decoding with the {@link #charset}.
-   * Note that there is a default implementation.
-   * @since 6.2
-   */
-  default String contents() throws IOException {
-    return new String(Files.readAllBytes(path()), charset());
-  }
-
-  /**
-   * Status regarding previous analysis
-   */
-  Status status();
-
-  /**
-   * Number of physical lines. This method supports all end-of-line characters. Formula is (number of line break + 1). 
-   * <p>
-   * Returns 1 if the file is empty.
-   * <br> 
-   * Returns 2 for <tt>foo\nbar</tt>. 
-   * <br>
-   * Returns 3 for <tt>foo\nbar\n</tt>.
-   */
-  int lines();
-
-  /**
-   * Check if the file content is empty (ignore potential BOM).
-   * @since 5.2
-   */
-  boolean isEmpty();
-
-  /**
-   * Returns a {@link TextPointer} in the given file.
-   * @param line Line of the pointer. Start at 1.
-   * @param lineOffset Offset in the line. Start at 0.
-   * @throws IllegalArgumentException if line or offset is not valid for the given file.
-   * @since 5.2
-   */
-  TextPointer newPointer(int line, int lineOffset);
-
-  /**
-   * Returns a {@link TextRange} in the given file.
-   * @param start start pointer
-   * @param end end pointer
-   * @throws IllegalArgumentException if start or stop pointers are not valid for the given file.
-   * @since 5.2
-   */
-  TextRange newRange(TextPointer start, TextPointer end);
-
-  /**
-   * Returns a {@link TextRange} in the given file.
-   * <ul>
-   * <li><code>newRange(1, 0, 1, 1)</code> selects the first character at line 1</li>
-   * <li><code>newRange(1, 0, 1, 10)</code> selects the 10 first characters at line 1</li>
-   * </ul>
-   * @throws IllegalArgumentException if start or stop positions are not valid for the given file.
-   * @since 5.2
-   */
-  TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
-
-  /**
-   * Returns a {@link TextRange} in the given file that select the full line.
-   * @param line Start at 1.
-   * @throws IllegalArgumentException if line is not valid for the given file.
-   * @since 5.2
-   */
-  TextRange selectLine(int line);
-
-  /**
-   * Charset to be used to decode this specific file.
-   * @since 6.0
-   */
-  Charset charset();
 }
