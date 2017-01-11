@@ -1,9 +1,0 @@
-{
-  "timestamp": 0,
-  "metrics": [],
-  "globalSettings": {
-    "foo" : "bar",
-    "foo.secured" : "1234",
-    "foo.license.secured" : "5678"
-  }
-}
