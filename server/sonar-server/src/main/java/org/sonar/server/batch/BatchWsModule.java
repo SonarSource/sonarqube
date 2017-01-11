@@ -26,7 +26,6 @@ public class BatchWsModule extends Module {
   protected void configureModule() {
     add(
       BatchIndex.class,
-      GlobalAction.class,
       ProjectAction.class,
       ProjectDataLoader.class,
       IssuesAction.class,
