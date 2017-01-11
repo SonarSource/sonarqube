@@ -34,9 +34,9 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

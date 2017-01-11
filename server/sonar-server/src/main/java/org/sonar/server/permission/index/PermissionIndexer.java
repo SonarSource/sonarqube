@@ -38,11 +38,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;

@@ -17,7 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.component.es;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+package org.sonar.server.measure.index;
+
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.measure.index.ProjectsEsModule;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ProjectsEsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new ProjectsEsModule().configure(container);
+    assertThat(container.size()).isEqualTo(3 + 2);
+  }
+}

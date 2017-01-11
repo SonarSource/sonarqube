@@ -21,7 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
+import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 
 public class IndexProjectMeasuresStep implements ComputationStep {
 

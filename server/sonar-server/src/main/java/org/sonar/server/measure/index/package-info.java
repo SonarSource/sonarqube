@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.server.measure.index;
 
-package org.sonar.server.component.es;
-
-import org.sonar.core.platform.Module;
-
-public class ProjectsEsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectMeasuresIndexDefinition.class,
-      ProjectMeasuresIndex.class,
-      ProjectMeasuresIndexer.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

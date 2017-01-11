@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.es;
+package org.sonar.server.measure.index;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
@@ -29,12 +29,16 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
-import org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.measure.index.ProjectMeasuresDoc;
+import org.sonar.server.measure.index.ProjectMeasuresIndex;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -50,8 +54,8 @@ import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
-import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexTest {
 

@@ -23,16 +23,16 @@ package org.sonar.server.component.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.server.component.es.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 public class ProjectMeasuresQueryFactoryTest {
 

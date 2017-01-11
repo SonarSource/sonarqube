@@ -33,10 +33,10 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.version.SqTables;
-import org.sonar.server.component.es.ProjectMeasuresIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.view.index.ViewIndexDefinition;
 

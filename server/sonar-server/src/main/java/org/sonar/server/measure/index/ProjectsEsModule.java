@@ -18,18 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.es;
+package org.sonar.server.measure.index;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Module;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class ProjectsEsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ProjectsEsModule().configure(container);
-    assertThat(container.size()).isEqualTo(3 + 2);
+public class ProjectsEsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      ProjectMeasuresIndexDefinition.class,
+      ProjectMeasuresIndex.class,
+      ProjectMeasuresIndexer.class);
   }
 }

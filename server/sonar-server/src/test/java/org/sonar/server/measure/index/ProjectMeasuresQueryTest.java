@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.es;
+package org.sonar.server.measure.index;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.Level.OK;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
-import static org.sonar.server.component.es.ProjectMeasuresQuery.Operator.EQ;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
 
 public class ProjectMeasuresQueryTest {
 

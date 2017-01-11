@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.component.es;
+package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseDoc;
 
-import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 

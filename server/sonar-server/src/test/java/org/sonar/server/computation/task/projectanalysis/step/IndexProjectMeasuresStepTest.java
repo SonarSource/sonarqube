@@ -23,7 +23,7 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.component.es.ProjectMeasuresIndexer;
+import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

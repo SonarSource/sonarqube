@@ -28,9 +28,9 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.es.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
-import static org.sonar.server.component.es.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 
 public class ProjectMeasuresQueryValidator {
 
