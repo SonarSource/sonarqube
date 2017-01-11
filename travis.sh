@@ -24,6 +24,8 @@ function configureTravis {
 configureTravis
 . installJDK8
 
+./clock.sh &
+
 case "$TARGET" in
 
 CI)
@@ -106,3 +108,6 @@ WEB)
   ;;
 
 esac
+
+#stop the clock
+touch stop
