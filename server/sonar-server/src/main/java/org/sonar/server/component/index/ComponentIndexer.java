@@ -22,12 +22,12 @@ package org.sonar.server.component.index;
 
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
@@ -52,12 +52,14 @@ public class ComponentIndexer implements Startable {
   }
 
   /**
-   * Copy all database contents to the elastic search index.
+   * Copy all components of all projects to the elastic search index.
    */
   public void index() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.componentDao()
-        .selectAll(dbSession, context -> index((ComponentDto) context.getResultObject()));
+        .selectProjects(dbSession)
+        .stream()
+        .forEach(this::index);
     }
   }
 
@@ -66,20 +68,16 @@ public class ComponentIndexer implements Startable {
    */
   public void index(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      index(dbClient.componentDao().selectByProjectUuid(projectUuid, dbSession).stream());
+      index(
+        dbClient
+          .componentDao()
+          .selectByProjectUuid(projectUuid, dbSession)
+          .toArray(new ComponentDto[0]));
     }
   }
 
-  private void index(Stream<ComponentDto> components) {
-    components.forEach(this::index);
-  }
-
-  public void index(ComponentDto doc) {
-    index(toDocument(doc));
-  }
-
-  public void index(ComponentDoc document) {
-    Future<?> submit = executor.submit(() -> indexNow(document));
+  public void index(ComponentDto... docs) {
+    Future<?> submit = executor.submit(() -> indexNow(docs));
     try {
       Uninterruptibles.getUninterruptibly(submit);
     } catch (ExecutionException e) {
@@ -87,11 +85,14 @@ public class ComponentIndexer implements Startable {
     }
   }
 
-  private void indexNow(ComponentDoc doc) {
+  private void indexNow(ComponentDto... docs) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
     bulk.setLarge(false);
     bulk.start();
-    bulk.add(newIndexRequest(doc));
+    Arrays.stream(docs)
+      .map(ComponentIndexer::toDocument)
+      .map(ComponentIndexer::newIndexRequest)
+      .forEach(bulk::add);
     bulk.stop();
   }
 
