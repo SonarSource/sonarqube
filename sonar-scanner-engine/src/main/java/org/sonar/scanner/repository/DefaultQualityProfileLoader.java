@@ -21,7 +21,7 @@ package org.sonar.scanner.repository;
 
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -45,16 +45,16 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   public List<QualityProfile> loadDefault(@Nullable String profileName) {
     String url = WS_URL + "?defaults=true";
     if (profileName != null) {
-      url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
+      url += "&profileName=" + ScannerUtils.encodeForUrl(profileName);
     }
     return loadResource(url);
   }
 
   @Override
   public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
-    String url = WS_URL + "?projectKey=" + BatchUtils.encodeForUrl(projectKey);
+    String url = WS_URL + "?projectKey=" + ScannerUtils.encodeForUrl(projectKey);
     if (profileName != null) {
-      url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
+      url += "&profileName=" + ScannerUtils.encodeForUrl(profileName);
     }
     return loadResource(url);
   }

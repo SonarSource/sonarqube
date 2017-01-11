@@ -20,18 +20,18 @@
 package org.sonar.scanner.util;
 
 import org.junit.Test;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchUtilsTest {
+public class ScannerUtilsTest {
 
   @Test
   public void encodeForUrl() throws Exception {
-    assertThat(BatchUtils.encodeForUrl(null)).isEqualTo("");
-    assertThat(BatchUtils.encodeForUrl("")).isEqualTo("");
-    assertThat(BatchUtils.encodeForUrl("foo")).isEqualTo("foo");
-    assertThat(BatchUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
+    assertThat(ScannerUtils.encodeForUrl(null)).isEqualTo("");
+    assertThat(ScannerUtils.encodeForUrl("")).isEqualTo("");
+    assertThat(ScannerUtils.encodeForUrl("foo")).isEqualTo("foo");
+    assertThat(ScannerUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }
 
   private class MyClass {
@@ -51,8 +51,8 @@ public class BatchUtilsTest {
 
     Object withoutToString = new Object();
 
-    assertThat(BatchUtils.describe(withToString)).isEqualTo(("desc"));
-    assertThat(BatchUtils.describe(withoutToString)).isEqualTo("java.lang.Object");
-    assertThat(BatchUtils.describe(new MyClass())).endsWith("MyClass");
+    assertThat(ScannerUtils.describe(withToString)).isEqualTo(("desc"));
+    assertThat(ScannerUtils.describe(withoutToString)).isEqualTo("java.lang.Object");
+    assertThat(ScannerUtils.describe(new MyClass())).endsWith("MyClass");
   }
 }

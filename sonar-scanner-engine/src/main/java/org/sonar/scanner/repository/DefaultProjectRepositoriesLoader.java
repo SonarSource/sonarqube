@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.WsBatch;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
@@ -70,7 +70,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     StringBuilder builder = new StringBuilder();
 
     builder.append(BATCH_PROJECT_URL)
-      .append("?key=").append(BatchUtils.encodeForUrl(projectKey));
+      .append("?key=").append(ScannerUtils.encodeForUrl(projectKey));
     if (issuesMode) {
       builder.append("&issues_mode=true");
     }

@@ -25,7 +25,7 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultServerIssuesLoader implements ServerIssuesLoader {
@@ -38,7 +38,7 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
   @Override
   public void load(String componentKey, Function<ServerIssue, Void> consumer) {
-    GetRequest getRequest = new GetRequest("/batch/issues.protobuf?key=" + BatchUtils.encodeForUrl(componentKey));
+    GetRequest getRequest = new GetRequest("/batch/issues.protobuf?key=" + ScannerUtils.encodeForUrl(componentKey));
     InputStream is = wsClient.call(getRequest).contentStream();
     parseIssues(is, consumer);
   }
