@@ -29,11 +29,13 @@
 
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT
-    <include refid="componentColumns"/>
+      <include refid="componentColumns"/>,
+      o.kee as organizationKey
     FROM projects p
-    <where>
-      AND p.kee=#{key}
-    </where>
+    inner join organizations o on
+      o.uuid = p.organization_uuid
+    where
+      p.kee=#{key}
   </select>
 
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">

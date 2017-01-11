@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -94,13 +95,14 @@ public class ProjectDataLoaderTest {
       {Scopes.PROJECT, "DEV_PRJ"}
     };
 
+    OrganizationDto organizationDto = dbTester.organizations().insert();
     for (String[] scopeAndQualifier : allScopesAndQualifierButProjectAndModule) {
       String scope = scopeAndQualifier[0];
       String qualifier = scopeAndQualifier[1];
       String key = "theKey_" + scope + "_" + qualifier;
       String uuid = "uuid_" + uuidCounter++;
       dbClient.componentDao().insert(dbSession, new ComponentDto()
-        .setOrganizationUuid("org1")
+        .setOrganizationUuid(organizationDto.getUuid())
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)

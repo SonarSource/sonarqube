@@ -79,6 +79,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
+    dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder);
   }
 
@@ -231,7 +232,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_only_new_components() {
-    // Project amd module already exists
+    // Project and module already exists
     ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setName("Module");

@@ -65,8 +65,6 @@ import static org.sonar.server.component.es.ProjectMeasuresIndexDefinition.TYPE_
 
 public class ComponentServiceTest {
 
-  private static final String ORGANIZATION_UUID = "org 1A";
-
   private System2 system2 = System2.INSTANCE;
 
   @Rule
@@ -84,6 +82,7 @@ public class ComponentServiceTest {
   private I18nRule i18n = new I18nRule();
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
 
+  private OrganizationDto organization;
   private ComponentService underTest;
 
   @Before
@@ -91,6 +90,7 @@ public class ComponentServiceTest {
     i18n.put("qualifier.TRK", "Project");
 
     underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer);
+    organization = dbTester.organizations().insert();
   }
 
   @Test
@@ -126,14 +126,14 @@ public class ComponentServiceTest {
     String key = underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("struts")
         .setName("Struts project")
         .build())
       .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
-    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("struts");
     assertThat(project.deprecatedKey()).isEqualTo("struts");
     assertThat(project.uuid()).isNotNull();
@@ -156,7 +156,7 @@ public class ComponentServiceTest {
     String key = underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("struts")
         .setName("Struts project")
         .setBranch("origin/branch")
@@ -164,7 +164,7 @@ public class ComponentServiceTest {
       .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
-    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("struts:origin/branch");
     assertThat(project.deprecatedKey()).isEqualTo("struts:origin/branch");
   }
@@ -176,7 +176,7 @@ public class ComponentServiceTest {
     String key = underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("all-project")
         .setName("All Projects")
         .setQualifier(Qualifiers.VIEW)
@@ -184,7 +184,7 @@ public class ComponentServiceTest {
       .getKey();
 
     ComponentDto project = underTest.getNullableByKey(key);
-    assertThat(project.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("all-project");
     assertThat(project.deprecatedKey()).isEqualTo("all-project");
     assertThat(project.uuid()).isNotNull();
@@ -208,7 +208,7 @@ public class ComponentServiceTest {
     String key = underTest.createDeveloper(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("DEV:jon.name@mail.com")
         .setName("John")
         .setQualifier("DEV")
@@ -217,7 +217,7 @@ public class ComponentServiceTest {
     dbTester.getSession().commit();
 
     ComponentDto dev = underTest.getNullableByKey(key);
-    assertThat(dev.getOrganizationUuid()).isEqualTo(ORGANIZATION_UUID);
+    assertThat(dev.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(dev.key()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.deprecatedKey()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.uuid()).isNotNull();
@@ -242,7 +242,7 @@ public class ComponentServiceTest {
     underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("struts?parent")
         .setName("Struts project")
         .build());
@@ -258,7 +258,7 @@ public class ComponentServiceTest {
     underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("struts")
         .setName("Struts project")
         .setBranch("origin?branch")
@@ -278,7 +278,7 @@ public class ComponentServiceTest {
     underTest.create(
       dbSession,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey("struts")
         .setName("Struts project")
         .build());
@@ -315,7 +315,7 @@ public class ComponentServiceTest {
     underTest.create(
       session,
       newComponentBuilder()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(organization.getUuid())
         .setKey(projectKey)
         .setName(projectKey)
         .build());

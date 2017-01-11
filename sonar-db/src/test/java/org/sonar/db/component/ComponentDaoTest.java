@@ -153,6 +153,9 @@ public class ComponentDaoTest {
     assertThat(optional).isPresent();
 
     ComponentDto result = optional.get();
+    assertThat(result.getOrganizationUuid()).isEqualTo("org1");
+    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
+    assertThat(result.uuid()).isEqualTo("U4");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
@@ -160,7 +163,6 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.uuid()).isEqualTo("U4");
     assertThat(result.getRootUuid()).isEqualTo("U1");
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();

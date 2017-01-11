@@ -40,6 +40,10 @@ public class OrganizationDbTester {
     return insert(OrganizationTesting.newOrganizationDto().setKey(key));
   }
 
+  public OrganizationDto insertForUuid(String organizationUuid) {
+    return insert(OrganizationTesting.newOrganizationDto().setUuid(organizationUuid));
+  }
+
   /**
    * Insert the provided {@link OrganizationDto} and commit the session
    */

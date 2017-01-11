@@ -76,7 +76,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-      .setOrganizationUuid(ORGANIZATION_UUID);
+    .setOrganizationUuid(ORGANIZATION_UUID);
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
@@ -90,6 +90,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
+    dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder);
   }
 

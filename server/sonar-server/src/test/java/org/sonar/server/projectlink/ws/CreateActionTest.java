@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -207,15 +208,11 @@ public class CreateActionTest {
   }
 
   private ComponentDto insertProject() {
-    ComponentDto project = new ComponentDto()
-      .setOrganizationUuid("org1")
-      .setUuid(PROJECT_UUID)
-      .setKey(PROJECT_KEY)
-      .setUuidPath("")
-      .setRootUuid("");
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-    return project;
+    OrganizationDto organizationDto = db.organizations().insert();
+    return db.components().insertProject(
+      organizationDto,
+      (t) -> t.setUuid(PROJECT_UUID)
+        .setKey(PROJECT_KEY));
   }
 
   private void createAndTest(String name, String url, String type) throws IOException {
