@@ -203,14 +203,13 @@ export default Marionette.LayoutView.extend({
       }
 
       const collection = [];
-      r.results.forEach(domain => {
-        domain.items.forEach((item, index) => {
+      r.results.forEach(({ items, q }) => {
+        items.forEach((item, index) => {
           collection.push({
             ...item,
-            q: domain.q,
-            extra: index === 0 ? domain.name : null,
-            url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) +
-            window.dashboardParameters(true)
+            q,
+            extra: index === 0 ? translate('qualifiers', q) : null,
+            url: window.baseUrl + '/dashboard?id=' + encodeURIComponent(item.key)
           });
         });
       });
