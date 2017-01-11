@@ -55,12 +55,12 @@ public class SettingsFinderTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
 
-  SettingsFinder underTest = new SettingsFinder(dbClient, propertyDefinitions);
+  private SettingsFinder underTest = new SettingsFinder(dbClient, propertyDefinitions);
 
   @Test
   public void return_global_settings() throws Exception {
@@ -111,7 +111,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_settings() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("property").defaultValue("default").build());
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
 
@@ -126,7 +126,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_setting_even_if_no_definition() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
 
     Multimap<String, Setting> settings = underTest.loadComponentSettings(dbSession, newHashSet("property"), project);
@@ -136,7 +136,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_settings_with_property_set() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("set1")
       .type(PROPERTY_SET)
       .fields(asList(
@@ -162,10 +162,10 @@ public class SettingsFinderTest {
 
   @Test
   public void return_module_settings() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto());
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto());
+    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
 
     insertProperties(
       newComponentPropertyDto(project).setKey("property").setValue("one"),

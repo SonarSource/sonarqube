@@ -62,25 +62,23 @@ public class IndexActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  PropertyDefinitions definitions = new PropertyDefinitions();
+  private DbClient dbClient = db.getDbClient();
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private PropertyDefinitions definitions = new PropertyDefinitions();
 
-  ComponentDto project;
+  private ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new IndexAction(dbClient, userSession, definitions));
+  private WsActionTester ws = new WsActionTester(new IndexAction(dbClient, userSession, definitions));
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(newProjectDto());
+    project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
   }
 
   @Test

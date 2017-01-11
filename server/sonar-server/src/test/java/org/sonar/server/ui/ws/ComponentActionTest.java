@@ -75,8 +75,10 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
 
+  private static final String DEFAULT_ORGANIZATION_UUID = "defOrgUuid";
   private static final String PROJECT_KEY = "polop";
   private static final ComponentDto PROJECT = newProjectDto("abcd")
+    .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
     .setKey(PROJECT_KEY)
     .setName("Polop")
     .setDescription("test project")
@@ -84,10 +86,9 @@ public class ComponentActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  public DbTester dbTester = DbTester.create(System2.INSTANCE)
+    .setDefaultOrganizationUuid(DEFAULT_ORGANIZATION_UUID);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

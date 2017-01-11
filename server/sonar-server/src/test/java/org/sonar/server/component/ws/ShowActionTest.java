@@ -59,9 +59,10 @@ public class ShowActionTest {
     .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient())));
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+
+  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient())));
 
   @Test
   public void json_example() throws IOException {
@@ -141,7 +142,7 @@ public class ShowActionTest {
   }
 
   private void insertJsonExampleComponentsAndSnapshots() {
-    ComponentDto project = newProjectDto("AVIF98jgA3Ax6PH2efOW")
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "AVIF98jgA3Ax6PH2efOW")
       .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")

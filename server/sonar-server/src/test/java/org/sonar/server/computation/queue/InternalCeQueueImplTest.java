@@ -340,8 +340,8 @@ public class InternalCeQueueImplTest {
     assertThat(queueDto.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
   }
 
-  private static ComponentDto newComponentDto(String uuid) {
-    return ComponentTesting.newProjectDto(uuid).setName("name_" + uuid).setKey("key_" + uuid);
+  private ComponentDto newComponentDto(String uuid) {
+    return ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

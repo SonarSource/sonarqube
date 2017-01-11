@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -74,6 +75,8 @@ public class ComponentDaoTest {
 
     ComponentDto result = underTest.selectByUuid(dbSession, "U1").get();
     assertThat(result).isNotNull();
+    assertThat(result.getOrganizationUuid()).isEqualTo("org1");
+    assertThat(result.getOrganizationKey()).isNull();
     assertThat(result.uuid()).isEqualTo("U1");
     assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U1");
@@ -250,7 +253,8 @@ public class ComponentDaoTest {
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
-    assertThat(result).isNotNull();
+    assertThat(result.getOrganizationUuid()).isEqualTo("org1");
+    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
     assertThat(result.uuid()).isEqualTo("U4");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U4");
     assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U4");
@@ -859,8 +863,10 @@ public class ComponentDaoTest {
 
   @Test
   public void selectAncestors() {
+    // organization
+    OrganizationDto organization = db.organizations().insert();
     // project -> module -> file
-    ComponentDto project = newProjectDto(PROJECT_UUID);
+    ComponentDto project = newProjectDto(organization, PROJECT_UUID);
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     componentDb.insertComponent(module);

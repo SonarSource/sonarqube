@@ -36,6 +36,10 @@ public class OrganizationDbTester {
     return insert(OrganizationTesting.newOrganizationDto());
   }
 
+  public OrganizationDto insertForKey(String key) {
+    return insert(OrganizationTesting.newOrganizationDto().setKey(key));
+  }
+
   /**
    * Insert the provided {@link OrganizationDto} and commit the session
    */

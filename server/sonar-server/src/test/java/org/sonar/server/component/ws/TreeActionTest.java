@@ -48,6 +48,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -77,9 +78,10 @@ public class TreeActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  ResourceTypesRule resourceTypes = new ResourceTypesRule();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
+  ResourceTypesRule resourceTypes = new ResourceTypesRule();
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
 
@@ -230,9 +232,10 @@ public class TreeActionTest {
 
   @Test
   public void return_children_of_a_view() {
-    ComponentDto view = newView("view-uuid");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto view = newView(organizationDto, "view-uuid");
     componentDb.insertViewAndSnapshot(view);
-    ComponentDto project = newProjectDto("project-uuid-1").setName("project-name").setKey("project-key-1");
+    ComponentDto project = newProjectDto(organizationDto, "project-uuid-1").setName("project-name").setKey("project-key-1");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
@@ -251,7 +254,7 @@ public class TreeActionTest {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    componentDb.insertComponent(newProjectDto("project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
@@ -265,9 +268,9 @@ public class TreeActionTest {
 
   @Test
   public void return_developers() {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
-    ComponentDto developer = newDeveloper("developer-name");
+    ComponentDto developer = newDeveloper(db.organizations().insert(), "developer-name");
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertComponent(newDevProjectCopy("project-copy-uuid", project, developer));
     db.commit();
@@ -282,7 +285,7 @@ public class TreeActionTest {
 
   @Test
   public void return_projects_composing_a_view() {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto view = newView("view-uuid");
     componentDb.insertViewAndSnapshot(view);

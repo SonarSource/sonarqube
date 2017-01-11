@@ -94,13 +94,10 @@ public class BulkChangeActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -123,7 +120,7 @@ public class BulkChangeActionTest {
   public void setUp() throws Exception {
     issueWorkflow.start();
     rule = db.rules().insertRule(newRuleDto());
-    project = db.components().insertProject();
+    project = db.components().insertProject(db.organizations().insert());
     file = db.components().insertComponent(newFileDto(project));
     user = db.users().insertUser("john");
     when(system2.now()).thenReturn(NOW);

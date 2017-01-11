@@ -44,7 +44,7 @@ import org.sonar.server.ws.WsTester;
 
 public class ListActionTest {
 
-  private static final String ORGANIZATION_UUID = "org1";
+  private static final String DEFAULT_ORGANIZATION_UUID = "org1";
 
   @Rule
   public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
@@ -53,16 +53,16 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE)
+      .setDefaultOrganizationUuid(DEFAULT_ORGANIZATION_UUID);
 
   private DbClient dbClient = db.getDbClient();
 
-  private TestIndex testIndex;
   private WsTester ws;
 
   @Before
   public void setUp() {
-    testIndex = new TestIndex(es.client());
+    TestIndex testIndex = new TestIndex(es.client());
     ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient))));
   }
 
@@ -114,7 +114,7 @@ public class ListActionTest {
       TestFile1.dto(),
       TestFile2.dto(),
       new ComponentDto()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
         .setUuid(mainFileUuid)
         .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
         .setRootUuid(TestFile1.PROJECT_UUID)
@@ -141,7 +141,7 @@ public class ListActionTest {
       TestFile1.dto(),
       TestFile2.dto(),
       new ComponentDto()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
         .setUuid(sourceFileUuid)
         .setUuidPath(TestFile1.PROJECT_UUID + "." + sourceFileUuid + ".")
         .setRootUuid(TestFile1.PROJECT_UUID)
@@ -198,7 +198,7 @@ public class ListActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     String mainFileUuid = "MAIN-FILE-UUID";
     dbClient.componentDao().insert(db.getSession(), new ComponentDto()
-      .setOrganizationUuid(ORGANIZATION_UUID)
+      .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
       .setUuid(mainFileUuid)
       .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
       .setRootUuid(TestFile1.PROJECT_UUID)
@@ -237,7 +237,7 @@ public class ListActionTest {
 
     public static ComponentDto dto() {
       return new ComponentDto()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
         .setUuid(TestFile1.FILE_UUID)
         .setUuidPath(TestFile1.FILE_UUID_PATH)
         .setRootUuid(TestFile1.PROJECT_UUID)
@@ -280,7 +280,7 @@ public class ListActionTest {
 
     public static ComponentDto dto() {
       return new ComponentDto()
-        .setOrganizationUuid(ORGANIZATION_UUID)
+        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
         .setUuid(FILE_UUID)
         .setUuidPath(FILE_UUID_PATH)
         .setRootUuid(TestFile2.PROJECT_UUID)

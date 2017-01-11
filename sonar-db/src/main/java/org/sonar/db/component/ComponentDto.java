@@ -50,6 +50,12 @@ public class ComponentDto implements Component {
   private String organizationUuid;
 
   /**
+   * The key of the organization the components belongs to. Read-only and nullable as it is populated only by some
+   * requests joining on the organizations table.
+   */
+  private String organizationKey;
+
+  /**
    * Non-empty and unique functional key
    */
   private String kee;
@@ -134,6 +140,10 @@ public class ComponentDto implements Component {
   public ComponentDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
+  }
+
+  public String getOrganizationKey() {
+    return organizationKey;
   }
 
   public String uuid() {

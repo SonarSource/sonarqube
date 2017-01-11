@@ -42,6 +42,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.es.ProjectMeasuresDoc;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
@@ -79,15 +80,13 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 public class SearchProjectsActionTest {
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId(23);
-
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -106,15 +105,17 @@ public class SearchProjectsActionTest {
 
   @Test
   public void json_example() {
-    long project1Id = insertProjectInDbAndEs(newProjectDto()
+    OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
+    OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
+    long project1Id = insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1"));
-    insertProjectInDbAndEs(newProjectDto()
+    insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
       .setName("My Project 2"));
-    insertProjectInDbAndEs(newProjectDto()
+    insertProjectInDbAndEs(newProjectDto(organization2Dto)
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3"));
@@ -129,9 +130,9 @@ public class SearchProjectsActionTest {
 
   @Test
   public void order_by_name_case_insensitive() {
-    insertProjectInDbAndEs(newProjectDto().setName("Maven"));
-    insertProjectInDbAndEs(newProjectDto().setName("Apache"));
-    insertProjectInDbAndEs(newProjectDto().setName("guava"));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Maven"));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Apache"));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("guava"));
 
     SearchProjectsWsResponse result = call(request);
 
@@ -141,7 +142,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void paginate_result() {
-    IntStream.rangeClosed(1, 9).forEach(i -> insertProjectInDbAndEs(newProjectDto().setName("PROJECT-" + i)));
+    IntStream.rangeClosed(1, 9).forEach(i -> insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("PROJECT-" + i)));
 
     SearchProjectsWsResponse result = call(request.setPage(2).setPageSize(3));
 
@@ -167,7 +168,8 @@ public class SearchProjectsActionTest {
 
   @Test
   public void return_only_projects() {
-    ComponentDto project = newProjectDto().setName("SonarQube");
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = newProjectDto(organizationDto).setName("SonarQube");
     ComponentDto directory = newDirectory(project, "path");
     insertProjectInDbAndEs(project);
     componentDb.insertComponents(newModuleDto(project), newView(), newDeveloper("Sonar Developer"), directory, newFileDto(project, directory));
@@ -180,9 +182,10 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filter_projects_with_query() {
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     insertMetrics(COVERAGE, NCLOC);
     request.setFilter("coverage <= 80 and ncloc <= 10000");
 
@@ -194,8 +197,8 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filter_projects_on_favorites() {
-    long javaId = insertProjectInDbAndEs(newProjectDto("java-id").setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    long markDownId = insertProjectInDbAndEs(newProjectDto("markdown-id").setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    long javaId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    long markDownId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
     insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(javaId).setUserId(Long.valueOf(userSession.getUserId())));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(markDownId).setUserId(Long.valueOf(userSession.getUserId())));
@@ -210,7 +213,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void do_not_return_isFavorite_if_anonymous_user() {
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
     insertMetrics(COVERAGE);
     userSession.anonymous();
 
@@ -222,7 +225,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void empty_list_if_isFavorite_filter_and_anonymous_user() {
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
     insertMetrics(COVERAGE);
     userSession.anonymous();
     request.setFilter("isFavorite");
@@ -234,10 +237,10 @@ public class SearchProjectsActionTest {
 
   @Test
   public void return_nloc_facet() {
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto().setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE, NCLOC);
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
 

@@ -41,6 +41,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -72,7 +73,7 @@ import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUE
 
 public class ValuesActionTest {
 
-  static Joiner COMMA_JOINER = Joiner.on(",");
+  private static Joiner COMMA_JOINER = Joiner.on(",");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -102,7 +103,8 @@ public class ValuesActionTest {
     when(pluginInfo.getKey()).thenReturn("plugin");
     when(repository.getPluginInfos()).thenReturn(singletonList(pluginInfo));
     scannerSettings.start();
-    project = componentDb.insertComponent(newProjectDto());
+    OrganizationDto organizationDto = db.organizations().insert();
+    project = componentDb.insertComponent(newProjectDto(organizationDto));
   }
 
   @Test

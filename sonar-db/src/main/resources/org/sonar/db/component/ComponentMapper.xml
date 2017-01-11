@@ -109,14 +109,16 @@
 
   <select id="selectByUuids" parameterType="String" resultType="Component">
     select
-    <include refid="componentColumns"/>
+      <include refid="componentColumns"/>,
+      o.kee as organizationKey
     from projects p
-    <where>
-      and p.uuid in
+    inner join organizations o on
+      o.uuid = p.organization_uuid
+    where
+      p.uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
         #{uuid}
       </foreach>
-    </where>
   </select>
 
   <select id="selectExistingUuids" parameterType="String" resultType="String">
