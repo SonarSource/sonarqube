@@ -22,7 +22,7 @@ package org.sonar.scanner.report;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -49,7 +49,7 @@ public class SourcePublisher implements ReportPublisherStep {
         continue;
       }
 
-      DefaultInputFile inputFile = (DefaultInputFile) resource.inputComponent();
+      InputFile inputFile = (InputFile) resource.inputComponent();
       File iofile = writer.getSourceFile(resource.batchId());
       int line = 0;
       try (FileOutputStream output = new FileOutputStream(iofile); BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),

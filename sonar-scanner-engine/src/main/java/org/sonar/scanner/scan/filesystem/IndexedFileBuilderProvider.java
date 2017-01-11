@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.scanner.scan.filesystem;
 
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.Settings;
+import org.sonar.api.scan.filesystem.PathResolver;
 
-/**
- * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
- * and {@link org.sonar.api.batch.fs.FilePredicates}.
- * @since 4.2
- */
-public interface FilePredicate {
-  /**
-   * Test if provided file is valid for this predicate
-   */
-  boolean apply(IndexedFile inputFile);
+public class IndexedFileBuilderProvider extends ProviderAdapter {
+
+  public IndexedFileBuilder provide(ProjectDefinition def, PathResolver pathResolver, Settings settings, LanguageDetectionFactory langDetectionFactory) {
+    return new IndexedFileBuilder(def.getKeyWithBranch(), pathResolver, settings, langDetectionFactory.create());
+  }
 
 }

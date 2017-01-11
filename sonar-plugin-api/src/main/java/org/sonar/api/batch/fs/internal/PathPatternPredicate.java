@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
@@ -33,7 +34,7 @@ class PathPatternPredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile f) {
+  public boolean apply(IndexedFile f) {
     return pattern.match(f);
   }
 

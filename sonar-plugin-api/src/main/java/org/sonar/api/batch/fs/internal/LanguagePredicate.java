@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.IndexedFile;
 
 /**
  * @since 4.2
@@ -32,7 +32,7 @@ class LanguagePredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile f) {
+  public boolean apply(IndexedFile f) {
     return language.equals(f.language());
   }
 }

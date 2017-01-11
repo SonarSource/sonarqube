@@ -21,8 +21,8 @@ package org.sonar.scanner.source;
 
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
@@ -35,7 +35,7 @@ public class SymbolizableBuilderTest {
   @Test
   public void should_load_perspective() {
     SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
-    Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, new DefaultInputFile("foo", "foo.c"));
+    Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, new TestInputFileBuilder("foo", "foo.c").build());
 
     assertThat(perspective).isInstanceOf(Symbolizable.class);
   }

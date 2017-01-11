@@ -19,11 +19,13 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.IndexedFile;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,33 +33,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PathPatternTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  private Path moduleBasePath;
+
+  @Before
+  public void setUp() throws IOException {
+    moduleBasePath = temp.newFolder().toPath();
+  }
 
   @Test
   public void match_relative_path() {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
     assertThat(pattern.toString()).isEqualTo("**/*Foo.java");
 
-    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.java");
-    assertThat(pattern.match(inputFile)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.java");
+    assertThat(pattern.match(indexedFile)).isTrue();
 
     // case sensitive by default
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA");
-    assertThat(pattern.match(inputFile)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.JAVA");
+    assertThat(pattern.match(indexedFile)).isFalse();
 
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java");
-    assertThat(pattern.match(inputFile)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/Other.java");
+    assertThat(pattern.match(indexedFile)).isFalse();
   }
 
   @Test
   public void match_relative_path_and_insensitive_file_extension() throws Exception {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
 
-    Path moduleBaseDir = temp.newFolder().toPath();
-    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile, false)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.JAVA");
+    assertThat(pattern.match(indexedFile, false)).isTrue();
 
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile, false)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/Other.java");
+    assertThat(pattern.match(indexedFile, false)).isFalse();
   }
 
   @Test
@@ -65,16 +72,15 @@ public class PathPatternTest {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 
-    Path moduleBaseDir = temp.newFolder().toPath();
-    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.java").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.java");
+    assertThat(pattern.match(indexedFile)).isTrue();
 
     // case sensitive by default
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.JAVA");
+    assertThat(pattern.match(indexedFile)).isFalse();
 
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/Other.java");
+    assertThat(pattern.match(indexedFile)).isFalse();
   }
 
   @Test
@@ -82,12 +88,11 @@ public class PathPatternTest {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 
-    Path moduleBaseDir = temp.newFolder().toPath();
-    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile, false)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/MyFoo.JAVA");
+    assertThat(pattern.match(indexedFile, false)).isTrue();
 
-    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.JAVA").setModuleBaseDir(moduleBaseDir);
-    assertThat(pattern.match(inputFile, false)).isFalse();
+    indexedFile = new DefaultIndexedFile("ABCDE", moduleBasePath, "src/main/java/org/Other.JAVA");
+    assertThat(pattern.match(indexedFile, false)).isFalse();
   }
 
   @Test
