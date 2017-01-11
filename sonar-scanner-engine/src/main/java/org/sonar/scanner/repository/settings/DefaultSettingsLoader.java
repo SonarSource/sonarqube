@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.Settings.FieldValues.Value;
 import org.sonarqube.ws.Settings.Setting;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
@@ -52,7 +53,7 @@ public class DefaultSettingsLoader implements SettingsLoader {
     String url = "api/settings/values.protobuf";
     Profiler profiler = Profiler.create(LOG);
     if (componentKey != null) {
-      url += "?component=" + componentKey;
+      url += "?component=" + ScannerUtils.encodeForUrl(componentKey);
       profiler.startInfo("Load settings for component '" + componentKey + "'");
     } else {
       profiler.startInfo("Load global settings");
