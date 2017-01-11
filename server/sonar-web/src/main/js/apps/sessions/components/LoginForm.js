@@ -72,6 +72,7 @@ export default class LoginForm extends React.Component {
                      className="login-input"
                      maxLength="255"
                      required={true}
+                     autoFocus={true}
                      placeholder={translate('login')}
                      value={this.state.login}
                      onChange={e => this.setState({ login: e.target.value })}/>
