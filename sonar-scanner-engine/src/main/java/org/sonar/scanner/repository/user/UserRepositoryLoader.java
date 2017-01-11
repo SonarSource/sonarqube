@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.client.GetRequest;
 import com.google.common.base.Function;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class UserRepositoryLoader {
   private static class UserEncodingFunction implements Function<String, String> {
     @Override
     public String apply(String input) {
-      return BatchUtils.encodeForUrl(input);
+      return ScannerUtils.encodeForUrl(input);
     }
   }
 

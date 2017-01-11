@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 @ScannerSide
 public class PostJobsExecutor {
@@ -58,7 +58,7 @@ public class PostJobsExecutor {
     logPostJobs(postJobs);
 
     for (PostJob postJob : postJobs) {
-      LOG.info("Executing post-job {}", BatchUtils.describe(postJob));
+      LOG.info("Executing post-job {}", ScannerUtils.describe(postJob));
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
       postJob.executeOn(project, context);
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));

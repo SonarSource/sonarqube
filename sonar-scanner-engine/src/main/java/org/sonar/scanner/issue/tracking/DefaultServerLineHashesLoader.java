@@ -30,7 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
   private ScannerWsClient wsClient;
@@ -50,7 +50,7 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
 
-    GetRequest getRequest = new GetRequest("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
+    GetRequest getRequest = new GetRequest("/api/sources/hash?key=" + ScannerUtils.encodeForUrl(fileKey));
     Reader reader = wsClient.call(getRequest).contentReader();
     try {
       return IOUtils.toString(reader);

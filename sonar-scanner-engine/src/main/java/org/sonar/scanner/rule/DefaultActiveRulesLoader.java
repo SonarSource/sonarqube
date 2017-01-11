@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
@@ -72,7 +72,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static String getUrl(String qualityProfileKey, int page, int pageSize) {
     StringBuilder builder = new StringBuilder(1024);
     builder.append(RULES_SEARCH_URL);
-    builder.append("&qprofile=").append(BatchUtils.encodeForUrl(qualityProfileKey));
+    builder.append("&qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));
     builder.append("&p=").append(page);
     builder.append("&ps=").append(pageSize);
     return builder.toString();

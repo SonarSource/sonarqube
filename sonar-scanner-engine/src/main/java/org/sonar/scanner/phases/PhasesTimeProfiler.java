@@ -26,7 +26,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseHandler {
 
@@ -44,7 +44,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
   @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     if (event.isStart()) {
-      profiler.startInfo("Sensor " + BatchUtils.describe(event.getSensor()));
+      profiler.startInfo("Sensor " + ScannerUtils.describe(event.getSensor()));
     } else {
       profiler.stopInfo();
     }

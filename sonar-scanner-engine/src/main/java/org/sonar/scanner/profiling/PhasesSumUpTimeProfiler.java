@@ -48,7 +48,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepHandler;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 import static org.sonar.scanner.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
 import static org.sonar.scanner.profiling.AbstractTimeProfiling.truncate;
@@ -113,7 +113,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println(" -------- End of profiling of module " + module.getName() + " --------");
       println("");
       String fileName = module.getKey() + "-profiler.properties";
-      dumpToFile(props, BatchUtils.cleanKeyForFilename(fileName));
+      dumpToFile(props, ScannerUtils.cleanKeyForFilename(fileName));
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
         dumpTotalExecutionSummary();

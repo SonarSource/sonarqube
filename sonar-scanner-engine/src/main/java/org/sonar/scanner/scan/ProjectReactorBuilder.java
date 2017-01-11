@@ -46,7 +46,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.bootstrap.DroppedPropertyChecker;
-import org.sonar.scanner.util.BatchUtils;
+import org.sonar.scanner.util.ScannerUtils;
 
 /**
  * Class that creates a project definition based on a set of properties.
@@ -206,7 +206,7 @@ public class ProjectReactorBuilder {
   protected File initModuleWorkDir(File moduleBaseDir, Map<String, String> moduleProperties) {
     String workDir = moduleProperties.get(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
-      return new File(rootProjectWorkDir, BatchUtils.cleanKeyForFilename(moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY)));
+      return new File(rootProjectWorkDir, ScannerUtils.cleanKeyForFilename(moduleProperties.get(CoreProperties.PROJECT_KEY_PROPERTY)));
     }
 
     File customWorkDir = new File(workDir);
