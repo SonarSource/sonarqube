@@ -42,22 +42,18 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertProjectAndSnapshot(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(component));
-    db.commit();
-
-    return snapshot;
+    return insertComponentAndSnapshot(component);
   }
 
   public SnapshotDto insertViewAndSnapshot(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(component));
-    db.commit();
-
-    return snapshot;
+    return insertComponentAndSnapshot(component);
   }
 
   public SnapshotDto insertDeveloperAndSnapshot(ComponentDto component) {
+    return insertComponentAndSnapshot(component);
+  }
+
+  private SnapshotDto insertComponentAndSnapshot(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(component));
     db.commit();

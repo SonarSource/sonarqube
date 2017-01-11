@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
@@ -90,13 +91,25 @@ public class ComponentTesting {
     return newModuleDto(Uuids.createFast(), subProjectOrProject);
   }
 
+  public static ComponentDto newProjectDto(OrganizationDto organizationDto) {
+    return newProjectDto(organizationDto.getUuid(), Uuids.createFast());
+  }
+
   public static ComponentDto newProjectDto() {
-    return newProjectDto(Uuids.createFast());
+    return newProjectDto(Uuids.createFast(), Uuids.createFast());
+  }
+
+  public static ComponentDto newProjectDto(OrganizationDto organizationDto, String uuid) {
+    return newProjectDto(organizationDto.getUuid(), uuid);
   }
 
   public static ComponentDto newProjectDto(String uuid) {
+    return newProjectDto(Uuids.createFast(), uuid);
+  }
+
+  private static ComponentDto newProjectDto(String organizationUuid, String uuid) {
     return new ComponentDto()
-      .setOrganizationUuid(Uuids.createFast())
+      .setOrganizationUuid(organizationUuid)
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -114,28 +127,24 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDeveloper(String name) {
-    String uuid = Uuids.createFast();
-    return new ComponentDto()
-      .setOrganizationUuid(Uuids.createFast())
-      .setUuid(uuid)
-      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
-      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
-      .setRootUuid(uuid)
-      .setKey(uuid)
-      .setName(name)
-      .setLongName(name)
-      .setScope(Scopes.PROJECT)
-      // XXX No constant !
-      .setQualifier("DEV")
-      .setPath(null)
-      .setLanguage(null)
-      .setEnabled(true);
+    return newDeveloper(Uuids.createFast(), name, Uuids.createFast());
+  }
+
+  public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name) {
+    return newDeveloper(organizationDto.getUuid(), name, Uuids.createFast());
   }
 
   public static ComponentDto newDeveloper(String name, String uuid) {
+    return newDeveloper(Uuids.createFast(), name, uuid);
+  }
+
+  public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name, String uuid) {
+    return newDeveloper(organizationDto.getUuid(), name, uuid);
+  }
+
+  private static ComponentDto newDeveloper(String organizationUuid, String name, String uuid) {
     return new ComponentDto()
-      .setOrganizationUuid(Uuids.createFast())
+      .setOrganizationUuid(organizationUuid)
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
@@ -152,15 +161,30 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
+  public static ComponentDto newView() {
+    return newView(Uuids.createFast());
+  }
+
+  public static ComponentDto newView(OrganizationDto organizationDto) {
+    return newView(organizationDto.getUuid(), Uuids.createFast());
+  }
+
   public static ComponentDto newView(String uuid) {
-    return newProjectDto(uuid)
+    return newView(Uuids.createFast(), uuid);
+  }
+
+  public static ComponentDto newView(OrganizationDto organizationDto, String uuid) {
+    return newProjectDto(organizationDto, uuid)
       .setUuid(uuid)
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.VIEW);
   }
 
-  public static ComponentDto newView() {
-    return newView(Uuids.createFast());
+  private static ComponentDto newView(String organizationUuid, String uuid) {
+    return newProjectDto(organizationUuid, uuid)
+        .setUuid(uuid)
+        .setScope(Scopes.PROJECT)
+        .setQualifier(Qualifiers.VIEW);
   }
 
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
