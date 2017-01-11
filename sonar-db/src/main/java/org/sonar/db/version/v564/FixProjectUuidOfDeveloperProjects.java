@@ -21,12 +21,18 @@ package org.sonar.db.version.v564;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
 public class FixProjectUuidOfDeveloperProjects extends BaseDataChange {
+
+  private static final String REGULAR_SELECT = "select distinct p.person_id,d.uuid from projects p, projects d " +
+    "where p.qualifier = 'DEV_PRJ' and p.project_uuid != d.uuid and d.id = p.person_id";
+  private static final String MSSQL_SELECT = "select distinct p.person_id,d.uuid from projects p, projects d " +
+    "where p.qualifier = 'DEV_PRJ' and p.project_uuid collate database_default != d.uuid collate database_default and d.id = p.person_id";
 
   public FixProjectUuidOfDeveloperProjects(Database db) {
     super(db);
@@ -35,10 +41,17 @@ public class FixProjectUuidOfDeveloperProjects extends BaseDataChange {
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select distinct p.person_id,d.uuid from projects p, projects d where p.qualifier = 'DEV_PRJ' and p.project_uuid != d.uuid and d.id = p.person_id");
+    massUpdate.select(getSelectSql());
     massUpdate.update("update projects set project_uuid = ? where person_id = ? and qualifier = 'DEV_PRJ' and project_uuid != ?");
     massUpdate.rowPluralName("developers with incorrect project_uuid");
     massUpdate.execute(FixProjectUuidOfDeveloperProjects::handleComponent);
+  }
+
+  private String getSelectSql() {
+    if (MsSql.ID.equals(getDb().getDialect().getId())) {
+      return MSSQL_SELECT;
+    }
+    return REGULAR_SELECT;
   }
 
   private static boolean handleComponent(Select.Row row, SqlStatement update) throws SQLException {
