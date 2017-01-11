@@ -36,6 +36,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_PROJECT_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
@@ -53,6 +55,8 @@ public class ComponentIndexer implements Startable {
 
   /**
    * Copy all components of all projects to the elastic search index.
+   * <p>
+   * <b>Warning</b>: This should only be called on an empty index. It does not purge anything.
    */
   public void index() {
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -68,6 +72,7 @@ public class ComponentIndexer implements Startable {
    */
   public void index(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      purge(projectUuid);
       index(
         dbClient
           .componentDao()
@@ -76,7 +81,15 @@ public class ComponentIndexer implements Startable {
     }
   }
 
-  public void index(ComponentDto... docs) {
+  private void purge(String projectUuid) {
+    BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient
+      .prepareSearch(INDEX_COMPONENTS)
+      .setTypes(TYPE_COMPONENT)
+      .setFetchSource(false)
+      .setQuery(termQuery(FIELD_PROJECT_UUID, projectUuid)));
+  }
+
+  void index(ComponentDto... docs) {
     Future<?> submit = executor.submit(() -> indexNow(docs));
     try {
       Uninterruptibles.getUninterruptibly(submit);

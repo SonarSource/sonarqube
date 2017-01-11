@@ -29,11 +29,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
@@ -97,8 +100,37 @@ public class ComponentIndexerTest {
     assertThat(count()).isEqualTo(2);
   }
 
+  @Test
+  public void reindex_project() {
+
+    // insert
+    ComponentDto component = ComponentTesting.newProjectDto(organization, "UUID-1").setName("OldName");
+    insert(component);
+
+    // verify insert
+    index(component);
+    assertMatches("OldName", 1);
+
+    // modify
+    component.setName("NewName");
+    update(component);
+
+    // verify modification
+    index(component);
+    assertMatches("OldName", 0);
+    assertMatches("NewName", 1);
+  }
+
   private void insert(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component);
+    dbSession.commit();
+  }
+
+  private void update(ComponentDto component) {
+    ComponentUpdateDto updateComponent = ComponentUpdateDto.copyFrom(component);
+    updateComponent.setBChanged(true);
+    dbClient.componentDao().update(dbSession, updateComponent);
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, "UUID-1");
     dbSession.commit();
   }
 
@@ -116,6 +148,17 @@ public class ComponentIndexerTest {
 
   private long count() {
     return esTester.countDocuments(INDEX_COMPONENTS, TYPE_COMPONENT);
+  }
+
+  private void assertMatches(String nameQuery, int numberOfMatches) {
+    assertThat(
+      esTester.client()
+        .prepareSearch(INDEX_COMPONENTS)
+        .setTypes(TYPE_COMPONENT)
+        .setQuery(termQuery(FIELD_NAME, nameQuery))
+        .get()
+        .getHits()
+        .getHits().length).isEqualTo(numberOfMatches);
   }
 
   private ComponentIndexer createIndexer() {
