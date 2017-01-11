@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.batch.fs.InputFile;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 
-/**
- * @since 4.2
- */
-class StatusPredicate extends AbstractFilePredicate {
-
-  private final InputFile.Status status;
-
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
+@ScannerSide
+public class MetadataGeneratorProvider extends ProviderAdapter {
+  public MetadataGenerator provide(StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata) {
+    return new MetadataGenerator(statusDetectionFactory.create(), fileMetadata);
   }
-
-  @Override
-  public boolean apply(InputFile f) {
-    return status == f.status();
-  }
-
 }

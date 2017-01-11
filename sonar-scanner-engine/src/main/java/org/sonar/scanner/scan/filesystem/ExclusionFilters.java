@@ -23,6 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.scan.filesystem.FileExclusions;
@@ -67,7 +68,7 @@ public class ExclusionFilters {
     }
   }
 
-  public boolean accept(InputFile inputFile, InputFile.Type type) {
+  public boolean accept(IndexedFile indexedFile, InputFile.Type type) {
     PathPattern[] inclusionPatterns;
     PathPattern[] exclusionPatterns;
     if (InputFile.Type.MAIN == type) {
@@ -83,7 +84,7 @@ public class ExclusionFilters {
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(inputFile);
+        matchInclusion |= pattern.match(indexedFile);
       }
       if (!matchInclusion) {
         return false;
@@ -91,7 +92,7 @@ public class ExclusionFilters {
     }
     if (exclusionPatterns.length > 0) {
       for (PathPattern pattern : exclusionPatterns) {
-        if (pattern.match(inputFile)) {
+        if (pattern.match(indexedFile)) {
           return false;
         }
       }

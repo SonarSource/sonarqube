@@ -24,8 +24,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.component.ResourcePerspectives;
@@ -66,7 +67,7 @@ public class SymbolReferencesSensorTest {
 
   @Test
   public void testNoExecutionIfNoSymbolFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     fileSystem.add(inputFile);
     sensor.execute(context);
   }
@@ -75,7 +76,7 @@ public class SymbolReferencesSensorTest {
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
     FileUtils.write(symbol, "1:4,7\n12:15,23:33\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     fileSystem.add(inputFile);
     Symbolizable symbolizable = mock(Symbolizable.class);
     when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);

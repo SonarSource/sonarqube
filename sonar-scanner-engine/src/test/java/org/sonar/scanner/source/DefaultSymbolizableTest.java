@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
@@ -40,8 +41,8 @@ public class DefaultSymbolizableTest {
   public void should_update_cache_when_done() {
 
     DefaultSensorStorage sensorStorage = mock(DefaultSensorStorage.class);
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
-      .initMetadata(Strings.repeat("azerty\n", 20));
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+      .initMetadata(Strings.repeat("azerty\n", 20)).build();
 
     DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(inputFile, sensorStorage, mock(AnalysisMode.class));
     Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolPerspective.newSymbolTableBuilder();

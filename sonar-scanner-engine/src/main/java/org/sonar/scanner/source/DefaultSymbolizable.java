@@ -22,7 +22,7 @@ package org.sonar.scanner.source;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
@@ -95,11 +95,11 @@ public class DefaultSymbolizable implements Symbolizable {
     }
   }
 
-  private final DefaultInputFile inputFile;
+  private final InputFile inputFile;
   private final DefaultSensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
 
-  public DefaultSymbolizable(DefaultInputFile inputFile, DefaultSensorStorage sensorStorage, AnalysisMode analysisMode) {
+  public DefaultSymbolizable(InputFile inputFile, DefaultSensorStorage sensorStorage, AnalysisMode analysisMode) {
     this.inputFile = inputFile;
     this.sensorStorage = sensorStorage;
     this.analysisMode = analysisMode;

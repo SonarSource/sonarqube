@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -78,7 +78,7 @@ public class DefaultFileLinesContextTest {
     when(metricFinder.<String>findByKey(CoreMetrics.EXECUTABLE_LINES_DATA_KEY)).thenReturn(CoreMetrics.EXECUTABLE_LINES_DATA);
     when(metricFinder.<String>findByKey(CoreMetrics.COMMENT_LINES_DATA_KEY)).thenReturn(CoreMetrics.COMMENT_LINES_DATA);
     measureCache = mock(MeasureCache.class);
-    fileLineMeasures = new DefaultFileLinesContext(sensorContextTester, new DefaultInputFile("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz"), metricFinder,
+    fileLineMeasures = new DefaultFileLinesContext(sensorContextTester, new TestInputFileBuilder("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz").build(), metricFinder,
       measureCache);
   }
 
@@ -95,13 +95,13 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void validateLineGreaterThanZero() {
-    thrown.expectMessage("Line number should be positive for file [moduleKey=foo, relative=src/foo.php, basedir=null].");
+    thrown.expectMessage("Line number should be positive for file [moduleKey=foo, relative=src/foo.php, basedir=foo].");
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 0, 2);
   }
 
   @Test
   public void validateLineLowerThanLineCount() {
-    thrown.expectMessage("Line 4 is out of range for file [moduleKey=foo, relative=src/foo.php, basedir=null]. File has 3 lines");
+    thrown.expectMessage("Line 4 is out of range for file [moduleKey=foo, relative=src/foo.php, basedir=foo]. File has 3 lines");
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 4, 2);
   }
 

@@ -21,7 +21,7 @@ package org.sonar.api.batch.fs.internal;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.IndexedFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +56,7 @@ class OrPredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile f) {
+  public boolean apply(IndexedFile f) {
     for (FilePredicate predicate : predicates) {
       if (predicate.apply(f)) {
         return true;

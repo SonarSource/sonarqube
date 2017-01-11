@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
@@ -353,7 +352,7 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
+    InputFile inputFile = highlighting.inputFile();
     int componentRef = componentCache.get(inputFile).batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());

@@ -108,8 +108,6 @@ public interface FilePredicates {
 
   FilePredicate hasLanguages(String... languages);
 
-  FilePredicate hasStatus(InputFile.Status status);
-
   FilePredicate hasType(InputFile.Type type);
 
   FilePredicate not(FilePredicate p);

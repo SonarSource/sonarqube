@@ -27,7 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
@@ -60,7 +61,7 @@ public class OverallCoverageSensorTest {
 
   @Test
   public void testNoExecutionIfNoCoverageFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
@@ -69,7 +70,7 @@ public class OverallCoverageSensorTest {
   public void testLineHitNoConditions() throws IOException {
     File coverage = new File(baseDir, "src/foo.xoo.overallcoverage");
     FileUtils.write(coverage, "1:3\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo").setLines(10);
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).setLines(10).build();
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);
@@ -81,7 +82,7 @@ public class OverallCoverageSensorTest {
   public void testLineHitAndConditions() throws IOException {
     File coverage = new File(baseDir, "src/foo.xoo.overallcoverage");
     FileUtils.write(coverage, "1:3:4:2");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo").setLines(10);
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).setLines(10).build();
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);

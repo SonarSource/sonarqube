@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
 
@@ -41,10 +42,10 @@ public class DefaultMeasureTest {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
-      .on(new DefaultInputFile("foo", "src/Foo.php"))
+      .on(new TestInputFileBuilder("foo", "src/Foo.php").build())
       .withValue(3);
 
-    assertThat(newMeasure.inputComponent()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
+    assertThat(newMeasure.inputComponent()).isEqualTo(new TestInputFileBuilder("foo", "src/Foo.php").build());
     assertThat(newMeasure.metric()).isEqualTo(CoreMetrics.LINES);
     assertThat(newMeasure.value()).isEqualTo(3);
 
@@ -77,7 +78,7 @@ public class DefaultMeasureTest {
     thrown.expectMessage("on() already called");
     new DefaultMeasure<Integer>()
       .on(new DefaultInputModule("foo"))
-      .on(new DefaultInputFile("foo", "src/Foo.php"))
+      .on(new TestInputFileBuilder("foo", "src/Foo.php").build())
       .withValue(3)
       .save();
   }

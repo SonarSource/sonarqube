@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import java.io.StringReader;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,9 @@ public class DefaultIssueLocationTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\n")));
+  private InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+    .initMetadata("Foo\nBar\n")
+    .build();
 
   @Test
   public void not_allowed_to_call_on_twice() {

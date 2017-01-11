@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
@@ -142,10 +143,11 @@ public class GenericTestExecutionReportParserTest {
   }
 
   private DefaultInputFile setupFile(String path) {
-    return new DefaultInputFile(context.module().key(), path)
+    return new TestInputFileBuilder(context.module().key(), path)
       .setLanguage("bla")
       .setType(InputFile.Type.TEST)
-      .initMetadata("1\n2\n3\n4\n5\n6");
+      .initMetadata("1\n2\n3\n4\n5\n6")
+      .build();
   }
 
   private MutableTestPlan mockMutableTestPlan(MutableTestCase testCase) {

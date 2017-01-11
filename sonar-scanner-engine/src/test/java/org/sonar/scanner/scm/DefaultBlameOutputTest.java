@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
@@ -54,25 +54,25 @@ public class DefaultBlameOutputTest {
 
   @Test
   public void shouldNotFailIfNotSameNumberOfLines() {
-    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(10);
+    InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(10).build();
 
     new DefaultBlameOutput(null, null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }
 
   @Test
   public void shouldFailIfNotExpectedFile() {
-    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+    InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").build();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("It was not expected to blame file src/main/java/Foo.java");
 
-    new DefaultBlameOutput(null, null, Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/main/java/Foo2.java")))
+    new DefaultBlameOutput(null, null, Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }
 
   @Test
   public void shouldFailIfNullDate() {
-    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+    InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Blame date is null for file src/main/java/Foo.java at line 1");
@@ -83,7 +83,7 @@ public class DefaultBlameOutputTest {
 
   @Test
   public void shouldFailIfNullRevision() {
-    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+    InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Blame revision is blank for file src/main/java/Foo.java at line 1");

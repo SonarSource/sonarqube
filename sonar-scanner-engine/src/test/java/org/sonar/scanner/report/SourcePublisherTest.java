@@ -28,8 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.scanner.index.BatchComponentCache;
@@ -61,7 +61,11 @@ public class SourcePublisherTest {
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
     resourceCache.add(sampleFile, null).setInputComponent(
-      new DefaultInputFile("foo", "src/Foo.php").setLines(5).setModuleBaseDir(baseDir.toPath()).setCharset(StandardCharsets.ISO_8859_1));
+      new TestInputFileBuilder("foo", "src/Foo.php")
+      .setLines(5)
+      .setModuleBaseDir(baseDir.toPath())
+      .setCharset(StandardCharsets.ISO_8859_1)
+      .build());
     publisher = new SourcePublisher(resourceCache);
     File outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);

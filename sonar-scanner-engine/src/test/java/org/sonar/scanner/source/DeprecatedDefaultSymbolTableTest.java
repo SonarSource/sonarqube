@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
@@ -42,8 +43,9 @@ public class DeprecatedDefaultSymbolTableTest {
 
   @Before
   public void prepare() {
-    inputFile = new DefaultInputFile("foo", "src/Foo.php")
-      .initMetadata(Strings.repeat("azerty\n", 20));
+    inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+      .initMetadata(Strings.repeat("azerty\n", 20))
+      .build();
   }
 
   @Test

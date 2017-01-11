@@ -20,7 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.IndexedFile;
 
 /**
  * @since 4.2
@@ -34,7 +34,7 @@ class NotPredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile f) {
+  public boolean apply(IndexedFile f) {
     return !predicate.apply(f);
   }
 

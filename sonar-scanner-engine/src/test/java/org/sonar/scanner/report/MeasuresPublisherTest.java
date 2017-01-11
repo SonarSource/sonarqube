@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
@@ -69,7 +69,7 @@ public class MeasuresPublisherTest {
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey(FILE_KEY);
     resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
-    resourceCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", "src/Foo.php"));
+    resourceCache.add(sampleFile, null).setInputComponent(new TestInputFileBuilder("foo", "src/Foo.php").build());
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
     publisher = new MeasuresPublisher(resourceCache, measureCache, mock(TestPlanBuilder.class));

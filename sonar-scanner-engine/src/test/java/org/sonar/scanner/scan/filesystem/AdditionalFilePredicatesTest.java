@@ -21,10 +21,13 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.junit.Test;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.IndexedFile;
+import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.scanner.scan.filesystem.AdditionalFilePredicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Paths;
 
 public class AdditionalFilePredicatesTest {
 
@@ -32,10 +35,10 @@ public class AdditionalFilePredicatesTest {
   public void key() {
     FilePredicate predicate = new AdditionalFilePredicates.KeyPredicate("struts:Action.java");
 
-    DefaultInputFile inputFile = new DefaultInputFile("struts", "Action.java");
-    assertThat(predicate.apply(inputFile)).isTrue();
+    IndexedFile indexedFile = new DefaultIndexedFile("struts", Paths.get("module"), "Action.java");
+    assertThat(predicate.apply(indexedFile)).isTrue();
 
-    inputFile = new DefaultInputFile("struts", "Filter.java");
-    assertThat(predicate.apply(inputFile)).isFalse();
+    indexedFile = new DefaultIndexedFile("struts", Paths.get("module"), "Filter.java");
+    assertThat(predicate.apply(indexedFile)).isFalse();
   }
 }

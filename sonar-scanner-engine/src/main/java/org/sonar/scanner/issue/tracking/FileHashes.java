@@ -24,7 +24,7 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 
 /**
@@ -50,7 +50,7 @@ public final class FileHashes {
     return new FileHashes(hashes, linesByHash);
   }
 
-  public static FileHashes create(DefaultInputFile f) {
+  public static FileHashes create(InputFile f) {
     final byte[][] hashes = new byte[f.lines()][];
     FileMetadata.computeLineHashesForIssueTracking(f,
       (lineIdx, hash) -> hashes[lineIdx - 1] = hash);

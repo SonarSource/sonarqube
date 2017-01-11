@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -51,8 +52,10 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testRule() throws IOException {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
-      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n")
+      .build();
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
@@ -66,8 +69,10 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testForceSeverity() throws IOException {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
-      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n")
+      .build();
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
@@ -83,8 +88,10 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testProvideGap() throws IOException {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
-      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n")
+      .build();
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
@@ -100,8 +107,10 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testProvideGap_before_5_5() throws IOException {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
-      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .initMetadata("a\nb\nc\nd\ne\nf\ng\nh\ni\n")
+      .build();
 
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);

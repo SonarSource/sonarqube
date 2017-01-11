@@ -25,7 +25,6 @@ import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -37,7 +36,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   private final Settings settings;
   private final ImmutableList.Builder<TokensLine> result = ImmutableList.builder();
-  private DefaultInputFile inputFile;
+  private InputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
   private int startIndex = 0;
   private int currentIndex = 0;
@@ -53,7 +52,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   @Override
   public DefaultCpdTokens onFile(InputFile inputFile) {
     Preconditions.checkNotNull(inputFile, "file can't be null");
-    this.inputFile = (DefaultInputFile) inputFile;
+    this.inputFile = inputFile;
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
       if (cpdExclusion.match(inputFile)) {

@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.StreamSupport;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -52,7 +54,7 @@ public class DefaultFileSystem implements FileSystem {
   private Path workDir;
   private Charset encoding;
   protected final FilePredicates predicates;
-  private FilePredicate defaultPredicate;
+  private InputFilePredicate defaultPredicate;
 
   /**
    * Only for testing
@@ -107,7 +109,7 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  public DefaultFileSystem setDefaultPredicate(@Nullable FilePredicate predicate) {
+  public DefaultFileSystem setDefaultPredicate(@Nullable InputFilePredicate predicate) {
     this.defaultPredicate = predicate;
     return this;
   }
@@ -155,11 +157,12 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    FilePredicate combinedPredicate = predicate;
+    Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
     if (defaultPredicate != null) {
-      combinedPredicate = predicates().and(defaultPredicate, predicate);
+      return StreamSupport.stream(iterable.spliterator(), false)
+        .filter(defaultPredicate::apply)::iterator;
     }
-    return OptimizedFilePredicateAdapter.create(combinedPredicate).get(cache);
+    return iterable;
   }
 
   @Override
@@ -183,15 +186,7 @@ public class DefaultFileSystem implements FileSystem {
     return cache.inputDir(relativePath);
   }
 
-  /**
-   * Adds InputFile to the list and registers its language, if present.
-   * Synchronized because PersistIt Exchange is not concurrent
-   */
-  public synchronized DefaultFileSystem add(DefaultInputFile inputFile) {
-    if (this.baseDir == null) {
-      throw new IllegalStateException("Please set basedir on filesystem before adding files");
-    }
-    inputFile.setModuleBaseDir(this.baseDir);
+  public DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
     String language = inputFile.language();
     if (language != null) {
@@ -200,22 +195,14 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  /**
-   * Adds InputDir to the list.
-   * Synchronized because PersistIt Exchange is not concurrent
-   */
-  public synchronized DefaultFileSystem add(DefaultInputDir inputDir) {
-    if (this.baseDir == null) {
-      throw new IllegalStateException("Please set basedir on filesystem before adding dirs");
-    }
-    inputDir.setModuleBaseDir(this.baseDir);
+  public DefaultFileSystem add(DefaultInputDir inputDir) {
     cache.add(inputDir);
     return this;
   }
 
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
-   * using {@link #add(DefaultInputFile)}.
+   * using {@link #add(InputFile)}.
    */
   public DefaultFileSystem addLanguages(String language, String... others) {
     languages.add(language);

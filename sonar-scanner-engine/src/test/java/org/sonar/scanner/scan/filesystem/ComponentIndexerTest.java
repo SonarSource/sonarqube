@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Languages;
@@ -42,6 +43,7 @@ import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
+import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scan.filesystem.ComponentIndexer;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
@@ -87,7 +89,7 @@ public class ComponentIndexerTest {
   public void should_index_java_files() throws IOException {
     Languages languages = new Languages(FakeJava.INSTANCE);
     ComponentIndexer indexer = createIndexer(languages);
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode, new ProjectRepositories());
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false, Status.ADDED));
     fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false, Status.ADDED));
     // should index even if filter is applied
@@ -119,7 +121,7 @@ public class ComponentIndexerTest {
   public void should_index_cobol_files() throws IOException {
     Languages languages = new Languages(cobolLanguage);
     ComponentIndexer indexer = createIndexer(languages);
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode);
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode, new ProjectRepositories());
     fs.add(newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false, Status.ADDED));
     fs.add(newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false, Status.ADDED));
     fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true, Status.ADDED));
@@ -134,10 +136,11 @@ public class ComponentIndexerTest {
   private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest, InputFile.Status status) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
-    return new DefaultInputFile("foo", path)
+    return new TestInputFileBuilder("foo", path)
       .setLanguage(languageKey)
       .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN)
-      .setStatus(status);
+      .setStatus(status)
+      .build();
   }
 
 }

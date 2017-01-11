@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -128,7 +129,7 @@ public class LocalIssueTracking {
 
   private boolean shouldCopyServerIssues(BatchComponent component) {
     if (!mode.scanAllFiles() && component.isFile()) {
-      DefaultInputFile inputFile = (DefaultInputFile) component.inputComponent();
+      InputFile inputFile = (InputFile) component.inputComponent();
       if (inputFile.status() == Status.SAME) {
         return true;
       }

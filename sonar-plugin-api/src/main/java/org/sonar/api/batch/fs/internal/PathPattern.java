@@ -21,7 +21,7 @@ package org.sonar.api.batch.fs.internal;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.utils.WildcardPattern;
 
 public abstract class PathPattern {
@@ -32,9 +32,9 @@ public abstract class PathPattern {
     this.pattern = WildcardPattern.create(pattern);
   }
 
-  public abstract boolean match(InputFile inputFile);
+  public abstract boolean match(IndexedFile inputFile);
 
-  public abstract boolean match(InputFile inputFile, boolean caseSensitiveFileExtension);
+  public abstract boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension);
 
   public static PathPattern create(String s) {
     String trimmed = StringUtils.trim(s);
@@ -58,12 +58,12 @@ public abstract class PathPattern {
     }
 
     @Override
-    public boolean match(InputFile inputFile) {
+    public boolean match(IndexedFile inputFile) {
       return match(inputFile, true);
     }
 
     @Override
-    public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
+    public boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.absolutePath();
       if (!caseSensitiveFileExtension) {
         String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
@@ -90,12 +90,12 @@ public abstract class PathPattern {
     }
 
     @Override
-    public boolean match(InputFile inputFile) {
+    public boolean match(IndexedFile inputFile) {
       return match(inputFile, true);
     }
 
     @Override
-    public boolean match(InputFile inputFile, boolean caseSensitiveFileExtension) {
+    public boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension) {
       String path = inputFile.relativePath();
       if (!caseSensitiveFileExtension) {
         String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));

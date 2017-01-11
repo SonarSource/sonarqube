@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameCommand.BlameInput;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
@@ -68,7 +69,10 @@ public class XooBlameCommandTest {
     FileUtils.write(source, "sample content");
     File scm = new File(baseDir, "src/foo.xoo.scm");
     FileUtils.write(scm, "123,julien,2014-12-12\n234,julien,2014-12-24");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage(Xoo.KEY);
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage(Xoo.KEY)
+      .setModuleBaseDir(baseDir.toPath())
+      .build();
     fs.add(inputFile);
 
     BlameOutput result = mock(BlameOutput.class);

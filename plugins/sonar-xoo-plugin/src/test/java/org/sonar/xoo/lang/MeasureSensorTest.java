@@ -46,7 +46,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -86,7 +87,7 @@ public class MeasureSensorTest {
 
   @Test
   public void testNoExecutionIfNoMeasureFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
@@ -95,7 +96,7 @@ public class MeasureSensorTest {
   public void testExecution() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     context.fileSystem().add(inputFile);
 
     Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
@@ -118,7 +119,7 @@ public class MeasureSensorTest {
   public void failIfMetricNotFound() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "unknow:12\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
     context.fileSystem().add(inputFile);
 
     thrown.expect(IllegalStateException.class);

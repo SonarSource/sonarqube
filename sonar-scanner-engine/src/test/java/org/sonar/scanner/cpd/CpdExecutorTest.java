@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -102,9 +102,10 @@ public class CpdExecutorTest {
   private BatchComponent createComponent(String relativePath, int lines) {
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("relativePath").setEffectiveKey("foo:" + relativePath);
     return componentCache.add(sampleFile, null)
-      .setInputComponent(new DefaultInputFile("foo", relativePath)
+      .setInputComponent(new TestInputFileBuilder("foo", relativePath)
         .setModuleBaseDir(baseDir.toPath())
-        .setLines(lines));
+        .setLines(lines)
+        .build());
   }
 
   @Test

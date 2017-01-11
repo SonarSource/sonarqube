@@ -28,8 +28,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
@@ -76,17 +76,17 @@ public class ComponentsPublisherTest {
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
     file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    resourceCache.add(file, dir).setInputComponent(new TestInputFileBuilder("module1", "src/Foo.java").setLines(2).build());
 
     org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
     fileWithoutLang.setEffectiveKey("module1:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setInputComponent(new DefaultInputFile("module1", "src/make").setLines(10));
+    resourceCache.add(fileWithoutLang, dir).setInputComponent(new TestInputFileBuilder("module1", "src/make").setLines(10).build());
 
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", FakeJava.INSTANCE, true);
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setInputComponent(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+    resourceCache.add(testFile, dir).setInputComponent(new TestInputFileBuilder("module1", "test/FooTest.java").setLines(4).build());
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 
@@ -118,7 +118,7 @@ public class ComponentsPublisherTest {
     assertThat(module1Protobuf.getDescription()).isEqualTo("Module description");
     assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
   }
-  
+
   @Test
   public void add_components_without_version_and_name() throws IOException {
     ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
@@ -141,17 +141,17 @@ public class ComponentsPublisherTest {
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
     file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    resourceCache.add(file, dir).setInputComponent(new TestInputFileBuilder("module1", "src/Foo.java").setLines(2).build());
 
     org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
     fileWithoutLang.setEffectiveKey("module1:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setInputComponent(new DefaultInputFile("module1", "src/make").setLines(10));
+    resourceCache.add(fileWithoutLang, dir).setInputComponent(new TestInputFileBuilder("module1", "src/make").setLines(10).build());
 
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", FakeJava.INSTANCE, true);
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setInputComponent(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+    resourceCache.add(testFile, dir).setInputComponent(new TestInputFileBuilder("module1", "test/FooTest.java").setLines(4).build());
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 
@@ -214,7 +214,7 @@ public class ComponentsPublisherTest {
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
     file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    resourceCache.add(file, dir).setInputComponent(new TestInputFileBuilder("module1", "src/Foo.java").setLines(2).build());
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 

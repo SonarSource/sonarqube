@@ -25,10 +25,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -39,16 +41,21 @@ public class DefaultFilePredicatesTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  DefaultInputFile javaFile;
+  private Path moduleBasePath;
+
+  @Before
+  public void setUp() throws IOException {
+    moduleBasePath = temp.newFolder().toPath();
+  }
+
+  IndexedFile javaFile;
   FilePredicates predicates;
 
   @Before
   public void before() throws IOException {
     predicates = new DefaultFilePredicates(temp.newFolder().toPath());
-    javaFile = new DefaultInputFile("foo", "src/main/java/struts/Action.java")
-      .setModuleBaseDir(temp.newFolder().toPath())
-      .setLanguage("java")
-      .setStatus(InputFile.Status.ADDED);
+    javaFile = new DefaultIndexedFile("foo", moduleBasePath, "src/main/java/struts/Action.java")
+      .setLanguage("java");
   }
 
   @Test
@@ -148,12 +155,6 @@ public class DefaultFilePredicatesTest {
     assertThat(predicates.hasLanguages(Arrays.asList("java", "php")).apply(javaFile)).isTrue();
     assertThat(predicates.hasLanguages(Arrays.asList("cobol", "php")).apply(javaFile)).isFalse();
     assertThat(predicates.hasLanguages(Collections.<String>emptyList()).apply(javaFile)).isTrue();
-  }
-
-  @Test
-  public void has_status() {
-    assertThat(predicates.hasStatus(InputFile.Status.ADDED).apply(javaFile)).isTrue();
-    assertThat(predicates.hasStatus(InputFile.Status.CHANGED).apply(javaFile)).isFalse();
   }
 
   @Test

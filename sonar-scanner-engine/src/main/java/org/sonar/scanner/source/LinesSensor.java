@@ -30,7 +30,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 
-@Phase(name = Phase.Name.PRE)
+@Phase(name = Phase.Name.POST)
 public final class LinesSensor implements Sensor {
 
   @Override

@@ -19,12 +19,11 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import java.io.StringReader;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.rule.RuleKey;
@@ -35,7 +34,9 @@ import static org.mockito.Mockito.verify;
 
 public class DefaultIssueTest {
 
-  private DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\n")));
+  private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+    .initMetadata("Foo\nBar\n")
+    .build();
 
   @Test
   public void build_file_issue() {

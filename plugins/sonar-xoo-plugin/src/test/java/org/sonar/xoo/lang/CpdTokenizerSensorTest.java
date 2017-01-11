@@ -27,7 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
@@ -76,9 +77,11 @@ public class CpdTokenizerSensorTest {
   private void createSourceFile(String content) throws IOException {
     File sourceFile = new File(baseDir, "src/foo.xoo");
     FileUtils.write(sourceFile, content);
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo")
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .setLanguage("xoo")
-      .initMetadata(content);
+      .initMetadata(content)
+      .setModuleBaseDir(baseDir.toPath())
+      .build();
     context.fileSystem().add(inputFile);
   }
 

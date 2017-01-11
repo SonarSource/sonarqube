@@ -23,11 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentKeysTest {
   @Rule
@@ -41,7 +42,8 @@ public class ComponentKeysTest {
     Directory dir = Directory.create("src/org/foo");
     assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:src/org/foo");
 
-    InputFile file = new DefaultInputFile("foo", "foo/Bar.php");
+    InputFile file = mock(InputFile.class);
+    when(file.relativePath()).thenReturn("foo/Bar.php");
     assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");
   }
 

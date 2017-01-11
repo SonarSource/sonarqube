@@ -20,7 +20,7 @@
 package org.sonar.scanner.source;
 
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -32,11 +32,11 @@ import org.sonar.api.source.Highlightable;
 public class DefaultHighlightable implements Highlightable {
 
   private static final HighlightingBuilder NO_OP_BUILDER = new NoOpHighlightingBuilder();
-  private final DefaultInputFile inputFile;
+  private final InputFile inputFile;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
 
-  public DefaultHighlightable(DefaultInputFile inputFile, SensorStorage sensorStorage, AnalysisMode analysisMode) {
+  public DefaultHighlightable(InputFile inputFile, SensorStorage sensorStorage, AnalysisMode analysisMode) {
     this.inputFile = inputFile;
     this.sensorStorage = sensorStorage;
     this.analysisMode = analysisMode;
