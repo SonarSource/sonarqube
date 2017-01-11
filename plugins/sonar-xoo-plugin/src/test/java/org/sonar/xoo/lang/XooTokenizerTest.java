@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 
@@ -63,7 +64,10 @@ public class XooTokenizerTest {
   public void testExecution() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
     FileUtils.write(source, "token1 token2 token3\ntoken4");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage("xoo")
+      .setModuleBaseDir(baseDir.toPath())
+      .build();
     fileSystem.add(inputFile);
 
     XooTokenizer tokenizer = new XooTokenizer(fileSystem);
