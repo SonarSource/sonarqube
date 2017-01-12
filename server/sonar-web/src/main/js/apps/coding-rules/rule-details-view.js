@@ -142,7 +142,12 @@ export default Marionette.LayoutView.extend({
     }).render();
 
     deleteRuleView.on('delete', () => {
-      this.options.app.controller.fetchList();
+      const { controller } = this.options.app;
+      if (controller.isRulePermalink()) {
+        controller.newSearch();
+      } else {
+        controller.fetchList();
+      }
     });
   },
 
