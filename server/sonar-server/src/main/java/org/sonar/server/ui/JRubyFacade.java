@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinitions;
@@ -36,10 +35,7 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -49,14 +45,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.user.NewUserNotifier;
 
@@ -73,10 +68,6 @@ public final class JRubyFacade {
 
   <T> T get(Class<T> componentType) {
     return getContainer().getComponentByType(componentType);
-  }
-
-  public Collection<ResourceType> getResourceTypesForFilter() {
-    return get(ResourceTypes.class).getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
   }
 
   public Collection<ResourceType> getResourceTypes() {
@@ -101,14 +92,6 @@ public final class JRubyFacade {
     return qualifiers;
   }
 
-  public Boolean getResourceTypeBooleanProperty(String resourceTypeQualifier, String resourceTypeProperty) {
-    ResourceType resourceType = getResourceType(resourceTypeQualifier);
-    if (resourceType != null) {
-      return resourceType.getBooleanProperty(resourceTypeProperty);
-    }
-    return null;
-  }
-
   public Collection<String> getResourceLeavesQualifiers(String qualifier) {
     return get(ResourceTypes.class).getLeavesQualifiers(qualifier);
   }
@@ -129,18 +112,6 @@ public final class JRubyFacade {
     return get(PluginRepository.class).getPluginInfos();
   }
 
-  public List<ViewProxy<Widget>> getWidgets() {
-    return get(Views.class).getWidgets();
-  }
-
-  public ViewProxy<Widget> getWidget(String id) {
-    return get(Views.class).getWidget(id);
-  }
-
-  public ViewProxy<Page> getPage(String id) {
-    return get(Views.class).getPage(id);
-  }
-
   public Collection<RubyRailsWebservice> getRubyRailsWebservices() {
     return getContainer().getComponentsByType(RubyRailsWebservice.class);
   }
@@ -159,29 +130,6 @@ public final class JRubyFacade {
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
-  /**
-   * @deprecated in 4.2
-   */
-  @Deprecated
-  @CheckForNull
-  public RuleRepositoryDto getRuleRepository(String repositoryKey) {
-    DbClient dbClient = get(DbClient.class);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.ruleRepositoryDao().selectByKey(dbSession, repositoryKey).orElse(null);
-    }
-  }
-
-  public Collection<RuleRepositoryDto> getRuleRepositories() {
-    DbClient dbClient = get(DbClient.class);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.ruleRepositoryDao().selectAll(dbSession);
-    }
-  }
-
-  public List<Footer> getWebFooters() {
-    return getContainer().getComponentsByType(Footer.class);
-  }
-
   public void saveProperty(String key, @Nullable Long componentId, @Nullable Long userId, @Nullable String value) {
     if (componentId == null && userId == null) {
       get(PersistentSettings.class).saveProperty(key, value);
@@ -198,10 +146,6 @@ public final class JRubyFacade {
         dbSession.commit();
       }
     }
-  }
-
-  public Settings getSettings() {
-    return get(Settings.class);
   }
 
   public String getConfigurationValue(String key) {
