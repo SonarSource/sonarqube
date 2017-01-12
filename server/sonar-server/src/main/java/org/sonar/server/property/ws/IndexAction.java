@@ -44,7 +44,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsAction;
 
@@ -67,13 +66,11 @@ public class IndexAction implements WsAction {
   public static final String PARAM_COMPONENT = "resource";
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
 
-  public IndexAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions) {
+  public IndexAction(DbClient dbClient, UserSession userSession, PropertyDefinitions propertyDefinitions) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
   }
@@ -122,15 +119,15 @@ public class IndexAction implements WsAction {
     if (component == null) {
       return Optional.empty();
     }
-    return Optional.of(loadComponent(dbSession, component));
+    return loadComponent(dbSession, component);
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, String component) {
+  private Optional<ComponentDto> loadComponent(DbSession dbSession, String component) {
     try {
       Long componentId = Long.parseLong(component);
-      return componentFinder.getById(dbSession, componentId);
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orNull());
     } catch (NumberFormatException e) {
-      return componentFinder.getByKey(dbSession, component);
+      return Optional.ofNullable(dbClient.componentDao().selectByKey(dbSession, component).orNull());
     }
   }
 

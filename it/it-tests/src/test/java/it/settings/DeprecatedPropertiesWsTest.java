@@ -213,6 +213,13 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
+  public void get_global_value_when_component_is_unknown() throws Exception {
+    setProperty("some-property", "value", null);
+
+    assertThat(getProperty("some-property", PROJECT_KEY).getValue()).isEqualTo("value");
+  }
+
+  @Test
   public void get_all_component_settings() throws Exception {
     List<Properties.Property> properties = getProperties(PROJECT_KEY);
     assertThat(properties).isNotEmpty();

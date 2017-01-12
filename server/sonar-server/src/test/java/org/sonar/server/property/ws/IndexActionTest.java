@@ -38,7 +38,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDbTester;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -77,7 +76,7 @@ public class IndexActionTest {
 
   ComponentDto project;
 
-  WsActionTester ws = new WsActionTester(new IndexAction(dbClient, new ComponentFinder(dbClient), userSession, definitions));
+  WsActionTester ws = new WsActionTester(new IndexAction(dbClient, userSession, definitions));
 
   @Before
   public void setUp() throws Exception {
@@ -163,6 +162,16 @@ public class IndexActionTest {
       newComponentPropertyDto(project).setKey("property").setValue("two"));
 
     executeAndVerify(project.key(), null, "return_project_values.json");
+  }
+
+  @Test
+  public void return_global_values_when_project_does_not_exist() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
+    propertyDb.insertProperties(
+      newGlobalPropertyDto().setKey("property").setValue("one"));
+
+    executeAndVerify("unknown", null, "return_global_values.json");
   }
 
   @Test
