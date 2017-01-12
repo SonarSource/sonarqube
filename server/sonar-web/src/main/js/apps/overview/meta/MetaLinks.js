@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import MetaLink from './MetaLink';
 import { getProjectLinks } from '../../../api/projectLinks';
-import { isProvided, orderLinks } from '../../project-admin/links/utils';
+import { orderLinks } from '../../project-admin/links/utils';
 
 export default class MetaLinks extends React.Component {
   static propTypes = {
@@ -51,12 +52,6 @@ export default class MetaLinks extends React.Component {
     });
   }
 
-  renderLinkIcon (link) {
-    return isProvided(link) ?
-        <i className={`icon-color-link icon-${link.type}`}/> :
-        <i className="icon-color-link icon-detach"/>;
-  }
-
   render () {
     const { links } = this.state;
 
@@ -70,13 +65,7 @@ export default class MetaLinks extends React.Component {
         <div className="overview-meta-card">
           <ul className="overview-meta-list">
             {orderedLinks.map(link => (
-                <li key={link.id}>
-                  <a className="link-with-icon" href={link.url} target="_blank">
-                    {this.renderLinkIcon(link)}
-                    &nbsp;
-                    {link.name}
-                  </a>
-                </li>
+                <MetaLink key={link.id} link={link}/>
             ))}
           </ul>
         </div>

@@ -1,0 +1,66 @@
+exports[`test should expand and collapse link 1`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="scm:git:git@github.com"
+    onClick={[Function]}
+    target="_blank">
+    <i
+      className="icon-color-link icon-detach" />
+     
+    Foo
+  </a>
+</li>
+`;
+
+exports[`test should expand and collapse link 2`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="scm:git:git@github.com"
+    onClick={[Function]}
+    target="_blank">
+    <i
+      className="icon-color-link icon-detach" />
+     
+    Foo
+  </a>
+  <div>
+    <input
+      className="overview-key"
+      readOnly={true}
+      type="text"
+      value="scm:git:git@github.com" />
+  </div>
+</li>
+`;
+
+exports[`test should expand and collapse link 3`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="scm:git:git@github.com"
+    onClick={[Function]}
+    target="_blank">
+    <i
+      className="icon-color-link icon-detach" />
+     
+    Foo
+  </a>
+</li>
+`;
+
+exports[`test should match snapshot 1`] = `
+<li>
+  <a
+    className="link-with-icon"
+    href="http://example.com"
+    onClick={false}
+    target="_blank">
+    <i
+      className="icon-color-link icon-detach" />
+     
+    Foo
+  </a>
+</li>
+`;
