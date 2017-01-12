@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import groupBy from 'lodash/groupBy';
+import uniq from 'lodash/uniq';
 import { searchProjects } from '../../../api/components';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
@@ -29,6 +30,8 @@ import { getMeasuresForProjects } from '../../../api/measures';
 import { receiveComponentsMeasures } from '../../../store/measures/actions';
 import { convertToFilter } from './utils';
 import { receiveFavorites } from '../../../store/favorites/duck';
+import { getOrganizations } from '../../../api/organizations';
+import { receiveOrganizations } from '../../../store/organizations/duck';
 
 const PAGE_SIZE = 50;
 
@@ -78,6 +81,10 @@ const onReceiveMeasures = (dispatch, expectedProjectKeys) => response => {
   dispatch(receiveComponentsMeasures(toStore));
 };
 
+const onReceiveOrganizations = dispatch => response => {
+  dispatch(receiveOrganizations(response.organizations));
+};
+
 const fetchProjectMeasures = projects => dispatch => {
   if (!projects.length) {
     return Promise.resolve();
@@ -85,6 +92,15 @@ const fetchProjectMeasures = projects => dispatch => {
 
   const projectKeys = projects.map(project => project.key);
   return getMeasuresForProjects(projectKeys, METRICS).then(onReceiveMeasures(dispatch, projectKeys), onFail(dispatch));
+};
+
+const fetchProjectOrganizations = projects => dispatch => {
+  if (!projects.length) {
+    return Promise.resolve();
+  }
+
+  const organizationKeys = uniq(projects.map(project => project.organization));
+  return getOrganizations(organizationKeys).then(onReceiveOrganizations(dispatch), onFail(dispatch));
 };
 
 const handleFavorites = (dispatch, projects) => {
@@ -99,7 +115,10 @@ const onReceiveProjects = dispatch => response => {
   dispatch(receiveComponents(response.components));
   dispatch(receiveProjects(response.components, response.facets));
   handleFavorites(dispatch, response.components);
-  dispatch(fetchProjectMeasures(response.components)).then(() => {
+  Promise.all([
+    dispatch(fetchProjectMeasures(response.components)),
+    dispatch(fetchProjectOrganizations(response.components))
+  ]).then(() => {
     dispatch(updateState({ loading: false }));
   });
   dispatch(updateState({
@@ -112,7 +131,10 @@ const onReceiveMoreProjects = dispatch => response => {
   dispatch(receiveComponents(response.components));
   dispatch(receiveMoreProjects(response.components));
   handleFavorites(dispatch, response.components);
-  dispatch(fetchProjectMeasures(response.components)).then(() => {
+  Promise.all([
+    dispatch(fetchProjectMeasures(response.components)),
+    dispatch(fetchProjectOrganizations(response.components))
+  ]).then(() => {
     dispatch(updateState({ loading: false }));
   });
   dispatch(updateState({ pageIndex: response.paging.pageIndex }));
