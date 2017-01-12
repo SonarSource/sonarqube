@@ -84,7 +84,7 @@ public class SearchActionTest {
 
   @Test
   public void search_json_example() {
-    OrganizationDto organizationDto = db.organizations().insert();
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
     componentDb.insertComponent(newView(organizationDto));
     ComponentDto project = componentDb.insertComponent(
       newProjectDto(organizationDto, "project-uuid")

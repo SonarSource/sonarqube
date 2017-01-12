@@ -161,6 +161,7 @@ public class SearchAction implements ComponentsWsAction {
     @Override
     public WsComponents.Component apply(@Nonnull ComponentDto dto) {
       WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
+        .setOrganization(dto.getOrganizationKey())
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name())

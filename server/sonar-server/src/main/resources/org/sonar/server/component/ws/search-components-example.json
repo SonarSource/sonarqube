@@ -6,12 +6,14 @@
   },
   "components": [
     {
+      "organization": "my-org-1",
       "id": "directory-uuid",
       "key": "directory-key",
       "qualifier": "DIR",
       "name": "Directory Name"
     },
     {
+      "organization": "my-org-1",
       "id": "file-uuid",
       "key": "file-key",
       "qualifier": "FIL",
@@ -19,12 +21,14 @@
       "language": "java"
     },
     {
+      "organization": "my-org-1",
       "id": "module-uuid",
       "key": "module-key",
       "qualifier": "BRC",
       "name": "Module Name"
     },
     {
+      "organization": "my-org-1",
       "id": "project-uuid",
       "key": "project-key",
       "qualifier": "TRK",
