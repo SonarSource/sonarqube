@@ -24,6 +24,7 @@ import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import { translate } from '../../../helpers/l10n';
+import Organization from '../../../components/shared/Organization';
 
 export default class ProjectCard extends React.Component {
   static propTypes = {
@@ -43,6 +44,7 @@ export default class ProjectCard extends React.Component {
 
     const className = classNames('boxed-group', 'project-card', { 'boxed-group-loading': !areProjectMeasuresLoaded });
 
+
     return (
         <div data-key={project.key} className={className}>
           {isProjectAnalyzed && (
@@ -55,22 +57,25 @@ export default class ProjectCard extends React.Component {
                 <FavoriteContainer className="spacer-right" componentKey={project.key}/>
             )}
             <h2 className="project-card-name">
+              <span className="note">
+                <Organization organizationKey="default-organization"/>
+              </span>
               <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-base-color">
                 {project.name}
               </Link>
             </h2>
           </div>
           {isProjectAnalyzed ? (
-              <div className="boxed-group-inner">
-                <ProjectCardMeasures measures={this.props.measures}/>
-              </div>
-          ) : (
-              <div className="boxed-group-inner">
-                <div className="note project-card-not-analyzed">
-                  {translate('projects.not_analyzed')}
-                </div>
-              </div>
-          )}
+                  <div className="boxed-group-inner">
+                    <ProjectCardMeasures measures={this.props.measures}/>
+                  </div>
+              ) : (
+                  <div className="boxed-group-inner">
+                    <div className="note project-card-not-analyzed">
+                      {translate('projects.not_analyzed')}
+                    </div>
+                  </div>
+              )}
         </div>
     );
   }
