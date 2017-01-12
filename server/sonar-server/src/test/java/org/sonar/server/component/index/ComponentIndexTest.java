@@ -19,10 +19,10 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.assertj.core.api.AbstractListAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,22 +36,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexTest {
-
-  private static final String BLA = "bla";
-  private static final String UUID_DOC = "UUID-DOC-";
-  private static final String UUID_DOC_1 = UUID_DOC + "1";
-  private static final String KEY = "KEY-";
-  private static final String KEY_1 = KEY + "1";
-
-  private static final String PREFIX = "Son";
-  private static final String MIDDLE = "arQ";
-  private static final String SUFFIX = "ube";
-  private static final String PREFIX_MIDDLE_SUFFIX = PREFIX + MIDDLE + SUFFIX;
 
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
@@ -71,133 +58,205 @@ public class ComponentIndexTest {
   }
 
   @Test
-  public void empty_search() {
-    assertSearch(emptyList(), BLA, emptyList());
+  public void return_empty_list_if_no_fields_match_query() {
+    indexProject("struts", "Apache Struts");
+
+    assertThat(index.search(new ComponentIndexQuery("missing"))).isEmpty();
   }
 
   @Test
-  public void exact_match_search() {
-    assertMatch(BLA, BLA);
+  public void search_projects_by_exact_name() {
+    ComponentDto struts = indexProject("struts", "Apache Struts");
+    indexProject("sonarqube", "SonarQube");
+
+    assertSearchResults("Apache Struts", struts);
+    assertSearchResults("APACHE STRUTS", struts);
+    assertSearchResults("APACHE struTS", struts);
   }
 
   @Test
-  public void ignore_case() {
-    assertMatch("bLa", "BlA");
+  public void search_file_with_long_name() {
+    ComponentDto project = indexProject("struts", "Apache Struts");
+    ComponentDto file1 = indexFile(project, "src/main/java/DefaultRubyComponentServiceTestManagerFactory.java", "DefaultRubyComponentServiceTestManagerFactory.java");
+
+    assertSearchResults("DefaultRubyComponentServiceTestManagerFactory", file1);
+    assertSearchResults("DefaultRubyComponentServiceTestManagerFactory.java", file1);
+    assertSearchResults("RubyComponentServiceTestManager", file1);
+    assertSearchResults("te", file1);
   }
 
   @Test
-  public void search_for_different_qualifier() {
+  public void should_search_by_name_with_two_characters() {
+    ComponentDto project = indexProject("struts", "Apache Struts");
 
-    // create a component of type project
-    ComponentDto project = ComponentTesting
-      .newProjectDto(organization, UUID_DOC_1)
-      .setName(BLA)
-      .setKey(BLA);
-
-    // search for components of type file
-    ComponentIndexQuery fileQuery = new ComponentIndexQuery(BLA);
-    fileQuery.addQualifier(Qualifiers.FILE);
-
-    // should not have any results
-    assertThat(search(asList(project), fileQuery)).isEmpty();
+    assertSearchResults("st", project);
+    assertSearchResults("tr", project);
   }
 
   @Test
-  public void prefix_match_search() {
-    assertMatch(PREFIX_MIDDLE_SUFFIX, PREFIX);
+  public void search_projects_by_partial_name() {
+    ComponentDto struts = indexProject("struts", "Apache Struts");
+
+    assertSearchResults("truts", struts);
+    assertSearchResults("pache", struts);
+    assertSearchResults("apach", struts);
+    assertSearchResults("che stru", struts);
   }
 
   @Test
-  public void middle_match_search() {
-    assertMatch(PREFIX_MIDDLE_SUFFIX, MIDDLE);
+  public void search_projects_and_files_by_partial_name() {
+    ComponentDto project = indexProject("struts", "Apache Struts");
+    ComponentDto file1 = indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
+    indexFile(project, "src/main/java/Foo.java", "Foo.java");
+
+    assertSearchResults("struts", project, file1);
+    assertSearchResults("Struts", project, file1);
+    assertSearchResults("StrutsManager", file1);
+    assertSearchResults("STRUTSMA", file1);
+    assertSearchResults("utsManag", file1);
   }
 
   @Test
-  public void suffix_match_search() {
-    assertMatch(PREFIX_MIDDLE_SUFFIX, SUFFIX);
+  public void should_find_file_by_file_extension() {
+    ComponentDto project = indexProject("struts", "Apache Struts");
+    ComponentDto file1 = indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
+    ComponentDto file2 = indexFile(project, "src/main/java/Foo.java", "Foo.java");
+
+    assertSearchResults(".java", file1, file2);
+    assertSearchResults("manager.java", file1);
+
+    // do not match
+    assertNoSearchResults("strutsmanager.txt");
+    assertNoSearchResults("strutsmanagerjava");
+    assertNoSearchResults("somethingStrutsManager.java");
   }
 
   @Test
-  public void exact_match_should_be_shown_first() {
-    ComponentDto good = newDoc(UUID_DOC + 1, "Current SonarQube Plattform");
-    ComponentDto better = newDoc(UUID_DOC + 2, "SonarQube Plattform");
+  public void should_search_projects_by_exact_case_insensitive_key() {
+    ComponentDto project1 = indexProject("keyOne", "Project One");
+    indexProject("keyTwo", "Project Two");
 
-    assertThat(search(asList(good, better), "SonarQube"))
-      .containsExactly(better.uuid(), good.uuid());
+    assertSearchResults("keyOne", project1);
+    assertSearchResults("keyone", project1);
+    assertSearchResults("KEYone", project1);
   }
 
   @Test
-  public void do_not_interpret_input() {
-    assertNotMatch(BLA, "*");
+  public void should_search_project_with_dot_in_key() {
+    ComponentDto project = indexProject("org.sonarqube", "SonarQube");
+
+    assertSearchResults("org.sonarqube", project);
+    assertNoSearchResults("orgsonarqube");
   }
 
   @Test
-  public void key_match_search() {
-    assertSearch(
-      asList(newDoc(UUID_DOC_1, "name is not a match", "matchingKey")),
-      "matchingKey",
-      asList(UUID_DOC_1));
+  public void should_search_project_with_dash_in_key() {
+    ComponentDto project = indexProject("org-sonarqube", "SonarQube");
+
+    assertSearchResults("org-sonarqube", project);
+    assertNoSearchResults("orgsonarqube");
   }
 
   @Test
-  public void unmatching_search() {
-    assertNotMatch(BLA, "blubb");
+  public void should_search_project_with_colon_in_key() {
+    ComponentDto project = indexProject("org:sonarqube", "SonarQube");
+
+    assertSearchResults("org:sonarqube", project);
+    assertNoSearchResults("orgsonarqube");
+    assertNoSearchResults("org-sonarqube");
+    assertNoSearchResults("org_sonarqube");
   }
 
   @Test
-  public void limit_number_of_documents() {
-    Collection<ComponentDto> docs = IntStream
-      .rangeClosed(1, 42)
-      .mapToObj(i -> newDoc(UUID_DOC + i, BLA, KEY + i))
-      .collect(Collectors.toList());
+  public void should_search_project_with_all_special_characters_in_key() {
+    ComponentDto project = indexProject("org.sonarqube:sonar-sérvèr_ç", "SonarQube");
 
-    int pageSize = 41;
-    ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery(BLA)
-      .addQualifier(Qualifiers.PROJECT)
-      .setLimit(pageSize);
-    assertThat(search(docs, componentIndexQuery)).hasSize(pageSize);
+    assertSearchResults("org.sonarqube:sonar-sérvèr_ç", project);
   }
 
-  private void assertMatch(String name, String query) {
-    assertSearch(
-      asList(newDoc(name)),
-      query,
-      asList(UUID_DOC_1));
+  @Test
+  public void should_not_return_results_when_searching_by_partial_key() {
+    indexProject("theKey", "the name");
+
+    assertNoSearchResults("theke");
+    assertNoSearchResults("hekey");
   }
 
-  private void assertNotMatch(String name, String query) {
-    assertSearch(
-      asList(newDoc(name)),
-      query,
-      emptyList());
+  @Test
+  public void filter_results_by_qualifier() {
+    ComponentDto project = indexProject("struts", "Apache Struts");
+    indexFile(project, "src/main/java/StrutsManager.java", "StrutsManager.java");
+
+    assertSearchResults(new ComponentIndexQuery("struts").setQualifier(Qualifiers.PROJECT), project);
   }
 
-  private ComponentDto newDoc(String name) {
-    return newDoc(UUID_DOC_1, name);
+  @Test
+  public void should_order_results_by_score() {
+    ComponentDto project1 = indexProject("keyOne", "Struts");
+    ComponentDto project2 = indexProject("keyTwo", "Apache Struts Two");
+    ComponentDto project3 = indexProject("keyThree", "Apache Struts");
+
+    assertSearch("struts").containsExactly(project1.uuid(), project3.uuid(), project2.uuid());
   }
 
-  private ComponentDto newDoc(String uuid, String name) {
-    return newDoc(uuid, name, KEY_1);
+  @Test
+  public void should_prefer_key_matching_over_name_matching() {
+    ComponentDto project1 = indexProject("quality", "SonarQube");
+    ComponentDto project2 = indexProject("sonarqube", "Quality Product");
+
+    assertSearch("sonarqube").containsExactly(project2.uuid(), project1.uuid());
   }
 
-  private ComponentDto newDoc(String uuid, String name, String key) {
-    return ComponentTesting
-      .newProjectDto(organization, uuid)
-      .setName(name)
-      .setKey(key);
+  @Test
+  public void should_limit_the_number_of_results() {
+    IntStream.rangeClosed(0, 10).forEach(i -> indexProject("sonarqube" + i, "SonarQube" + i));
+
+    assertSearch(new ComponentIndexQuery("sonarqube").setLimit(5)).hasSize(5);
   }
 
-  private void assertSearch(Collection<ComponentDto> input, String queryText, Collection<String> expectedOutput) {
-    assertThat(search(input, queryText))
-      .hasSameElementsAs(expectedOutput);
+  @Test
+  public void should_not_support_wildcards() {
+    indexProject("theKey", "the name");
+
+    assertNoSearchResults("*the*");
+    assertNoSearchResults("th?Key");
   }
 
-  private List<String> search(Collection<ComponentDto> input, String query) {
-    return search(input, new ComponentIndexQuery(query).addQualifier(Qualifiers.PROJECT));
+  private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
+    return assertSearch(new ComponentIndexQuery(query));
   }
 
-  private List<String> search(Collection<ComponentDto> input, ComponentIndexQuery query) {
-    input.stream().forEach(indexer::index);
-    return index.search(query);
+  private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
+    return assertThat(index.search(query));
   }
+
+  private void assertSearchResults(String query, ComponentDto... expectedComponents) {
+    assertSearchResults(new ComponentIndexQuery(query), expectedComponents);
+  }
+
+  private void assertSearchResults(ComponentIndexQuery query, ComponentDto... expectedComponents) {
+    String[] expectedUuids = Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new);
+    assertSearch(query).containsOnly(expectedUuids);
+  }
+
+  private void assertNoSearchResults(String query) {
+    assertSearchResults(query);
+  }
+
+  private ComponentDto indexProject(String key, String name) {
+    ComponentDto dto = ComponentTesting.newProjectDto(organization, "UUID_" + key)
+      .setKey(key)
+      .setName(name);
+    indexer.index(dto);
+    return dto;
+  }
+
+  private ComponentDto indexFile(ComponentDto project, String fileKey, String fileName) {
+    ComponentDto dto = ComponentTesting.newFileDto(project)
+      .setKey(fileKey)
+      .setName(fileName);
+    indexer.index(dto);
+    return dto;
+  }
+
 }

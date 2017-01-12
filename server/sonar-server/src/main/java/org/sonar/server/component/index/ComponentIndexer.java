@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_PROJECT_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
@@ -56,23 +57,28 @@ public class ComponentIndexer implements Startable {
   /**
    * Copy all components of all projects to the elastic search index.
    * <p>
-   * <b>Warning</b>: This should only be called on an empty index. It does not purge anything.
+   * <b>Warning</b>: This should only be called on an empty index. It does not delete anything.
    */
   public void index() {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+      bulk.setLarge(true);
+      bulk.start();
       dbClient.componentDao()
-        .selectProjects(dbSession)
-        .stream()
-        .forEach(this::index);
+        .selectAll(dbSession, context -> {
+          ComponentDto dto = (ComponentDto) context.getResultObject();
+          bulk.add(newIndexRequest(toDocument(dto)));
+        });
+      bulk.stop();
     }
   }
 
   /**
-   * Update the elastic search for one specific project. The current data from the database is used.
+   * Update the index for one specific project. The current data from the database is used.
    */
-  public void index(String projectUuid) {
+  public void indexByProjectUuid(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      purge(projectUuid);
+      deleteByProjectUuid(projectUuid);
       index(
         dbClient
           .componentDao()
@@ -81,12 +87,12 @@ public class ComponentIndexer implements Startable {
     }
   }
 
-  private void purge(String projectUuid) {
+  private void deleteByProjectUuid(String projectUuid) {
     BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)
       .setFetchSource(false)
-      .setQuery(termQuery(FIELD_PROJECT_UUID, projectUuid)));
+      .setQuery(boolQuery().filter(termQuery(FIELD_PROJECT_UUID, projectUuid))));
   }
 
   void index(ComponentDto... docs) {

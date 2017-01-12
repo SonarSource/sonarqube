@@ -40,7 +40,7 @@ public class IndexComponentsStep implements ComputationStep {
   public void execute() {
     String projectUuid = treeRootHolder.getRoot().getUuid();
     resourceIndexDao.indexProject(projectUuid);
-    elasticSearchIndexer.index(projectUuid);
+    elasticSearchIndexer.indexByProjectUuid(projectUuid);
   }
 
   @Override

@@ -22,7 +22,10 @@ package org.sonar.server.es;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 
-class DefaultIndexSettings {
+public class DefaultIndexSettings {
+
+  /** Maximum length of ngrams. */
+  public static final int MAXIMUM_NGRAM_LENGTH = 15;
 
   private DefaultIndexSettings() {
     // only static stuff
@@ -72,7 +75,7 @@ class DefaultIndexSettings {
       // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "nGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
-      .put("index.analysis.filter.gram_filter.max_gram", 15)
+      .put("index.analysis.filter.gram_filter.max_gram", MAXIMUM_NGRAM_LENGTH)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
       // Word filter

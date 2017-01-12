@@ -21,12 +21,14 @@ package org.sonar.server.component.index;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseIndex;
+import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.EsClient;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -45,33 +47,30 @@ public class ComponentIndex extends BaseIndex {
   }
 
   public List<String> search(ComponentIndexQuery query) {
-    SearchRequestBuilder requestBuilder = getClient()
+    SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)
       .setFetchSource(false);
 
-    query.getLimit().ifPresent(requestBuilder::setSize);
+    query.getLimit().ifPresent(request::setSize);
 
-    requestBuilder.setQuery(
-      createQuery(query));
+    request.setQuery(createQuery(query));
 
-    return Arrays.stream(requestBuilder.get().getHits().hits())
+    return Arrays.stream(request.get().getHits().hits())
       .map(SearchHit::getId)
       .collect(Collectors.toList());
   }
 
   private static QueryBuilder createQuery(ComponentIndexQuery query) {
     BoolQueryBuilder esQuery = boolQuery();
+    query.getQualifier().ifPresent(q -> esQuery.filter(termQuery(FIELD_QUALIFIER, q)));
 
-    query
-      .getQualifiers()
-      .forEach(qualifier -> esQuery.filter(termQuery(FIELD_QUALIFIER, qualifier)));
+    // We will truncate the search to the maximum length of nGrams in the index.
+    // Otherwise the search would for sure not find any results.
+    String truncatedQuery = StringUtils.left(query.getQuery(), DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
 
     return esQuery
-      .must(
-        boolQuery()
-          .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, query.getQuery()))
-          .should(termQuery(FIELD_KEY, query.getQuery()).boost(3f))
-          .minimumNumberShouldMatch(1));
+      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery))
+      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, query.getQuery()).boost(3f));
   }
 }

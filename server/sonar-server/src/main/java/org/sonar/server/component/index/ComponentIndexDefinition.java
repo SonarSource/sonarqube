@@ -50,7 +50,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
     // type "component"
     NewIndex.NewIndexType mapping = index.createType(TYPE_COMPONENT);
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
-    mapping.stringFieldBuilder(FIELD_KEY).build();
+    mapping.stringFieldBuilder(FIELD_KEY).enableSorting().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableGramSearch().build();
     mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
 

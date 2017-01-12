@@ -44,7 +44,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SU
 
 public class SuggestionsAction implements ComponentsWsAction {
 
-  static final String URL_PARAM_QUERY = "s";
+  private static final String URL_PARAM_QUERY = "s";
 
   private static final String[] QUALIFIERS = {
     Qualifiers.VIEW,
@@ -104,7 +104,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
   private Optional<Qualifier> getResultsOfQualifier(String query, String qualifier) {
     ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery(query)
-      .addQualifier(qualifier)
+      .setQualifier(qualifier)
       .setLimit(NUMBER_OF_RESULTS_PER_QUALIFIER);
 
     List<String> uuids = searchInIndex(componentIndexQuery);
@@ -128,7 +128,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     return index.search(componentIndexQuery);
   }
 
-  public List<ComponentDto> fetchFromDatabase(List<String> uuids) {
+  private List<ComponentDto> fetchFromDatabase(List<String> uuids) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       return dbClient.componentDao().selectByUuids(dbSession, uuids);

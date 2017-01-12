@@ -142,7 +142,7 @@ public class ComponentService {
 
   private void index(String projectUuid) {
     projectMeasuresIndexer.index(projectUuid);
-    componentIndexer.index(projectUuid);
+    componentIndexer.indexByProjectUuid(projectUuid);
   }
 
   /**

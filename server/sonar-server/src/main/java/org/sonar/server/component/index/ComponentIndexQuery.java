@@ -19,45 +19,42 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class ComponentIndexQuery {
 
   private final String query;
-  private Set<String> qualifiers = new HashSet<>();
+  private Optional<String> qualifier = Optional.empty();
   private Optional<Integer> limit = Optional.empty();
 
   public ComponentIndexQuery(String query) {
+    requireNonNull(query);
+    checkArgument(query.length() >= 2, "Query must be at least two characters long: %s", query);
     this.query = query;
   }
 
-  public ComponentIndexQuery addQualifier(String qualifier) {
-    this.qualifiers.add(qualifier);
+  public ComponentIndexQuery setQualifier(@Nullable String qualifier) {
+    this.qualifier = Optional.ofNullable(qualifier);
     return this;
   }
 
-  public ComponentIndexQuery addQualifiers(Collection<String> qualifiers) {
-    this.qualifiers.addAll(qualifiers);
-    return this;
-  }
-
-  public boolean hasQualifiers() {
-    return !qualifiers.isEmpty();
-  }
-
-  public Collection<String> getQualifiers() {
-    return Collections.unmodifiableSet(qualifiers);
+  public Optional<String> getQualifier() {
+    return qualifier;
   }
 
   public String getQuery() {
     return query;
   }
 
+  /**
+   * The number of search hits to return per Qualifier. Defaults to <tt>10</tt>.
+   */
   public ComponentIndexQuery setLimit(int limit) {
+    checkArgument(limit >= 1, "Limit has to be strictly positive: %s", limit);
     this.limit = Optional.of(limit);
     return this;
   }
