@@ -275,7 +275,8 @@
 
   <select id="selectByQuery" resultType="Component">
     select
-    <include refid="componentColumns"/>
+      <include refid="componentColumns"/>,
+      o.kee as organizationKey
     <include refid="sqlSelectByQuery"/>
     ORDER BY LOWER(p.name), p.name, p.id
   </select>
@@ -287,8 +288,10 @@
 
   <sql id="sqlSelectByQuery">
     from projects p
-    <where>
-      AND p.enabled=${_true}
+    inner join organizations o on
+      o.uuid = p.organization_uuid
+    where
+      p.enabled=${_true}
       AND p.copy_component_uuid is null
       <if test="query.qualifiers!=null">
       AND p.qualifier in
@@ -322,7 +325,6 @@
           )
         )
       </if>
-    </where>
   </sql>
 
   <!-- "p" is ancestors -->

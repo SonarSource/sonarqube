@@ -782,7 +782,9 @@ public class ComponentDaoTest {
 
     assertThat(result).hasSize(3);
     assertThat(count).isEqualTo(9);
-    assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
+    assertThat(result).extracting(ComponentDto::name).containsExactly("project-2", "project-3", "project-4");
+    assertThat(result).extracting(ComponentDto::getOrganizationUuid).containsOnly(organizationDto.getUuid());
+    assertThat(result).extracting(ComponentDto::getOrganizationKey).containsOnly(organizationDto.getKey());
   }
 
   @Test
