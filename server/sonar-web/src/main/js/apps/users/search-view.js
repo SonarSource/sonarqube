@@ -24,10 +24,14 @@ import Template from './templates/users-search.hbs';
 export default Marionette.ItemView.extend({
   template: Template,
 
+  ui: {
+    hint: '.js-hint'
+  },
+
   events: {
     'submit #users-search-form': 'onFormSubmit',
-    'search #users-search-query': 'debouncedOnKeyUp',
-    'keyup #users-search-query': 'debouncedOnKeyUp'
+    'search #users-search-query': 'initialOnKeyUp',
+    'keyup #users-search-query': 'initialOnKeyUp'
   },
 
   initialize () {
@@ -44,6 +48,12 @@ export default Marionette.ItemView.extend({
     this.debouncedOnKeyUp();
   },
 
+  initialOnKeyUp () {
+    const q = this.getQuery();
+    this.ui.hint.toggleClass('hidden', q.length !== 1);
+    this.debouncedOnKeyUp();
+  },
+
   onKeyUp () {
     const q = this.getQuery();
     if (q === this._bufferedValue) {
@@ -53,7 +63,10 @@ export default Marionette.ItemView.extend({
     if (this.searchRequest != null) {
       this.searchRequest.abort();
     }
-    this.searchRequest = this.search(q);
+    this.ui.hint.toggleClass('hidden', q.length !== 1);
+    if (q.length !== 1) {
+      this.searchRequest = this.search(q);
+    }
   },
 
   getQuery () {
