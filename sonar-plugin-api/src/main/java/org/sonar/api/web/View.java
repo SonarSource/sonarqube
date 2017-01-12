@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.api.web;
 
 import org.sonar.api.ExtensionPoint;
@@ -24,9 +25,11 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 1.11
+ * @deprecated since 6.3 see {@link org.sonar.api.web.page.PageDefinition}. This class is ignored.
  */
 @ServerSide
 @ExtensionPoint
+@Deprecated
 public interface View {
 
   String getId();

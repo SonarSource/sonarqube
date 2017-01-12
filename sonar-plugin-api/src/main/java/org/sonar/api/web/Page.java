@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.api.web;
 
 /**
  * @since 2.0
+ * @deprecated since 6.3 see {@link org.sonar.api.web.page.PageDefinition}. This class is ignored.
  */
+@Deprecated
 public interface Page extends View {
   
 }
