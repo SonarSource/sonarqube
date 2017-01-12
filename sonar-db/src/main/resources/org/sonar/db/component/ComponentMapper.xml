@@ -341,8 +341,11 @@
 
   <select id="selectDescendants" resultType="Component">
     select
-    <include refid="componentColumns"/>
+      <include refid="componentColumns"/>,
+      o.kee as organizationKey
     from projects p
+    inner join organizations o on
+      o.uuid = p.organization_uuid
     <include refid="selectDescendantsJoins"/>
     <where>
       <include refid="selectDescendantsFilters"/>

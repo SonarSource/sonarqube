@@ -997,6 +997,8 @@ public class ComponentDaoTest {
 
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
+    assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
+    assertThat(components).extracting("organizationKey").containsOnly(organizationDto.getKey());
   }
 
   private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {
