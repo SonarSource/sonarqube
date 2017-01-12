@@ -419,6 +419,12 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-db-testing</artifactId>
+        <type>pom</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-db-migration</artifactId>
         <version>${project.version}</version>
       </dependency>

@@ -17,6 +17,7 @@
     <module>sonar-db-core</module>
     <module>sonar-db-migration</module>
     <module>sonar-db-dao</module>
+    <module>sonar-db-testing</module>
     <module>sonar-server</module>
     <module>sonar-ce</module>
     <module>sonar-plugin-bridge</module>
