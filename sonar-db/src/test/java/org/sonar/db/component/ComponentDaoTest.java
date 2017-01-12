@@ -76,7 +76,7 @@ public class ComponentDaoTest {
     ComponentDto result = underTest.selectByUuid(dbSession, "U1").get();
     assertThat(result).isNotNull();
     assertThat(result.getOrganizationUuid()).isEqualTo("org1");
-    assertThat(result.getOrganizationKey()).isNull();
+    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
     assertThat(result.uuid()).isEqualTo("U1");
     assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U1");
