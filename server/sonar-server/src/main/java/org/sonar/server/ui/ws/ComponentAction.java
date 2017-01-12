@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.Lists;
@@ -149,6 +148,7 @@ public class ComponentAction implements NavigationWsAction {
 
   private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis) {
     json.prop("key", component.key())
+      .prop("organization", component.getOrganizationKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())

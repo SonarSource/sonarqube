@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -106,7 +107,8 @@ public class ComponentActionTest {
 
   @Before
   public void before() {
-    project =  newProjectDto(dbTester.getDefaultOrganization(), "abcd")
+    OrganizationDto organization = dbTester.organizations().insertForKey("my-org");
+    project =  newProjectDto(organization, "abcd")
         .setKey(PROJECT_KEY)
         .setName("Polop")
         .setDescription("test project")
@@ -340,7 +342,8 @@ public class ComponentActionTest {
   @Test
   public void test_example_response() throws Exception {
     init(createPages());
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), "ABCD")
+    OrganizationDto organizationDto = dbTester.organizations().insertForKey("my-org-1");
+    ComponentDto project = newProjectDto(organizationDto, "ABCD")
       .setKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");

@@ -1,4 +1,5 @@
 {
+  "organization": "my-org-1",
   "key": "org.codehaus.sonar:sonar",
   "id": "ABCD",
   "name": "Sonarqube",
