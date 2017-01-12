@@ -20,11 +20,13 @@
 import { getLanguages } from '../api/languages';
 import { getGlobalNavigation, getComponentNavigation } from '../api/nav';
 import * as auth from '../api/auth';
+import { getOrganizations } from '../api/organizations';
 import { receiveLanguages } from './languages/actions';
 import { receiveComponents } from './components/actions';
 import { addGlobalErrorMessage } from './globalMessages/duck';
 import { parseError } from '../apps/code/utils';
 import { setAppState } from './appState/duck';
+import { receiveOrganizations } from './organizations/duck';
 
 export const onFail = dispatch => error => (
     parseError(error).then(message => dispatch(addGlobalErrorMessage(message)))
@@ -43,6 +45,13 @@ export const fetchLanguages = () => dispatch => {
       onFail(dispatch)
   );
 };
+
+export const fetchOrganizations = () => dispatch => (
+    getOrganizations().then(
+        r => dispatch(receiveOrganizations(r.organizations)),
+        onFail(dispatch)
+    )
+);
 
 const addQualifier = project => ({
   ...project,
