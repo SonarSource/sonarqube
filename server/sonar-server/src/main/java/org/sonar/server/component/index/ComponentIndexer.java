@@ -87,7 +87,7 @@ public class ComponentIndexer implements Startable {
     }
   }
 
-  private void deleteByProjectUuid(String projectUuid) {
+  public void deleteByProjectUuid(String projectUuid) {
     BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)

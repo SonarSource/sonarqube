@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,10 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.index.ComponentIndex;
+import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.component.index.ComponentIndexQuery;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueDocTesting;
@@ -78,7 +83,8 @@ public class BulkDeleteActionTest {
 
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()),
-    new TestIndexDefinition(new MapSettings()));
+    new TestIndexDefinition(new MapSettings()),
+    new ComponentIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -90,6 +96,8 @@ public class BulkDeleteActionTest {
   private DbClient dbClient = db.getDbClient();
   final DbSession dbSession = db.getSession();
   private ResourceType resourceType;
+  private ComponentIndex componentIndex;
+  private ComponentIndexer componentIndexer;
 
   @Before
   public void setUp() {
@@ -97,12 +105,17 @@ public class BulkDeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
+
+    componentIndex = new ComponentIndex(es.client());
+    componentIndexer = new ComponentIndexer(dbClient, es.client());
+
     ws = new WsTester(new ProjectsWs(
       new BulkDeleteAction(
         new ComponentCleanerService(dbClient,
           new IssueIndexer(system2, dbClient, es.client()),
           new TestIndexer(system2, dbClient, es.client()),
           new ProjectMeasuresIndexer(system2, dbClient, es.client()),
+          componentIndexer,
           mockResourceTypes,
           new ComponentFinder(dbClient)),
         dbClient,
@@ -133,10 +146,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_projects_and_data_in_db_by_keys() throws Exception {
-    insertNewProjectInDbAndReturnSnapshotId(1);
-    insertNewProjectInDbAndReturnSnapshotId(2);
-    insertNewProjectInDbAndReturnSnapshotId(3);
-    insertNewProjectInDbAndReturnSnapshotId(4);
+    IntStream.rangeClosed(1, 4).forEach(this::insertNewProjectInDbAndReturnSnapshotId);
 
     ws.newPostRequest("api/projects", ACTION)
       .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
@@ -148,10 +158,10 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_documents_indexes() throws Exception {
-    insertNewProjectInIndexes(1);
-    insertNewProjectInIndexes(2);
-    insertNewProjectInIndexes(3);
-    insertNewProjectInIndexes(4);
+    IntStream.rangeClosed(1, 4).forEach(this::insertNewProjectInIndexes);
+
+    // all 4 projects should be findable
+    assertComponentIndexSearchResults("project", IntStream.rangeClosed(1, 4).mapToObj(i -> "project-uuid-" + i).toArray(String[]::new));
 
     ws.newPostRequest("api/projects", ACTION)
       .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
@@ -162,6 +172,9 @@ public class BulkDeleteActionTest {
     assertThat(es.getIds(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
+
+    // only the remaining project should be findable
+    assertComponentIndexSearchResults("project", remainingProjectUuid);
   }
 
   @Test
@@ -200,6 +213,10 @@ public class BulkDeleteActionTest {
     ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "project-uuid").execute();
   }
 
+  private void assertComponentIndexSearchResults(String query, String... expectedResultUuids) {
+    assertThat(componentIndex.search(new ComponentIndexQuery(query))).containsOnly(expectedResultUuids);
+  }
+
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = ComponentTesting
@@ -216,7 +233,7 @@ public class BulkDeleteActionTest {
     return snapshot.getId();
   }
 
-  private void insertNewProjectInIndexes(int id) throws Exception {
+  private void insertNewProjectInIndexes(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = ComponentTesting
       .newProjectDto(db.getDefaultOrganization(), "project-uuid-" + suffix)
@@ -224,10 +241,16 @@ public class BulkDeleteActionTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueDocTesting.newDoc("issue-key-" + suffix, project));
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
+    try {
+      es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueDocTesting.newDoc("issue-key-" + suffix, project));
+      es.putDocuments(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
 
-    TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
+      TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
+      es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
+    } catch (Exception e) {
+      throw new IllegalStateException("Cannot put documents to index", e);
+    }
+
+    componentIndexer.indexByProjectUuid(project.uuid());
   }
 }

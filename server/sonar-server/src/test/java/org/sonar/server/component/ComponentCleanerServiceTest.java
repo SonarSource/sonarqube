@@ -39,6 +39,8 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueDocTesting;
@@ -71,7 +73,8 @@ public class ComponentCleanerServiceTest {
   public EsTester es = new EsTester(
     new IssueIndexDefinition(new MapSettings()),
     new TestIndexDefinition(new MapSettings()),
-    new ProjectMeasuresIndexDefinition(new MapSettings()));
+    new ProjectMeasuresIndexDefinition(new MapSettings()),
+    new ComponentIndexDefinition(new MapSettings()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -82,9 +85,10 @@ public class ComponentCleanerServiceTest {
   private IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, es.client());
   private TestIndexer testIndexer = new TestIndexer(system2, dbClient, es.client());
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
+  private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
   private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
 
-  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, mockResourceTypes,
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, componentIndexer, mockResourceTypes,
     new ComponentFinder(dbClient));
 
   @Test
@@ -224,6 +228,7 @@ public class ComponentCleanerServiceTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     projectMeasuresIndexer.index();
+    componentIndexer.index();
     permissionIndexer.index(dbSession, project.uuid());
 
     String issueKey = "issue-key-" + suffix;

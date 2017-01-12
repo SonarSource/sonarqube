@@ -43,6 +43,10 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.index.ComponentIndex;
+import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.component.index.ComponentIndexQuery;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueDocTesting;
@@ -76,7 +80,8 @@ public class DeleteActionTest {
   @Rule
   public EsTester es = new EsTester(
     new IssueIndexDefinition(new MapSettings()),
-    new TestIndexDefinition(new MapSettings()));
+    new TestIndexDefinition(new MapSettings()),
+    new ComponentIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -88,6 +93,8 @@ public class DeleteActionTest {
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private ResourceType resourceType;
+  public ComponentIndex componentIndex;
+  public ComponentIndexer componentIndexer;
 
   @Before
   public void setUp() {
@@ -95,6 +102,10 @@ public class DeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
+
+    componentIndex = new ComponentIndex(es.client());
+    componentIndexer = new ComponentIndexer(dbClient, es.client());
+
     ws = new WsTester(new ProjectsWs(
       new DeleteAction(
         new ComponentCleanerService(
@@ -102,6 +113,7 @@ public class DeleteActionTest {
           new IssueIndexer(system2, dbClient, es.client()),
           new TestIndexer(system2, dbClient, es.client()),
           new ProjectMeasuresIndexer(system2, dbClient, es.client()),
+          componentIndexer,
           mockResourceTypes,
           new ComponentFinder(dbClient)),
         new ComponentFinder(dbClient),
@@ -168,6 +180,8 @@ public class DeleteActionTest {
     insertNewProjectInIndexes(1);
     insertNewProjectInIndexes(2);
 
+    assertComponentIndexSearchResults("project-key-1", "project-uuid-1");
+
     newRequest()
       .setParam(PARAM_KEY, "project-key-1").execute();
 
@@ -177,6 +191,12 @@ public class DeleteActionTest {
     assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
+
+    assertComponentIndexSearchResults("project-key-1" /* empty list of results expected */);
+  }
+
+  private void assertComponentIndexSearchResults(String query, String... expectedResultUuids) {
+    assertThat(componentIndex.search(new ComponentIndexQuery(query))).containsExactly(expectedResultUuids);
   }
 
   @Test
@@ -241,6 +261,8 @@ public class DeleteActionTest {
 
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc("issue-key-" + suffix, project));
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
+
+    componentIndexer.indexByProjectUuid(project.uuid());
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
