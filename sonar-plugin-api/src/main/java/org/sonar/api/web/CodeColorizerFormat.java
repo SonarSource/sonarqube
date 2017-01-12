@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.api.web;
 
 import com.google.common.base.MoreObjects;
+import java.util.List;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.colorizer.Tokenizer;
-
-import java.util.List;
 
 /**
  * Extend the library sonar-colorizer to support new languages.
  * 
  * @since 1.12
- * @deprecated since 4.5.2 use {@link org.sonar.api.source.Highlightable}
+ * @deprecated since 4.5.2 use {@link SensorContext#newHighlighting()}
  */
 @Deprecated
 public abstract class CodeColorizerFormat implements TaskExtension {

@@ -17,34 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.web;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.SonarException;
+package org.sonar.api.web;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.utils.SonarException;
 
 /**
- * It's useful in development environment to see browser rendering in real time while editing the template. To do that, just
- * return an absolute path in the method getTemplatePath() :<br>
- * <pre>
- * <code>
- *   protected String getTemplatePath() {
- *    return "/tmp/sample_dashboard_widget.erb";
- *   }
- * </code>
- * </pre>
- * Build and deploy the plugin in /extensions/plugins. The file /tmp/sample_dashboard_widget.erb will be reloaded on each request.
- * <br>
- * <br>
- * In production environment, you have to return the classloader path, for example "/org/sonar/myplugin/sample_dashboard_widget.erb".
- *
  * @since 1.11
+ * @deprecated since 6.3. This class is ignored.
  */
+@Deprecated
 public abstract class AbstractRubyTemplate {
 
   private String cache = null;

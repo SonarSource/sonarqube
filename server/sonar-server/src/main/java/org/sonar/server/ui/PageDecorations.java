@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
 
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.PageDecoration;
+package org.sonar.server.ui;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.PageDecoration;
 
 /**
  * @since 3.3
+ * @deprecated since 6.3 see {@link org.sonar.api.web.page.PageDefinition}. This class has not effect.
  */
 @ServerSide
+@Deprecated
 public final class PageDecorations {
 
   private final PageDecoration[] decorations;
@@ -38,7 +40,7 @@ public final class PageDecorations {
   }
 
   public PageDecorations() {
-    this(Collections.<PageDecoration>emptyList());
+    this(Collections.emptyList());
   }
 
   public PageDecoration[] get() {

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.api.web;
 
 import java.lang.annotation.ElementType;
@@ -28,9 +29,11 @@ import java.lang.annotation.Target;
  * The view is displayed only if the selected resource has the same language.
  *
  * @since 1.11
+ * @deprecated since 6.3 see {@link org.sonar.api.web.page.PageDefinition}. This class is ignored.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Deprecated
 public @interface ResourceLanguage {
 
   /**
