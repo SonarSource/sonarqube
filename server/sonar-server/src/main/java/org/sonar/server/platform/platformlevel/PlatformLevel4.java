@@ -191,7 +191,7 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.PageRepository;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.DeprecatedViews;
 import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.DefaultUserFinder;
@@ -231,7 +231,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
     add(
       PluginDownloader.class,
-      Views.class,
+      DeprecatedViews.class,
       PageRepository.class,
       ResourceTypes.class,
       DefaultResourceTypes.get(),
