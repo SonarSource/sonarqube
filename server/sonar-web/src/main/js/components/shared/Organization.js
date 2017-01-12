@@ -57,3 +57,5 @@ const mapStateToProps = (state, ownProps: OwnProps) => ({
 });
 
 export default connect(mapStateToProps)(Organization);
+
+export const UnconnectedOrganization = Organization;
