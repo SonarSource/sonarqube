@@ -1,5 +1,6 @@
 {
   "component": {
+    "organization": "my-org-1",
     "id": "AVIF-FffA3Ax6PH2efPD",
     "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java",
     "name": "Rule.java",
@@ -9,6 +10,7 @@
   },
   "ancestors": [
     {
+      "organization": "my-org-1",
       "id": "AVIF-FfgA3Ax6PH2efPF",
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
       "name": "src/main/java/com/sonarsource/markdown/impl",
@@ -16,6 +18,7 @@
       "path": "src/main/java/com/sonarsource/markdown/impl"
     },
     {
+      "organization": "my-org-1",
       "id": "AVIF98jgA3Ax6PH2efOW",
       "key": "com.sonarsource:java-markdown",
       "name": "Java Markdown",

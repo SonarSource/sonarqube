@@ -33,6 +33,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -142,7 +143,8 @@ public class ShowActionTest {
   }
 
   private void insertJsonExampleComponentsAndSnapshots() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "AVIF98jgA3Ax6PH2efOW")
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
+    ComponentDto project = newProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
       .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")

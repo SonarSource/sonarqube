@@ -81,11 +81,11 @@ public class TreeActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
 
-  WsActionTester ws;
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
@@ -401,7 +401,8 @@ public class TreeActionTest {
   }
 
   private ComponentDto initJsonExampleComponents() throws IOException {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "MY_PROJECT_ID")
+    OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
+    ComponentDto project = newProjectDto(organizationDto, "MY_PROJECT_ID")
       .setKey("MY_PROJECT_KEY")
       .setName("Project Name");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);

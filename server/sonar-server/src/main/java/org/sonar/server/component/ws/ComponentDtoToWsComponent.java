@@ -34,6 +34,7 @@ class ComponentDtoToWsComponent {
 
   static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto) {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
+      .setOrganization(dto.getOrganizationKey())
       .setId(dto.uuid())
       .setKey(dto.key())
       .setName(dto.name())
