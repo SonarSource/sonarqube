@@ -62,5 +62,5 @@ export const getOrganizationByKey = (state: State, key: string): Organization =>
 );
 
 export const areThereCustomOrganizations = (state: State): boolean => (
-    Object.keys(state.byKey).length > 0
+    Object.keys(state.byKey).length > 1
 );
