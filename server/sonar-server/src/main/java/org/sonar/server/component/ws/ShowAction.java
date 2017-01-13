@@ -31,7 +31,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
@@ -97,16 +96,11 @@ public class ShowAction implements ComponentsWsAction {
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
-      OrganizationDto organizationDto = getOrganization(dbSession, component.getOrganizationUuid());
+      OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
       return buildResponse(component, organizationDto, ancestors);
     } finally {
       dbClient.closeSession(dbSession);
     }
-  }
-
-  private OrganizationDto getOrganization(DbSession dbSession, String organizationUuid) {
-    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-          .orElseThrow(() -> new NotFoundException(String.format("Organization with uuid '%s' not found", organizationUuid)));
   }
 
   private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors) {

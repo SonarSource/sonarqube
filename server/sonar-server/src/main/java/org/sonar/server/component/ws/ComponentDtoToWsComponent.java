@@ -20,7 +20,6 @@
 
 package org.sonar.server.component.ws;
 
-import java.util.Map;
 import java.util.Objects;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -33,14 +32,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
 class ComponentDtoToWsComponent {
   private ComponentDtoToWsComponent() {
     // prevent instantiation
-  }
-
-  /**
-   * @deprecated use {@link #componentDtoToWsComponent(ComponentDto, OrganizationDto)} instead
-   */
-  @Deprecated
-  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto) {
-    return componentDtoToWsComponent(dto, dto.getOrganizationKey());
   }
 
   static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto) {
@@ -61,18 +52,6 @@ class ComponentDtoToWsComponent {
     setNullable(emptyToNull(dto.path()), wsComponent::setPath);
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
-    return wsComponent;
-  }
-
-  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<String, ComponentDto> referenceComponentsByUuid) {
-    WsComponents.Component.Builder wsComponent = componentDtoToWsComponent(component);
-
-    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
-    if (referenceComponent != null) {
-      wsComponent.setRefId(referenceComponent.uuid());
-      wsComponent.setRefKey(referenceComponent.key());
-    }
-
     return wsComponent;
   }
 }

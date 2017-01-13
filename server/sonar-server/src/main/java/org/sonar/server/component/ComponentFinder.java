@@ -27,6 +27,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -115,6 +116,12 @@ public class ComponentFinder {
 
     checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),
       format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
+  }
+
+  public OrganizationDto getOrganization(DbSession dbSession, ComponentDto component) {
+    String organizationUuid = component.getOrganizationUuid();
+    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+      .orElseThrow(() -> new NotFoundException(String.format("Organization with uuid '%s' not found", organizationUuid)));
   }
 
   public enum ParamNames {
