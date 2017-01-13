@@ -21,6 +21,8 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
@@ -28,11 +30,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -42,10 +46,16 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
+import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.WsRequest;
+import org.sonarqube.ws.client.WsResponse;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ReportPublisherTest {
@@ -77,6 +87,7 @@ public class ReportPublisherTest {
   @Test
   public void log_and_dump_information_about_report_uploading() throws IOException {
     ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
 
     underTest.logSuccess("TASK-123");
 
@@ -87,7 +98,8 @@ public class ReportPublisherTest {
 
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
-      "projectKey=struts\n" +
+      "organization=MyOrg\n" +
+        "projectKey=struts\n" +
         "serverUrl=https://localhost\n" +
         "dashboardUrl=https://localhost/dashboard/index/struts\n" +
         "ceTaskId=TASK-123\n" +
@@ -159,6 +171,34 @@ public class ReportPublisherTest {
     job.start();
     job.stop();
     assertThat(reportDir).doesNotExist();
+  }
+
+  @Test
+  public void test_ws_parameters() throws Exception {
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "MyOrg");
+
+    WsResponse response = mock(WsResponse.class);
+
+    PipedOutputStream out = new PipedOutputStream();
+    PipedInputStream in = new PipedInputStream(out);
+    WsCe.SubmitResponse.newBuilder().build().writeTo(out);
+    out.close();
+
+    when(response.failIfNotSuccessful()).thenReturn(response);
+    when(response.contentStream()).thenReturn(in);
+
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+    underTest.upload(temp.newFile());
+
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(capture.capture());
+
+    WsRequest wsRequest = capture.getValue();
+    assertThat(wsRequest.getParams()).containsOnly(
+      entry("organization", "MyOrg"),
+      entry("projectKey", "struts"));
   }
 
 }

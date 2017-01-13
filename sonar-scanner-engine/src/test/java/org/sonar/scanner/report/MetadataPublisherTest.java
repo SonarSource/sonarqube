@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -116,6 +116,20 @@ public class MetadataPublisherTest {
     assertThat(metadata.getBranch()).isEqualTo("myBranch");
     // Cross project duplication disabled on branches
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
+  }
+
+  @Test
+  public void write_project_organization() throws Exception {
+    settings.setProperty(CoreProperties.PROJECT_ORGANIZATION_PROPERTY, "SonarSource");
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    underTest.publish(writer);
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getOrganizationKey()).isEqualTo("SonarSource");
   }
 
 }
