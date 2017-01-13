@@ -34,6 +34,8 @@ public interface OrganizationMapper {
   @CheckForNull
   OrganizationDto selectByUuid(@Param("uuid") String uuid);
 
+  List<OrganizationDto> selectByUuids(@Param("uuids") List<String> uuids);
+
   /**
    * Update the organization with UUID specified by {@link OrganizationDto#getUuid()}.
    * <p>

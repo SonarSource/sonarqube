@@ -29,6 +29,17 @@
       org.kee = #{key, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByUuids" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    where
+      org.uuid in
+        <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+          #{uuid, jdbcType=VARCHAR}
+        </foreach>
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="Organization">
     select
       <include refid="selectColumns"/>

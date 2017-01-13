@@ -19,13 +19,16 @@
  */
 package org.sonar.db.organization;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class OrganizationDao implements Dao {
 
@@ -77,5 +80,12 @@ public class OrganizationDao implements Dao {
 
   private static OrganizationMapper getMapper(DbSession dbSession) {
     return dbSession.getMapper(OrganizationMapper.class);
+  }
+
+  public List<OrganizationDto> selectByUuids(DbSession dbSession, Set<String> organizationUuids) {
+    if (organizationUuids.size() == 1) {
+      return Collections.singletonList(getMapper(dbSession).selectByUuid(organizationUuids.iterator().next()));
+    }
+    return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
   }
 }
