@@ -124,6 +124,7 @@ public class SetAction implements SettingsWsAction {
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key")
+      .setDeprecatedKey("componentKey")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
