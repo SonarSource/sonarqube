@@ -100,35 +100,64 @@ public class PluginInfoTest {
     assertThat(javaNoVersion.hashCode()).isEqualTo(javaNoVersion.hashCode());
   }
 
+  /**
+   * SNAPSHOT versions of SonarQube are built on local developer machines only.
+   * All other build environments have unique release versions (6.3.0.12345).
+   */
   @Test
-  public void test_compatibility_with_sq_version() throws IOException {
-    assertThat(withMinSqVersion("1.1").isCompatibleWith("1.1")).isTrue();
-    assertThat(withMinSqVersion("1.1").isCompatibleWith("1.1.0")).isTrue();
-    assertThat(withMinSqVersion("1.0").isCompatibleWith("1.0.0")).isTrue();
+  public void test_compatibility_with_snapshot_version_of_sonarqube() throws IOException {
+    // plugins compatible with 5.6 LTS
+    assertThat(withMinSqVersion("5.6").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("5.6.1").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
 
-    assertThat(withMinSqVersion("1.0").isCompatibleWith("1.1")).isTrue();
-    assertThat(withMinSqVersion("1.1.1").isCompatibleWith("1.1.2")).isTrue();
-    assertThat(withMinSqVersion("2.0").isCompatibleWith("2.1.0")).isTrue();
-    assertThat(withMinSqVersion("3.2").isCompatibleWith("3.2-RC1")).isTrue();
-    assertThat(withMinSqVersion("3.2").isCompatibleWith("3.2-RC2")).isTrue();
-    assertThat(withMinSqVersion("3.2").isCompatibleWith("3.1-RC2")).isFalse();
+    // plugin build with old release candidates of SonarQube (RC technical versions have been removed
+    // in SonarQube 6.3)
+    assertThat(withMinSqVersion("5.6-RC1").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.2-RC1").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
 
-    assertThat(withMinSqVersion("1.1").isCompatibleWith("1.0")).isFalse();
-    assertThat(withMinSqVersion("2.0.1").isCompatibleWith("2.0.0")).isFalse();
-    assertThat(withMinSqVersion("2.10").isCompatibleWith("2.1")).isFalse();
-    assertThat(withMinSqVersion("10.10").isCompatibleWith("2.2")).isFalse();
+    // plugin built with snapshot version of SonarQube
+    assertThat(withMinSqVersion("5.6-SNAPSHOT").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.3-SNAPSHOT").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.4-SNAPSHOT").isCompatibleWith("6.3-SNAPSHOT")).isFalse();
 
-    assertThat(withMinSqVersion("1.1-SNAPSHOT").isCompatibleWith("1.0")).isFalse();
-    assertThat(withMinSqVersion("1.1-SNAPSHOT").isCompatibleWith("1.1")).isTrue();
-    assertThat(withMinSqVersion("1.1-SNAPSHOT").isCompatibleWith("1.2")).isTrue();
-    assertThat(withMinSqVersion("1.0.1-SNAPSHOT").isCompatibleWith("1.0")).isFalse();
+    // plugin built with SonarQube releases
+    assertThat(withMinSqVersion("6.3.0.5000").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.3.1.5000").isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.3.1.5000").isCompatibleWith("6.4-SNAPSHOT")).isTrue();
+    assertThat(withMinSqVersion("6.4.0.5000").isCompatibleWith("6.3-SNAPSHOT")).isFalse();
 
-    assertThat(withMinSqVersion("3.1-RC2").isCompatibleWith("3.2-SNAPSHOT")).isTrue();
-    assertThat(withMinSqVersion("3.1-RC1").isCompatibleWith("3.2-RC2")).isTrue();
-    assertThat(withMinSqVersion("3.1-RC1").isCompatibleWith("3.1-RC2")).isTrue();
+    // no constraint
+    assertThat(withMinSqVersion(null).isCompatibleWith("6.3-SNAPSHOT")).isTrue();
+  }
 
-    assertThat(withMinSqVersion(null).isCompatibleWith("0")).isTrue();
-    assertThat(withMinSqVersion(null).isCompatibleWith("3.1")).isTrue();
+  /**
+   * @see #test_compatibility_with_snapshot_version_of_sonarqube
+   */
+  @Test
+  public void test_compatibility_with_release_version_of_sonarqube() throws IOException {
+    // plugins compatible with 5.6 LTS
+    assertThat(withMinSqVersion("5.6").isCompatibleWith("6.3.0.5000")).isTrue();
+    assertThat(withMinSqVersion("5.6.1").isCompatibleWith("6.3.0.5000")).isTrue();
+
+    // plugin build with old release candidates of SonarQube (RC technical versions have been removed
+    // in SonarQube 6.3)
+    assertThat(withMinSqVersion("5.6-RC1").isCompatibleWith("6.3.0.5000")).isTrue();
+    assertThat(withMinSqVersion("6.2-RC1").isCompatibleWith("6.3.0.5000")).isTrue();
+
+    // plugin built with snapshot version of SonarQube
+    assertThat(withMinSqVersion("5.6-SNAPSHOT").isCompatibleWith("6.3.0.5000")).isTrue();
+    assertThat(withMinSqVersion("6.3-SNAPSHOT").isCompatibleWith("6.3.0.5000")).isTrue();
+    assertThat(withMinSqVersion("6.3-SNAPSHOT").isCompatibleWith("6.3.1.6000")).isTrue();
+    assertThat(withMinSqVersion("6.4-SNAPSHOT").isCompatibleWith("6.3.0.5000")).isFalse();
+
+    // plugin built with SonarQube releases
+    assertThat(withMinSqVersion("6.3.0.5000").isCompatibleWith("6.3.0.4000")).isFalse();
+    assertThat(withMinSqVersion("6.3.0.5000").isCompatibleWith("6.3.0.5000")).isTrue();
+    assertThat(withMinSqVersion("6.3.0.5000").isCompatibleWith("6.3.1.6000")).isTrue();
+    assertThat(withMinSqVersion("6.4.0.7000").isCompatibleWith("6.3.0.5000")).isFalse();
+
+    // no constraint
+    assertThat(withMinSqVersion(null).isCompatibleWith("6.3.0.5000")).isTrue();
   }
 
   @Test
