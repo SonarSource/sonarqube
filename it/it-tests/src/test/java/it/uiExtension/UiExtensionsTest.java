@@ -20,24 +20,34 @@
 package it.uiExtension;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import pageobjects.Navigation;
 
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
-
 
 public class UiExtensionsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
+
   @BeforeClass
   public static void setUp() throws Exception {
     orchestrator.resetData();
-    orchestrator.getServer().provisionProject("sample", "Sample");
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
   @Test
@@ -45,22 +55,51 @@ public class UiExtensionsTest {
     runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/static-files.html");
   }
 
-  /**
-   * SONAR-2376
-   */
   @Test
-  @Ignore("page extensions are not reimplemented yet")
-  public void test_page_decoration() {
-    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/page-decoration.html");
+  public void global_page() {
+    nav.open("/about");
+
+    // on about page
+    $("#global-navigation-more").click();
+    $(By.linkText("Global Page")).click();
+
+    assertThat(url()).contains("/uiextensionsplugin/global_page");
+    $("body").shouldHave(text("uiextensionsplugin/global_page"));
   }
 
-  /**
-   * SONAR-4173
-   */
   @Test
-  @Ignore("page extensions are not reimplemented yet")
-  public void test_resource_configuration_extension() {
-    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/resource-configuration-extension.html");
+  public void global_admin_page() {
+    nav.logIn().asAdmin().open("/about");
+
+    $(".navbar-admin-link").click();
+    $("#settings-navigation-configuration").click();
+    $(By.linkText("Global Admin Page")).click();
+
+    assertThat(url()).contains("uiextensionsplugin/global_admin_page");
+    $("body").shouldHave(text("uiextensionsplugin/global_admin_page"));
   }
 
+  @Test
+  public void project_page() {
+    nav.open("/projects");
+
+    $(By.linkText("Sample")).click();
+    $("#component-navigation-more").click();
+    $(By.linkText("Project Page")).click();
+
+    assertThat(url()).contains("uiextensionsplugin/project_page");
+    $("body").shouldHave(text("uiextensionsplugin/project_page"));
+  }
+
+  @Test
+  public void project_admin_page() {
+    nav.logIn().asAdmin().open("/projects");
+
+    $(By.linkText("Sample")).click();
+    $("#component-navigation-admin").click();
+    $(By.linkText("Project Admin Page")).click();
+
+    assertThat(url()).contains("uiextensionsplugin/project_admin_page");
+    $("body").shouldHave(text("uiextensionsplugin/project_admin_page"));
+  }
 }

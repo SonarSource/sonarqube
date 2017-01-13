@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -18,18 +19,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public class UiExtensionsPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      FakePageDecorations.class,
-      ResourceConfigurationPage.class,
-      ProjectPage.class,
-      GlobalPage.class,
-      SettingsPage.class
-    );
+public class UiExtensionsPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtension(UiPageDefinition.class);
   }
 }

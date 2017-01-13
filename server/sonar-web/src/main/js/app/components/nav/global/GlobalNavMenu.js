@@ -103,10 +103,10 @@ export default class GlobalNavMenu extends React.Component {
     );
   }
 
-  renderGlobalPageLink = ({ id, name }) => {
+  renderGlobalPageLink = ({ key, name }) => {
     return (
-        <li key={id}>
-          <Link to={`/extension/${id}`}>{name}</Link>
+        <li key={key}>
+          <Link to={`/extension/${key}`}>{name}</Link>
         </li>
     );
   };
@@ -118,7 +118,7 @@ export default class GlobalNavMenu extends React.Component {
     }
     return (
         <li className="dropdown">
-          <a className="dropdown-toggle" data-toggle="dropdown" href="#">
+          <a className="dropdown-toggle" id="global-navigation-more" data-toggle="dropdown" href="#">
             {translate('more')}&nbsp;
             <span className="icon-dropdown"/>
           </a>

@@ -47,10 +47,10 @@ export default class SettingsNav extends React.Component {
     return this.isSomethingActive(urls);
   }
 
-  renderExtension = ({ id, name }) => {
+  renderExtension = ({ key, name }) => {
     return (
-        <li key={id}>
-          <Link to={`/admin/extension/${id}`} activeClassName="active">{name}</Link>
+        <li key={key}>
+          <Link to={`/admin/extension/${key}`} activeClassName="active">{name}</Link>
         </li>
     );
   };
@@ -81,7 +81,7 @@ export default class SettingsNav extends React.Component {
 
               <ul className="nav navbar-nav nav-tabs">
                 <li className={configurationClassNames}>
-                  <a className="dropdown-toggle" data-toggle="dropdown" href="#">
+                  <a className="dropdown-toggle" data-toggle="dropdown" id="settings-navigation-configuration" href="#">
                     {translate('sidebar.project_settings')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">

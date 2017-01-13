@@ -26,7 +26,7 @@ import { getAppState } from '../../../store/rootReducer';
 
 class GlobalPageExtension extends React.Component {
   props: {
-    globalPages: Array<{ id: string }>,
+    globalPages: Array<{ key: string }>,
     params: {
       extensionKey: string,
       pluginKey: string
@@ -35,7 +35,7 @@ class GlobalPageExtension extends React.Component {
 
   render () {
     const { extensionKey, pluginKey } = this.props.params;
-    const extension = this.props.globalPages.find(p => p.id === `${pluginKey}/${extensionKey}`);
+    const extension = this.props.globalPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
     return extension ? (
             <Extension extension={extension}/>
         ) : (

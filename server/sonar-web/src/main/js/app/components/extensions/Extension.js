@@ -29,7 +29,7 @@ import { getExtensionStart } from './utils';
 type Props = {
   currentUser: Object,
   extension: {
-    id: string,
+    key: string,
     title: string
   },
   onFail: (string) => void,
@@ -72,7 +72,7 @@ class Extension extends React.Component {
 
   startExtension () {
     const { extension } = this.props;
-    getExtensionStart(extension.id).then(this.handleStart, this.handleFailure);
+    getExtensionStart(extension.key).then(this.handleStart, this.handleFailure);
   }
 
   stopExtension () {

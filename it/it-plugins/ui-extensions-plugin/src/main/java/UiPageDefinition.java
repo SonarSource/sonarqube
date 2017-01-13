@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -17,18 +18,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
 
-@NavigationSection(NavigationSection.HOME)
-public class GlobalPage implements Page {
+import org.sonar.api.web.page.Context;
+import org.sonar.api.web.page.Page;
+import org.sonar.api.web.page.PageDefinition;
 
-  public String getId() {
-    return "uiextensionsplugin/global_page";
+import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+
+public class UiPageDefinition implements PageDefinition {
+  @Override
+  public void define(Context context) {
+    context
+      .addPage(Page.builder("uiextensionsplugin/global_page").setName("Global Page").build())
+      .addPage(Page.builder("uiextensionsplugin/global_admin_page").setName("Global Admin Page").setAdmin(true).build())
+      .addPage(Page.builder("uiextensionsplugin/project_page").setName("Project Page").setScope(COMPONENT).build())
+      .addPage(Page.builder("uiextensionsplugin/project_admin_page").setName("Project Admin Page").setScope(COMPONENT).setAdmin(true).build());
   }
-
-  public String getTitle() {
-    return "Global Page";
-  }
-
 }

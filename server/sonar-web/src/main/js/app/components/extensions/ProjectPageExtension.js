@@ -27,7 +27,7 @@ import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 
 type Props = {
   component: {
-    extensions: Array<{ id: string }>
+    extensions: Array<{ key: string }>
   },
   location: { query: { id: string } },
   params: {
@@ -42,7 +42,7 @@ class ProjectPageExtension extends React.Component {
   render () {
     const { extensionKey, pluginKey } = this.props.params;
     const { component } = this.props;
-    const extension = component.extensions.find(p => p.id === `${pluginKey}/${extensionKey}`);
+    const extension = component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
     return extension ? (
             <Extension extension={extension} options={{ component }}/>
         ) : (
