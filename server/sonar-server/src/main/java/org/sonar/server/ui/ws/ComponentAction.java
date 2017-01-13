@@ -45,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -131,11 +132,12 @@ public class ComponentAction implements NavigationWsAction {
       if (!(userSession.hasComponentUuidPermission(USER, component.projectUuid()) || userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()))) {
         throw new ForbiddenException("Insufficient privileges");
       }
+      OrganizationDto organizationDto = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponent(json, session, component, analysis.orElse(null));
+      writeComponent(json, session, component, organizationDto, analysis.orElse(null));
       writeProfiles(json, session, component);
       writeQualityGate(json, session, component);
       if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
@@ -146,9 +148,9 @@ public class ComponentAction implements NavigationWsAction {
     }
   }
 
-  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, @Nullable SnapshotDto analysis) {
+  private void writeComponent(JsonWriter json, DbSession session, ComponentDto component, OrganizationDto organizationDto, @Nullable SnapshotDto analysis) {
     json.prop("key", component.key())
-      .prop("organization", component.getOrganizationKey())
+      .prop("organization", organizationDto.getKey())
       .prop("id", component.uuid())
       .prop("name", component.name())
       .prop("description", component.description())
