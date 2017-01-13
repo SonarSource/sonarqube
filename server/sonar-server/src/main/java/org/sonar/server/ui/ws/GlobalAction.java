@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
@@ -29,12 +30,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
-import org.sonar.server.ui.ViewProxy;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 
 import static org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY;
 import static org.sonar.api.CoreProperties.HOURS_IN_DAY;
@@ -57,14 +55,14 @@ public class GlobalAction implements NavigationWsAction {
     RATING_GRID,
     CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY);
 
-  private final Views views;
+  private final PageRepository pageRepository;
   private final Settings settings;
   private final ResourceTypes resourceTypes;
   private final Server server;
   private final Database database;
 
-  public GlobalAction(Views views, Settings settings, ResourceTypes resourceTypes, Server server, Database database) {
-    this.views = views;
+  public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server, Database database) {
+    this.pageRepository = pageRepository;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
     this.server = server;
@@ -95,13 +93,11 @@ public class GlobalAction implements NavigationWsAction {
 
   private void writePages(JsonWriter json) {
     json.name("globalPages").beginArray();
-    for (ViewProxy<Page> page : views.getPages(NavigationSection.HOME)) {
-      if (page.isUserAuthorized()) {
-        json.beginObject()
-          .prop("id", page.getId())
-          .prop("name", page.getTitle())
-          .endObject();
-      }
+    for (org.sonar.api.web.page.Page page : pageRepository.getGlobalPages(false)) {
+      json.beginObject()
+        .prop("key", page.getKey())
+        .prop("name", page.getName())
+        .endObject();
     }
     json.endArray();
   }

@@ -1,16 +1,12 @@
 {
   "globalPages": [
     {
-      "id": "my_plugin_page",
+      "key": "another_plugin/page",
+      "name": "My Another Page"
+    },
+    {
+      "key": "my_plugin/page",
       "name": "My Plugin Page"
-    },
-    {
-      "id": "my_rails_app",
-      "name": "My Rails App"
-    },
-    {
-      "id": "admin_page",
-      "name": "Admin Page"
     }
   ]
 }

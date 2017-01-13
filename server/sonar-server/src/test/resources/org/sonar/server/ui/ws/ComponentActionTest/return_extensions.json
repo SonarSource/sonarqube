@@ -1,11 +1,11 @@
 {
   "extensions": [
     {
-      "id": "first_page",
+      "key": "my_plugin/first_page",
       "name": "First Page"
     },
     {
-      "id": "/second/page",
+      "key": "my_plugin/second_page",
       "name": "Second Page"
     }
   ]

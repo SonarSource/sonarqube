@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ui.ws;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.ResourceLanguage;
-import org.sonar.api.web.ResourceQualifier;
-import org.sonar.api.web.ResourceScope;
 import org.sonar.api.web.UserRole;
-import org.sonar.api.web.View;
+import org.sonar.api.web.page.Page;
+import org.sonar.api.web.page.Page.Qualifier;
+import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -59,16 +54,15 @@ import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Locale.ENGLISH;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
+import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -103,16 +97,17 @@ public class ComponentActionTest {
   private UserDbTester userDbTester = dbTester.users();
   private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
 
-  private I18n i18n = mock(I18n.class);
-
   private ResourceTypes resourceTypes = mock(ResourceTypes.class);
 
   private WsActionTester ws;
 
-  @Before
-  public void before() {
-    when(i18n.message(eq(ENGLISH), any(String.class), any(String.class)))
-      .thenAnswer(invocation -> invocation.getArgumentAt(2, String.class));
+  private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
+    return new QualityProfile(qpKey, qpName, languageKey, new Date());
+  }
+
+  private static String qualityProfilesToJson(QualityProfile... qps) {
+    List<QualityProfile> qualityProfiles = Arrays.asList(qps);
+    return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
   }
 
   @Test
@@ -228,7 +223,7 @@ public class ComponentActionTest {
 
   @Test
   public void return_extensions() throws Exception {
-    init(createViews());
+    init(createPages());
     componentDbTester.insertProjectAndSnapshot(PROJECT);
     userSessionRule.anonymous().addProjectUuidPermissions(UserRole.USER, PROJECT.uuid());
 
@@ -237,7 +232,7 @@ public class ComponentActionTest {
 
   @Test
   public void return_extensions_for_admin() throws Exception {
-    init(createViews());
+    init(createPages());
     componentDbTester.insertProjectAndSnapshot(PROJECT);
     userSessionRule.anonymous()
       .addProjectUuidPermissions(UserRole.USER, PROJECT.uuid())
@@ -254,39 +249,20 @@ public class ComponentActionTest {
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
-    @NavigationSection(NavigationSection.RESOURCE_CONFIGURATION)
-    @ResourceScope(Scopes.PROJECT)
-    @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage("xoo")
-    class FirstPage implements Page {
-      @Override
-      public String getTitle() {
-        return "First Page";
-      }
+    Page page1 = Page.builder("my_plugin/first_page")
+      .setName("First Page")
+      .setAdmin(true)
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.PROJECT)
+      .build();
+    Page page2 = Page.builder("my_plugin/second_page")
+      .setName("Second Page")
+      .setAdmin(true)
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.PROJECT)
+      .build();
 
-      @Override
-      public String getId() {
-        return "first_page";
-      }
-    }
-
-    @NavigationSection(NavigationSection.RESOURCE_CONFIGURATION)
-    @ResourceScope(Scopes.PROJECT)
-    @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage("xoo")
-    class SecondPage implements Page {
-      @Override
-      public String getTitle() {
-        return "Second Page";
-      }
-
-      @Override
-      public String getId() {
-        return "/second/page";
-      }
-    }
-
-    init(new Page[] {new FirstPage(), new SecondPage()});
+    init(page1, page2);
     executeAndVerify(PROJECT.key(), "return_configuration_for_admin.json");
   }
 
@@ -351,7 +327,7 @@ public class ComponentActionTest {
 
   @Test
   public void work_with_only_system_admin() throws Exception {
-    init(createViews());
+    init(createPages());
     componentDbTester.insertProjectAndSnapshot(PROJECT);
     userSessionRule.setGlobalPermissions(SYSTEM_ADMIN);
 
@@ -360,8 +336,9 @@ public class ComponentActionTest {
 
   @Test
   public void test_example_response() throws Exception {
-    init(createViews());
-    ComponentDto project = newProjectDto("ABCD").setKey("org.codehaus.sonar:sonar").setName("Sonarqube").setDescription("Open source platform for continuous inspection of code quality");
+    init(createPages());
+    ComponentDto project = newProjectDto("ABCD").setKey("org.codehaus.sonar:sonar").setName("Sonarqube")
+      .setDescription("Open source platform for continuous inspection of code quality");
     componentDbTester.insertComponent(project);
     SnapshotDto analysis = newAnalysis(project)
       .setCreatedAt(DateUtils.parseDateTime("2016-12-06T11:44:00+0200").getTime())
@@ -376,15 +353,26 @@ public class ComponentActionTest {
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
     dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSessionRule.login(user).addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.login(user)
+      .addProjectUuidPermissions(UserRole.USER, project.uuid())
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     String result = execute(project.key());
     assertJson(ws.getDef().responseExampleAsString()).ignoreFields("snapshotDate", "key").isSimilarTo(result);
   }
 
-  private void init(View... views) {
-    ws = new WsActionTester(new ComponentAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
-      new QualityGateFinder(dbClient)));
+  private void init(Page... pages) {
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
+    PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
+      for (Page page : pages) {
+        context.addPage(page);
+      }
+    }});
+    pageRepository.start();
+    ws = new WsActionTester(
+      new ComponentAction(dbClient, pageRepository, resourceTypes, userSessionRule, new ComponentFinder(dbClient),
+        new QualityGateFinder(dbClient)));
   }
 
   private String execute(String componentKey) {
@@ -408,67 +396,24 @@ public class ComponentActionTest {
     dbTester.commit();
   }
 
-  private static QualityProfile createQProfile(String qpKey, String qpName, String languageKey) {
-    return new QualityProfile(qpKey, qpName, languageKey, new Date());
-  }
+  private Page[] createPages() {
+    Page page1 = Page.builder("my_plugin/first_page")
+      .setName("First Page")
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.PROJECT)
+      .build();
+    Page page2 = Page.builder("my_plugin/second_page")
+      .setName("Second Page")
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.PROJECT)
+      .build();
+    Page adminPage = Page.builder("my_plugin/admin_page")
+      .setName("Admin Page")
+      .setScope(COMPONENT)
+      .setComponentQualifiers(Qualifier.PROJECT)
+      .setAdmin(true)
+      .build();
 
-  private static String qualityProfilesToJson(QualityProfile... qps) {
-    List<QualityProfile> qualityProfiles = Arrays.asList(qps);
-    return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
-  }
-
-  private View[] createViews() {
-    @NavigationSection(NavigationSection.RESOURCE)
-    @ResourceScope(Scopes.PROJECT)
-    @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage("xoo")
-    class FirstPage implements Page {
-      @Override
-      public String getTitle() {
-        return "First Page";
-      }
-
-      @Override
-      public String getId() {
-        return "first_page";
-      }
-    }
-    Page page1 = new FirstPage();
-
-    @NavigationSection(NavigationSection.RESOURCE)
-    @ResourceScope(Scopes.PROJECT)
-    @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage("xoo")
-    class SecondPage implements Page {
-      @Override
-      public String getTitle() {
-        return "Second Page";
-      }
-
-      @Override
-      public String getId() {
-        return "/second/page";
-      }
-    }
-    Page page2 = new SecondPage();
-
-    @NavigationSection(NavigationSection.RESOURCE)
-    @ResourceScope(Scopes.PROJECT)
-    @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage("xoo")
-    @UserRole(UserRole.ADMIN)
-    class AdminPage implements Page {
-      @Override
-      public String getTitle() {
-        return "Admin Page";
-      }
-
-      @Override
-      public String getId() {
-        return "/admin/page";
-      }
-    }
-    Page adminPage = new AdminPage();
     return new Page[] {page1, page2, adminPage};
   }
 }
