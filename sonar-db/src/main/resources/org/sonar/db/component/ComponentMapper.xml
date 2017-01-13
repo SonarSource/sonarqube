@@ -29,11 +29,8 @@
 
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT
-      <include refid="componentColumns"/>,
-      o.kee as organizationKey
+      <include refid="componentColumns"/>
     FROM projects p
-    inner join organizations o on
-      o.uuid = p.organization_uuid
     where
       p.kee=#{key}
   </select>
@@ -59,11 +56,8 @@
 
   <select id="selectByUuid" parameterType="String" resultType="Component">
     SELECT
-      <include refid="componentColumns"/>,
-      o.kee as organizationKey
+      <include refid="componentColumns"/>
     FROM projects p
-    inner join organizations o on
-      o.uuid = p.organization_uuid
     where
       p.uuid=#{uuid}
   </select>
@@ -113,11 +107,8 @@
 
   <select id="selectByUuids" parameterType="String" resultType="Component">
     select
-      <include refid="componentColumns"/>,
-      o.kee as organizationKey
+      <include refid="componentColumns"/>
     from projects p
-    inner join organizations o on
-      o.uuid = p.organization_uuid
     where
       p.uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
@@ -275,8 +266,7 @@
 
   <select id="selectByQuery" resultType="Component">
     select
-      <include refid="componentColumns"/>,
-      o.kee as organizationKey
+      <include refid="componentColumns"/>
     <include refid="sqlSelectByQuery"/>
     ORDER BY LOWER(p.name), p.name, p.id
   </select>
@@ -288,8 +278,6 @@
 
   <sql id="sqlSelectByQuery">
     from projects p
-    inner join organizations o on
-      o.uuid = p.organization_uuid
     where
       p.enabled=${_true}
       AND p.copy_component_uuid is null
@@ -343,11 +331,8 @@
 
   <select id="selectDescendants" resultType="Component">
     select
-      <include refid="componentColumns"/>,
-      o.kee as organizationKey
+      <include refid="componentColumns"/>
     from projects p
-    inner join organizations o on
-      o.uuid = p.organization_uuid
     <include refid="selectDescendantsJoins"/>
     <where>
       <include refid="selectDescendantsFilters"/>

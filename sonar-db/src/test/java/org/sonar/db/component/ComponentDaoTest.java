@@ -76,7 +76,6 @@ public class ComponentDaoTest {
     ComponentDto result = underTest.selectByUuid(dbSession, "U1").get();
     assertThat(result).isNotNull();
     assertThat(result.getOrganizationUuid()).isEqualTo("org1");
-    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
     assertThat(result.uuid()).isEqualTo("U1");
     assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U1");
@@ -154,7 +153,6 @@ public class ComponentDaoTest {
 
     ComponentDto result = optional.get();
     assertThat(result.getOrganizationUuid()).isEqualTo("org1");
-    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
     assertThat(result.uuid()).isEqualTo("U4");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("path_of_U4");
@@ -256,7 +254,6 @@ public class ComponentDaoTest {
 
     ComponentDto result = results.get(0);
     assertThat(result.getOrganizationUuid()).isEqualTo("org1");
-    assertThat(result.getOrganizationKey()).isEqualTo("org1_key");
     assertThat(result.uuid()).isEqualTo("U4");
     assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U4");
     assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U4");
@@ -784,7 +781,6 @@ public class ComponentDaoTest {
     assertThat(count).isEqualTo(9);
     assertThat(result).extracting(ComponentDto::name).containsExactly("project-2", "project-3", "project-4");
     assertThat(result).extracting(ComponentDto::getOrganizationUuid).containsOnly(organizationDto.getUuid());
-    assertThat(result).extracting(ComponentDto::getOrganizationKey).containsOnly(organizationDto.getKey());
   }
 
   @Test
@@ -1000,7 +996,6 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
     assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
-    assertThat(components).extracting("organizationKey").containsOnly(organizationDto.getKey());
   }
 
   private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {
