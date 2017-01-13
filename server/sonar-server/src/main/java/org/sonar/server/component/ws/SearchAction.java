@@ -163,7 +163,7 @@ public class SearchAction implements ComponentsWsAction {
       .build();
   }
 
-  private class ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
+  private static class ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
     private final Map<String, OrganizationDto> organizationsByUuid;
 
     private ComponentDToComponentResponseFunction(Map<String, OrganizationDto> organizationsByUuid) {

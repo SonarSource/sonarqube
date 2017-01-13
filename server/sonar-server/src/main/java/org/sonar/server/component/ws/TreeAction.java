@@ -65,8 +65,8 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONE
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
@@ -203,7 +203,8 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components, Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components,
+    Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -219,7 +220,8 @@ public class TreeAction implements ComponentsWsAction {
     return response.build();
   }
 
-  private static WsComponents.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto, Map<String, ComponentDto> referenceComponentsByUuid) {
+  private static WsComponents.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto,
+    Map<String, ComponentDto> referenceComponentsByUuid) {
     WsComponents.Component.Builder wsComponent = componentDtoToWsComponent(component, organizationDto);
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());

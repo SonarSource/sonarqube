@@ -24,6 +24,7 @@ import com.google.common.collect.Ordering;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
@@ -38,6 +39,7 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.es.ProjectMeasuresIndex;
@@ -45,6 +47,7 @@ import org.sonar.server.component.es.ProjectMeasuresQuery;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
@@ -52,6 +55,7 @@ import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.lang.String.format;
 import static org.sonar.server.component.es.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -127,8 +131,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchResults searchResults = searchData(dbSession, request);
+      Set<String> organizationUuids = searchResults.projects.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet());
+      Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+        .stream()
+        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
 
-      return buildResponse(request, searchResults);
+      return buildResponse(request, searchResults, organizationsByUuid);
     }
   }
 
@@ -177,8 +185,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(searchResults.favoriteProjectUuids, userSession.isLoggedIn());
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults,
+    Map<String, OrganizationDto> organizationsByUuid) {
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
       .map(response -> response.setPaging(Common.Paging.newBuilder()
@@ -257,20 +266,26 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
     private final Component.Builder wsComponent;
+    private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
 
-    private DbToWsComponent(Set<String> favoriteProjectUuids, boolean isUserLoggedIn) {
-      this.isUserLoggedIn = isUserLoggedIn;
+    private DbToWsComponent(Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids, boolean isUserLoggedIn) {
       this.wsComponent = Component.newBuilder();
+      this.organizationsByUuid = organizationsByUuid;
       this.favoriteProjectUuids = favoriteProjectUuids;
+      this.isUserLoggedIn = isUserLoggedIn;
     }
 
     @Override
     public Component apply(ComponentDto dbComponent) {
+      OrganizationDto organizationDto = organizationsByUuid.get(dbComponent.getOrganizationUuid());
+      if (organizationDto == null) {
+        throw new NotFoundException(format("Organization with uuid '%s' not found", dbComponent.getOrganizationUuid()));
+      }
       wsComponent
         .clear()
-        .setOrganization(dbComponent.getOrganizationKey())
+        .setOrganization(organizationDto.getKey())
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
         .setName(dbComponent.name());
