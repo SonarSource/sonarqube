@@ -21,9 +21,12 @@
 package org.sonar.server.component.ws;
 
 import java.util.Map;
+import java.util.Objects;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsComponents;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 
@@ -32,9 +35,25 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
+  /**
+   * @deprecated use {@link #componentDtoToWsComponent(ComponentDto, OrganizationDto)} instead
+   */
+  @Deprecated
   static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto) {
+    return componentDtoToWsComponent(dto, dto.getOrganizationKey());
+  }
+
+  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto) {
+    checkArgument(
+      Objects.equals(dto.getOrganizationUuid(), organizationDto.getUuid()),
+      "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
+      dto.getOrganizationUuid(), organizationDto.getUuid());
+    return componentDtoToWsComponent(dto, organizationDto.getKey());
+  }
+
+  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey) {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
-      .setOrganization(dto.getOrganizationKey())
+      .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
       .setKey(dto.key())
       .setName(dto.name())

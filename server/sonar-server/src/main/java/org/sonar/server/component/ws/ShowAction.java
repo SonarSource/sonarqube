@@ -28,8 +28,10 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
@@ -95,21 +97,27 @@ public class ShowAction implements ComponentsWsAction {
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
-      return buildResponse(component, ancestors);
+      OrganizationDto organizationDto = getOrganization(dbSession, component.getOrganizationUuid());
+      return buildResponse(component, organizationDto, ancestors);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static ShowWsResponse buildResponse(ComponentDto component, List<ComponentDto> orderedAncestors) {
+  private OrganizationDto getOrganization(DbSession dbSession, String organizationUuid) {
+    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
+          .orElseThrow(() -> new NotFoundException(String.format("Organization with uuid '%s' not found", organizationUuid)));
+  }
+
+  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors) {
     ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(componentDtoToWsComponent(component));
+    response.setComponent(componentDtoToWsComponent(component, organizationDto));
 
     // ancestors are ordered from root to leaf, whereas it's the opposite
     // in WS response
     for (int i = orderedAncestors.size() - 1; i >= 0; i--) {
       ComponentDto ancestor = orderedAncestors.get(i);
-      response.addAncestors(componentDtoToWsComponent(ancestor));
+      response.addAncestors(componentDtoToWsComponent(ancestor, organizationDto));
     }
 
     return response.build();
