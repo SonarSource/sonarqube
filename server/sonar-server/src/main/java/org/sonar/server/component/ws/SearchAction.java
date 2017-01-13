@@ -21,6 +21,8 @@ package org.sonar.server.component.ws;
 
 import com.google.common.base.Function;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
@@ -31,17 +33,19 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -96,14 +100,18 @@ public class SearchAction implements ComponentsWsAction {
   private SearchWsResponse doHandle(SearchWsRequest request) {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentQuery query = buildQuery(request);
       Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = searchComponents(dbSession, query, paging);
-      return buildResponse(components, paging);
-    } finally {
-      dbClient.closeSession(dbSession);
+
+      Set<String> organizationUuids = components.stream()
+        .map(ComponentDto::getOrganizationUuid)
+        .collect(Collectors.toSet());
+      Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+        .stream()
+        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+      return buildResponse(components, organizationsByUuid, paging);
     }
   }
 
@@ -124,17 +132,17 @@ public class SearchAction implements ComponentsWsAction {
       paging.pageSize());
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, Paging paging) {
-    WsComponents.SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, OrganizationDto> organizationsByUuid, Paging paging) {
+    SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
       .setTotal(paging.total())
       .build();
 
-    responseBuilder.addAllComponents(
-      from(components)
-        .transform(ComponentDToComponentResponseFunction.INSTANCE));
+    components.stream()
+      .map(new ComponentDToComponentResponseFunction(organizationsByUuid)::apply)
+      .forEach(responseBuilder::addComponents);
 
     return responseBuilder.build();
   }
@@ -155,13 +163,22 @@ public class SearchAction implements ComponentsWsAction {
       .build();
   }
 
-  private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
-    INSTANCE;
+  private class ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
+    private final Map<String, OrganizationDto> organizationsByUuid;
+
+    private ComponentDToComponentResponseFunction(Map<String, OrganizationDto> organizationsByUuid) {
+      this.organizationsByUuid = organizationsByUuid;
+    }
 
     @Override
     public WsComponents.Component apply(@Nonnull ComponentDto dto) {
+      OrganizationDto organization = checkNotNull(
+        organizationsByUuid.get(dto.getOrganizationUuid()),
+        "No Organization found for uuid '%s'",
+        dto.getOrganizationUuid());
+
       WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
-        .setOrganization(dto.getOrganizationKey())
+        .setOrganization(organization.getKey())
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name())

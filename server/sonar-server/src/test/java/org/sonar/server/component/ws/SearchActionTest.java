@@ -65,12 +65,13 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  I18nRule i18n = new I18nRule();
 
-  WsActionTester ws;
-  ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  Languages languages;
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private I18nRule i18n = new I18nRule();
+
+  private WsActionTester ws;
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private Languages languages;
 
   @Before
   public void setUp() {
