@@ -327,15 +327,21 @@ public class PluginInfo implements Comparable<PluginInfo> {
    * The version of SQ must be greater than or equal to the minimal version
    * needed by the plugin.
    */
-  public boolean isCompatibleWith(String sqVersion) {
+  public boolean isCompatibleWith(String runtimeVersion) {
     if (null == this.minimalSqVersion) {
       // no constraint defined on the plugin
       return true;
     }
 
     Version effectiveMin = Version.create(minimalSqVersion.getName()).removeQualifier();
-    Version actualVersion = Version.create(sqVersion).removeQualifier();
-    return actualVersion.compareTo(effectiveMin) >= 0;
+    Version effectiveVersion = Version.create(runtimeVersion).removeQualifier();
+
+    if (runtimeVersion.endsWith("-SNAPSHOT")) {
+      // check only the major and minor versions (two first fields)
+      effectiveMin = Version.create(effectiveMin.getMajor() + "." + effectiveMin.getMinor());
+    }
+
+    return effectiveVersion.compareTo(effectiveMin) >= 0;
   }
 
   @Override
