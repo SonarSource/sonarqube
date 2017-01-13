@@ -136,7 +136,7 @@ public class FileIndexer {
     }
   }
 
-  private void indexParentDir(DefaultModuleFileSystem fileSystem, IndexedFile indexedFile) {
+  private static void indexParentDir(DefaultModuleFileSystem fileSystem, IndexedFile indexedFile) {
     File parentDir = indexedFile.file().getParentFile();
     String relativePath = new PathResolver().relativePath(fileSystem.baseDir(), parentDir);
     if (relativePath != null) {
