@@ -23,6 +23,7 @@ package org.sonar.server.permission.index;
 import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -56,11 +57,13 @@ public class PermissionIndexerTester {
   public void verifyEmptyProjectPermission() {
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isZero();
     assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isZero();
+    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).isZero();
   }
 
   public void verifyProjectDoesNotExist(String projectUuid) {
     assertThat(esTester.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
     assertThat(esTester.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
+    assertThat(esTester.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(projectUuid);
   }
 
   public void verifyProjectExistsWithoutPermission(String projectUuid) {
@@ -74,6 +77,9 @@ public class PermissionIndexerTester {
     verifyProjectExistsWithPermissionInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
+    verifyProjectExistsWithPermissionInIndex(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION,
+      "_id", ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
+      ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
   }
 
   private void verifyProjectExistsWithPermissionInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,

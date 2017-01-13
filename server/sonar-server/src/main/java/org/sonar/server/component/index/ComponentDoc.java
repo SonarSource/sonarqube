@@ -35,12 +35,12 @@ public class ComponentDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return getField(ComponentIndexDefinition.FIELD_PROJECT_UUID);
+    return getProjectUuid();
   }
 
   @Override
   public String getParent() {
-    return null;
+    return getProjectUuid();
   }
 
   public ComponentDoc setId(String s) {

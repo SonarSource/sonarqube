@@ -20,6 +20,7 @@
 package org.sonar.server.component.index;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractListAssert;
@@ -28,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -35,10 +37,16 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentIndexTest {
+
+  private static final Integer TEST_USER_ID = 42;
+  private static final String TEST_USER_GROUP = "TestUsers";
 
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
@@ -46,13 +54,17 @@ public class ComponentIndexTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+
   private ComponentIndex index;
   private ComponentIndexer indexer;
   private OrganizationDto organization;
 
   @Before
   public void setUp() {
-    index = new ComponentIndex(es.client());
+    index = new ComponentIndex(es.client(), userSession);
     indexer = new ComponentIndexer(db.getDbClient(), es.client());
     organization = OrganizationTesting.newOrganizationDto();
   }
@@ -62,6 +74,13 @@ public class ComponentIndexTest {
     indexProject("struts", "Apache Struts");
 
     assertThat(index.search(new ComponentIndexQuery("missing"))).isEmpty();
+  }
+
+  @Test
+  public void should_not_return_components_that_do_not_match_at_all() {
+    indexProject("banana", "Banana Project 1");
+
+    assertNoSearchResults("Apple");
   }
 
   @Test
@@ -222,6 +241,50 @@ public class ComponentIndexTest {
     assertNoSearchResults("th?Key");
   }
 
+  @Test
+  public void should_respect_confidentiallity() {
+    indexer.index(newProject("sonarqube", "Quality Product"));
+
+    // do not give any permissions to that project
+
+    assertNoSearchResults("sonarqube");
+    assertNoSearchResults("Quality Product");
+  }
+
+  @Test
+  public void should_find_project_for_which_the_user_has_direct_permission() {
+    login();
+
+    ComponentDto project = newProject("sonarqube", "Quality Product");
+    indexer.index(project);
+
+    // give the user explicit access
+    authorizationIndexerTester.indexProjectPermission(project.uuid(),
+      emptyList(),
+      Collections.singletonList((long) TEST_USER_ID));
+
+    assertSearchResults("sonarqube", project);
+  }
+
+  @Test
+  public void should_find_project_for_which_the_user_has_indirect_permission_through_group() {
+    login();
+
+    ComponentDto project = newProject("sonarqube", "Quality Product");
+    indexer.index(project);
+
+    // give the user implicit access (though group)
+    authorizationIndexerTester.indexProjectPermission(project.uuid(),
+      Collections.singletonList(TEST_USER_GROUP),
+      emptyList());
+
+    assertSearchResults("sonarqube", project);
+  }
+
+  private void login() {
+    userSession.login("john").setUserId(TEST_USER_ID).setUserGroups(TEST_USER_GROUP);
+  }
+
   private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
     return assertSearch(new ComponentIndexQuery(query));
   }
@@ -244,19 +307,30 @@ public class ComponentIndexTest {
   }
 
   private ComponentDto indexProject(String key, String name) {
-    ComponentDto dto = ComponentTesting.newProjectDto(organization, "UUID_" + key)
+    return index(
+      ComponentTesting.newProjectDto(organization, "UUID_" + key)
+        .setKey(key)
+        .setName(name));
+  }
+
+  private ComponentDto newProject(String key, String name) {
+    return ComponentTesting.newProjectDto(organization, "UUID_" + key)
       .setKey(key)
       .setName(name);
-    indexer.index(dto);
-    return dto;
   }
 
   private ComponentDto indexFile(ComponentDto project, String fileKey, String fileName) {
-    ComponentDto dto = ComponentTesting.newFileDto(project)
-      .setKey(fileKey)
-      .setName(fileName);
-    indexer.index(dto);
-    return dto;
+    return index(
+      ComponentTesting.newFileDto(project)
+        .setKey(fileKey)
+        .setName(fileName));
   }
 
+  private ComponentDto index(ComponentDto dto) {
+    indexer.index(dto);
+    authorizationIndexerTester.indexProjectPermission(dto.uuid(),
+      Collections.singletonList(DefaultGroups.ANYONE),
+      emptyList());
+    return dto;
+  }
 }

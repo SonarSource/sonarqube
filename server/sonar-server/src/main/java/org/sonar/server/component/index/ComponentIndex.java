@@ -21,29 +21,40 @@ package org.sonar.server.component.index;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
+import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
 public class ComponentIndex extends BaseIndex {
 
-  public ComponentIndex(EsClient client) {
+  private final UserSession userSession;
+
+  public ComponentIndex(EsClient client, UserSession userSession) {
     super(client);
+    this.userSession = userSession;
   }
 
   public List<String> search(ComponentIndexQuery query) {
@@ -61,16 +72,34 @@ public class ComponentIndex extends BaseIndex {
       .collect(Collectors.toList());
   }
 
-  private static QueryBuilder createQuery(ComponentIndexQuery query) {
+  private QueryBuilder createQuery(ComponentIndexQuery query) {
     BoolQueryBuilder esQuery = boolQuery();
+    esQuery.filter(createAuthorizationFilter());
+
     query.getQualifier().ifPresent(q -> esQuery.filter(termQuery(FIELD_QUALIFIER, q)));
 
     // We will truncate the search to the maximum length of nGrams in the index.
     // Otherwise the search would for sure not find any results.
     String truncatedQuery = StringUtils.left(query.getQuery(), DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
 
-    return esQuery
+    return esQuery.must(boolQuery()
       .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery))
-      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, query.getQuery()).boost(3f));
+      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, query.getQuery()).boost(3f)));
+  }
+
+  private QueryBuilder createAuthorizationFilter() {
+    Integer userLogin = userSession.getUserId();
+    Set<String> userGroupNames = userSession.getUserGroups();
+    BoolQueryBuilder groupsAndUser = boolQuery();
+
+    Optional.ofNullable(userLogin)
+      .map(Integer::longValue)
+      .ifPresent(userId -> groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userId)));
+
+    userGroupNames.stream()
+      .forEach(group -> groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_GROUPS, group)));
+
+    return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
+      QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -57,12 +59,14 @@ import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -98,6 +102,7 @@ public class BulkDeleteActionTest {
   private ResourceType resourceType;
   private ComponentIndex componentIndex;
   private ComponentIndexer componentIndexer;
+  private PermissionIndexerTester permissionIndexerTester;
 
   @Before
   public void setUp() {
@@ -106,8 +111,9 @@ public class BulkDeleteActionTest {
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
 
-    componentIndex = new ComponentIndex(es.client());
+    componentIndex = new ComponentIndex(es.client(), userSessionRule);
     componentIndexer = new ComponentIndexer(dbClient, es.client());
+    permissionIndexerTester = new PermissionIndexerTester(es);
 
     ws = new WsTester(new ProjectsWs(
       new BulkDeleteAction(
@@ -252,5 +258,8 @@ public class BulkDeleteActionTest {
     }
 
     componentIndexer.indexByProjectUuid(project.uuid());
+    permissionIndexerTester.indexProjectPermission(project.uuid(),
+      Collections.singletonList(DefaultGroups.ANYONE),
+      emptyList());
   }
 }

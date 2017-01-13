@@ -34,6 +34,7 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -59,7 +60,10 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateAction> {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(
+    new IssueIndexDefinition(new MapSettings()),
+    new ProjectMeasuresIndexDefinition(new MapSettings()),
+    new ComponentIndexDefinition(new MapSettings()));
 
   private UserDto user1;
   private UserDto user2;

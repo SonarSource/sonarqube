@@ -53,6 +53,8 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
+import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
@@ -78,7 +80,6 @@ public class ComponentServiceUpdateKeyTest {
 
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
   private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
-
   private ComponentService underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer, componentIndexer);
 
   @Before
@@ -240,7 +241,13 @@ public class ComponentServiceUpdateKeyTest {
   private ComponentDto insertProject(String key) {
     ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(key));
     projectMeasuresIndexer.index(project.uuid());
+    index(project.uuid());
     return project;
+  }
+
+  private void index(String projectUuid) {
+    projectMeasuresIndexer.index(projectUuid);
+    componentIndexer.indexByProjectUuid(projectUuid);
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
@@ -255,6 +262,11 @@ public class ComponentServiceUpdateKeyTest {
       .setQuery(boolQuery().must(matchAllQuery()).filter(
         boolQuery().must(termQuery(ProjectMeasuresIndexDefinition.FIELD_KEY, key))));
     assertThat(request.get().getHits()).hasSize(1);
-  }
 
+    es.client().prepareSearch(INDEX_COMPONENTS)
+      .setTypes(TYPE_COMPONENT)
+      .setQuery(boolQuery().must(matchAllQuery()).filter(
+        boolQuery().must(termQuery(ComponentIndexDefinition.FIELD_KEY, key))));
+    assertThat(request.get().getHits()).hasSize(1);
+  }
 }

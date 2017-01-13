@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,9 +35,13 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class SuggestionsActionTest {
@@ -47,14 +52,18 @@ public class SuggestionsActionTest {
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   private ComponentIndex index;
   private ComponentIndexer indexer;
   private SuggestionsAction action;
   private OrganizationDto organization;
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
 
   @Before
   public void setUp() {
-    index = new ComponentIndex(es.client());
+    index = new ComponentIndex(es.client(), userSessionRule);
     indexer = new ComponentIndexer(db.getDbClient(), es.client());
     action = new SuggestionsAction(db.getDbClient(), index);
     organization = OrganizationTesting.newOrganizationDto();
@@ -67,6 +76,9 @@ public class SuggestionsActionTest {
     db.commit();
 
     indexer.index();
+    authorizationIndexerTester.indexProjectPermission(dto.uuid(),
+      Collections.singletonList(ANYONE),
+      emptyList());
 
     SuggestionsWsResponse response = action.doHandle(dto.getKey());
 

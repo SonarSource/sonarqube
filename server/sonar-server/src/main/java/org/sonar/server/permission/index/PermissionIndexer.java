@@ -38,6 +38,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -49,7 +50,7 @@ import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 /**
- * Manages the synchronization of index issues/authorization with authorization settings defined in database :
+ * Manages the synchronization of indexes with authorization settings defined in database:
  * <ul>
  *   <li>index the projects with recent permission changes</li>
  *   <li>delete project orphans from index</li>
@@ -77,9 +78,11 @@ public class PermissionIndexer implements Startable {
   public void indexAllIfEmpty() {
     Future submit = executor.submit(() -> {
       if (isIndexEmpty(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION) ||
-        isIndexEmpty(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)) {
+        isIndexEmpty(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION) ||
+        isIndexEmpty(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)) {
         truncate(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
         truncate(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
+        truncate(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION);
         try (DbSession dbSession = dbClient.openSession(false)) {
           index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
         }
@@ -116,6 +119,7 @@ public class PermissionIndexer implements Startable {
     for (PermissionIndexerDao.Dto dto : authorizations) {
       bulkRequest.add(newIssuesAuthorizationIndexRequest(dto));
       bulkRequest.add(newProjectMeasuresAuthorizationIndexRequest(dto));
+      bulkRequest.add(newComponentsAuthorizationIndexRequest(dto));
       count++;
       if (count >= MAX_BATCH_SIZE) {
         EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
@@ -126,6 +130,7 @@ public class PermissionIndexer implements Startable {
     EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
     esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
     esClient.prepareRefresh(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES).get();
+    esClient.prepareRefresh(ComponentIndexDefinition.INDEX_COMPONENTS).get();
   }
 
   public void index(DbSession dbSession, String projectUuid) {
@@ -140,6 +145,7 @@ public class PermissionIndexer implements Startable {
   void index(PermissionIndexerDao.Dto dto) {
     index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, newIssuesAuthorizationIndexRequest(dto));
     index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, newProjectMeasuresAuthorizationIndexRequest(dto));
+    index(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, newComponentsAuthorizationIndexRequest(dto));
   }
 
   private void index(String index, String type, IndexRequest indexRequest) {
@@ -169,6 +175,16 @@ public class PermissionIndexer implements Startable {
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
     return new IndexRequest(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+      .routing(dto.getProjectUuid())
+      .source(doc);
+  }
+
+  private static IndexRequest newComponentsAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+    Map<String, Object> doc = ImmutableMap.of(
+      ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
+      ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
+      ComponentIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    return new IndexRequest(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);
   }

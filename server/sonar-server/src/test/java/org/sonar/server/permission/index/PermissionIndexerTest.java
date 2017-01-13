@@ -34,6 +34,7 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -55,7 +56,10 @@ public class PermissionIndexerTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(
+    new IssueIndexDefinition(new MapSettings()),
+    new ProjectMeasuresIndexDefinition(new MapSettings()),
+    new ComponentIndexDefinition(new MapSettings()));
 
   ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
   UserDbTester userDbTester = new UserDbTester(dbTester);
@@ -105,6 +109,7 @@ public class PermissionIndexerTest {
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(1100);
     assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(1100);
+    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).isEqualTo(1100);
   }
 
   @Test
