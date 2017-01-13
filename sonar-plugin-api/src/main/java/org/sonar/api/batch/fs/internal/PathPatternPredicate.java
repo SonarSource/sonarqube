@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.IndexedFile;
-import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 4.2
