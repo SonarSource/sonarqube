@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
-import okhttp3.HttpUrl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +31,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
@@ -166,6 +167,7 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", settings.getString(CoreProperties.PROJECT_ORGANIZATION_PROPERTY))
       .setParam("projectKey", projectDefinition.getKey())
       .setParam("projectName", projectDefinition.getOriginalName())
       .setParam("projectBranch", projectDefinition.getBranch())
@@ -191,6 +193,9 @@ public class ReportPublisher implements Startable {
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
+      if (settings.hasKey(CoreProperties.PROJECT_ORGANIZATION_PROPERTY)) {
+        metadata.put("organization", settings.getString(CoreProperties.PROJECT_ORGANIZATION_PROPERTY));
+      }
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
 
