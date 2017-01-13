@@ -65,8 +65,12 @@ export default class MetaLink extends React.Component {
             {link.name}
           </a>
           {this.state.expanded && (
-              <div>
-                <input type="text" className="overview-key" value={link.url} readOnly={true}/>
+              <div className="little-spacer-top">
+                <input type="text"
+                       className="overview-key"
+                       value={link.url}
+                       readOnly={true}
+                       onClick={e => e.target.select()}/>
               </div>
           )}
         </li>

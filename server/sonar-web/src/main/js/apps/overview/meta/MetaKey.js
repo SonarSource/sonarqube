@@ -30,7 +30,8 @@ const MetaKey = ({ component }) => {
             className="overview-key"
             type="text"
             value={component.key}
-            readOnly={true}/>
+            readOnly={true}
+            onClick={e => e.target.select()}/>
       </div>
   );
 };
