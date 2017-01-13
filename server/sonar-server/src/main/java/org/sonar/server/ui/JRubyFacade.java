@@ -275,16 +275,6 @@ public final class JRubyFacade {
     return !database.getDialect().supportsMigration();
   }
 
-  /**
-   * Used by Developer Cockpit
-   */
-  public void indexComponent(String componentUuid) {
-    DbClient dbClient = get(DbClient.class);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.componentIndexDao().indexResource(dbSession, componentUuid);
-    }
-  }
-
   public List<IdentityProvider> getIdentityProviders() {
     return get(IdentityProviderRepository.class).getAllEnabledAndSorted();
   }
