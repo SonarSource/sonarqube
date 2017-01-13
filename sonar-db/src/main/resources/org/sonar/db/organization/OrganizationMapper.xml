@@ -75,6 +75,14 @@
 
   <sql id="sqlSelectByQuery">
     from organizations org
+    <where>
+      <if test="query.keys != null">
+        org.kee in
+          <foreach collection="query.keys" open="(" close=")" item="key" separator=",">
+            #{key, jdbcType=VARCHAR}
+          </foreach>
+      </if>
+    </where>
   </sql>
 
   <insert id="insert" parameterType="Organization" useGeneratedKeys="false">

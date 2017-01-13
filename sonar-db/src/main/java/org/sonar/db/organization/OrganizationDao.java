@@ -46,8 +46,9 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).insert(organization);
   }
 
-  public List<OrganizationDto> selectByQuery(DbSession dbSession, int offset, int limit) {
-    return getMapper(dbSession).selectByQuery(offset, limit);
+  public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, int offset, int limit) {
+    requireNonNull(organizationQuery, "organizationQuery can't be null");
+    return getMapper(dbSession).selectByQuery(organizationQuery, offset, limit);
   }
 
   public Optional<OrganizationDto> selectByUuid(DbSession dbSession, String uuid) {

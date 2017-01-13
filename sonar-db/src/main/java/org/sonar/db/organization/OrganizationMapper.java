@@ -26,7 +26,8 @@ import org.apache.ibatis.annotations.Param;
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization);
 
-  List<OrganizationDto> selectByQuery(@Param("offset") int offset, @Param("pageSize") int pageSize);
+  List<OrganizationDto> selectByQuery(@Param("query") OrganizationQuery organizationQuery,
+    @Param("offset") int offset, @Param("pageSize") int pageSize);
 
   @CheckForNull
   OrganizationDto selectByKey(@Param("key") String key);
