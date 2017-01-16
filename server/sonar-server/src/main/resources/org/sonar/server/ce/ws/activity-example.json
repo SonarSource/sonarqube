@@ -1,6 +1,7 @@
 {
   "tasks": [
     {
+      "organization": "my-org-1",
       "id": "BU_dO1vsORa8_beWCwsP",
       "type": "REPORT",
       "componentId": "AU-Tpxb--iU5OvuD2FLy",
@@ -19,6 +20,7 @@
       "hasScannerContext": true
     },
     {
+      "organization": "my-org-2",
       "id": "AU_dO1vsORa8_beWCwmP",
       "taskType": "REPORT",
       "componentId": "AU_dO1vlORa8_beWCwmO",

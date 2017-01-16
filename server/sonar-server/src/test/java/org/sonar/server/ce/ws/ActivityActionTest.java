@@ -85,6 +85,10 @@ public class ActivityActionTest {
   @Test
   public void get_all_past_activity() {
     globalAdmin();
+    OrganizationDto organization1Dto = dbTester.organizations().insert();
+    dbTester.components().insertProject(organization1Dto, "PROJECT_1");
+    OrganizationDto organization2Dto = dbTester.organizations().insert();
+    dbTester.components().insertProject(organization2Dto, "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -93,21 +97,27 @@ public class ActivityActionTest {
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     // chronological order, from newest to oldest
-    assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
-    assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
-    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_2");
-    assertThat(activityResponse.getTasks(0).getAnalysisId()).isEqualTo("U1");
-    assertThat(activityResponse.getTasks(0).getExecutionTimeMs()).isEqualTo(500L);
-    assertThat(activityResponse.getTasks(0).getLogs()).isFalse();
+    WsCe.Task task = activityResponse.getTasks(0);
+    assertThat(task.getOrganization()).isEqualTo(organization2Dto.getKey());
+    assertThat(task.getId()).isEqualTo("T2");
+    assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
+    assertThat(task.getComponentId()).isEqualTo("PROJECT_2");
+    assertThat(task.getAnalysisId()).isEqualTo("U1");
+    assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(task.getLogs()).isFalse();
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(1).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(1).getComponentId()).isEqualTo("PROJECT_1");
     assertThat(activityResponse.getTasks(1).getLogs()).isFalse();
+
+    assertThat(activityResponse.getTasks(1).getOrganization()).isEqualTo(organization1Dto.getKey());
   }
 
   @Test
   public void filter_by_status() {
     globalAdmin();
+    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -137,6 +147,8 @@ public class ActivityActionTest {
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
     globalAdmin();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    dbTester.components().insertProject(organizationDto, "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
@@ -149,6 +161,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_on_current_activities() {
+    dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
     globalAdmin();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -166,6 +179,9 @@ public class ActivityActionTest {
   @Test
   public void limit_results() {
     globalAdmin();
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    dbTester.components().insertProject(organizationDto, "PROJECT_1");
+    dbTester.components().insertProject(organizationDto, "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -190,6 +206,7 @@ public class ActivityActionTest {
 
   @Test
   public void project_administrator_can_access_his_project_activity() {
+    dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
     // no need to be a system admin
     userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -244,6 +261,7 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
     globalAdmin();
+    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse result = call(
@@ -258,6 +276,7 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_activity() {
     globalAdmin();
+    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
@@ -268,8 +287,10 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_as_project_admin() {
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "PROJECT_1");
+    String view_uuid = "VIEW_1";
+    dbTester.components().insertView(dbTester.getDefaultOrganization(), view_uuid);
+    insertActivity("T1", view_uuid, CeActivityDto.Status.SUCCESS);
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, view_uuid);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 
@@ -279,6 +300,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_by_component_uuid() {
+    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     globalAdmin();

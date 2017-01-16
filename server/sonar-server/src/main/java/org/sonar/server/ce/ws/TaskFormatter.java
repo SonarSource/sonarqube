@@ -20,14 +20,15 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -38,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsCe;
 
 /**
@@ -55,23 +57,28 @@ public class TaskFormatter {
   }
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
-    ComponentDtoCache cache = new ComponentDtoCache(dbSession, ceQueueDtoToComponentUuids(dtos));
+    ComponentDtoCache cache = ComponentDtoCache.forQueueDtos(dbClient, dbSession, dtos);
     return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList());
   }
 
   public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto) {
-    return formatQueue(dto, new ComponentDtoCache(dbSession, dto.getComponentUuid()));
+    return formatQueue(dto, ComponentDtoCache.forUuid(dbClient, dbSession, dto.getComponentUuid()));
   }
 
   private WsCe.Task formatQueue(CeQueueDto dto, ComponentDtoCache componentDtoCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
+    String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
+    // FIXME organization field should be set from the CeQueueDto rather than from the ComponentDto
+    if (organizationKey != null) {
+      builder.setOrganization(organizationKey);
+    }
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, componentDtoCache.get(dto.getComponentUuid()));
+      buildComponent(builder, componentDtoCache.getComponent(dto.getComponentUuid()));
     }
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
@@ -93,23 +100,28 @@ public class TaskFormatter {
   }
 
   public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
-    return formatActivity(dto, new ComponentDtoCache(dbSession, dto.getComponentUuid()), scannerContext);
+    return formatActivity(dto, ComponentDtoCache.forUuid(dbClient, dbSession, dto.getComponentUuid()), scannerContext);
   }
 
   public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
-    ComponentDtoCache cache = new ComponentDtoCache(dbSession, ceActivityDtoToComponentUuids(dtos));
+    ComponentDtoCache cache = ComponentDtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream().map(input -> formatActivity(input, cache, null)).collect(Collectors.toList());
   }
 
-  private WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
+  private static WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
+    String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
+    // FIXME organization field should be set from the CeActivityDto rather than from the ComponentDto
+    if (organizationKey != null) {
+      builder.setOrganization(organizationKey);
+    }
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, componentDtoCache.get(dto.getComponentUuid()));
+      buildComponent(builder, componentDtoCache.getComponent(dto.getComponentUuid()));
     }
     if (dto.getAnalysisUuid() != null) {
       builder.setAnalysisId(dto.getAnalysisUuid());
@@ -148,38 +160,84 @@ public class TaskFormatter {
     }
   }
 
-  private static Set<String> ceQueueDtoToComponentUuids(List<CeQueueDto> dtos) {
-    return dtos.stream().map(CeQueueDto::getComponentUuid)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toSet());
-  }
-
-  private static Set<String> ceActivityDtoToComponentUuids(List<CeActivityDto> dtos) {
-    return dtos.stream().map(CeActivityDto::getComponentUuid)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toSet());
-  }
-
-  private class ComponentDtoCache {
+  private static class ComponentDtoCache {
     private final Map<String, ComponentDto> componentsByUuid;
+    private final Map<String, OrganizationDto> organizationsByUuid;
 
-    ComponentDtoCache(DbSession dbSession, Set<String> uuids) {
-      this.componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuids)
-        .stream()
-        .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
+    private ComponentDtoCache(Map<String, ComponentDto> componentsByUuid, Map<String, OrganizationDto> organizationsByUuid) {
+      this.componentsByUuid = componentsByUuid;
+      this.organizationsByUuid = organizationsByUuid;
     }
 
-    ComponentDtoCache(DbSession dbSession, String uuid) {
+    static ComponentDtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
+      Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuidOfCeQueueDtos(ceQueueDtos))
+        .stream()
+        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(ComponentDto::uuid));
+      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
+    }
+
+    private static Set<String> uuidOfCeQueueDtos(Collection<CeQueueDto> ceQueueDtos) {
+      return ceQueueDtos.stream()
+        .filter(Objects::nonNull)
+        .map(CeQueueDto::getComponentUuid)
+        .filter(Objects::nonNull)
+        .collect(org.sonar.core.util.stream.Collectors.toSet(ceQueueDtos.size()));
+    }
+
+    static ComponentDtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
+      Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(
+        dbSession,
+        uuidOfCeActivityDtos(ceActivityDtos))
+        .stream()
+        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(ComponentDto::uuid));
+      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
+    }
+
+    private static Set<String> uuidOfCeActivityDtos(Collection<CeActivityDto> ceActivityDtos) {
+      return ceActivityDtos.stream()
+        .filter(Objects::nonNull)
+        .map(CeActivityDto::getComponentUuid)
+        .filter(Objects::nonNull)
+        .collect(org.sonar.core.util.stream.Collectors.toSet(ceActivityDtos.size()));
+    }
+
+    static ComponentDtoCache forUuid(DbClient dbClient, DbSession dbSession, String uuid) {
       Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, uuid);
-      this.componentsByUuid = componentDto.isPresent() ? ImmutableMap.of(uuid, componentDto.get()) : Collections.emptyMap();
+      Map<String, ComponentDto> componentsByUuid = componentDto.isPresent() ? ImmutableMap.of(uuid, componentDto.get()) : Collections.emptyMap();
+      return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
+    }
+
+    private static Map<String, OrganizationDto> buildOrganizationsByUuid(DbClient dbClient, DbSession dbSession, Map<String, ComponentDto> componentsByUuid) {
+      return dbClient.organizationDao().selectByUuids(
+        dbSession,
+        componentsByUuid.values().stream()
+          .map(ComponentDto::getOrganizationUuid)
+          .collect(Collectors.toSet()))
+        .stream()
+        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(OrganizationDto::getUuid));
     }
 
     @CheckForNull
-    ComponentDto get(@Nullable String uuid) {
+    ComponentDto getComponent(@Nullable String uuid) {
       if (uuid == null) {
         return null;
       }
       return componentsByUuid.get(uuid);
+    }
+
+    @CheckForNull
+    String getOrganizationKey(@Nullable String componentUuid) {
+      if (componentUuid == null) {
+        return null;
+      }
+      ComponentDto componentDto = componentsByUuid.get(componentUuid);
+      if (componentDto == null) {
+        return null;
+      }
+      String organizationUuid = componentDto.getOrganizationUuid();
+      OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
+      Preconditions.checkState(organizationDto != null, "Organization with uuid '%s' not found", organizationUuid);
+      return organizationDto.getKey();
     }
   }
 
