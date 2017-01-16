@@ -1,0 +1,7 @@
+exports[`test should not render anything 1`] = `null`;
+
+exports[`test should render children 1`] = `
+<div>
+  hello
+</div>
+`;

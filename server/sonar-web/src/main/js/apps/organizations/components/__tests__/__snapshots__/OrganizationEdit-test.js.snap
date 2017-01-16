@@ -1,0 +1,340 @@
+exports[`test smoke test 1`] = `
+<div
+  className="page page-limited">
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.edit
+    </h1>
+  </header>
+  <form
+    onSubmit={[Function]}>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-name">
+        organization.name
+        <em
+          className="mandatory">
+          *
+        </em>
+      </label>
+      <input
+        disabled={false}
+        id="organization-name"
+        maxLength="64"
+        name="name"
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="Foo" />
+      <div
+        className="modal-field-description">
+        organization.name.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-avatar">
+        organization.avatar
+      </label>
+      <input
+        disabled={false}
+        id="organization-avatar"
+        maxLength="256"
+        name="avatar"
+        onChange={[Function]}
+        type="text"
+        value="" />
+      <div
+        className="modal-field-description">
+        organization.avatar.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-description">
+        description
+      </label>
+      <textarea
+        disabled={false}
+        id="organization-description"
+        maxLength="256"
+        name="description"
+        onChange={[Function]}
+        rows="3"
+        value="" />
+      <div
+        className="modal-field-description">
+        organization.description.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-url">
+        organization.url
+      </label>
+      <input
+        disabled={false}
+        id="organization-url"
+        maxLength="256"
+        name="url"
+        onChange={[Function]}
+        type="text"
+        value="" />
+      <div
+        className="modal-field-description">
+        organization.url.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <button
+        disabled={false}
+        type="submit">
+        save
+      </button>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`test smoke test 2`] = `
+<div
+  className="page page-limited">
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.edit
+    </h1>
+  </header>
+  <form
+    onSubmit={[Function]}>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-name">
+        organization.name
+        <em
+          className="mandatory">
+          *
+        </em>
+      </label>
+      <input
+        disabled={false}
+        id="organization-name"
+        maxLength="64"
+        name="name"
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="New Foo" />
+      <div
+        className="modal-field-description">
+        organization.name.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-avatar">
+        organization.avatar
+      </label>
+      <input
+        disabled={false}
+        id="organization-avatar"
+        maxLength="256"
+        name="avatar"
+        onChange={[Function]}
+        type="text"
+        value="foo-avatar" />
+      <div
+        className="modal-field-description">
+        organization.avatar.description
+      </div>
+      <div
+        className="spacer-top spacer-bottom">
+        <div
+          className="little-spacer-bottom">
+          organization.avatar.preview
+          :
+        </div>
+        <img
+          alt=""
+          height={30}
+          src="foo-avatar-image" />
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-description">
+        description
+      </label>
+      <textarea
+        disabled={false}
+        id="organization-description"
+        maxLength="256"
+        name="description"
+        onChange={[Function]}
+        rows="3"
+        value="foo-description" />
+      <div
+        className="modal-field-description">
+        organization.description.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-url">
+        organization.url
+      </label>
+      <input
+        disabled={false}
+        id="organization-url"
+        maxLength="256"
+        name="url"
+        onChange={[Function]}
+        type="text"
+        value="foo-url" />
+      <div
+        className="modal-field-description">
+        organization.url.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <button
+        disabled={false}
+        type="submit">
+        save
+      </button>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`test smoke test 3`] = `
+<div
+  className="page page-limited">
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.edit
+    </h1>
+  </header>
+  <form
+    onSubmit={[Function]}>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-name">
+        organization.name
+        <em
+          className="mandatory">
+          *
+        </em>
+      </label>
+      <input
+        disabled={true}
+        id="organization-name"
+        maxLength="64"
+        name="name"
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="New Foo" />
+      <div
+        className="modal-field-description">
+        organization.name.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-avatar">
+        organization.avatar
+      </label>
+      <input
+        disabled={true}
+        id="organization-avatar"
+        maxLength="256"
+        name="avatar"
+        onChange={[Function]}
+        type="text"
+        value="foo-avatar" />
+      <div
+        className="modal-field-description">
+        organization.avatar.description
+      </div>
+      <div
+        className="spacer-top spacer-bottom">
+        <div
+          className="little-spacer-bottom">
+          organization.avatar.preview
+          :
+        </div>
+        <img
+          alt=""
+          height={30}
+          src="foo-avatar-image" />
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-description">
+        description
+      </label>
+      <textarea
+        disabled={true}
+        id="organization-description"
+        maxLength="256"
+        name="description"
+        onChange={[Function]}
+        rows="3"
+        value="foo-description" />
+      <div
+        className="modal-field-description">
+        organization.description.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <label
+        htmlFor="organization-url">
+        organization.url
+      </label>
+      <input
+        disabled={true}
+        id="organization-url"
+        maxLength="256"
+        name="url"
+        onChange={[Function]}
+        type="text"
+        value="foo-url" />
+      <div
+        className="modal-field-description">
+        organization.url.description
+      </div>
+    </div>
+    <div
+      className="modal-field">
+      <button
+        disabled={true}
+        type="submit">
+        save
+      </button>
+      <i
+        className="spinner spacer-left" />
+    </div>
+  </form>
+</div>
+`;
