@@ -62,6 +62,7 @@ message TaskTypesWsResponse {
 }
 
 message Task {
+  optional string organization = 20;
   optional string id = 1;
   optional string type = 2;
   optional string componentId = 3;
