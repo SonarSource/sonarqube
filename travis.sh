@@ -92,7 +92,7 @@ CI)
   ;;
 
 WEB)
-  set +eu
+  set +u
   source ~/.nvm/nvm.sh && nvm install 6
   curl -o- -L https://yarnpkg.com/install.sh | bash
   export PATH=$HOME/.yarn/bin:$PATH
