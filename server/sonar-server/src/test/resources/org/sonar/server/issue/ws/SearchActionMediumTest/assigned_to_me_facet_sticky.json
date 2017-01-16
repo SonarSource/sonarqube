@@ -1,6 +1,7 @@
 {
   "issues": [
     {
+      "organization": "my-org-2",
       "key": "7b112bd4-b650-4037-80bc-82fd47d4eac2",
       "component": "FILE_KEY",
       "rule": "xoo:x1",

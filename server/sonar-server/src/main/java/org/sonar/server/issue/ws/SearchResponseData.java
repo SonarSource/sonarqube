@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.workflow.Transition;
@@ -48,6 +49,7 @@ public class SearchResponseData {
   private Long effortTotal = null;
   private List<UserDto> users = null;
   private List<RuleDto> rules = null;
+  private final Map<String, String> organizationKeysByUuid = new HashMap<>();
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
@@ -81,6 +83,12 @@ public class SearchResponseData {
   @CheckForNull
   public List<RuleDto> getRules() {
     return rules;
+  }
+
+  public String getOrganizationKey(String organizationUuid) {
+    String organizationKey = organizationKeysByUuid.get(organizationUuid);
+    checkNotNull(organizationKey, "Organization for uuid '%s' not found", organizationUuid);
+    return organizationKey;
   }
 
   @CheckForNull
@@ -152,5 +160,9 @@ public class SearchResponseData {
 
   public void setEffortTotal(@Nullable Long effortTotal) {
     this.effortTotal = effortTotal;
+  }
+
+  public void addOrganization(OrganizationDto organizationDto) {
+    this.organizationKeysByUuid.put(organizationDto.getUuid(), organizationDto.getKey());
   }
 }

@@ -172,7 +172,7 @@ public class SearchActionMediumTest {
     db.userDao().insert(session, new UserDto().setLogin("john").setName("John"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
@@ -283,7 +283,7 @@ public class SearchActionMediumTest {
   @Test
   public void issue_on_removed_file() throws Exception {
     RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto removedFile = insertComponent(ComponentTesting.newFileDto(project, null).setUuid("REMOVED_FILE_ID")
       .setKey("REMOVED_FILE_KEY")
@@ -338,7 +338,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void components_contains_sub_projects() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "PROJECT_ID").setKey("ProjectHavingModule"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization1, "PROJECT_ID").setKey("ProjectHavingModule"));
     setDefaultProjectPermission(project);
     ComponentDto module = insertComponent(ComponentTesting.newModuleDto(project).setKey("ModuleHavingFile"));
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(module, null, "BCDE").setKey("FileLinkedToModule"));
@@ -377,7 +377,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void display_facets_in_effort_mode() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
@@ -560,7 +560,7 @@ public class SearchActionMediumTest {
   @Test
   public void sort_by_updated_at() throws Exception {
     RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(defaultOrganization, "PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)

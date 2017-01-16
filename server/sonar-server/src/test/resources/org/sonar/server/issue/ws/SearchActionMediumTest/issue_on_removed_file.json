@@ -1,6 +1,7 @@
 {
   "issues": [
     {
+      "organization": "my-org-2",
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
       "component": "REMOVED_FILE_KEY",
       "project": "PROJECT_KEY",
@@ -13,10 +14,12 @@
   ],
   "components": [
     {
+      "organization": "my-org-2",
       "key": "REMOVED_FILE_KEY",
       "enabled" : false
     },
     {
+      "organization": "my-org-2",
       "key": "PROJECT_KEY",
       "enabled" : true
     }

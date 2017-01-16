@@ -60,6 +60,7 @@ message Operation {
 }
 
 message Issue {
+  optional string organization = 29;
   optional string key = 1;
   optional string rule = 2;
   optional sonarqube.ws.commons.Severity severity = 3;
@@ -170,6 +171,7 @@ message Languages {
 }
 
 message Component {
+  optional string organization = 11;
   optional int64 id = 1;
   optional string key = 2;
   optional string uuid = 3;

@@ -146,6 +146,7 @@ public class SearchResponseFormat {
     setNullable(dto.getType(), issueBuilder::setType, Common.RuleType::valueOf);
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
+    issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.key());
     // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
     issueBuilder.setComponentId(component.getId());
@@ -285,36 +286,38 @@ public class SearchResponseFormat {
   }
 
   private static List<Issues.Component> formatComponents(SearchResponseData data) {
-    List<Issues.Component> result = new ArrayList<>();
     Collection<ComponentDto> components = data.getComponents();
-    if (components != null) {
-      for (ComponentDto dto : components) {
-        String uuid = dto.uuid();
-        Issues.Component.Builder builder = Issues.Component.newBuilder()
-          .setId(dto.getId())
-          .setKey(dto.key())
-          .setUuid(uuid)
-          .setQualifier(dto.qualifier())
-          .setName(nullToEmpty(dto.name()))
-          .setLongName(nullToEmpty(dto.longName()))
-          .setEnabled(dto.isEnabled());
-        String path = dto.path();
-        // path is not applicable to the components that are not files.
-        // Value must not be "" in this case.
-        if (!Strings.isNullOrEmpty(path)) {
-          builder.setPath(path);
-        }
-
-        // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
-        if (!uuid.equals(dto.getRootUuid())) {
-          ComponentDto project = data.getComponentByUuid(dto.projectUuid());
-          setNullable(project, builder::setProjectId, ComponentDto::getId);
-
-          ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
-          setNullable(subProject, builder::setSubProjectId, ComponentDto::getId);
-        }
-        result.add(builder.build());
+    if (components == null) {
+      return Collections.emptyList();
+    }
+    List<Issues.Component> result = new ArrayList<>();
+    for (ComponentDto dto : components) {
+      String uuid = dto.uuid();
+      Issues.Component.Builder builder = Issues.Component.newBuilder()
+        .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
+        .setId(dto.getId())
+        .setKey(dto.key())
+        .setUuid(uuid)
+        .setQualifier(dto.qualifier())
+        .setName(nullToEmpty(dto.name()))
+        .setLongName(nullToEmpty(dto.longName()))
+        .setEnabled(dto.isEnabled());
+      String path = dto.path();
+      // path is not applicable to the components that are not files.
+      // Value must not be "" in this case.
+      if (!Strings.isNullOrEmpty(path)) {
+        builder.setPath(path);
       }
+
+      // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
+      if (!uuid.equals(dto.getRootUuid())) {
+        ComponentDto project = data.getComponentByUuid(dto.projectUuid());
+        setNullable(project, builder::setProjectId, ComponentDto::getId);
+
+        ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
+        setNullable(subProject, builder::setSubProjectId, ComponentDto::getId);
+      }
+      result.add(builder.build());
     }
     return result;
   }

@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -81,6 +82,7 @@ public class SearchResponseLoader {
       loadComments(collector, dbSession, result);
       loadUsers(collector, dbSession, result);
       loadComponents(collector, dbSession, result);
+      loadOrganizations(dbSession, result);
       loadActionsAndTransitions(collector, result);
       completeTotalEffortFromFacet(facets, result);
       return result;
@@ -128,6 +130,17 @@ public class SearchResponseLoader {
     }
     List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, collector.getProjectUuids());
     result.addComponents(projects);
+  }
+
+  private void loadOrganizations(DbSession dbSession, SearchResponseData result) {
+    Collection<ComponentDto> components = result.getComponents();
+    if (components == null) {
+      return;
+    }
+    dbClient.organizationDao().selectByUuids(
+      dbSession,
+      components.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet()))
+      .forEach(result::addOrganization);
   }
 
   private void loadActionsAndTransitions(Collector collector, SearchResponseData result) {
