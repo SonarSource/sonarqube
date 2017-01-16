@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.ui.ws;
 
 import java.util.Arrays;
@@ -358,7 +357,7 @@ public class ComponentActionTest {
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     String result = execute(project.key());
-    assertJson(ws.getDef().responseExampleAsString()).ignoreFields("snapshotDate", "key").isSimilarTo(result);
+    assertJson(result).ignoreFields("snapshotDate", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   private void init(Page... pages) {

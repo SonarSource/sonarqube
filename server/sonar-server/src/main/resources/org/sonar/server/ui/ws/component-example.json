@@ -8,14 +8,12 @@
   "snapshotDate": "2016-12-06T11:44:00+0200",
   "extensions": [
     {
-      "key": "first_page",
-      "name": "First Page",
-      "path": "/static/my_plugin/first_page.js"
+      "key": "my_plugin/first_page",
+      "name": "First Page"
     },
     {
-      "key": "second_page",
-      "name": "Second Page",
-      "path": "/static/my_plugin/second_page.js"
+      "key": "my_plugin/second_page",
+      "name": "Second Page"
     }
   ],
   "qualityProfiles": [
@@ -47,9 +45,8 @@
     "showBackgroundTasks": true,
     "extensions": [
       {
-        "key": "admin_page",
-        "name": "Admin Page",
-        "path": "/static/my_plugin/admin_page.js"
+        "key": "my_plugin/admin_page",
+        "name": "Admin Page"
       }
     ]
   },
