@@ -31,6 +31,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -59,6 +60,7 @@ public class TaskActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  private OrganizationDto organizationDto;
   private ComponentDto project;
   private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
   private TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
@@ -66,7 +68,8 @@ public class TaskActionTest {
 
   @Before
   public void setUp() {
-    project = dbTester.components().insertProject(dbTester.organizations().insert());
+    organizationDto = dbTester.organizations().insert();
+    project = dbTester.components().insertProject(organizationDto);
   }
 
   @Test
@@ -87,6 +90,7 @@ public class TaskActionTest {
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    assertThat(taskResponse.getTask().getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo("john");
@@ -111,6 +115,7 @@ public class TaskActionTest {
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo(project.uuid());
@@ -174,10 +179,10 @@ public class TaskActionTest {
     persistScannerContext(SOME_TASK_UUID, scannerContext);
 
     TestResponse wsResponse = ws.newRequest()
-        .setMediaType(PROTOBUF)
-        .setParam("id", SOME_TASK_UUID)
-        .setParam("additionalFields", "scannerContext")
-        .execute();
+      .setMediaType(PROTOBUF)
+      .setParam("id", SOME_TASK_UUID)
+      .setParam("additionalFields", "scannerContext")
+      .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
@@ -194,10 +199,10 @@ public class TaskActionTest {
     persistScannerContext(SOME_TASK_UUID, scannerContext);
 
     TestResponse wsResponse = ws.newRequest()
-        .setMediaType(PROTOBUF)
-        .setParam("id", SOME_TASK_UUID)
-        .setParam("additionalFields", "stacktrace")
-        .execute();
+      .setMediaType(PROTOBUF)
+      .setParam("id", SOME_TASK_UUID)
+      .setParam("additionalFields", "stacktrace")
+      .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     WsCe.Task task = taskResponse.getTask();
