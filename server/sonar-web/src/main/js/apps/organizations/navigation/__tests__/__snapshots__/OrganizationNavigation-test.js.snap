@@ -1,0 +1,93 @@
+exports[`test admin 1`] = `
+<nav
+  className="navbar navbar-context page-container"
+  id="context-navigation">
+  <div
+    className="navbar-context-inner">
+    <div
+      className="container">
+      <ul
+        className="nav navbar-nav nav-crumbs">
+        <li>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo">
+            Foo
+          </Link>
+        </li>
+      </ul>
+      <ul
+        className="nav navbar-nav nav-tabs">
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/organizations/foo">
+            <i
+              className="icon-home" />
+          </IndexLink>
+        </li>
+        <li
+          className="">
+          <a
+            className="dropdown-toggle navbar-admin-link"
+            data-toggle="dropdown"
+            href="#">
+            layout.settings
+             
+            <i
+              className="icon-dropdown" />
+          </a>
+          <ul
+            className="dropdown-menu">
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/edit">
+                edit
+              </Link>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+`;
+
+exports[`test regular user 1`] = `
+<nav
+  className="navbar navbar-context page-container"
+  id="context-navigation">
+  <div
+    className="navbar-context-inner">
+    <div
+      className="container">
+      <ul
+        className="nav navbar-nav nav-crumbs">
+        <li>
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo">
+            Foo
+          </Link>
+        </li>
+      </ul>
+      <ul
+        className="nav navbar-nav nav-tabs">
+        <li>
+          <IndexLink
+            activeClassName="active"
+            to="/organizations/foo">
+            <i
+              className="icon-home" />
+          </IndexLink>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+`;

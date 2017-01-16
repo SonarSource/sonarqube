@@ -1,0 +1,20 @@
+exports[`test not found 1`] = `<NotFound />`;
+
+exports[`test smoke test 1`] = `null`;
+
+exports[`test smoke test 2`] = `
+<div>
+  <OrganizationNavigation
+    organization={
+      Object {
+        "canAdmin": false,
+        "isDefault": false,
+        "key": "foo",
+        "name": "Foo",
+      }
+    } />
+  <div>
+    hello
+  </div>
+</div>
+`;

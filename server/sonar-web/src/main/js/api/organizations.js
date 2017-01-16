@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { getJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 
 export const getOrganizations = (organizations?: Array<string>) => {
   const data = {};
@@ -27,3 +27,28 @@ export const getOrganizations = (organizations?: Array<string>) => {
   }
   return getJSON('/api/organizations/search', data);
 };
+
+type GetOrganizationType = null | {
+  avatar: null | string,
+  description: null | string,
+  key: string,
+  name: string,
+  url: null | string
+};
+
+type GetOrganizationNavigation = {
+  canAdmin: boolean,
+  isDefault: boolean
+};
+
+export const getOrganization = (key: string): Promise<GetOrganizationType> => {
+  return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
+};
+
+export const getOrganizationNavigation = (key: string): Promise<GetOrganizationNavigation> => {
+  return getJSON('/api/navigation/organization', { organization: key }).then(r => r.organization);
+};
+
+export const updateOrganization = (key: string, changes: {}) => (
+    post('/api/organizations/update', { key, ...changes })
+);
