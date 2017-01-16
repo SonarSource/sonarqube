@@ -29,8 +29,8 @@ export function getComponent (componentKey) {
   return bucket[componentKey];
 }
 
-export function addComponentChildren (componentKey, children, total) {
-  childrenBucket[componentKey] = { children, total };
+export function addComponentChildren (componentKey, children, total, page) {
+  childrenBucket[componentKey] = { children, total, page };
 }
 
 export function getComponentChildren (componentKey) {

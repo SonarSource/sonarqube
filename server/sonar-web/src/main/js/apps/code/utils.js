@@ -142,7 +142,8 @@ export function retrieveComponentChildren (componentKey, isView) {
   if (existing) {
     return Promise.resolve({
       components: existing.children,
-      total: existing.total
+      total: existing.total,
+      page: existing.page
     });
   }
 
@@ -152,7 +153,7 @@ export function retrieveComponentChildren (componentKey, isView) {
       .then(prepareChildren)
       .then(expandRootDir(metrics))
       .then(r => {
-        addComponentChildren(componentKey, r.components, r.total);
+        addComponentChildren(componentKey, r.components, r.total, r.page);
         storeChildrenBase(r.components);
         storeChildrenBreadcrumbs(componentKey, r.components);
         return r;
@@ -201,7 +202,7 @@ export function loadMoreChildren (componentKey, page, isView) {
       .then(prepareChildren)
       .then(expandRootDir(metrics))
       .then(r => {
-        addComponentChildren(componentKey, r.components, r.total);
+        addComponentChildren(componentKey, r.components, r.total, r.page);
         storeChildrenBase(r.components);
         storeChildrenBreadcrumbs(componentKey, r.components);
         return r;
