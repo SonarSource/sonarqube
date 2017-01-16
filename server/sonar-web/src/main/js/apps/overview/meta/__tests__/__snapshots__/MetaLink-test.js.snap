@@ -25,9 +25,11 @@ exports[`test should expand and collapse link 2`] = `
      
     Foo
   </a>
-  <div>
+  <div
+    className="little-spacer-top">
     <input
       className="overview-key"
+      onClick={[Function]}
       readOnly={true}
       type="text"
       value="scm:git:git@github.com" />
