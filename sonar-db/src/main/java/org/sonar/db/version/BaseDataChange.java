@@ -62,4 +62,8 @@ public abstract class BaseDataChange implements DataChange, MigrationStep {
     return connection;
   }
 
+
+  protected Database getDb() {
+    return db;
+  }
 }
