@@ -50,6 +50,7 @@ import groupsRoutes from '../../apps/groups/routes';
 import issuesRoutes from '../../apps/issues/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
+import organizationsRouters from '../../apps/organizations/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectAdminRoutes from '../../apps/project-admin/routes';
@@ -105,6 +106,7 @@ const startReactApp = () => {
                   <Route path="component">{componentRoutes}</Route>
                   <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension}/>
                   <Route path="issues">{issuesRoutes}</Route>
+                  <Route path="organizations">{organizationsRouters}</Route>
                   <Route path="projects">{projectsRoutes}</Route>
                   <Route path="quality_gates">{qualityGatesRoutes}</Route>
                   <Route path="profiles">{qualityProfilesRoutes}</Route>

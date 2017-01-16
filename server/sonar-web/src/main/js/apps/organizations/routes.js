@@ -17,26 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { getJSON, post } from '../helpers/request';
+import React from 'react';
+import { Route } from 'react-router';
+import OrganizationPage from './components/OrganizationPage';
+import OrganizationEdit from './components/OrganizationEdit';
 
-export const getOrganizations = (organizations?: Array<string>) => {
-  const data = {};
-  if (organizations) {
-    Object.assign(data, { organizations: organizations.join() });
-  }
-  return getJSON('/api/organizations/search', data);
-};
-
-type GetOrganizationType = null | {
-  key: string,
-  name: string
-};
-
-export const getOrganization = (key: string): GetOrganizationType => {
-  return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
-};
-
-export const updateOrganization = (key: string, changes: {}) => (
-    post('/api/organizations/update', { key, ...changes })
+export default (
+    <Route path=":organizationKey" component={OrganizationPage}>
+      <Route path="edit" component={OrganizationEdit}/>
+    </Route>
 );
