@@ -25,6 +25,7 @@ import favorites, * as fromFavorites from './favorites/duck';
 import languages, * as fromLanguages from './languages/reducer';
 import measures, * as fromMeasures from './measures/reducer';
 import notifications, * as fromNotifications from './notifications/duck';
+import organizations, * as fromOrganizations from './organizations/duck';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
 import projectActivity from './projectActivity/duck';
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
@@ -42,6 +43,7 @@ export default combineReducers({
   languages,
   measures,
   notifications,
+  organizations,
   projectActivity,
   users,
 
@@ -108,6 +110,14 @@ export const getNotificationGlobalTypes = state => (
 
 export const getNotificationPerProjectTypes = state => (
     fromNotifications.getPerProjectTypes(state.notifications)
+);
+
+export const getOrganizationByKey = (state, key) => (
+    fromOrganizations.getOrganizationByKey(state.organizations, key)
+);
+
+export const areThereCustomOrganizations = state => (
+    fromOrganizations.areThereCustomOrganizations(state.organizations)
 );
 
 export const getProjectActivity = state => (

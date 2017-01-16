@@ -1,0 +1,12 @@
+exports[`test should match snapshot 1`] = `
+<span>
+  foo
+  <span>
+     / 
+  </span>
+</span>
+`;
+
+exports[`test should not be displayed 1`] = `null`;
+
+exports[`test should not be displayed 2`] = `null`;
