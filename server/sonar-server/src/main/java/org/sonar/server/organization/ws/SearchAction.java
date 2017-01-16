@@ -28,12 +28,15 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationQuery;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 
+import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements OrganizationsAction {
+  private static final String PARAM_ORGANIZATIONS = "organizations";
   private static final String ACTION = "search";
 
   private final DbClient dbClient;
@@ -54,6 +57,12 @@ public class SearchAction implements OrganizationsAction {
       .setSince("6.2")
       .setHandler(this);
 
+    action.createParam(PARAM_ORGANIZATIONS)
+      .setDescription("Comma-separated list of organization keys")
+      .setExampleValue(String.join(",", "my-org-1", "foocorp"))
+      .setRequired(false)
+      .setSince("6.3");
+
     action.addPagingParams(25);
   }
 
@@ -63,8 +72,13 @@ public class SearchAction implements OrganizationsAction {
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE))
         .withPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
         .andTotal(0);
+      OrganizationQuery organizationQuery = newOrganizationQueryBuilder()
+        .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
+        .build();
+
       List<OrganizationDto> dtos = dbClient.organizationDao().selectByQuery(
         dbSession,
+        organizationQuery,
         paging.offset(),
         paging.pageSize());
 

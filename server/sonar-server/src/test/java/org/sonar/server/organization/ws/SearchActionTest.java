@@ -19,8 +19,10 @@
  */
 package org.sonar.server.organization.ws;
 
+import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -38,6 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +59,6 @@ public class SearchActionTest {
     .setCreatedAt(1_999_000L)
     .setUpdatedAt(1_888_000L);
   private static final long SOME_DATE = 1_999_999L;
-
 
   private System2 system2 = mock(System2.class);
 
@@ -77,8 +79,15 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("example-search.json"));
+
+    WebService.Param organizationsParam = action.param("organizations");
+    assertThat(organizationsParam.isRequired()).isFalse();
+    assertThat(organizationsParam.defaultValue()).isNull();
+    assertThat(organizationsParam.description()).isEqualTo("Comma-separated list of organization keys");
+    assertThat(organizationsParam.exampleValue()).isEqualTo("my-org-1,foocorp");
+    assertThat(organizationsParam.since()).isEqualTo("6.3");
     WebService.Param pParam = action.param("p");
     assertThat(pParam.isRequired()).isFalse();
     assertThat(pParam.defaultValue()).isEqualTo("1");
@@ -141,34 +150,73 @@ public class SearchActionTest {
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
     assertThat(executeRequest(1, 1))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-4");
     assertThat(executeRequest(2, 1))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-5");
     assertThat(executeRequest(3, 1))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-2");
     assertThat(executeRequest(4, 1))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-1");
     assertThat(executeRequest(5, 1))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-3");
     assertThat(executeRequest(6, 1))
       .isEmpty();
 
     assertThat(executeRequest(1, 5))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-4", "key-5", "key-2", "key-1", "key-3");
     assertThat(executeRequest(2, 5))
       .isEmpty();
     assertThat(executeRequest(1, 3))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-4", "key-5", "key-2");
     assertThat(executeRequest(2, 3))
-      .extracting("key")
+      .extracting(Organization::getKey)
       .containsExactly("key-1", "key-3");
+  }
+
+  @Test
+  public void request_returns_only_specified_keys_ordered_by_createdAt_when_filtering_keys() {
+    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
+
+    assertThat(executeRequest(1, 10, "key-3", "key-1", "key-5"))
+      .extracting(Organization::getKey)
+      .containsExactly("key-5", "key-1", "key-3");
+    // ensure order of arguments doesn't change order of result
+    assertThat(executeRequest(1, 10, "key-1", "key-3", "key-5"))
+      .extracting(Organization::getKey)
+      .containsExactly("key-5", "key-1", "key-3");
+
+    // verify paging
+    assertThat(executeRequest(1, 1, "key-1", "key-3", "key-5"))
+        .extracting(Organization::getKey)
+        .containsExactly("key-5");
+    assertThat(executeRequest(1, 2, "key-1", "key-3", "key-5"))
+        .extracting(Organization::getKey)
+        .containsExactly("key-5", "key-1");
+    assertThat(executeRequest(2, 2, "key-1", "key-3", "key-5"))
+        .extracting(Organization::getKey)
+        .containsExactly("key-3");
+  }
+
+  @Test
+  public void request_returns_empty_when_filtering_on_non_existing_key() {
+    when(system2.now()).thenReturn(SOME_DATE);
+    insertOrganization(ORGANIZATION_DTO);
+
+    assertThat(executeRequest(1, 10, ORGANIZATION_DTO.getKey()))
+      .extracting(Organization::getKey)
+      .containsExactly(ORGANIZATION_DTO.getKey());
   }
 
   private void insertOrganization(OrganizationDto dto) {
@@ -177,10 +225,10 @@ public class SearchActionTest {
     dbSession.commit();
   }
 
-  private List<Organizations.Organization> executeRequest(@Nullable Integer page, @Nullable Integer pageSize) {
+  private List<Organization> executeRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
-    populateRequest(page, pageSize, request);
+    populateRequest(request, page, pageSize, keys);
     try {
       return Organizations.SearchWsResponse.parseFrom(request.execute().getInputStream()).getOrganizationsList();
     } catch (IOException e) {
@@ -188,14 +236,17 @@ public class SearchActionTest {
     }
   }
 
-  private String executeJsonRequest(@Nullable Integer page, @Nullable Integer pageSize) {
+  private String executeJsonRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.JSON);
-    populateRequest(page, pageSize, request);
+    populateRequest(request, page, pageSize, keys);
     return request.execute().getInput();
   }
 
-  private void populateRequest(@Nullable Integer page, @Nullable Integer pageSize, TestRequest request) {
+  private void populateRequest(TestRequest request, @Nullable Integer page, @Nullable Integer pageSize, String... keys) {
+    if (keys.length > 0) {
+      request.setParam("organizations", Joiner.on(',').join(Arrays.asList(keys)));
+    }
     if (page != null) {
       request.setParam("p", valueOf(page));
     }
