@@ -87,7 +87,8 @@ exports[`test should work with extensions 1`] = `
     <a
       className="dropdown-toggle navbar-admin-link"
       data-toggle="dropdown"
-      href="#">
+      href="#"
+      id="component-navigation-admin">
       layout.settings
        
       <i

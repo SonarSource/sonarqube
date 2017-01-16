@@ -25,7 +25,7 @@ it('should work with extensions', () => {
   const component = { key: 'foo' };
   const conf = {
     showSettings: true,
-    extensions: [{ id: 'foo', name: 'Foo' }]
+    extensions: [{ key: 'foo', name: 'Foo' }]
   };
   const wrapper = shallow(<ComponentNavMenu component={component} conf={conf}/>);
   expect(wrapper).toMatchSnapshot();

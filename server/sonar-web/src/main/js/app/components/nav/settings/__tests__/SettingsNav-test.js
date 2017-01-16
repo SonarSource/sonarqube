@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import SettingsNav from '../SettingsNav';
 
 it('should work with extensions', () => {
-  const extensions = [{ id: 'foo', name: 'Foo' }];
+  const extensions = [{ key: 'foo', name: 'Foo' }];
   const wrapper = shallow(<SettingsNav extensions={extensions}/>);
   expect(wrapper).toMatchSnapshot();
 });

@@ -22,7 +22,8 @@ exports[`test should work with extensions 1`] = `
           <a
             className="dropdown-toggle"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+            id="settings-navigation-configuration">
             sidebar.project_settings
              
             <i

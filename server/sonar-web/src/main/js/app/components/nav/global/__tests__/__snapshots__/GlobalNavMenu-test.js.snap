@@ -55,7 +55,8 @@ exports[`test should work with extensions 1`] = `
     <a
       className="dropdown-toggle"
       data-toggle="dropdown"
-      href="#">
+      href="#"
+      id="global-navigation-more">
       more
        
       <span
