@@ -1,6 +1,7 @@
 {
   "queue": [
     {
+      "organization": "my-org-1",
       "id": "AU_w84A6gAS1Hm6h4_ih",
       "type": "REPORT",
       "componentId": "AU_w74XMgAS1Hm6h4-Y-",
@@ -13,6 +14,7 @@
     }
   ],
   "current": {
+    "organization": "my-org-1",
     "id": "AU_w8LDjgAS1Hm6h4-aY",
     "type": "REPORT",
     "componentId": "AU_w74XMgAS1Hm6h4-Y-",

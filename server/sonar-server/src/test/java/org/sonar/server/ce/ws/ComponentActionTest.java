@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -79,7 +80,8 @@ public class ComponentActionTest {
 
   @Test
   public void project_tasks() {
-    componentDbTester.insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    componentDbTester.insertComponent(newProjectDto(organizationDto, "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -99,6 +101,10 @@ public class ComponentActionTest {
     // T3 is the latest task executed on PROJECT_1
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T3");
+    assertThat(response.getQueueList())
+      .extracting(WsCe.Task::getOrganization)
+      .containsOnly(organizationDto.getKey());
+    assertThat(response.getCurrent().getOrganization()).isEqualTo(organizationDto.getKey());
   }
 
   @Test
