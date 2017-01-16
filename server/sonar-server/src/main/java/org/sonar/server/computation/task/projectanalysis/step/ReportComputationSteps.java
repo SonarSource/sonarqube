@@ -100,13 +100,13 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     EnableAnalysisStep.class,
 
     UpdateQualityProfilesLastUsedDateStep.class,
-    IndexComponentsStep.class,
     PurgeDatastoresStep.class,
 
     // ES indexing is done after all db changes
     IndexIssuesStep.class,
     IndexTestsStep.class,
     IndexProjectMeasuresStep.class,
+    IndexComponentsStep.class,
 
     // notifications are sent at the end, so that webapp displays up-to-date information
     SendIssueNotificationsStep.class,
