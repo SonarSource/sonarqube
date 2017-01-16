@@ -128,6 +128,22 @@ exports[`test should work with extensions 1`] = `
           Foo
         </Link>
       </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/deletion",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }>
+          deletion.page
+        </Link>
+      </li>
     </ul>
   </li>
 </ul>

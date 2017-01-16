@@ -22,7 +22,10 @@ import { shallow } from 'enzyme';
 import ComponentNavMenu from '../ComponentNavMenu';
 
 it('should work with extensions', () => {
-  const component = { key: 'foo' };
+  const component = {
+    key: 'foo',
+    qualifier: 'TRK'
+  };
   const conf = {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }]
