@@ -29,28 +29,33 @@ export default Backbone.Model.extend({
   sync (method, model, options) {
     const opts = options || {};
     if (method === 'create') {
+      const data = pick(model.toJSON(), 'name', 'description');
+      if (options.organization) {
+        Object.assign(data, { organization: options.organization.key });
+      }
       defaults(opts, {
         url: this.urlRoot() + '/create',
         type: 'POST',
-        data: pick(model.toJSON(), 'name', 'description')
+        data
       });
     }
     if (method === 'update') {
-      const attrs = {
+      const data = {
         ...pick(model.changed, 'name', 'description'),
         id: model.id
       };
       defaults(opts, {
         url: this.urlRoot() + '/update',
         type: 'POST',
-        data: attrs
+        data
       });
     }
     if (method === 'delete') {
+      const data = { id: this.id };
       defaults(opts, {
         url: this.urlRoot() + '/delete',
         type: 'POST',
-        data: { id: this.id }
+        data
       });
     }
     return Backbone.ajax(opts);

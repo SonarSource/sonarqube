@@ -17,31 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Group from './group';
-import FormView from './form-view';
+// @flow
+import React from 'react';
+import { connect } from 'react-redux';
+import init from '../../groups/init';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
-export default FormView.extend({
+class OrganizationGroups extends React.Component {
+  props: {
+    organization: Organization
+  };
 
-  sendRequest () {
-    const that = this;
-    const group = new Group({
-      name: this.$('#create-group-name').val(),
-      description: this.$('#create-group-description').val()
-    });
-    this.disableForm();
-    return group.save(null, {
-      organization: this.collection.organization,
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      that.collection.refresh();
-      that.destroy();
-    }).fail(jqXHR => {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+  componentDidMount () {
+    init(this.refs.container, this.props.organization);
   }
+
+  render () {
+    return <div ref="container"/>;
+  }
+}
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
+export default connect(mapStateToProps)(OrganizationGroups);

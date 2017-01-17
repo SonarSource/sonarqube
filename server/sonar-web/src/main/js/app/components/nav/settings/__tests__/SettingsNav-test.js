@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import SettingsNav from '../SettingsNav';
+import { UnconnectedSettingsNav } from '../SettingsNav';
 
 it('should work with extensions', () => {
   const extensions = [{ key: 'foo', name: 'Foo' }];
-  const wrapper = shallow(<SettingsNav extensions={extensions}/>);
+  const wrapper = shallow(<UnconnectedSettingsNav extensions={extensions}/>);
   expect(wrapper).toMatchSnapshot();
 });

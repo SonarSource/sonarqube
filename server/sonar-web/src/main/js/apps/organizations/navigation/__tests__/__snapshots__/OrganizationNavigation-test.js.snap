@@ -45,6 +45,15 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                to="/organizations/foo/groups">
+                user_groups.page
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
                 to="/organizations/foo/edit">
                 edit
               </Link>
