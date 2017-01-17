@@ -28,7 +28,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
   public static final String INDEX_PROJECT_MEASURES = "projectmeasures";
 
-  public static final String TYPE_PROJECT_MEASURES = "projectmeasures";
+  public static final String TYPE_PROJECT_MEASURE = "projectmeasure";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
@@ -56,7 +56,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     index.configureShards(settings, 5);
 
     // type "projectmeasures"
-    NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURES);
+    NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURE);
     mapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();

@@ -36,14 +36,14 @@ import org.sonar.server.es.EsClient;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
 
   public ProjectMeasuresIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, FIELD_ANALYSED_AT);
+    super(system2, esClient, 300, INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, FIELD_ANALYSED_AT);
     this.dbClient = dbClient;
   }
 
@@ -58,7 +58,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   public void deleteProject(String uuid) {
     esClient
-      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, uuid)
+      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, uuid)
       .setRouting(uuid)
       .setRefresh(true)
       .get();
@@ -99,7 +99,7 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {
     String projectUuid = doc.getId();
-    return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, projectUuid)
+    return new IndexRequest(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, projectUuid)
       .routing(projectUuid)
       .parent(projectUuid)
       .source(doc.getFields());

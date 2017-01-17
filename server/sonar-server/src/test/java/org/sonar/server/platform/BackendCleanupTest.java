@@ -115,7 +115,7 @@ public class BackendCleanupTest {
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueDocTesting.newDoc());
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
     esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
-    esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, new ProjectMeasuresDoc()
+    esTester.putDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE, new ProjectMeasuresDoc()
       .setId("PROJECT")
       .setKey("Key")
       .setName("Name"));
@@ -128,7 +128,7 @@ public class BackendCleanupTest {
     assertThat(dbTester.countRowsOfTable("properties")).isZero();
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isZero();
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isZero();
-    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES)).isZero();
+    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE)).isZero();
     assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).isZero();
 
     // Rules should not be removed

@@ -55,7 +55,7 @@ import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndexTest {
 
@@ -873,7 +873,7 @@ public class ProjectMeasuresIndexTest {
 
   private void addDocs(@Nullable Long authorizeUser, @Nullable String authorizedGroup, ProjectMeasuresDoc... docs) {
     try {
-      es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, docs);
+      es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, docs);
       for (ProjectMeasuresDoc doc : docs) {
         authorizationIndexerTester.indexProjectPermission(doc.getId(),
           authorizedGroup != null ? singletonList(authorizedGroup) : emptyList(),

@@ -78,10 +78,10 @@ public class PermissionIndexer implements Startable {
   public void indexAllIfEmpty() {
     Future submit = executor.submit(() -> {
       if (isIndexEmpty(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION) ||
-        isIndexEmpty(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION) ||
+        isIndexEmpty(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION) ||
         isIndexEmpty(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)) {
         truncate(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
-        truncate(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
+        truncate(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
         truncate(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION);
         try (DbSession dbSession = dbClient.openSession(false)) {
           index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
@@ -129,7 +129,7 @@ public class PermissionIndexer implements Startable {
     }
     EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
     esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
-    esClient.prepareRefresh(ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES).get();
+    esClient.prepareRefresh(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES).get();
     esClient.prepareRefresh(ComponentIndexDefinition.INDEX_COMPONENTS).get();
   }
 

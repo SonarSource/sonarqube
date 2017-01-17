@@ -56,7 +56,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ComponentServiceUpdateKeyTest {
 
@@ -258,7 +258,7 @@ public class ComponentServiceUpdateKeyTest {
   private void assertProjectKeyExistsInIndex(String key) {
     SearchRequestBuilder request = es.client()
       .prepareSearch(INDEX_PROJECT_MEASURES)
-      .setTypes(TYPE_PROJECT_MEASURES)
+      .setTypes(TYPE_PROJECT_MEASURE)
       .setQuery(boolQuery().must(matchAllQuery()).filter(
         boolQuery().must(termQuery(ProjectMeasuresIndexDefinition.FIELD_KEY, key))));
     assertThat(request.get().getHits()).hasSize(1);

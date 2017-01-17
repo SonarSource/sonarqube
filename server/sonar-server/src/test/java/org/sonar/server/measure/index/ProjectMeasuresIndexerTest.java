@@ -45,7 +45,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndexerTest {
 
@@ -66,7 +66,7 @@ public class ProjectMeasuresIndexerTest {
   public void index_nothing() {
     underTest.index();
 
-    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isZero();
+    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isZero();
   }
 
   @Test
@@ -78,7 +78,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index();
 
-    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isEqualTo(3);
+    assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isEqualTo(3);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index();
 
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
   }
 
   @Test
@@ -99,13 +99,13 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index(project.uuid());
 
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
   }
 
   @Test
   public void update_existing_document_when_indexing_one_project() throws Exception {
     String uuid = "PROJECT-UUID";
-    esTester.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES, new ProjectMeasuresDoc()
+    esTester.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, new ProjectMeasuresDoc()
       .setId(uuid)
       .setKey("Old Key")
       .setName("Old Name")
@@ -115,10 +115,10 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.index(project.uuid());
 
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(uuid);
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(uuid);
     SearchRequestBuilder request = esTester.client()
       .prepareSearch(INDEX_PROJECT_MEASURES)
-      .setTypes(TYPE_PROJECT_MEASURES)
+      .setTypes(TYPE_PROJECT_MEASURE)
       .setQuery(boolQuery().must(matchAllQuery()).filter(
         boolQuery()
           .must(termQuery("_id", uuid))
@@ -144,7 +144,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.deleteProject(project1.uuid());
 
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project2.uuid(), project3.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project2.uuid(), project3.uuid());
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project2.uuid(), project3.uuid());
   }
 
@@ -157,7 +157,7 @@ public class ProjectMeasuresIndexerTest {
 
     underTest.deleteProject("UNKNOWN");
 
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(project.uuid());
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project.uuid());
   }
 }

@@ -73,7 +73,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 
@@ -314,7 +314,7 @@ public class SearchProjectsActionTest {
   private long insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
     componentDb.insertComponent(project);
     try {
-      es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES,
+      es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
         new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
       authorizationIndexerTester.indexProjectPermission(project.uuid(), singletonList(DefaultGroups.ANYONE), Collections.emptyList());
     } catch (Exception e) {

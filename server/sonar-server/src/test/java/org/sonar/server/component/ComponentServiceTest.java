@@ -63,7 +63,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ComponentServiceTest {
 
@@ -396,11 +396,11 @@ public class ComponentServiceTest {
   }
 
   private void assertProjectIsInIndex(String uuid) {
-    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).containsOnly(uuid);
+    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(uuid);
   }
 
   private void assertIndexIsEmpty() {
-    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURES)).isEmpty();
+    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isEmpty();
   }
 
 }

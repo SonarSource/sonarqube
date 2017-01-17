@@ -67,7 +67,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndex extends BaseIndex {
 
@@ -93,7 +93,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
     SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(INDEX_PROJECT_MEASURES)
-      .setTypes(TYPE_PROJECT_MEASURES)
+      .setTypes(TYPE_PROJECT_MEASURE)
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit())
