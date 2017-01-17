@@ -20,6 +20,7 @@
 // @flow
 import { combineReducers } from 'redux';
 import keyBy from 'lodash/keyBy';
+import omit from 'lodash/omit';
 
 export type Organization = {
   avatar: null | string,
@@ -42,7 +43,12 @@ type UpdateOrganizationAction = {
   changes: {}
 };
 
-type Action = ReceiveOrganizationsAction | UpdateOrganizationAction;
+type DeleteOrganizationAction = {
+  type: 'DELETE_ORGANIZATION',
+  key: string
+};
+
+type Action = ReceiveOrganizationsAction | UpdateOrganizationAction | DeleteOrganizationAction;
 
 type ByKeyState = {
   [key: string]: Organization
@@ -63,6 +69,11 @@ export const updateOrganization = (key: string, changes: {}): UpdateOrganization
   changes
 });
 
+export const deleteOrganization = (key: string): DeleteOrganizationAction => ({
+  type: 'DELETE_ORGANIZATION',
+  key
+});
+
 const byKey = (state: ByKeyState = {}, action: Action) => {
   switch (action.type) {
     case 'RECEIVE_ORGANIZATIONS':
@@ -76,6 +87,8 @@ const byKey = (state: ByKeyState = {}, action: Action) => {
           ...action.changes
         }
       };
+    case 'DELETE_ORGANIZATION':
+      return omit(state, action.key);
     default:
       return state;
   }

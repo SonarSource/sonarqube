@@ -1,0 +1,154 @@
+exports[`test smoke test 1`] = `
+<div
+  className="page page-limited">
+  <HelmetWrapper
+    title="organization.delete - Foo"
+    titleTemplate="%s - SonarQube" />
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.delete
+    </h1>
+    <div
+      className="page-description">
+      organization.delete.description
+    </div>
+  </header>
+  <div>
+    <button
+      className="button-red"
+      disabled={false}
+      onClick={[Function]}>
+      delete
+    </button>
+  </div>
+</div>
+`;
+
+exports[`test smoke test 2`] = `
+<div
+  className="page page-limited">
+  <HelmetWrapper
+    title="organization.delete - Foo"
+    titleTemplate="%s - SonarQube" />
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.delete
+    </h1>
+    <div
+      className="page-description">
+      organization.delete.description
+    </div>
+  </header>
+  <div>
+    <button
+      className="button-red"
+      disabled={true}
+      onClick={[Function]}>
+      delete
+    </button>
+    <Modal
+      ariaHideApp={true}
+      className="modal"
+      closeTimeoutMS={0}
+      contentLabel="modal form"
+      isOpen={true}
+      onRequestClose={[Function]}
+      overlayClassName="modal-overlay"
+      parentSelector={[Function]}
+      portalClassName="ReactModalPortal"
+      shouldCloseOnOverlayClick={true}>
+      <header
+        className="modal-head">
+        <h2>
+          organization.delete
+        </h2>
+      </header>
+      <form
+        onSubmit={[Function]}>
+        <div
+          className="modal-body">
+          organization.delete.question
+        </div>
+        <footer
+          className="modal-foot">
+          <div>
+            <button
+              className="button-red"
+              type="submit">
+              delete
+            </button>
+            <button
+              className="button-link"
+              onClick={[Function]}
+              type="reset">
+              cancel
+            </button>
+          </div>
+        </footer>
+      </form>
+    </Modal>
+  </div>
+</div>
+`;
+
+exports[`test smoke test 3`] = `
+<div
+  className="page page-limited">
+  <HelmetWrapper
+    title="organization.delete - Foo"
+    titleTemplate="%s - SonarQube" />
+  <header
+    className="page-header">
+    <h1
+      className="page-title">
+      organization.delete
+    </h1>
+    <div
+      className="page-description">
+      organization.delete.description
+    </div>
+  </header>
+  <div>
+    <button
+      className="button-red"
+      disabled={true}
+      onClick={[Function]}>
+      delete
+    </button>
+    <Modal
+      ariaHideApp={true}
+      className="modal"
+      closeTimeoutMS={0}
+      contentLabel="modal form"
+      isOpen={true}
+      onRequestClose={[Function]}
+      overlayClassName="modal-overlay"
+      parentSelector={[Function]}
+      portalClassName="ReactModalPortal"
+      shouldCloseOnOverlayClick={true}>
+      <header
+        className="modal-head">
+        <h2>
+          organization.delete
+        </h2>
+      </header>
+      <form
+        onSubmit={[Function]}>
+        <div
+          className="modal-body">
+          organization.delete.question
+        </div>
+        <footer
+          className="modal-foot">
+          <i
+            className="spinner" />
+        </footer>
+      </form>
+    </Modal>
+  </div>
+</div>
+`;

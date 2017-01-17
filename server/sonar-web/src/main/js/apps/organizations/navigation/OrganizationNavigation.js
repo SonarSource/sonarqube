@@ -23,7 +23,8 @@ import { Link, IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 const ADMIN_PATHS = [
-  'edit'
+  'edit',
+  'delete'
 ];
 
 export default class OrganizationNavigation extends React.Component {
@@ -52,6 +53,11 @@ export default class OrganizationNavigation extends React.Component {
             <li>
               <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
                 {translate('edit')}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
+                {translate('delete')}
               </Link>
             </li>
           </ul>
