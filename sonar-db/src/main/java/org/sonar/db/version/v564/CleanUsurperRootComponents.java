@@ -20,7 +20,9 @@
 package org.sonar.db.version.v564;
 
 import java.sql.SQLException;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 
@@ -40,15 +42,15 @@ public class CleanUsurperRootComponents extends BaseDataChange {
     cleanSnapshotWithIncorrectRoot(context);
   }
 
-  private static void fixSnapshotScopeAndQualifier(Context context) throws SQLException {
+  private void fixSnapshotScopeAndQualifier(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select" +
+    massUpdate.select(fixSqlConditions("select" +
       " sn.id,p.scope,p.qualifier" +
       " from" +
       " snapshots sn, projects p" +
       " where" +
       " p.id = sn.project_id" +
-      " and (p.qualifier<>sn.qualifier or p.scope<>sn.scope)");
+      " and (p.qualifier %s <> sn.qualifier %s or p.scope %s <> sn.scope %s)"));
     massUpdate.update("update snapshots set scope=?,qualifier=? where id=?");
     massUpdate.rowPluralName("snapshots with inconsistent scope or qualifier");
     massUpdate.execute((row, update) -> {
@@ -64,15 +66,26 @@ public class CleanUsurperRootComponents extends BaseDataChange {
     });
   }
 
-  private static void cleanUsurperRootComponents(Context context) throws SQLException {
+  /**
+   * Replace placeholders {@code "%s"} so that comparisons of VARCHAR columns
+   * do not fail on MsSQL when column collations are different.
+   */
+  private String fixSqlConditions(String sql) {
+    if (MsSql.ID.equals(getDb().getDialect().getId())) {
+      return StringUtils.replace(sql, "%s", "collate database_default");
+    }
+    return StringUtils.replace(sql, "%s", "");
+  }
+
+  private void cleanUsurperRootComponents(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select p.id,p.uuid from projects p " +
+    massUpdate.select(fixSqlConditions("select p.id,p.uuid from projects p " +
       " where" +
-      " p.project_uuid = p.uuid" +
+      " p.project_uuid %s = p.uuid %s" +
       " and not (" +
       " p.scope = 'PRJ'" +
       " and p.qualifier in ('TRK', 'VW', 'DEV')" +
-      " )");
+      " )"));
     massUpdate.update("delete from duplications_index where snapshot_id in (select id from snapshots where project_id=?)");
     massUpdate.update("delete from project_measures where project_id=?");
     massUpdate.update("delete from ce_activity where component_uuid=?");
