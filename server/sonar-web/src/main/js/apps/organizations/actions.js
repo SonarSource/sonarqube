@@ -28,8 +28,6 @@ export const fetchOrganization = (key: string): void => (dispatch: Function): Pr
   const onFulfilled = (organization: null | {}) => {
     if (organization) {
       dispatch(actions.receiveOrganizations([organization]));
-    } else {
-      onFail(dispatch)();
     }
   };
 
@@ -43,4 +41,13 @@ export const updateOrganization = (key: string, changes: {}): void => (dispatch:
   };
 
   return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
+};
+
+export const deleteOrganization = (key: string): void => (dispatch: Function): Promise<*> => {
+  const onFulfilled = () => {
+    dispatch(actions.deleteOrganization(key));
+    dispatch(addGlobalSuccessMessage(translate('organization.deleted')));
+  };
+
+  return api.deleteOrganization(key).then(onFulfilled, onFail(dispatch));
 };

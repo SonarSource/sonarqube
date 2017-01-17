@@ -21,9 +21,11 @@ import React from 'react';
 import { Route } from 'react-router';
 import OrganizationPage from './components/OrganizationPage';
 import OrganizationEdit from './components/OrganizationEdit';
+import OrganizationDelete from './components/OrganizationDelete';
 
 export default (
     <Route path=":organizationKey" component={OrganizationPage}>
       <Route path="edit" component={OrganizationEdit}/>
+      <Route path="delete" component={OrganizationDelete}/>
     </Route>
 );

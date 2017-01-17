@@ -24,6 +24,7 @@ import OrganizationNavigation from '../navigation/OrganizationNavigation';
 import { fetchOrganization } from '../actions';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
+import NotFound from '../../../app/components/NotFound';
 
 type OwnProps = {
   params: { organizationKey: string }
@@ -33,23 +34,40 @@ class OrganizationPage extends React.Component {
   props: {
     organization: null | Organization,
     params: { organizationKey: string },
-    fetchOrganization: (string) => void
+    fetchOrganization: (string) => Promise<*>
+  };
+
+  state = {
+    loading: true
   };
 
   componentDidMount () {
-    this.props.fetchOrganization(this.props.params.organizationKey);
+    this.mounted = true;
+    this.props.fetchOrganization(this.props.params.organizationKey).then(() => {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    });
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
   }
 
   render () {
     const { organization } = this.props;
 
     if (!organization) {
-      return null;
+      if (this.state.loading) {
+        return null;
+      } else {
+        return <NotFound/>;
+      }
     }
 
     return (
         <div>
-          <OrganizationNavigation organization={organization}/>
+          <OrganizationNavigation organization={organization} location={this.props.location}/>
           {this.props.children}
         </div>
     );

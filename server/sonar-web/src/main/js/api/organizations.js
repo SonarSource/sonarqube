@@ -40,3 +40,7 @@ export const getOrganization = (key: string): GetOrganizationType => {
 export const updateOrganization = (key: string, changes: {}) => (
     post('/api/organizations/update', { key, ...changes })
 );
+
+export const deleteOrganization = (key: string) => (
+    post('/api/organizations/delete', { key })
+);

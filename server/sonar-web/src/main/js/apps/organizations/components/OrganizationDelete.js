@@ -1,0 +1,125 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+// @flow
+import React from 'react';
+import Modal from 'react-modal';
+import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { translate } from '../../../helpers/l10n';
+import type { Organization } from '../../../store/organizations/duck';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import { deleteOrganization } from '../actions';
+
+class OrganizationEdit extends React.Component {
+  props: {
+    organization: Organization,
+    deleteOrganization: (string) => Promise<*>
+  };
+
+  state = {
+    deleting: false,
+    loading: false
+  };
+
+  handleSubmit = (e: Object) => {
+    e.preventDefault();
+    this.setState({ loading: true });
+    this.props.deleteOrganization(this.props.organization.key).then(() => {
+      this.props.router.replace('/');
+    });
+  };
+
+  handleOpenModal = () => {
+    this.setState({ deleting: true });
+  };
+
+  handleCloseModal = () => {
+    this.setState({ deleting: false });
+  };
+
+  renderModal () {
+    return (
+        <Modal isOpen={true}
+               contentLabel="modal form"
+               className="modal"
+               overlayClassName="modal-overlay"
+               onRequestClose={this.handleCloseModal}>
+
+          <header className="modal-head">
+            <h2>{translate('organization.delete')}</h2>
+          </header>
+
+          <form onSubmit={this.handleSubmit}>
+            <div className="modal-body">
+              {translate('organization.delete.question')}
+            </div>
+
+            <footer className="modal-foot">
+              {this.state.loading ? (
+                      <i className="spinner"/>
+                  ) : (
+                      <div>
+                        <button type="submit" className="button-red">{translate('delete')}</button>
+                        <button type="reset" className="button-link" onClick={this.handleCloseModal}>
+                          {translate('cancel')}
+                        </button>
+                      </div>
+                  )}
+            </footer>
+          </form>
+
+        </Modal>
+    );
+  }
+
+  render () {
+    return (
+        <div className="page page-limited">
+          <Helmet
+              title={`${translate('organization.delete')} - ${this.props.organization.name}`}
+              titleTemplate="%s - SonarQube"/>
+
+          <header className="page-header">
+            <h1 className="page-title">{translate('organization.delete')}</h1>
+            <div className="page-description">{translate('organization.delete.description')}</div>
+          </header>
+
+          <div>
+            <button
+                className="button-red"
+                disabled={this.state.loading || this.state.deleting}
+                onClick={this.handleOpenModal}>
+              {translate('delete')}
+            </button>
+            {this.state.deleting && this.renderModal()}
+          </div>
+        </div>
+    );
+  }
+}
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
+});
+
+const mapDispatchToProps = { deleteOrganization };
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(OrganizationEdit));

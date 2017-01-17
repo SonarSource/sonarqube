@@ -23,15 +23,22 @@ import { Link, IndexLink } from 'react-router';
 import type { Organization } from '../../../store/organizations/duck';
 import { translate } from '../../../helpers/l10n';
 
+const ADMIN_PATHS = [
+  'edit',
+  'delete'
+];
+
 export default class OrganizationNavigation extends React.Component {
   props: {
     organization: Organization
   };
 
   render () {
-    const { organization } = this.props;
+    const { organization, location } = this.props;
 
-    const adminActive = window.location.pathname.endsWith(`organization/${organization.key}/edit`);
+    const adminActive = ADMIN_PATHS.some(path =>
+        location.pathname.endsWith(`organizations/${organization.key}/${path}`)
+    );
 
     return (
         <nav className="navbar navbar-context page-container" id="context-navigation">
@@ -39,7 +46,7 @@ export default class OrganizationNavigation extends React.Component {
             <div className="container">
               <ul className="nav navbar-nav nav-crumbs">
                 <li>
-                  <Link to={`/organizations/${organization.key}`} className={adminActive ? 'active': ''}>
+                  <Link to={`/organizations/${organization.key}`}>
                     {organization.name}
                   </Link>
                 </li>
@@ -51,7 +58,7 @@ export default class OrganizationNavigation extends React.Component {
                     <i className="icon-home"/>
                   </IndexLink>
                 </li>
-                <li>
+                <li className={adminActive ? 'active': ''}>
                   <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
                     {translate('layout.settings')}&nbsp;<i className="icon-dropdown"/>
                   </a>
@@ -59,6 +66,11 @@ export default class OrganizationNavigation extends React.Component {
                     <li>
                       <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
                         {translate('edit')}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/organizations/${organization.key}/delete`} activeClassName="active">
+                        {translate('delete')}
                       </Link>
                     </li>
                   </ul>
