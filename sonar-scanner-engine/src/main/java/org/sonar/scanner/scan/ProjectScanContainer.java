@@ -22,17 +22,17 @@ package org.sonar.scanner.scan;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.DefaultProjectTree;
-import org.sonar.scanner.ProjectConfigurator;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -45,7 +45,6 @@ import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.DefaultIssueCallback;
 import org.sonar.scanner.issue.DefaultProjectIssues;
@@ -86,7 +85,8 @@ import org.sonar.scanner.rule.DefaultActiveRulesLoader;
 import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
@@ -133,14 +133,12 @@ public class ProjectScanContainer extends ComponentContainer {
       EventBus.class,
       PhasesTimeProfiler.class,
       ResourceTypes.class,
-      DefaultProjectTree.class,
       ProjectReactorValidator.class,
       CodeColorizers.class,
       MetricProvider.class,
-      ProjectConfigurator.class,
+      ProjectAnalysisInfo.class,
       DefaultIndex.class,
       Storages.class,
-      BatchComponentCache.class,
       DefaultIssueCallback.class,
       new RulesProvider(),
       new ProjectRepositoriesProvider(),
@@ -149,8 +147,11 @@ public class ProjectScanContainer extends ComponentContainer {
       new AnalysisTempFolderProvider(),
 
       // file system
-      InputPathCache.class,
+      InputComponentStore.class,
       PathResolver.class,
+      DefaultInputModuleHierarchy.class,
+      DefaultComponentTree.class,
+      BatchIdGenerator.class,
 
       // rules
       new ActiveRulesProvider(),
@@ -228,22 +229,22 @@ public class ProjectScanContainer extends ComponentContainer {
     DefaultAnalysisMode analysisMode = getComponentByType(DefaultAnalysisMode.class);
     analysisMode.printMode();
     LOG.debug("Start recursive analysis of project modules");
-    DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);
-    scanRecursively(tree.getRootProject());
+    InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
+    scanRecursively(tree, tree.root());
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }
   }
 
-  private void scanRecursively(Project module) {
-    for (Project subModules : module.getModules()) {
-      scanRecursively(subModules);
+  private void scanRecursively(InputModuleHierarchy tree, DefaultInputModule module) {
+    for (DefaultInputModule child : tree.children(module)) {
+      scanRecursively(tree, child);
     }
     scan(module);
   }
 
   @VisibleForTesting
-  void scan(Project module) {
+  void scan(DefaultInputModule module) {
     new ModuleScanContainer(this, module).execute();
   }
 

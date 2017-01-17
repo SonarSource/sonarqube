@@ -38,12 +38,10 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
@@ -71,7 +69,6 @@ public class DefaultSensorStorageTest {
   private ModuleIssues moduleIssues;
   private MeasureCache measureCache;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
-  private BatchComponentCache componentCache;
 
   @Before
   public void prepare() throws Exception {
@@ -83,11 +80,10 @@ public class DefaultSensorStorageTest {
     measureCache = mock(MeasureCache.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.isExcluded(any(InputFile.class))).thenReturn(false);
-    componentCache = new BatchComponentCache();
     ReportPublisher reportPublisher = mock(ReportPublisher.class);
     when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, coverageExclusions, componentCache, reportPublisher, measureCache,
+      moduleIssues, settings, coverageExclusions, reportPublisher, measureCache,
       mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics());
   }
 
@@ -110,7 +106,6 @@ public class DefaultSensorStorageTest {
 
     ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
     Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    componentCache.add(sonarFile, null).setInputComponent(file);
     when(measureCache.put(eq(file.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);
     underTest.store(new DefaultMeasure()
       .on(file)
@@ -126,7 +121,6 @@ public class DefaultSensorStorageTest {
   public void shouldSaveProjectMeasureToSensorContext() {
     String projectKey = "myProject";
     DefaultInputModule module = new DefaultInputModule(projectKey);
-    componentCache.add(new Project(projectKey), null).setInputComponent(module);
 
     ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
     when(measureCache.put(eq(module.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);
@@ -143,10 +137,8 @@ public class DefaultSensorStorageTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void duplicateHighlighting() throws Exception {
-    Resource sonarFile = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
     InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
       .setModuleBaseDir(temp.newFolder().toPath()).build();
-    componentCache.add(sonarFile, null).setInputComponent(inputFile);
     DefaultHighlighting h = new DefaultHighlighting(null)
       .onFile(inputFile);
     underTest.store(h);
@@ -155,10 +147,8 @@ public class DefaultSensorStorageTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void duplicateSymbolTable() throws Exception {
-    Resource sonarFile = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
     InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.java")
       .setModuleBaseDir(temp.newFolder().toPath()).build();
-    componentCache.add(sonarFile, null).setInputComponent(inputFile);
     DefaultSymbolTable st = new DefaultSymbolTable(null)
       .onFile(inputFile);
     underTest.store(st);

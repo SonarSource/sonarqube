@@ -30,22 +30,21 @@ import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class DefaultPostJobContext implements PostJobContext {
 
   private final Settings settings;
   private final IssueCache cache;
-  private final BatchComponentCache resourceCache;
   private final AnalysisMode analysisMode;
+  private InputComponentStore inputComponentCache;
 
-  public DefaultPostJobContext(Settings settings, IssueCache cache, BatchComponentCache resourceCache, AnalysisMode analysisMode) {
+  public DefaultPostJobContext(Settings settings, IssueCache cache, InputComponentStore inputComponentCache, AnalysisMode analysisMode) {
     this.settings = settings;
     this.cache = cache;
-    this.resourceCache = resourceCache;
+    this.inputComponentCache = inputComponentCache;
     this.analysisMode = analysisMode;
   }
 
@@ -100,8 +99,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public InputComponent inputComponent() {
-      BatchComponent component = resourceCache.get(wrapped.componentKey());
-      return component != null ? component.inputComponent() : null;
+      return inputComponentCache.getByKey(wrapped.componentKey());
     }
 
     @Override

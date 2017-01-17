@@ -33,7 +33,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,14 +46,14 @@ public class ConsoleReportTest {
 
   private Settings settings;
   private IssueCache issueCache;
-  private InputPathCache inputPathCache;
+  private InputComponentStore inputPathCache;
   private ConsoleReport report;
 
   @Before
   public void prepare() {
     settings = new MapSettings();
     issueCache = mock(IssueCache.class);
-    inputPathCache = mock(InputPathCache.class);
+    inputPathCache = mock(InputComponentStore.class);
     report = new ConsoleReport(settings, issueCache, inputPathCache);
   }
 

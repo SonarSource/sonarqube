@@ -24,8 +24,11 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.StreamSupport;
+
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -34,8 +37,6 @@ import org.sonar.api.test.TestCase.Status;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.BoolValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
@@ -43,6 +44,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Measure.IntValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.LongValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
@@ -66,12 +68,12 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache componentCache;
+  private final InputComponentStore componentCache;
   private final MeasureCache measureCache;
   private final TestPlanBuilder testPlanBuilder;
 
-  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, TestPlanBuilder testPlanBuilder) {
-    this.componentCache = resourceCache;
+  public MeasuresPublisher(InputComponentStore componentCache, MeasureCache measureCache, TestPlanBuilder testPlanBuilder) {
+    this.componentCache = componentCache;
     this.measureCache = measureCache;
     this.testPlanBuilder = testPlanBuilder;
   }
@@ -80,7 +82,8 @@ public class MeasuresPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     final ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
 
-    for (final BatchComponent component : componentCache.all()) {
+    for (final InputComponent c : componentCache.all()) {
+      DefaultInputComponent component = (DefaultInputComponent) c;
       // Recompute all coverage measures from line data to take into account the possible merge of several reports
       updateCoverageFromLineData(component);
       // Recompute test execution measures from MutableTestPlan to take into account the possible merge of several reports
@@ -119,8 +122,8 @@ public class MeasuresPublisher implements ReportPublisherStep {
     }
   }
 
-  private void updateTestExecutionFromTestPlan(final BatchComponent component) {
-    final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component.inputComponent());
+  private void updateTestExecutionFromTestPlan(final InputComponent component) {
+    final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component);
     if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
       return;
     }
@@ -136,8 +139,8 @@ public class MeasuresPublisher implements ReportPublisherStep {
     measureCache.put(component.key(), TEST_FAILURES_KEY, new DefaultMeasure<Integer>().forMetric(TEST_FAILURES).withValue((int) failedTests));
   }
 
-  private void updateCoverageFromLineData(final BatchComponent component) {
-    if (!component.isFile() || ((InputFile) component.inputComponent()).type() != Type.MAIN) {
+  private void updateCoverageFromLineData(final InputComponent component) {
+    if (!component.isFile() || ((InputFile) component).type() != Type.MAIN) {
       return;
     }
     DefaultMeasure<String> lineHitsMeasure = (DefaultMeasure<String>) measureCache.byMetric(component.key(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);

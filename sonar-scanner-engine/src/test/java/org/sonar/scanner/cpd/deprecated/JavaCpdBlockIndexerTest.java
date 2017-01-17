@@ -40,7 +40,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponentCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -72,8 +71,6 @@ public class JavaCpdBlockIndexerTest {
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     file = new TestInputFileBuilder("foo", "src/ManyStatements.java").setLanguage(JAVA).build();
     fs.add(file);
-    BatchComponentCache batchComponentCache = new BatchComponentCache();
-    batchComponentCache.add(org.sonar.api.resources.File.create("src/Foo.java").setEffectiveKey("foo:src/ManyStatements.java"), null).setInputComponent(file);
     File ioFile = file.file();
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);
 

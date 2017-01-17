@@ -31,11 +31,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;
@@ -44,13 +44,12 @@ import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +60,6 @@ public class CpdExecutorTest {
   private Settings settings;
   private SonarCpdBlockIndex index;
   private ReportPublisher publisher;
-  private BatchComponentCache componentCache;
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -73,10 +71,11 @@ public class CpdExecutorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ScannerReportReader reader;
-  private BatchComponent batchComponent1;
-  private BatchComponent batchComponent2;
-  private BatchComponent batchComponent3;
+  private DefaultInputFile batchComponent1;
+  private DefaultInputFile batchComponent2;
+  private DefaultInputFile batchComponent3;
   private File baseDir;
+  private InputComponentStore componentStore;
 
   @Before
   public void setUp() throws IOException {
@@ -86,26 +85,25 @@ public class CpdExecutorTest {
     settings = new MapSettings();
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
-    componentCache = new BatchComponentCache();
-    index = new SonarCpdBlockIndex(publisher, componentCache, settings);
-    executor = new CpdExecutor(settings, index, publisher, componentCache);
+    index = new SonarCpdBlockIndex(publisher, settings);
+    componentStore = new InputComponentStore();
+    executor = new CpdExecutor(settings, index, publisher, componentStore);
     reader = new ScannerReportReader(outputDir);
 
-    Project p = new Project("foo");
-    componentCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
+    componentStore.put(new DefaultInputModule("foo"));
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);
     batchComponent3 = createComponent("src/Foo3.php", 5);
   }
 
-  private BatchComponent createComponent(String relativePath, int lines) {
-    org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("relativePath").setEffectiveKey("foo:" + relativePath);
-    return componentCache.add(sampleFile, null)
-      .setInputComponent(new TestInputFileBuilder("foo", relativePath)
-        .setModuleBaseDir(baseDir.toPath())
-        .setLines(lines)
-        .build());
+  private DefaultInputFile createComponent(String relativePath, int lines) {
+    DefaultInputFile file = new TestInputFileBuilder("foo", relativePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setLines(lines)
+      .build();
+    componentStore.put(file);
+    return file;
   }
 
   @Test
@@ -163,7 +161,7 @@ public class CpdExecutorTest {
     assertThat(dups[0].getDuplicateList()).hasSize(CpdExecutor.MAX_CLONE_PART_PER_GROUP);
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Too many duplication references on file " + batchComponent1.inputComponent() + " for block at line 0. Keep only the first "
+      .contains("Too many duplication references on file " + batchComponent1 + " for block at line 0. Keep only the first "
         + CpdExecutor.MAX_CLONE_PART_PER_GROUP + " references.");
   }
 
@@ -181,7 +179,7 @@ public class CpdExecutorTest {
     assertThat(reader.readComponentDuplications(batchComponent1.batchId())).hasSize(CpdExecutor.MAX_CLONE_GROUP_PER_FILE);
 
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .contains("Too many duplication groups on file " + batchComponent1.inputComponent() + ". Keep only the first " + CpdExecutor.MAX_CLONE_GROUP_PER_FILE + " groups.");
+      .contains("Too many duplication groups on file " + batchComponent1 + ". Keep only the first " + CpdExecutor.MAX_CLONE_GROUP_PER_FILE + " groups.");
   }
 
   @Test
@@ -218,7 +216,7 @@ public class CpdExecutorTest {
   @Test
   public void timeout() {
     for (int i = 1; i <= 2; i++) {
-      BatchComponent component = createComponent("src/Foo" + i + ".php", 100);
+      DefaultInputFile component = createComponent("src/Foo" + i + ".php", 100);
       List<Block> blocks = new ArrayList<>();
       for (int j = 1; j <= 10000; j++) {
         blocks.add(Block.builder()
@@ -229,7 +227,7 @@ public class CpdExecutorTest {
           .setBlockHash(new ByteArray("abcd1234".getBytes()))
           .build());
       }
-      index.insert((InputFile) component.inputComponent(), blocks);
+      index.insert((InputFile) component, blocks);
     }
     executor.execute(1);
 

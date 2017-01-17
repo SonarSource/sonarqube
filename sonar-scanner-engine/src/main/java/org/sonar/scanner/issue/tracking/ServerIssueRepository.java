@@ -22,16 +22,17 @@ package org.sonar.scanner.issue.tracking;
 import com.google.common.base.Function;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.ServerIssuesLoader;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storages;
 
@@ -46,9 +47,9 @@ public class ServerIssueRepository {
   private Storage<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
   private final ImmutableProjectReactor reactor;
-  private final BatchComponentCache resourceCache;
+  private final InputComponentStore resourceCache;
 
-  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, BatchComponentCache resourceCache) {
+  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, InputComponentStore resourceCache) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.reactor = reactor;
@@ -63,8 +64,8 @@ public class ServerIssueRepository {
     profiler.stopInfo();
   }
 
-  public Iterable<ServerIssue> byComponent(BatchComponent component) {
-    return issuesCache.values(component.batchId());
+  public Iterable<ServerIssue> byComponent(InputComponent component) {
+    return issuesCache.values(((DefaultInputComponent) component).batchId());
   }
 
   private class SaveIssueConsumer implements Function<ServerIssue, Void> {
@@ -75,7 +76,7 @@ public class ServerIssueRepository {
         return null;
       }
       String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
-      BatchComponent r = resourceCache.get(componentKey);
+      DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKey);
       if (r == null) {
         // Deleted resource
         issuesCache.put(0, issue.getKey(), issue);

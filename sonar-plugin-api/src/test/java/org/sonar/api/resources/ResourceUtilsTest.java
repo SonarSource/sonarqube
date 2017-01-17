@@ -65,7 +65,6 @@ public class ResourceUtilsTest {
   public void shouldBePersistable() {
     assertThat(ResourceUtils.isPersistable(File.create("Foo.java"))).isTrue();
     assertThat(ResourceUtils.isPersistable(Directory.create("bar/Foo.java"))).isTrue();
-    assertThat(ResourceUtils.isPersistable(new Project("foo"))).isTrue();
   }
 
   @Test

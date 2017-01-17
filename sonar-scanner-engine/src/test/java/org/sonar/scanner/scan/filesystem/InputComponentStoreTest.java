@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -29,30 +27,21 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InputPathCacheTest {
-
+public class InputComponentStoreTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Before
-  public void start() {
-  }
-
-  @After
-  public void stop() {
-  }
-
   @Test
   public void should_add_input_file() throws Exception {
-    InputPathCache cache = new InputPathCache();
-    DefaultInputFile fooFile = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath()).build();
-    cache.put("struts", fooFile);
-    cache.put("struts-core", new TestInputFileBuilder("foo", "src/main/java/Bar.java")
+    InputComponentStore cache = new InputComponentStore();
+    DefaultInputFile fooFile = new TestInputFileBuilder("struts", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath()).build();
+    cache.put(fooFile);
+    cache.put(new TestInputFileBuilder("struts-core", "src/main/java/Bar.java")
       .setLanguage("bla")
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
@@ -72,7 +61,7 @@ public class InputPathCacheTest {
       assertThat(inputPath.relativePath()).startsWith("src/main/java/");
     }
 
-    cache.remove("struts", fooFile);
+    cache.remove(fooFile);
     assertThat(cache.allFiles()).hasSize(1);
 
     cache.removeModule("struts");

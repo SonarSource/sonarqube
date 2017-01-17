@@ -81,6 +81,7 @@ public class FileSystemMediumTest {
   public void scanProjectWithoutProjectName() throws IOException {
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
+      .put("sonar.verbose", "true")
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
       .put("sonar.projectKey", "com.foo.project")
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
@@ -200,6 +201,7 @@ public class FileSystemMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(4);
+    assertThat(result.inputDirs()).hasSize(3);
   }
 
   @Test

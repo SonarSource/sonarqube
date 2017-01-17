@@ -42,6 +42,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Metadata metadata;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Function<DefaultInputFile, Metadata> metadataGenerator) {
+    super(indexedFile.batchId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;
