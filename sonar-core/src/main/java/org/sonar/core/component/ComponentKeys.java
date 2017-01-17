@@ -52,17 +52,16 @@ public final class ComponentKeys {
   /**
    * @return the full key of a component, based on its parent projects' key and own key
    */
-  public static String createEffectiveKey(Project project, Resource resource) {
-    String key = resource.getKey();
+  public static String createEffectiveKey(String moduleKey, Resource resource) {
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
-      key = new StringBuilder(MAX_COMPONENT_KEY_LENGTH)
-        .append(project.getKey())
+      return new StringBuilder(MAX_COMPONENT_KEY_LENGTH)
+        .append(moduleKey)
         .append(':')
         .append(resource.getKey())
         .toString();
     }
-    return key;
+    return resource.getKey();
   }
 
   public static String createEffectiveKey(String moduleKey, InputPath inputPath) {

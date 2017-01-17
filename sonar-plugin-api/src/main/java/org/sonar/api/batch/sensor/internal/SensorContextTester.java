@@ -35,6 +35,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -335,5 +336,10 @@ public class SensorContextTester implements SensorContext {
    */
   public Map<String, String> getContextProperties() {
     return ImmutableMap.copyOf(sensorStorage.contextProperties);
+  }
+
+  @Override
+  public void markForPublishing(InputFile inputFile) {
+    
   }
 }

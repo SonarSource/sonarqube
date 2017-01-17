@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 public class IssuesReport {
@@ -36,7 +37,7 @@ public class IssuesReport {
   private Date date;
   private boolean noFile;
   private final ReportSummary summary = new ReportSummary();
-  private final Map<BatchComponent, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
+  private final Map<InputComponent, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
 
   public ReportSummary getSummary() {
     return summary;
@@ -66,7 +67,7 @@ public class IssuesReport {
     this.noFile = noFile;
   }
 
-  public Map<BatchComponent, ResourceReport> getResourceReportsByResource() {
+  public Map<InputComponent, ResourceReport> getResourceReportsByResource() {
     return resourceReportsByResource;
   }
 
@@ -74,25 +75,25 @@ public class IssuesReport {
     return new ArrayList<>(resourceReportsByResource.values());
   }
 
-  public List<BatchComponent> getResourcesWithReport() {
+  public List<InputComponent> getResourcesWithReport() {
     return new ArrayList<>(resourceReportsByResource.keySet());
   }
 
-  public void addIssueOnResource(BatchComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
+  public void addIssueOnResource(InputComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addIssue(issue, rule, severity);
     resourceReportsByResource.get(resource).addIssue(issue, rule, severity);
   }
 
-  public void addResolvedIssueOnResource(BatchComponent resource, Rule rule, RulePriority severity) {
+  public void addResolvedIssueOnResource(InputComponent resource, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addResolvedIssue(rule, severity);
     resourceReportsByResource.get(resource).addResolvedIssue(rule, severity);
   }
 
-  private void addResource(BatchComponent resource) {
-    if (!resourceReportsByResource.containsKey(resource)) {
-      resourceReportsByResource.put(resource, new ResourceReport(resource));
+  private void addResource(InputComponent componnet) {
+    if (!resourceReportsByResource.containsKey(componnet)) {
+      resourceReportsByResource.put(componnet, new ResourceReport(componnet));
     }
   }
 

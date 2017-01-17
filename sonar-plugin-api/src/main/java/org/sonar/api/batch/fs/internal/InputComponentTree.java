@@ -19,42 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputModule;
+import java.util.Collection;
 
-/**
- * @since 5.2
- */
-public class DefaultInputModule extends DefaultInputComponent implements InputModule {
+import org.sonar.api.batch.fs.InputComponent;
 
-  private final String moduleKey;
-  private final ProjectDefinition definition;
+public interface InputComponentTree {
+  public Collection<InputComponent> getChildren(InputComponent module);
 
-  public DefaultInputModule(String moduleKey) {
-    this(ProjectDefinition.create().setKey(moduleKey), TestInputFileBuilder.batchId++);
-  }
-
-  public DefaultInputModule(ProjectDefinition definition, int batchId) {
-    super(batchId);
-    this.definition = definition;
-    this.moduleKey = definition.getKey();
-  }
-
-  /**
-   * Module key without branch
-   */
-  @Override
-  public String key() {
-    return moduleKey;
-  }
-
-  @Override
-  public boolean isFile() {
-    return false;
-  }
-
-  public ProjectDefinition definition() {
-    return definition;
-  }
-
+  public InputComponent getParent(InputComponent module);
 }

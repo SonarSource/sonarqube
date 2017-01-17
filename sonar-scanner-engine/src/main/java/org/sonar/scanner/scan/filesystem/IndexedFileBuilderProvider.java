@@ -26,8 +26,9 @@ import org.sonar.api.scan.filesystem.PathResolver;
 
 public class IndexedFileBuilderProvider extends ProviderAdapter {
 
-  public IndexedFileBuilder provide(ProjectDefinition def, PathResolver pathResolver, Settings settings, LanguageDetectionFactory langDetectionFactory) {
-    return new IndexedFileBuilder(def.getKeyWithBranch(), pathResolver, settings, langDetectionFactory.create());
+  public IndexedFileBuilder provide(ProjectDefinition def, PathResolver pathResolver, Settings settings,
+    LanguageDetectionFactory langDetectionFactory, BatchIdGenerator idGenerator) {
+    return new IndexedFileBuilder(def.getKey(), pathResolver, settings, langDetectionFactory.create(), idGenerator);
   }
 
 }

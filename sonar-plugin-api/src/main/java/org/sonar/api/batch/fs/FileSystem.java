@@ -163,5 +163,7 @@ public interface FileSystem {
 
     @CheckForNull
     InputDir inputDir(String relativePath);
+    
+    InputModule module();
   }
 }

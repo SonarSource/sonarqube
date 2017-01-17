@@ -31,12 +31,11 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.util.ProgressReport;
@@ -50,15 +49,13 @@ class DefaultBlameOutput implements BlameOutput {
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final ScannerReportWriter writer;
-  private final BatchComponentCache componentCache;
   private final Set<InputFile> allFilesToBlame = new HashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(ScannerReportWriter writer, BatchComponentCache componentCache, List<InputFile> filesToBlame) {
+  DefaultBlameOutput(ScannerReportWriter writer, List<InputFile> filesToBlame) {
     this.writer = writer;
-    this.componentCache = componentCache;
     this.allFilesToBlame.addAll(filesToBlame);
     count = 0;
     total = filesToBlame.size();
@@ -77,9 +74,9 @@ class DefaultBlameOutput implements BlameOutput {
       return;
     }
 
-    BatchComponent batchComponent = componentCache.get(file);
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
-    scmBuilder.setComponentRef(batchComponent.batchId());
+    DefaultInputFile inputFile = (DefaultInputFile) file;
+    scmBuilder.setComponentRef(inputFile.batchId());
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
     int lineId = 1;

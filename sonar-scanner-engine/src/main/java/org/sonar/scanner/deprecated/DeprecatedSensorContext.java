@@ -26,7 +26,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
@@ -37,86 +36,83 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
-
   private final DefaultIndex index;
-  private final Project project;
+  private final InputModule module;
 
-  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
+  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Settings settings, FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     super(module, settings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
     this.index = index;
-    this.project = project;
-
-  }
-
-  public Project getProject() {
-    return project;
+    this.module = module;
   }
 
   @Override
   public Resource getParent(Resource reference) {
-    return index.getParent(reference);
+    return index.getParent(reference.getEffectiveKey());
   }
 
   @Override
   public Collection<Resource> getChildren(Resource reference) {
-    return index.getChildren(reference);
+    return index.getChildren(reference.getEffectiveKey());
   }
 
   @Override
   public <G extends Serializable> Measure<G> getMeasure(Metric<G> metric) {
-    return index.getMeasure(project, metric);
+    return index.getMeasure(module.key(), metric);
+  }
+
+  private String getEffectiveKey(Resource r) {
+    if (r.getEffectiveKey() != null) {
+      return r.getEffectiveKey();
+    }
+
+    if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
+      return r.getKey();
+    } else {
+      return ComponentKeys.createEffectiveKey(module.key(), r);
+    }
   }
 
   @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
-    return index.getMeasures(project, filter);
+    return index.getMeasures(module.key(), filter);
   }
 
   @Override
   public Measure saveMeasure(Measure measure) {
-    return index.addMeasure(project, measure);
+    return index.addMeasure(module.key(), measure);
   }
 
   @Override
   public Measure saveMeasure(Metric metric, Double value) {
-    return index.addMeasure(project, new Measure(metric, value));
+    return index.addMeasure(module.key(), new Measure(metric, value));
   }
 
   @Override
   public <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric) {
-    return index.getMeasure(resource, metric);
+    return index.getMeasure(resource.getEffectiveKey(), metric);
   }
 
   @Override
   public String saveResource(Resource resource) {
-    Resource persistedResource = index.addResource(resource);
-    if (persistedResource != null) {
-      return persistedResource.getEffectiveKey();
-    }
-    return null;
-  }
-
-  public boolean saveResource(Resource resource, Resource parentReference) {
-    return index.index(resource, parentReference);
+    throw new UnsupportedOperationException("No longer possible to save resources");
   }
 
   @Override
   public Resource getResource(Resource resource) {
-    return index.getResource(resource);
+    return index.getResource(getEffectiveKey(resource));
   }
 
   @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
-    return index.getMeasures(resource, filter);
+    return index.getMeasures(getEffectiveKey(resource), filter);
   }
 
   @Override
@@ -126,9 +122,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   }
 
   @Override
-  public Measure saveMeasure(Resource resource, Measure measure) {
+  public Measure saveMeasure(@Nullable Resource resource, Measure measure) {
     Resource resourceOrProject = resourceOrProject(resource);
-    return index.addMeasure(resourceOrProject, measure);
+    return index.addMeasure(getEffectiveKey(resourceOrProject), measure);
   }
 
   @Override
@@ -138,7 +134,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   private Resource resourceOrProject(@Nullable Resource resource) {
     if (resource == null) {
-      return project;
+      return index.getResource(module.key());
     }
     Resource indexedResource = getResource(resource);
     return indexedResource != null ? indexedResource : resource;
@@ -147,24 +143,17 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public Measure saveMeasure(InputFile inputFile, Metric metric, Double value) {
     Measure<?> measure = new Measure(metric, value);
-    return saveMeasure(getResource(inputFile), measure);
+    return saveMeasure(inputFile, measure);
   }
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Measure measure) {
-    return saveMeasure(getResource(inputFile), measure);
+    return index.addMeasure(inputFile.key(), measure);
   }
 
   @Override
   public Resource getResource(InputPath inputPath) {
-    Resource r;
-    if (inputPath instanceof InputDir) {
-      r = Directory.create(((InputDir) inputPath).relativePath());
-    } else if (inputPath instanceof InputFile) {
-      r = File.create(((InputFile) inputPath).relativePath());
-    } else {
-      throw new IllegalArgumentException("Unknow input path type: " + inputPath);
-    }
+    Resource r = index.toResource(inputPath);
     return getResource(r);
   }
 }

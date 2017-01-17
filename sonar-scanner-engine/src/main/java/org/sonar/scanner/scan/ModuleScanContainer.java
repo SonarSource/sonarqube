@@ -23,21 +23,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
-import org.sonar.scanner.DefaultProjectTree;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.IssuableFactory;
 import org.sonar.scanner.issue.IssueFilters;
@@ -59,7 +56,6 @@ import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.rule.RuleFinderCompatibility;
 import org.sonar.scanner.rule.RulesProfileProvider;
-import org.sonar.scanner.scan.filesystem.ComponentIndexer;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
@@ -68,7 +64,7 @@ import org.sonar.scanner.scan.filesystem.IndexedFileBuilderProvider;
 import org.sonar.scanner.scan.filesystem.MetadataGeneratorProvider;
 import org.sonar.scanner.scan.filesystem.LanguageDetectionFactory;
 import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
-import org.sonar.scanner.scan.filesystem.ModuleInputFileCache;
+import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 import org.sonar.scanner.scan.report.IssuesReports;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
@@ -79,31 +75,29 @@ import org.sonar.scanner.source.SymbolizableBuilder;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
-  private final Project module;
+  private final DefaultInputModule module;
 
-  public ModuleScanContainer(ProjectScanContainer parent, Project module) {
+  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
     super(parent);
     this.module = module;
   }
 
   @Override
   protected void doBeforeStart() {
-    LOG.info("-------------  Scan {}", module.getName());
+    LOG.info("-------------  Scan {}", module.definition().getName());
     addCoreComponents();
     addExtensions();
   }
 
   private void addCoreComponents() {
-    ProjectDefinition moduleDefinition = getComponentByType(DefaultProjectTree.class).getProjectDefinition(module);
     add(
-      moduleDefinition,
+      module.definition(),
       module,
-      getComponentByType(BatchComponentCache.class).get(module).inputComponent(),
       ModuleSettings.class);
 
     // hack to initialize settings before ExtensionProviders
     ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
-    module.setSettings(moduleSettings);
+   //module.setSettings(moduleSettings);
 
     if (getComponentByType(AnalysisMode.class).isIssues()) {
       add(IssuesPhaseExecutor.class,
@@ -120,7 +114,7 @@ public class ModuleScanContainer extends ComponentContainer {
       InitializersExecutor.class,
 
       // file system
-      ModuleInputFileCache.class,
+      ModuleInputComponentStore.class,
       FileExclusions.class,
       ExclusionFilters.class,
       new MetadataGeneratorProvider(),
@@ -129,7 +123,6 @@ public class ModuleScanContainer extends ComponentContainer {
       LanguageDetectionFactory.class,
       FileIndexer.class,
       new IndexedFileBuilderProvider(),
-      ComponentIndexer.class,
       LanguageVerifier.class,
       FileSystemLogger.class,
       DefaultModuleFileSystem.class,
@@ -179,12 +172,12 @@ public class ModuleScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
-    index.setCurrentProject(module, getComponentByType(DefaultSensorStorage.class));
+    index.setCurrentProject(getComponentByType(DefaultSensorStorage.class));
 
     getComponentByType(AbstractPhaseExecutor.class).execute(module);
 
     // Free memory since module settings are no more used
-    module.setSettings(null);
+    //module.setSettings(null);
   }
 
 }

@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
@@ -54,7 +55,6 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -142,7 +142,6 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MetricFinder metricFinder;
   private final ModuleIssues moduleIssues;
   private final CoverageExclusions coverageExclusions;
-  private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
@@ -156,14 +155,13 @@ public class DefaultSensorStorage implements SensorStorage {
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings,
-    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher,
+    CoverageExclusions coverageExclusions, ReportPublisher reportPublisher,
     MeasureCache measureCache, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;
     this.coverageExclusions = coverageExclusions;
-    this.componentCache = componentCache;
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
     this.index = index;
@@ -352,8 +350,8 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    InputFile inputFile = highlighting.inputFile();
-    int componentRef = componentCache.get(inputFile).batchId();
+    DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
+    int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());
     }
@@ -376,7 +374,8 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultSymbolTable symbolTable) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    int componentRef = componentCache.get(symbolTable.inputFile()).batchId();
+    DefaultInputFile inputFile = (DefaultInputFile) symbolTable.inputFile();
+    int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().absolutePath());
     }

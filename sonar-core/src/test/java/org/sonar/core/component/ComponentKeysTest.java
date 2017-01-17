@@ -19,16 +19,17 @@
  */
 package org.sonar.core.component;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Project;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.Project;
 
 public class ComponentKeysTest {
   @Rule
@@ -36,11 +37,11 @@ public class ComponentKeysTest {
 
   @Test
   public void create_effective_key() {
-    Project project = new Project("my_project");
-    assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
+    Project project = new Project(ProjectDefinition.create().setKey("my_project"));
+    assertThat(ComponentKeys.createEffectiveKey("my_project", project)).isEqualTo("my_project");
 
     Directory dir = Directory.create("src/org/foo");
-    assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:src/org/foo");
+    assertThat(ComponentKeys.createEffectiveKey("my_project", dir)).isEqualTo("my_project:src/org/foo");
 
     InputFile file = mock(InputFile.class);
     when(file.relativePath()).thenReturn("foo/Bar.php");
