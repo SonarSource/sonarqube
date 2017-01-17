@@ -20,21 +20,21 @@
 package org.sonar.scanner.phases;
 
 import org.sonar.api.batch.events.ProjectAnalysisHandler;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 
 class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
   implements ProjectAnalysisHandler.ProjectAnalysisEvent {
+  private DefaultInputModule module;
 
-  private final Project project;
-
-  ProjectAnalysisEvent(Project project, boolean start) {
+  ProjectAnalysisEvent(DefaultInputModule module, boolean start) {
     super(start);
-    this.project = project;
+    this.module = module;
   }
 
   @Override
   public Project getProject() {
-    return project;
+    return new Project(module.definition());
   }
 
   @Override

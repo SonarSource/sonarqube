@@ -19,146 +19,70 @@
  */
 package org.sonar.scanner.index;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.stream.Collectors;
-import org.sonar.scanner.DefaultProjectTree;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 
 public class DefaultIndex {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
-
-  private final BatchComponentCache componentCache;
+  private final InputComponentStore componentStore;
   private final MeasureCache measureCache;
-  private final DefaultProjectTree projectTree;
   private final MetricFinder metricFinder;
   // caches
   private DefaultSensorStorage sensorStorage;
-  private Project currentProject;
-  private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
 
-  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache, MetricFinder metricFinder) {
-    this.componentCache = componentCache;
-    this.projectTree = projectTree;
+  private InputComponentTree tree;
+
+  public DefaultIndex(InputComponentStore componentStore, InputComponentTree tree, MeasureCache measureCache, MetricFinder metricFinder) {
+    this.componentStore = componentStore;
+    this.tree = tree;
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
   }
 
-  public void start() {
-    Project rootProject = projectTree.getRootProject();
-    if (StringUtils.isNotBlank(rootProject.getKey())) {
-      doStart(rootProject);
-    }
-  }
-
-  void doStart(Project rootProject) {
-    Bucket bucket = new Bucket(rootProject);
-    addBucket(rootProject, bucket);
-    BatchComponent component = componentCache.add(rootProject, null);
-    component.setInputComponent(new DefaultInputModule(rootProject.getEffectiveKey()));
-    currentProject = rootProject;
-
-    for (Project module : rootProject.getModules()) {
-      addModule(rootProject, module);
-    }
-  }
-
-  private void addBucket(Resource resource, Bucket bucket) {
-    buckets.put(resource, bucket);
-  }
-
-  private void addModule(Project parent, Project module) {
-    ProjectDefinition parentDefinition = projectTree.getProjectDefinition(parent);
-    java.io.File parentBaseDir = parentDefinition.getBaseDir();
-    ProjectDefinition moduleDefinition = projectTree.getProjectDefinition(module);
-    java.io.File moduleBaseDir = moduleDefinition.getBaseDir();
-    module.setPath(new PathResolver().relativePath(parentBaseDir, moduleBaseDir));
-    addResource(module);
-    for (Project submodule : module.getModules()) {
-      addModule(module, submodule);
-    }
-  }
-
-  public Project getProject() {
-    return currentProject;
-  }
-
-  public void setCurrentProject(Project project, DefaultSensorStorage sensorStorage) {
-    this.currentProject = project;
-
+  public void setCurrentProject(DefaultSensorStorage sensorStorage) {
     // the following components depend on the current module, so they need to be reloaded.
     this.sensorStorage = sensorStorage;
   }
 
-  /**
-   * Keep only project stuff
-   */
-  public void clear() {
-    Iterator<Map.Entry<Resource, Bucket>> it = buckets.entrySet().iterator();
-    while (it.hasNext()) {
-      Map.Entry<Resource, Bucket> entry = it.next();
-      Resource resource = entry.getKey();
-      if (!ResourceUtils.isSet(resource)) {
-        entry.getValue().clear();
-        it.remove();
-      }
-
-    }
+  @CheckForNull
+  public Measure getMeasure(String key, org.sonar.api.batch.measure.Metric<?> metric) {
+    return getMeasures(key, MeasuresFilters.metric(metric));
   }
 
   @CheckForNull
-  public Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric) {
-    return getMeasures(resource, MeasuresFilters.metric(metric));
-  }
-
-  @CheckForNull
-  public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
-    // Reload resource so that effective key is populated
-    Resource indexedResource = getResource(resource);
-    if (indexedResource == null) {
-      return null;
-    }
+  public <M> M getMeasures(String key, MeasuresFilter<M> filter) {
     Collection<DefaultMeasure<?>> unfiltered = new ArrayList<>();
     if (filter instanceof MeasuresFilters.MetricFilter) {
       // optimization
-      DefaultMeasure<?> byMetric = measureCache.byMetric(indexedResource.getEffectiveKey(), ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+      DefaultMeasure<?> byMetric = measureCache.byMetric(key, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
       if (byMetric != null) {
         unfiltered.add(byMetric);
       }
     } else {
-      for (DefaultMeasure<?> measure : measureCache.byComponentKey(indexedResource.getEffectiveKey())) {
+      for (DefaultMeasure<?> measure : measureCache.byComponentKey(key)) {
         unfiltered.add(measure);
       }
     }
@@ -196,10 +120,10 @@ public class DefaultIndex {
     }
   }
 
-  public Measure addMeasure(Resource resource, Measure measure) {
-    Bucket bucket = getBucket(resource);
-    if (bucket == null) {
-      return measure;
+  public Measure addMeasure(String key, Measure measure) {
+    InputComponent component = componentStore.getByKey(key);
+    if (component == null) {
+      throw new IllegalStateException("Invalid component key: " + key);
     }
     if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
       // Ignore deprecated metrics
@@ -228,130 +152,52 @@ public class DefaultIndex {
     } else {
       throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
     }
-    sensorStorage.saveMeasure(componentCache.get(resource).inputComponent(), newMeasure);
+    sensorStorage.saveMeasure(component, newMeasure);
     return measure;
   }
 
-  public Dependency addDependency(Dependency dependency) {
-    return dependency;
-  }
-
-  public Set<Resource> getResources() {
-    return buckets.keySet();
-  }
-
-  public String getSource(Resource reference) {
-    Resource resource = getResource(reference);
-    if (resource instanceof File) {
-      File file = (File) resource;
-      Project module = currentProject;
-      ProjectDefinition def = projectTree.getProjectDefinition(module);
-      try {
-        return FileUtils.readFileToString(new java.io.File(def.getBaseDir(), file.getPath()));
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to read file content " + reference, e);
-      }
+  @CheckForNull
+  public Resource getParent(String key) {
+    InputComponent component = componentStore.getByKey(key);
+    if (component == null) {
+      return null;
     }
-    return null;
+    InputComponent parent = tree.getParent(component);
+    if (parent == null) {
+      return null;
+    }
+
+    return toResource(parent);
   }
 
-  /**
-   * Does nothing if the resource is already registered.
-   */
-  public Resource addResource(Resource resource) {
-    Bucket bucket = doIndex(resource);
-    return bucket != null ? bucket.getResource() : null;
+  public Collection<Resource> getChildren(String key) {
+    InputComponent component = componentStore.getByKey(key);
+    Collection<InputComponent> children = tree.getChildren(component);
+    return children.stream().map(this::toResource).collect(Collectors.toList());
+  }
+
+  public Resource toResource(InputComponent inputComponent) {
+    Resource r;
+    if (inputComponent instanceof InputDir) {
+      r = Directory.create(((InputDir) inputComponent).relativePath());
+    } else if (inputComponent instanceof InputFile) {
+      r = File.create(((InputFile) inputComponent).relativePath());
+    } else if (inputComponent instanceof InputModule) {
+      r = new Project(((DefaultInputModule) inputComponent).definition());
+    } else {
+      throw new IllegalArgumentException("Unknow input path type: " + inputComponent);
+    }
+
+    r.setEffectiveKey(inputComponent.key());
+    return r;
   }
 
   @CheckForNull
-  public <R extends Resource> R getResource(@Nullable R reference) {
-    Bucket bucket = getBucket(reference);
-    if (bucket != null) {
-      return (R) bucket.getResource();
-    }
-    return null;
-  }
-
-  public List<Resource> getChildren(Resource resource) {
-    List<Resource> children = Lists.newLinkedList();
-    Bucket bucket = getBucket(resource);
-    if (bucket != null) {
-      for (Bucket childBucket : bucket.getChildren()) {
-        children.add(childBucket.getResource());
-      }
-    }
-    return children;
-  }
-
-  public Resource getParent(Resource resource) {
-    Bucket bucket = getBucket(resource);
-    if (bucket != null && bucket.getParent() != null) {
-      return bucket.getParent().getResource();
-    }
-    return null;
-  }
-
-  public boolean index(Resource resource) {
-    Bucket bucket = doIndex(resource);
-    return bucket != null;
-  }
-
-  private Bucket doIndex(Resource resource) {
-    if (resource.getParent() != null) {
-      doIndex(resource.getParent());
-    }
-    return doIndex(resource, resource.getParent());
-  }
-
-  public boolean index(Resource resource, Resource parentReference) {
-    Bucket bucket = doIndex(resource, parentReference);
-    return bucket != null;
-  }
-
-  private Bucket doIndex(Resource resource, @Nullable Resource parentReference) {
-    Bucket bucket = getBucket(resource);
-    if (bucket != null) {
-      return bucket;
-    }
-
-    if (StringUtils.isBlank(resource.getKey())) {
-      LOG.warn("Unable to index a resource without key: {}", resource);
+  public Resource getResource(String key) {
+    InputComponent component = componentStore.getByKey(key);
+    if (component == null) {
       return null;
     }
-
-    Resource parent = (Resource) ObjectUtils.defaultIfNull(parentReference, currentProject);
-
-    Bucket parentBucket = getBucket(parent);
-    if (parentBucket == null && parent != null) {
-      LOG.warn("Resource ignored, parent is not indexed: {}", resource);
-      return null;
-    }
-
-    if (ResourceUtils.isProject(resource) || /* For technical projects */ResourceUtils.isRootProject(resource)) {
-      resource.setEffectiveKey(resource.getKey());
-    } else {
-      resource.setEffectiveKey(ComponentKeys.createEffectiveKey(currentProject, resource));
-    }
-    bucket = new Bucket(resource).setParent(parentBucket);
-    addBucket(resource, bucket);
-
-    Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
-    BatchComponent component = componentCache.add(resource, parentResource);
-    if (ResourceUtils.isProject(resource)) {
-      component.setInputComponent(new DefaultInputModule(resource.getEffectiveKey()));
-    }
-
-    return bucket;
+    return toResource(component);
   }
-
-  private Bucket getBucket(@Nullable Resource reference) {
-    if (reference == null) {
-      return null;
-    }
-    if (StringUtils.isNotBlank(reference.getKey())) {
-      return buckets.get(reference);
-    }
-    return null;
-  }
-
 }

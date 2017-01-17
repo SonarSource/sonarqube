@@ -26,42 +26,40 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
 import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache resourceCache;
+  private final InputComponentStore componentCache;
   private final MeasureCache measureCache;
 
-  public CoveragePublisher(BatchComponentCache resourceCache, MeasureCache measureCache) {
-    this.resourceCache = resourceCache;
+  public CoveragePublisher(InputComponentStore componentCache, MeasureCache measureCache) {
+    this.componentCache = componentCache;
     this.measureCache = measureCache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final BatchComponent resource : resourceCache.all()) {
-      if (!resource.isFile()) {
-        continue;
-      }
+    for (final InputFile file : componentCache.allFiles()) {
+      DefaultInputFile inputFile = (DefaultInputFile) file;
       Map<Integer, LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
 
-      int lineCount = ((InputFile) resource.inputComponent()).lines();
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
+      int lineCount = inputFile.lines();
+      applyLineMeasure(inputFile.key(), lineCount, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
         (value, builder) -> builder.setHits(Integer.parseInt(value) > 0));
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(inputFile.key(), lineCount, CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
         (value, builder) -> builder.setConditions(Integer.parseInt(value)));
-      applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(inputFile.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         (value, builder) -> builder.setCoveredConditions(Integer.parseInt(value)));
-      writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
+      writer.writeComponentCoverage(inputFile.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
     }
   }
 

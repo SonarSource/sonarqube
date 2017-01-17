@@ -23,21 +23,27 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Resource;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.index.DefaultIndex;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class ScannerPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final DefaultIndex resourceIndex;
-  private final BatchComponentCache componentCache;
+  private final InputComponentStore componentStore;
+  private final DefaultInputModule module;
 
-  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultIndex resourceIndex, BatchComponentCache componentCache) {
+  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultInputModule module, DefaultIndex resourceIndex, InputComponentStore componentStore) {
     this.resourceIndex = resourceIndex;
-    this.componentCache = componentCache;
+    this.componentStore = componentStore;
+    this.module = module;
+
     for (PerspectiveBuilder builder : builders) {
       this.builders.put(builder.getPerspectiveClass(), builder);
     }
@@ -48,13 +54,25 @@ public class ScannerPerspectives implements ResourcePerspectives {
   public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
     Resource indexedResource = resource;
     if (resource.getEffectiveKey() == null) {
-      indexedResource = resourceIndex.getResource(resource);
+      indexedResource = resourceIndex.getResource(getEffectiveKey(resource));
     }
     if (indexedResource != null) {
       PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-      return builder.loadPerspective(perspectiveClass, componentCache.get(indexedResource).inputComponent());
+      return builder.loadPerspective(perspectiveClass, componentStore.getByKey(indexedResource.getEffectiveKey()));
     }
     return null;
+  }
+
+  private String getEffectiveKey(Resource r) {
+    if (r.getEffectiveKey() != null) {
+      return r.getEffectiveKey();
+    }
+
+    if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
+      return r.getKey();
+    } else {
+      return ComponentKeys.createEffectiveKey(module.key(), r);
+    }
   }
 
   @Override

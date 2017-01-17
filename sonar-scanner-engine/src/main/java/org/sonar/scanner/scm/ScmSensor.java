@@ -27,13 +27,12 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.report.ReportPublisher;
@@ -48,16 +47,14 @@ public final class ScmSensor implements Sensor {
   private final ScmConfiguration configuration;
   private final FileSystem fs;
   private final ProjectRepositories projectRepositories;
-  private final BatchComponentCache componentCache;
   private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectRepositories, FileSystem fs, BatchComponentCache componentCache, ReportPublisher publishReportJob) {
+    ProjectRepositories projectRepositories, FileSystem fs, ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
     this.fs = fs;
-    this.componentCache = componentCache;
     this.publishReportJob = publishReportJob;
   }
 
@@ -81,7 +78,7 @@ public final class ScmSensor implements Sensor {
     if (!filesToBlame.isEmpty()) {
       String key = configuration.provider().key();
       LOG.info("SCM provider for this project is: " + key);
-      DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), componentCache, filesToBlame);
+      DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), filesToBlame);
       try {
         configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       } catch (Exception e) {
@@ -106,17 +103,16 @@ public final class ScmSensor implements Sensor {
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {
-          askToCopyDataFromPreviousAnalysis(f);
+          askToCopyDataFromPreviousAnalysis((DefaultInputFile) f);
         }
       }
     }
     return filesToBlame;
   }
 
-  private void askToCopyDataFromPreviousAnalysis(InputFile f) {
-    BatchComponent batchComponent = componentCache.get(f);
+  private void askToCopyDataFromPreviousAnalysis(DefaultInputFile f) {
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
-    scmBuilder.setComponentRef(batchComponent.batchId());
+    scmBuilder.setComponentRef(f.batchId());
     scmBuilder.setCopyFromPrevious(true);
     publishReportJob.getWriter().writeComponentChangesets(scmBuilder.build());
   }

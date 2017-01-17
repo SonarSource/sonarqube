@@ -26,11 +26,11 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.Uuids;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.issue.tracking.SourceHashHolder;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -73,7 +73,7 @@ public class IssueTransformer {
     issue.setResolution(Issue.RESOLUTION_REMOVED);
   }
 
-  public static Collection<TrackedIssue> toTrackedIssue(BatchComponent component, Collection<ScannerReport.Issue> rawIssues, @Nullable SourceHashHolder hashes) {
+  public static Collection<TrackedIssue> toTrackedIssue(InputComponent component, Collection<ScannerReport.Issue> rawIssues, @Nullable SourceHashHolder hashes) {
     List<TrackedIssue> issues = new ArrayList<>(rawIssues.size());
 
     for (ScannerReport.Issue issue : rawIssues) {
@@ -83,7 +83,7 @@ public class IssueTransformer {
     return issues;
   }
 
-  public static TrackedIssue toTrackedIssue(BatchComponent component, ScannerReport.Issue rawIssue, @Nullable SourceHashHolder hashes) {
+  public static TrackedIssue toTrackedIssue(InputComponent component, ScannerReport.Issue rawIssue, @Nullable SourceHashHolder hashes) {
     RuleKey ruleKey = RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
 
     Preconditions.checkNotNull(component.key(), "Component key must be set");

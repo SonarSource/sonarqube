@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.index.BatchComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 
 @ScannerSide
 public class SourceProvider {
@@ -42,13 +42,13 @@ public class SourceProvider {
     this.fs = fs;
   }
 
-  public List<String> getEscapedSource(BatchComponent component) {
+  public List<String> getEscapedSource(DefaultInputComponent component) {
     if (!component.isFile()) {
       // Folder
       return Collections.emptyList();
     }
     try {
-      InputFile inputFile = (InputFile) component.inputComponent();
+      InputFile inputFile = (InputFile) component;
       List<String> lines = FileUtils.readLines(inputFile.file(), fs.encoding());
       List<String> escapedLines = new ArrayList<>(lines.size());
       for (String line : lines) {

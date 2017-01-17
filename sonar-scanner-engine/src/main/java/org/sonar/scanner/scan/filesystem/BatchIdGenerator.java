@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.batch.sensor.SensorContext;
+import java.util.function.Supplier;
 
-/**
- * Used to create issues and measures on modules. You can access InputModule using {@link SensorContext#module()}
- *
- * @since 5.2
- */
-public interface InputModule extends InputComponent {
+public class BatchIdGenerator implements Supplier<Integer> {
+  private int nextBatchId = 1;
+
+  @Override
+  public Integer get() {
+    return nextBatchId++;
+  }
 }

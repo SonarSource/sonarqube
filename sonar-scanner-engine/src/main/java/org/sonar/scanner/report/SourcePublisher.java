@@ -23,9 +23,10 @@ import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,24 +37,21 @@ import java.nio.charset.StandardCharsets;
 
 public class SourcePublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache resourceCache;
+  private final InputComponentStore componentCache;
 
-  public SourcePublisher(BatchComponentCache resourceCache) {
-    this.resourceCache = resourceCache;
+  public SourcePublisher(InputComponentStore componentCache) {
+    this.componentCache = componentCache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final BatchComponent resource : resourceCache.all()) {
-      if (!resource.isFile()) {
-        continue;
-      }
-
-      InputFile inputFile = (InputFile) resource.inputComponent();
-      File iofile = writer.getSourceFile(resource.batchId());
+    for (final InputFile file : componentCache.allFiles()) {
+      DefaultInputFile inputFile = (DefaultInputFile) file;
+      File iofile = writer.getSourceFile(inputFile.batchId());
       int line = 0;
-      try (FileOutputStream output = new FileOutputStream(iofile); BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),
-        ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+      try (FileOutputStream output = new FileOutputStream(iofile);
+        BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),
+          ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
         BufferedReader reader = new BufferedReader(new InputStreamReader(bomIn, inputFile.charset()))) {
         String lineStr = reader.readLine();
         while (lineStr != null) {

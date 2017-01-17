@@ -23,7 +23,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.rule.QProfileVerifier;
@@ -37,9 +36,9 @@ public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
   private final CpdExecutor cpdExecutor;
 
   public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
-    DefaultIndex index, EventBus eventBus, ReportPublisher reportPublisher, FileSystemLogger fsLogger, DefaultModuleFileSystem fs,
+    EventBus eventBus, ReportPublisher reportPublisher, FileSystemLogger fsLogger, DefaultModuleFileSystem fs,
     QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;

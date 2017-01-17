@@ -37,10 +37,15 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Type type;
 
   public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath) {
-    this(moduleKey, moduleBaseDir, relativePath, Type.MAIN);
+    this(moduleKey, moduleBaseDir, relativePath, TestInputFileBuilder.batchId++);
   }
 
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, Type type) {
+  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, int batchId) {
+    this(moduleKey, moduleBaseDir, relativePath, Type.MAIN, batchId);
+  }
+
+  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, Type type, int batchId) {
+    super(batchId);
     this.moduleKey = moduleKey;
     this.relativePath = PathUtils.sanitize(relativePath);
     this.moduleBaseDir = moduleBaseDir.normalize();

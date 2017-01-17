@@ -40,6 +40,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
@@ -199,6 +200,11 @@ public class DefaultFileSystem implements FileSystem {
     cache.add(inputDir);
     return this;
   }
+  
+  public DefaultFileSystem add(InputModule inputModule) {
+    cache.add(inputModule);
+    return this;
+  }
 
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
@@ -234,12 +240,18 @@ public class DefaultFileSystem implements FileSystem {
 
     protected abstract void doAdd(InputDir inputDir);
 
+    protected abstract void doAdd(InputModule inputModule);
+
     final void add(InputFile inputFile) {
       doAdd(inputFile);
     }
 
     public void add(InputDir inputDir) {
       doAdd(inputDir);
+    }
+
+    public void add(InputModule inputModule) {
+      doAdd(inputModule);
     }
 
   }
@@ -250,6 +262,7 @@ public class DefaultFileSystem implements FileSystem {
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<>();
     private final Map<String, InputDir> dirMap = new HashMap<>();
+    private InputModule module;
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -266,6 +279,10 @@ public class DefaultFileSystem implements FileSystem {
       return dirMap.get(relativePath);
     }
 
+    public InputModule module() {
+      return module;
+    }
+
     @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
@@ -274,6 +291,11 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected void doAdd(InputDir inputDir) {
       dirMap.put(inputDir.relativePath(), inputDir);
+    }
+
+    @Override
+    protected void doAdd(InputModule inputModule) {
+      module = inputModule;
     }
   }
 

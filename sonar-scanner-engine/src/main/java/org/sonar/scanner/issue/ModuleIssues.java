@@ -20,8 +20,8 @@
 package org.sonar.scanner.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
@@ -30,8 +30,6 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -46,19 +44,16 @@ public class ModuleIssues {
   private final Rules rules;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
-  private final BatchComponentCache componentCache;
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher, BatchComponentCache componentCache) {
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.filters = filters;
     this.reportPublisher = reportPublisher;
-    this.componentCache = componentCache;
   }
 
   public boolean initAndAddIssue(Issue issue) {
-    InputComponent inputComponent = issue.primaryLocation().inputComponent();
-    BatchComponent component = componentCache.get(inputComponent);
+    DefaultInputComponent inputComponent = (DefaultInputComponent) issue.primaryLocation().inputComponent();
 
     Rule rule = validateRule(issue);
     ActiveRule activeRule = activeRules.find(issue.ruleKey());
@@ -81,7 +76,7 @@ public class ModuleIssues {
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 
-    locationBuilder.setComponentRef(component.batchId());
+    locationBuilder.setComponentRef(inputComponent.batchId());
     TextRange primaryTextRange = issue.primaryLocation().textRange();
     if (primaryTextRange != null) {
       builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
@@ -94,7 +89,7 @@ public class ModuleIssues {
     ScannerReport.Issue rawIssue = builder.build();
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
-      write(component, rawIssue);
+      write(inputComponent.batchId(), rawIssue);
       return true;
     }
     return false;
@@ -107,7 +102,7 @@ public class ModuleIssues {
         flowBuilder.clear();
         for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
           locationBuilder.clear();
-          locationBuilder.setComponentRef(componentCache.get(location.inputComponent()).batchId());
+          locationBuilder.setComponentRef(((DefaultInputComponent) location.inputComponent()).batchId());
           String message = location.message();
           if (message != null) {
             locationBuilder.setMsg(message);
@@ -144,8 +139,8 @@ public class ModuleIssues {
     return rule;
   }
 
-  public void write(BatchComponent component, ScannerReport.Issue rawIssue) {
-    reportPublisher.getWriter().appendComponentIssue(component.batchId(), rawIssue);
+  public void write(int batchId, ScannerReport.Issue rawIssue) {
+    reportPublisher.getWriter().appendComponentIssue(batchId, rawIssue);
   }
 
 }

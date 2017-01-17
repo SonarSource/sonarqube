@@ -22,10 +22,10 @@ package org.sonar.scanner.source;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.report.ReportPublisher;
 
@@ -33,12 +33,10 @@ import org.sonar.scanner.report.ReportPublisher;
 public final class CodeColorizerSensor implements Sensor {
 
   private final ReportPublisher reportPublisher;
-  private final BatchComponentCache resourceCache;
   private final CodeColorizers codeColorizers;
 
-  public CodeColorizerSensor(ReportPublisher reportPublisher, BatchComponentCache resourceCache, CodeColorizers codeColorizers) {
+  public CodeColorizerSensor(ReportPublisher reportPublisher, CodeColorizers codeColorizers) {
     this.reportPublisher = reportPublisher;
-    this.resourceCache = resourceCache;
     this.codeColorizers = codeColorizers;
   }
 
@@ -52,9 +50,9 @@ public final class CodeColorizerSensor implements Sensor {
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
       ScannerReportReader reader = new ScannerReportReader(reportPublisher.getReportDir());
-      int batchId = resourceCache.get(f).batchId();
+      DefaultInputFile inputFile = (DefaultInputFile) f;
       String language = f.language();
-      if (reader.hasSyntaxHighlighting(batchId) || language == null) {
+      if (reader.hasSyntaxHighlighting(inputFile.batchId()) || language == null) {
         continue;
       }
       codeColorizers.toSyntaxHighlighting(f.file(), fs.encoding(), language, context.newHighlighting().onFile(f));

@@ -44,13 +44,15 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.util.ProgressReport;
 
 /**
- * Index input files into {@link InputPathCache}.
+ * Index input files into {@link InputComponentStore}.
  */
 @ScannerSide
 public class FileIndexer {
@@ -59,13 +61,21 @@ public class FileIndexer {
   private final InputFileFilter[] filters;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
+  private final IndexedFileBuilder indexedFileBuilder;
+  private final MetadataGenerator metadataGenerator;
+  private final DefaultComponentTree componentTree;
+  private final DefaultInputModule module;
+  private final BatchIdGenerator batchIdGenerator;
+  private final InputComponentStore componentStore;
 
   private ProgressReport progressReport;
-  private IndexedFileBuilder indexedFileBuilder;
-  private MetadataGenerator metadataGenerator;
 
-  public FileIndexer(ExclusionFilters exclusionFilters, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def,
-    InputFileFilter[] filters) {
+  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+    DefaultComponentTree componentTree, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def, InputFileFilter[] filters) {
+    this.batchIdGenerator = batchIdGenerator;
+    this.componentStore = componentStore;
+    this.module = module;
+    this.componentTree = componentTree;
     this.indexedFileBuilder = indexedFileBuilder;
     this.metadataGenerator = inputFileBuilder;
     this.filters = filters;
@@ -73,11 +83,13 @@ public class FileIndexer {
     this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
-  public FileIndexer(ExclusionFilters exclusionFilters, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def) {
-    this(exclusionFilters, indexedFileBuilder, inputFileBuilder, def, new InputFileFilter[0]);
+  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+    DefaultComponentTree componentTree, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def) {
+    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, indexedFileBuilder, inputFileBuilder, def, new InputFileFilter[0]);
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
+    fileSystem.add(module);
     if (isAggregator) {
       // No indexing for an aggregator module
       return;
@@ -102,7 +114,7 @@ public class FileIndexer {
     try {
       for (File dirOrFile : sources) {
         if (dirOrFile.isDirectory()) {
-          indexDirectory(fileSystem, progress, dirOrFile, type);
+          indexDirectory(fileSystem, progress, dirOrFile.toPath(), type);
         } else {
           indexFile(fileSystem, progress, dirOrFile.toPath(), type);
         }
@@ -112,8 +124,8 @@ public class FileIndexer {
     }
   }
 
-  private void indexDirectory(final DefaultModuleFileSystem fileSystem, final Progress status, final File dirToIndex, final InputFile.Type type) throws IOException {
-    Files.walkFileTree(dirToIndex.toPath().normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+  private void indexDirectory(final DefaultModuleFileSystem fileSystem, final Progress status, final Path dirToIndex, final InputFile.Type type) throws IOException {
+    Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new IndexFileVisitor(fileSystem, status, type));
   }
 
@@ -122,12 +134,10 @@ public class FileIndexer {
     Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
     DefaultIndexedFile indexedFile = indexedFileBuilder.create(realFile, type, fileSystem.baseDirPath());
     if (indexedFile != null) {
-      if (exclusionFilters.accept(indexedFile, type)) {
-        InputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.readMetadata(f, fileSystem.encoding()));
-        if (accept(inputFile)) {
-          fileSystem.add(inputFile);
-        }
-        indexParentDir(fileSystem, indexedFile);
+      InputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.readMetadata(f, fileSystem.encoding()));
+      if (exclusionFilters.accept(indexedFile, type) && accept(inputFile)) {
+        fileSystem.add(inputFile);
+        indexParentDir(fileSystem, inputFile);
         progress.markAsIndexed(indexedFile);
         LOG.debug("'{}' indexed {} with language '{}'", indexedFile.relativePath(), type == Type.TEST ? "as test " : "", indexedFile.language());
       } else {
@@ -136,18 +146,25 @@ public class FileIndexer {
     }
   }
 
-  private static void indexParentDir(DefaultModuleFileSystem fileSystem, IndexedFile indexedFile) {
-    File parentDir = indexedFile.file().getParentFile();
-    String relativePath = new PathResolver().relativePath(fileSystem.baseDir(), parentDir);
-    if (relativePath != null) {
-      DefaultInputDir inputDir = new DefaultInputDir(fileSystem.moduleKey(), relativePath);
+  private void indexParentDir(DefaultModuleFileSystem fileSystem, InputFile inputFile) {
+    Path parentDir = inputFile.path().getParent();
+    String relativePath = new PathResolver().relativePath(fileSystem.baseDirPath(), parentDir);
+    if (relativePath == null) {
+      throw new IllegalStateException("Failed to compute relative path of file: " + inputFile);
+    }
+
+    DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), relativePath);
+    if (inputDir == null) {
+      inputDir = new DefaultInputDir(fileSystem.moduleKey(), relativePath, batchIdGenerator.get());
       inputDir.setModuleBaseDir(fileSystem.baseDirPath());
       fileSystem.add(inputDir);
+      componentTree.index(inputDir, module);
     }
+    componentTree.index(inputFile, inputDir);
   }
 
   private boolean accept(InputFile indexedFile) {
-    // InputFileFilter extensions
+    // InputFileFilter extensions. Might trigger generation of metadata
     for (InputFileFilter filter : filters) {
       if (!filter.accept(indexedFile)) {
         LOG.debug("'{}' excluded by {}", indexedFile.relativePath(), filter.getClass().getName());

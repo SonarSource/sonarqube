@@ -37,12 +37,14 @@ public class IndexedFileBuilder {
   private final PathResolver pathResolver;
   private final LanguageDetection langDetection;
   private final Settings settings;
+  private final BatchIdGenerator idGenerator;
 
-  IndexedFileBuilder(String moduleKey, PathResolver pathResolver, Settings settings, LanguageDetection langDetection) {
+  IndexedFileBuilder(String moduleKey, PathResolver pathResolver, Settings settings, LanguageDetection langDetection, BatchIdGenerator idGenerator) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.settings = settings;
     this.langDetection = langDetection;
+    this.idGenerator = idGenerator;
   }
 
   @CheckForNull
@@ -52,7 +54,7 @@ public class IndexedFileBuilder {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.toAbsolutePath(), moduleBaseDir);
       return null;
     }
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type);
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, idGenerator.get());
     String language = langDetection.language(indexedFile);
     if (language == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
       LOG.debug("'{}' language is not supported by any analyzer. Skipping it.", relativePath);
