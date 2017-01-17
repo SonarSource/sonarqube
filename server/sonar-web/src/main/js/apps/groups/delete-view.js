@@ -32,6 +32,7 @@ export default ModalForm.extend({
     const that = this;
     const collection = this.model.collection;
     return this.model.destroy({
+      organization: collection.organization,
       wait: true,
       statusCode: {
         // do not show global error

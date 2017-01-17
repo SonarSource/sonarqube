@@ -20,9 +20,11 @@
 import React from 'react';
 import classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
+import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
+import { areThereCustomOrganizations } from '../../../../store/rootReducer';
 
-export default class SettingsNav extends React.Component {
+class SettingsNav extends React.Component {
   static defaultProps = {
     extensions: []
   };
@@ -124,11 +126,13 @@ export default class SettingsNav extends React.Component {
                         {translate('users.page')}
                       </IndexLink>
                     </li>
-                    <li>
-                      <IndexLink to="/groups" activeClassName="active">
-                        {translate('user_groups.page')}
-                      </IndexLink>
-                    </li>
+                    {!this.props.customOrganizations && (
+                        <li>
+                          <IndexLink to="/groups" activeClassName="active">
+                            {translate('user_groups.page')}
+                          </IndexLink>
+                        </li>
+                    )}
                     <li>
                       <IndexLink to="/roles/global" activeClassName="active">
                         {translate('global_permissions.page')}
@@ -184,3 +188,11 @@ export default class SettingsNav extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  customOrganizations: areThereCustomOrganizations(state)
+});
+
+export default connect(mapStateToProps)(SettingsNav);
+
+export const UnconnectedSettingsNav = SettingsNav;

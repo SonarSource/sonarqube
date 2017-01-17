@@ -29,6 +29,7 @@ export default FormView.extend({
     });
     this.disableForm();
     return this.model.save(null, {
+      organization: this.collection.organization,
       statusCode: {
         // do not show global error
         400: null

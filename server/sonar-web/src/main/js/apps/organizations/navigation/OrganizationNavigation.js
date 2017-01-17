@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 const ADMIN_PATHS = [
   'edit',
+  'groups',
   'delete'
 ];
 
@@ -63,6 +64,11 @@ export default class OrganizationNavigation extends React.Component {
                     {translate('layout.settings')}&nbsp;<i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
+                    <li>
+                      <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
+                        {translate('user_groups.page')}
+                      </Link>
+                    </li>
                     <li>
                       <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
                         {translate('edit')}

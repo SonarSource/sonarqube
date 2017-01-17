@@ -23,6 +23,10 @@ import Group from './group';
 export default Backbone.Collection.extend({
   model: Group,
 
+  initialize ({ organization }) {
+    this.organization = organization;
+  },
+
   url () {
     return window.baseUrl + '/api/user_groups/search';
   },
@@ -35,9 +39,13 @@ export default Backbone.Collection.extend({
   },
 
   fetch (options) {
-    const d = (options && options.data) || {};
-    this.q = d.q;
-    return Backbone.Collection.prototype.fetch.call(this, options);
+    const data = (options && options.data) || {};
+    this.q = data.q;
+    const finalOptions = this.organization ? {
+      ...options,
+      data: { ...data, organization: this.organization.key }
+    } : options;
+    return Backbone.Collection.prototype.fetch.call(this, finalOptions);
   },
 
   fetchMore () {
