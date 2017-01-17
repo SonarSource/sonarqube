@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,6 +37,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.component.index.ComponentIndexDefinition;
@@ -104,10 +106,10 @@ public class PermissionIndexer implements Startable {
     BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(type).setQuery(matchAllQuery()));
   }
 
-  public void index(DbSession dbSession, List<String> projectUuids) {
-    checkArgument(!projectUuids.isEmpty(), "ProjectUuids cannot be empty");
+  public void index(DbSession dbSession, List<String> viewOrProjectUuids) {
+    checkArgument(!viewOrProjectUuids.isEmpty(), "viewOrProjectUuids cannot be empty");
     PermissionIndexerDao dao = new PermissionIndexerDao();
-    index(dao.selectByProjects(dbClient, dbSession, projectUuids));
+    index(dao.selectByUuids(dbClient, dbSession, viewOrProjectUuids));
   }
 
   private void index(Collection<PermissionIndexerDao.Dto> authorizations) {
@@ -117,9 +119,9 @@ public class PermissionIndexer implements Startable {
     int count = 0;
     BulkRequestBuilder bulkRequest = esClient.prepareBulk().setRefresh(false);
     for (PermissionIndexerDao.Dto dto : authorizations) {
-      bulkRequest.add(newIssuesAuthorizationIndexRequest(dto));
-      bulkRequest.add(newProjectMeasuresAuthorizationIndexRequest(dto));
-      bulkRequest.add(newComponentsAuthorizationIndexRequest(dto));
+      newIssuesAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
+      newProjectMeasuresAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
+      newComponentsAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
       count++;
       if (count >= MAX_BATCH_SIZE) {
         EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
@@ -133,9 +135,9 @@ public class PermissionIndexer implements Startable {
     esClient.prepareRefresh(ComponentIndexDefinition.INDEX_COMPONENTS).get();
   }
 
-  public void index(DbSession dbSession, String projectUuid) {
+  public void index(DbSession dbSession, String viewOrProjectUuid) {
     PermissionIndexerDao dao = new PermissionIndexerDao();
-    List<PermissionIndexerDao.Dto> dtos = dao.selectByProjects(dbClient, dbSession, singletonList(projectUuid));
+    List<PermissionIndexerDao.Dto> dtos = dao.selectByUuids(dbClient, dbSession, singletonList(viewOrProjectUuid));
     if (dtos.size() == 1) {
       index(dtos.get(0));
     }
@@ -143,9 +145,12 @@ public class PermissionIndexer implements Startable {
 
   @VisibleForTesting
   void index(PermissionIndexerDao.Dto dto) {
-    index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, newIssuesAuthorizationIndexRequest(dto));
-    index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, newProjectMeasuresAuthorizationIndexRequest(dto));
-    index(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, newComponentsAuthorizationIndexRequest(dto));
+    newIssuesAuthorizationIndexRequest(dto)
+      .ifPresent(rqst -> index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, rqst));
+    newProjectMeasuresAuthorizationIndexRequest(dto)
+      .ifPresent(rqst -> index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, rqst));
+    newComponentsAuthorizationIndexRequest(dto)
+      .ifPresent(rqst -> index(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, rqst));
   }
 
   private void index(String index, String type, IndexRequest indexRequest) {
@@ -157,36 +162,49 @@ public class PermissionIndexer implements Startable {
       .get();
   }
 
-  private static IndexRequest newIssuesAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+  private static Optional<IndexRequest> newIssuesAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+    if (!isProject(dto)) {
+      return Optional.empty();
+    }
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-      .routing(dto.getProjectUuid())
-      .source(doc);
+    return Optional.of(
+      new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+        .routing(dto.getProjectUuid())
+        .source(doc));
   }
 
-  private static IndexRequest newProjectMeasuresAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+  private static Optional<IndexRequest> newProjectMeasuresAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+    if (!isProject(dto)) {
+      return Optional.empty();
+    }
     Map<String, Object> doc = ImmutableMap.of(
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return new IndexRequest(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-      .routing(dto.getProjectUuid())
-      .source(doc);
+    return Optional.of(
+      new IndexRequest(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+        .routing(dto.getProjectUuid())
+        .source(doc));
   }
 
-  private static IndexRequest newComponentsAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
+  private static Optional<IndexRequest> newComponentsAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
     Map<String, Object> doc = ImmutableMap.of(
       ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
       ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       ComponentIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return new IndexRequest(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-      .routing(dto.getProjectUuid())
-      .source(doc);
+    return Optional.of(
+      new IndexRequest(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+        .routing(dto.getProjectUuid())
+        .source(doc));
+  }
+
+  private static boolean isProject(PermissionIndexerDao.Dto dto) {
+    return dto.getQualifier().equals(Qualifiers.PROJECT);
   }
 
   @Override

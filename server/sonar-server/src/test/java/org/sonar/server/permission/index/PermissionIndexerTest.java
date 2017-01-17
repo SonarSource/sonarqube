@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -61,12 +62,12 @@ public class PermissionIndexerTest {
     new ProjectMeasuresIndexDefinition(new MapSettings()),
     new ComponentIndexDefinition(new MapSettings()));
 
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  UserDbTester userDbTester = new UserDbTester(dbTester);
+  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private UserDbTester userDbTester = new UserDbTester(dbTester);
 
-  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
 
-  PermissionIndexer underTest = new PermissionIndexer(dbTester.getDbClient(), esTester.client());
+  private PermissionIndexer underTest = new PermissionIndexer(dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_all_does_nothing_when_no_data() {
@@ -78,16 +79,22 @@ public class PermissionIndexerTest {
   @Test
   public void index_all() {
     ComponentDto project = componentDbTester.insertProject();
+    ComponentDto view = componentDbTester.insertView();
     UserDto user = userDbTester.insertUser();
     userDbTester.insertProjectPermissionOnUser(user, USER, project);
     userDbTester.insertProjectPermissionOnUser(user, ADMIN, project);
+    userDbTester.insertProjectPermissionOnUser(user, USER, view);
+    userDbTester.insertProjectPermissionOnUser(user, ADMIN, view);
     GroupDto group = userDbTester.insertGroup();
     userDbTester.insertProjectPermissionOnGroup(group, USER, project);
     userDbTester.insertProjectPermissionOnAnyone(USER, project);
+    userDbTester.insertProjectPermissionOnGroup(group, USER, view);
+    userDbTester.insertProjectPermissionOnAnyone(USER, view);
 
     underTest.indexAllIfEmpty();
 
     authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), asList(group.getName(), ANYONE), singletonList(user.getId()));
+    authorizationIndexerTester.verifyViewExistsWithPermissionInRightIndexes(view.uuid(), asList(group.getName(), ANYONE), singletonList(user.getId()));
   }
 
   @Test
@@ -168,7 +175,7 @@ public class PermissionIndexerTest {
     authorizationIndexerTester.indexProjectPermission("ABC", singletonList("dev"), singletonList(10L));
 
     // remove permissions -> dto has no users nor groups
-    underTest.index(new PermissionIndexerDao.Dto("ABC", System.currentTimeMillis()));
+    underTest.index(new PermissionIndexerDao.Dto("ABC", System.currentTimeMillis(), Qualifiers.PROJECT));
 
     authorizationIndexerTester.verifyProjectExistsWithoutPermission("ABC");
   }

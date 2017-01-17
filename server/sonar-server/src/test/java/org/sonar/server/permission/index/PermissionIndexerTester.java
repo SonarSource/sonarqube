@@ -23,6 +23,7 @@ package org.sonar.server.permission.index;
 import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -48,16 +49,10 @@ public class PermissionIndexerTester {
   }
 
   public void indexProjectPermission(String projectUuid, List<String> groupNames, List<Long> userLogins) {
-    PermissionIndexerDao.Dto authorization = new PermissionIndexerDao.Dto(projectUuid, System.currentTimeMillis());
+    PermissionIndexerDao.Dto authorization = new PermissionIndexerDao.Dto(projectUuid, System.currentTimeMillis(), Qualifiers.PROJECT);
     groupNames.forEach(authorization::addGroup);
     userLogins.forEach(authorization::addUser);
     permissionIndexer.index(authorization);
-  }
-
-  public void verifyEmptyProjectPermission() {
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isZero();
-    assertThat(esTester.countDocuments(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).isZero();
-    assertThat(esTester.countDocuments(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).isZero();
   }
 
   public void verifyProjectDoesNotExist(String projectUuid) {
@@ -71,21 +66,36 @@ public class PermissionIndexerTester {
   }
 
   public void verifyProjectExistsWithPermission(String projectUuid, List<String> groupNames, List<Long> userLogins) {
-    verifyProjectExistsWithPermissionInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
+    verifyComponentExistsWithPermissionInIndex(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, IssueIndexDefinition.FIELD_AUTHORIZATION_USERS,
       projectUuid, groupNames, userLogins);
-    verifyProjectExistsWithPermissionInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
+
+    verifyComponentExistsWithPermissionInIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
       ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
-    verifyProjectExistsWithPermissionInIndex(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION,
+
+    verifyComponentExistsWithPermissionInIndex(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION,
       "_id", ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
       ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, projectUuid, groupNames, userLogins);
   }
 
-  private void verifyProjectExistsWithPermissionInIndex(String index, String type, String projectField, String groupField, String userField, String projectUuid,
-                                                        List<String> groupNames, List<Long> userLogins) {
-    assertThat(esTester.getIds(index, type)).contains(projectUuid);
-    BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(projectField, projectUuid));
+  public void verifyViewExistsWithPermissionInRightIndexes(String viewUuid, List<String> groupNames, List<Long> userLogins) {
+    // index issues
+    verifyNoAuthorization(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, viewUuid);
+
+    // index project_measures
+    verifyNoAuthorization(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, viewUuid);
+
+    // index components
+    verifyComponentExistsWithPermissionInIndex(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION,
+      "_id", ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS,
+      ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, viewUuid, groupNames, userLogins);
+  }
+
+  private void verifyComponentExistsWithPermissionInIndex(String index, String type, String projectField, String groupField,
+    String userField, String componentUuid, List<String> groupNames, List<Long> userLogins) {
+    assertThat(esTester.getIds(index, type)).contains(componentUuid);
+    BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(projectField, componentUuid));
     if (groupNames.isEmpty()) {
       queryBuilder.mustNot(existsQuery(groupField));
     } else {
@@ -101,5 +111,18 @@ public class PermissionIndexerTester {
       .setTypes(type)
       .setQuery(boolQuery().must(matchAllQuery()).filter(queryBuilder));
     assertThat(request.get().getHits()).hasSize(1);
+  }
+
+  private void verifyNoAuthorization(String index, String authType, String authId) {
+    assertThat(esTester.getIds(index, authType)).doesNotContain(authId);
+  }
+
+  private void verifyDocument(String index, String docType, String componentField, String componentUuid) {
+    BoolQueryBuilder queryBuilder = boolQuery().must(termQuery(componentField, componentUuid));
+    SearchRequestBuilder request = esTester.client()
+        .prepareSearch(index)
+        .setTypes(docType)
+        .setQuery(boolQuery().must(matchAllQuery()).filter(queryBuilder));
+    assertThat(request.get().getHits()).isNotEmpty();
   }
 }

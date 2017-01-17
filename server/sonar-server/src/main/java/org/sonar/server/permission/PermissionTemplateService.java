@@ -145,8 +145,8 @@ public class PermissionTemplateService {
       .anyMatch(PermissionTemplateCharacteristicDto::getWithProjectCreator);
   }
 
-  private void indexProjectPermissions(DbSession dbSession, List<String> projectUuids) {
-    permissionIndexer.index(dbSession, projectUuids);
+  private void indexProjectPermissions(DbSession dbSession, List<String> projectOrViewUuids) {
+    permissionIndexer.index(dbSession, projectOrViewUuids);
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Long projectCreatorUserId) {

@@ -44,12 +44,14 @@ public class PermissionIndexerDao {
   public static final class Dto {
     private final String projectUuid;
     private final long updatedAt;
+    private final String qualifier;
     private final List<Long> users = Lists.newArrayList();
     private final List<String> groups = Lists.newArrayList();
 
-    public Dto(String projectUuid, long updatedAt) {
+    public Dto(String projectUuid, long updatedAt, String qualifier) {
       this.projectUuid = projectUuid;
       this.updatedAt = updatedAt;
+      this.qualifier = qualifier;
     }
 
     public String getProjectUuid() {
@@ -58,6 +60,10 @@ public class PermissionIndexerDao {
 
     public long getUpdatedAt() {
       return updatedAt;
+    }
+
+    public String getQualifier() {
+      return qualifier;
     }
 
     public List<Long> getUsers() {
@@ -83,18 +89,20 @@ public class PermissionIndexerDao {
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
     "  project_authorization.permission_group as permission_group, " +
-    "  project_authorization.updated_at as updated_at " +
+    "  project_authorization.updated_at as updated_at, " +
+    "  project_authorization.qualifier as qualifier " +
     "FROM ( " +
 
     // project is returned when no authorization
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
+    "      projects.qualifier AS qualifier, " +
     "      NULL AS user_id, " +
     "      NULL  AS permission_group " +
     "      FROM projects " +
     "      WHERE " +
-    "        projects.qualifier = 'TRK' " +
+    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "      UNION " +
@@ -104,12 +112,13 @@ public class PermissionIndexerDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
+    "      projects.qualifier AS qualifier, " +
     "      user_roles.user_id  AS user_id, " +
     "      NULL  AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
     "      WHERE " +
-    "        projects.qualifier = 'TRK' " +
+    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "      UNION " +
@@ -119,13 +128,14 @@ public class PermissionIndexerDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
+    "      projects.qualifier AS qualifier, " +
     "      NULL  AS user_id, " +
     "      groups.name  AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
     "      INNER JOIN groups ON groups.id = group_roles.group_id " +
     "      WHERE " +
-    "        projects.qualifier = 'TRK' " +
+    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "        AND group_id IS NOT NULL " +
@@ -136,12 +146,13 @@ public class PermissionIndexerDao {
     "      SELECT " +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
+    "      projects.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
     "      'Anyone'     AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
     "      WHERE " +
-    "        projects.qualifier = 'TRK' " +
+    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
     "        {projectsCondition} " +
     "        AND group_roles.group_id IS NULL " +
@@ -151,8 +162,8 @@ public class PermissionIndexerDao {
     return doSelectByProjects(dbClient, session, Collections.emptyList());
   }
 
-  List<Dto> selectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
-    return executeLargeInputs(projectUuids, subProjectUuids -> doSelectByProjects(dbClient, session, subProjectUuids));
+  List<Dto> selectByUuids(DbClient dbClient, DbSession session, List<String> projectOrViewUuids) {
+    return executeLargeInputs(projectOrViewUuids, subProjectOrViewUuids -> doSelectByProjects(dbClient, session, subProjectOrViewUuids));
   }
 
   private static List<Dto> doSelectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
@@ -203,7 +214,8 @@ public class PermissionIndexerDao {
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
       long updatedAt = rs.getLong(4);
-      dto = new Dto(projectUuid, updatedAt);
+      String qualifier = rs.getString(5);
+      dto = new Dto(projectUuid, updatedAt, qualifier);
       dtosByProjectUuid.put(projectUuid, dto);
     }
     Long userId = rs.getLong(2);

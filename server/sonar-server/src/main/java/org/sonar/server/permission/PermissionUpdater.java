@@ -51,13 +51,13 @@ public class PermissionUpdater {
 
   public void apply(DbSession dbSession, Collection<PermissionChange> changes) {
     Set<Long> projectIds = new HashSet<>();
-    List<String> projectUuids = new ArrayList<>();
+    List<String> projectOrViewUuids = new ArrayList<>();
     for (PermissionChange change : changes) {
       boolean changed = doApply(dbSession, change);
       Optional<ProjectId> projectId = change.getProjectId();
       if (changed && projectId.isPresent()) {
         projectIds.add(projectId.get().getId());
-        projectUuids.add(projectId.get().getUuid());
+        projectOrViewUuids.add(projectId.get().getUuid());
       }
     }
     for (Long projectId : projectIds) {
@@ -66,7 +66,7 @@ public class PermissionUpdater {
     dbSession.commit();
 
     if (!projectIds.isEmpty()) {
-      permissionIndexer.index(dbSession, projectUuids);
+      permissionIndexer.index(dbSession, projectOrViewUuids);
     }
   }
 
