@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Route } from 'react-router';
-import OrganizationPage from './components/OrganizationPage';
-import OrganizationAdmin from './components/OrganizationAdmin';
-import OrganizationEdit from './components/OrganizationEdit';
-import OrganizationDelete from './components/OrganizationDelete';
+import { shallow } from 'enzyme';
+import { UnconnectedOrganizationDelete } from '../OrganizationDelete';
 
-export default (
-    <Route path=":organizationKey" component={OrganizationPage}>
-      <Route component={OrganizationAdmin}>
-        <Route path="delete" component={OrganizationDelete}/>
-        <Route path="edit" component={OrganizationEdit}/>
-      </Route>
-    </Route>
-);
+it('smoke test', () => {
+  const organization = { key: 'foo', name: 'Foo' };
+  const wrapper = shallow(<UnconnectedOrganizationDelete organization={organization}/>);
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setState({ deleting: true });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.setState({ loading: true });
+  expect(wrapper).toMatchSnapshot();
+});

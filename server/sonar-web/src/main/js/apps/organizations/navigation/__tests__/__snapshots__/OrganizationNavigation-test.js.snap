@@ -49,6 +49,15 @@ exports[`test admin 1`] = `
                 edit
               </Link>
             </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/organizations/foo/delete">
+                delete
+              </Link>
+            </li>
           </ul>
         </li>
       </ul>
