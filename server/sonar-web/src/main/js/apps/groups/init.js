@@ -26,13 +26,13 @@ import ListView from './list-view';
 import ListFooterView from './list-footer-view';
 
 const App = new Marionette.Application();
-const init = function (el) {
+const init = function ({ el, organization }) {
   // Layout
   this.layout = new Layout({ el });
   this.layout.render();
 
   // Collection
-  this.groups = new Groups();
+  this.groups = new Groups({ organization });
 
   // Header View
   this.headerView = new HeaderView({ collection: this.groups });
@@ -54,11 +54,11 @@ const init = function (el) {
   this.groups.fetch();
 };
 
-App.on('start', el => {
-  init.call(App, el);
+App.on('start', options => {
+  init.call(App, options);
 });
 
-export default function (el) {
-  App.start(el);
+export default function (el, organization) {
+  App.start({ el, organization });
 }
 

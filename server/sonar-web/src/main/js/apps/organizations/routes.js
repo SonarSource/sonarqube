@@ -22,6 +22,7 @@ import { Route } from 'react-router';
 import OrganizationPage from './components/OrganizationPage';
 import OrganizationAdmin from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
+import OrganizationGroups from './components/OrganizationGroups';
 import OrganizationDelete from './components/OrganizationDelete';
 
 export default (
@@ -29,6 +30,7 @@ export default (
       <Route component={OrganizationAdmin}>
         <Route path="delete" component={OrganizationDelete}/>
         <Route path="edit" component={OrganizationEdit}/>
+        <Route path="groups" component={OrganizationGroups}/>
       </Route>
     </Route>
 );

@@ -39,8 +39,15 @@ export default Marionette.CompositeView.extend({
     this.$el.removeClass('new-loading');
 
     const query = this.collection.q || '';
-    const shouldHideAnyone = !'anyone'.includes(query.toLowerCase());
+    const shouldHideAnyone = this.collection.organization || !'anyone'.includes(query.toLowerCase());
     this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
+  },
+
+  serializeData () {
+    return {
+      ...Marionette.CompositeView.prototype.serializeData.apply(this, arguments),
+      organization: this.collection.organization
+    };
   }
 });
 
