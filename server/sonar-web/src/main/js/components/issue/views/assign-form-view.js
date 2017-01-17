@@ -154,6 +154,6 @@ export default ActionOptionsView.extend({
   },
 
   makeUnique (assignees) {
-    return uniqBy(assignees, false, assignee => assignee.id);
+    return uniqBy(assignees, assignee => assignee.id);
   }
 });
