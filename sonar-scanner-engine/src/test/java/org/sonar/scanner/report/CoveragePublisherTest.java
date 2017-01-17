@@ -20,21 +20,20 @@
 package org.sonar.scanner.report;
 
 import java.io.File;
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Project;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,18 +49,19 @@ public class CoveragePublisherTest {
   private MeasureCache measureCache;
   private CoveragePublisher publisher;
 
-  private org.sonar.api.resources.Resource sampleFile;
+  private InputComponentStore componentCache;
+  private DefaultInputFile inputFile;
 
   @Before
   public void prepare() {
-    Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    BatchComponentCache resourceCache = new BatchComponentCache();
-    sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
-    resourceCache.add(sampleFile, null).setInputComponent(new TestInputFileBuilder("foo", "src/Foo.php").setLines(5).build());
+    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setLines(5).build();
+    componentCache = new InputComponentStore();
+    componentCache.put(new DefaultInputModule("foo"));
+    componentCache.put(inputFile);
+
     measureCache = mock(MeasureCache.class);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(null);
-    publisher = new CoveragePublisher(resourceCache, measureCache);
+    publisher = new CoveragePublisher(componentCache, measureCache);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class CoveragePublisherTest {
 
     publisher.publish(writer);
 
-    try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
+    try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(inputFile.batchId())) {
       assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(2)
         .setHits(true)

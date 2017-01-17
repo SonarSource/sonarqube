@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.issue.Issuable;
-import org.sonar.scanner.DefaultProjectTree;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +31,6 @@ import static org.mockito.Mockito.mock;
 public class IssuableFactoryTest {
 
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
-  DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
 
   @Test
   public void file_should_be_issuable() {

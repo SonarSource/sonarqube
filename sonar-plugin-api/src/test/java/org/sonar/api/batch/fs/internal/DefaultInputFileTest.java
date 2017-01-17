@@ -51,7 +51,7 @@ public class DefaultInputFileTest {
     Path baseDir = temp.newFolder().toPath();
 
     Metadata metadata = new Metadata(42, 42, "", new int[0], 0);
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST).setLanguage("php");
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST, 0).setLanguage("php");
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, (f) -> metadata)
       .setStatus(InputFile.Status.ADDED)
       .setCharset(StandardCharsets.ISO_8859_1);
@@ -75,7 +75,7 @@ public class DefaultInputFileTest {
     Files.write(testFile, "test string".getBytes(StandardCharsets.UTF_8));
     Metadata metadata = new Metadata(42, 30, "", new int[0], 0);
 
-    DefaultInputFile inputFile = new DefaultInputFile(new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST)
+    DefaultInputFile inputFile = new DefaultInputFile(new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST, 0)
       .setLanguage("php"), f -> metadata)
         .setStatus(InputFile.Status.ADDED)
         .setCharset(StandardCharsets.ISO_8859_1);

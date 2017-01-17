@@ -91,7 +91,7 @@ public final class Library extends Resource {
   }
 
   public static Library createFromMavenIds(String groupId, String artifactId, String version) {
-    return new Library(String.format(Project.MAVEN_KEY_FORMAT, groupId, artifactId), version);
+    return new Library(String.format("%s:%s", groupId, artifactId), version);
   }
 
   @Override

@@ -21,15 +21,18 @@ package org.sonar.scanner.issue;
 
 import java.util.Date;
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.issue.DeprecatedIssueAdapterForFilter;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DeprecatedIssueAdapterForFilterTest {
 
@@ -39,7 +42,11 @@ public class DeprecatedIssueAdapterForFilterTest {
 
   @Test
   public void improve_coverage() {
-    DeprecatedIssueAdapterForFilter issue = new DeprecatedIssueAdapterForFilter(new Project(PROJECT_KEY).setAnalysisDate(ANALYSIS_DATE),
+    DefaultInputModule module = new DefaultInputModule(PROJECT_KEY);
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(ANALYSIS_DATE);
+
+    DeprecatedIssueAdapterForFilter issue = new DeprecatedIssueAdapterForFilter(module, projectAnalysisInfo,
       org.sonar.scanner.protocol.output.ScannerReport.Issue.newBuilder()
         .setRuleRepository("repo")
         .setRuleKey("key")
@@ -47,7 +54,8 @@ public class DeprecatedIssueAdapterForFilterTest {
         .setMsg("msg")
         .build(),
       COMPONENT_KEY);
-    DeprecatedIssueAdapterForFilter issue2 = new DeprecatedIssueAdapterForFilter(new Project(PROJECT_KEY).setAnalysisDate(ANALYSIS_DATE),
+
+    DeprecatedIssueAdapterForFilter issue2 = new DeprecatedIssueAdapterForFilter(module, projectAnalysisInfo,
       org.sonar.scanner.protocol.output.ScannerReport.Issue.newBuilder()
         .setRuleRepository("repo")
         .setRuleKey("key")
