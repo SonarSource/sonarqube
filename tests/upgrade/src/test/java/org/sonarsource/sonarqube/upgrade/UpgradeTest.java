@@ -32,18 +32,22 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
+import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpgradeTest {
@@ -129,7 +133,7 @@ public class UpgradeTest {
     checkUrlIsReturningOk("/api/system/db_migration_status");
     checkUrlIsReturningOk("/api/webservices/list");
     // TODO Reactivate when latest Sonarqube version will be in repox
-//    checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
+    // checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
 
     // These urls should not be available when system requires a migration
     checkUrlIsReturningNotFound("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
@@ -212,6 +216,11 @@ public class UpgradeTest {
   }
 
   private int countFiles(String key) {
+    if (orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.4")) {
+      Measure measure = newWsClient(orchestrator).measures().component(new ComponentWsRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
+        .getComponent().getMeasures(0);
+      return parseInt(measure.getValue());
+    }
     return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "files")).getMeasureIntValue("files");
   }
 

@@ -23,21 +23,19 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static util.ItUtils.formatDate;
+import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.resetPeriods;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
@@ -92,14 +90,13 @@ public class NewDebtRatioMeasureTest {
   }
 
   private void assertNoNewDebtRatio() {
-    assertThat(getFileResourceWithVariations(NEW_DEBT_RATIO_METRIC_KEY)).isNull();
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY)).isEmpty();
   }
 
   private void assertNewDebtRatio(@Nullable Double valuePeriod1, @Nullable Double valuePeriod2) {
-    Resource newTechnicalDebt = getFileResourceWithVariations(NEW_DEBT_RATIO_METRIC_KEY);
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(valuePeriod1, within(0.01));
-    assertThat(measures.get(0).getVariation2()).isEqualTo(valuePeriod2, within(0.01));
+    Map<Integer, Double> newTechnicalDebt = getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY);
+    assertThat(newTechnicalDebt.get(1)).isEqualTo(valuePeriod1, within(0.01));
+    assertThat(newTechnicalDebt.get(2)).isEqualTo(valuePeriod2, within(0.01));
   }
 
   private void setSampleProjectQualityProfile(String qualityProfileKey) {
@@ -121,10 +118,6 @@ public class NewDebtRatioMeasureTest {
       ItUtils.concat(properties,
         // disable standard scm support so that it does not interfere with Xoo Scm sensor
         "sonar.scm.disabled", "false"));
-  }
-
-  private Resource getFileResourceWithVariations(String metricKey) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", metricKey).setIncludeTrends(true));
   }
 
 }

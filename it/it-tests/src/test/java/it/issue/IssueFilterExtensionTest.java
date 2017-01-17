@@ -20,17 +20,17 @@
 package it.issue;
 
 import java.util.List;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.issue.IssueRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasureAsDouble;
 
 /**
  * Tests the extension point IssueFilter
@@ -39,6 +39,9 @@ public class IssueFilterExtensionTest extends AbstractIssueTest {
 
   @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+
+  @ClassRule
+  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
 
   private final String manyRuleProfileKey = projectAnalysisRule.registerProfile("/issue/IssueFilterExtensionTest/xoo-with-many-rules.xml");
   private final String xooMultiModuleProjectKey = projectAnalysisRule.registerProject("shared/xoo-multi-modules-sample");
@@ -56,7 +59,7 @@ public class IssueFilterExtensionTest extends AbstractIssueTest {
       assertThat(issue.componentKey()).doesNotContain("HelloA1");
     }
 
-    assertThat(getMeasure(xooMultiModuleProjectKey, "violations").getIntValue()).isEqualTo(issues.size());
+    assertThat(getMeasureAsDouble(ORCHESTRATOR, xooMultiModuleProjectKey, "violations").intValue()).isEqualTo(issues.size());
   }
 
   @Test
@@ -86,17 +89,12 @@ public class IssueFilterExtensionTest extends AbstractIssueTest {
     }
   }
 
-  private static List<Issue> searchUnresolvedIssues(String projectName) {
-    return searchIssues(IssueQuery.create().componentRoots(projectName).resolved(true));
+  private static List<Issue> searchUnresolvedIssues(String projectKey) {
+    return searchIssues(IssueQuery.create().componentRoots(projectKey).resolved(true));
   }
 
-  private static List<Issue> searchResolvedIssues(String projectName) {
-    return searchIssues(IssueQuery.create().componentRoots(projectName).resolved(false));
-  }
-
-  private static Measure getMeasure(String projectKey, String metricKey) {
-    Resource resource = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics(projectKey, metricKey));
-    return resource == null ? null : resource.getMeasure(metricKey);
+  private static List<Issue> searchResolvedIssues(String projectKey) {
+    return searchIssues(IssueQuery.create().componentRoots(projectKey).resolved(false));
   }
 
   private static int countModuleIssues(List<Issue> issues) {

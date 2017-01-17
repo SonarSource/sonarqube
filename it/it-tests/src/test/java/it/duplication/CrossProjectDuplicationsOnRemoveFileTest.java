@@ -26,10 +26,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static util.ItUtils.getComponent;
 import static util.ItUtils.runProjectAnalysis;
 import static util.selenium.Selenese.runSelenese;
 
@@ -52,7 +52,7 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
 
     // Remove origin project
     orchestrator.getServer().adminWsClient().post("api/projects/bulk_delete", "keys", ORIGIN_PROJECT);
-    assertThat(orchestrator.getServer().getAdminWsClient().find(ResourceQuery.create(ORIGIN_PROJECT))).isNull();
+    assertThat(getComponent(orchestrator, ORIGIN_PROJECT)).isNull();
   }
 
   @Test

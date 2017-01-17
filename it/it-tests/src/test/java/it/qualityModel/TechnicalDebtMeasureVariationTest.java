@@ -22,18 +22,16 @@ package it.qualityModel;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
-import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.setServerProperty;
 
 /**
@@ -76,19 +74,14 @@ public class TechnicalDebtMeasureVariationTest {
     runSampleProjectAnalysis();
 
     // New technical debt only comes from new issues
-    Resource newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(17);
-    assertThat(measures.get(0).getVariation2()).isEqualTo(17);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
+      .contains(entry(1, 17d), entry(2, 17d));
 
     // Third analysis, with exactly the same profile -> no new issues so no new technical debt
     runSampleProjectAnalysis();
-
-    newTechnicalDebt = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt").setIncludeTrends(true));
-
-    // No variation => measure is purged
-    assertThat(newTechnicalDebt).isNull();
+    // No variation => measure is 0 (best value)
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
+      .contains(entry(1, 0d), entry(2, 0d));
   }
 
   @Test
@@ -104,17 +97,13 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-
-    Resource newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(90);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
+      .get(1)).isEqualTo(90);
 
     // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-
-    newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(0);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
+      .get(1)).isZero();
   }
 
   @Test
@@ -134,18 +123,14 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-
-    Resource newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation2()).isEqualTo(90);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
+      .get(2)).isEqualTo(90);
 
     // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis but still since 30
     // days
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-
-    newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation2()).isEqualTo(90);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
+      .get(2)).isEqualTo(90);
   }
 
   /**
@@ -163,9 +148,8 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Execute a second analysis with a smaller effort to fix -> Added technical debt should be 0, not negative
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-
-    Resource newTechnicalDebt = getSampleProjectResourceWithVariations("new_technical_debt");
-    assertThat(newTechnicalDebt).isNull();
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
+      .contains(entry(1, 0d), entry(2, 0d));
   }
 
   private void setSampleProjectQualityProfile(String qualityProfileKey) {
@@ -182,10 +166,6 @@ public class TechnicalDebtMeasureVariationTest {
 
   private void runSampleProjectAnalysis(String... properties) {
     ItUtils.runVerboseProjectAnalysis(TechnicalDebtMeasureVariationTest.orchestrator, "shared/xoo-sample", properties);
-  }
-
-  private Resource getSampleProjectResourceWithVariations(String metricKey) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", metricKey).setIncludeTrends(true));
   }
 
 }

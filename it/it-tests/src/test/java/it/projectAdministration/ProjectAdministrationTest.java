@@ -37,13 +37,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import pageobjects.Navigation;
 import pageobjects.settings.SettingsPage;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getComponent;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
@@ -74,13 +74,13 @@ public class ProjectAdministrationTest {
   public void delete_project_by_web_service() {
     scanSampleWithDate(ANALYSIS_DATE);
 
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
+    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
+    assertThat(getComponent(orchestrator, FILE_KEY)).isNotNull();
 
     orchestrator.getServer().adminWsClient().post(DELETE_WS_ENDPOINT, "keys", PROJECT_KEY);
 
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNull();
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNull();
+    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNull();
+    assertThat(getComponent(orchestrator, FILE_KEY)).isNull();
   }
 
   @Test
@@ -88,8 +88,8 @@ public class ProjectAdministrationTest {
     expectedException.expect(HttpException.class);
     scanSampleWithDate(ANALYSIS_DATE);
 
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(FILE_KEY))).isNotNull();
+    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
+    assertThat(getComponent(orchestrator, FILE_KEY)).isNotNull();
 
     // it's forbidden to delete only some files
     orchestrator.getServer().adminWsClient().post(DELETE_WS_ENDPOINT, "keys", FILE_KEY);
@@ -100,7 +100,7 @@ public class ProjectAdministrationTest {
     expectedException.expect(HttpException.class);
     scanSampleWithDate(ANALYSIS_DATE);
 
-    assertThat(orchestrator.getServer().getWsClient().find(ResourceQuery.create(PROJECT_KEY))).isNotNull();
+    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
 
     // use wsClient() instead of adminWsClient()
     orchestrator.getServer().wsClient().post(DELETE_WS_ENDPOINT, "keys", PROJECT_KEY);

@@ -22,13 +22,14 @@ package it.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
 import it.Category3Suite;
+import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getComponent;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 
 /**
  * Test the extension point org.sonar.api.batch.bootstrap.ProjectBuilder
@@ -56,34 +57,30 @@ public class ProjectBuilderTest {
     checkSubProject("project-builder-module-b");
     checkFile("project-builder-module-a", "src/HelloA.java");
     checkFile("project-builder-module-b", "src/HelloB.java");
-    assertThat(getResource("com.sonarsource.it.projects.batch:project-builder-module-b:src/IgnoredFile.java")).isNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.projects.batch:project-builder-module-b:src/IgnoredFile.java")).isNull();
   }
 
   private void checkProject() {
-    Resource project = getResource("com.sonarsource.it.projects.batch:project-builder");
-
     // name has been changed by plugin
-    assertThat(project.getName()).isEqualTo("Name changed by plugin");
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.projects.batch:project-builder").getName()).isEqualTo("Name changed by plugin");
 
-    assertThat(project).isNotNull();
-    assertThat(project.getMeasureIntValue("files")).isEqualTo(2);
-    assertThat(project.getMeasureIntValue("lines")).isGreaterThan(10);
+    Map<String, Double> measures = getMeasures("com.sonarsource.it.projects.batch:project-builder");
+    assertThat(measures.get("files")).isEqualTo(2);
+    assertThat(measures.get("lines")).isGreaterThan(10);
   }
 
   private void checkSubProject(String subProjectKey) {
-    Resource subProject = getResource("com.sonarsource.it.projects.batch:" + subProjectKey);
-    assertThat(subProject).isNotNull();
-    assertThat(subProject.getMeasureIntValue("files")).isEqualTo(1);
-    assertThat(subProject.getMeasureIntValue("lines")).isGreaterThan(5);
+    Map<String, Double> measures = getMeasures("com.sonarsource.it.projects.batch:" + subProjectKey);
+    assertThat(measures.get("files")).isEqualTo(1);
+    assertThat(measures.get("lines")).isGreaterThan(5);
   }
 
   private void checkFile(String subProjectKey, String fileKey) {
-    Resource file = getResource("com.sonarsource.it.projects.batch:" + subProjectKey + ":" + fileKey);
-    assertThat(file).isNotNull();
-    assertThat(file.getMeasureIntValue("lines")).isGreaterThan(5);
+    Map<String, Double> measures = getMeasures("com.sonarsource.it.projects.batch:" + subProjectKey + ":" + fileKey);
+    assertThat(measures.get("lines")).isGreaterThan(5);
   }
 
-  private Resource getResource(String key) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "lines", "files"));
+  private Map<String, Double> getMeasures(String key) {
+    return getMeasuresAsDoubleByMetricKey(orchestrator, key, "lines", "files");
   }
 }

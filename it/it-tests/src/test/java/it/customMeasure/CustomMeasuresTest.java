@@ -27,9 +27,7 @@ import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -52,13 +50,13 @@ public class CustomMeasuresTest {
     setBurnedBudget(1200.3);
     setTeamSize(4);
 
-    assertThat(getMeasure("team_size")).isNull();
-    assertThat(getMeasure("burned_budget")).isNull();
+    assertThat(getMeasureAsDouble("team_size")).isNull();
+    assertThat(getMeasureAsDouble("burned_budget")).isNull();
 
     analyzeProject();
 
-    assertThat(getMeasure("burned_budget").getValue()).isEqualTo(1200.3);
-    assertThat(getMeasure("team_size").getIntValue()).isEqualTo(4);
+    assertThat(getMeasureAsDouble("burned_budget")).isEqualTo(1200.3);
+    assertThat(getMeasureAsDouble("team_size")).isEqualTo(4d);
   }
 
   @Test
@@ -67,9 +65,9 @@ public class CustomMeasuresTest {
     setTeamSize(4);
     analyzeProject();
     updateTeamSize(15);
-    assertThat(getMeasure("team_size").getIntValue()).isEqualTo(4);
+    assertThat(getMeasureAsDouble("team_size")).isEqualTo(4d);
     analyzeProject();// the value is available when the project is analyzed again
-    assertThat(getMeasure("team_size").getIntValue()).isEqualTo(15);
+    assertThat(getMeasureAsDouble("team_size")).isEqualTo(15d);
   }
 
   @Test
@@ -78,10 +76,11 @@ public class CustomMeasuresTest {
     setTeamSize(4);
     analyzeProject();
     deleteCustomMeasure("team_size");
-    assertThat(getMeasure("team_size").getIntValue()).isEqualTo(4);// the value is still available. It will be removed during next analyzed
+    assertThat(getMeasureAsDouble("team_size")).isEqualTo(4d);// the value is still available. It will be removed during next
+                                                                           // analyzed
 
     analyzeProject();
-    assertThat(getMeasure("team_size")).isNull();
+    assertThat(getMeasureAsDouble("team_size")).isNull();
   }
 
   private void analyzeProject() {
@@ -112,8 +111,7 @@ public class CustomMeasuresTest {
     orchestrator.getServer().adminWsClient().post("api/custom_measures/delete", "id", customMeasureId);
   }
 
-  private Measure getMeasure(String metricKey) {
-    Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, metricKey));
-    return resource != null ? resource.getMeasure(metricKey) : null;
+  private Double getMeasureAsDouble(String metricKey) {
+    return ItUtils.getMeasureAsDouble(orchestrator, PROJECT_KEY, metricKey);
   }
 }

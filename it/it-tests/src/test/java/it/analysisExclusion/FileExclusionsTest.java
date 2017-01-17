@@ -23,14 +23,18 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.client.component.TreeWsRequest;
 import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.newWsClient;
 
 public class FileExclusionsTest {
   static final String PROJECT = "exclusions";
@@ -50,11 +54,10 @@ public class FileExclusionsTest {
       "sonar.exclusions", "**/*Exclude*.xoo,src/main/xoo/org/sonar/tests/packageToExclude/**",
       "sonar.test.exclusions", "**/ClassTwoTest.xoo");
 
-    Resource project = projectWithMetrics("ncloc", "files", "directories");
-
-    assertThat(project.getMeasureIntValue("files")).isEqualTo(4);
-    assertThat(project.getMeasureIntValue("ncloc")).isEqualTo(60);
-    assertThat(project.getMeasureIntValue("directories")).isEqualTo(2);
+    Map<String, Double> measures = getMeasuresAsDouble("ncloc", "files", "directories");
+    assertThat(measures.get("files").intValue()).isEqualTo(4);
+    assertThat(measures.get("ncloc").intValue()).isEqualTo(60);
+    assertThat(measures.get("directories").intValue()).isEqualTo(2);
   }
 
   /**
@@ -67,11 +70,9 @@ public class FileExclusionsTest {
       "sonar.exclusions", "**/*Exclude*.xoo,org/sonar/tests/packageToExclude/**",
       "sonar.test.exclusions", "**/ClassTwoTest.xoo");
 
-    List<Resource> testFiles = orchestrator.getServer().getWsClient()
-      .findAll(new ResourceQuery(PROJECT).setQualifiers("UTS").setDepth(-1));
-
+    List<Component> testFiles = getComponents("UTS");
     assertThat(testFiles).hasSize(2);
-    assertThat(testFiles).extracting("name").doesNotContain("ClassTwoTest.xoo");
+    assertThat(testFiles).extracting(Component::getName).doesNotContain("ClassTwoTest.xoo");
   }
 
   /**
@@ -83,14 +84,11 @@ public class FileExclusionsTest {
       "sonar.dynamicAnalysis", "false",
       "sonar.inclusions", "**/*One.xoo,**/*Two.xoo");
 
-    Resource project = projectWithMetrics("files");
-    assertThat(project.getMeasureIntValue("files")).isEqualTo(2);
+    assertThat(getMeasuresAsDouble("files").get("files")).isEqualTo(2);
 
-    List<Resource> sourceFiles = orchestrator.getServer().getWsClient()
-      .findAll(new ResourceQuery(PROJECT).setQualifiers("FIL").setDepth(-1));
-
+    List<Component> sourceFiles = getComponents("FIL");
     assertThat(sourceFiles).hasSize(2);
-    assertThat(sourceFiles).extracting("name").containsOnly("ClassOne.xoo", "ClassTwo.xoo");
+    assertThat(sourceFiles).extracting(Component::getName).containsOnly("ClassOne.xoo", "ClassTwo.xoo");
   }
 
   /**
@@ -100,14 +98,11 @@ public class FileExclusionsTest {
   public void include_test_files() {
     scan("sonar.test.inclusions", "src/test/xoo/**/*One*.xoo,src/test/xoo/**/*Two*.xoo");
 
-    Resource project = projectWithMetrics("tests");
-    assertThat(project.getMeasureIntValue("tests")).isEqualTo(2);
+    assertThat(getMeasuresAsDouble("tests").get("tests")).isEqualTo(2);
 
-    List<Resource> testFiles = orchestrator.getServer().getWsClient()
-      .findAll(new ResourceQuery(PROJECT).setQualifiers("UTS").setDepth(-1));
-
+    List<Component> testFiles = getComponents("UTS");
     assertThat(testFiles).hasSize(2);
-    assertThat(testFiles).extracting("name").containsOnly("ClassOneTest.xoo", "ClassTwoTest.xoo");
+    assertThat(testFiles).extracting(Component::getName).containsOnly("ClassOneTest.xoo", "ClassTwoTest.xoo");
   }
 
   /**
@@ -122,15 +117,13 @@ public class FileExclusionsTest {
       // exclude ClassThree and ClassToExclude
       "sonar.exclusions", "file:**/src/main/xoo/org/**/packageToExclude/*.xoo,file:**/src/main/xoo/org/**/*Exclude.xoo");
 
-    List<Resource> sourceFiles = orchestrator.getServer().getWsClient()
-      .findAll(new ResourceQuery(PROJECT).setQualifiers("FIL").setDepth(-1));
-
+    List<Component> sourceFiles = getComponents("FIL");
     assertThat(sourceFiles).hasSize(4);
-    assertThat(sourceFiles).extracting("name").containsOnly("ClassOne.xoo", "ClassToIgnoreGlobally.xoo", "ClassTwo.xoo", "NoSonarComment.xoo");
+    assertThat(sourceFiles).extracting(Component::getName).containsOnly("ClassOne.xoo", "ClassToIgnoreGlobally.xoo", "ClassTwo.xoo", "NoSonarComment.xoo");
   }
 
-  static Resource projectWithMetrics(String... metricKeys) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys));
+  static Map<String, Double> getMeasuresAsDouble(String... metricKeys) {
+    return getMeasuresAsDoubleByMetricKey(orchestrator, PROJECT, metricKeys);
   }
 
   private void scan(String... properties) {
@@ -138,5 +131,9 @@ public class FileExclusionsTest {
       .create(ItUtils.projectDir("exclusions/exclusions"))
       .setProperties(properties);
     orchestrator.executeBuild(build);
+  }
+
+  public static List<Component> getComponents(String qualifier) {
+    return newWsClient(orchestrator).components().tree(new TreeWsRequest().setBaseComponentKey(PROJECT).setQualifiers(singletonList(qualifier))).getComponentsList();
   }
 }

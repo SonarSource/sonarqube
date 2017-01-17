@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
 import java.io.File;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -31,10 +32,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.projectDir;
 
 public class CoverageTest {
@@ -58,18 +58,18 @@ public class CoverageTest {
   public void coverage() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage")));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1);
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "sample-ut-coverage", ALL_COVERAGE_METRICS);
+    assertThat(measures.get("line_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("lines_to_cover")).isEqualTo(4d);
+    assertThat(measures.get("uncovered_lines")).isEqualTo(2d);
+    assertThat(measures.get("branch_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("conditions_to_cover")).isEqualTo(2d);
+    assertThat(measures.get("uncovered_conditions")).isEqualTo(1d);
+    assertThat(measures.get("coverage")).isEqualTo(50.0);
 
-    assertThat(project.getMeasureValue("it_coverage")).isNull();
+    assertThat(measures.get("it_coverage")).isNull();
 
-    assertThat(project.getMeasureValue("overall_coverage")).isNull();
+    assertThat(measures.get("overall_coverage")).isNull();
 
     String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
     // Use strict checking to be sure IT coverage is not present
@@ -89,18 +89,18 @@ public class CoverageTest {
   public void coverage_no_condition() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-ut-coverage-no-condition")));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-ut-coverage", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("branch_coverage")).isNull();
-    assertThat(project.getMeasureValue("conditions_to_cover")).isNull();
-    assertThat(project.getMeasureValue("uncovered_conditions")).isNull();
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "sample-ut-coverage", ALL_COVERAGE_METRICS);
+    assertThat(measures.get("line_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("lines_to_cover")).isEqualTo(4d);
+    assertThat(measures.get("uncovered_lines")).isEqualTo(2d);
+    assertThat(measures.get("branch_coverage")).isNull();
+    assertThat(measures.get("conditions_to_cover")).isNull();
+    assertThat(measures.get("uncovered_conditions")).isNull();
+    assertThat(measures.get("coverage")).isEqualTo(50.0);
 
-    assertThat(project.getMeasureValue("it_coverage")).isNull();
+    assertThat(measures.get("it_coverage")).isNull();
 
-    assertThat(project.getMeasureValue("overall_coverage")).isNull();
+    assertThat(measures.get("overall_coverage")).isNull();
 
     String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
     // Use strict checking to be sure IT coverage is not present
@@ -114,21 +114,21 @@ public class CoverageTest {
   public void it_coverage_imported_as_coverage() throws Exception {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-it-coverage")));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-it-coverage", ALL_COVERAGE_METRICS));
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "sample-it-coverage", ALL_COVERAGE_METRICS);
 
     // Since SQ 6.2 all coverage reports are merged as coverage
 
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(2);
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(2);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(1);
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+    assertThat(measures.get("line_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("lines_to_cover")).isEqualTo(4d);
+    assertThat(measures.get("uncovered_lines")).isEqualTo(2d);
+    assertThat(measures.get("branch_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("conditions_to_cover")).isEqualTo(2d);
+    assertThat(measures.get("uncovered_conditions")).isEqualTo(1d);
+    assertThat(measures.get("coverage")).isEqualTo(50.0);
 
-    assertThat(project.getMeasureValue("it_coverage")).isNull();
+    assertThat(measures.get("it_coverage")).isNull();
 
-    assertThat(project.getMeasureValue("overall_coverage")).isNull();
+    assertThat(measures.get("overall_coverage")).isNull();
 
     String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo"));
     // Use strict checking to be sure UT coverage is not present
@@ -143,18 +143,18 @@ public class CoverageTest {
 
     // Since SQ 6.2 all coverage reports are merged as coverage
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample-overall-coverage", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("line_coverage")).isEqualTo(75.0);
-    assertThat(project.getMeasureValue("lines_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_lines")).isEqualTo(1);
-    assertThat(project.getMeasureValue("branch_coverage")).isEqualTo(50.0);
-    assertThat(project.getMeasureValue("conditions_to_cover")).isEqualTo(4);
-    assertThat(project.getMeasureValue("uncovered_conditions")).isEqualTo(2);
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(62.5);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "sample-overall-coverage", ALL_COVERAGE_METRICS);
+    assertThat(measures.get("line_coverage")).isEqualTo(75.0);
+    assertThat(measures.get("lines_to_cover")).isEqualTo(4);
+    assertThat(measures.get("uncovered_lines")).isEqualTo(1);
+    assertThat(measures.get("branch_coverage")).isEqualTo(50.0);
+    assertThat(measures.get("conditions_to_cover")).isEqualTo(4);
+    assertThat(measures.get("uncovered_conditions")).isEqualTo(2);
+    assertThat(measures.get("coverage")).isEqualTo(62.5);
 
-    assertThat(project.getMeasureValue("it_coverage")).isNull();
+    assertThat(measures.get("it_coverage")).isNull();
 
-    assertThat(project.getMeasureValue("overall_coverage")).isNull();
+    assertThat(measures.get("overall_coverage")).isNull();
 
     String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo"));
     // Use strict checking to be sure no extra coverage is present
@@ -170,8 +170,7 @@ public class CoverageTest {
   public void should_compute_coverage_on_project() {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered")));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+    assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, "xoo-half-covered", ALL_COVERAGE_METRICS).get("coverage")).isEqualTo(50.0);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -184,8 +183,7 @@ public class CoverageTest {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "src/main/xoo/org/sonar/tests/halfcovered/UnCovered.xoo"));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(100.0);
+    assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, "xoo-half-covered", ALL_COVERAGE_METRICS).get("coverage")).isEqualTo(100.0);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -198,8 +196,7 @@ public class CoverageTest {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "**/UnCovered*"));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("coverage")).isEqualTo(100.0);
+    assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, "xoo-half-covered", ALL_COVERAGE_METRICS).get("coverage")).isEqualTo(100.0);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -212,8 +209,7 @@ public class CoverageTest {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "**/*"));
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
-    assertThat(project.getMeasureValue("coverage")).isNull();
+    assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, "xoo-half-covered", ALL_COVERAGE_METRICS).get("coverage")).isNull();
 
     verifyComputeEngineTempDirIsEmpty();
   }

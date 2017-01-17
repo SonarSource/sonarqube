@@ -28,15 +28,14 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasure;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.runProjectAnalysis;
@@ -88,7 +87,7 @@ public class QualityGateOnRatingMeasuresTest {
 
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
 
-    assertThat(fetchGateStatus().getData()).isEqualTo("WARN");
+    assertThat(getGateStatusMeasure().getValue()).isEqualTo("WARN");
   }
 
   @Test
@@ -105,21 +104,17 @@ public class QualityGateOnRatingMeasuresTest {
     // Run first analysis with empty quality gate -> quality gate is green
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
-    assertThat(fetchGateStatus().getData()).isEqualTo("OK");
+    assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
 
     // Run second analysis with some rules that makes Security Rating to E -> quality gate is red
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(orchestrator, "qualitygate/xoo-sample");
-    assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
+    assertThat(getGateStatusMeasure().getValue()).isEqualTo("ERROR");
   }
 
-  private Measure fetchGateStatus() {
-    return fetchResourceWithGateStatus().getMeasure("alert_status");
-  }
-
-  private Resource fetchResourceWithGateStatus() {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, "alert_status").setIncludeAlerts(true));
+  private WsMeasures.Measure getGateStatusMeasure() {
+    return getMeasure(orchestrator, PROJECT_KEY, "alert_status");
   }
 
   private static QualityGateClient qgClient() {

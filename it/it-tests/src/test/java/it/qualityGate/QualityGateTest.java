@@ -19,6 +19,7 @@
  */
 package it.qualityGate;
 
+import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -42,19 +44,20 @@ import org.sonar.wsclient.project.NewProject;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.extractCeTaskId;
+import static util.ItUtils.getMeasure;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -100,7 +103,7 @@ public class QualityGateTest {
 
     verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_NO_QG);
 
-    assertThat(fetchResourceWithGateStatus()).isNull();
+    assertThat(getGateStatusMeasure()).isNull();
   }
 
   @Test
@@ -114,7 +117,7 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-      assertThat(fetchGateStatus().getData()).isEqualTo("OK");
+      assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(empty.id());
@@ -133,7 +136,7 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-      assertThat(fetchGateStatus().getData()).isEqualTo("OK");
+      assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
@@ -152,7 +155,7 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-      assertThat(fetchGateStatus().getData()).isEqualTo("WARN");
+      assertThat(getGateStatusMeasure().getValue()).isEqualTo("WARN");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
@@ -172,7 +175,7 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-      assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
+      assertThat(getGateStatusMeasure().getValue()).isEqualTo("ERROR");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
@@ -195,7 +198,7 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-      assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
+      assertThat(getGateStatusMeasure().getValue()).isEqualTo("ERROR");
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(alert.id());
@@ -218,11 +221,13 @@ public class QualityGateTest {
 
       verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-      Measure alertStatus = fetchGateStatus();
-      assertThat(alertStatus.getData()).isEqualTo("WARN");
-      assertThat(alertStatus.getAlertText())
-        .contains("Lines of Code > 10")
-        .contains("Duplicated Lines (%) > 20");
+      Measure alertStatus = getGateStatusMeasure();
+      assertThat(alertStatus.getValue()).isEqualTo("WARN");
+
+      String qualityGateDetailJson = ItUtils.getMeasure(orchestrator, PROJECT_KEY, "quality_gate_details").getValue();
+      assertThat(QualityGateDetails.parse(qualityGateDetailJson).getConditions())
+        .extracting(QualityGateDetails.Conditions::getMetric, QualityGateDetails.Conditions::getOp, QualityGateDetails.Conditions::getWarning)
+        .contains(tuple("ncloc", "GT", "10"), tuple("duplicated_lines_density", "GT", "20"));
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(allTypes.id());
@@ -290,12 +295,8 @@ public class QualityGateTest {
     return props.getProperty("ceTaskId");
   }
 
-  private Measure fetchGateStatus() {
-    return fetchResourceWithGateStatus().getMeasure("alert_status");
-  }
-
-  private Resource fetchResourceWithGateStatus() {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, "alert_status").setIncludeAlerts(true));
+  private Measure getGateStatusMeasure() {
+    return getMeasure(orchestrator, PROJECT_KEY, "alert_status");
   }
 
   private static QualityGateClient qgClient() {
@@ -307,5 +308,61 @@ public class QualityGateTest {
       .filter(s -> s.contains("POSTASKPLUGIN: finished()"))
       .filter(s -> s.contains(taskUuid))
       .collect(Collectors.toList());
+  }
+
+  static class QualityGateDetails {
+
+    private String level;
+
+    private List<Conditions> conditions = new ArrayList<>();
+
+    String getLevel() {
+      return level;
+    }
+
+    List<Conditions> getConditions() {
+      return conditions;
+    }
+
+    public static QualityGateDetails parse(String json) {
+      Gson gson = new Gson();
+      return gson.fromJson(json, QualityGateDetails.class);
+    }
+
+    public static class Conditions {
+      private final String metric;
+      private final String op;
+      private final String warning;
+      private final String actual;
+      private final String level;
+
+      private Conditions(String metric, String op, String values, String actual, String level) {
+        this.metric = metric;
+        this.op = op;
+        this.warning = values;
+        this.actual = actual;
+        this.level = level;
+      }
+
+      String getMetric() {
+        return metric;
+      }
+
+      String getOp() {
+        return op;
+      }
+
+      String getWarning() {
+        return warning;
+      }
+
+      String getActual() {
+        return actual;
+      }
+
+      String getLevel() {
+        return level;
+      }
+    }
   }
 }

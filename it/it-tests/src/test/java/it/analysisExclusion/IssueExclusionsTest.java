@@ -24,14 +24,14 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 
 public class IssueExclusionsTest {
 
@@ -71,7 +71,7 @@ public class IssueExclusionsTest {
       "sonar.issue.enforce.multicriteria.1.ruleKey", "*");
 
     checkIssueCountBySeverity(
-      1 /* tag */+ 18 /* lines in HelloA1.xoo */+ 1 /* file */,
+      1 /* tag */ + 18 /* lines in HelloA1.xoo */ + 1 /* file */,
       0 + 1,
       0 + 18,
       0 + 1,
@@ -89,7 +89,7 @@ public class IssueExclusionsTest {
       "sonar.issue.enforce.multicriteria.2.ruleKey", "*");
 
     checkIssueCountBySeverity(
-      2 /* tags */+ 18 /* lines in HelloA1.xoo */+ 15 /* lines in HelloA2.xoo */+ 2 /* files */,
+      2 /* tags */ + 18 /* lines in HelloA1.xoo */ + 15 /* lines in HelloA2.xoo */ + 2 /* files */,
       0 + 2,
       0 + 18 + 15,
       0 + 2,
@@ -107,7 +107,7 @@ public class IssueExclusionsTest {
       "sonar.issue.enforce.multicriteria.2.ruleKey", "xoo:HasTag");
 
     checkIssueCountBySeverity(
-      1 /* tag in HelloA2 */+ 18 /* lines in HelloA1.xoo */+ 4 /* files */+ 4 /* modules */,
+      1 /* tag in HelloA2 */ + 18 /* lines in HelloA1.xoo */ + 4 /* files */ + 4 /* modules */,
       0 + 1,
       0 + 18,
       4,
@@ -122,7 +122,7 @@ public class IssueExclusionsTest {
       "sonar.issue.ignore.allfile.1.fileRegexp", "EXTERMINATE-ALL-ISSUES");
 
     checkIssueCountBySeverity(
-      67 - 1 /* tag */- 18 /* lines in HelloA1.xoo */- 1 /* file */,
+      67 - 1 /* tag */ - 18 /* lines in HelloA1.xoo */ - 1 /* file */,
       2 - 1,
       57 - 18,
       4 - 1,
@@ -138,7 +138,7 @@ public class IssueExclusionsTest {
       "sonar.issue.ignore.block.1.endBlockRegexp", "UNMUTE-SONAR");
 
     checkIssueCountBySeverity(
-      67 - 1 /* tag */- 5 /* lines in HelloA2.xoo */,
+      67 - 1 /* tag */ - 5 /* lines in HelloA2.xoo */,
       2 - 1,
       57 - 5,
       4,
@@ -154,7 +154,7 @@ public class IssueExclusionsTest {
       "sonar.issue.ignore.block.1.endBlockRegexp", "");
 
     checkIssueCountBySeverity(
-      67 - 1 /* tag */- 7 /* remaining lines in HelloA2.xoo */,
+      67 - 1 /* tag */ - 7 /* remaining lines in HelloA2.xoo */,
       2 - 1,
       57 - 7,
       4,
@@ -191,8 +191,8 @@ public class IssueExclusionsTest {
       "sonar.issue.ignore.multicriteria.1.ruleKey", "xoo:OneIssuePerLine");
 
     checkIssueCountBySeverity(
-      67 - 1 /* tag in HelloA1.xoo */- 1 /* tag in HelloA2.xoo */
-        - 18 /* lines in HelloA1.xoo */- 5 /* lines in HelloA2.xoo */- 12 /* lines in HelloB1.xoo */
+      67 - 1 /* tag in HelloA1.xoo */ - 1 /* tag in HelloA2.xoo */
+        - 18 /* lines in HelloA1.xoo */ - 5 /* lines in HelloA2.xoo */ - 12 /* lines in HelloB1.xoo */
         - 1 /* HelloA1.xoo file */,
       0,
       57 - 18 - 5 - 12,
@@ -246,15 +246,14 @@ public class IssueExclusionsTest {
   }
 
   private void checkIssueCountBySeverity(int total, int taggedXoo, int perLine, int perFile, int blocker, int perModule) {
-    Resource project = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(PROJECT_KEY, "violations", "info_violations", "minor_violations", "major_violations",
-        "blocker_violations", "critical_violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(total);
-    assertThat(project.getMeasureIntValue("info_violations")).isEqualTo(taggedXoo); // Has tag 'xoo'
-    assertThat(project.getMeasureIntValue("minor_violations")).isEqualTo(perLine); // One per line
-    assertThat(project.getMeasureIntValue("major_violations")).isEqualTo(perFile); // One per file
-    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(blocker);
-    assertThat(project.getMeasureIntValue("critical_violations")).isEqualTo(perModule); // One per module
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, PROJECT_KEY, "violations", "info_violations", "minor_violations", "major_violations",
+      "blocker_violations", "critical_violations");
+    assertThat(measures.get("violations").intValue()).isEqualTo(total);
+    assertThat(measures.get("info_violations").intValue()).isEqualTo(taggedXoo); // Has tag 'xoo'
+    assertThat(measures.get("minor_violations").intValue()).isEqualTo(perLine); // One per line
+    assertThat(measures.get("major_violations").intValue()).isEqualTo(perFile); // One per file
+    assertThat(measures.get("blocker_violations").intValue()).isEqualTo(blocker);
+    assertThat(measures.get("critical_violations").intValue()).isEqualTo(perModule); // One per module
   }
 
   private void checkAnalysisFails(String... properties) {

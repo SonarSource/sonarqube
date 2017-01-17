@@ -31,12 +31,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
 import util.ItUtils;
 
+import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static util.ItUtils.getMeasureWithVariations;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -81,16 +82,6 @@ public class SinceXDaysHistoryTest {
   }
 
   @Test
-  public void periods_are_well_defined() throws Exception {
-    Resource project = getProject("files");
-
-    assertThat(project.getPeriod1Mode()).isEqualTo("previous_analysis");
-
-    assertThat(project.getPeriod2Mode()).isEqualTo("days");
-    assertThat(project.getPeriod2Param()).isEqualTo("30");
-  }
-
-  @Test
   public void check_files_variation() throws Exception {
     checkMeasure("files", 2, 3);
   }
@@ -105,16 +96,10 @@ public class SinceXDaysHistoryTest {
     checkMeasure("new_violations", 24, 45);
   }
 
-  private void checkMeasure(String measure, int variation1, int variation2){
-    Resource project = getProject(measure);
-    Measure newTechnicalDebt = project.getMeasure(measure);
-
-    assertThat(newTechnicalDebt.getVariation1().intValue()).isEqualTo(variation1);
-    assertThat(newTechnicalDebt.getVariation2().intValue()).isEqualTo(variation2);
-  }
-
-  private Resource getProject(String... metricKeys) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
+  private void checkMeasure(String metric, int variation1, int variation2) {
+    WsMeasures.Measure measure = getMeasureWithVariations(orchestrator, PROJECT, metric);
+    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getIndex, periodValue -> parseInt(periodValue.getValue()))
+      .contains(tuple(1, variation1), tuple(2, variation2));
   }
 
   private static void analyzeProject() {
@@ -132,7 +117,7 @@ public class SinceXDaysHistoryTest {
     orchestrator.executeBuild(runner);
   }
 
-  private static String getPastDate(int nbPastDays){
+  private static String getPastDate(int nbPastDays) {
     return new SimpleDateFormat("yyyy-MM-dd").format(DateUtils.addDays(new Date(), nbPastDays * -1));
   }
 

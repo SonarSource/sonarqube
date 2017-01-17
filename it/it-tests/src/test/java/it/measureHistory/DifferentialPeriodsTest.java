@@ -19,33 +19,25 @@
  */
 package it.measureHistory;
 
-import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
-import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
 import pageobjects.Navigation;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.formatDate;
+import static util.ItUtils.getMeasure;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetPeriods;
 import static util.ItUtils.runProjectAnalysis;
@@ -98,21 +90,16 @@ public class DifferentialPeriodsTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -20)));
 
     // New technical debt only comes from new issues
-    Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt").setIncludeTrends(true));
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation4()).isEqualTo(17);
-    assertThat(measures.get(0).getVariation5()).isEqualTo(17);
+    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt");
+    assertThat(periodsMeasure.get(4)).isEqualTo(17);
+    assertThat(periodsMeasure.get(5)).isEqualTo(17);
 
     // Third analysis, today, with exactly the same profile -> no new issues so no new technical debt
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    newTechnicalDebt = orchestrator.getServer().getWsClient().find(
-      ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt").setIncludeTrends(true));
-
     // No variation => measure is purged
-    assertThat(newTechnicalDebt).isNull();
+    assertThat(getMeasure(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isNull();
   }
 
   /**
@@ -139,10 +126,8 @@ public class DifferentialPeriodsTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Project should have 17 new issues for period 1
-    Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(PROJECT_KEY, "violations").setIncludeTrends(true));
-    List<Measure> measures = newTechnicalDebt.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(17);
+    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, PROJECT_KEY, "violations");
+    assertThat(periodsMeasure.get(1)).isEqualTo(17);
 
     // Check on ui that it's possible to define leak period on project
     Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings("sample")
@@ -171,10 +156,8 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a,module_b");
 
     // Variation on module b should exist
-    Resource ncloc = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(MULTI_MODULE_PROJECT_KEY + ":module_b", "ncloc").setIncludeTrends(true));
-    List<Measure> measures = ncloc.getMeasures();
-    assertThat(measures.get(0).getVariation1()).isEqualTo(24);
+    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, MULTI_MODULE_PROJECT_KEY + ":module_b", "ncloc");
+    assertThat(periodsMeasure.get(1)).isEqualTo(24);
   }
 
   @Test
@@ -214,25 +197,11 @@ public class DifferentialPeriodsTest {
       "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false");
 
     // New lines measures is zero
-    assertMeasures(projectKey, ImmutableMap.of("new_lines", 0, "new_lines_to_cover", 0));
-  }
-
-  private void assertMeasures(String projectKey, Map<String, Integer> expectedMeasures) {
-    WsMeasures.ComponentWsResponse response = CLIENT.measures().component(new ComponentWsRequest()
-      .setComponentKey(projectKey)
-      .setMetricKeys(new ArrayList<>(expectedMeasures.keySet()))
-      .setAdditionalFields(singletonList("periods")));
-    Map<String, Integer> measures = response.getComponent().getMeasuresList().stream()
-      .collect(Collectors.toMap(WsMeasures.Measure::getMetric, m -> Integer.parseInt(m.getPeriods().getPeriodsValue(0).getValue())));
-    assertThat(measures).isEqualTo(expectedMeasures);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, projectKey, "new_lines").get(1)).isEqualTo(0);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, projectKey, "new_lines_to_cover").get(1)).isEqualTo(0);
   }
 
   private void assertNoMeasures(String projectKey, String... metrics) {
-    WsMeasures.ComponentWsResponse response = CLIENT.measures().component(new ComponentWsRequest()
-      .setComponentKey(projectKey)
-      .setMetricKeys(asList(metrics))
-      .setAdditionalFields(singletonList("periods")));
-    assertThat(response.getComponent().getMeasuresList()).isEmpty();
+    assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, projectKey, metrics)).isEmpty();
   }
-
 }

@@ -100,7 +100,7 @@ public class ShowActionTest {
 
   @Test
   public void show_provided_project() {
-    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setEnabled(false));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 

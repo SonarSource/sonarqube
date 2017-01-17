@@ -25,18 +25,23 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.util.Date;
+import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.services.TimeMachine;
 import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineQuery;
+import org.sonarqube.ws.WsMeasures.Measure;
 import util.ItUtils;
+import util.ItUtils.ComponentNavigation;
 
+import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getComponentNavigation;
+import static util.ItUtils.getMeasuresByMetricKey;
+import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -75,8 +80,9 @@ public class TimeMachineTest {
 
   @Test
   public void projectIsAnalyzed() {
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery(PROJECT)).getVersion()).isEqualTo("1.0-SNAPSHOT");
-    assertThat(orchestrator.getServer().getWsClient().find(new ResourceQuery(PROJECT)).getDate().getMonth()).isEqualTo(10); // November
+    ComponentNavigation component = getComponentNavigation(orchestrator, PROJECT);
+    assertThat(component.getVersion()).isEqualTo("1.0-SNAPSHOT");
+    assertThat(component.getDate().getMonth()).isEqualTo(10); // November
   }
 
   @Test
@@ -143,35 +149,24 @@ public class TimeMachineTest {
 
   @Test
   public void test_measure_variations() {
-    Resource project = getProject("files", "ncloc", "violations");
-
-    // period 1 : previous analysis
-    assertThat(project.getPeriod1Mode()).isEqualTo("previous_analysis");
-    assertThat(project.getPeriod1Date()).isNotNull();
-
+    Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT, "files", "ncloc", "violations");
     // variations from previous analysis
-    assertThat(project.getMeasure("files").getVariation1()).isEqualTo(1.0);
-    assertThat(project.getMeasure("ncloc").getVariation1()).isEqualTo(16.0);
-    assertThat(project.getMeasure("violations").getVariation1()).isGreaterThan(0.0);
+    assertThat(parseDouble(measures.get("files").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(1.0);
+    assertThat(parseDouble(measures.get("ncloc").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(16.0);
+    assertThat(parseDouble(measures.get("violations").getPeriods().getPeriodsValue(0).getValue())).isGreaterThan(0.0);
   }
 
   /**
    * SONAR-4962
    */
   @Test
-  public void measure_variations_are_only_meaningful_when_includetrends() {
-    String[] metricKeys = {"violations", "new_violations"};
+  public void measure_variations_are_only_meaningful_when_additional_fields_contains_periods() {
+    Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT, "violations", "new_violations");
+    assertThat(measures.get("violations")).isNotNull();
+    assertThat(measures.get("new_violations")).isNotNull();
 
-    Resource projectWithTrends = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
-    assertThat(projectWithTrends.getMeasure("violations")).isNotNull();
-    assertThat(projectWithTrends.getMeasure("new_violations")).isNotNull();
-
-    Resource projectWithoutTrends = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(false));
-    assertThat(projectWithoutTrends.getMeasure("violations")).isNotNull();
-    assertThat(projectWithoutTrends.getMeasure("new_violations")).isNull();
-  }
-
-  private Resource getProject(String... metricKeys) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
+    measures = getMeasuresByMetricKey(orchestrator, PROJECT, "violations", "new_violations");
+    assertThat(measures.get("violations")).isNotNull();
+    assertThat(measures.get("new_violations")).isNull();
   }
 }

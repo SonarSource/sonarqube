@@ -23,19 +23,19 @@ import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
-import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.issue.IssueRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
@@ -47,6 +47,9 @@ public class DuplicationsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  @ClassRule
+  public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
   @BeforeClass
   public static void analyzeProjects() {
@@ -119,11 +122,7 @@ public class DuplicationsTest {
 
   @Test
   public void issues_on_duplicated_blocks_are_generated_on_each_file() throws Exception {
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient()
-      .find(IssueQuery.create()
-        .rules("common-xoo:DuplicatedBlocks"))
-      .list();
-    assertThat(issues).hasSize(13);
+    assertThat(issueRule.search(new SearchWsRequest().setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList()).hasSize(13);
   }
 
   @Test
@@ -138,19 +137,16 @@ public class DuplicationsTest {
       "api/duplications/show", "duplications_show-expected.json");
   }
 
-  private static Resource getComponent(String key) {
-    Resource component = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density"));
-    assertThat(component).isNotNull();
-    return component;
+  private static Map<String, Double> getMeasures(String key) {
+    return getMeasuresAsDoubleByMetricKey(orchestrator, key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
   }
 
   private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
-    Resource file = getComponent(componentKey);
-    assertThat(file.getMeasureValue("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
-    assertThat(file.getMeasureValue("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
-    assertThat(file.getMeasureValue("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
-    assertThat(file.getMeasureValue("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
+    Map<String, Double> measures = getMeasures(componentKey);
+    assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
+    assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
+    assertThat(measures.get("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
+    assertThat(measures.get("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
   }
 
   private static void analyzeProject(String projectKey, String... additionalProperties) {

@@ -22,8 +22,9 @@ package org.sonarsource.sonarqube.perf.scanner.suite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.locator.FileLocation;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
 import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -31,9 +32,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
 
+import static java.lang.Double.parseDouble;
+import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DuplicationTest extends PerfTestCase {
@@ -68,12 +75,22 @@ public class DuplicationTest extends PerfTestCase {
       .setProperty("sonar.sourceEncoding", "UTF-8")
       .setCleanSonarGoals();
     orchestrator.executeBuild(build);
-    Resource file = getResource("com.sonarsource.it.samples:huge-file:src/main/java/huge/HugeFile.java");
-    assertThat(file.getMeasureValue("duplicated_lines")).isGreaterThan(50000.0);
+    Map<String, Double> measure = getMeasures("com.sonarsource.it.samples:huge-file:src/main/java/huge/HugeFile.java");
+    assertThat(measure.get("duplicated_lines")).isGreaterThan(50000.0);
   }
 
-  private Resource getResource(String key) {
-    return orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density", "useless-duplicated-lines"));
+  private Map<String, Double> getMeasures(String key) {
+    return newWsClient().measures().component(new ComponentWsRequest()
+      .setComponentKey(key)
+      .setMetricKeys(asList("duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density")))
+      .getComponent().getMeasuresList()
+      .stream()
+      .collect(Collectors.toMap(WsMeasures.Measure::getMetric, measure -> parseDouble(measure.getValue())));
+  }
+
+  private WsClient newWsClient() {
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+      .url(orchestrator.getServer().getUrl())
+      .build());
   }
 }

@@ -20,12 +20,12 @@
 package it.issue;
 
 import com.sonar.orchestrator.locator.FileLocation;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperties;
 
@@ -105,13 +105,11 @@ public class IssueFilterTest extends AbstractIssueTest {
   }
 
   private void checkIssueCountBySeverity(int total, int perFile, int perCommonRule, int perModule) {
-    Resource project = ORCHESTRATOR.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(PROJECT_KEY, "violations", "major_violations", "blocker_violations", "critical_violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(total);
-    assertThat(project.getMeasureIntValue("major_violations")).isEqualTo(perFile); // One per file
-    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(perCommonRule); // On per common rule
-                                                                                           // 'InsufficientCommentDensity'
-    assertThat(project.getMeasureIntValue("critical_violations")).isEqualTo(perModule); // One per module
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, PROJECT_KEY, "violations", "major_violations", "blocker_violations", "critical_violations");
+    assertThat(measures.get("violations").intValue()).isEqualTo(total);
+    assertThat(measures.get("major_violations").intValue()).isEqualTo(perFile); // One per file
+    assertThat(measures.get("blocker_violations").intValue()).isEqualTo(perCommonRule); // On per common rule
+    assertThat(measures.get("critical_violations").intValue()).isEqualTo(perModule); // One per module
   }
 
 }

@@ -21,18 +21,20 @@ package it.issue;
 
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import java.util.List;
+import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.Measure;
 import util.ItUtils;
 
+import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
+import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -72,19 +74,15 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    Resource newIssues = ORCHESTRATOR.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_violations").setIncludeTrends(true));
-    List<Measure> measures = newIssues.getMeasures();
-    assertThat(measures.get(0).getVariation1().intValue()).isEqualTo(17);
-    assertThat(measures.get(0).getVariation2().intValue()).isEqualTo(17);
+    Map<Integer, Double> newIssues = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations");
+    assertThat(newIssues.get(1)).isEqualTo(17);
+    assertThat(newIssues.get(2)).isEqualTo(17);
 
     // second analysis, with exactly the same profile -> no new issues
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    newIssues = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_violations").setIncludeTrends(true));
-    // No variation => measure is purged
-    assertThat(newIssues).isNull();
+    assertThat(getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations").values()).containsOnly(0d, 0d, 0d);
   }
 
   @Test
@@ -99,11 +97,9 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // new issues measures should be to 0 on project on 2 periods as new issues has been created
-    Resource file = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample", "new_violations").setIncludeTrends(true));
-    List<Measure> measures = file.getMeasures();
-    Measure newIssues = find(measures, "new_violations");
-    assertThat(newIssues.getVariation1().intValue()).isEqualTo(0);
-    assertThat(newIssues.getVariation2().intValue()).isEqualTo(0);
+    Map<Integer, Double> measures = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample", "new_violations");
+    assertThat(measures.get(1)).isZero();
+    assertThat(measures.get(2)).isZero();
   }
 
   /**
@@ -123,21 +119,17 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuilds(SonarScanner.create(projectDir("shared/xoo-history-v2")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    Resource file = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics("sample", "new_violations", "violations", "ncloc").setIncludeTrends(true));
-    List<Measure> measures = file.getMeasures();
-    Measure newIssues = find(measures, "new_violations");
-    assertThat(newIssues.getVariation1().intValue()).isEqualTo(17);
-    assertThat(newIssues.getVariation2().intValue()).isEqualTo(17);
 
-    Measure violations = find(measures, "violations");
-    assertThat(violations.getValue().intValue()).isEqualTo(43);
-    assertThat(violations.getVariation1().intValue()).isEqualTo(17);
-    assertThat(violations.getVariation2().intValue()).isEqualTo(17);
+    Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(ORCHESTRATOR, "sample", "new_violations", "violations", "ncloc");
+    assertThat(measures.get("new_violations").getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getValue).containsOnly("17", "17", "17");
 
-    Measure ncloc = find(measures, "ncloc");
-    assertThat(ncloc.getValue().intValue()).isEqualTo(40);
-    assertThat(ncloc.getVariation1().intValue()).isEqualTo(16);
-    assertThat(ncloc.getVariation2().intValue()).isEqualTo(16);
+    Measure violations = measures.get("violations");
+    assertThat(parseInt(violations.getValue())).isEqualTo(43);
+    assertThat(violations.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(17, 17, 17);
+
+    Measure ncloc = measures.get("ncloc");
+    assertThat(parseInt(ncloc.getValue())).isEqualTo(40);
+    assertThat(ncloc.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(16, 16, 16);
   }
 
   @Test
@@ -155,20 +147,8 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile2");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    Resource project = ORCHESTRATOR.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics("com.sonarsource.it.samples:multi-modules-sample", "new_violations", "violations").setIncludeTrends(true));
-    List<Measure> measures = project.getMeasures();
-    Measure newIssues = find(measures, "new_violations");
-    assertThat(newIssues.getVariation1().intValue()).isEqualTo(65);
-  }
-
-  private Measure find(List<Measure> measures, String metricKey) {
-    for (Measure measure : measures) {
-      if (measure.getMetricKey().equals(metricKey)) {
-        return measure;
-      }
-    }
-    return null;
+    Map<Integer, Double> periodMeasures = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "com.sonarsource.it.samples:multi-modules-sample", "new_violations");
+    assertThat(periodMeasures.get(1)).isEqualTo(65);
   }
 
 }

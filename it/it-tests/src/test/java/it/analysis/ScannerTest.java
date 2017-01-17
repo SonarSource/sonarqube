@@ -26,7 +26,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assume;
 import org.junit.Before;
@@ -36,12 +36,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.client.component.SearchWsRequest;
 import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getComponent;
+import static util.ItUtils.getComponentNavigation;
+import static util.ItUtils.getMeasureAsDouble;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
@@ -70,14 +74,10 @@ public class ScannerTest {
     scan("shared/xoo-multi-modules-sample");
     scan("shared/xoo-multi-modules-sample", "sonar.branch", "branch/0.x");
 
-    Sonar sonar = orchestrator.getServer().getWsClient();
-    assertThat(sonar.findAll(new ResourceQuery().setQualifiers("TRK"))).hasSize(2);
-
-    Resource master = sonar.find(new ResourceQuery("com.sonarsource.it.samples:multi-modules-sample"));
-    assertThat(master.getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample");
-
-    Resource branch = sonar.find(new ResourceQuery("com.sonarsource.it.samples:multi-modules-sample:branch/0.x"));
-    assertThat(branch.getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample branch/0.x");
+    assertThat(newAdminWsClient(orchestrator).components().search(new SearchWsRequest().setQualifiers(singletonList("TRK"))).getComponentsList()).hasSize(2);
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:multi-modules-sample").getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample");
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:multi-modules-sample:branch/0.x").getName())
+      .isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample branch/0.x");
   }
 
   @Test
@@ -85,8 +85,7 @@ public class ScannerTest {
     scan("shared/xoo-multi-modules-sample",
       "sonar.profile", "one-issue-per-line",
       "sonar.verbose", "true");
-    Resource r = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("com.sonarsource.it.samples:multi-modules-sample", "violations"));
-    assertThat(r.getMeasureIntValue("violations")).isEqualTo(61);
+    assertThat(getMeasureAsDouble(orchestrator, "com.sonarsource.it.samples:multi-modules-sample", "violations")).isEqualTo(61);
   }
 
   // SONAR-4680
@@ -149,11 +148,10 @@ public class ScannerTest {
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.projects.batch:duplicate-source", "xoo", "one-issue-per-line");
     scan("analysis/duplicate-source");
 
-    Sonar sonar = orchestrator.getServer().getAdminWsClient();
-    Resource project = sonar.find(new ResourceQuery("com.sonarsource.it.projects.batch:duplicate-source").setMetrics("files", "directories"));
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "com.sonarsource.it.projects.batch:duplicate-source", "files", "directories");
     // 2 main files and 1 test file all with same deprecated key
-    assertThat(project.getMeasureIntValue("files")).isEqualTo(2);
-    assertThat(project.getMeasureIntValue("directories")).isEqualTo(2);
+    assertThat(measures.get("files")).isEqualTo(2);
+    assertThat(measures.get("directories")).isEqualTo(2);
   }
 
   /**
@@ -224,11 +222,8 @@ public class ScannerTest {
   }
 
   private void assertNameAndVersion(String projectKey, String expectedProjectName, String expectedProjectVersion) {
-    // new WS Client with api/components doesn't return the project version, so use the old one
-    Resource resource = orchestrator.getServer().getAdminWsClient().find(new ResourceQuery(projectKey));
-    assertThat(resource.getName()).isEqualTo(expectedProjectName);
-    assertThat(resource.getVersion()).isEqualTo(expectedProjectVersion);
-
+    assertThat(getComponent(orchestrator, projectKey).getName()).isEqualTo(expectedProjectName);
+    assertThat(getComponentNavigation(orchestrator, projectKey).getVersion()).isEqualTo(expectedProjectVersion);
   }
 
   @Test
@@ -366,9 +361,9 @@ public class ScannerTest {
     orchestrator.getServer().associateProjectToQualityProfile("case-sensitive-file-extensions", "xoo", "one-issue-per-line");
     scan("analysis/case-sensitive-file-extensions");
 
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("case-sensitive-file-extensions", "files", "ncloc"));
-    assertThat(project.getMeasureIntValue("files")).isEqualTo(2);
-    assertThat(project.getMeasureIntValue("ncloc")).isEqualTo(5 + 2);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, "case-sensitive-file-extensions", "files", "ncloc");
+    assertThat(measures.get("files")).isEqualTo(2);
+    assertThat(measures.get("ncloc")).isEqualTo(5 + 2);
   }
 
   /**
@@ -379,8 +374,8 @@ public class ScannerTest {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
     scan("analysis/custom-module-key");
-    assertThat(getResource("com.sonarsource.it.samples:moduleA")).isNotNull();
-    assertThat(getResource("com.sonarsource.it.samples:moduleB")).isNotNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleA")).isNotNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleB")).isNotNull();
   }
 
   /**
@@ -392,8 +387,8 @@ public class ScannerTest {
     orchestrator.getServer().provisionProject("projectAB", "project AB");
     orchestrator.getServer().associateProjectToQualityProfile("projectAB", "xoo", "one-issue-per-line");
     scan("analysis/prevent-common-module/projectAB");
-    assertThat(getResource("com.sonarsource.it.samples:moduleA")).isNotNull();
-    assertThat(getResource("com.sonarsource.it.samples:moduleB")).isNotNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleA")).isNotNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:moduleB")).isNotNull();
 
     orchestrator.getServer().provisionProject("projectAC", "project AC");
     orchestrator.getServer().associateProjectToQualityProfile("projectAC", "xoo", "one-issue-per-line");
@@ -401,20 +396,6 @@ public class ScannerTest {
     BuildResult result = scanQuietly("analysis/prevent-common-module/projectAC");
     assertThat(result.getLastStatus()).isNotEqualTo(0);
     assertThat(result.getLogs()).contains("Module \"com.sonarsource.it.samples:moduleA\" is already part of project \"projectAB\"");
-  }
-
-  /**
-   * SONAR-4235
-   */
-  @Test
-  public void test_project_creation_date() {
-    long before = new Date().getTime() - 2000l;
-    orchestrator.getServer().provisionProject("sample", "xoo-sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample")));
-    long after = new Date().getTime() + 2000l;
-    Resource xooSample = orchestrator.getServer().getWsClient().find(new ResourceQuery().setResourceKeyOrId("sample"));
-    assertThat(xooSample.getCreationDate().getTime()).isGreaterThan(before).isLessThan(after);
   }
 
   /**
@@ -436,10 +417,6 @@ public class ScannerTest {
     assertThat(result.getLogs()).contains("'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '2000-10-19'. " +
       "Latest quality snapshot: ");
     assertThat(result.getLogs()).contains("This property may only be used to rebuild the past in a chronological order.");
-  }
-
-  private Resource getResource(String key) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "lines"));
   }
 
   private BuildResult scan(String projectPath, String... props) {

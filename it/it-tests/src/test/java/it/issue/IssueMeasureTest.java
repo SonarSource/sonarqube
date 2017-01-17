@@ -21,15 +21,14 @@ package it.issue;
 
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.runProjectAnalysis;
 
 public class IssueMeasureTest extends AbstractIssueTest {
@@ -51,15 +50,15 @@ public class IssueMeasureTest extends AbstractIssueTest {
 
     assertThat(search(IssueQuery.create().componentRoots(MULTI_MODULE_SAMPLE_PROJECT_KEY)).paging().total()).isEqualTo(136);
 
-    Resource project = ORCHESTRATOR.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations", "major_violations",
-        "blocker_violations", "critical_violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(136);
-    assertThat(project.getMeasureIntValue("info_violations")).isEqualTo(2);
-    assertThat(project.getMeasureIntValue("minor_violations")).isEqualTo(61);
-    assertThat(project.getMeasureIntValue("major_violations")).isEqualTo(65);
-    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(4);
-    assertThat(project.getMeasureIntValue("critical_violations")).isEqualTo(4);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations",
+      "major_violations",
+      "blocker_violations", "critical_violations");
+    assertThat(measures.get("violations")).isEqualTo(136);
+    assertThat(measures.get("info_violations")).isEqualTo(2);
+    assertThat(measures.get("minor_violations")).isEqualTo(61);
+    assertThat(measures.get("major_violations")).isEqualTo(65);
+    assertThat(measures.get("blocker_violations")).isEqualTo(4);
+    assertThat(measures.get("critical_violations")).isEqualTo(4);
   }
 
   /**
@@ -86,13 +85,13 @@ public class IssueMeasureTest extends AbstractIssueTest {
     // Re analyze the project to compute measures
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
-    Resource project = ORCHESTRATOR.getServer().getWsClient().find(
-      ResourceQuery.createForMetrics(SAMPLE_PROJECT_KEY, "false_positive_issues", "wont_fix_issues", "open_issues", "reopened_issues", "confirmed_issues"));
-    assertThat(project.getMeasureIntValue("false_positive_issues")).isEqualTo(1);
-    assertThat(project.getMeasureIntValue("wont_fix_issues")).isEqualTo(1);
-    assertThat(project.getMeasureIntValue("open_issues")).isEqualTo(13);
-    assertThat(project.getMeasureIntValue("reopened_issues")).isEqualTo(1);
-    assertThat(project.getMeasureIntValue("confirmed_issues")).isEqualTo(1);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, SAMPLE_PROJECT_KEY, "false_positive_issues", "wont_fix_issues", "open_issues", "reopened_issues",
+      "confirmed_issues");
+    assertThat(measures.get("false_positive_issues")).isEqualTo(1);
+    assertThat(measures.get("wont_fix_issues")).isEqualTo(1);
+    assertThat(measures.get("open_issues")).isEqualTo(13);
+    assertThat(measures.get("reopened_issues")).isEqualTo(1);
+    assertThat(measures.get("confirmed_issues")).isEqualTo(1);
   }
 
   @Test
@@ -105,9 +104,9 @@ public class IssueMeasureTest extends AbstractIssueTest {
 
     assertThat(searchIssuesByProject(SAMPLE_PROJECT_KEY)).isEmpty();
 
-    Resource project = ORCHESTRATOR.getServer().getWsClient().find(ResourceQuery.createForMetrics(SAMPLE_PROJECT_KEY, "violations", "blocker_violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(0);
-    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(0);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, SAMPLE_PROJECT_KEY, "violations", "blocker_violations");
+    assertThat(measures.get("violations")).isEqualTo(0);
+    assertThat(measures.get("blocker_violations")).isEqualTo(0);
   }
 
   /**
@@ -123,11 +122,9 @@ public class IssueMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
 
-    Sonar wsClient = ORCHESTRATOR.getServer().getAdminWsClient();
-
     // Store current number of issues
-    Resource project = wsClient.find(ResourceQuery.createForMetrics(testKey, "violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(1);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, testKey, "violations");
+    assertThat(measures.get("violations")).isEqualTo(1);
   }
 
 }

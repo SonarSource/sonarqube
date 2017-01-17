@@ -23,15 +23,15 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
-import javax.annotation.CheckForNull;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
 
+import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresByMetricKey;
 import static util.ItUtils.projectDir;
 
 public class ReliabilityMeasureTest {
@@ -45,6 +45,8 @@ public class ReliabilityMeasureTest {
   private static final String BUGS_METRIC = "bugs";
   private static final String RELIABILITY_REMEDIATION_EFFORT_METRIC = "reliability_remediation_effort";
   private static final String RELIABILITY_RATING_METRIC = "reliability_rating";
+
+  private static final String[] METRICS = new String[] {BUGS_METRIC, RELIABILITY_RATING_METRIC, RELIABILITY_REMEDIATION_EFFORT_METRIC};
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
@@ -62,25 +64,11 @@ public class ReliabilityMeasureTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, BUGS_METRIC).getIntValue()).isEqualTo(61);
-    assertThat(getMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(305);
-    assertThat(getMeasure(PROJECT, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-
-    assertThat(getMeasure(MODULE, BUGS_METRIC).getIntValue()).isEqualTo(37);
-    assertThat(getMeasure(MODULE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(185);
-    assertThat(getMeasure(MODULE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-
-    assertThat(getMeasure(SUB_MODULE, BUGS_METRIC).getIntValue()).isEqualTo(16);
-    assertThat(getMeasure(SUB_MODULE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
-    assertThat(getMeasure(SUB_MODULE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-
-    assertThat(getMeasure(DIRECTORY, BUGS_METRIC).getIntValue()).isEqualTo(16);
-    assertThat(getMeasure(DIRECTORY, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
-    assertThat(getMeasure(DIRECTORY, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-
-    assertThat(getMeasure(FILE, BUGS_METRIC).getIntValue()).isEqualTo(16);
-    assertThat(getMeasure(FILE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
-    assertThat(getMeasure(FILE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
+    assertMeasures(PROJECT, 61, 305, 4);
+    assertMeasures(MODULE, 37, 185, 4);
+    assertMeasures(SUB_MODULE, 16, 80, 4);
+    assertMeasures(DIRECTORY, 16, 80, 4);
+    assertMeasures(FILE, 16, 80, 4);
   }
 
   @Test
@@ -89,17 +77,14 @@ public class ReliabilityMeasureTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-bug");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, BUGS_METRIC).getIntValue()).isEqualTo(0);
-    assertThat(getMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(0);
-    assertThat(getMeasure(PROJECT, RELIABILITY_RATING_METRIC).getData()).isEqualTo("A");
+    assertMeasures(PROJECT, 0, 0, 1);
   }
 
-  @CheckForNull
-  private Measure getMeasure(String resource, String metricKey) {
-    Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
-    if (res == null) {
-      return null;
-    }
-    return res.getMeasure(metricKey);
+  private void assertMeasures(String componentKey, int expectedBugs, int expectedReliabilityRemediationEffort, int expectedReliabilityRating) {
+    Map<String, WsMeasures.Measure> measures = getMeasuresByMetricKey(orchestrator, componentKey, METRICS);
+    assertThat(parseDouble(measures.get(BUGS_METRIC).getValue())).isEqualTo(expectedBugs);
+    assertThat(parseDouble(measures.get(RELIABILITY_REMEDIATION_EFFORT_METRIC).getValue())).isEqualTo(expectedReliabilityRemediationEffort);
+    assertThat(parseDouble(measures.get(RELIABILITY_RATING_METRIC).getValue())).isEqualTo(expectedReliabilityRating);
   }
+
 }

@@ -23,16 +23,13 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
-import javax.annotation.CheckForNull;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasureAsDouble;
 import static util.ItUtils.projectDir;
 
 /**
@@ -68,20 +65,11 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, "sqale_rating").getIntValue()).isEqualTo(3);
-    assertThat(getMeasure(PROJECT, "sqale_rating").getData()).isEqualTo("C");
-
-    assertThat(getMeasure(MODULE, "sqale_rating").getIntValue()).isEqualTo(3);
-    assertThat(getMeasure(MODULE, "sqale_rating").getData()).isEqualTo("C");
-
-    assertThat(getMeasure(SUB_MODULE, "sqale_rating").getIntValue()).isEqualTo(3);
-    assertThat(getMeasure(SUB_MODULE, "sqale_rating").getData()).isEqualTo("C");
-
-    assertThat(getMeasure(DIRECTORY, "sqale_rating").getIntValue()).isEqualTo(1);
-    assertThat(getMeasure(DIRECTORY, "sqale_rating").getData()).isEqualTo("A");
-
-    assertThat(getMeasure(FILE, "sqale_rating").getIntValue()).isEqualTo(1);
-    assertThat(getMeasure(FILE, "sqale_rating").getData()).isEqualTo("A");
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, "sqale_rating")).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, "sqale_rating")).isEqualTo(1);
   }
 
   @Test
@@ -92,11 +80,11 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, "sqale_debt_ratio").getValue()).isEqualTo(29.1d);
-    assertThat(getMeasure(MODULE, "sqale_debt_ratio").getValue()).isEqualTo(28.5d);
-    assertThat(getMeasure(SUB_MODULE, "sqale_debt_ratio").getValue()).isEqualTo(31.4d);
-    assertThat(getMeasure(DIRECTORY, "sqale_debt_ratio").getValue()).isEqualTo(7.8d);
-    assertThat(getMeasure(FILE, "sqale_debt_ratio").getValue()).isEqualTo(7.8d);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_debt_ratio")).isEqualTo(29.1d);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, "sqale_debt_ratio")).isEqualTo(28.5d);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, "sqale_debt_ratio")).isEqualTo(31.4d);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, "sqale_debt_ratio")).isEqualTo(7.8d);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, "sqale_debt_ratio")).isEqualTo(7.8d);
   }
 
   @Test
@@ -107,16 +95,12 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    Measure rating = getMeasure("sample", "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(1);
-    assertThat(rating.getData()).isEqualTo("A");
+    assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(1);
 
     debtConfiguration.updateDevelopmentCost(2);
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    rating = getMeasure("sample", "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(4);
-    assertThat(rating.getData()).isEqualTo("D");
+    assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(4);
   }
 
   @Test
@@ -127,18 +111,14 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    Measure rating = getMeasure(PROJECT, "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(1);
-    assertThat(rating.getData()).isEqualTo("A");
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_rating")).isEqualTo(1);
 
     debtConfiguration.updateLanguageDevelopmentCost("xoo", 1);
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
         .setProfile("one-issue-per-line"));
 
-    rating = getMeasure(PROJECT, "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(5);
-    assertThat(rating.getData()).isEqualTo("E");
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_rating")).isEqualTo(5);
   }
 
   @Test
@@ -149,16 +129,12 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    Measure rating = getMeasure("sample", "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(1);
-    assertThat(rating.getData()).isEqualTo("A");
+    assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(1);
 
     debtConfiguration.updateRatingGrid(0.001d, 0.005d, 0.01d, 0.015d);
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    rating = getMeasure("sample", "sqale_rating");
-    assertThat(rating.getIntValue()).isEqualTo(5);
-    assertThat(rating.getData()).isEqualTo("E");
+    assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(5);
   }
 
   @Test
@@ -169,30 +145,20 @@ public class MaintainabilityRatingMeasureTest {
 
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, "sqale_rating").getData()).isEqualTo("C");
-    assertThat(getMeasure(PROJECT, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(292);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, "effort_to_reach_maintainability_rating_a")).isEqualTo(292);
 
-    assertThat(getMeasure(MODULE, "sqale_rating").getData()).isEqualTo("C");
-    assertThat(getMeasure(MODULE, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(150);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, "effort_to_reach_maintainability_rating_a")).isEqualTo(150);
 
-    assertThat(getMeasure(SUB_MODULE, "sqale_rating").getData()).isEqualTo("C");
-    assertThat(getMeasure(SUB_MODULE, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(77);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, "sqale_rating")).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, "effort_to_reach_maintainability_rating_a")).isEqualTo(77);
 
-    assertThat(getMeasure(DIRECTORY, "sqale_rating").getData()).isEqualTo("A");
-    assertThat(getMeasure(DIRECTORY, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(0);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, "sqale_rating")).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, "effort_to_reach_maintainability_rating_a")).isZero();
 
-    assertThat(getMeasure(FILE, "sqale_rating").getData()).isEqualTo("A");
-    // Best value is 0 => no measure
-    assertThat(getMeasure(FILE, "effort_to_reach_maintainability_rating_a")).isNull();
-  }
-
-  @CheckForNull
-  private Measure getMeasure(String resource, String metricKey) {
-    Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
-    if (res == null) {
-      return null;
-    }
-    return res.getMeasure(metricKey);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, "sqale_rating")).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, "effort_to_reach_maintainability_rating_a")).isZero();
   }
 
 }

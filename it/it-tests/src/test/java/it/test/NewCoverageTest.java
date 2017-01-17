@@ -22,14 +22,16 @@ package it.test;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category2Suite;
+import java.util.Map;
 import org.assertj.core.data.Offset;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
 
+import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
 import static util.ItUtils.projectDir;
 
 public class NewCoverageTest {
@@ -58,10 +60,10 @@ public class NewCoverageTest {
 
   @Test
   public void new_coverage() throws Exception {
-    Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, ALL_NEW_COVERAGE_METRICS).setIncludeTrends(true));
-    assertThat(project.getMeasure("new_coverage").getVariation1()).isEqualTo(66.6d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_line_coverage").getVariation1()).isEqualTo(100d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_branch_coverage").getVariation1()).isEqualTo(42.8, DEFAULT_OFFSET);
+    Map<String, WsMeasures.Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT_KEY, ALL_NEW_COVERAGE_METRICS);
+    assertThat(parseDouble(measures.get("new_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(66.6d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_line_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(100d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_branch_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(42.8, DEFAULT_OFFSET);
   }
 
 }

@@ -32,17 +32,15 @@ import org.junit.Test;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.setting.SettingsService;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.WsMeasures.Measure;
+import static util.ItUtils.getMeasure;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
@@ -64,12 +62,8 @@ public class QualityGateNotificationTest {
 
   private static Wiser smtpServer;
 
-  private static SettingsService adminSettingsService;
-
   @BeforeClass
   public static void init() throws Exception {
-    adminSettingsService = newAdminWsClient(orchestrator).settingsService();
-
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
 
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
@@ -124,10 +118,10 @@ public class QualityGateNotificationTest {
 
     SonarScanner analysis = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
     orchestrator.executeBuild(analysis);
-    assertThat(fetchGateStatus().getData()).isEqualTo("OK");
+    assertThat(getGateStatusMeasure().getValue()).isEqualTo("OK");
 
     orchestrator.executeBuild(analysis);
-    assertThat(fetchGateStatus().getData()).isEqualTo("WARN");
+    assertThat(getGateStatusMeasure().getValue()).isEqualTo("WARN");
 
     qgClient().unsetDefault();
     qgClient().destroy(simple.id());
@@ -149,12 +143,8 @@ public class QualityGateNotificationTest {
     assertThat(emails.hasNext()).isFalse();
   }
 
-  private Measure fetchGateStatus() {
-    return fetchResourceWithGateStatus().getMeasure("alert_status");
-  }
-
-  private Resource fetchResourceWithGateStatus() {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT_KEY, "alert_status").setIncludeAlerts(true));
+  private Measure getGateStatusMeasure() {
+    return getMeasure(orchestrator, PROJECT_KEY, "alert_status");
   }
 
   private static QualityGateClient qgClient() {

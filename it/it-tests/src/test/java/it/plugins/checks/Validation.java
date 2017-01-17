@@ -20,19 +20,22 @@
 package it.plugins.checks;
 
 import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import it.plugins.Project;
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Matchers;
 import org.junit.rules.ErrorCollector;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
-import org.sonar.wsclient.services.Source;
-import org.sonar.wsclient.services.SourceQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.newAdminWsClient;
 
 /**
  *
@@ -76,14 +79,15 @@ public class Validation {
   }
 
   private void fileMustHaveMeasures(String filePath, String[] metricKeys, int min) {
-    Resource resource = getMeasureForComponentKey(filePathToKey(filePath), metricKeys);
-    errorCollector.checkThat("Measures " + Joiner.on(",").join(metricKeys) + " are set on file " + filePath, resource, notNullValue());
-    if (resource != null) {
+    String componentKey = filePathToKey(filePath);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, componentKey, metricKeys);
+    errorCollector.checkThat("Measures " + Joiner.on(",").join(metricKeys) + " are set on file " + filePath, componentKey, notNullValue());
+    if (!measures.isEmpty()) {
       for (String metricKey : metricKeys) {
-        Measure measure = resource.getMeasure(metricKey);
+        Double measure = measures.get(metricKey);
         errorCollector.checkThat("Measure " + metricKey + " is set on file " + filePath, measure, notNullValue());
-        if (measure != null && measure.getIntValue() != null) {
-          errorCollector.checkThat("Measure " + metricKey + " is positive on file " + filePath, measure.getIntValue(), Matchers.greaterThanOrEqualTo(min));
+        if (measure != null) {
+          errorCollector.checkThat("Measure " + metricKey + " is positive on file " + filePath, measure.intValue(), Matchers.greaterThanOrEqualTo(min));
         }
       }
     }
@@ -103,10 +107,11 @@ public class Validation {
 
   private void mustHaveSourceWithAtLeast(String path, int minLines) {
     for (String filePath : toFiles(path)) {
-      Source source = orchestrator.getServer().getWsClient().find(SourceQuery.create(filePathToKey(filePath)));
-      errorCollector.checkThat("Source is set on file " + filePath, source, notNullValue());
+      WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(new GetRequest("api/sources/lines").setParam("key", filePathToKey(filePath)));
+      errorCollector.checkThat("Source is set on file " + filePath, response.isSuccessful(), is(true));
+      Sources source = Sources.parse(response.content());
       if (source != null) {
-        errorCollector.checkThat("Source is not empty on file " + filePath, source.getLines().size(), Matchers.greaterThanOrEqualTo(minLines));
+        errorCollector.checkThat("Source is empty on file " + filePath, source.getSources().size(), Matchers.greaterThanOrEqualTo(minLines));
       }
     }
   }
@@ -122,11 +127,37 @@ public class Validation {
     return asList(path);
   }
 
-  public Resource getMeasureForComponentKey(String resourceKey, String... metricKeys) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resourceKey, metricKeys));
-  }
-
   private String filePathToKey(String filePath) {
     return "all-langs:" + filePath;
+  }
+
+  public static class Sources {
+
+    private List<Source> sources;
+
+    private Sources(List<Source> sources) {
+      this.sources = sources;
+    }
+
+    public List<Source> getSources() {
+      return sources;
+    }
+
+    public static Sources parse(String json) {
+      Gson gson = new Gson();
+      return gson.fromJson(json, Sources.class);
+    }
+
+    public static class Source {
+      private final String line;
+
+      private Source(String line) {
+        this.line = line;
+      }
+
+      public String getLine() {
+        return line;
+      }
+    }
   }
 }

@@ -23,19 +23,22 @@ import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
-import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
+import util.issue.IssueRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static util.ItUtils.getMeasureAsDouble;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
@@ -55,6 +58,9 @@ public class CrossProjectDuplicationsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  @ClassRule
+  public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
   @BeforeClass
   public static void analyzeProjects() {
@@ -83,20 +89,17 @@ public class CrossProjectDuplicationsTest {
 
   @Test
   public void duplicate_project_has_duplication_as_it_has_been_analyzed_twice() throws Exception {
-    assertThat(getMeasure(DUPLICATE_PROJECT, "duplicated_lines")).isEqualTo(27);
-    assertThat(getMeasure(DUPLICATE_PROJECT, "duplicated_blocks")).isEqualTo(1);
-    assertThat(getMeasure(DUPLICATE_PROJECT, "duplicated_files")).isEqualTo(1);
-    assertThat(getComponent(DUPLICATE_PROJECT, "duplicated_lines_density").getMeasureValue("duplicated_lines_density")).isEqualTo(45d);
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, DUPLICATE_PROJECT, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
+    assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(27);
+    assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(1);
+    assertThat(measures.get("duplicated_files").intValue()).isEqualTo(1);
+    assertThat(measures.get("duplicated_lines_density")).isEqualTo(45d);
   }
 
   @Test
   public void issue_on_duplicated_blocks_is_generated_on_file() throws Exception {
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient()
-      .find(IssueQuery.create()
-        .components(DUPLICATE_FILE)
-        .rules("common-xoo:DuplicatedBlocks"))
-      .list();
-    assertThat(issues).hasSize(1);
+    assertThat(issueRule.search(new SearchWsRequest().setComponentKeys(singletonList(DUPLICATE_FILE)).setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList())
+      .hasSize(1);
   }
 
   @Test
@@ -155,22 +158,12 @@ public class CrossProjectDuplicationsTest {
         additionalProperties, String.class));
   }
 
-  private static int getMeasure(String projectKey, String metricKey) {
-    Integer intMeasure = getComponent(projectKey, metricKey).getMeasureIntValue(metricKey);
-    assertThat(intMeasure).isNotNull();
-    return intMeasure;
-  }
-
-  private static Resource getComponent(String projectKey, String metricKey) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(projectKey, metricKey));
-  }
-
   private static void assertProjectHasNoDuplication(String projectKey) {
-    assertThat(getMeasure(projectKey, "duplicated_lines")).isZero();
+    assertThat(getMeasureAsDouble(orchestrator, projectKey, "duplicated_lines")).isZero();
   }
 
   private static void verifyWsResultOnDuplicateFile(String ws, String expectedFilePath) throws Exception {
-    String duplication = orchestrator.getServer().adminWsClient().get(ws, "key", DUPLICATE_FILE);
+    String duplication = newAdminWsClient(orchestrator).wsConnector().call(new GetRequest(ws).setParam("key", DUPLICATE_FILE)).content();
     assertEquals(IOUtils.toString(CrossProjectDuplicationsTest.class.getResourceAsStream("/duplication/CrossProjectDuplicationsTest/" + expectedFilePath), "UTF-8"), duplication,
       false);
   }

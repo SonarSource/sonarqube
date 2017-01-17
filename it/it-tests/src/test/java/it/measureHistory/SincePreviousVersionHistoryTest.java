@@ -31,12 +31,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
+import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonarqube.ws.WsMeasures.Measure;
+import static org.sonarqube.ws.WsMeasures.PeriodValue;
+import static util.ItUtils.getMeasureWithVariations;
+import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -101,20 +104,16 @@ public class SincePreviousVersionHistoryTest {
     analyzeProject("1.0-SNAPSHOT");
     analyzeProject("1.0-SNAPSHOT");
 
-    Resource project = getProject("files");
-    Measure measure = project.getMeasure("files");
+    Measure measure = getMeasureWithVariations(orchestrator, PROJECT, "files");
 
     // There are 4 files
-    assertThat(measure.getValue()).isEqualTo(4);
-
-    // nothing changed in the previous analysis
-    assertThat(project.getPeriod1Mode()).isEqualTo("previous_analysis");
-    assertThat(measure.getVariation1()).isEqualTo(0);
-
-    // but 2 files were added since the first analysis which was version 0.9
-    assertThat(project.getPeriod3Mode()).isEqualTo("previous_version");
-    assertThat(project.getPeriod3Param()).isEqualTo("0.9");
-    assertThat(measure.getVariation3()).isEqualTo(2);
+    assertThat(parseInt(measure.getValue())).isEqualTo(4);
+    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(PeriodValue::getIndex, PeriodValue::getValue)
+      .contains(
+        // nothing changed in the previous analysis
+        tuple(1, "0"),
+        // but 2 files were added since the first analysis which was version 0.9
+        tuple(3, "2"));
   }
 
   /**
@@ -127,19 +126,15 @@ public class SincePreviousVersionHistoryTest {
     // Analyze project by excluding some files
     analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", toStringDate(DateUtils.addDays(now, -2)));
     // No difference measure after first analysis
-    assertThat(getProject("files").getMeasure("files").getVariation3()).isNull();
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isNull();
 
     analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(DateUtils.addDays(now, -1)));
     // No new version, first analysis is used -> 2 new files
-    assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isEqualTo(2);
 
     analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(now));
     // Still no new version, first analysis is used -> 2 new files
-    assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
-  }
-
-  private Resource getProject(String... metricKeys) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
+    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isEqualTo(2);
   }
 
 }

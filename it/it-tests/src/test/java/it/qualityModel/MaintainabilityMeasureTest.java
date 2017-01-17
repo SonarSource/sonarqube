@@ -27,11 +27,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasureAsDouble;
 import static util.ItUtils.projectDir;
 
 /**
@@ -72,30 +70,30 @@ public class MaintainabilityMeasureTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, CODE_SMELLS_METRIC).getValue()).isEqualTo(71);
-    assertThat(getMeasure(PROJECT, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getValue()).isEqualTo(445);
-    assertThat(getMeasure(PROJECT, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("C");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC).getValue()).isEqualTo(292);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, CODE_SMELLS_METRIC)).isEqualTo(71);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isEqualTo(445);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, MAINTAINABILITY_RATING_METRIC)).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isEqualTo(292);
 
-    assertThat(getMeasure(MODULE, CODE_SMELLS_METRIC).getValue()).isEqualTo(43);
-    assertThat(getMeasure(MODULE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getValue()).isEqualTo(231);
-    assertThat(getMeasure(MODULE, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("C");
-    assertThat(getMeasure(MODULE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC).getValue()).isEqualTo(150);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, CODE_SMELLS_METRIC)).isEqualTo(43);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isEqualTo(231);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, MAINTAINABILITY_RATING_METRIC)).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, MODULE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isEqualTo(150);
 
-    assertThat(getMeasure(SUB_MODULE, CODE_SMELLS_METRIC).getValue()).isEqualTo(19);
-    assertThat(getMeasure(SUB_MODULE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getValue()).isEqualTo(113);
-    assertThat(getMeasure(SUB_MODULE, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("C");
-    assertThat(getMeasure(SUB_MODULE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC).getValue()).isEqualTo(77);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, CODE_SMELLS_METRIC)).isEqualTo(19);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isEqualTo(113);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, MAINTAINABILITY_RATING_METRIC)).isEqualTo(3);
+    assertThat(getMeasureAsDouble(orchestrator, SUB_MODULE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isEqualTo(77);
 
-    assertThat(getMeasure(DIRECTORY, CODE_SMELLS_METRIC).getValue()).isEqualTo(18);
-    assertThat(getMeasure(DIRECTORY, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getValue()).isEqualTo(28);
-    assertThat(getMeasure(DIRECTORY, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(DIRECTORY, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC).getValue()).isEqualTo(0);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, CODE_SMELLS_METRIC)).isEqualTo(18);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isEqualTo(28);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, MAINTAINABILITY_RATING_METRIC)).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, DIRECTORY, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isZero();
 
-    assertThat(getMeasure(FILE, CODE_SMELLS_METRIC).getValue()).isEqualTo(18);
-    assertThat(getMeasure(FILE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getValue()).isEqualTo(28);
-    assertThat(getMeasure(FILE, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(FILE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isNull();
+    assertThat(getMeasureAsDouble(orchestrator, FILE, CODE_SMELLS_METRIC)).isEqualTo(18);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isEqualTo(28);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, MAINTAINABILITY_RATING_METRIC)).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, FILE, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isZero();
   }
 
   @Test
@@ -104,17 +102,10 @@ public class MaintainabilityMeasureTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "without-type-code-smells");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertThat(getMeasure(PROJECT, CODE_SMELLS_METRIC).getIntValue()).isEqualTo(0);
-    assertThat(getMeasure(PROJECT, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(0);
-    assertThat(getMeasure(PROJECT, MAINTAINABILITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(0);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, CODE_SMELLS_METRIC)).isZero();
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, MAINTAINABILITY_REMEDIATION_EFFORT_METRIC)).isZero();
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, MAINTAINABILITY_RATING_METRIC)).isEqualTo(1);
+    assertThat(getMeasureAsDouble(orchestrator, PROJECT, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC)).isZero();
   }
 
-  private Measure getMeasure(String resource, String metricKey) {
-    Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
-    if (res == null) {
-      return null;
-    }
-    return res.getMeasure(metricKey);
-  }
 }

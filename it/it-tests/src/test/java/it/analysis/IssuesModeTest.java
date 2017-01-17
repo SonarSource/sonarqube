@@ -56,13 +56,13 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.getComponent;
+import static util.ItUtils.getMeasureAsDouble;
 
 public class IssuesModeTest {
 
@@ -206,7 +206,7 @@ public class IssuesModeTest {
     assertThat(result.getLogs()).doesNotContain("'One Issue Per Line' skipped because there is no related file in current project");
     ItUtils.assertIssuesInJsonReport(result, 3, 0, 17);
   }
-  
+
   // SONAR-8518
   @Test
   public void shoud_support_sonar_profile_prop() throws IOException {
@@ -214,8 +214,8 @@ public class IssuesModeTest {
     restoreProfile("empty.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    
-    SonarScanner runner = configureRunner("shared/xoo-sample", 
+
+    SonarScanner runner = configureRunner("shared/xoo-sample",
       "sonar.verbose", "true",
       "sonar.analysis.mode", "issues",
       "sonar.profile", "one-issue-per-line");
@@ -231,14 +231,13 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
 
     SonarScanner runner = configureRunner("analysis/xoo-sample-with-spaces/v2");
-    BuildResult result = orchestrator.executeBuild(runner);
-    assertThat(getResource("sample:my sources/main/xoo/sample/My Sample.xoo")).isNotNull();
+    orchestrator.executeBuild(runner);
+    assertThat(getComponent(orchestrator, "sample:my sources/main/xoo/sample/My Sample.xoo")).isNotNull();
 
     runner = configureRunnerIssues("analysis/xoo-sample-with-spaces/v2", null);
-    result = orchestrator.executeBuild(runner);
+    BuildResult result = orchestrator.executeBuild(runner);
     // Analysis is not persisted in database
-    Resource project = getResource("com.sonarsource.it.samples:simple-sample");
-    assertThat(project).isNull();
+    assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:simple-sample")).isNull();
     assertThat(result.getLogs()).contains("Issues");
     assertThat(result.getLogs()).contains("ANALYSIS SUCCESSFUL");
   }
@@ -251,19 +250,19 @@ public class IssuesModeTest {
 
     // First real scan with source
     SonarScanner runner = configureRunner("shared/xoo-history-v2");
-    BuildResult result = orchestrator.executeBuild(runner);
-    assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNotNull();
+    orchestrator.executeBuild(runner);
+    assertThat(getComponent(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo")).isNotNull();
 
     // Second scan should remove ClassAdded.xoo
     runner = configureRunner("shared/xoo-history-v1");
-    result = orchestrator.executeBuild(runner);
-    assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
+    orchestrator.executeBuild(runner);
+    assertThat(getMeasureAsDouble(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo", "ncloc")).isNull();
 
     // Re-add ClassAdded.xoo in local workspace
     runner = configureRunnerIssues("shared/xoo-history-v2", null);
-    result = orchestrator.executeBuild(runner);
+    BuildResult result = orchestrator.executeBuild(runner);
 
-    assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
+    assertThat(getMeasureAsDouble(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo", "ncloc")).isNull();
     assertThat(result.getLogs()).contains("Issues");
     assertThat(result.getLogs()).contains("ANALYSIS SUCCESSFUL");
   }
@@ -431,10 +430,6 @@ public class IssuesModeTest {
 
   private void restoreProfile(String fileName) {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/IssuesModeTest/" + fileName));
-  }
-
-  private Resource getResource(String key) {
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "lines"));
   }
 
   private SonarScanner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {

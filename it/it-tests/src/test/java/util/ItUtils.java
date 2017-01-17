@@ -39,11 +39,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,15 +58,24 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
+import static java.lang.Double.parseDouble;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -242,6 +253,104 @@ public class ItUtils {
 
   public static void resetPeriods(Orchestrator orchestrator) {
     resetSettings(orchestrator, null, "sonar.timemachine.period1", "sonar.timemachine.period2", "sonar.timemachine.period3");
+  }
+
+  @CheckForNull
+  public static Measure getMeasure(Orchestrator orchestrator, String componentKey, String metricKey) {
+    return getMeasuresByMetricKey(orchestrator, componentKey, metricKey).get(metricKey);
+  }
+
+  @CheckForNull
+  public static Double getMeasureAsDouble(Orchestrator orchestrator, String componentKey, String metricKey) {
+    Measure measure = getMeasure(orchestrator, componentKey, metricKey);
+    return (measure == null) ? null : Double.parseDouble(measure.getValue());
+  }
+
+  public static Map<String, Measure> getMeasuresByMetricKey(Orchestrator orchestrator, String componentKey, String... metricKeys) {
+    return getStreamMeasures(orchestrator, componentKey, metricKeys)
+      .filter(Measure::hasValue)
+      .collect(Collectors.toMap(Measure::getMetric, Function.identity()));
+  }
+
+  public static Map<String, Double> getMeasuresAsDoubleByMetricKey(Orchestrator orchestrator, String componentKey, String... metricKeys) {
+    return getStreamMeasures(orchestrator, componentKey, metricKeys)
+      .filter(Measure::hasValue)
+      .collect(Collectors.toMap(Measure::getMetric, measure -> parseDouble(measure.getValue())));
+  }
+
+  private static Stream<Measure> getStreamMeasures(Orchestrator orchestrator, String componentKey, String... metricKeys) {
+    return newWsClient(orchestrator).measures().component(new ComponentWsRequest()
+      .setComponentKey(componentKey)
+      .setMetricKeys(asList(metricKeys)))
+      .getComponent().getMeasuresList()
+      .stream();
+  }
+
+  @CheckForNull
+  public static Measure getMeasureWithVariations(Orchestrator orchestrator, String componentKey, String metricKey) {
+    WsMeasures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentWsRequest()
+      .setComponentKey(componentKey)
+      .setMetricKeys(singletonList(metricKey))
+      .setAdditionalFields(singletonList("periods")));
+    List<Measure> measures = response.getComponent().getMeasuresList();
+    return measures.size() == 1 ? measures.get(0) : null;
+  }
+
+  @CheckForNull
+  public static Map<String, Measure> getMeasuresWithVariationsByMetricKey(Orchestrator orchestrator, String componentKey, String... metricKeys) {
+    return newWsClient(orchestrator).measures().component(new ComponentWsRequest()
+      .setComponentKey(componentKey)
+      .setMetricKeys(asList(metricKeys))
+      .setAdditionalFields(singletonList("periods"))).getComponent().getMeasuresList()
+      .stream()
+      .collect(Collectors.toMap(Measure::getMetric, Function.identity()));
+  }
+
+  /**
+   * Return period values as string by period index (from 1 to 5)
+   */
+  public static Map<Integer, Double> getPeriodMeasureValuesByIndex(Orchestrator orchestrator, String componentKey, String metricKey) {
+    return getMeasureWithVariations(orchestrator, componentKey, metricKey).getPeriods().getPeriodsValueList().stream()
+      .collect(Collectors.toMap(WsMeasures.PeriodValue::getIndex, measure -> parseDouble(measure.getValue())));
+  }
+
+  @CheckForNull
+  public static Component getComponent(Orchestrator orchestrator, String componentKey) {
+    try {
+      return newWsClient(orchestrator).components().show(new ShowWsRequest().setKey((componentKey))).getComponent();
+    } catch (org.sonarqube.ws.client.HttpException e) {
+      if (e.code() == 404) {
+        return null;
+      }
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @CheckForNull
+  public static ComponentNavigation getComponentNavigation(Orchestrator orchestrator, String componentKey) {
+    // Waiting for SONAR-7745 to have version in api/components/show, we use internal api/navigation/component WS to get the component
+    // version
+    String content = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", componentKey)).failIfNotSuccessful()
+      .content();
+    return ComponentNavigation.parse(content);
+  }
+
+  public static class ComponentNavigation {
+    private String version;
+    private String snapshotDate;
+
+    public String getVersion() {
+      return version;
+    }
+
+    public Date getDate() {
+      return toDatetime(snapshotDate);
+    }
+
+    public static ComponentNavigation parse(String json) {
+      Gson gson = new Gson();
+      return gson.fromJson(json, ComponentNavigation.class);
+    }
   }
 
   /**

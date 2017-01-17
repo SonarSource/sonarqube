@@ -21,14 +21,16 @@ package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
+import java.util.Map;
 import org.assertj.core.data.Offset;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures;
 
+import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
 import static util.ItUtils.runProjectAnalysis;
 
 public class NewDuplicationsTest {
@@ -51,35 +53,32 @@ public class NewDuplicationsTest {
 
   @Test
   public void new_duplications_on_project() throws Exception {
-    Resource project = getComponent("new-duplications");
-    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(83d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(71d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(85.5d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(12d, DEFAULT_OFFSET);
+    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications");
+    assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(83d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(71d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(85.5d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_blocks").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(12d, DEFAULT_OFFSET);
   }
 
   @Test
   public void new_duplications_on_directory() throws Exception {
-    Resource project = getComponent("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
-    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(24d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(24d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(100d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(7d, DEFAULT_OFFSET);
+    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
+    assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(100d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_blocks").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(7d, DEFAULT_OFFSET);
   }
 
   @Test
   public void new_duplications_on_file() throws Exception {
-    Resource project = getComponent("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
-    assertThat(project.getMeasure("new_lines").getVariation1()).isEqualTo(41d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines").getVariation1()).isEqualTo(29d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_lines_density").getVariation1()).isEqualTo(70.7d, DEFAULT_OFFSET);
-    assertThat(project.getMeasure("new_duplicated_blocks").getVariation1()).isEqualTo(2d, DEFAULT_OFFSET);
+    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
+    assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(41d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(29d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(70.7d, DEFAULT_OFFSET);
+    assertThat(parseDouble(measures.get("new_duplicated_blocks").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(2d, DEFAULT_OFFSET);
   }
 
-  private static Resource getComponent(String key) {
-    Resource component = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(key, "new_lines", "new_duplicated_lines", "new_duplicated_lines_density", "new_duplicated_blocks").setIncludeTrends(true));
-    assertThat(component).isNotNull();
-    return component;
+  private static Map<String, WsMeasures.Measure> getMeasures(String key) {
+    return getMeasuresWithVariationsByMetricKey(orchestrator, key, "new_lines", "new_duplicated_lines", "new_duplicated_lines_density", "new_duplicated_blocks");
   }
 }

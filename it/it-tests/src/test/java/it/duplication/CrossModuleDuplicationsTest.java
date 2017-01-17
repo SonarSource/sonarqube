@@ -26,6 +26,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,11 +34,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 
 public class CrossModuleDuplicationsTest {
   private static final String PROJECT_KEY = "cross-module";
@@ -59,7 +59,7 @@ public class CrossModuleDuplicationsTest {
   public void setUpProject() throws IOException {
     orchestrator.resetData();
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
-    
+
     FileUtils.copyDirectory(ItUtils.projectDir(PROJECT_DIR), temp.getRoot());
     projectDir = temp.getRoot();
   }
@@ -135,17 +135,10 @@ public class CrossModuleDuplicationsTest {
   }
 
   private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
-    Resource file = getComponent(componentKey);
-    assertThat(file.getMeasureValue("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
-    assertThat(file.getMeasureValue("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
-    assertThat(file.getMeasureValue("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
-    assertThat(file.getMeasureValue("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
-  }
-
-  private static Resource getComponent(String key) {
-    Resource component = orchestrator.getServer().getWsClient()
-      .find(ResourceQuery.createForMetrics(key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density"));
-    assertThat(component).isNotNull();
-    return component;
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, componentKey, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
+    assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
+    assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
+    assertThat(measures.get("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
+    assertThat(measures.get("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
   }
 }
