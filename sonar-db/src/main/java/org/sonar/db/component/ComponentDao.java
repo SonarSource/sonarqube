@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
@@ -230,10 +231,14 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Selects all enabled components. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
+   * Selects all components that are relevant for indexing. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
+   * @param session the database session
+   * @param projectUuid the project uuid, which is selected with all of its children
+   * @param handler the action to be applied to every result
    */
-  public void selectAll(DbSession session, ResultHandler handler) {
-    mapper(session).selectAll(handler);
+  public void selectForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler handler) {
+    Objects.requireNonNull(handler);
+    mapper(session).selectForIndexing(projectUuid, handler);
   }
 
   /**
