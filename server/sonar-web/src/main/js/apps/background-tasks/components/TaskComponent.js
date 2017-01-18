@@ -48,7 +48,7 @@ export default class TaskComponent extends React.Component {
     return (
         <td>
           {task.organization != null && (
-              <Organization organizationKey={task.organization}/>
+              <Organization organizationKey={task.organization} linkClassName="small"/>
           )}
           <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }} className="link-with-icon">
             <span className="little-spacer-right">

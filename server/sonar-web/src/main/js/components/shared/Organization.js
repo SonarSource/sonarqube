@@ -28,6 +28,7 @@ type OwnProps = {
 };
 
 type Props = {
+  linkClassName: null | string,
   organizationKey: string,
   organization: null | {
     key: string,
@@ -48,7 +49,9 @@ class Organization extends React.Component {
 
     return (
         <span>
-          <Link to={`/organizations/${organization.key}`}>{organization.name}</Link>
+          <Link to={`/organizations/${organization.key}`} className={this.props.linkClassName}>
+            {organization.name}
+          </Link>
           <span>&nbsp;&#47;&nbsp;</span>
         </span>
     );

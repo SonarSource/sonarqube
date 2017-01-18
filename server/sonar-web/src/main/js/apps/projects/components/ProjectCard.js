@@ -58,9 +58,7 @@ export default class ProjectCard extends React.Component {
             )}
             <h2 className="project-card-name">
               {project.organization != null && (
-                <span className="small">
-                  <Organization organizationKey={project.organization}/>
-                </span>
+                  <Organization organizationKey={project.organization} linkClassName="small link-base-color"/>
               )}
               <Link to={{ pathname: '/dashboard', query: { id: project.key } }} className="link-base-color">
                 {project.name}
