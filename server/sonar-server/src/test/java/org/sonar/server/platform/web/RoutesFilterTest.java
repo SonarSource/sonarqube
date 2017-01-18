@@ -65,6 +65,11 @@ public class RoutesFilterTest {
   }
 
   @Test
+  public void send_redirect_when_url_contains_profiles_export() throws Exception {
+    verifyRedirection("/profiles/export", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
+  }
+
+  @Test
   public void does_not_redirect_and_execute_remaining_filter_on_unknown_path() throws Exception {
     verifyNoRedirection("/api/issues/search", null);
   }

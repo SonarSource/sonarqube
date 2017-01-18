@@ -44,7 +44,8 @@ public class RoutesFilter implements Filter {
   private static final List<Route> ROUTES = ImmutableList.of(
     new BatchRoute(),
     new BatchBootstrapRoute(),
-    new ApiSourcesRoute());
+    new ApiSourcesRoute(),
+    new ProfilesExportRoute());
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
@@ -130,6 +131,25 @@ public class RoutesFilter implements Filter {
     @Override
     public String apply(HttpServletRequest request) {
       return format("%s%s/index?%s", request.getContextPath(), API_SOURCES_WS, request.getQueryString());
+    }
+  }
+
+  /**
+   * Old scanners were using /profiles/export url (see SVS-130)
+   */
+  private static class ProfilesExportRoute implements Route {
+
+    private static final String PROFILES_EXPORT = "/profiles/export";
+    private static final String API_QUALITY_PROFILE_EXPORT = "/api/qualityprofiles/export";
+
+    @Override
+    public boolean test(String path) {
+      return PROFILES_EXPORT.equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s%s?%s", request.getContextPath(), API_QUALITY_PROFILE_EXPORT, request.getQueryString());
     }
   }
 

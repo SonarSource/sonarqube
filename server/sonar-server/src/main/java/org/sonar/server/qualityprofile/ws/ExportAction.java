@@ -48,7 +48,7 @@ public class ExportAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_LANGUAGE = "language";
-  private static final String PARAM_FORMAT = "exporterKey";
+  public static final String PARAM_FORMAT = "exporterKey";
 
   private final DbClient dbClient;
 
@@ -96,7 +96,9 @@ public class ExportAction implements QProfileWsAction {
       action.createParam(PARAM_FORMAT)
         .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +
           "Possible values are described by api/qualityprofiles/exporters.")
-        .setPossibleValues(exporterKeys);
+        .setPossibleValues(exporterKeys)
+        // This deprecated key is only there to be able to deal with redirection from /profiles/export
+        .setDeprecatedKey("format");
     }
   }
 

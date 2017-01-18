@@ -24,50 +24,25 @@ import it.Category4Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newWsClient;
 
-/**
- * Tests the ability for a web service to call another web services.
- */
-public class WsLocalCallTest {
+public class RoutesTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Test
-  public void gets_protobuf() {
-    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest("local_ws_call/protobuf_data"));
+  public void redirect_profiles_export_to_api_qualityprofiles_export() {
+    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest("profiles/export?language=xoo&format=XooFakeExporter"));
     assertThat(response.isSuccessful()).isTrue();
-  }
+    assertThat(response.requestUrl()).endsWith("/api/qualityprofiles/export?language=xoo&format=XooFakeExporter");
+    assertThat(response.content()).isEqualTo("xoo -> Basic -> 1");
 
-  @Test
-  public void gets_json() {
-    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest("local_ws_call/json_data"));
-    assertThat(response.isSuccessful()).isTrue();
-  }
-
-  @Test
-  public void propagates_authorization_rights() {
-    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(orchestrator.getServer().getUrl())
-      .credentials("admin", "admin")
-      .build());
-    WsResponse response = wsClient.wsConnector().call(new GetRequest("local_ws_call/require_permission"));
-    assertThat(response.isSuccessful()).isTrue();
-  }
-
-  @Test
-  public void fails_if_requires_permissions() {
-    WsResponse response = newWsClient(orchestrator).wsConnector().call(new GetRequest("local_ws_call/require_permission"));
-
-    // this is not the unauthorized code as plugin forces it to 500
-    assertThat(response.code()).isEqualTo(500);
+    // Check 'name' parameter is taken into account
+    assertThat(newWsClient(orchestrator).wsConnector().call(new GetRequest("profiles/export?language=xoo&name=empty&format=XooFakeExporter")).content()).isEqualTo("xoo -> empty -> 0");
   }
 
 }
