@@ -62,10 +62,6 @@ class Internal
     component(Java::OrgSonarServerQualitygate::QualityGates.java_class)
   end
 
-  def self.rules
-    component(Java::OrgSonarServerRule::RubyRuleService.java_class)
-  end
-
   def self.durations
     component(Java::OrgSonarApiUtils::Durations.java_class)
   end
