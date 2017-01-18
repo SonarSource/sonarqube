@@ -26,10 +26,6 @@ class Internal
     component(Java::OrgSonarServerIssue::InternalRubyIssueService.java_class)
   end
 
-  def self.users_api
-    component(Java::OrgSonarApiUser::RubyUserService.java_class)
-  end
-
   def self.component_api
     component(Java::OrgSonarApiComponent::RubyComponentService.java_class)
   end
