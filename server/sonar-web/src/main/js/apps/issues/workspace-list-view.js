@@ -23,6 +23,7 @@ import IssueView from './workspace-list-item-view';
 import EmptyView from './workspace-list-empty-view';
 import Template from './templates/issues-workspace-list.hbs';
 import ComponentTemplate from './templates/issues-workspace-list-component.hbs';
+import { getOrganization, areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const COMPONENT_HEIGHT = 29;
 const BOTTOM_OFFSET = 60;
@@ -113,7 +114,12 @@ export default WorkspaceListView.extend({
         }
       }
       if (putComponent) {
-        $container.append(this.componentTemplate(model.toJSON()));
+        const organization = areThereCustomOrganizations() ?
+            getOrganization(model.get('projectOrganization')) : null;
+        $container.append(this.componentTemplate({
+          ...model.toJSON(),
+          organization
+        }));
       }
     }
     $container.append(childView.el);
@@ -124,4 +130,3 @@ export default WorkspaceListView.extend({
     this.$('.issues-workspace-list-component').remove();
   }
 });
-
