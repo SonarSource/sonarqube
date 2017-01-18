@@ -22,23 +22,26 @@ package org.sonar.server.component.ws;
 import com.google.common.io.Resources;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Qualifier;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SUGGESTIONS;
 
@@ -112,33 +115,43 @@ public class SuggestionsAction implements ComponentsWsAction {
       return Optional.empty();
     }
 
-    List<Component> results = fetchFromDatabase(uuids)
+    List<ComponentDto> componentDtos;
+    Map<String, String> organizationKeyByUuids;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      componentDtos = dbClient.componentDao().selectByUuids(dbSession, uuids);
+      organizationKeyByUuids = getOrganizationKeys(dbSession, componentDtos);
+    }
+
+    List<Component> results = componentDtos
       .stream()
-      .map(SuggestionsAction::dtoToComponent)
+      .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
       .collect(Collectors.toList());
 
     Qualifier q = Qualifier.newBuilder()
       .setQ(qualifier)
       .addAllItems(results)
       .build();
+
     return Optional.of(q);
+  }
+
+  private Map<String, String> getOrganizationKeys(DbSession dbSession, List<ComponentDto> componentDtos) {
+    return dbClient.organizationDao().selectByUuids(
+      dbSession,
+      componentDtos.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet()))
+      .stream()
+      .collect(Collectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
   }
 
   private List<String> searchInIndex(ComponentIndexQuery componentIndexQuery) {
     return index.search(componentIndexQuery);
   }
 
-  private List<ComponentDto> fetchFromDatabase(List<String> uuids) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.componentDao().selectByUuids(dbSession, uuids);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-  }
-
-  private static Component dtoToComponent(ComponentDto result) {
+  private static Component dtoToComponent(ComponentDto result, Map<String, String> organizationKeysByUuid) {
+    String organizationKey = organizationKeysByUuid.get(result.getOrganizationUuid());
+    checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
     return Component.newBuilder()
+      .setOrganization(organizationKey)
       .setKey(result.getKey())
       .setName(result.longName())
       .build();

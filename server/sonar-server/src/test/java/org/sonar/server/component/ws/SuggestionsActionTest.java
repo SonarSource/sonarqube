@@ -26,21 +26,21 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
@@ -48,14 +48,11 @@ public class SuggestionsActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private ComponentIndex index;
   private ComponentIndexer indexer;
   private SuggestionsAction action;
   private OrganizationDto organization;
@@ -63,17 +60,15 @@ public class SuggestionsActionTest {
 
   @Before
   public void setUp() {
-    index = new ComponentIndex(es.client(), userSessionRule);
+    ComponentIndex index = new ComponentIndex(es.client(), userSessionRule);
     indexer = new ComponentIndexer(db.getDbClient(), es.client());
     action = new SuggestionsAction(db.getDbClient(), index);
-    organization = OrganizationTesting.newOrganizationDto();
+    organization = db.organizations().insert();
   }
 
   @Test
   public void exact_match_in_one_qualifier() {
-    ComponentDto dto = newProjectDto(organization, "project-uuid").setId(42L);
-    db.getDbClient().componentDao().insert(db.getSession(), dto);
-    db.commit();
+    ComponentDto dto = db.components().insertComponent(newProjectDto(organization));
 
     indexer.index();
     authorizationIndexerTester.indexProjectPermission(dto.uuid(),
@@ -83,20 +78,14 @@ public class SuggestionsActionTest {
     SuggestionsWsResponse response = action.doHandle(dto.getKey());
 
     // assert match in qualifier "TRK"
-    assertThat(
-      response.getResultsList()
-        .stream()
-        .map(q -> q.getQ())
-        .collect(Collectors.toList()))
-          .containsExactly(Qualifiers.PROJECT);
+    assertThat(response.getResultsList())
+      .extracting(SuggestionsWsResponse.Qualifier::getQ)
+      .containsExactly(Qualifiers.PROJECT);
 
     // assert correct id to be found
-    assertThat(
-      response.getResultsList()
-        .stream()
-        .flatMap(q -> q.getItemsList().stream())
-        .map(c -> c.getKey())
-        .collect(Collectors.toList()))
-          .containsExactly(dto.getKey());
+    assertThat(response.getResultsList())
+      .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
+      .extracting(WsComponents.Component::getKey, WsComponents.Component::getOrganization)
+      .containsExactly(tuple(dto.getKey(), organization.getKey()));
   }
 }
