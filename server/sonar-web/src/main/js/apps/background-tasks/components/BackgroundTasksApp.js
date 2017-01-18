@@ -21,6 +21,7 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import debounce from 'lodash/debounce';
+import uniq from 'lodash/uniq';
 import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';
@@ -33,10 +34,12 @@ import { updateTask, mapFiltersToParameters } from '../utils';
 import { Task } from '../types';
 import { getComponent } from '../../../store/rootReducer';
 import '../background-tasks.css';
+import { fetchOrganizations } from '../../../store/rootActions';
 
 type Props = {
   component: Object,
-  location: Object
+  location: Object,
+  fetchOrganizations: (Array<string>) => string
 };
 
 type State = {
@@ -124,6 +127,9 @@ class BackgroundTasksApp extends React.Component {
 
         const pendingCount = status.pending;
         const failingCount = status.failing;
+
+        const organizations = uniq(tasks.map(task => task.organization).filter(o => o));
+        this.props.fetchOrganizations(organizations);
 
         this.setState({
           tasks,
@@ -245,4 +251,6 @@ const mapStateToProps = (state, ownProps) => ({
   component: ownProps.location.query.id ? getComponent(state, ownProps.location.query.id) : undefined
 });
 
-export default connect(mapStateToProps)(BackgroundTasksApp);
+const mapDispatchToProps = { fetchOrganizations };
+
+export default connect(mapStateToProps, mapDispatchToProps)(BackgroundTasksApp);
