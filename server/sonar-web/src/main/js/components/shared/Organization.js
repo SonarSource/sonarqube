@@ -39,14 +39,17 @@ class Organization extends React.Component {
   props: Props;
 
   render () {
-    const { organization: org, shouldBeDisplayed } = this.props;
+    const { organization, shouldBeDisplayed } = this.props;
 
-    if (!shouldBeDisplayed || !org) {
+    if (!shouldBeDisplayed || !organization) {
       return null;
     }
 
     return (
-        <span>{org.name}<span>&nbsp;&#47;&nbsp;</span></span>
+        <span>
+          {organization.name}
+          <span>&nbsp;&#47;&nbsp;</span>
+        </span>
     );
   }
 }
