@@ -56,7 +56,7 @@ public class SearchIdResult<ID> {
     return ReflectionToStringBuilder.toString(this);
   }
 
-  public static <ID> List<ID> convertToIds(SearchHits hits, Function<String, ID> converter) {
+  private static <ID> List<ID> convertToIds(SearchHits hits, Function<String, ID> converter) {
     List<ID> docs = new ArrayList<>();
     for (SearchHit hit : hits.getHits()) {
       docs.add(converter.apply(hit.getId()));

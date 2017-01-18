@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.server.search.IndexUtils;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -40,10 +39,6 @@ public abstract class BaseDoc {
 
   protected BaseDoc(Map<String, Object> fields) {
     this.fields = fields;
-  }
-
-  public String keyField() {
-    return (String) fields.get("key");
   }
 
   public abstract String getId();
@@ -72,7 +67,7 @@ public abstract class BaseDoc {
       if (val instanceof Date) {
         return (Date)val;
       }
-      return IndexUtils.parseDateTime((String) val);
+      return EsUtils.parseDateTime((String) val);
     }
     return null;
   }
@@ -99,7 +94,7 @@ public abstract class BaseDoc {
     if (value instanceof Date) {
       return (Date)value;
     }
-    return IndexUtils.parseDateTime((String)value);
+    return EsUtils.parseDateTime((String)value);
   }
 
   public void setField(String key, @Nullable Object value) {

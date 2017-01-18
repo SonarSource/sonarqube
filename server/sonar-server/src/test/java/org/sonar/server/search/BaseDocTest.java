@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Test;
 import org.sonar.server.es.BaseDoc;
+import org.sonar.server.es.EsUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -109,7 +110,7 @@ public class BaseDocTest {
     doc.setField("javaDate", new Date(now));
     assertThat(doc.getFieldAsDate("javaDate").getTime()).isEqualTo(now);
 
-    doc.setField("stringDate", IndexUtils.format(new Date(now)));
+    doc.setField("stringDate", EsUtils.formatDateTime(new Date(now)));
     assertThat(doc.getFieldAsDate("stringDate").getTime()).isEqualTo(now);
   }
 
@@ -135,7 +136,7 @@ public class BaseDocTest {
     doc.setField("javaDate", new Date(now));
     assertThat(doc.getNullableFieldAsDate("javaDate").getTime()).isEqualTo(now);
 
-    doc.setField("stringDate", IndexUtils.format(new Date(now)));
+    doc.setField("stringDate", EsUtils.formatDateTime(new Date(now)));
     assertThat(doc.getNullableFieldAsDate("stringDate").getTime()).isEqualTo(now);
 
     doc.setField("noValue", null);

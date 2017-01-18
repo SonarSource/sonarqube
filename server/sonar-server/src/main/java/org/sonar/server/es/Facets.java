@@ -147,18 +147,6 @@ public class Facets {
     return facetsByName;
   }
 
-  /**
-   * Value of the facet bucket. Null if the facet or the bucket do not exist.
-   */
-  @CheckForNull
-  public Long getBucketValue(String facetName, String bucketKey) {
-    LinkedHashMap<String, Long> facet = facetsByName.get(facetName);
-    if (facet != null) {
-      return facet.get(bucketKey);
-    }
-    return null;
-  }
-
   public Set<String> getBucketKeys(String facetName) {
     LinkedHashMap<String, Long> facet = facetsByName.get(facetName);
     if (facet != null) {

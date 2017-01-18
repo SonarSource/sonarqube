@@ -20,7 +20,6 @@
 package org.sonar.server.es;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +41,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.joda.time.format.ISODateTimeFormat;
+import org.sonar.core.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -76,20 +76,19 @@ public class EsUtils {
   }
 
   public static List<String> termsKeys(Terms terms) {
-    return Lists.transform(terms.getBuckets(), new Function<Terms.Bucket, String>() {
-      @Override
-      public String apply(Terms.Bucket bucket) {
-        return bucket.getKeyAsString();
-      }
-    });
+    return terms.getBuckets().stream()
+      .map(Terms.Bucket::getKeyAsString)
+      .collect(Collectors.toList(terms.getBuckets().size()));
   }
+
+
 
   @CheckForNull
   public static Date parseDateTime(@Nullable String s) {
-    if (s != null) {
-      return ISODateTimeFormat.dateTime().parseDateTime(s).toDate();
+    if (s == null) {
+      return null;
     }
-    return null;
+    return ISODateTimeFormat.dateTime().parseDateTime(s).toDate();
   }
 
   @CheckForNull
