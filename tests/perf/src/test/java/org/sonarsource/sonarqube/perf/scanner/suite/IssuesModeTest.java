@@ -63,7 +63,7 @@ public class IssuesModeTest extends PerfTestCase {
       "sonar.userHome", userHome.getAbsolutePath(),
       "sonar.showProfiling", "true");
     long start = System.currentTimeMillis();
-    orchestrator.executeBuild(runner);
+    orchestrator.executeBuild(runner, false);
     long duration = System.currentTimeMillis() - start;
     System.out.println("Issues analysis: " + duration + "ms");
 
