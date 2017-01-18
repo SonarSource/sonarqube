@@ -154,7 +154,7 @@ public class SearchAction implements RulesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchWsRequest searchWsRequest = toSearchWsRequest(request);
-      SearchOptions context = getQueryContext(searchWsRequest);
+      SearchOptions context = buildSearchOptions(searchWsRequest);
       RuleQuery query = ruleQueryFactory.createRuleQuery(request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
@@ -322,17 +322,17 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected SearchOptions getQueryContext(SearchWsRequest request) {
+  protected SearchOptions buildSearchOptions(SearchWsRequest request) {
     SearchOptions context = loadCommonContext(request);
-    SearchOptions searchQueryContext = new SearchOptions()
+    SearchOptions searchOptions = new SearchOptions()
       .setLimit(context.getLimit())
       .setOffset(context.getOffset());
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
-      searchQueryContext.addFacets(DEFAULT_FACETS);
+      searchOptions.addFacets(DEFAULT_FACETS);
     } else {
-      searchQueryContext.addFacets(context.getFacets());
+      searchOptions.addFacets(context.getFacets());
     }
-    return searchQueryContext;
+    return searchOptions;
   }
 
   private static SearchOptions loadCommonContext(SearchWsRequest request) {

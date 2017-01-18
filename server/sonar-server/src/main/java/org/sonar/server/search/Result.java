@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 
@@ -49,20 +48,6 @@ public class Result<K> {
 
   public Map<String, Collection<FacetValue>> getFacets() {
     return this.facets.getFacets();
-  }
-
-  public Facets getFacetsObject() {
-    return this.facets;
-  }
-
-  @CheckForNull
-  public Collection<FacetValue> getFacetValues(String facetName) {
-    return this.facets.getFacetValues(facetName);
-  }
-
-  @CheckForNull
-  public List<String> getFacetKeys(String facetName) {
-    return this.facets.getFacetKeys(facetName);
   }
 
   @Override

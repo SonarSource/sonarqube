@@ -28,11 +28,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 /**
  * @since 3.6
@@ -475,7 +475,7 @@ public class IssueQuery {
 
     public IssueQuery build() {
       if (issueKeys != null) {
-        checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size() + ")");
+        checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issue keys must be less than " + MAX_LIMIT + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
     }

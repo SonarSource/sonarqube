@@ -49,6 +49,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.organization.DefaultOrganization;
@@ -57,7 +58,6 @@ import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ProjectId;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
@@ -325,7 +325,7 @@ public class SearchActionMediumTest {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
-    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
+    for (int i = 0; i < SearchOptions.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }

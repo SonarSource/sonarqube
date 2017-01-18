@@ -50,7 +50,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -900,7 +899,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void bulk_activation() {
     // Generate more rules than the search's max limit
-    int bulkSize = QueryContext.MAX_LIMIT + 10;
+    int bulkSize = SearchOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
       db.ruleDao().insert(dbSession, newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
     }

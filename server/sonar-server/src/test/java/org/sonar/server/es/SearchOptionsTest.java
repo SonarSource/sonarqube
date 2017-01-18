@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.search.QueryContext;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +93,7 @@ public class SearchOptionsTest {
     assertThat(options.getLimit()).isEqualTo(42);
 
     options.setLimit(SearchOptions.MAX_LIMIT + 10);
-    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
+    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
   }
 
   @Test
@@ -105,9 +104,9 @@ public class SearchOptionsTest {
 
   @Test
   public void max_page_size() {
-    SearchOptions options = new SearchOptions().setPage(3, QueryContext.MAX_LIMIT + 10);
-    assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
-    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
+    SearchOptions options = new SearchOptions().setPage(3, SearchOptions.MAX_LIMIT + 10);
+    assertThat(options.getOffset()).isEqualTo(SearchOptions.MAX_LIMIT * 2);
+    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
   }
 
   @Test
