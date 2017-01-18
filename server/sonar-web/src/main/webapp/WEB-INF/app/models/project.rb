@@ -26,7 +26,6 @@ class Project < ActiveRecord::Base
   belongs_to :root, :class_name => 'Project', :foreign_key => 'root_uuid', :primary_key => 'uuid'
   belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_component_uuid', :primary_key => 'uuid'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'developer_uuid', :primary_key => 'uuid'
-  has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
   has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => 'position=0', :select => 'kee'
   has_many :resource_index, :foreign_key => 'resource_id'
   has_one :last_analysis, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'project_uuid', :conditions => ['snapshots.islast=?', true]
