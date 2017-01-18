@@ -54,10 +54,6 @@ class Internal
     component(Java::OrgSonarServerQualitygate::QualityGates.java_class)
   end
 
-  def self.durations
-    component(Java::OrgSonarApiUtils::Durations.java_class)
-  end
-
   def self.i18n
     component(Java::OrgSonarServerUi::JRubyI18n.java_class)
   end

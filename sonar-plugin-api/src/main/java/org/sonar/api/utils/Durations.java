@@ -29,8 +29,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
 
 /**
- * Used through ruby code <pre>Internal.durations</pre>
- *
  * @since 4.3
  */
 @ScannerSide
