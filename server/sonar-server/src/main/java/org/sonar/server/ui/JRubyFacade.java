@@ -23,17 +23,14 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.core.platform.ComponentContainer;
@@ -46,14 +43,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.ws.UpgradesAction;
-import org.sonar.server.user.NewUserNotifier;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
@@ -72,10 +67,6 @@ public final class JRubyFacade {
 
   public Collection<ResourceType> getResourceTypes() {
     return get(ResourceTypes.class).getAllOrdered();
-  }
-
-  public Collection<ResourceType> getResourceRootTypes() {
-    return get(ResourceTypes.class).getRoots();
   }
 
   public ResourceType getResourceType(String qualifier) {
@@ -161,15 +152,6 @@ public final class JRubyFacade {
     }
   }
 
-  public Object getCoreComponentByClassname(String className) {
-    try {
-      return get(Class.forName(className));
-    } catch (ClassNotFoundException e) {
-      Loggers.get(getClass()).error("Component not found: " + className, e);
-      return null;
-    }
-  }
-
   public Object getComponentByClassname(String pluginKey, String className) {
     Plugin plugin = get(PluginRepository.class).getPluginInstance(pluginKey);
     try {
@@ -210,19 +192,6 @@ public final class JRubyFacade {
 
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
-  }
-
-  // USERS
-  public void onNewUser(Map<String, String> fields) {
-    NewUserNotifier notifier = get(NewUserNotifier.class);
-    // notifier is null when creating the administrator in the migration script 011.
-    if (notifier != null) {
-      notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
-    }
   }
 
   public String getPeriodLabel(int periodIndex) {
@@ -273,10 +242,6 @@ public final class JRubyFacade {
 
     Database database = container.getComponentByType(Database.class);
     return !database.getDialect().supportsMigration();
-  }
-
-  public List<IdentityProvider> getIdentityProviders() {
-    return get(IdentityProviderRepository.class).getAllEnabledAndSorted();
   }
 
 }
