@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../store/rootReducer';
 
 type OwnProps = {
@@ -39,14 +40,17 @@ class Organization extends React.Component {
   props: Props;
 
   render () {
-    const { organization: org, shouldBeDisplayed } = this.props;
+    const { organization, shouldBeDisplayed } = this.props;
 
-    if (!shouldBeDisplayed || !org) {
+    if (!shouldBeDisplayed || !organization) {
       return null;
     }
 
     return (
-        <span>{org.name}<span>&nbsp;&#47;&nbsp;</span></span>
+        <span>
+          <Link to={`/organizations/${organization.key}`}>{organization.name}</Link>
+          <span>&nbsp;&#47;&nbsp;</span>
+        </span>
     );
   }
 }

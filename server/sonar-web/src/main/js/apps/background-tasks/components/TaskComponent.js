@@ -17,38 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- /* @flow */
+/* @flow */
 import React from 'react';
 import { Link } from 'react-router';
 import TaskType from './TaskType';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
+import Organization from '../../../components/shared/Organization';
 import { Task } from '../types';
 
-const TaskComponent = ({ task, types }: { task: Task, types: string[] }) => {
-  if (!task.componentKey) {
+export default class TaskComponent extends React.Component {
+  props: {
+    task: Task,
+    types: Array<string>
+  };
+
+  render () {
+    const { task, types } = this.props;
+
+    if (!task.componentKey) {
+      return (
+          <td>
+            <span className="note">{task.id}</span>
+            {types.length > 1 && (
+                <TaskType task={task}/>
+            )}
+          </td>
+      );
+    }
+
     return (
         <td>
-          <span className="note">{task.id}</span>
+          {task.organization != null && (
+              <Organization organizationKey={task.organization}/>
+          )}
+          <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }} className="link-with-icon">
+            <span className="little-spacer-right">
+              <QualifierIcon qualifier={task.componentQualifier}/>
+            </span>
+            <span>{task.componentName}</span>
+          </Link>
           {types.length > 1 && (
               <TaskType task={task}/>
           )}
         </td>
     );
   }
-
-  return (
-      <td>
-        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }} className="link-with-icon">
-          <span className="little-spacer-right">
-            <QualifierIcon qualifier={task.componentQualifier}/>
-          </span>
-          <span>{task.componentName}</span>
-        </Link>
-        {types.length > 1 && (
-            <TaskType task={task}/>
-        )}
-      </td>
-  );
-};
-
-export default TaskComponent;
+}
