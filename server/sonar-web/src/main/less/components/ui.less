@@ -139,20 +139,16 @@
     }
   }
 
+  > li {
+    font-size: 16px;
+    font-weight: 400;
+  }
+
   > li + li:before {
     content: "/";
     float: left;
     padding: 4px 0;
     color: fade(@baseFontColor, 30%);
-  }
-
-  > li:first-child {
-    font-size: 18px;
-    font-weight: 400;
-
-    > a {
-      color: @baseFontColor;
-    }
   }
 
   [class^="icon-"], [class*=" icon-"] {
