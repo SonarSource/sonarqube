@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Properties;
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -63,13 +62,6 @@ public class Platform {
 
   public static Platform getInstance() {
     return INSTANCE;
-  }
-
-  /**
-   * shortcut for ruby code
-   */
-  public static Server getServer() {
-    return (Server) getInstance().getComponent(Server.class);
   }
 
   /**

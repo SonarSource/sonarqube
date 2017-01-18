@@ -80,10 +80,6 @@ module ApplicationHelper
     Internal.i18n.ageFromNow(date)
   end
 
-  def sonar_version
-    Java::OrgSonarServerPlatform::Platform.getServer().getVersion()
-  end
-
   def property_value_by_key(key)
     property = Property.by_key(key)
     property.value if property
