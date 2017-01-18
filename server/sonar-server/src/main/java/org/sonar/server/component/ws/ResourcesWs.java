@@ -22,8 +22,7 @@ package org.sonar.server.component.ws;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 public class ResourcesWs implements WebService {
 
@@ -40,91 +39,18 @@ public class ResourcesWs implements WebService {
   }
 
   private void defineIndexAction(NewController controller) {
-    NewAction action = controller.createAction("index")
-      .setDescription("Gets a list of components. Requires Browse permission on resource.<br>" +
-        "The web service is deprecated and you're invited to use the alternatives: " +
+    controller.createAction("index")
+      .setDescription("The web service is removed and you're invited to use the alternatives: " +
         "<ul>" +
         "<li>if you need one component without measures: api/components/show</li>" +
         "<li>if you need one component with measures: api/measures/component</li>" +
         "<li>if you need several components without measures: api/components/tree</li>" +
         "<li>if you need several components with measures: api/measures/component_tree</li>" +
-        "</ul>" +
-        "When you provide one metric, the number of results is limited to 500. When several metrics are provided, the number of measures is limited to 10000. " +
-        "The number of components is limited to 500." +
-        "This is a known limitation and it won't be fixed. You're invited to use the alternatives suggested above.")
+        "</ul>")
       .setSince("2.10")
       .setDeprecatedSince("5.4")
-      .setHandler(RailsHandler.INSTANCE)
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "resources-example-index.json"));
-
-    action.createParam("resource")
-      .setDescription("id or key of the resource")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
-    action.createParam("metrics")
-      .setDescription("Comma-separated list of <a href=\"http://redirect.sonarsource.com/doc/metric-definitions.html\">metric keys/ids</a>. " +
-        "Load measures on selected metrics. If only one metric is set, then measures are ordered by value")
-      .setExampleValue("lines,blocker_violations");
-
-    action.createParam("depth")
-      .setDescription("Used only when resource is set:<br/>" +
-        "<ul>" +
-        "<li>0: only selected resource</li>" +
-        "<li>-1: all children, including selected resource</li>" +
-        "<li>>0: depth toward the selected resource</li>" +
-        "</ul>")
-      .setDefaultValue("0")
-      .setExampleValue("-1");
-
-    action.createParam("scopes")
-      .setDescription("Comma-separated list of scopes:<br/>" +
-        "<ul>" +
-        "<li>PRJ: project/module</li>" +
-        "<li>DIR: directory (like Java package)</li>" +
-        "<li>FIL: file</li>" +
-        "</ul>")
-      .setExampleValue("PRJ,DIR");
-
-    action.createParam("qualifiers")
-      .setDescription("Comma-separated list of qualifiers:<br/>" +
-        "<ul>" +
-        "<li>VW: view</li>" +
-        "<li>SVW: sub-view</li>" +
-        "<li>TRK: project</li>" +
-        "<li>BRC: module</li>" +
-        "<li>UTS: unit test</li>" +
-        "<li>DIR: directory</li>" +
-        "<li>FIL: file</li>" +
-        "<li>DEV: developer</li>" +
-        "</ul>")
-      .setExampleValue("TRK,BRC");
-
-    action.createParam("verbose")
-      .setDescription("Add some data to response")
-      .setBooleanPossibleValues()
-      .setDefaultValue(String.valueOf(false));
-
-    action.createParam("limit")
-      .setDescription("Limit the number of results. Only used if one metric, and only one, is set")
-      .setExampleValue("10");
-
-    action.createParam("includetrends")
-      .setDescription("Include period variations in response: add nodes &ltp*&gt for period variations")
-      .setDefaultValue(String.valueOf(false))
-      .setBooleanPossibleValues();
-
-    action.createParam("includealerts")
-      .setDescription("Include alerts data: add nodes &ltalert&gt (ERROR, WARN, OK) and &ltalert_text&gt")
-      .setBooleanPossibleValues()
-      .setDefaultValue(String.valueOf(false));
-
-    action.createParam("rules")
-      .setDescription("Filter on rules: setting it to true will return rules id and rule name for measure having such info " +
-        "(such as 'blocker_violations', 'critical_violations', ..., 'new_blocker_violations', ...). Possible values: true | false | list of rule ids")
-      .setBooleanPossibleValues()
-      .setDefaultValue(String.valueOf(true));
-
-    RailsHandler.addFormatParam(action);
   }
 
   private void defineSearchAction(NewController controller) {

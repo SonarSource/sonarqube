@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,9 +50,9 @@ public class ResourcesWsTest {
   public void define_index_action() {
     WebService.Action action = controller.action("index");
     assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.handler()).isInstanceOf(RemovedWebServiceHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(11);
+    assertThat(action.params()).isEmpty();
   }
 
   @Test

@@ -69,7 +69,7 @@ public class HttpHeadersTest {
 
   @Test
   public void verify_headers_of_ruby_ws() throws Exception {
-    Response response = call(orchestrator.getServer().getUrl() + "/api/resources/index");
+    Response response = call(orchestrator.getServer().getUrl() + "/api/resources/search");
 
     verifySecurityHeaders(response);
     verifyContentType(response, "application/json;charset=utf-8");
