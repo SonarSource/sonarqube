@@ -67,14 +67,6 @@ public class DefaultRubyComponentService implements RubyComponentService {
     }
   }
 
-  // Used in rails
-  @CheckForNull
-  public Component findByUuid(String uuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.componentDao().selectByUuid(dbSession, uuid).orNull();
-    }
-  }
-
   // Used in GOV
   @CheckForNull
   public Long createComponent(String key, String name, String qualifier) {

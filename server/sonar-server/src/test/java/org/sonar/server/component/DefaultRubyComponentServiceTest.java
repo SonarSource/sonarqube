@@ -94,27 +94,6 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
-  public void find_by_key() {
-    ComponentDto componentDto = componentDb.insertProject();
-
-    assertThat(underTest.findByKey(componentDto.getKey())).isNotNull();
-  }
-
-  @Test
-  public void find_by_uuid() {
-    ComponentDto componentDto = componentDb.insertProject();
-
-    assertThat(underTest.findByUuid(componentDto.uuid())).isNotNull();
-  }
-
-  @Test
-  public void not_find_by_uuid() {
-    componentDb.insertProject();
-
-    assertThat(underTest.findByUuid("UNKNOWN")).isNull();
-  }
-
-  @Test
   public void create_component() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
     String componentKey = "new-project";

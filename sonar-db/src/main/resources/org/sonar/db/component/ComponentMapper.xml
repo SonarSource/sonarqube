@@ -71,14 +71,6 @@
       root.uuid=#{projectUuid}
   </select>
 
-  <select id="countById" parameterType="long" resultType="long">
-    SELECT count(p.id)
-    FROM projects p
-    <where>
-      AND p.id=#{id}
-    </where>
-  </select>
-
   <select id="selectByKeys" parameterType="String" resultType="Component">
     select
     <include refid="componentColumns"/>
@@ -211,16 +203,6 @@
     <include refid="modulesTreeQuery"/>
   </select>
 
-  <select id="selectProjectUuids" resultType="String">
-    SELECT p.uuid
-    FROM projects p
-    <where>
-      AND p.enabled=${_true}
-      AND p.scope='PRJ'
-      AND p.qualifier='TRK'
-    </where>
-  </select>
-
   <select id="selectProjects" resultType="Component">
     select
     <include refid="componentColumns"/>
@@ -241,27 +223,6 @@
         p.qualifier=#{qualifier}
       </foreach>
     </where>
-  </select>
-
-  <select id="selectComponents" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from projects p
-    <where>
-      AND p.enabled=${_true}
-      AND p.copy_component_uuid is null
-      AND p.qualifier in
-      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
-        #{qualifier}
-      </foreach>
-      <if test="query!=null">
-        and (
-        UPPER(p.name) like #{query}
-        or UPPER(p.kee) like #{query}
-        )
-      </if>
-    </where>
-    ORDER BY UPPER(p.name), p.name
   </select>
 
   <select id="selectByQuery" resultType="Component">
@@ -315,20 +276,6 @@
       </if>
   </sql>
 
-  <!-- "p" is ancestors -->
-  <select id="selectAncestors" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from projects base
-    inner join projects p on p.project_uuid = base.project_uuid
-    where
-    base.uuid = #{query.baseUuid}
-    and base.uuid_path like #{baseUuidPathLike}
-    and p.uuid != base.uuid
-    and p.enabled = ${_true}
-    order by ${query.sqlSort}
-  </select>
-
   <select id="selectDescendants" resultType="Component">
     select
       <include refid="componentColumns"/>
@@ -377,25 +324,6 @@
       )
     </if>
   </sql>
-
-  <select id="countRootComponents" resultType="int">
-    select count(p.id)
-    from projects p
-    <where>
-      p.enabled=${_true}
-      AND p.copy_component_uuid is null
-      AND p.qualifier in
-      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
-        #{qualifier}
-      </foreach>
-      <if test="query!=null">
-        and (
-        UPPER(p.name) like #{query}
-        or UPPER(p.kee) like #{query}
-        )
-      </if>
-    </where>
-  </select>
 
   <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
     SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM projects p

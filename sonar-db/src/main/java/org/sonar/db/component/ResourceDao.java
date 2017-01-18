@@ -19,40 +19,20 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.component.Component;
 import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class ResourceDao extends AbstractDao {
 
   public ResourceDao(MyBatis myBatis, System2 system2) {
     super(myBatis, system2);
-  }
-
-  /**
-   * Return a single result or null. If the request returns multiple rows, then
-   * the first row is returned.
-   */
-  @CheckForNull
-  public ResourceDto selectResource(ResourceQuery query) {
-    DbSession session = myBatis().openSession(false);
-    try {
-      return selectResource(query, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull
@@ -83,27 +63,8 @@ public class ResourceDao extends AbstractDao {
     return session.getMapper(ResourceMapper.class).selectResourceByUuid(componentUuid);
   }
 
-  public ResourceDto selectResource(long projectId, SqlSession session) {
-    return session.getMapper(ResourceMapper.class).selectResource(projectId);
-  }
-
-  @CheckForNull
-  public SnapshotDto getLastSnapshot(String resourceKey, SqlSession session) {
-    return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceKey(resourceKey);
-  }
-
-  public List<ResourceDto> selectWholeTreeForRootId(SqlSession session, long rootId, String scope) {
-    return session.getMapper(ResourceMapper.class).selectWholeTreeForRootId(rootId, scope);
-  }
-
   public void updateAuthorizationDate(Long projectId, SqlSession session) {
     session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, now());
-  }
-
-  @CheckForNull
-  public Component selectByKey(String key) {
-    ResourceDto resourceDto = selectResource(ResourceQuery.create().setKey(key));
-    return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
   /**
@@ -151,51 +112,6 @@ public class ResourceDao extends AbstractDao {
     return null;
   }
 
-  public List<Component> selectProjectsByQualifiers(Collection<String> qualifiers) {
-    if (qualifiers.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * Return enabled projects including not completed ones, ie without snapshots or without snapshot having islast=true
-   */
-  public List<Component> selectProjectsIncludingNotCompletedOnesByQualifiers(Collection<String> qualifiers) {
-    if (qualifiers.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * Return ghosts projects :
-   * - not enabled projects
-   * - enabled projects without snapshot having islast=true
-   * - enabled projects without snapshot
-   */
-  public List<Component> selectGhostsProjects(Collection<String> qualifiers) {
-    if (qualifiers.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   /**
    * Return provisioned projects = enabled projects without snapshot
    */
@@ -218,26 +134,4 @@ public class ResourceDao extends AbstractDao {
     return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
   }
 
-  public static ComponentDto toComponent(ResourceDto resourceDto) {
-    return new ComponentDto()
-      .setId(resourceDto.getId())
-      .setKey(resourceDto.getKey())
-      .setPath(resourceDto.getPath())
-      .setLongName(resourceDto.getLongName())
-      .setName(resourceDto.getName())
-      .setQualifier(resourceDto.getQualifier());
-  }
-
-  public static List<Component> toComponents(List<ResourceDto> resourceDto) {
-    return newArrayList(Iterables.transform(resourceDto, ToComponent.INSTANCE));
-  }
-
-  private enum ToComponent implements Function<ResourceDto, Component> {
-    INSTANCE;
-
-    @Override
-    public Component apply(@Nonnull ResourceDto resourceDto) {
-      return toComponent(resourceDto);
-    }
-  }
 }

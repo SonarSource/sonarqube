@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 public class ResourceDaoTest {
 
   static System2 system = mock(System2.class);
@@ -63,15 +62,6 @@ public class ResourceDaoTest {
   }
 
   @Test
-  public void getResource_filter_by_key() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    ResourceQuery query = ResourceQuery.create().setKey("org.struts:struts-core");
-
-    assertThat(underTest.selectResource(query).getKey()).isEqualTo("org.struts:struts-core");
-  }
-
-  @Test
   public void find_root_project_by_component_key() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
@@ -81,53 +71,6 @@ public class ResourceDaoTest {
     assertThat(underTest.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
 
     assertThat(underTest.getRootProjectByComponentKey("unknown")).isNull();
-  }
-
-  @Test
-  public void should_find_component_by_key() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    assertThat(underTest.selectByKey("org.struts:struts")).isNotNull();
-    Component component = underTest.selectByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(component).isNotNull();
-    assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
-    assertThat(underTest.selectByKey("unknown")).isNull();
-  }
-
-  @Test
-  public void should_select_projects_by_qualifiers() {
-    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
-
-    List<Component> components = underTest.selectProjectsByQualifiers(newArrayList("TRK"));
-    assertThat(components).hasSize(1);
-    assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
-    assertThat(((ComponentDto) components.get(0)).getId()).isEqualTo(1L);
-
-    assertThat(underTest.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
-    assertThat(underTest.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
-  }
-
-  @Test
-  public void should_select_projects_including_not_finished_by_qualifiers() {
-    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
-
-    List<Component> components = underTest.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("TRK"));
-    assertThat(getKeys(components)).containsOnly("org.struts:struts", "org.apache.shindig", "org.sample:sample");
-
-    assertThat(underTest.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
-    assertThat(underTest.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
-  }
-
-  @Test
-  public void should_select_ghosts_projects_by_qualifiers() {
-    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
-
-    List<Component> components = underTest.selectGhostsProjects(newArrayList("TRK"));
-    assertThat(components).hasSize(1);
-    assertThat(getKeys(components)).containsOnly("org.apache.shindig");
-
-    assertThat(underTest.selectGhostsProjects(newArrayList("unknown"))).isEmpty();
-    assertThat(underTest.selectGhostsProjects(Collections.<String>emptyList())).isEmpty();
   }
 
   @Test

@@ -88,96 +88,9 @@
     </where>
   </select>
 
-  <select id="selectResource" parameterType="long" resultMap="resourceResultMap">
-    select * from projects p
-    where p.id=#{id}
-  </select>
-
   <select id="selectResourceByUuid" parameterType="String" resultMap="resourceResultMap">
     select * from projects p
     where p.uuid=#{uuid}
-  </select>
-
-  <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
-    select * from snapshots where id=#{id}
-  </select>
-
-  <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
-    SELECT s.* FROM snapshots s
-    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_component_uuid  is null
-    <where>
-      AND p.kee=#{id}
-      AND s.islast=${_true}
-    </where>
-  </select>
-
-  <select id="selectLastSnapshotByResourceUuid" parameterType="string" resultMap="snapshotResultMap">
-    SELECT s.* from snapshots s
-    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_component_uuid  is null
-    <where>
-      AND p.uuid=#{uuid}
-      AND s.islast=${_true}
-    </where>
-  </select>
-
-  <select id="selectWholeTreeForRootId" parameterType="long" resultMap="resourceResultMap">
-    select
-    pAll.*
-    from projects pAll
-    inner join projects pRoot on pAll.project_uuid = pRoot.uuid and pRoot.id = #{rootId}
-    <where>
-      pAll.scope = #{scope}
-    </where>
-  </select>
-
-  <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
-    select * from projects p
-    <where>
-      <if test="qualifiers != null and qualifiers.size() > 0">
-        and
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
-          p.qualifier=#{qualifier}
-        </foreach>
-      </if>
-      and p.enabled=${_true}
-      and p.copy_component_uuid  is null
-    </where>
-  </select>
-
-  <select id="selectProjectsByQualifiers" parameterType="map" resultMap="resourceResultMap">
-    <include refid="selectProjectsByQualifiersQuery"/>
-  </select>
-
-  <sql id="selectProjectsByQualifiersQuery">
-    select p.* from projects p
-    inner join snapshots s on s.component_uuid=p.uuid
-    <where>
-      <if test="qualifiers != null and qualifiers.size() > 0">
-        and
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
-          p.qualifier=#{qualifier}
-        </foreach>
-      </if>
-      and p.enabled=${_true}
-      and p.copy_component_uuid  is null
-      and s.islast=${_true}
-    </where>
-  </sql>
-
-  <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
-    select distinct p.* from projects p
-    inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
-    left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
-    <where>
-      and s2.id is null
-      <if test="qualifiers != null and qualifiers.size() > 0">
-        and
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
-          p.qualifier=#{qualifier}
-        </foreach>
-      </if>
-      and p.copy_component_uuid  is null
-    </where>
   </select>
 
   <select id="selectProvisionedProjects" parameterType="map" resultMap="resourceResultMap">

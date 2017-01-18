@@ -154,7 +154,7 @@ public class PermissionTemplateServiceTest {
   }
 
   private void checkAuthorizationUpdatedAtIsUpdated() {
-    assertThat(dbTester.getDbClient().resourceDao().selectResource(PROJECT.getId(), session).getAuthorizationUpdatedAt()).isEqualTo(NOW);
+    assertThat(dbTester.getDbClient().componentDao().selectOrFailById(session, PROJECT.getId()).getAuthorizationUpdatedAt()).isEqualTo(NOW);
   }
 
   private void setDefaultTemplateUuid(String templateUuid) {

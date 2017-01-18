@@ -22,41 +22,11 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 
 public interface ResourceMapper {
-  SnapshotDto selectSnapshot(Long snapshotId);
-
-  SnapshotDto selectLastSnapshotByResourceKey(String resourceKey);
-
-  SnapshotDto selectLastSnapshotByResourceUuid(String componentUuid);
-
-  ResourceDto selectResource(long id);
-
   ResourceDto selectResourceByUuid(String uuid);
 
-  List<ResourceDto> selectWholeTreeForRootId(@Param("rootId") long rootId, @Param("scope") String scope);
-
-  /**
-   * @since 3.0
-   */
   List<ResourceDto> selectResources(ResourceQuery query);
-
-  /**
-   * @since 3.0
-   */
-  List<Long> selectResourceIds(ResourceQuery query);
-
-  /**
-   * @since 3.2
-   */
-  void selectResources(ResourceQuery query, ResultHandler resultHandler);
-
-  List<ResourceDto> selectProjectsIncludingNotCompletedOnesByQualifiers(@Param("qualifiers") Collection<String> qualifier);
-
-  List<ResourceDto> selectProjectsByQualifiers(@Param("qualifiers") Collection<String> qualifier);
-
-  List<ResourceDto> selectGhostsProjects(@Param("qualifiers") Collection<String> qualifier);
 
   List<ResourceDto> selectProvisionedProjects(@Param("qualifiers") Collection<String> qualifier);
 

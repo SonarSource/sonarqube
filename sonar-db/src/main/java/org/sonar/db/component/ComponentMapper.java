@@ -28,9 +28,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-/**
- * @since 4.3
- */
 public interface ComponentMapper {
 
   @CheckForNull
@@ -63,14 +60,7 @@ public interface ComponentMapper {
 
   int countByQuery(@Param("query") ComponentQuery query);
 
-  List<ComponentDto> selectAncestors(@Param("query") ComponentTreeQuery query, @Param("baseUuidPathLike") String baseUuidPathLike);
-
   List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath);
-
-  /**
-   * Return all project (PRJ/TRK) uuids
-   */
-  List<String> selectProjectUuids();
 
   /**
    * Returns all enabled projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
@@ -78,10 +68,6 @@ public interface ComponentMapper {
    * regular ones.
    */
   List<ComponentDto> selectProjects();
-
-  List<ComponentDto> selectComponents(Map<String, Object> parameters, RowBounds rowBounds);
-
-  int countRootComponents(Map<String, Object> parameters);
 
   /**
    * Return all descendant modules (including itself) from a given component uuid and scope
@@ -119,8 +105,6 @@ public interface ComponentMapper {
    * Return technical projects from a view or a sub-view
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
-
-  long countById(long id);
 
   List<ComponentDto> selectProvisionedProjects(Map<String, Object> parameters, RowBounds rowBounds);
 
