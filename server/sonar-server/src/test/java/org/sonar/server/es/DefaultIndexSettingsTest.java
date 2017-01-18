@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class DefaultIndexSettingsTest {
 
@@ -35,7 +36,7 @@ public class DefaultIndexSettingsTest {
     // test some values
     assertThat(map.get("index.number_of_shards")).isEqualTo("1");
     assertThat(map.get("index.number_of_replicas")).isEqualTo("0");
-    assertThat(map.get("index.analysis.analyzer.sortable.type")).isEqualTo("custom");
+    assertThat(map.get("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer")).isEqualTo("keyword");
   }
 
   @Test

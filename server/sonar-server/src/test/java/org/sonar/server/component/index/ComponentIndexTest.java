@@ -21,7 +21,9 @@ package org.sonar.server.component.index;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractListAssert;
 import org.junit.Before;
@@ -176,7 +178,7 @@ public class ComponentIndexTest {
 
   @Test
   public void should_search_project_with_colon_in_key() {
-    ComponentDto project = indexProject("org:sonarqube", "SonarQube");
+    ComponentDto project = indexProject("org:sonarqube", "Quality Product");
 
     assertSearchResults("org:sonarqube", project);
     assertNoSearchResults("orgsonarqube");
@@ -193,7 +195,7 @@ public class ComponentIndexTest {
 
   @Test
   public void should_not_return_results_when_searching_by_partial_key() {
-    indexProject("theKey", "the name");
+    indexProject("theKey", "some name");
 
     assertNoSearchResults("theke");
     assertNoSearchResults("hekey");
@@ -226,7 +228,7 @@ public class ComponentIndexTest {
   public void should_not_support_wildcards() {
     indexProject("theKey", "the name");
 
-    assertNoSearchResults("*the*");
+    assertNoSearchResults("*t*");
     assertNoSearchResults("th?Key");
   }
 
@@ -249,13 +251,6 @@ public class ComponentIndexTest {
     ComponentDto project = indexProject("key-1", "SonarQube");
 
     assertSearchResults("sonqube", project);
-  }
-
-  @Test
-  public void should_find_item_despite_two_missing_characters_and_lowercase_and_incomplete() {
-    ComponentDto project = indexProject("key-1", "SonarQube");
-
-    assertSearchResults("sonqub", project);
   }
 
   @Test
@@ -286,6 +281,43 @@ public class ComponentIndexTest {
   @Test
   public void should_require_at_least_one_matching_word() {
     assertNoFileMatches("monitor object", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_order_results_by_score() {
+    assertResultOrder("struts",
+      "Struts",
+      "Apache Struts",
+      "Apache Struts Two");
+  }
+
+  @Test
+  public void should_score_fuzzy_results() {
+    assertResultOrder("corem",
+      "CoreMetrics.java",
+      "ScoreMatrix.java");
+  }
+
+  @Test
+  public void should_prefer_components_without_prefix() {
+    assertResultOrder("File.java",
+      "File.java",
+      "MyFile.java");
+  }
+
+  @Test
+  public void should_prefer_components_without_suffix() {
+    assertResultOrder("File",
+      "File",
+      "Filex");
+  }
+
+  @Test
+  public void missing_characters_should_reduce_score() {
+    assertResultOrder("SonarQube.java",
+      "sonarqube.java",
+      "sonaqube.java",
+      "sonqube.java");
   }
 
   @Test
@@ -343,6 +375,21 @@ public class ComponentIndexTest {
     Arrays.stream(fileNames)
       .forEach(this::indexFile);
     assertSearch(query).isEmpty();
+  }
+
+  private void assertResultOrder(String query, String... resultsInOrder) {
+    ComponentDto project = indexProject("key-1", "Quality Product");
+    List<ComponentDto> files = Arrays.stream(resultsInOrder)
+      .map(r -> ComponentTesting.newFileDto(project).setName(r))
+      .peek(f -> f.setUuid(f.uuid() + "_" + f.name().replaceAll("[^a-zA-Z0-9]", "")))
+      .collect(Collectors.toList());
+
+    // index them, but not in the expected order
+    files.stream()
+      .sorted(Comparator.comparing(ComponentDto::uuid).reversed())
+      .forEach(this::index);
+
+    assertExactResults(query, files.toArray(new ComponentDto[0]));
   }
 
   private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {

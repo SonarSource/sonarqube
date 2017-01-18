@@ -24,8 +24,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Set;
 import org.sonar.api.config.Settings;
+import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
+
+import static org.sonar.server.es.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 
 /**
  * Definition of ES index "rules", including settings and fields.
@@ -55,8 +58,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     RuleIndexDefinition.FIELD_RULE_NAME,
     RuleIndexDefinition.FIELD_RULE_UPDATED_AT,
     RuleIndexDefinition.FIELD_RULE_CREATED_AT,
-    RuleIndexDefinition.FIELD_RULE_KEY
-  );
+    RuleIndexDefinition.FIELD_RULE_KEY);
 
   // Active rule fields
 
@@ -109,11 +111,10 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
     ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
-      "type", "string",
-      "index", "analyzed",
-      "analyzer", "html_analyzer",
-      "search_analyzer", "html_analyzer"
-      ));
+      DefaultIndexSettings.TYPE, DefaultIndexSettings.STRING,
+      DefaultIndexSettings.INDEX, DefaultIndexSettings.ANALYZED,
+      DefaultIndexSettings.ANALYZER, ENGLISH_HTML_ANALYZER.getName(),
+      DefaultIndexSettings.SEARCH_ANALYZER, ENGLISH_HTML_ANALYZER.getName()));
     ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();

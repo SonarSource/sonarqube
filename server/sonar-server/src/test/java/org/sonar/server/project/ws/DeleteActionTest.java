@@ -47,7 +47,6 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -187,8 +186,6 @@ public class DeleteActionTest {
     insertNewProjectInIndexes(1);
     insertNewProjectInIndexes(2);
 
-    assertComponentIndexSearchResults("project-key-1", "project-uuid-1");
-
     newRequest()
       .setParam(PARAM_KEY, "project-key-1").execute();
 
@@ -198,12 +195,8 @@ public class DeleteActionTest {
     assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-
-    assertComponentIndexSearchResults("project-key-1" /* empty list of results expected */);
-  }
-
-  private void assertComponentIndexSearchResults(String query, String... expectedResultUuids) {
-    assertThat(componentIndex.search(new ComponentIndexQuery(query))).containsExactly(expectedResultUuids);
+    assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).containsOnly(remainingProjectUuid);
+    assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
   }
 
   @Test
