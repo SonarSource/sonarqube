@@ -30,7 +30,7 @@ const SIZE_TO_WIDTH_MAPPING = {
 const SIZE_TO_THICKNESS_MAPPING = {
   'small': 2,
   'normal': 3,
-  'big': 4
+  'big': 3
 };
 
 export default class CoverageRating extends React.Component {
@@ -51,8 +51,8 @@ export default class CoverageRating extends React.Component {
     if (this.props.value != null) {
       const value = Number(this.props.value);
       data = [
-        { value, fill: this.props.muted ? '#bdbdbd' : '#85bb43' },
-        { value: 100 - value, fill: this.props.muted ? '#f3f3f3' : '#d4333f' }
+        { value, fill: this.props.muted ? '#bdbdbd' : '#00aa00' },
+        { value: 100 - value, fill: '#d4333f' }
       ];
     }
 

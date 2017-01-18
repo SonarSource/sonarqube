@@ -101,21 +101,21 @@ export default class MeasureTreemap extends React.Component {
   getPercentColorScale (metric) {
     const color = d3.scale.linear().domain([0, 25, 50, 75, 100]);
     color.range(metric.direction === 1 ?
-        ['#ee0000', '#f77700', '#ffee00', '#80cc00', '#00aa00'] :
-        ['#00aa00', '#80cc00', '#ffee00', '#f77700', '#ee0000']);
+        ['#d4333f', '#ed7d20', '#eabe06', '#b0d513', '#00aa00'] :
+        ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
     return color;
   }
 
   getRatingColorScale () {
     return d3.scale.linear()
         .domain([1, 2, 3, 4, 5])
-        .range(['#00aa00', '#80cc00', '#ffee00', '#f77700', '#ee0000']);
+        .range(['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f']);
   }
 
   getLevelColorScale () {
     return d3.scale.ordinal()
         .domain(['ERROR', 'WARN', 'OK', 'NONE'])
-        .range(['#d4333f', '#ff9900', '#85bb43', '##b4b4b4']);
+        .range(['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4']);
   }
 
   getScale () {

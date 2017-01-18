@@ -6,7 +6,7 @@
   align-items: center;
   width: 24px;
   height: 24px;
-  border: 3px solid #f3ca8e;
+  border: 3px solid #ed7d20;
   border-radius: 24px;
   box-sizing: border-box;
 }
@@ -33,21 +33,25 @@
 
 .duplications-rating:after {
   border-radius: 24px;
-  background-color: #f3ca8e;
   content: "";
 }
 
 .duplications-rating-A {
-  border-color: #85bb43;
+  border-color: #00aa00;
 }
 
 .duplications-rating-A:after {
   display: none;
 }
 
+.duplications-rating-B {
+  border-color: #b0d513;
+}
+
 .duplications-rating-B:after {
   width: 6px;
   height: 6px;
+  background-color: #b0d513;
 }
 
 .duplications-rating-small.duplications-rating-B:after {
@@ -60,9 +64,14 @@
   height: 12px;
 }
 
+.duplications-rating-C {
+  border-color: #eabe06;
+}
+
 .duplications-rating-C:after {
   width: 8px;
   height: 8px;
+  background-color: #eabe06;
 }
 
 .duplications-rating-small.duplications-rating-C:after {
@@ -76,13 +85,13 @@
 }
 
 .duplications-rating-D {
-  border-color: #d4333f;
+  border-color: #ed7d20;
 }
 
 .duplications-rating-D:after {
   width: 12px;
   height: 12px;
-  background-color: #d4333f;
+  background-color: #ed7d20;
 }
 
 .duplications-rating-small.duplications-rating-D:after {

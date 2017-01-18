@@ -37,11 +37,11 @@ a > .level:hover {
 }
 
 .level-OK {
-  background-color: #85bb43;
+  background-color: #00aa00;
 }
 
 .level-WARN {
-  background-color: #f90;
+  background-color: #ed7d20;
 }
 
 .level-ERROR {

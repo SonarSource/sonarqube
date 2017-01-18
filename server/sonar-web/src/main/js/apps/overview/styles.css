@@ -110,7 +110,7 @@
 }
 
 .overview-quality-gate-condition-warn {
-  border-color: #f90;
+  border-color: #ed7d20;
 }
 
 .overview-quality-gate-condition-error .overview-quality-gate-threshold {
@@ -118,7 +118,7 @@
 }
 
 .overview-quality-gate-condition-warn .overview-quality-gate-threshold {
-  color: #f90;
+  color: #ed7d20;
 }
 
 
