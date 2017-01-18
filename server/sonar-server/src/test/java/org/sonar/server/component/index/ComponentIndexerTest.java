@@ -121,16 +121,36 @@ public class ComponentIndexerTest {
     assertMatches("NewName", 1);
   }
 
+  @Test
+  public void reindex_project_with_files() {
+
+    // insert
+    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project).setName("OldFile"));
+
+    // verify insert
+    index(project);
+    assertMatches("OldFile", 1);
+
+    // modify
+    file.setName("NewFile");
+    update(file);
+
+    // verify modification
+    index(project);
+    assertMatches("OldFile", 0);
+    assertMatches("NewFile", 1);
+  }
+
   private void insert(ComponentDto component) {
-    dbClient.componentDao().insert(dbSession, component);
-    dbSession.commit();
+    dbTester.components().insertComponent(component);
   }
 
   private void update(ComponentDto component) {
     ComponentUpdateDto updateComponent = ComponentUpdateDto.copyFrom(component);
     updateComponent.setBChanged(true);
     dbClient.componentDao().update(dbSession, updateComponent);
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, "UUID-1");
+    dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, component.getRootUuid());
     dbSession.commit();
   }
 
