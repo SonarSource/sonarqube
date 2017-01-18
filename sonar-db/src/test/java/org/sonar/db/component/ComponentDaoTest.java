@@ -598,42 +598,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void insertBatch() {
-    try (DbSession batchSession = db.myBatis().openSession(true)) {
-      db.prepareDbUnit(getClass(), "empty.xml");
-
-      ComponentDto componentDto = new ComponentDto()
-        .setOrganizationUuid("org1")
-        .setUuid("GHIJ")
-        .setUuidPath("ABCD.EFGH.GHIJ.")
-        .setProjectUuid("ABCD")
-        .setModuleUuid("EFGH")
-        .setModuleUuidPath(".ABCD.EFGH.")
-        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-        .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-        .setName("RequestContext.java")
-        .setLongName("org.struts.RequestContext")
-        .setQualifier("FIL")
-        .setScope("FIL")
-        .setLanguage("java")
-        .setDescription("description")
-        .setPath("src/org/struts/RequestContext.java")
-        .setRootUuid("uuid_3")
-        .setCopyComponentUuid("uuid_5")
-        .setDeveloperUuid("uuid_7")
-        .setEnabled(true)
-        .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-        .setAuthorizationUpdatedAt(123456789L);
-
-      underTest.insertBatch(batchSession, componentDto);
-      batchSession.commit();
-
-      assertThat(componentDto.getId()).isNull();
-      db.assertDbUnit(getClass(), "insert-result.xml", "projects");
-    }
-  }
-
-  @Test
   public void insert_disabled_component() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
@@ -843,22 +807,6 @@ public class ComponentDaoTest {
     assertThat(result).hasSize(2).extracting(ComponentDto::getId)
       .containsOnlyOnce(sonarqube.getId(), jdk8.getId())
       .doesNotContain(cLang.getId());
-  }
-
-  @Test
-  public void selectParent() {
-    // project -> module -> file
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
-    componentDb.insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto(MODULE_UUID, project);
-    componentDb.insertComponent(module);
-    ComponentDto file = newFileDto(module, null, FILE_1_UUID);
-    componentDb.insertComponent(file);
-    db.commit();
-
-    assertThat(underTest.selectParent(dbSession, project)).isAbsent();
-    assertThat(underTest.selectParent(dbSession, module).get().uuid()).isEqualTo(PROJECT_UUID);
-    assertThat(underTest.selectParent(dbSession, file).get().uuid()).isEqualTo(MODULE_UUID);
   }
 
   @Test

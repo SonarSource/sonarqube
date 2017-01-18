@@ -421,7 +421,7 @@
     where p.enabled=${_true}
   </select>
 
-  <sql id="insertSql">
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO projects (
     organization_uuid,
     kee,
@@ -490,14 +490,6 @@
     null,
     null
     )
-  </sql>
-
-  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    <include refid="insertSql"/>
-  </insert>
-
-  <insert id="insertBatch" parameterType="Component" useGeneratedKeys="false">
-    <include refid="insertSql"/>
   </insert>
 
   <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">

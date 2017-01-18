@@ -139,18 +139,6 @@ public class ComponentDao implements Dao {
   }
 
   /**
-   * Optional parent. It is absent if specified component is root.
-   */
-  public Optional<ComponentDto> selectParent(DbSession dbSession, ComponentDto component) {
-    if (component.isRoot()) {
-      return Optional.absent();
-    }
-    List<String> path = component.getUuidPathAsList();
-    String parentUuid = path.get(path.size() - 1);
-    return Optional.of(mapper(dbSession).selectByUuid(parentUuid));
-  }
-
-  /**
    * List of ancestors, ordered from root to parent. The list is empty
    * if the component is a tree root. Disabled components are excluded by design
    * as tree represents the more recent analysis.
@@ -280,10 +268,6 @@ public class ComponentDao implements Dao {
 
   public void insert(DbSession session, ComponentDto item) {
     mapper(session).insert(item);
-  }
-
-  public void insertBatch(DbSession session, ComponentDto item) {
-    mapper(session).insertBatch(item);
   }
 
   public void insert(DbSession session, Collection<ComponentDto> items) {

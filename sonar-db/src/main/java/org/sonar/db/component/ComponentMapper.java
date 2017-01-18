@@ -120,8 +120,6 @@ public interface ComponentMapper {
 
   void insert(ComponentDto componentDto);
 
-  void insertBatch(ComponentDto componentDto);
-
   void update(ComponentUpdateDto component);
 
   void updateBEnabledToFalse(@Param("uuids") List<String> uuids);
