@@ -19,9 +19,10 @@
  */
 package org.sonar.db.version.v564;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
@@ -44,7 +45,7 @@ public class CleanUsurperRootComponents extends BaseDataChange {
 
   private void fixSnapshotScopeAndQualifier(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select(fixSqlConditions("select" +
+    massUpdate.select(fixSqlConditions(getDb().getDialect(), "select" +
       " sn.id,p.scope,p.qualifier" +
       " from" +
       " snapshots sn, projects p" +
@@ -70,16 +71,17 @@ public class CleanUsurperRootComponents extends BaseDataChange {
    * Replace placeholders {@code "%s"} so that comparisons of VARCHAR columns
    * do not fail on MsSQL when column collations are different.
    */
-  private String fixSqlConditions(String sql) {
-    if (MsSql.ID.equals(getDb().getDialect().getId())) {
-      return StringUtils.replace(sql, "%s", "collate database_default");
+  @VisibleForTesting
+  static String fixSqlConditions(Dialect dialect, String sql) {
+    if (MsSql.ID.equals(dialect.getId())) {
+      return sql.replaceAll("%s", "collate database_default");
     }
-    return StringUtils.replace(sql, "%s", "");
+    return sql.replaceAll("%s", "");
   }
 
   private void cleanUsurperRootComponents(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select(fixSqlConditions("select p.id,p.uuid from projects p " +
+    massUpdate.select(fixSqlConditions(getDb().getDialect(), "select p.id,p.uuid from projects p " +
       " where" +
       " p.project_uuid %s = p.uuid %s" +
       " and not (" +

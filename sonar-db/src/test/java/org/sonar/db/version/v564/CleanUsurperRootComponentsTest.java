@@ -30,6 +30,11 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static java.lang.Long.parseLong;
 import static java.lang.String.valueOf;
@@ -172,6 +177,25 @@ public class CleanUsurperRootComponentsTest {
     TABLES.stream()
       .filter(s1 -> !s1.equals("projects"))
       .forEach(s -> assertThat(db.countRowsOfTable(s)).describedAs("table " + s).isEqualTo(0));
+  }
+
+  @Test
+  public void SELECT_sql_should_ignore_collations_on_mssql() {
+    String sql = CleanUsurperRootComponents.fixSqlConditions(new MsSql(), "select * from foo where a %s = b %s");
+
+    assertThat(sql).isEqualTo("select * from foo where a collate database_default = b collate database_default");
+  }
+
+  @Test
+  public void SELECT_sql_should_not_contain_mssql_hints_on_non_mssql() {
+    assertSqlIsSanitizedOnNonMssql(new Oracle());
+    assertSqlIsSanitizedOnNonMssql(new PostgreSql());
+    assertSqlIsSanitizedOnNonMssql(new MySql());
+  }
+
+  private static void assertSqlIsSanitizedOnNonMssql(Dialect dialect) {
+    String sql = CleanUsurperRootComponents.fixSqlConditions(dialect, "select * from foo where a %s = b %s");
+    assertThat(sql).isEqualTo("select * from foo where a  = b ");
   }
 
   private void insertDuplicationsIndex(long snapshotId) {
