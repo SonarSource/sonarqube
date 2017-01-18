@@ -193,7 +193,7 @@ public class ComponentIndexTest {
 
   @Test
   public void should_not_return_results_when_searching_by_partial_key() {
-    indexProject("theKey", "the name");
+    indexProject("theKey", "some name");
 
     assertNoSearchResults("theke");
     assertNoSearchResults("hekey");
@@ -226,7 +226,7 @@ public class ComponentIndexTest {
   public void should_not_support_wildcards() {
     indexProject("theKey", "the name");
 
-    assertNoSearchResults("*the*");
+    assertNoSearchResults("*t*");
     assertNoSearchResults("th?Key");
   }
 
@@ -249,13 +249,6 @@ public class ComponentIndexTest {
     ComponentDto project = indexProject("key-1", "SonarQube");
 
     assertSearchResults("sonqube", project);
-  }
-
-  @Test
-  public void should_find_item_despite_two_missing_characters_and_lowercase_and_incomplete() {
-    ComponentDto project = indexProject("key-1", "SonarQube");
-
-    assertSearchResults("sonqub", project);
   }
 
   @Test
@@ -286,6 +279,44 @@ public class ComponentIndexTest {
   @Test
   public void should_require_at_least_one_matching_word() {
     assertNoFileMatches("monitor object", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void NPE_should_find_NullPointerException() {
+    assertFileMatches("NPE", "NullPointerException.java");
+  }
+
+  @Test
+  public void npe_should_not_find_NullPointerException() {
+    assertNoFileMatches("npe", "NullPointerException.java");
+  }
+
+  @Test
+  public void NuPE_should_find_NullPointerException() {
+    assertFileMatches("NuPE", "NullPointerException.java");
+  }
+
+  @Test
+  public void NPoE_should_find_NullPointerException() {
+    assertFileMatches("NPoE", "NullPointerException.java");
+  }
+
+  @Test
+  public void NPEx_should_find_NullPointerException() {
+    assertFileMatches("NPEx", "NullPointerException.java");
+  }
+
+  @Test
+  public void PE_should_prefer_PointerException_to_NullPointException() {
+    ComponentDto file1 = indexFile("NullPointerException.java");
+    ComponentDto file2 = indexFile("PointerException.java");
+
+    assertSearch("PE").containsExactly(uuids(file2, file1));
+  }
+
+  @Test
+  public void should_respect_order_of_camel_case_words() {
+    assertNoFileMatches("NuExcPo", "NullPointerException.java");
   }
 
   @Test

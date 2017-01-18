@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -237,6 +238,12 @@ public class NewIndex {
       return this;
     }
 
+    public StringFieldBuilder enable(DefaultIndexSettingsElement... analyzers) {
+      Arrays.stream(analyzers)
+        .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
+      return this;
+    }
+
     /**
      * Norms consume useless memory if string field is used for filtering or aggregations.
      *
@@ -312,6 +319,5 @@ public class NewIndex {
       return indexType.setProperty(fieldName, hash);
     }
   }
-
 
 }

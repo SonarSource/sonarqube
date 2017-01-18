@@ -24,6 +24,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
+import static org.sonar.server.es.DefaultIndexSettingsElement.CAMEL_CASE_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
+
 public class ComponentIndexDefinition implements IndexDefinition {
 
   public static final String INDEX_COMPONENTS = "components";
@@ -59,7 +62,9 @@ public class ComponentIndexDefinition implements IndexDefinition {
     mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).enableSorting().build();
-    mapping.stringFieldBuilder(FIELD_NAME).enableGramSearch().build();
+    mapping.stringFieldBuilder(FIELD_NAME)
+      .enableGramSearch().enable(CAMEL_CASE_ANALYZER, FUZZY_ANALYZER)
+      .build();
     mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
 
     // do not store document but only indexation of information

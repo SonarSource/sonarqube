@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import java.util.Arrays;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 
@@ -27,12 +28,28 @@ public class DefaultIndexSettings {
   /** Maximum length of ngrams. */
   public static final int MAXIMUM_NGRAM_LENGTH = 15;
 
+  public static final String ANALYSIS = "index.analysis";
+  public static final String DELIMITER = ".";
+
+  public static final String TOKENIZER = "tokenizer";
+  public static final String FILTER = "filter";
+  public static final String ANALYZER = "analyzer";
+
+  public static final String TYPE = "type";
+  public static final String PATTERN = "pattern";
+  public static final String CUSTOM = "custom";
+  public static final String KEYWORD = "keyword";
+
+  public static final String SUB_FIELD_DELIMITER = ".";
+
+  public static final String LOWERCASE = "lowercase";
+
   private DefaultIndexSettings() {
     // only static stuff
   }
 
   static Settings.Builder defaults() {
-    return Settings.builder()
+    Settings.Builder builder = Settings.builder()
       .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
       .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
       .put("index.refresh_interval", "30s")
@@ -41,35 +58,35 @@ public class DefaultIndexSettings {
       // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
-      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase")
+      .putArray("index.analysis.analyzer.sortable.filter", "trim", LOWERCASE)
 
       // NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "gram_tokenizer")
-      .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase")
+      .putArray("index.analysis.analyzer.index_grams.filter", "trim", LOWERCASE)
 
       // NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
+      .putArray("index.analysis.analyzer.search_grams.filter", "trim", LOWERCASE)
 
       // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
-        "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
+        "standard", "word_filter", LOWERCASE, "stop", "asciifolding", "porter_stem")
 
       // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
-        "standard", "lowercase", "stop", "asciifolding", "porter_stem")
+        "standard", LOWERCASE, "stop", "asciifolding", "porter_stem")
 
       // English HTML analyzer
       .put("index.analysis.analyzer.html_analyzer.type", "custom")
       .put("index.analysis.analyzer.html_analyzer.tokenizer", "standard")
       .putArray("index.analysis.analyzer.html_analyzer.filter",
-        "standard", "lowercase", "stop", "asciifolding", "porter_stem")
+        "standard", LOWERCASE, "stop", "asciifolding", "porter_stem")
       .putArray("index.analysis.analyzer.html_analyzer.char_filter", "html_strip")
 
       // NGram tokenizer
@@ -100,5 +117,10 @@ public class DefaultIndexSettings {
       .putArray("index.analysis.analyzer.uuid_analyzer.filter", "trim")
       .put("index.analysis.analyzer.uuid_analyzer.tokenizer", "dot_tokenizer");
 
+    Arrays.stream(DefaultIndexSettingsElement.values())
+      .map(DefaultIndexSettingsElement::settings)
+      .forEach(builder::put);
+
+    return builder;
   }
 }

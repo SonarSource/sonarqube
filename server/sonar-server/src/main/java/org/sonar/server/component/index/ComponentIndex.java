@@ -38,7 +38,9 @@ import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS;
@@ -48,6 +50,8 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QU
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
+import static org.sonar.server.es.DefaultIndexSettingsElement.CAMEL_CASE_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
 
 public class ComponentIndex extends BaseIndex {
 
@@ -86,7 +90,30 @@ public class ComponentIndex extends BaseIndex {
     String truncatedQuery = StringUtils.left(queryText, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
 
     return esQuery.must(boolQuery()
-      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery).fuzziness(Fuzziness.AUTO))
+
+      // partial name matches
+      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery))
+
+      // fuzzy name matches
+      .should(matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText).fuzziness(Fuzziness.AUTO))
+
+      // camel case matches
+      .should(
+
+        boolQuery()
+
+          // let PE find NullPointerException, but with a weak score
+          .should(matchPhraseQuery(CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText).boost(0.2f))
+
+          // let NPE find NullPointerException
+          .should(
+            boolQuery()
+              .must(matchPhraseQuery(CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText))
+              .must(prefixQuery(FIELD_NAME, StringUtils.left(queryText, 1))))
+
+      )
+
+      // exact match on the key
       .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, queryText).boost(5f)));
   }
 
