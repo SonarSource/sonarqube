@@ -70,6 +70,7 @@ export default React.createClass({
                   favorite={this.props.component.isFavorite}/>
 
               <ComponentNavBreadcrumbs
+                  component={this.props.component}
                   breadcrumbs={this.props.component.breadcrumbs}/>
 
               <TooltipsContainer options={{ delay: { show: 0, hide: 2000 } }}>
