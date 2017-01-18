@@ -46,8 +46,8 @@ export const fetchLanguages = () => dispatch => {
   );
 };
 
-export const fetchOrganizations = () => dispatch => (
-    getOrganizations().then(
+export const fetchOrganizations = (organizations?: Array<string>) => dispatch => (
+    getOrganizations(organizations).then(
         r => dispatch(receiveOrganizations(r.organizations)),
         onFail(dispatch)
     )
@@ -60,7 +60,12 @@ const addQualifier = project => ({
 
 export const fetchProject = key => dispatch => (
     getComponentNavigation(key).then(
-        component => dispatch(receiveComponents([addQualifier(component)])),
+        component => {
+          dispatch(receiveComponents([addQualifier(component)]));
+          if (component.organization != null) {
+            dispatch(fetchOrganizations([component.organization]));
+          }
+        },
         onFail(dispatch)
     )
 );

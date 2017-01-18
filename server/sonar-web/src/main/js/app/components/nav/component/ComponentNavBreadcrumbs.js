@@ -18,31 +18,53 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/qualifier-icon';
+import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 
-export default class ComponentNavBreadcrumbs extends React.Component {
+class ComponentNavBreadcrumbs extends React.Component {
   static propTypes = {
     breadcrumbs: React.PropTypes.array
   };
 
   render () {
-    if (!this.props.breadcrumbs) {
+    const { breadcrumbs, organization, shouldOrganizationBeDisplayed } = this.props;
+
+    if (!breadcrumbs) {
       return null;
     }
 
-    const items = this.props.breadcrumbs.map((item, index) => {
-      const url = `${window.baseUrl}/dashboard/index?id=${encodeURIComponent(item.key)}`;
+    const items = breadcrumbs.map(item => {
       return (
-          <li key={index}>
-            <a href={url}>
-              <QualifierIcon qualifier={item.qualifier}/>&nbsp;{item.name}
-            </a>
+          <li key={item.key}>
+            <Link to={{ pathname: '/dashboard', query: { id: item.key } }}>
+              <QualifierIcon qualifier={item.qualifier}/>
+              {' '}
+              {item.name}
+            </Link>
           </li>
       );
     });
 
     return (
-        <ul className="nav navbar-nav nav-crumbs">{items}</ul>
+        <ul className="nav navbar-nav nav-crumbs">
+          {organization != null && shouldOrganizationBeDisplayed && (
+              <li>
+                <span>{organization.name}</span>
+              </li>
+          )}
+          {items}
+        </ul>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: ownProps.component.organization && getOrganizationByKey(state, ownProps.component.organization),
+  shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
+});
+
+export default connect(mapStateToProps)(ComponentNavBreadcrumbs);
+
+export const Unconnected = ComponentNavBreadcrumbs;
