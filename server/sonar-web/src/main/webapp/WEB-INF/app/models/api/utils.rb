@@ -115,10 +115,6 @@ class Api::Utils
     false
   end
 
-  def self.markdown_to_html(markdown='')
-    Internal.text.markdownToHtml(markdown)
-  end
-
   # Splits a string into an array of lines
   # For history reference:
   #   - http://jira.sonarsource.com/browse/SONAR-2282 first modified the behaviour to keep the trailing lines

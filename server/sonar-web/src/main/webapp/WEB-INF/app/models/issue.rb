@@ -20,13 +20,4 @@
 
 class Issue
 
-  def self.comment_to_hash(comment)
-    {
-        :key => comment.key(),
-        :login => comment.userLogin(),
-        :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
-        :createdAt => Api::Utils.format_datetime(comment.createdAt())
-    }
-  end
-
 end

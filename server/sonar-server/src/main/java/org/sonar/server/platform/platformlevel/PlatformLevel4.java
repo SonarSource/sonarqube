@@ -190,7 +190,6 @@ import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.test.ws.CoveredFilesAction;
 import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
-import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.DeprecatedViews;
@@ -434,7 +433,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // text
       MacroInterpreter.class,
-      RubyTextService.class,
 
       // Notifications
       NotificationModule.class,
