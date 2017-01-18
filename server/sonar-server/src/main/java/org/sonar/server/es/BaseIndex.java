@@ -26,10 +26,6 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public abstract class BaseIndex {
 
-  public static final String SORT_SUFFIX = "sort";
-  public static final String SEARCH_WORDS_SUFFIX = "words";
-  public static final String SEARCH_PARTIAL_SUFFIX = "grams";
-
   private final EsClient client;
 
   public BaseIndex(EsClient client) {

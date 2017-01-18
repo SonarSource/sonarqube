@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -35,9 +36,12 @@ import org.sonar.process.ProcessProperties;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.es.BaseIndex.SEARCH_PARTIAL_SUFFIX;
-import static org.sonar.server.es.BaseIndex.SEARCH_WORDS_SUFFIX;
-import static org.sonar.server.es.BaseIndex.SORT_SUFFIX;
+import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
+import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX;
+import static org.sonar.server.es.DefaultIndexSettings.STRING;
+import static org.sonar.server.es.DefaultIndexSettings.TYPE;
+import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
 public class NewIndex {
 
@@ -163,9 +167,9 @@ public class NewIndex {
 
     public NewIndexType createUuidPathField(String fieldName) {
       return setProperty(fieldName, ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", "uuid_analyzer"));
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, UUID_MODULE_ANALYZER.getName()));
     }
 
     public Map<String, Object> getAttributes() {
@@ -206,10 +210,7 @@ public class NewIndex {
      * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
-      addSubField(SORT_SUFFIX, ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", "sortable"));
+      enable(DefaultIndexSettingsElement.SORTABLE_ANALYZER);
       return this;
     }
 
@@ -217,11 +218,7 @@ public class NewIndex {
      * Create an inner-field named "words" with analyzer "words"
      */
     public StringFieldBuilder enableWordSearch() {
-      addSubField(SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", "index_words",
-        "search_analyzer", "search_words"));
+      enable(DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER);
       return this;
     }
 
@@ -229,11 +226,13 @@ public class NewIndex {
      * Create a inner-field named "grams" with analyzer "grams"
      */
     public StringFieldBuilder enableGramSearch() {
-      addSubField(SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", "index_grams",
-        "search_analyzer", "search_grams"));
+      enable(DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER);
+      return this;
+    }
+
+    public StringFieldBuilder enable(DefaultIndexSettingsElement... analyzers) {
+      Arrays.stream(analyzers)
+        .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
       return this;
     }
 
@@ -312,6 +311,5 @@ public class NewIndex {
       return indexType.setProperty(fieldName, hash);
     }
   }
-
 
 }
