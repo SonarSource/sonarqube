@@ -35,7 +35,7 @@ public class SearchRequest {
   private final int page;
   private final int pageSize;
 
-  public SearchRequest(Builder builder) {
+  private SearchRequest(Builder builder) {
     this.project = builder.project;
     this.category = builder.category;
     this.page = builder.page;
