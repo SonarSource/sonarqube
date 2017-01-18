@@ -97,16 +97,4 @@ public class ComponentsWsTest {
     assertThat(action.params()).hasSize(4);
   }
 
-  @Test
-  public void define_search_action() {
-    WebService.Action action = controller.action("search");
-
-    assertThat(action).isNotNull();
-    assertThat(action.param("qualifiers").isRequired()).isTrue();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.description()).isNotEmpty();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.since()).isEqualTo("5.2");
-  }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Function;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,13 +40,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.Collectors.uniqueIndex;
+import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
+import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -72,23 +75,19 @@ public class SearchAction implements ComponentsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
-      .setSince("5.2")
-      .setInternal(true)
+      .setSince("6.3")
       .setDescription("Search for components")
       .addPagingParams(100)
       .addSearchQuery("sona", "component names", "component keys")
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
-
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
-      .setRequired(true);
-
     action
       .createParam(PARAM_LANGUAGE)
       .setDescription("Language key. If provided, only components for the given language are returned.")
-      .setExampleValue(LanguageParamUtils.getExampleValue(languages))
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
-      .setSince("5.4");
+      .setExampleValue(getExampleValue(languages))
+      .setPossibleValues(getLanguageKeys(languages));
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
+      .setRequired(true);
   }
 
   @Override
@@ -98,8 +97,6 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentQuery query = buildQuery(request);
       Paging paging = buildPaging(dbSession, request, query);
@@ -125,11 +122,18 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   private List<ComponentDto> searchComponents(DbSession dbSession, ComponentQuery query, Paging paging) {
-    return dbClient.componentDao().selectByQuery(
-      dbSession,
-      query,
-      paging.offset(),
-      paging.pageSize());
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, query, paging.offset(), paging.pageSize());
+    return filterAuthorizedComponents(dbSession, componentDtos);
+  }
+
+  private List<ComponentDto> filterAuthorizedComponents(DbSession dbSession, List<ComponentDto> componentDtos) {
+    Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
+    Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
+    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
+    return componentDtos.stream()
+      .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
+      .collect(Collectors.toList());
   }
 
   private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, OrganizationDto> organizationsByUuid, Paging paging) {
