@@ -1,4 +1,9 @@
 <div class="component-name issues-workspace-list-component">
+  {{#notNull organization}}
+    <span class="component-name-parent">
+      {{organization.name}}
+    </span>
+  {{/notNull}}
   <a class="component-name-parent link-no-underline" href="{{dashboardUrl project}}">
     {{qualifierIcon "TRK"}}&nbsp;{{projectLongName}}
   </a>
@@ -8,6 +13,6 @@
     </a>
   {{/if}}
   <a class="component-name-file link-no-underline" href="{{dashboardUrl component}}">
-    {{qualifierIcon componentQualifier}}&nbsp;{{componentLongName}}
+    {{qualifierIcon componentQualifier}}&nbsp;{{collapsePath componentLongName}}
   </a>
 </div>
