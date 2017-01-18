@@ -29,9 +29,19 @@ import { updateOrganization } from '../actions';
 
 class OrganizationEdit extends React.Component {
   mounted: boolean;
+
   props: {
     organization: Organization,
     updateOrganization: (string, Object) => Promise<*>
+  };
+
+  state: {
+    loading: boolean,
+    avatar: string,
+    avatarImage: string,
+    description: string,
+    name: string,
+    url: string
   };
 
   constructor (props) {

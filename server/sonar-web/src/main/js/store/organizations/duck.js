@@ -37,7 +37,8 @@ type ReceiveOrganizationsAction = {
 
 type UpdateOrganizationAction = {
   type: 'UPDATE_ORGANIZATION',
-  organization: Organization
+  key: string,
+  changes: {}
 };
 
 type DeleteOrganizationAction = {

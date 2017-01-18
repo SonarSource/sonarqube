@@ -29,11 +29,14 @@ export const getOrganizations = (organizations?: Array<string>) => {
 };
 
 type GetOrganizationType = null | {
+  avatar: null | string,
+  description: null | string,
   key: string,
-  name: string
+  name: string,
+  url: null | string
 };
 
-export const getOrganization = (key: string): GetOrganizationType => {
+export const getOrganization = (key: string): Promise<GetOrganizationType> => {
   return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
 };
 

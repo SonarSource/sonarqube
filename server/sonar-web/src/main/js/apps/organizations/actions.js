@@ -24,8 +24,8 @@ import * as actions from '../../store/organizations/duck';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
 import { translate } from '../../helpers/l10n';
 
-export const fetchOrganization = (key: string): void => (dispatch: Function): Promise<*> => {
-  const onFulfilled = (organization: null | {}) => {
+export const fetchOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
+  const onFulfilled = organization => {
     if (organization) {
       dispatch(actions.receiveOrganizations([organization]));
     }
@@ -34,7 +34,7 @@ export const fetchOrganization = (key: string): void => (dispatch: Function): Pr
   return api.getOrganization(key).then(onFulfilled, onFail(dispatch));
 };
 
-export const updateOrganization = (key: string, changes: {}): void => (dispatch: Function): Promise<*> => {
+export const updateOrganization = (key: string, changes: {}): Function => (dispatch: Function): Promise<*> => {
   const onFulfilled = () => {
     dispatch(actions.updateOrganization(key, changes));
     dispatch(addGlobalSuccessMessage(translate('organization.updated')));
@@ -43,7 +43,7 @@ export const updateOrganization = (key: string, changes: {}): void => (dispatch:
   return api.updateOrganization(key, changes).then(onFulfilled, onFail(dispatch));
 };
 
-export const deleteOrganization = (key: string): void => (dispatch: Function): Promise<*> => {
+export const deleteOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
   const onFulfilled = () => {
     dispatch(actions.deleteOrganization(key));
     dispatch(addGlobalSuccessMessage(translate('organization.deleted')));

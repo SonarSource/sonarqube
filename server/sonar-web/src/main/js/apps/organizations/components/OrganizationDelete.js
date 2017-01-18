@@ -31,7 +31,8 @@ import { deleteOrganization } from '../actions';
 class OrganizationEdit extends React.Component {
   props: {
     organization: Organization,
-    deleteOrganization: (string) => Promise<*>
+    deleteOrganization: (string) => Promise<*>,
+    router: { replace: (string) => void }
   };
 
   state = {

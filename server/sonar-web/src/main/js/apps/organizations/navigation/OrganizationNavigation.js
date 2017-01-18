@@ -31,6 +31,7 @@ const ADMIN_PATHS = [
 
 export default class OrganizationNavigation extends React.Component {
   props: {
+    location: { pathname: string },
     organization: Organization
   };
 

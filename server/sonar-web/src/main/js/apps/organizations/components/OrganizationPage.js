@@ -31,7 +31,11 @@ type OwnProps = {
 };
 
 class OrganizationPage extends React.Component {
+  mounted: boolean;
+
   props: {
+    children: Object,
+    location: Object,
     organization: null | Organization,
     params: { organizationKey: string },
     fetchOrganization: (string) => Promise<*>
