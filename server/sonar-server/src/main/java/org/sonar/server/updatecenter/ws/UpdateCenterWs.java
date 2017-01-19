@@ -19,8 +19,7 @@
  */
 package org.sonar.server.updatecenter.ws;
 
-import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
+import java.util.Arrays;
 import org.sonar.api.server.ws.WebService;
 
 public class UpdateCenterWs implements WebService {
@@ -36,23 +35,7 @@ public class UpdateCenterWs implements WebService {
     NewController controller = context.createController("api/updatecenter")
       .setDescription("Get list of installed plugins")
       .setSince("2.10");
-
-    defineInstalledPluginsAction(controller);
-    for (UpdateCenterWsAction action : actions) {
-      action.define(controller);
-    }
-
+    Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }
-
-  private void defineInstalledPluginsAction(NewController controller) {
-    NewAction action = controller.createAction("installed_plugins")
-      .setDescription("Get the list of all the plugins installed on the SonarQube instance")
-      .setSince("2.10")
-      .setHandler(RailsHandler.INSTANCE)
-      .setInternal(true)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
-    RailsHandler.addFormatParam(action);
-  }
-
 }

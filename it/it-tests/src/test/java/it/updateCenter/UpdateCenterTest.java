@@ -20,20 +20,12 @@
 package it.updateCenter;
 
 import com.sonar.orchestrator.Orchestrator;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.Host;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.connectors.HttpClient4Connector;
-import org.sonar.wsclient.services.Plugin;
-import org.sonar.wsclient.services.UpdateCenterQuery;
 import util.user.UserRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
 import static util.selenium.Selenese.runSelenese;
 
@@ -41,7 +33,6 @@ import static util.selenium.Selenese.runSelenese;
  * This class start its own orchestrator
  */
 public class UpdateCenterTest {
-
 
   @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -57,33 +48,8 @@ public class UpdateCenterTest {
   }
 
   @Test
-  public void web_service_installed_plugins_requires_root_and_returns_installed_plugins() {
-    userRule.createUser("new_root", "bar");
-    userRule.setRoot("new_root");
-
-    Sonar newRootSonarWsClient = new Sonar(new HttpClient4Connector(new Host(orchestrator.getServer().getUrl(), "new_root", "bar")));
-    List < Plugin > plugins = newRootSonarWsClient.findAll(UpdateCenterQuery.createForInstalledPlugins());
-    assertThat(plugins.size()).isGreaterThan(0);
-
-    Plugin installedPlugin = findPlugin(plugins, "fake");
-
-    assertThat(installedPlugin).isNotNull();
-    assertThat(installedPlugin.getName()).isEqualTo("Plugins :: Fake");
-    assertThat(installedPlugin.getVersion()).isEqualTo("1.0-SNAPSHOT");
-  }
-
-  @Test
   public void test_console() {
     runSelenese(orchestrator, "/updateCenter/installed-plugins.html");
-  }
-
-  private Plugin findPlugin(List<Plugin> plugins, String pluginKey) {
-    for (Plugin plugin : plugins) {
-      if (StringUtils.equals(pluginKey, plugin.getKey())) {
-        return plugin;
-      }
-    }
-    return null;
   }
 
 }
