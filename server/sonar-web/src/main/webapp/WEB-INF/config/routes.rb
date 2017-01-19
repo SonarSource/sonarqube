@@ -5,8 +5,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.connect 'api', :controller => 'api/java_ws', :action => 'redirect_to_ws_listing'
 
-  map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
-
   # page plugins
   map.connect 'plugins/configuration/:page', :controller => 'plugins/configuration', :action => 'index', :requirements => { :page => /.*/ }
   map.connect 'plugins/home/:page', :controller => 'plugins/home', :action => 'index', :requirements => { :page => /.*/ }

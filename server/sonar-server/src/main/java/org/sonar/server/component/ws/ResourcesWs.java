@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
@@ -29,12 +28,9 @@ public class ResourcesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/resources")
-      .setDescription("Get details about components. Deprecated since 5.4.")
+      .setDescription("Removed since 6.3, please use api/components and api/measures instead")
       .setSince("2.10");
-
     defineIndexAction(controller);
-    defineSearchAction(controller);
-
     controller.done();
   }
 
@@ -51,40 +47,6 @@ public class ResourcesWs implements WebService {
       .setDeprecatedSince("5.4")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "resources-example-index.json"));
-  }
-
-  private void defineSearchAction(NewController controller) {
-    NewAction action = controller.createAction("search")
-      .setDescription("Search for components")
-      .setSince("3.3")
-      .setDeprecatedSince("5.4")
-      .addPagingParams(10)
-      .setInternal(true)
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "resources-example-search.json"));
-
-    action.createParam("s")
-      .setDescription("To filter on resources containing a specified text in their name")
-      .setExampleValue("sonar");
-
-    action.createParam("display_key")
-      .setDescription("Return the resource key instead of the resource id")
-      .setBooleanPossibleValues()
-      .setDefaultValue(String.valueOf(false));
-
-    action.createParam("q")
-      .setDescription("Comma-separated list of qualifiers")
-      .setExampleValue("TRK,BRC");
-
-    action.createParam("qp")
-      .setDescription("Resource Property")
-      .setExampleValue("supportsMeasureFilters");
-
-    action.createParam("f")
-      .setDescription("If 's2', then it will return a select2 compatible format")
-      .setExampleValue("s2");
-
-    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
 }

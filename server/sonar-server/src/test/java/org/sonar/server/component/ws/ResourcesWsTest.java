@@ -21,7 +21,6 @@ package org.sonar.server.component.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
@@ -43,7 +42,7 @@ public class ResourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(1);
   }
 
   @Test
@@ -53,16 +52,6 @@ public class ResourcesWsTest {
     assertThat(action.handler()).isInstanceOf(RemovedWebServiceHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).isEmpty();
-  }
-
-  @Test
-  public void define_search_action() {
-    WebService.Action action = controller.action("search");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(8);
   }
 
 }
