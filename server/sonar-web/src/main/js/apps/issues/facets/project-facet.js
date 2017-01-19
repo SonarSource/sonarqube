@@ -27,8 +27,25 @@ export default CustomValuesFacet.extend({
     if (q === 'VW' || q === 'SVW') {
       return window.baseUrl + '/api/components/search_view_components';
     } else {
-      return window.baseUrl + '/api/resources/search?f=s2&q=TRK&display_uuid=true';
+      return window.baseUrl + '/api/components/search?qualifiers=TRK';
     }
+  },
+
+  prepareAjaxSearch () {
+    return {
+      quietMillis: 300,
+      url: this.getUrl(),
+      data (term, page) {
+        return { q: term, p: page };
+      },
+      results: r => ({
+        more: r.paging.total > r.paging.pageIndex * r.paging.pageSize,
+        results: r.components.map(component => ({
+          id: component.id,
+          text: component.name
+        }))
+      })
+    };
   },
 
   prepareSearch () {
