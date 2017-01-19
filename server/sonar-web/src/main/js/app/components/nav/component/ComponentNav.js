@@ -56,7 +56,12 @@ export default React.createClass({
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
-      RecentHistory.add(this.props.component.key, this.props.component.name, qualifier.toLowerCase());
+      RecentHistory.add(
+          this.props.component.key,
+          this.props.component.name,
+          qualifier.toLowerCase(),
+          this.props.component.organization
+      );
     }
   },
 
