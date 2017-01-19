@@ -93,7 +93,7 @@ public class BulkUpdateKeyActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new BulkUpdateKeyAction(dbClient, componentFinder,
-      new ComponentService(dbClient, null, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client())),
+      new ComponentService(dbClient, null, null, null, new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client())),
       userSession));
 
   @Before

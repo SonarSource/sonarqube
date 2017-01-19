@@ -125,7 +125,7 @@ public class UpdateKeyActionTest {
   }
 
   private void assertCallComponentService(@Nullable String oldKey, @Nullable String newKey) {
-    verify(componentService).updateKey(any(DbSession.class), eq(oldKey), eq(newKey));
+    verify(componentService).updateKey(any(DbSession.class), any(ComponentDto.class), eq(newKey));
   }
 
   private ComponentDto insertProject() {

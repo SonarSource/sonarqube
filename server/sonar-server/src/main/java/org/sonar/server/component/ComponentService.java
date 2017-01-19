@@ -20,7 +20,6 @@
 package org.sonar.server.component;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.Collection;
@@ -60,29 +59,20 @@ public class ComponentService {
   private final I18n i18n;
   private final UserSession userSession;
   private final System2 system2;
-  private final ComponentFinder componentFinder;
   private final ProjectMeasuresIndexer projectMeasuresIndexer;
   private final ComponentIndexer componentIndexer;
 
-  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder, ProjectMeasuresIndexer projectMeasuresIndexer,
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ProjectMeasuresIndexer projectMeasuresIndexer,
     ComponentIndexer componentIndexer) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
     this.system2 = system2;
-    this.componentFinder = componentFinder;
     this.projectMeasuresIndexer = projectMeasuresIndexer;
     this.componentIndexer = componentIndexer;
   }
 
-  public ComponentDto getByKey(String key) {
-    try (DbSession session = dbClient.openSession(false)) {
-      return componentFinder.getByKey(session, key);
-    }
-  }
-
-  public void updateKey(DbSession dbSession, String projectOrModuleKey, String newKey) {
-    ComponentDto component = componentFinder.getByKey(dbSession, projectOrModuleKey);
+  public void updateKey(DbSession dbSession, ComponentDto component, String newKey) {
     userSession.checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
@@ -124,9 +114,7 @@ public class ComponentService {
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent) {
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
-
-    Optional<ComponentDto> existingComponent = dbClient.componentDao().selectByKey(session, keyWithBranch);
-    if (existingComponent.isPresent()) {
+    if (dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent()) {
       throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", newComponent.qualifier(), keyWithBranch));
     }
 

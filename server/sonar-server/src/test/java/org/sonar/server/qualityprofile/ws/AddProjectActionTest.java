@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -34,9 +33,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
@@ -57,9 +54,6 @@ public class AddProjectActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-
-  @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

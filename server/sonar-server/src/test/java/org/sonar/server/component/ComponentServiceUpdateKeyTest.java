@@ -80,7 +80,7 @@ public class ComponentServiceUpdateKeyTest {
 
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
   private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
-  private ComponentService underTest = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient), projectMeasuresIndexer, componentIndexer);
+  private ComponentService underTest = new ComponentService(dbClient, i18n, userSession, system2, projectMeasuresIndexer, componentIndexer);
 
   @Before
   public void setUp() {
@@ -96,16 +96,16 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    underTest.updateKey(dbSession, project.key(), "sample2:root");
+    underTest.updateKey(dbSession, project, "sample2:root");
     dbSession.commit();
 
     // Check project key has been updated
-    assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isAbsent();
-    assertThat(dbClient.componentDao().selectByKey(dbSession, "sample2:root")).isPresent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, project.key())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root")).isNotNull();
 
     // Check file key has been updated
-    assertThat(dbClient.componentDao().selectByKey(dbSession, file.key())).isAbsent();
-    assertThat(dbClient.componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isPresent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, file.key())).isAbsent();
+    assertThat(db.getDbClient().componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isNotNull();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
 
@@ -122,7 +122,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    underTest.updateKey(dbSession, module.key(), "sample:root2:module");
+    underTest.updateKey(dbSession, module, "sample:root2:module");
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isPresent();
@@ -139,7 +139,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
-    underTest.updateKey(dbSession, provisionedProject.key(), "provisionedProject2");
+    underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
@@ -153,7 +153,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleRootProject();
     userSession.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    underTest.updateKey(dbSession, project.key(), "sample2:root");
+    underTest.updateKey(dbSession, project, "sample2:root");
   }
 
   @Test
@@ -165,7 +165,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"" + anotherProject.key() + "\" already exists.");
 
-    underTest.updateKey(dbSession, project.key(), anotherProject.key());
+    underTest.updateKey(dbSession, project, anotherProject.key());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    underTest.updateKey(dbSession, project.key(), "");
+    underTest.updateKey(dbSession, project, "");
   }
 
   @Test
@@ -187,7 +187,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    underTest.updateKey(dbSession, project.key(), "sample?root");
+    underTest.updateKey(dbSession, project, "sample?root");
   }
 
   @Test
@@ -199,7 +199,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component updated must be a module or a key");
 
-    underTest.updateKey(dbSession, file.key(), "file:key");
+    underTest.updateKey(dbSession, file, "file:key");
   }
 
   @Test
