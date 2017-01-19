@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,9 +58,9 @@ public class ProfilesWsTest {
 
     WebService.Action restoreProfiles = controller.action("index");
     assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.handler()).isInstanceOf(RemovedWebServiceHandler.class);
     assertThat(restoreProfiles.responseExampleAsString()).isNotEmpty();
-    assertThat(restoreProfiles.params()).hasSize(3);
+    assertThat(restoreProfiles.params()).isEmpty();
   }
 
   @Test

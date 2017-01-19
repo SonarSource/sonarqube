@@ -81,28 +81,7 @@ class Api::ProfilesController < Api::ApiController
       format.text { render :text => text_not_supported }
     end
   end
-  
-  # GET /api/profiles?language=<language>[&name=<name>]
-  def index
-    require_parameters :language
 
-    language=params[:language]
-    name=params[:name]
-    if name.blank?
-      @profile=Profile.by_default(language)
-    else
-      @profile=Profile.find_by_name_and_language(name, language)
-    end
-    not_found('Profile not found') unless @profile
-
-    @active_rules=filter_rules()
-
-    respond_to do |format|
-      format.json { render :json => jsonp(to_json) }
-      format.xml { render :xml => to_xml }
-      format.text { render :text => text_not_supported }
-    end
-  end
 
   private
 
