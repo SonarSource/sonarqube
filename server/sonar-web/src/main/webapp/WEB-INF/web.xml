@@ -7,26 +7,6 @@
          metadata-complete="true">
   <display-name>SonarQube</display-name>
 
-  <!--
-  jruby-rack parameters
-
-  rails.env and jruby.max.runtimes depend on mode (development/production) and are injected by :
-  - system properties for dev mode (see sonar-server pom)
-  - embedded tomcat for production mode (see sonar-application)
-   -->
-  <context-param>
-    <param-name>jruby.min.runtimes</param-name>
-    <param-value>1</param-value>
-  </context-param>
-  <context-param>
-    <param-name>jruby.compat.version</param-name>
-    <param-value>1.8</param-value>
-  </context-param>
-  <context-param>
-    <param-name>jruby.rack.logging</param-name>
-    <param-value>slf4j</param-value>
-  </context-param>
-
   <filter>
     <filter-name>ServletFilters</filter-name>
     <filter-class>org.sonar.server.platform.web.MasterServletFilter</filter-class>
@@ -34,19 +14,6 @@
   <filter>
     <filter-name>UserSessionFilter</filter-name>
     <filter-class>org.sonar.server.user.UserSessionFilter</filter-class>
-  </filter>
-  <filter>
-    <filter-name>RackFilter</filter-name>
-    <filter-class>org.jruby.rack.RackFilter</filter-class>
-    <init-param>
-      <param-name>addsHtmlToPathInfo</param-name>
-      <param-value>false</param-value>
-    </init-param>
-    <!--Do not reset unhandled response in order to be able to add cookie in java servlet -->
-    <init-param>
-      <param-name>resetUnhandledResponse</param-name>
-      <param-value>false</param-value>
-    </init-param>
   </filter>
   <filter>
     <filter-name>SecurityFilter</filter-name>
@@ -98,10 +65,6 @@
     <filter-name>WebPagesFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-  <filter-mapping>
-    <filter-name>RackFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
 
   <error-page>
     <error-code>500</error-code>
@@ -120,9 +83,6 @@
 
   <listener>
     <listener-class>org.sonar.server.platform.web.PlatformServletContextListener</listener-class>
-  </listener>
-  <listener>
-    <listener-class>org.sonar.server.platform.web.RubyRailsContextListener</listener-class>
   </listener>
 
   <mime-mapping>

@@ -1,1 +1,0 @@
-require 'arjdbc/h2'

@@ -140,20 +140,12 @@
       <artifactId>picocontainer</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jruby</groupId>
-      <artifactId>jruby-complete</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jruby.rack</groupId>
-      <artifactId>jruby-rack</artifactId>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>
