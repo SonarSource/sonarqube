@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
@@ -39,8 +38,7 @@ public class ProfilesWsTest {
   @Before
   public void setUp() {
     ws = new WsTester(new ProfilesWs(
-      new OldRestoreAction(mock(QProfileBackuper.class), mock(Languages.class), mock(UserSession.class))
-      ));
+      new OldRestoreAction(mock(QProfileBackuper.class), mock(Languages.class), mock(UserSession.class))));
   }
 
   @Test
@@ -69,9 +67,9 @@ public class ProfilesWsTest {
 
     WebService.Action listProfiles = controller.action("list");
     assertThat(listProfiles).isNotNull();
-    assertThat(listProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(listProfiles.handler()).isInstanceOf(RemovedWebServiceHandler.class);
     assertThat(listProfiles.responseExampleAsString()).isNotEmpty();
-    assertThat(listProfiles.params()).hasSize(3);
+    assertThat(listProfiles.params()).isEmpty();
   }
 
   private WebService.Controller controller() {

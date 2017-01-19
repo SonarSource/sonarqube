@@ -20,11 +20,8 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
-
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 /**
  * List of quality profiles WS implemented in Rails.
@@ -43,7 +40,7 @@ public class ProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(API_ENDPOINT)
-      .setDescription("Manage quality profiles. Deprecated since 5.2.")
+      .setDescription("Removed since 6.3, please use api/qualityprofiles instead")
       .setSince("4.4");
     restoreAction.define(controller);
     defineListAction(controller);
@@ -62,19 +59,12 @@ public class ProfilesWs implements WebService {
   }
 
   private static void defineListAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("list")
-      .setDescription("Get a list of profiles.")
+    controller.createAction("list")
+      .setDescription("Get a list of profiles.<br/>" +
+        "The web service is removed and you're invited to use api/qualityprofiles/search instead")
       .setSince("3.3")
       .setDeprecatedSince("5.2")
-      .setHandler(RailsHandler.INSTANCE)
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
       .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
-
-    action.createParam("language")
-      .setDescription("Profile language")
-      .setExampleValue("java");
-    action.createParam("project")
-      .setDescription("Project key or id")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    RailsHandler.addJsonOnlyFormatParam(action);
   }
 }
