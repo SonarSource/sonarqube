@@ -214,6 +214,16 @@
     </where>
   </select>
 
+  <select id="selectAllRootsByOrganization" resultType="Component">
+    select
+      <include refid="componentColumns"/>
+    from projects p
+    where
+      p.scope='PRJ'
+      and (p.qualifier='TRK' or p.qualifier='VW')
+      and p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectComponentsByQualifiers" resultType="Component">
     SELECT
     <include refid="componentColumns"/>

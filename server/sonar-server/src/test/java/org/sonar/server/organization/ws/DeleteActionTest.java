@@ -19,24 +19,41 @@
  */
 package org.sonar.server.organization.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 
@@ -49,8 +66,20 @@ public class DeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DeleteAction underTest = new DeleteAction(userSession, dbTester.getDbClient(), TestDefaultOrganizationProvider.from(dbTester));
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = dbTester.getSession();
+
+  private ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private ComponentCleanerService componentCleanerService = new ComponentCleanerService(dbTester.getDbClient(),
+    mock(IssueIndexer.class), mock(TestIndexer.class), mock(ProjectMeasuresIndexer.class),
+    mock(ComponentIndexer.class), resourceTypes, new ComponentFinder(dbTester.getDbClient()));
+  private DeleteAction underTest = new DeleteAction(userSession, dbTester.getDbClient(), TestDefaultOrganizationProvider.from(dbTester), componentCleanerService);
   private WsActionTester wsTester = new WsActionTester(underTest);
+
+  @Before
+  public void setUp() throws Exception {
+    when(resourceTypes.get(anyString())).thenAnswer(invocation -> ResourceType.builder((String) invocation.getArguments()[0]).setProperty("deletable", true).build());
+  }
 
   @Test
   public void verify_define() {
@@ -153,8 +182,85 @@ public class DeleteActionTest {
     verifyOrganizationDoesNotExist(organization);
   }
 
+  @Test
+  public void request_also_deletes_components_of_specified_organization() {
+    userSession.login().setRoot();
+
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
+    ComponentDto directory = dbTester.components().insertComponent(ComponentTesting.newDirectory(module, "a/b"));
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(module, directory));
+    ComponentDto view = dbTester.components().insertView(organization, (dto) -> {
+    });
+    ComponentDto subview1 = dbTester.components().insertComponent(ComponentTesting.newSubView(view, "v1", "ksv1"));
+    ComponentDto subview2 = dbTester.components().insertComponent(ComponentTesting.newSubView(subview1, "v2", "ksv2"));
+    ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy("pc1", project, subview1));
+
+    sendRequest(organization);
+
+    verifyOrganizationDoesNotExist(organization);
+    assertThat(dbTester.getDbClient().componentDao().selectByUuids(
+      session,
+      of(project.uuid(), module.uuid(), directory.uuid(), file.uuid(), view.uuid(), subview1.uuid(), subview2.uuid(), projectCopy.uuid())))
+        .isEmpty();
+  }
+
+  @Test
+  public void request_also_deletes_permissions_templates_and_permissions_and_groups_of_specified_organization() {
+    userSession.login().setRoot();
+
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    OrganizationDto otherOrganizationDto = dbTester.organizations().insert();
+
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    GroupDto group1 = dbTester.users().insertGroup(organizationDto);
+    GroupDto group2 = dbTester.users().insertGroup(organizationDto);
+    GroupDto otherGroup1 = dbTester.users().insertGroup(otherOrganizationDto);
+    GroupDto otherGroup2 = dbTester.users().insertGroup(otherOrganizationDto);
+
+    ComponentDto projectDto = dbTester.components().insertProject(organizationDto);
+    ComponentDto otherProjectDto = dbTester.components().insertProject(otherOrganizationDto);
+
+    dbTester.users().insertPermissionOnAnyone(organizationDto, "u1");
+    dbTester.users().insertPermissionOnAnyone(otherOrganizationDto, "not deleted u1");
+    dbTester.users().insertPermissionOnUser(organizationDto, user1, "u2");
+    dbTester.users().insertPermissionOnUser(otherOrganizationDto, user1, "not deleted u2");
+    dbTester.users().insertPermissionOnGroup(group1, "u3");
+    dbTester.users().insertPermissionOnGroup(otherGroup1, "not deleted u3");
+    dbTester.users().insertProjectPermissionOnAnyone(organizationDto, "u4", projectDto);
+    dbTester.users().insertProjectPermissionOnAnyone(otherOrganizationDto, "not deleted u4", otherProjectDto);
+    dbTester.users().insertProjectPermissionOnGroup(group1, "u5", projectDto);
+    dbTester.users().insertProjectPermissionOnGroup(otherGroup1, "not deleted u5", otherProjectDto);
+    dbTester.users().insertProjectPermissionOnUser(user1, "u6", projectDto);
+    dbTester.users().insertProjectPermissionOnUser(user1, "not deleted u6", otherProjectDto);
+
+    PermissionTemplateDto templateDto = dbTester.permissionTemplates().insertTemplate(organizationDto);
+    PermissionTemplateDto otherTemplateDto = dbTester.permissionTemplates().insertTemplate(otherOrganizationDto);
+
+    sendRequest(organizationDto);
+
+    verifyOrganizationDoesNotExist(organizationDto);
+    assertThat(dbClient.groupDao().selectByIds(session, of(group1.getId(), otherGroup1.getId(), group2.getId(), otherGroup2.getId())))
+      .extracting(GroupDto::getId)
+      .containsOnly(otherGroup1.getId(), otherGroup2.getId());
+    assertThat(dbClient.permissionTemplateDao().selectByUuid(session, templateDto.getUuid()))
+      .isNull();
+    assertThat(dbClient.permissionTemplateDao().selectByUuid(session, otherTemplateDto.getUuid()))
+      .isNotNull();
+    assertThat(dbTester.select("select role as \"role\" from USER_ROLES"))
+      .extracting(row -> (String) row.get("role"))
+      .doesNotContain("u2", "u6")
+      .contains("not deleted u2", "not deleted u6");
+    assertThat(dbTester.select("select role as \"role\" from GROUP_ROLES"))
+      .extracting(row -> (String) row.get("role"))
+      .doesNotContain("u1", "u3", "u4", "u5")
+      .contains("not deleted u1", "not deleted u3", "not deleted u4", "not deleted u5");
+  }
+
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {
-    assertThat(dbTester.getDbClient().organizationDao().selectByKey(dbTester.getSession(), organization.getKey()))
+    assertThat(dbTester.getDbClient().organizationDao().selectByKey(session, organization.getKey()))
       .isEmpty();
   }
 

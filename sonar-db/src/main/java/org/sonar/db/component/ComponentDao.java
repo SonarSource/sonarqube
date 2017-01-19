@@ -198,6 +198,13 @@ public class ComponentDao implements Dao {
     return mapper(session).selectProjects();
   }
 
+  /**
+   * Select all root components (projects and views), including disabled ones, for a given organization.
+   */
+  public List<ComponentDto> selectAllRootsByOrganization(DbSession dbSession, String organizationUuid) {
+    return mapper(dbSession).selectAllRootsByOrganization(organizationUuid);
+  }
+
   public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
     Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);

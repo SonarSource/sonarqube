@@ -19,12 +19,15 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -40,11 +43,14 @@ public class DeleteAction implements OrganizationsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final ComponentCleanerService componentCleanerService;
 
-  public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
+    ComponentCleanerService componentCleanerService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.componentCleanerService = componentCleanerService;
   }
 
   @Override
@@ -78,11 +84,37 @@ public class DeleteAction implements OrganizationsAction {
 
       userSession.checkOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
 
-      dbClient.organizationDao().deleteByKey(dbSession, key);
-      dbSession.commit();
+      deleteProjects(dbSession, organizationDto.getUuid());
+      deletePermissions(dbSession, organizationDto.getUuid());
+      deleteGroups(dbSession, organizationDto.getUuid());
+      deleteOrganization(key, dbSession);
 
       response.noContent();
     }
+  }
+
+  private void deleteProjects(DbSession dbSession, String organizationUuid) {
+    List<ComponentDto> roots = dbClient.componentDao().selectAllRootsByOrganization(dbSession, organizationUuid);
+    componentCleanerService.delete(dbSession, roots);
+  }
+
+  private void deletePermissions(DbSession dbSession, String organizationUuid) {
+    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organizationUuid);
+    dbSession.commit();
+    dbClient.userPermissionDao().deleteByOrganization(dbSession, organizationUuid);
+    dbSession.commit();
+    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organizationUuid);
+    dbSession.commit();
+  }
+
+  private void deleteGroups(DbSession dbSession, String organizationUuid) {
+    dbClient.groupDao().deleteByOrganization(dbSession, organizationUuid);
+    dbSession.commit();
+  }
+
+  private void deleteOrganization(String key, DbSession dbSession) {
+    dbClient.organizationDao().deleteByKey(dbSession, key);
+    dbSession.commit();
   }
 
   private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {
