@@ -24,15 +24,12 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
-import org.sonar.server.ruby.RubyBridge;
-import org.sonar.server.ruby.RubyRailsRoutes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit test for DatabaseMigrationImpl which does not test any of its concurrency management and asynchronous execution code.
@@ -50,31 +47,23 @@ public class DatabaseMigrationImplTest {
     }
   };
   private MutableDatabaseMigrationState migrationState = new DatabaseMigrationStateImpl();
-  private RubyBridge rubyBridge = mock(RubyBridge.class);
-  private RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
   private Platform platform = mock(Platform.class);
   private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private InOrder inOrder = inOrder(rubyBridge, rubyRailsRoutes, platform, migrationEngine);
+  private InOrder inOrder = inOrder(platform, migrationEngine);
 
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, migrationEngine, platform);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, migrationEngine, platform);
 
   @Test
   public void startit_calls_MigrationEngine_execute() {
-    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
-
     underTest.startIt();
 
     inOrder.verify(migrationEngine).execute();
     inOrder.verify(platform).doStart();
-    inOrder.verify(rubyBridge).railsRoutes();
-    inOrder.verify(rubyRailsRoutes).recreate();
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void status_is_SUCCEEDED_and_failure_is_null_when_trigger_runs_without_an_exception() {
-    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
-
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
@@ -115,11 +104,9 @@ public class DatabaseMigrationImplTest {
 
   private void mockMigrationThrowsError() {
     doThrow(AN_ERROR).when(migrationEngine).execute();
-    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
   }
 
   private void mockMigrationDoesNothing() {
     doNothing().when(migrationEngine).execute();
-    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
   }
 }

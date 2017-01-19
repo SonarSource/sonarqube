@@ -68,15 +68,6 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void verify_headers_of_ruby_ws() throws Exception {
-    Response response = call(orchestrator.getServer().getUrl() + "/api/projects/index");
-
-    verifySecurityHeaders(response);
-    verifyContentType(response, "application/json;charset=utf-8");
-    assertNoCacheInBrowser(response);
-  }
-
-  @Test
   public void verify_headers_of_images() throws Exception {
     Response response = call(orchestrator.getServer().getUrl() + "/images/logo.svg");
 

@@ -35,15 +35,11 @@ import org.sonar.db.measure.custom.CustomMeasureTesting;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-
 
 public class DeleteActionTest {
 
@@ -62,7 +58,7 @@ public class DeleteActionTest {
   @Before
   public void setUp() {
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule, mock(RubyBridge.class, RETURNS_DEEP_STUBS))));
+    ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule)));
     metricDao = dbClient.metricDao();
   }
 

@@ -50,7 +50,6 @@ import org.sonar.server.platform.cluster.ClusterImpl;
 import org.sonar.server.platform.cluster.ClusterProperties;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -98,9 +97,6 @@ public class PlatformLevel1 extends PlatformLevel {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
-
-      // rack bridges
-      PlatformRackBridge.class,
 
       // user session
       ThreadLocalUserSession.class,

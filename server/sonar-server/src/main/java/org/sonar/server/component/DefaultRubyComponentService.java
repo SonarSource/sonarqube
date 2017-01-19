@@ -21,8 +21,6 @@ package org.sonar.server.component;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.component.Component;
-import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,7 +31,10 @@ import org.sonar.server.permission.PermissionTemplateService;
 
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
-public class DefaultRubyComponentService implements RubyComponentService {
+/**
+ * Used in GOV
+ */
+public class DefaultRubyComponentService {
 
   private final DbClient dbClient;
   private final ComponentService componentService;
@@ -51,25 +52,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  @Override
-  @CheckForNull
-  public Component findByKey(String key) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.componentDao().selectByKey(dbSession, key).orNull();
-    }
-  }
-
   // Used in GOV
   @CheckForNull
   public Long createComponent(String key, String name, String qualifier) {
-    return createComponent(key, null, name, qualifier);
-  }
-
-  // Used in rails
-  @CheckForNull
-  public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return createComponent(dbSession, key, branch, name, qualifier);
+      return createComponent(dbSession, key, null, name, qualifier);
     }
   }
 

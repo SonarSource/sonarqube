@@ -28,7 +28,6 @@ import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
-import org.sonar.server.ruby.RubyBridge;
 
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 
@@ -43,7 +42,6 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
    * ExecutorService implements threads management.
    */
   private final DatabaseMigrationExecutorService executorService;
-  private final RubyBridge rubyBridge;
   private final MigrationEngine migrationEngine;
   private final Platform platform;
   private final MutableDatabaseMigrationState migrationState;
@@ -62,10 +60,9 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
   private final AtomicBoolean running = new AtomicBoolean(false);
 
   public DatabaseMigrationImpl(DatabaseMigrationExecutorService executorService, MutableDatabaseMigrationState migrationState,
-    RubyBridge rubyBridge, MigrationEngine migrationEngine, Platform platform) {
+    MigrationEngine migrationEngine, Platform platform) {
     this.executorService = executorService;
     this.migrationState = migrationState;
-    this.rubyBridge = rubyBridge;
     this.migrationEngine = migrationEngine;
     this.platform = platform;
   }
@@ -107,7 +104,6 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
       profiler.startInfo("Starting DB Migration and container restart");
       doUpgradeDb();
       doRestartContainer();
-      doRecreateWebRoutes();
       migrationState.setStatus(Status.SUCCEEDED);
       profiler.stopInfo("DB Migration and container restart: success");
     } catch (MigrationStepExecutionException e) {
@@ -140,13 +136,6 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
     profiler.startTrace("Restarting container");
     platform.doStart();
     profiler.stopTrace("Container restarted successfully");
-  }
-
-  private void doRecreateWebRoutes() {
-    Profiler profiler = Profiler.createIfTrace(LOGGER);
-    profiler.startTrace("Recreating web routes");
-    rubyBridge.railsRoutes().recreate();
-    profiler.startTrace("Routes recreated successfully");
   }
 
 }

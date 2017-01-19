@@ -33,7 +33,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.MetricKeyValidator;
 
@@ -56,12 +55,10 @@ public class UpdateAction implements MetricsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final RubyBridge rubyBridge;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, RubyBridge rubyBridge) {
+  public UpdateAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.rubyBridge = rubyBridge;
   }
 
   @Override
@@ -113,7 +110,6 @@ public class UpdateAction implements MetricsWsAction {
       JsonWriter json = response.newJsonWriter();
       writeMetric(json, metricInDb);
       json.close();
-      rubyBridge.metricCache().invalidate();
     } finally {
       MyBatis.closeQuietly(dbSession);
     }

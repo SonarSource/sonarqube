@@ -34,19 +34,15 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_DOMAIN;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_KEY;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_NAME;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_TYPE;
-
 
 public class CreateActionTest {
 
@@ -69,7 +65,7 @@ public class CreateActionTest {
 
   @Before
   public void setUp() {
-    ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule, mock(RubyBridge.class, RETURNS_DEEP_STUBS))));
+    ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule)));
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 

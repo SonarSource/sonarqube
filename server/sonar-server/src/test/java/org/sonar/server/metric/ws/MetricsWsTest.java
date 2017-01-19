@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
-import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -38,16 +37,13 @@ public class MetricsWsTest {
   public void setUp() {
     DbClient dbClient = mock(DbClient.class);
     UserSession userSession = mock(UserSession.class);
-    RubyBridge rubyBridge = mock(RubyBridge.class);
     ws = new WsTester(new MetricsWs(
       new SearchAction(dbClient),
-      new CreateAction(dbClient, userSession, rubyBridge),
-      new UpdateAction(dbClient, userSession, rubyBridge),
-      new DeleteAction(dbClient, userSession, rubyBridge),
+      new CreateAction(dbClient, userSession),
+      new UpdateAction(dbClient, userSession),
+      new DeleteAction(dbClient, userSession),
       new TypesAction(),
-      new DomainsAction(dbClient)
-      ));
-
+      new DomainsAction(dbClient)));
   }
 
   @Test

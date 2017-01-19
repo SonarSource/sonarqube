@@ -29,12 +29,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
-import org.sonar.server.ruby.RubyBridge;
-import org.sonar.server.ruby.RubyRailsRoutes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DatabaseMigrationImplConcurrentAccessTest {
 
@@ -68,10 +65,8 @@ public class DatabaseMigrationImplConcurrentAccessTest {
     }
   };
   private MutableDatabaseMigrationState migrationState = mock(MutableDatabaseMigrationState.class);
-  private RubyBridge rubyBridge = mock(RubyBridge.class);
   private Platform platform = mock(Platform.class);
-  private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
-  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, rubyBridge, incrementingMigrationEngine, platform);
+  private DatabaseMigrationImpl underTest = new DatabaseMigrationImpl(executorService, migrationState, incrementingMigrationEngine, platform);
 
   @After
   public void tearDown() {
@@ -80,8 +75,6 @@ public class DatabaseMigrationImplConcurrentAccessTest {
 
   @Test
   public void two_concurrent_calls_to_startit_call_migration_engine_only_once() throws Exception {
-    when(rubyBridge.railsRoutes()).thenReturn(railsRoutes);
-
     pool.submit(new CallStartit());
     pool.submit(new CallStartit());
 
