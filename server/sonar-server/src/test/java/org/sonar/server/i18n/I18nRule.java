@@ -26,14 +26,31 @@ import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.sonar.api.i18n.I18n;
 
-public class I18nRule implements I18n {
+public class I18nRule implements TestRule, I18n {
   private final Map<String, String> messages = new HashMap<>();
 
   public I18nRule put(String key, String value) {
     messages.put(key, value);
     return this;
+  }
+
+  @Override
+  public Statement apply(final Statement statement, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          statement.evaluate();
+        } finally {
+          messages.clear();
+        }
+      }
+    };
   }
 
   public void setProjectPermissions() {
@@ -101,4 +118,5 @@ public class I18nRule implements I18n {
   public String formatInteger(Locale locale, Integer value) {
     return String.valueOf(value);
   }
+
 }

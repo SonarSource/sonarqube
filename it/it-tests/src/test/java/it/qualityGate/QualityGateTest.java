@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.project.NewProject;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
@@ -49,6 +48,7 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
@@ -71,8 +71,6 @@ public class QualityGateTest {
 
   private static long DEFAULT_QUALITY_GATE;
 
-  private long provisionedProjectId = -1L;
-
   private static final String PROJECT_KEY = "sample";
 
   @ClassRule
@@ -91,9 +89,9 @@ public class QualityGateTest {
   }
 
   @Before
-  public void cleanUp() {
+  public void before() {
     orchestrator.resetData();
-    provisionedProjectId = Long.parseLong(orchestrator.getServer().adminWsClient().projectClient().create(NewProject.create().key(PROJECT_KEY).name("Sample")).id());
+    orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
   }
 
   @Test
@@ -190,7 +188,7 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(error.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
     qgClient().setDefault(alert.id());
-    qgClient().selectProject(error.id(), provisionedProjectId);
+    associateQualityGateToProject(error.id(), PROJECT_KEY);
 
     try {
       SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
@@ -301,6 +299,14 @@ public class QualityGateTest {
 
   private static QualityGateClient qgClient() {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
+  }
+
+  private static void associateQualityGateToProject(long qGateId, String projectKey) {
+    newAdminWsClient(orchestrator).wsConnector()
+      .call(new PostRequest("api/qualitygates/select")
+        .setParam("gateId", qGateId)
+        .setParam("projectKey", projectKey))
+      .failIfNotSuccessful();
   }
 
   private static List<String> extractPosttaskPluginLogs(String taskUuid, Iterable<String> ceLogs) {

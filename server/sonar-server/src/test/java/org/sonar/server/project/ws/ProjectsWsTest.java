@@ -41,8 +41,7 @@ public class ProjectsWsTest {
     ws = new WsTester(new ProjectsWs(
       new BulkDeleteAction(mock(ComponentCleanerService.class), mock(DbClient.class), mock(UserSession.class)),
       new GhostsAction(mock(DbClient.class), mock(UserSession.class)),
-      new ProvisionedAction(mock(DbClient.class), mock(UserSession.class))
-    ));
+      new ProvisionedAction(mock(DbClient.class), mock(UserSession.class))));
     controller = ws.controller("api/projects");
   }
 
@@ -51,7 +50,7 @@ public class ProjectsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("2.10");
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(4);
   }
 
   @Test
@@ -63,12 +62,4 @@ public class ProjectsWsTest {
     assertThat(action.params()).hasSize(8);
   }
 
-  @Test
-  public void define_create_action() {
-    WebService.Action action = controller.action("create");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
-  }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
+import java.util.Arrays;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -43,12 +44,7 @@ public class ProjectsWs implements WebService {
       .setDescription("Manage project existence.");
 
     defineIndexAction(controller);
-    defineCreateAction(controller);
-
-    for (ProjectsWsAction action : actions) {
-      action.define(controller);
-    }
-
+    Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }
 
@@ -95,29 +91,4 @@ public class ProjectsWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineCreateAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("create")
-      .setDescription("Create a project. Requires Create Projects permission")
-      .setSince("4.0")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "projects-example-create.json"));
-
-    action.createParam("key")
-      .setDescription("Key of the project")
-      .setRequired(true)
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
-    action.createParam("name")
-      .setDescription("Name of the project")
-      .setRequired(true)
-      .setExampleValue("SonarQube");
-
-    action.createParam("branch")
-      .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
-      .setRequired(false)
-      .setExampleValue("branch-5.0");
-
-    RailsHandler.addFormatParam(action);
-  }
 }

@@ -27,19 +27,19 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.project.NewProject;
-import org.sonar.wsclient.project.Project;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
+import org.sonarqube.ws.client.project.CreateRequest;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.selenium.Selenese.runSelenese;
 
 public class ProvisioningPermissionTest {
@@ -117,13 +117,13 @@ public class ProvisioningPermissionTest {
     final String newKey = "new-project";
     final String newName = "New Project";
 
-    SonarClient client = orchestrator.getServer().wsClient(USER_WITH_PROVISIONING, PASSWORD);
-
-    Project created = client.projectClient().create(NewProject.create().key(newKey).name(newName));
+    Project created = newUserWsClient(orchestrator, USER_WITH_PROVISIONING, PASSWORD).projects()
+      .create(CreateRequest.builder().setKey(newKey).setName(newName).build())
+      .getProject();
 
     assertThat(created).isNotNull();
-    assertThat(created.key()).isEqualTo(newKey);
-    assertThat(created.name()).isEqualTo(newName);
+    assertThat(created.getKey()).isEqualTo(newKey);
+    assertThat(created.getName()).isEqualTo(newName);
   }
 
   /**
@@ -132,11 +132,12 @@ public class ProvisioningPermissionTest {
    */
   @Test
   public void should_not_be_allowed_on_ws_without_permission() {
-    SonarClient client = orchestrator.getServer().wsClient(USER_WITHOUT_PROVISIONING, PASSWORD);
-
     thrown.expect(HttpException.class);
-    thrown.expectMessage("401");
-    client.projectClient().create(NewProject.create().key("new-project").name("New Project"));
+    thrown.expectMessage("403");
+
+    newUserWsClient(orchestrator, USER_WITHOUT_PROVISIONING, PASSWORD).projects()
+      .create(CreateRequest.builder().setKey("new-project").setName("New Project").build())
+      .getProject();
   }
 
   private static void addUserPermission(String login, String permission) {

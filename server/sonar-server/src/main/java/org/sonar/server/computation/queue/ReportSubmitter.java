@@ -43,6 +43,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -97,6 +98,7 @@ public class ReportSubmitter {
   }
 
   private ComponentDto createProject(DbSession dbSession, String organizationUuid, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+    userSession.checkPermission(PROVISIONING);
     Integer userId = userSession.getUserId();
     Long projectCreatorUserId = userId == null ? null : userId.longValue();
 
@@ -113,7 +115,6 @@ public class ReportSubmitter {
       .setBranch(projectBranch)
       .setQualifier(Qualifiers.PROJECT)
       .build();
-    // "provisioning" permission is check in ComponentService
     ComponentDto project = componentService.create(dbSession, newProject);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, project)) {
       favoriteUpdater.add(dbSession, project);

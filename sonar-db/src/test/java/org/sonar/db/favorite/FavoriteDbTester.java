@@ -31,12 +31,10 @@ import org.sonar.db.property.PropertyQuery;
 public class FavoriteDbTester {
   private static final String PROP_FAVORITE_KEY = "favourite";
 
-  private final DbTester db;
   private final DbClient dbClient;
   private final DbSession dbSession;
 
   public FavoriteDbTester(DbTester db) {
-    this.db = db;
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
   }
@@ -57,5 +55,13 @@ public class FavoriteDbTester {
       .build(), dbSession);
 
     return !result.isEmpty();
+  }
+
+  public boolean hasNoFavorite(ComponentDto componentDto) {
+    List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
+      .setKey(PROP_FAVORITE_KEY)
+      .setComponentId(componentDto.getId())
+      .build(), dbSession);
+    return result.isEmpty();
   }
 }

@@ -20,9 +20,16 @@
 
 package org.sonarqube.ws.client.project;
 
+import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 
 /**
  * Maps web service {@code api/projects}.
@@ -31,7 +38,7 @@ import org.sonarqube.ws.client.WsConnector;
 public class ProjectsService extends BaseService {
 
   public ProjectsService(WsConnector wsConnector) {
-    super(wsConnector, "api/projects");
+    super(wsConnector, CONTROLLER);
   }
 
   /**
@@ -39,12 +46,12 @@ public class ProjectsService extends BaseService {
    *
    * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
    */
-  public void create(CreateRequest project) {
-    PostRequest request = new PostRequest(path("create"))
-      .setParam("key", project.getKey())
-      .setParam("name", project.getName())
-      .setParam("branch", project.getBranch());
-    call(request);
+  public CreateWsResponse create(CreateRequest project) {
+    PostRequest request = new PostRequest(path(ACTION_CREATE))
+      .setParam(PARAM_PROJECT, project.getKey())
+      .setParam(PARAM_NAME, project.getName())
+      .setParam(PARAM_BRANCH, project.getBranch());
+    return call(request, CreateWsResponse.parser());
   }
 
   /**

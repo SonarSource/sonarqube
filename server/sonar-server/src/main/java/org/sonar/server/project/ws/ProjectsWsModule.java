@@ -26,6 +26,7 @@ public class ProjectsWsModule extends Module {
   protected void configureModule() {
     add(
       ProjectsWs.class,
+      CreateAction.class,
       BulkDeleteAction.class,
       DeleteAction.class,
       GhostsAction.class,

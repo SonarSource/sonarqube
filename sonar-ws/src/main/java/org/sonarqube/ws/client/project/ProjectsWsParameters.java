@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+package org.sonarqube.ws.client.project;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class ProjectsWsParameters {
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public static final String CONTROLLER = "api/projects";
 
-public class ProjectsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new ProjectsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 8);
+  public static final String ACTION_CREATE = "create";
+
+  public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_NAME = "name";
+  public static final String PARAM_BRANCH = "branch";
+
+  private ProjectsWsParameters() {
+    // static utils only
   }
 }

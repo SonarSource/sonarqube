@@ -35,7 +35,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -89,7 +88,6 @@ public class ComponentService {
 
   // Used by SQ and Governance
   public ComponentDto create(DbSession session, NewComponent newComponent) {
-    userSession.checkPermission(GlobalPermissions.PROVISIONING);
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto rootComponent = createRootComponent(session, newComponent);
     removeDuplicatedProjects(session, rootComponent.getKey());
