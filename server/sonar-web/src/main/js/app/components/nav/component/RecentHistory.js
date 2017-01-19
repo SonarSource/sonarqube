@@ -24,7 +24,8 @@ const HISTORY_LIMIT = 10;
 type History = Array<{
   key: string,
   name: string,
-  icon: string
+  icon: string,
+  organization?: string
 }>;
 
 export default class RecentHistory {
@@ -51,9 +52,9 @@ export default class RecentHistory {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  static add (componentKey: string, componentName: string, icon: string): void {
+  static add (componentKey: string, componentName: string, icon: string, organization?: string): void {
     const sonarHistory = RecentHistory.get();
-    const newEntry = { key: componentKey, name: componentName, icon };
+    const newEntry = { key: componentKey, name: componentName, icon, organization };
     let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
     newHistory.unshift(newEntry);
     newHistory = newHistory.slice(0, HISTORY_LIMIT);

@@ -31,6 +31,7 @@ import { translate } from '../../../../helpers/l10n';
 import { isUserAdmin } from '../../../../helpers/users';
 import { getFavorites } from '../../../../api/favorites';
 import { getSuggestions } from '../../../../api/components';
+import { getOrganization, areThereCustomOrganizations } from '../../../../store/organizations/utils';
 
 type Finding = {
   name: string,
@@ -174,11 +175,17 @@ export default Marionette.LayoutView.extend({
 
   resetResultsToDefault () {
     const recentHistory = RecentHistory.get();
+    const customOrganizations = areThereCustomOrganizations();
     const history = recentHistory.map((historyItem, index) => {
       const url = window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
           window.dashboardParameters(true);
+      const showOrganization = customOrganizations && historyItem.organization != null &&
+          historyItem.icon.toUpperCase() === 'TRK';
+      // $FlowFixMe flow doesn't check the above condition on `historyItem.organization != null`
+      const organization = showOrganization ? getOrganization(historyItem.organization) : null;
       return {
         url,
+        organization,
         name: historyItem.name,
         q: historyItem.icon,
         extra: index === 0 ? translate('browsed_recently') : null
@@ -202,12 +209,17 @@ export default Marionette.LayoutView.extend({
         return;
       }
 
+      const customOrganizations = areThereCustomOrganizations();
+
       const collection = [];
       r.results.forEach(({ items, q }) => {
         items.forEach((item, index) => {
+          const showOrganization = customOrganizations && item.organization != null && q === 'TRK';
+          const organization = showOrganization ? getOrganization(item.organization) : null;
           collection.push({
             ...item,
             q,
+            organization,
             extra: index === 0 ? translate('qualifiers', q) : null,
             url: window.baseUrl + '/dashboard?id=' + encodeURIComponent(item.key)
           });
