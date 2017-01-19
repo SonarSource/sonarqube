@@ -111,14 +111,6 @@ export function searchProjects (data?: Object) {
   return getJSON(url, data);
 }
 
-export function simpleSearchProjects (data?: Object) {
-  const url = '/api/projects/index';
-  return getJSON(url, data).then(projects => projects.map(project => ({
-    key: project.k,
-    name: project.nm
-  })));
-}
-
 /**
  * Change component's key
  * @param {string} key

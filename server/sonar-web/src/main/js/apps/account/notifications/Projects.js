@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import differenceBy from 'lodash/differenceBy';
 import ProjectNotifications from './ProjectNotifications';
 import { translate } from '../../../helpers/l10n';
-import { simpleSearchProjects } from '../../../api/components';
+import { getComponents } from '../../../api/components';
 import { getProjectsWithNotifications } from '../../../store/rootReducer';
 
 type Props = {
@@ -62,7 +62,8 @@ class Projects extends React.Component {
 
   loadOptions = query => {
     // TODO filter existing out
-    return simpleSearchProjects({ search: query })
+    return getComponents({ qualifiers: 'TRK', q: query })
+        .then(r => r.components)
         .then(projects => projects.map(project => ({
           value: project.key,
           label: project.name
