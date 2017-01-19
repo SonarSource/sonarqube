@@ -44,7 +44,6 @@ import org.sonar.server.user.index.UserIndexer;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -332,7 +331,7 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void ignore_groups_on_non_default_organizations() throws Exception {
-    OrganizationDto org = db.organizations().insert(newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)

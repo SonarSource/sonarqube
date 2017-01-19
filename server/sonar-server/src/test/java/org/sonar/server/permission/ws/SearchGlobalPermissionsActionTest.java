@@ -59,7 +59,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
   @Test
   public void search_in_organization() throws Exception {
-    OrganizationDto org = db.organizations().insert(newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     loginAsAdmin(org);
     GroupDto adminGroup = db.users().insertGroup(newGroup(org, "sonar-admins", "Administrators"));
     GroupDto userGroup = db.users().insertGroup(newGroup(org, "sonar-users", "Users"));
@@ -88,7 +88,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
   @Test
   public void search_in_default_organization_by_default() throws Exception {
-    OrganizationDto org = db.organizations().insert(newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     loginAsAdmin(org, db.getDefaultOrganization());
 
     UserDto user = db.users().insertUser();
@@ -138,7 +138,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
   @Test
   public void fail_if_not_admin_of_specified_organization() throws Exception {
-    OrganizationDto org = db.organizations().insert(newOrganizationDto());
+    OrganizationDto org = db.organizations().insert();
     loginAsAdminOnDefaultOrganization();
 
     expectedException.expect(ForbiddenException.class);

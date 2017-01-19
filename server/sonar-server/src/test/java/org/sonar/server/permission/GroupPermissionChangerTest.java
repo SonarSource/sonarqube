@@ -53,7 +53,7 @@ public class GroupPermissionChangerTest {
   public void setUp() throws Exception {
     org = db.organizations().insert();
     group = db.users().insertGroup(org, "a-group");
-    project = db.components().insertProject();
+    project = db.components().insertProject(org);
   }
 
   @Test
@@ -88,13 +88,12 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void add_project_permission_to_anyone() {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    GroupIdOrAnyone groupId = new GroupIdOrAnyone(defaultOrganization.getUuid(), null);
+    GroupIdOrAnyone groupId = new GroupIdOrAnyone(org.getUuid(), null);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectId(project), groupId));
 
-    assertThat(db.users().selectAnyonePermissions(defaultOrganization, null)).isEmpty();
-    assertThat(db.users().selectAnyonePermissions(defaultOrganization, project)).containsOnly(UserRole.ISSUE_ADMIN);
+    assertThat(db.users().selectAnyonePermissions(org, null)).isEmpty();
+    assertThat(db.users().selectAnyonePermissions(org, project)).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test

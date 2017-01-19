@@ -105,7 +105,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_only_for_users_with_permission_when_no_search_query() throws Exception {
     // User have permission on project
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
     UserDto user = db.users().insertUser(newUserDto());
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
@@ -118,7 +118,8 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
       .execute()
       .getInput();
 
-    assertThat(result).contains(user.getLogin())
+    assertThat(result)
+      .contains(user.getLogin())
       .doesNotContain(withoutPermission.getLogin());
   }
 

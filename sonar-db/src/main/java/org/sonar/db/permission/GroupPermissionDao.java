@@ -28,7 +28,10 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentMapper;
+import org.sonar.db.user.GroupMapper;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
@@ -102,7 +105,31 @@ public class GroupPermissionDao implements Dao {
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
+    ensureComponentPermissionConsistency(dbSession, dto);
+    ensureGroupPermissionConsistency(dbSession, dto);
     mapper(dbSession).insert(dto);
+  }
+
+  private static void ensureComponentPermissionConsistency(DbSession dbSession, GroupPermissionDto dto) {
+    if (dto.getResourceId() == null) {
+      return;
+    }
+    ComponentMapper componentMapper = dbSession.getMapper(ComponentMapper.class);
+    checkArgument(
+      componentMapper.countComponentByOrganizationAndId(dto.getOrganizationUuid(), dto.getResourceId()) == 1,
+      "Can't insert permission '%s' for component with id '%s' in organization with uuid '%s' because this component does not belong to organization with uuid '%s'",
+      dto.getRole(), dto.getResourceId(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
+  }
+
+  private static void ensureGroupPermissionConsistency(DbSession dbSession, GroupPermissionDto dto) {
+    if (dto.getGroupId() == null) {
+      return;
+    }
+    GroupMapper groupMapper = dbSession.getMapper(GroupMapper.class);
+    checkArgument(
+      groupMapper.countGroupByOrganizationAndId(dto.getOrganizationUuid(), dto.getGroupId()) == 1,
+      "Can't insert permission '%s' for group with id '%s' in organization with uuid '%s' because this group does not belong to organization with uuid '%s'",
+      dto.getRole(), dto.getGroupId(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
   }
 
   /**

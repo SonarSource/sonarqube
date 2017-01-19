@@ -65,15 +65,14 @@ public class IssueServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
-  IssueIndex issueIndex;
-  DbSession session;
-  IssueService service;
-  RuleIndexer ruleIndexer;
+  private DbClient db;
+  private IssueIndex issueIndex;
+  private DbSession session;
+  private IssueService service;
+  private RuleIndexer ruleIndexer;
 
   @Before
   public void setUp() {
@@ -277,7 +276,7 @@ public class IssueServiceMediumTest {
     // project can be seen by group "anyone"
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO"));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(organization.getUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.login();
 

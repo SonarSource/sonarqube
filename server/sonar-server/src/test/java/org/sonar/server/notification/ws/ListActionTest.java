@@ -229,7 +229,7 @@ public class ListActionTest {
 
   private ComponentDto addComponent(ComponentDto component) {
     db.components().insertComponent(component);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto("O1", UserRole.USER, userSession.getUserId(), component.getId()));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(component.getOrganizationUuid(), UserRole.USER, userSession.getUserId(), component.getId()));
     db.commit();
 
     return component;

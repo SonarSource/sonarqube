@@ -39,7 +39,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
@@ -61,11 +60,11 @@ public class UserPermissionChangerTest {
 
   @Before
   public void setUp() throws Exception {
-    org1 = db.organizations().insert(newOrganizationDto());
-    org2 = db.organizations().insert(newOrganizationDto());
+    org1 = db.organizations().insert();
+    org2 = db.organizations().insert();
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    project = db.components().insertProject();
+    project = db.components().insertProject(org1);
   }
 
   @Test
@@ -125,7 +124,7 @@ public class UserPermissionChangerTest {
     db.users().insertPermissionOnUser(org1, user1, SCAN_EXECUTION);
     db.users().insertPermissionOnUser(org2, user1, QUALITY_GATE_ADMIN);
     db.users().insertPermissionOnUser(org1, user2, QUALITY_GATE_ADMIN);
-    db.users().insertProjectPermissionOnUser(org1, user1, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project);
 
     UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1));
     apply(change);
@@ -138,12 +137,12 @@ public class UserPermissionChangerTest {
 
   @Test
   public void remove_project_permission_from_user() {
-    ComponentDto project2 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertProject(org1);
     db.users().insertPermissionOnUser(org1, user1, QUALITY_GATE_ADMIN);
-    db.users().insertProjectPermissionOnUser(org1, user1, ISSUE_ADMIN, project);
-    db.users().insertProjectPermissionOnUser(org1, user1, USER, project);
-    db.users().insertProjectPermissionOnUser(org1, user2, ISSUE_ADMIN, project);
-    db.users().insertProjectPermissionOnUser(org1, user1, ISSUE_ADMIN, project2);
+    db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user1, USER, project);
+    db.users().insertProjectPermissionOnUser(user2, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project2);
 
     UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), ISSUE_ADMIN, new ProjectId(project), UserId.from(user1));
     apply(change);

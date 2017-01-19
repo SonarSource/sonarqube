@@ -136,7 +136,7 @@ public class SearchActionTest {
     ComponentDto otherUserFavorite = newProjectDto(organizationDto).setKey("K42");
     db.components().insertComponent(otherUserFavorite);
     db.favorites().add(otherUserFavorite, 42L);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto("O1", UserRole.USER, 42L, otherUserFavorite.getId()));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(organizationDto.getUuid(), UserRole.USER, 42L, otherUserFavorite.getId()));
     db.commit();
 
     SearchResponse result = call();
@@ -188,7 +188,7 @@ public class SearchActionTest {
   private void addComponent(ComponentDto component) {
     db.components().insertComponent(component);
     db.favorites().add(component, USER_ID);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto("O1", UserRole.USER, USER_ID, component.getId()));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(component.getOrganizationUuid(), UserRole.USER, USER_ID, component.getId()));
     db.commit();
   }
 

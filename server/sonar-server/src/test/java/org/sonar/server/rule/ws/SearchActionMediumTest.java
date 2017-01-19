@@ -73,12 +73,12 @@ public class SearchActionMediumTest {
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";
 
-  DbClient db;
-  RulesWs ws;
-  RuleDao ruleDao;
-  DbSession dbSession;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
+  private DbClient db;
+  private RulesWs ws;
+  private RuleDao ruleDao;
+  private DbSession dbSession;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {

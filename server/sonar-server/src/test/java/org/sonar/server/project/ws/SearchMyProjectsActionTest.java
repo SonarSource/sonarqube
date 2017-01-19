@@ -59,7 +59,6 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -197,11 +196,11 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void admin_via_groups() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto cLang = insertClang(organizationDto);
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto jdk7 = insertJdk7(organization);
+    ComponentDto cLang = insertClang(organization);
 
-    GroupDto group = db.users().insertGroup(newGroupDto());
+    GroupDto group = db.users().insertGroup(organization);
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
@@ -218,9 +217,9 @@ public class SearchMyProjectsActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto jdk7 = insertJdk7(organizationDto);
     ComponentDto cLang = insertClang(organizationDto);
-    ComponentDto sonarqube = db.components().insertComponent(newProjectDto(organizationDto));
+    ComponentDto sonarqube = db.components().insertProject(organizationDto);
 
-    GroupDto group = db.users().insertGroup(newGroupDto());
+    GroupDto group = db.users().insertGroup(organizationDto);
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);

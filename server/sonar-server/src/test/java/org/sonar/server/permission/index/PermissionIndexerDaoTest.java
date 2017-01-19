@@ -214,11 +214,11 @@ public class PermissionIndexerDaoTest {
     userDbTester.insertProjectPermissionOnGroup(group, ADMIN, view1);
 
     // Anyone group has user access on both projects
-    userDbTester.insertProjectPermissionOnAnyone(USER, project1);
-    userDbTester.insertProjectPermissionOnAnyone(ADMIN, project1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, project2);
-    userDbTester.insertProjectPermissionOnAnyone(USER, view1);
-    userDbTester.insertProjectPermissionOnAnyone(ADMIN, view1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, view2);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, project1);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), ADMIN, project1);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, project2);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, view1);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), ADMIN, view1);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, view2);
   }
 }

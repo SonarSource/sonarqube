@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
@@ -50,6 +51,7 @@ public class ProjectsActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
+  private OrganizationDto organizationDto;
   private UserDto user;
   private QualityProfileDto xooP1;
   private QualityProfileDto xooP2;
@@ -65,6 +67,7 @@ public class ProjectsActionTest {
 
   @Before
   public void setUp() {
+    organizationDto = db.organizations().insert();
     user = db.users().insertUser(UserTesting.newUserDto().setLogin("obiwan"));
     userSessionRule.login("obiwan").setUserId(user.getId().intValue());
 
@@ -208,12 +211,12 @@ public class ProjectsActionTest {
   }
 
   private ComponentDto newProject(String uuid, String name) {
-    return ComponentTesting.newProjectDto(db.organizations().insert(), uuid).setName(name);
+    return ComponentTesting.newProjectDto(organizationDto, uuid).setName(name);
   }
 
   private void addBrowsePermissionToAnyone(ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      db.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
+      db.users().insertProjectPermissionOnAnyone(organizationDto, UserRole.USER, project);
     }
   }
 

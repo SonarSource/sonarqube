@@ -42,6 +42,13 @@ public interface GroupMapper {
 
   int countByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query);
 
+  /**
+   * Counts the number of groups with the specified id belonging to the specified organization.
+   *
+   * @return 1 or 0. Either because the organization uuid is not the one of the group or because the group does not exist
+   */
+  int countGroupByOrganizationAndId(@Param("organizationUuid") String organizationUuid, @Param("groupId") long groupId);
+
   void deleteById(long groupId);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);

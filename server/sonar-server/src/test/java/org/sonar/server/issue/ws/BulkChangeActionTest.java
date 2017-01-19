@@ -40,6 +40,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -110,6 +111,7 @@ public class BulkChangeActionTest {
   private List<Action> actions = new ArrayList<>();
 
   private RuleDto rule;
+  private OrganizationDto organization;
   private ComponentDto project;
   private ComponentDto file;
   private UserDto user;
@@ -120,7 +122,8 @@ public class BulkChangeActionTest {
   public void setUp() throws Exception {
     issueWorkflow.start();
     rule = db.rules().insertRule(newRuleDto());
-    project = db.components().insertProject(db.organizations().insert());
+    organization = db.organizations().insert();
+    project = db.components().insertProject(organization);
     file = db.components().insertComponent(newFileDto(project));
     user = db.users().insertUser("john");
     when(system2.now()).thenReturn(NOW);

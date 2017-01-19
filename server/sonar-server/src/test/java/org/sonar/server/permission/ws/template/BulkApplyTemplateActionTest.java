@@ -88,10 +88,10 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void bulk_apply_template_by_template_uuid() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto));
-    ComponentDto view = db.components().insertComponent(newView(organizationDto));
-    ComponentDto developer = db.components().insertComponent(newDeveloper(organizationDto, "developer-name"));
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto view = db.components().insertComponent(newView(organization));
+    ComponentDto developer = db.components().insertComponent(newDeveloper(organization, "developer-name"));
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, developer);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, developer);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, developer);
@@ -117,9 +117,9 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_qualifier() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto));
-    ComponentDto view = db.components().insertComponent(newView(organizationDto));
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto view = db.components().insertComponent(newView(organization));
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
@@ -132,13 +132,13 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto projectFoundByKey = newProjectDto(organizationDto).setKey("sonar");
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto projectFoundByKey = newProjectDto(organization).setKey("sonar");
     db.components().insertProjectAndSnapshot(projectFoundByKey);
-    ComponentDto projectFoundByName = newProjectDto(organizationDto).setName("name-sonar-name");
+    ComponentDto projectFoundByName = newProjectDto(organization).setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(projectFoundByName);
     // match must be exact on key
-    ComponentDto projectUntouched = newProjectDto(organizationDto).setKey("new-sonar").setName("project-name");
+    ComponentDto projectUntouched = newProjectDto(organization).setKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdminOnDefaultOrganization();
 

@@ -703,7 +703,7 @@ public class SearchActionMediumTest {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO"));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
   }
 
@@ -713,7 +713,7 @@ public class SearchActionMediumTest {
     Arrays.stream(permissions).forEach(permission -> userSessionRule.addProjectUuidPermissions(permission, project.uuid()));
     tester.get(PermissionUpdater.class).apply(session, Arrays.stream(permissions)
       // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone" for each organization
-      .map(permission -> new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone("TODO")))
+      .map(permission -> new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid())))
       .collect(Collectors.toList()));
   }
 

@@ -53,6 +53,7 @@ public class AuthorizationDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbSession dbSession = db.getSession();
   private AuthorizationDao underTest = new AuthorizationDao(db.myBatis());
   private OrganizationDto org;
@@ -76,10 +77,10 @@ public class AuthorizationDaoTest {
    */
   @Test
   public void selectOrganizationPermissions_for_logged_in_user() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertProject(org);
     db.users().insertMember(group1, user);
     db.users().insertPermissionOnUser(org, user, "perm1");
-    db.users().insertProjectPermissionOnUser(org, user, "perm42", project);
+    db.users().insertProjectPermissionOnUser(user, "perm42", project);
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertPermissionOnAnyone(org, "perm3");
 
@@ -117,8 +118,8 @@ public class AuthorizationDaoTest {
   @Test
   public void selectRootComponentPermissions_for_logged_in_user() {
     db.users().insertMember(group1, user);
-    ComponentDto project1 = db.components().insertProject();
-    db.users().insertProjectPermissionOnAnyone("perm1", project1);
+    ComponentDto project1 = db.components().insertProject(org);
+    db.users().insertProjectPermissionOnAnyone(org, "perm1", project1);
     db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
     db.users().insertProjectPermissionOnUser(user, "perm3", project1);
 
@@ -141,14 +142,14 @@ public class AuthorizationDaoTest {
    */
   @Test
   public void selectRootComponentPermissions_for_anonymous_user() {
-    ComponentDto project1 = db.components().insertProject();
-    db.users().insertProjectPermissionOnAnyone("perm1", project1);
+    ComponentDto project1 = db.components().insertProject(org);
+    db.users().insertProjectPermissionOnAnyone(org, "perm1", project1);
 
     // ignored permissions
     db.users().insertPermissionOnAnyone(org, "ignored");
     db.users().insertPermissionOnUser(org, user, "ignored");
     db.users().insertPermissionOnGroup(group1, "ignored");
-    ComponentDto project2 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertProject(org);
     db.users().insertProjectPermissionOnGroup(group1, "ignored", project2);
 
     Set<String> permissions = underTest.selectRootComponentPermissionsOfAnonymous(dbSession, project1.getId());
@@ -560,11 +561,11 @@ public class AuthorizationDaoTest {
     assertThat(count).isEqualTo(3);
 
     // another organization
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, A_PERMISSION,  group1.getId(), u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, A_PERMISSION, group1.getId(), u2.getId());
     assertThat(count).isEqualTo(0);
 
     // another permission
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), DOES_NOT_EXIST,  group1.getId(), u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, org.getUuid(), DOES_NOT_EXIST, group1.getId(), u2.getId());
     assertThat(count).isEqualTo(0);
   }
 
@@ -588,11 +589,11 @@ public class AuthorizationDaoTest {
     assertThat(count).isEqualTo(3);
 
     // another organization
-    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, DOES_NOT_EXIST, A_PERMISSION,  u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, DOES_NOT_EXIST, A_PERMISSION, u2.getId());
     assertThat(count).isEqualTo(0);
 
     // another permission
-    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, org.getUuid(), DOES_NOT_EXIST,  u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, org.getUuid(), DOES_NOT_EXIST, u2.getId());
     assertThat(count).isEqualTo(0);
   }
 

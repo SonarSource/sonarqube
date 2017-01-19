@@ -45,7 +45,6 @@ import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -92,9 +91,9 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     // global permission
     db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
 
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
-    GroupDto group3 = db.users().insertGroup(newGroupDto());
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization());
+    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization());
+    GroupDto group3 = db.users().insertGroup(db.getDefaultOrganization());
 
     db.users().insertProjectPermissionOnAnyone(db.getDefaultOrganization(), UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, jdk7);
@@ -243,7 +242,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertView() {
-    return db.components().insertComponent(newView(db.organizations().insert())
+    return db.components().insertComponent(newView(db.getDefaultOrganization())
       .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
@@ -267,7 +266,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid-1")
+    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid-1")
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

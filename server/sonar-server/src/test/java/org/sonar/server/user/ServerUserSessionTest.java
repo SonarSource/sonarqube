@@ -67,12 +67,13 @@ public class ServerUserSessionTest {
 
   private DbClient dbClient = db.getDbClient();
   private UserDto userDto = newUserDto().setLogin(LOGIN);
+  private OrganizationDto organization;
   private ComponentDto project;
 
   @Before
   public void setUp() throws Exception {
-    OrganizationDto organizationDto = db.organizations().insert();
-    project = db.components().insertComponent(ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID));
+    organization = db.organizations().insert();
+    project = db.components().insertProject(organization, PROJECT_UUID);
     db.components().insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     db.users().insertUser(userDto);
   }
@@ -306,7 +307,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void has_global_permission_for_anonymous() throws Exception {
-    addAnyonePermissions(null, "profileadmin", "admin");
+    addAnyonePermissions(db.getDefaultOrganization(), null, "profileadmin", "admin");
     UserSession session = newAnonymousSession();
 
     assertThat(session.getLogin()).isNull();
@@ -319,7 +320,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void has_project_permission_for_anonymous() throws Exception {
-    addAnyonePermissions(project, UserRole.USER);
+    addAnyonePermissions(organization, project, UserRole.USER);
     UserSession session = newAnonymousSession();
 
     assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
@@ -339,7 +340,7 @@ public class ServerUserSessionTest {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject();
     db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
-    db.users().insertProjectPermissionOnUser(org, userDto, UserRole.ADMIN, project);
+    db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
 
     UserSession session = newUserSession(userDto);
     assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();
@@ -384,12 +385,12 @@ public class ServerUserSessionTest {
     }
   }
 
-  private void addAnyonePermissions(@Nullable ComponentDto component, String... permissions) {
+  private void addAnyonePermissions(OrganizationDto organizationDto, @Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
       if (component == null) {
-        db.users().insertPermissionOnAnyone(permission);
+        db.users().insertPermissionOnAnyone(organizationDto, permission);
       } else {
-        db.users().insertProjectPermissionOnAnyone(permission, component);
+        db.users().insertProjectPermissionOnAnyone(organizationDto, permission, component);
       }
     }
   }

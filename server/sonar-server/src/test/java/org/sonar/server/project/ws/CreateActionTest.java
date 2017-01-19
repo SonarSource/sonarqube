@@ -110,7 +110,7 @@ public class CreateActionTest {
 
   @Before
   public void setUp() throws Exception {
-    permissionTemplateDto = db.permissionTemplates().insertTemplate();
+    permissionTemplateDto = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
     setTemplateAsDefault(permissionTemplateDto);
   }
 

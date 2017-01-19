@@ -225,6 +225,15 @@
       </foreach>
   </select>
 
+  <select id="countComponentByOrganizationAndId" resultType="int">
+    select
+      count(1)
+    from projects p
+    where
+      p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      and p.id = #{componentId,jdbcType=BIGINT}
+  </select>
+
   <select id="selectByQuery" resultType="Component">
     select
       <include refid="componentColumns"/>

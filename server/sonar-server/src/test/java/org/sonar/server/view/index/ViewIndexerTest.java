@@ -176,7 +176,7 @@ public class ViewIndexerTest {
     ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbTester.components().insertComponents(project, file);
-    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
+    dbTester.users().insertProjectPermissionOnAnyone(organizationDto, UserRole.USER, project);
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);

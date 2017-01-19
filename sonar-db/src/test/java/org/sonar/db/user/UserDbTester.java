@@ -237,13 +237,6 @@ public class UserDbTester {
 
   // GROUP PERMISSIONS
 
-  /**
-   * Grant permission to virtual group "anyone" in default organization
-   */
-  public GroupPermissionDto insertPermissionOnAnyone(String permission) {
-    return insertPermissionOnAnyone(db.getDefaultOrganization(), permission);
-  }
-
   public GroupPermissionDto insertPermissionOnAnyone(OrganizationDto org, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(org.getUuid())
@@ -267,10 +260,6 @@ public class UserDbTester {
   public void deletePermissionFromGroup(GroupDto group, String permission) {
     db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, group.getOrganizationUuid(), group.getId(), null);
     db.commit();
-  }
-
-  public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
-    return insertProjectPermissionOnAnyone(db.getDefaultOrganization(), permission, project);
   }
 
   public GroupPermissionDto insertProjectPermissionOnAnyone(OrganizationDto org, String permission, ComponentDto project) {
@@ -336,14 +325,7 @@ public class UserDbTester {
    * Grant permission on given project in default organization
    */
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
-    return insertProjectPermissionOnUser(db.getDefaultOrganization(), user, permission, project);
-  }
-
-  /**
-   * Grant permission on given project
-   */
-  public UserPermissionDto insertProjectPermissionOnUser(OrganizationDto org, UserDto user, String permission, ComponentDto project) {
-    UserPermissionDto dto = new UserPermissionDto(org.getUuid(), permission, user.getId(), project.getId());
+    UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;

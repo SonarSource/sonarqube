@@ -27,6 +27,7 @@ import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentMapper;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
@@ -107,7 +108,19 @@ public class UserPermissionDao implements Dao {
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {
+    ensureComponentPermissionConsistency(dbSession, dto);
     mapper(dbSession).insert(dto);
+  }
+
+  private static void ensureComponentPermissionConsistency(DbSession dbSession, UserPermissionDto dto) {
+    if (dto.getComponentId() == null) {
+      return;
+    }
+    ComponentMapper componentMapper = dbSession.getMapper(ComponentMapper.class);
+    checkArgument(
+      componentMapper.countComponentByOrganizationAndId(dto.getOrganizationUuid(), dto.getComponentId()) == 1,
+      "Can't insert permission '%s' for component with id '%s' in organization with uuid '%s' because this component does not belong to organization with uuid '%s'",
+      dto.getPermission(), dto.getComponentId(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
   }
 
   /**

@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class RoleDaoTest {
 
@@ -74,8 +73,8 @@ public class RoleDaoTest {
 
   @Test
   public void selectComponentIdsByPermissionAndUserId_group_permissions() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto());
-    GroupDto group2 = db.users().insertGroup(newGroupDto());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project1);
     db.users().insertMember(group1, user1);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project2);

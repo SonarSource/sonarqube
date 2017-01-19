@@ -87,9 +87,9 @@ public class PermissionIndexerTest {
     userDbTester.insertProjectPermissionOnUser(user, ADMIN, view);
     GroupDto group = userDbTester.insertGroup();
     userDbTester.insertProjectPermissionOnGroup(group, USER, project);
-    userDbTester.insertProjectPermissionOnAnyone(USER, project);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, project);
     userDbTester.insertProjectPermissionOnGroup(group, USER, view);
-    userDbTester.insertProjectPermissionOnAnyone(USER, view);
+    userDbTester.insertProjectPermissionOnAnyone(dbTester.getDefaultOrganization(), USER, view);
 
     underTest.indexAllIfEmpty();
 

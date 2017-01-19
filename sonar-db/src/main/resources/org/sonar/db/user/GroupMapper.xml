@@ -120,6 +120,15 @@
     </if>
   </select>
 
+  <select id="countGroupByOrganizationAndId" parameterType="map" resultType="int">
+    select
+      count(1)
+    from groups g
+    where
+      g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      and g.id = #{groupId,jdbcType=BIGINT}
+  </select>
+
   <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">
     select
     <include refid="groupColumns"/>
