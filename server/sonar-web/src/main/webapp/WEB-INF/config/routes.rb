@@ -1,6 +1,5 @@
 ActionController::Routing::Routes.draw do |map|
   map.namespace :api do |api|
-    api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :projects, :only => [:index], :requirements => { :id => /.*/ }
   end
 

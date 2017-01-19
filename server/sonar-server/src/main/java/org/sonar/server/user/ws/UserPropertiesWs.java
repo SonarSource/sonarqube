@@ -20,30 +20,26 @@
 package org.sonar.server.user.ws;
 
 import org.sonar.api.server.ws.WebService;
-
-import static org.sonar.api.server.ws.RailsHandler.INSTANCE;
-import static org.sonar.api.server.ws.RailsHandler.addFormatParam;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 public class UserPropertiesWs implements WebService {
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/user_properties");
-    controller.setDescription("Manage user properties.");
+    controller.setDescription("Removed since 6.3, please use api/favorites and api/notifications instead");
     controller.setSince("2.6");
-
     defineIndexAction(controller);
-
     controller.done();
   }
 
   private void defineIndexAction(NewController controller) {
-    NewAction action = controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
+    controller.createAction("index")
+      .setDescription("This web service is removed")
       .setSince("2.6")
+      .setDeprecatedSince("6.3")
       .setResponseExample(getClass().getResource("user_properties-index-example.xml"))
-      .setHandler(INSTANCE);
-    addFormatParam(action);
+      .setHandler(RemovedWebServiceHandler.INSTANCE);
   }
 
 }

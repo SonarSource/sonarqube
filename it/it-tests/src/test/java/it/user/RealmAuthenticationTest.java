@@ -1,4 +1,4 @@
-  /*
+/*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
@@ -35,11 +34,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.Host;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.connectors.ConnectionException;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
-import org.sonar.wsclient.services.UserPropertyCreateQuery;
-import org.sonar.wsclient.services.UserPropertyQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
@@ -73,8 +69,6 @@ public class RealmAuthenticationTest {
    * Property from security-plugin for user management.
    */
   private static final String USERS_PROPERTY = "sonar.fakeauthenticator.users";
-  private static String AUTHORIZED = "authorized";
-  private static String NOT_AUTHORIZED = "not authorized";
 
   @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
@@ -112,7 +106,8 @@ public class RealmAuthenticationTest {
     users.put(username + ".groups", "sonar-user");
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(username, password);
+
     // with external details and groups
     runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
 
@@ -137,7 +132,8 @@ public class RealmAuthenticationTest {
     users.put(username + ".groups", "sonar-user");
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(username, password);
+
     // with external details and groups
     // TODO replace by WS ? Or with new Selenese utils
     runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details.html");
@@ -147,7 +143,8 @@ public class RealmAuthenticationTest {
     users.put(username + ".email", "tester2@example.org");
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(username, password);
+
     // with external details and groups updated
     runSelenese(orchestrator, "/user/ExternalAuthenticationTest/external-user-details2.html");
   }
@@ -166,13 +163,14 @@ public class RealmAuthenticationTest {
     users.put(login + ".password", password);
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(login, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(login, password);
+
 
     // When external system does not work
     users.remove(login + ".password");
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(login, password)).isEqualTo(NOT_AUTHORIZED);
+    verifyAuthenticationIsNotOk(login, password);
   }
 
   /**
@@ -191,8 +189,8 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
 
     // Then this is local DB that should be used
-    assertThat(loginAttempt(login, remotePassword)).isEqualTo(NOT_AUTHORIZED);
-    assertThat(loginAttempt(login, localPassword)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsNotOk(login, remotePassword);
+    verifyAuthenticationIsOk(login, localPassword);
   }
 
   /**
@@ -207,14 +205,14 @@ public class RealmAuthenticationTest {
 
     // When user not exists in external system
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(NOT_AUTHORIZED);
+    verifyAuthenticationIsNotOk(username, password);
 
     // When user created in external system
     users.put(username + ".password", password);
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
-    assertThat(loginAttempt(username, "wrong")).isEqualTo(NOT_AUTHORIZED);
+    verifyAuthenticationIsOk(username, password);
+    verifyAuthenticationIsNotOk(username, "wrong");
   }
 
   /**
@@ -232,13 +230,13 @@ public class RealmAuthenticationTest {
 
     // When user not exists in external system
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(NOT_AUTHORIZED);
+    verifyAuthenticationIsNotOk(username, password);
 
     // When user created in external system
     users.put(username + ".password", password);
     updateUsersInExtAuth(users);
     // Then
-    assertThat(loginAttempt(username, password)).isEqualTo(NOT_AUTHORIZED);
+    verifyAuthenticationIsNotOk(username, password);
   }
 
   // SONAR-3258
@@ -256,7 +254,7 @@ public class RealmAuthenticationTest {
     users.put(login + ".password", password);
     updateUsersInExtAuth(users);
     // check that the deleted/deactivated user "tester" has been reactivated and can now log in
-    assertThat(loginAttempt(login, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(login, password);
   }
 
   /**
@@ -266,7 +264,7 @@ public class RealmAuthenticationTest {
   public void update_password_of_technical_user() throws Exception {
     // Create user in external authentication
     updateUsersInExtAuth(ImmutableMap.of(USER_LOGIN + ".password", USER_LOGIN));
-    assertThat(loginAttempt(USER_LOGIN, USER_LOGIN)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(USER_LOGIN, USER_LOGIN);
 
     // Create technical user in db
     createUserInDb(TECH_USER, "old_password");
@@ -299,19 +297,19 @@ public class RealmAuthenticationTest {
     users.put(login + ".password", password);
     updateUsersInExtAuth(users);
 
-    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
-    assertThat(checkAuthenticationWithWebService("wrong", password).code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(login, "wrong").code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(login, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(null, null).code()).isEqualTo(HTTP_OK);
+    verifyAuthenticationIsOk(login, password);
+    verifyAuthenticationIsNotOk("wrong", password);
+    verifyAuthenticationIsNotOk(login, "wrong");
+    verifyAuthenticationIsNotOk(login, null);
+    verifyAuthenticationIsOk(null, null);
 
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
-    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
-    assertThat(checkAuthenticationWithWebService("wrong", password).code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(login, "wrong").code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(login, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
-    assertThat(checkAuthenticationWithWebService(null, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    verifyAuthenticationIsOk(login, password);
+    verifyAuthenticationIsNotOk("wrong", password);
+    verifyAuthenticationIsNotOk(login, "wrong");
+    verifyAuthenticationIsNotOk(login, null);
+    verifyAuthenticationIsNotOk(null, null);
   }
 
   @Test
@@ -320,7 +318,8 @@ public class RealmAuthenticationTest {
     String password = "1234567";
     updateUsersInExtAuth(ImmutableMap.of(username + ".password", password));
 
-    assertThat(loginAttempt(username, password)).isEqualTo(AUTHORIZED);
+    verifyAuthenticationIsOk(username, password);
+    ;
   }
 
   protected void verifyHttpException(Exception e, int expectedCode) {
@@ -331,32 +330,6 @@ public class RealmAuthenticationTest {
 
   private boolean checkAuthenticationThroughWebService(String login, String password) {
     return createWsClient(login, password).find(new AuthenticationQuery()).isValid();
-  }
-
-  /**
-   * Utility method to check that user can be authorized.
-   *
-   * @throws IllegalStateException
-   */
-  private String loginAttempt(String username, String password) {
-    String expectedValue = Long.toString(System.currentTimeMillis());
-    Sonar wsClient = createWsClient(username, password);
-    try {
-      wsClient.create(new UserPropertyCreateQuery("auth", expectedValue));
-    } catch (ConnectionException e) {
-      return NOT_AUTHORIZED;
-    }
-    try {
-      String value = wsClient.find(new UserPropertyQuery("auth")).getValue();
-      if (!Objects.equals(value, expectedValue)) {
-        // exceptional case - update+retrieval were successful, but value doesn't match
-        throw new IllegalStateException("Expected " + expectedValue + " , but got " + value);
-      }
-    } catch (ConnectionException e) {
-      // exceptional case - update was successful, but not retrieval
-      throw new IllegalStateException(e);
-    }
-    return AUTHORIZED;
   }
 
   /**
@@ -393,6 +366,14 @@ public class RealmAuthenticationTest {
       sb.append(entry.getKey()).append('=').append(entry.getValue()).append('\n');
     }
     return sb.toString();
+  }
+
+  private void verifyAuthenticationIsOk(String login, String password) {
+    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
+  }
+
+  private void verifyAuthenticationIsNotOk(String login, String password) {
+    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_UNAUTHORIZED);
   }
 
   private WsResponse checkAuthenticationWithWebService(String login, String password) {
