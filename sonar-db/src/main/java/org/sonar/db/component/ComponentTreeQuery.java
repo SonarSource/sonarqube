@@ -29,7 +29,7 @@ import org.sonar.db.WildcardPosition;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.AFTER;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class ComponentTreeQuery {
 
@@ -62,9 +62,12 @@ public class ComponentTreeQuery {
     return nameOrKeyQuery;
   }
 
+  /**
+   * Used by MyBatis mapper
+   */
   @CheckForNull
-  public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase(Locale.ENGLISH);
+  public String getNameOrKeyUpperLikeQuery() {
+    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
   }
 
   public String getBaseUuid() {

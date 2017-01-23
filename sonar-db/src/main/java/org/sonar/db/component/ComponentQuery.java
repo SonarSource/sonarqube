@@ -23,10 +23,10 @@ import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.AFTER;
 
 public class ComponentQuery {
   private final String nameOrKeyQuery;
@@ -64,14 +64,12 @@ public class ComponentQuery {
     return nameOrKeyQuery;
   }
 
+  /**
+   * Used by MyBatis mapper
+   */
   @CheckForNull
-  public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase(Locale.ENGLISH);
-  }
-
-  @CheckForNull
-  public String getNameOrKeyQueryToSqlForProjectKey() {
-    return buildLikeValue(nameOrKeyQuery, AFTER);
+  public String getNameOrKeyUpperLikeQuery() {
+    return buildLikeValue(nameOrKeyQuery, WildcardPosition.BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
   }
 
   @CheckForNull

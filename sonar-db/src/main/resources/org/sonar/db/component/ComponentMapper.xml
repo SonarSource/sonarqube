@@ -258,20 +258,10 @@
         </foreach>
       </if>
       <if test="query.nameOrKeyQuery!=null">
-        AND (
-          p.kee=#{query.nameOrKeyQuery,jdbcType=VARCHAR}
-          OR
-          p.uuid IN (
-            SELECT ri.component_uuid
-            FROM resource_index ri
-            WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-            <if test="query.qualifiers!=null">
-            AND ri.qualifier in
-              <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-                #{qualifier,jdbcType=VARCHAR}
-              </foreach>
-            </if>
-          )
+        and (
+          p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+          or
+          upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
         )
       </if>
   </sql>
@@ -308,19 +298,9 @@
     </if>
     <if test="query.nameOrKeyQuery != null">
       and (
-      p.kee=#{query.nameOrKeyQuery}
-      or
-      p.uuid IN (
-      SELECT ri.component_uuid
-      FROM resource_index ri
-      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-      )
-      or
-      p.copy_component_uuid IN (
-      SELECT ri.component_uuid
-      FROM resource_index ri
-      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-      )
+        p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+        or
+        upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
       )
     </if>
   </sql>
