@@ -19,11 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -37,14 +33,19 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -62,7 +63,6 @@ import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
@@ -96,7 +96,7 @@ public class ComponentTreeDataLoader {
     try {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, wsRequest.getBaseComponentId(), wsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
-      java.util.Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
+      Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
       if (!baseSnapshot.isPresent()) {
         return ComponentTreeData.builder()
           .setBaseComponent(baseComponent)
@@ -141,10 +141,10 @@ public class ComponentTreeDataLoader {
   }
 
   private Map<String, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDto> components) {
-    List<String> referenceComponentUUids = from(components)
-      .transform(ComponentDto::getCopyResourceUuid)
-      .filter(Predicates.<String>notNull())
-      .toList();
+    List<String> referenceComponentUUids = components.stream()
+      .map(ComponentDto::getCopyResourceUuid)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList(components.size()));
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
@@ -165,7 +165,7 @@ public class ComponentTreeDataLoader {
     List<String> metricKeys = requireNonNull(request.getMetricKeys());
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
     if (metrics.size() < metricKeys.size()) {
-      List<String> foundMetricKeys = Lists.transform(metrics, MetricDtoFunctions.toKey());
+      List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);
       Set<String> missingMetricKeys = Sets.difference(
         new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
@@ -179,7 +179,7 @@ public class ComponentTreeDataLoader {
   private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent, ComponentTreeQuery componentTreeQuery,
     List<ComponentDto> components, List<MetricDto> metrics, List<WsMeasures.Period> periods, @Nullable Long developerId) {
 
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
+    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
       .setStrategy(MeasureTreeQuery.Strategy.valueOf(componentTreeQuery.getStrategy().name()))
       .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery())
@@ -211,22 +211,22 @@ public class ComponentTreeDataLoader {
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDto> components,
     List<MetricDto> metrics, List<WsMeasures.Period> periods) {
-    List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = from(metrics)
+    List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .transform(new MetricDtoToMetricDtoWithBestValue(periods))
-      .toList();
+      .map(new MetricDtoToMetricDtoWithBestValue(periods))
+      .collect(Collectors.toList(metrics.size()));
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
 
-    List<ComponentDto> componentsEligibleForBestValue = from(components).filter(IsFileComponent.INSTANCE).toList();
-    for (ComponentDto component : componentsEligibleForBestValue) {
+    Stream<ComponentDto> componentsEligibleForBestValue = components.stream().filter(IsFileComponent.INSTANCE);
+    componentsEligibleForBestValue.forEach(component -> {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
         if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.getMetric()) == null) {
           measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(), metricWithBestValue.getBestValue());
         }
       }
-    }
+    });
   }
 
   private static List<ComponentDto> filterComponents(List<ComponentDto> components,
@@ -235,14 +235,14 @@ public class ComponentTreeDataLoader {
       return components;
     }
 
-    final String metricKeyToSort = wsRequest.getMetricSort();
-    Optional<MetricDto> metricToSort = from(metrics).firstMatch(new MatchMetricKey(metricKeyToSort));
+    String metricKeyToSort = wsRequest.getMetricSort();
+    Optional<MetricDto> metricToSort = metrics.stream().filter(m -> metricKeyToSort.equals(m.getKey())).findFirst();
     checkState(metricToSort.isPresent(), "Metric '%s' not found", metricKeyToSort, wsRequest.getMetricKeys());
 
     return components
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest))
-      .collect(Collectors.toList());
+      .collect(Collectors.toList(components.size()));
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeWsRequest wsRequest) {
@@ -255,10 +255,10 @@ public class ComponentTreeDataLoader {
   }
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest) {
-    return from(components)
+    return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
-      .toList();
+      .collect(Collectors.toList(wsRequest.getPageSize()));
   }
 
   @CheckForNull
@@ -310,7 +310,7 @@ public class ComponentTreeDataLoader {
     INSTANCE;
 
     @Override
-    public boolean apply(@Nonnull ComponentDto input) {
+    public boolean test(@Nonnull ComponentDto input) {
       return QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(input.qualifier());
     }
   }
@@ -319,34 +319,12 @@ public class ComponentTreeDataLoader {
     private final List<Integer> periodIndexes;
 
     MetricDtoToMetricDtoWithBestValue(List<WsMeasures.Period> periods) {
-      this.periodIndexes = Lists.transform(periods, WsPeriodToIndex.INSTANCE);
+      this.periodIndexes = Lists.transform(periods, WsMeasures.Period::getIndex);
     }
 
     @Override
     public MetricDtoWithBestValue apply(@Nonnull MetricDto input) {
       return new MetricDtoWithBestValue(input, periodIndexes);
-    }
-  }
-
-  private enum WsPeriodToIndex implements Function<WsMeasures.Period, Integer> {
-    INSTANCE;
-
-    @Override
-    public Integer apply(@Nonnull WsMeasures.Period input) {
-      return input.getIndex();
-    }
-  }
-
-  private static class MatchMetricKey implements Predicate<MetricDto> {
-    private final String metricKeyToSort;
-
-    private MatchMetricKey(String metricKeyToSort) {
-      this.metricKeyToSort = metricKeyToSort;
-    }
-
-    @Override
-    public boolean apply(@Nonnull MetricDto input) {
-      return input.getKey().equals(metricKeyToSort);
     }
   }
 }

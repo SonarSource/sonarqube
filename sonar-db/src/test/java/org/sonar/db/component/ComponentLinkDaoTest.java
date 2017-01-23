@@ -39,10 +39,10 @@ public class ComponentLinkDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  ComponentLinkDao underTest = db.getDbClient().componentLinkDao();
+  private ComponentLinkDao underTest = db.getDbClient().componentLinkDao();
 
   @Test
   public void select_by_component_uuid() {

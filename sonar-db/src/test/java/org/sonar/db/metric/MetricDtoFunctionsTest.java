@@ -26,25 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricDtoFunctionsTest {
 
-  MetricDto metric;
-
-  @Test
-  public void toId() {
-    metric = new MetricDto().setId(42);
-
-    Integer result = MetricDtoFunctions.toId().apply(metric);
-
-    assertThat(result).isEqualTo(42);
-  }
-
-  @Test
-  public void toKey() {
-    metric = new MetricDto().setKey("my-metric-key");
-
-    String result = MetricDtoFunctions.toKey().apply(metric);
-
-    assertThat(result).isEqualTo("my-metric-key");
-  }
+  private MetricDto metric;
 
   @Test
   public void isOptimizedForBestValue_at_true() {
@@ -52,7 +34,7 @@ public class MetricDtoFunctionsTest {
       .setBestValue(42.0d)
       .setOptimizedBestValue(true);
 
-    boolean result = MetricDtoFunctions.isOptimizedForBestValue().apply(metric);
+    boolean result = MetricDtoFunctions.isOptimizedForBestValue().test(metric);
 
     assertThat(result).isTrue();
   }
@@ -63,7 +45,7 @@ public class MetricDtoFunctionsTest {
       .setBestValue(null)
       .setOptimizedBestValue(true);
 
-    boolean result = MetricDtoFunctions.isOptimizedForBestValue().apply(metric);
+    boolean result = MetricDtoFunctions.isOptimizedForBestValue().test(metric);
 
     assertThat(result).isFalse();
   }
@@ -74,7 +56,7 @@ public class MetricDtoFunctionsTest {
       .setBestValue(42.0d)
       .setOptimizedBestValue(false);
 
-    boolean result = MetricDtoFunctions.isOptimizedForBestValue().apply(metric);
+    boolean result = MetricDtoFunctions.isOptimizedForBestValue().test(metric);
 
     assertThat(result).isFalse();
   }
