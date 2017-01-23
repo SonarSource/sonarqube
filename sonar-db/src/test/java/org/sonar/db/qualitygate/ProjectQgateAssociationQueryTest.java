@@ -23,21 +23,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ProjectQgateAssociationQueryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void handle_underscore_and_percent() {
-    ProjectQgateAssociationQuery underTest = ProjectQgateAssociationQuery.builder()
-      .projectSearch("project-_%-search")
-      .gateId("1").build();
-
-    assertThat(underTest.projectSearchSql()).isEqualTo("project-\\_\\%-search%");
-  }
 
   @Test
   public void fail_on_null_login() {

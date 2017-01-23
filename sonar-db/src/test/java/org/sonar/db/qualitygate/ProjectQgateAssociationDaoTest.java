@@ -38,11 +38,11 @@ public class ProjectQgateAssociationDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
 
-  ProjectQgateAssociationDao underTest = db.getDbClient().projectQgateAssociationDao();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private ProjectQgateAssociationDao underTest = db.getDbClient().projectQgateAssociationDao();
 
   @Test
   public void select_all_projects_by_query() {
@@ -73,7 +73,7 @@ public class ProjectQgateAssociationDaoTest {
     result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("one").build());
     assertThat(result).hasSize(1);
     result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("project").build());
-    assertThat(result).hasSize(2);
+    assertThat(result).hasSize(5);
   }
 
   @Test
