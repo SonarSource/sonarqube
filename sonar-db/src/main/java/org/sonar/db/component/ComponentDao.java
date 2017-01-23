@@ -28,20 +28,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
@@ -205,20 +209,37 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectAllRootsByOrganization(organizationUuid);
   }
 
-  public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
-    addProjectQualifier(parameters);
-    addPartialQueryParameterIfNotNull(parameters, query);
-
-    return mapper(session).selectProvisionedProjects(parameters, new RowBounds(offset, limit));
+  /**
+   * Select a page of provisioned (root) components. Results are ordered by ascending name.
+   *
+   * @param dbSession
+   * @param textQuery optional text query to match component name or key
+   * @param qualifiers filter on qualifiers. Must not be null nor empty
+   * @param rowBounds pagination
+   */
+  public List<ComponentDto> selectProvisioned(DbSession dbSession, @Nullable String textQuery, Set<String> qualifiers, RowBounds rowBounds) {
+    checkArgument(!qualifiers.isEmpty(), "qualifiers must not be empty");
+    return mapper(dbSession).selectProvisioned(buildUpperLikeSql(textQuery), qualifiers, rowBounds);
   }
 
-  public int countProvisionedProjects(DbSession session, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
-    addProjectQualifier(parameters);
-    addPartialQueryParameterIfNotNull(parameters, query);
+  /**
+   * Count number of provisioned (root) components.
+   *
+   * @param dbSession
+   * @param textQuery optional text query to match component name or key
+   * @param qualifiers filter on qualifiers. Must not be null nor empty
+   */
+  public int countProvisioned(DbSession dbSession, @Nullable String textQuery, Set<String> qualifiers) {
+    checkArgument(!qualifiers.isEmpty(), "qualifiers must not be empty");
+    return mapper(dbSession).countProvisioned(buildUpperLikeSql(textQuery), qualifiers);
+  }
 
-    return mapper(session).countProvisionedProjects(parameters);
+  @CheckForNull
+  private static String buildUpperLikeSql(@Nullable String textQuery) {
+    if (isBlank(textQuery)) {
+      return null;
+    }
+    return DatabaseUtils.buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), WildcardPosition.BEFORE_AND_AFTER);
   }
 
   public List<ComponentDto> selectGhostProjects(DbSession session, int offset, int limit, @Nullable String query) {
@@ -244,7 +265,7 @@ public class ComponentDao implements Dao {
    * @param handler the action to be applied to every result
    */
   public void selectForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler handler) {
-    Objects.requireNonNull(handler);
+    requireNonNull(handler);
     mapper(session).selectForIndexing(projectUuid, handler);
   }
 

@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -108,9 +109,9 @@ public interface ComponentMapper {
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
 
-  List<ComponentDto> selectProvisionedProjects(Map<String, Object> parameters, RowBounds rowBounds);
+  List<ComponentDto> selectProvisioned(@Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers, RowBounds rowBounds);
 
-  int countProvisionedProjects(Map<String, Object> parameters);
+  int countProvisioned(@Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers);
 
   List<ComponentDto> selectGhostProjects(Map<String, Object> parameters, RowBounds rowBounds);
 

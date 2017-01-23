@@ -24,9 +24,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -529,23 +531,41 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_provisioned_projects() {
+  public void select_provisioned() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
-    List<ComponentDto> result = underTest.selectProvisionedProjects(dbSession, 0, 10, null);
-    ComponentDto project = result.get(0);
+    Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
+    assertProvisionedKeys(null, projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
 
-    assertThat(result).hasSize(1);
-    assertThat(project.getKey()).isEqualTo("org.provisioned.project");
+    // pagination
+    assertProvisionedKeys(null, projectQualifiers, 2, 10).isEmpty();
+
+    // filter on qualifiers
+    assertProvisionedKeys(null, newHashSet("XXX"), 0, 10).isEmpty();
+    assertProvisionedKeys(null, newHashSet(Qualifiers.PROJECT, "XXX"), 0, 10).containsExactly("org.provisioned.project");
+
+    // match key
+    assertProvisionedKeys("org.provisioned.project", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
+    assertProvisionedKeys("ORG.provisioned.PROJECT", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
+    assertProvisionedKeys("missing", projectQualifiers, 0, 10).isEmpty();
+    assertProvisionedKeys("to be escaped '\"\\%", projectQualifiers, 0, 10).isEmpty();
+
+    // match name
+    assertProvisionedKeys("ned proj", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
+  }
+
+  private ListAssert<String> assertProvisionedKeys(@Nullable String textQuery, Set<String> qualifiers, int offset, int limit) {
+    List<ComponentDto> result = underTest.selectProvisioned(dbSession, textQuery, qualifiers, new RowBounds(offset, limit));
+    return assertThat(result).extracting(ComponentDto::getKey);
   }
 
   @Test
-  public void count_provisioned_projects() {
+  public void count_provisioned() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
-    int numberOfProjects = underTest.countProvisionedProjects(dbSession, null);
-
-    assertThat(numberOfProjects).isEqualTo(1);
+    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.PROJECT))).isEqualTo(1);
+    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.VIEW))).isEqualTo(0);
+    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.VIEW, Qualifiers.PROJECT))).isEqualTo(1);
   }
 
   @Test

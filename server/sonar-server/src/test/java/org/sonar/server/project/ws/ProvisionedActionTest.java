@@ -21,7 +21,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,7 +43,6 @@ import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class ProvisionedActionTest {
 
   @Rule
@@ -56,15 +54,9 @@ public class ProvisionedActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  WsTester ws;
-  DbClient dbClient = db.getDbClient();
-  ComponentDao componentDao;
-
-  @Before
-  public void setUp() {
-    componentDao = dbClient.componentDao();
-    ws = new WsTester(new ProjectsWs(new ProvisionedAction(dbClient, userSessionRule)));
-  }
+  private DbClient dbClient = db.getDbClient();
+  private ComponentDao componentDao = dbClient.componentDao();
+  private WsTester ws = new WsTester(new ProjectsWs(new ProvisionedAction(dbClient, userSessionRule)));
 
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
@@ -129,9 +121,6 @@ public class ProvisionedActionTest {
     assertThat(jsonOutput)
       .contains("provisioned-name-2", "provisioned-uuid-2")
       .doesNotContain("provisioned-uuid-1");
-    assertThat(componentDao.countProvisionedProjects(db.getSession(), "name-2")).isEqualTo(1);
-    assertThat(componentDao.countProvisionedProjects(db.getSession(), "key-2")).isEqualTo(1);
-    assertThat(componentDao.countProvisionedProjects(db.getSession(), "visioned-name-")).isEqualTo(2);
   }
 
   @Test

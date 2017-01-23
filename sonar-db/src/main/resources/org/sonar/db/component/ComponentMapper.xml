@@ -368,30 +368,30 @@
     </where>
   </select>
 
-  <select id="selectProvisionedProjects" parameterType="map" resultType="Component">
+  <select id="selectProvisioned" parameterType="map" resultType="Component">
     select
     <include refid="componentColumns"/>
     from projects p
-    <include refid="provisionClauses"/>
+    <include refid="provisionedClauses"/>
   </select>
 
-  <select id="countProvisionedProjects" parameterType="map" resultType="int">
+  <select id="countProvisioned" parameterType="map" resultType="int">
     select count(p.id)
     from projects p
-    <include refid="provisionClauses"/>
+    <include refid="provisionedClauses"/>
   </select>
 
-  <sql id="provisionClauses">
+  <sql id="provisionedClauses">
     left join snapshots s on s.component_uuid=p.uuid
     where
     s.id is null
-    and p.enabled=${_true}
-    and p.qualifier=#{qualifier}
+    and p.enabled = ${_true}
+    and p.qualifier in <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">#{qualifier}</foreach>
     and p.copy_component_uuid is null
-    <if test="query!=null">
+    <if test="keyOrNameLike != null">
       and (
-      UPPER(p.name) like #{query}
-      or UPPER(p.kee) like #{query}
+      upper(p.name) like #{keyOrNameLike} ESCAPE '/'
+      or upper(p.kee) like #{keyOrNameLike} ESCAPE '/'
       )
     </if>
   </sql>

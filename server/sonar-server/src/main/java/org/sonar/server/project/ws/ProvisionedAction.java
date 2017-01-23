@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,7 +33,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
@@ -40,6 +41,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class ProvisionedAction implements ProjectsWsAction {
+
+  private static final Set<String> QUALIFIERS_FILTER = newHashSet(Qualifiers.PROJECT);
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
 
   private final DbClient dbClient;
@@ -75,16 +78,14 @@ public class ProvisionedAction implements ProjectsWsAction {
     Set<String> desiredFields = desiredFields(request);
     String query = request.param(Param.TEXT_QUERY);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      List<ComponentDto> projects = dbClient.componentDao().selectProvisionedProjects(dbSession, options.getOffset(), options.getLimit(), query);
-      int nbOfProjects = dbClient.componentDao().countProvisionedProjects(dbSession, query);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      RowBounds rowBounds = new RowBounds(options.getOffset(), options.getLimit());
+      List<ComponentDto> projects = dbClient.componentDao().selectProvisioned(dbSession, query, QUALIFIERS_FILTER, rowBounds);
+      int nbOfProjects = dbClient.componentDao().countProvisioned(dbSession, query, QUALIFIERS_FILTER);
       JsonWriter json = response.newJsonWriter().beginObject();
       writeProjects(projects, json, desiredFields);
       options.writeJson(json, nbOfProjects);
       json.endObject().close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
