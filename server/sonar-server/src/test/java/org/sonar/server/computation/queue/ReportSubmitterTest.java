@@ -38,10 +38,10 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -92,7 +92,7 @@ public class ReportSubmitterTest {
     thrown.expect(NotFoundException.class);
     thrown.expectMessage("Organization with key 'fop' does not exist");
 
-    underTest.submit("fop", PROJECT_KEY, null, null, null /*method will fail before parameter is used*/);
+    underTest.submit("fop", PROJECT_KEY, null, null, null /* method will fail before parameter is used */);
   }
 
   @Test
@@ -139,15 +139,16 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(),
+      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+        .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
     verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(organization.getUuid()), eq(createdProject), anyLong());
-    verify(favoriteUpdater).add(any(DbSession.class), eq(createdProject));
+    verify(favoriteUpdater).add(any(DbSession.class), eq(createdProject), eq(null));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -169,8 +170,9 @@ public class ReportSubmitterTest {
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
+      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+        .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -184,8 +186,9 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
-    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+    when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
+      eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
+        .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 

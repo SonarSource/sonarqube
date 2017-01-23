@@ -31,7 +31,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -45,8 +44,6 @@ public class FavoriteUpdaterTest {
   private static final long USER_ID = 42L;
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId((int) USER_ID);
-  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
@@ -54,35 +51,33 @@ public class FavoriteUpdaterTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private FavoriteUpdater underTest = new FavoriteUpdater(dbClient, userSession);
+  private FavoriteUpdater underTest = new FavoriteUpdater(dbClient);
 
   @Test
   public void put_favorite() {
     assertNoFavorite();
 
-    underTest.add(dbSession, COMPONENT);
+    underTest.add(dbSession, COMPONENT, USER_ID);
 
     assertFavorite();
   }
 
   @Test
-  public void do_nothing_when_not_logged_in() {
-    userSession.anonymous();
-
-    underTest.add(dbSession, COMPONENT);
+  public void do_nothing_when_no_user() {
+    underTest.add(dbSession, COMPONENT, null);
 
     assertNoFavorite();
   }
 
   @Test
   public void fail_when_adding_existing_favorite() {
-    underTest.add(dbSession, COMPONENT);
+    underTest.add(dbSession, COMPONENT, USER_ID);
     assertFavorite();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Component 'K1' is already a favorite");
 
-    underTest.add(dbSession, COMPONENT);
+    underTest.add(dbSession, COMPONENT, USER_ID);
   }
 
   private void assertFavorite() {

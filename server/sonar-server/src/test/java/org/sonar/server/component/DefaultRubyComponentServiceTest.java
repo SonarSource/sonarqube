@@ -99,7 +99,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
     verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(defaultOrganizationUuid), eq(componentKey));
-    verify(favoriteUpdater).add(any(DbSession.class), eq(project));
+    verify(favoriteUpdater).add(any(DbSession.class), eq(project), eq(null));
   }
 
   @Test(expected = BadRequestException.class)

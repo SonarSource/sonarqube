@@ -58,7 +58,7 @@ public class RemoveActionTest {
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
 
-  private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient, userSession);
+  private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
   private WsActionTester ws = new WsActionTester(new RemoveAction(userSession, dbClient, favoriteUpdater, new ComponentFinder(dbClient)));
 
   @Test

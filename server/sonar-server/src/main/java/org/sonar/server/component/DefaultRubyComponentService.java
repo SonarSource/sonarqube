@@ -74,7 +74,8 @@ public class DefaultRubyComponentService {
     permissionTemplateService.applyDefaultPermissionTemplate(dbSession, organizationUuid, provisionedComponent.getKey());
     if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
       && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, provisionedComponent)) {
-      favoriteUpdater.add(dbSession, provisionedComponent);
+      // TODO Set userId as null as this method will be removed in a next commit
+      favoriteUpdater.add(dbSession, provisionedComponent, null);
       dbSession.commit();
     }
 

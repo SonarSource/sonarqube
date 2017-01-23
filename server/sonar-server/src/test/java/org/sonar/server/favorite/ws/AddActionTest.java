@@ -34,10 +34,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -64,7 +64,7 @@ public class AddActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient, userSession);
+  private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
   private WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, new ComponentFinder(dbClient)));
 
   @Test

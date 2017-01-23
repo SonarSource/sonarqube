@@ -114,9 +114,10 @@ public class CreateAction implements ProjectsWsAction {
   }
 
   private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid) {
-    permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userSession.isLoggedIn() ? userSession.getUserId().longValue() : null);
+    Long userId = userSession.isLoggedIn() ? userSession.getUserId().longValue() : null;
+    permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userId);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {
-      favoriteUpdater.add(dbSession, componentDto);
+      favoriteUpdater.add(dbSession, componentDto, userId);
       dbSession.commit();
     }
   }

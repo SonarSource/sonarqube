@@ -117,7 +117,7 @@ public class ReportSubmitter {
       .build();
     ComponentDto project = componentService.create(dbSession, newProject);
     if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, project)) {
-      favoriteUpdater.add(dbSession, project);
+      favoriteUpdater.add(dbSession, project, projectCreatorUserId);
       dbSession.commit();
     }
 

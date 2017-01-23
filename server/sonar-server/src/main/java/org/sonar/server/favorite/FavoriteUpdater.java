@@ -21,13 +21,13 @@
 package org.sonar.server.favorite;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -35,46 +35,44 @@ public class FavoriteUpdater {
   static final String PROP_FAVORITE_KEY = "favourite";
 
   private final DbClient dbClient;
-  private final UserSession userSession;
 
-  public FavoriteUpdater(DbClient dbClient, UserSession userSession) {
+  public FavoriteUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
   }
 
   /**
-   * Set favorite to the logged in user. If no user is logged, no action is done
+   * Set favorite to the logged in user. If no user, no action is done
    */
-  public void add(DbSession dbSession, ComponentDto componentDto) {
-    if (!userSession.isLoggedIn()) {
+  public void add(DbSession dbSession, ComponentDto componentDto, @Nullable Long userId) {
+    if (userId == null) {
       return;
     }
 
     List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
-      .setUserId(userSession.getUserId())
+      .setUserId(userId.intValue())
       .setComponentId(componentDto.getId())
       .build(), dbSession);
     checkRequest(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getKey());
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(componentDto.getId())
-      .setUserId(Long.valueOf(userSession.getUserId())));
+      .setUserId(userId));
   }
 
   /**
-   * Remove a favorite to the logged in user.
+   * Remove a favorite to the user.
    * @throws BadRequestException if the component is not a favorite
    */
-  public void remove(DbSession dbSession, ComponentDto component) {
-    if (!userSession.isLoggedIn()) {
+  public void remove(DbSession dbSession, ComponentDto component, @Nullable Long userId) {
+    if (userId == null) {
       return;
     }
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
       .setResourceId(component.getId())
-      .setUserId(Long.valueOf(userSession.getUserId())));
+      .setUserId(userId));
     checkRequest(result == 1, "Component '%s' is not a favorite", component.key());
   }
 }

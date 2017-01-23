@@ -105,7 +105,7 @@ public class CreateActionTest {
         new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
         new ComponentIndexer(db.getDbClient(), es.client())),
       new PermissionTemplateService(db.getDbClient(), settings, new PermissionIndexer(db.getDbClient(), es.client()), userSession),
-      new FavoriteUpdater(db.getDbClient(), userSession),
+      new FavoriteUpdater(db.getDbClient()),
       defaultOrganizationProvider));
 
   @Before
