@@ -28,15 +28,7 @@ public class QualityProfileProjectCount {
     return profileKey;
   }
 
-  public void setProfileKey(String profileKey) {
-    this.profileKey = profileKey;
-  }
-
   public Long getProjectCount() {
     return projectCount;
-  }
-
-  public void setProjectCount(Long projectCount) {
-    this.projectCount = projectCount;
   }
 }
