@@ -47,7 +47,7 @@ public interface PermissionTemplateMapper {
   void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
   void deleteGroupPermissionsByTemplateId(long templateId);
-  
+
   void deleteGroupPermissionsByTemplateIds(@Param("templateIds") List<Long> templateIds);
 
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
@@ -70,9 +70,10 @@ public interface PermissionTemplateMapper {
 
   int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
-  List<String> selectGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
+  List<String> selectGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid,
+    @Param("templateId") long templateId, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
+  int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
   List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 

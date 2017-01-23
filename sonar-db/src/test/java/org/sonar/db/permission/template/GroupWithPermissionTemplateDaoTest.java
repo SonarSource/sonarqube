@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
 
@@ -43,95 +44,122 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbSession session = db.getSession();
   private PermissionTemplateDbTester permissionTemplateDbTester = db.permissionTemplates();
   private PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_group_names_by_query_and_template() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization, "Group-1");
+    GroupDto group2 = db.users().insertGroup(organization, "Group-2");
+    GroupDto group3 = db.users().insertGroup(organization, "Group-3");
 
-    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
 
-    PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().build(), template.getId())).containsOnly("Group-1", "Group-2", "Group-3", "Anyone");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), template.getId())).containsOnly("Group-1", "Group-2");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), template.getId())).containsOnly("Group-1");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), anotherTemplate.getId())).containsOnly("Anyone");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU").build(), template.getId())).containsOnly("Group-1", "Group-2", "Group-3");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo").build(), template.getId())).containsOnly("Anyone");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2").build(), template.getId())).containsOnly("Group-2");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder(), organization, template))
+      .containsOnly("Group-1", "Group-2", "Group-3", "Anyone");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission(), organization, template))
+      .containsOnly("Group-1", "Group-2");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, template))
+      .containsOnly("Group-1");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, anotherTemplate))
+      .containsOnly("Anyone");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU"), organization, template))
+      .containsOnly("Group-1", "Group-2", "Group-3");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo"), organization, template))
+      .containsOnly("Anyone");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), organization, template))
+      .containsOnly("Group-2");
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), 123L)).isEmpty();
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown").build(), template.getId())).isEmpty();
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), organization, 123L))
+      .isEmpty();
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown"), organization, template))
+      .isEmpty();
   }
 
   @Test
   public void select_group_names_by_query_and_template_is_ordered_by_group_names() {
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
-    db.users().insertGroup(newGroupDto().setName("Group-3"));
-    db.users().insertGroup(newGroupDto().setName("Group-1"));
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group2 = db.users().insertGroup(organization, "Group-2");
+    db.users().insertGroup(organization, "Group-3");
+    db.users().insertGroup(organization, "Group-1");
 
-    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), USER);
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().build(), template.getId())).containsExactly("Anyone", "Group-1", "Group-2", "Group-3");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder(), organization, template))
+      .containsExactly("Anyone", "Group-1", "Group-2", "Group-3");
   }
 
   @Test
   public void select_group_names_by_query_and_template_is_paginated() {
-    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertGroup(newGroupDto().setName(i + "-name")));
+    OrganizationDto organization = db.organizations().insert();
+    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertGroup(organization, i + "-name"));
 
-    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPageIndex(1).setPageSize(1).build(), template.getId())).containsExactly("0-name");
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPageIndex(2).setPageSize(3).build(), template.getId())).containsExactly("3-name", "4-name", "5-name");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPageIndex(1).setPageSize(1), organization, template))
+      .containsExactly("0-name");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setPageIndex(2).setPageSize(3), organization, template))
+      .containsExactly("3-name", "4-name", "5-name");
   }
 
   @Test
   public void select_group_names_by_query_and_template_returns_anyone() {
-    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
 
     GroupDto group = db.users().insertGroup(newGroupDto().setName("Group"));
-    PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getId(), group.getId(), USER);
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nyo").build(), template.getId())).containsExactly("Anyone");
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nyo"), organization, template))
+      .containsExactly("Anyone");
   }
 
   @Test
   public void count_group_names_by_query_and_template() {
-    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("Group-1"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("Group-2"));
-    GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group1 = db.users().insertGroup(organization, "Group-1");
+    GroupDto group2 = db.users().insertGroup(organization, "Group-2");
+    GroupDto group3 = db.users().insertGroup(organization, "Group-3");
 
-    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
     permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
 
-    PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate();
+    PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
     permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder().build(), template.getId())).isEqualTo(4);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), template.getId())).isEqualTo(2);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), template.getId())).isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER).build(), anotherTemplate.getId())).isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU").build(), template.getId())).isEqualTo(3);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo").build(), template.getId())).isEqualTo(1);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2").build(), template.getId())).isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder(), organization, template))
+      .isEqualTo(4);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission(), organization, template))
+      .isEqualTo(2);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, template)).isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), organization, anotherTemplate))
+      .isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU"), organization, template))
+      .isEqualTo(3);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo"), organization, template))
+      .isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), organization, template))
+      .isEqualTo(1);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), 123L)).isZero();
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown").build(), template.getId())).isZero();
+    assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), organization, 123L))
+      .isZero();
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown"), organization, template))
+      .isZero();
   }
 
   @Test
@@ -200,12 +228,20 @@ public class GroupWithPermissionTemplateDaoTest {
     assertThat(underTest.selectGroupPermissionsByTemplateId(session, 321L)).isEmpty();
   }
 
-  private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery query, long templateId) {
-    return underTest.selectGroupNamesByQueryAndTemplate(session, query, templateId);
+  private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {
+    return selectGroupNamesByQueryAndTemplate(queryBuilder.build(), organization, permissionTemplateDto.getId());
   }
 
-  private int countGroupNamesByQueryAndTemplate(PermissionQuery query, long templateId) {
-    return underTest.countGroupNamesByQueryAndTemplate(session, query, templateId);
+  private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, long templateId) {
+    return underTest.selectGroupNamesByQueryAndTemplate(session, query, organization.getUuid(), templateId);
+  }
+
+  private int countGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {
+    return countGroupNamesByQueryAndTemplate(queryBuilder.build(), organization, permissionTemplateDto.getId());
+  }
+
+  private int countGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, long templateId) {
+    return underTest.countGroupNamesByQueryAndTemplate(session, query, organization.getUuid(), templateId);
   }
 
 }

@@ -94,7 +94,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionQuery query = buildPermissionQuery(wsRequest);
-      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getId());
+      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getId());
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<GroupDto> groups = findGroups(dbSession, query, template);
       List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
@@ -140,7 +140,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   }
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
-    List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getId());
+    List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getOrganizationUuid(), template.getId());
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setId(0L).setName(DefaultGroups.ANYONE));

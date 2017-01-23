@@ -67,7 +67,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
     newRequest(group.getName(), template.getUuid(), CODEVIEWER);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
+    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
+    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
@@ -93,7 +93,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(group.getName());
+    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());
   }
 
   @Test
@@ -103,7 +103,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), ISSUE_ADMIN)).containsExactly(group.getName());
+    assertThat(getGroupNamesInTemplateAndPermission(template, ISSUE_ADMIN)).containsExactly(group.getName());
   }
 
   @Test
@@ -112,7 +112,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
     newRequest(ANYONE, template.getUuid(), CODEVIEWER);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), CODEVIEWER)).containsExactly(ANYONE);
+    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(ANYONE);
   }
 
   @Test
@@ -205,9 +205,9 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     request.execute();
   }
 
-  private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
+  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectGroupNamesByQueryAndTemplate(db.getSession(), query, templateId);
+      .selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getOrganizationUuid(), template.getId());
   }
 }

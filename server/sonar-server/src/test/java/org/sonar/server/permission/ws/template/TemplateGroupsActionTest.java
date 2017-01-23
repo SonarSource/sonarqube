@@ -84,6 +84,29 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
+  public void do_not_fail_when_group_name_exists_in_multiple_organizations() {
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+
+    String groupName = "group-name";
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), groupName);
+    addGroupToTemplate(newPermissionTemplateGroup(CODEVIEWER, template.getId(), group1.getId()));
+    addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getId(), group1.getId()));
+
+    OrganizationDto otherOrganization = db.organizations().insert();
+    db.users().insertGroup(otherOrganization, groupName);
+
+    loginAsAdminOnDefaultOrganization();
+
+    newRequest()
+        .setMediaType(PROTOBUF)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .setParam(TEXT_QUERY, "-nam")
+        .execute()
+        .getInputStream();
+
+  }
+
+  @Test
   public void return_all_permissions_of_matching_groups() throws Exception {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
 

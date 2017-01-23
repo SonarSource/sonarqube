@@ -69,7 +69,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   public void remove_group_from_template() throws Exception {
     newRequest(group.getName(), template.getUuid(), PERMISSION);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).isEmpty();
   }
 
   @Test
@@ -80,7 +80,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).isEmpty();
   }
 
   @Test
@@ -91,7 +91,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).isEmpty();
   }
 
   @Test
@@ -99,7 +99,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     newRequest(group.getName(), template.getUuid(), PERMISSION);
     newRequest(group.getName(), template.getUuid(), PERMISSION);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).isEmpty();
   }
 
   @Test
@@ -108,7 +108,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
     newRequest(ANYONE, template.getUuid(), PERMISSION);
 
-    assertThat(getGroupNamesInTemplateAndPermission(template.getId(), PERMISSION)).containsExactly(group.getName());
+    assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).containsExactly(group.getName());
   }
 
   @Test
@@ -192,9 +192,9 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     db.commit();
   }
 
-  private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
+  private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, templateId);
+      .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, template.getOrganizationUuid(), template.getId());
   }
 }

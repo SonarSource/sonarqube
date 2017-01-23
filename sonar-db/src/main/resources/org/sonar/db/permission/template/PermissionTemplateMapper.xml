@@ -157,11 +157,22 @@
 
   <sql id="groupNamesByQueryAndTemplate">
     FROM
-    (SELECT g.id AS group_id, g.name AS name, ptg.permission_reference AS permission, ptg.template_id AS templateId
+    (SELECT
+      g.id AS group_id,
+      g.name AS name,
+      ptg.permission_reference AS permission,
+      ptg.template_id AS templateId
     FROM groups g
-    LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
+    LEFT JOIN perm_templates_groups ptg ON
+      ptg.group_id=g.id
+    where
+      g.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
     UNION ALL
-    SELECT 0 AS group_id, 'Anyone' AS name, ptg.permission_reference AS permission, ptg.template_id AS templateId
+    SELECT
+      0 AS group_id,
+      'Anyone' AS name,
+      ptg.permission_reference AS permission,
+      ptg.template_id AS templateId
     FROM perm_templates_groups ptg
     <where>
       <if test="query.withAtLeastOnePermission()">
@@ -259,8 +270,9 @@
         g.name AS groupName,
         ptg.created_at as createdAt,
         ptg.updated_at as updatedAt
-        FROM perm_templates_groups ptg
-      INNER JOIN groups g ON g.id=ptg.group_id
+      FROM perm_templates_groups ptg
+      INNER JOIN groups g ON
+        g.id=ptg.group_id
       UNION ALL
         SELECT
           ptg.id,
