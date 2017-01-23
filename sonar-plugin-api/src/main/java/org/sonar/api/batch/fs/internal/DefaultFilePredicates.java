@@ -76,6 +76,11 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   @Override
+  public FilePredicate hasFilename(String s) {
+    return new FilenamePredicate(s);
+  }
+
+  @Override
   public FilePredicate matchesPathPattern(String inclusionPattern) {
     return new PathPatternPredicate(PathPattern.create(inclusionPattern));
   }

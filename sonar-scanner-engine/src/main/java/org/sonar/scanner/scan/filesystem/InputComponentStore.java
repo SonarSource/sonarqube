@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +49,7 @@ public class InputComponentStore {
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
+  private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private InputModule root;
 
   public Collection<InputComponent> all() {
@@ -104,6 +107,7 @@ public class InputComponentStore {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
+    filesByNameCache.put(inputFile.file().getName(), inputFile);
     return this;
   }
 
@@ -134,4 +138,7 @@ public class InputComponentStore {
     inputModuleCache.put(inputModule.key(), inputModule);
   }
 
+  public Iterable<InputFile> getFilesByName(String filename) {
+    return filesByNameCache.get(filename);
+  }
 }
