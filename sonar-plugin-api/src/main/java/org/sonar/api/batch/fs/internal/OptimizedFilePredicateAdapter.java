@@ -20,7 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.IndexedFile;
+import org.sonar.api.batch.fs.InputFile;
 
 class OptimizedFilePredicateAdapter extends AbstractFilePredicate {
 
@@ -31,7 +31,7 @@ class OptimizedFilePredicateAdapter extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(IndexedFile inputFile) {
+  public boolean apply(InputFile inputFile) {
     return unoptimizedPredicate.apply(inputFile);
   }
 
