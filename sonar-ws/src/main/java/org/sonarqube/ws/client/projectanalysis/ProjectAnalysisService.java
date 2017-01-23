@@ -20,7 +20,7 @@
 
 package org.sonarqube.ws.client.projectanalysis;
 
-import org.sonarqube.ws.ProjectAnalyses;
+import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
@@ -36,14 +36,14 @@ public class ProjectAnalysisService extends BaseService {
     super(wsConnector, "api/project_analyses");
   }
 
-  public void search(SearchRequest searchRequest) {
+  public SearchResponse search(SearchRequest searchRequest) {
     EventCategory eventCategory = searchRequest.getCategory();
     GetRequest request = new GetRequest(path("search"))
       .setParam(PARAM_PROJECT, searchRequest.getProject())
       .setParam(PARAM_CATEGORY, eventCategory == null ? null : eventCategory.name())
       .setParam(PAGE, searchRequest.getPage())
       .setParam(PAGE_SIZE, searchRequest.getPageSize());
-    call(request, ProjectAnalyses.SearchResponse.parser());
+    return call(request, SearchResponse.parser());
   }
 
 }
