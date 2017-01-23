@@ -21,7 +21,6 @@
 package org.sonar.server.component;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,7 +39,6 @@ import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -76,16 +74,9 @@ public class ComponentServiceUpdateKeyTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private I18nRule i18n = new I18nRule();
-
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
   private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
-  private ComponentService underTest = new ComponentService(dbClient, i18n, userSession, system2, projectMeasuresIndexer, componentIndexer);
-
-  @Before
-  public void setUp() {
-    i18n.put("qualifier.TRK", "Project");
-  }
+  private ComponentService underTest = new ComponentService(dbClient, userSession, projectMeasuresIndexer, componentIndexer);
 
   @Test
   public void update_project_key() {

@@ -34,10 +34,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
@@ -53,19 +52,17 @@ public class ReportSubmitter {
 
   private final CeQueue queue;
   private final UserSession userSession;
-  private final ComponentService componentService;
+  private final ComponentUpdater componentUpdater;
   private final PermissionTemplateService permissionTemplateService;
   private final DbClient dbClient;
-  private final FavoriteUpdater favoriteUpdater;
 
-  public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentService componentService,
-    PermissionTemplateService permissionTemplateService, DbClient dbClient, FavoriteUpdater favoriteUpdater) {
+  public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
+    PermissionTemplateService permissionTemplateService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
-    this.componentService = componentService;
+    this.componentUpdater = componentUpdater;
     this.permissionTemplateService = permissionTemplateService;
     this.dbClient = dbClient;
-    this.favoriteUpdater = favoriteUpdater;
   }
 
   /**
@@ -115,15 +112,7 @@ public class ReportSubmitter {
       .setBranch(projectBranch)
       .setQualifier(Qualifiers.PROJECT)
       .build();
-    ComponentDto project = componentService.create(dbSession, newProject);
-    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, project)) {
-      favoriteUpdater.add(dbSession, project, projectCreatorUserId);
-      dbSession.commit();
-    }
-
-    permissionTemplateService.applyDefault(dbSession, organizationUuid, project, projectCreatorUserId);
-
-    return project;
+    return componentUpdater.create(dbSession, newProject, projectCreatorUserId);
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto project) {

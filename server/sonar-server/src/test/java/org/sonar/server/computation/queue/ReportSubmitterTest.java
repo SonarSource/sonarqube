@@ -37,7 +37,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -75,11 +75,11 @@ public class ReportSubmitterTest {
   private String defaultOrganizationKey;
   private String defaultOrganizationUuid;
   private CeQueue queue = mock(CeQueueImpl.class);
-  private ComponentService componentService = mock(ComponentService.class);
+  private ComponentUpdater componentUpdater = mock(ComponentUpdater.class);
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
 
-  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentService, permissionTemplateService, db.getDbClient(), favoriteUpdater);
+  private ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient());
 
   @Before
   public void setUp() throws Exception {
@@ -138,7 +138,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
-    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
@@ -147,8 +147,6 @@ public class ReportSubmitterTest {
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
     verifyReportIsPersisted(TASK_UUID);
-    verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(organization.getUuid()), eq(createdProject), anyLong());
-    verify(favoriteUpdater).add(any(DbSession.class), eq(createdProject), eq(null));
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -169,7 +167,7 @@ public class ReportSubmitterTest {
 
     mockSuccessfulPrepareSubmitCall();
     ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
-    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(createdProject);
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
@@ -185,7 +183,7 @@ public class ReportSubmitterTest {
     userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
 
     mockSuccessfulPrepareSubmitCall();
-    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
@@ -233,7 +231,7 @@ public class ReportSubmitterTest {
     userSession.addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID);
 
     mockSuccessfulPrepareSubmitCall();
-    when(componentService.create(any(DbSession.class), any(NewComponent.class))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
 
     thrown.expect(ForbiddenException.class);
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));

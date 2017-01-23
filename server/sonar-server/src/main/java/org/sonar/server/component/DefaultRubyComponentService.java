@@ -19,15 +19,10 @@
  */
 package org.sonar.server.component;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
@@ -36,50 +31,36 @@ import static org.sonar.server.component.NewComponent.newComponentBuilder;
  */
 public class DefaultRubyComponentService {
 
+  private final UserSession userSession;
   private final DbClient dbClient;
-  private final ComponentService componentService;
-  private final PermissionTemplateService permissionTemplateService;
-  private final FavoriteUpdater favoriteUpdater;
+  private final ComponentUpdater componentUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRubyComponentService(DbClient dbClient, ComponentService componentService,
-    PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
+  public DefaultRubyComponentService(UserSession userSession, DbClient dbClient, ComponentUpdater componentUpdater,
     DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.userSession = userSession;
     this.dbClient = dbClient;
-    this.componentService = componentService;
-    this.permissionTemplateService = permissionTemplateService;
-    this.favoriteUpdater = favoriteUpdater;
+    this.componentUpdater = componentUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   // Used in GOV
-  @CheckForNull
+  /**
+   * @deprecated Use {@link ComponentUpdater#create(DbSession, NewComponent, Long)} instead
+   */
+  @Deprecated
   public Long createComponent(String key, String name, String qualifier) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return createComponent(dbSession, key, null, name, qualifier);
+      return componentUpdater.create(
+        dbSession,
+        newComponentBuilder()
+          .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+          .setKey(key)
+          .setName(name)
+          .setQualifier(qualifier)
+          .build(),
+        userSession.isLoggedIn() ? userSession.getUserId().longValue() : null).getId();
     }
-  }
-
-  public long createComponent(DbSession dbSession, String key, @Nullable String branch, String name, @Nullable String qualifier) {
-    ComponentDto provisionedComponent = componentService.create(
-      dbSession,
-      newComponentBuilder()
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
-        .setKey(key)
-        .setName(name)
-        .setQualifier(qualifier)
-        .setBranch(branch)
-        .build());
-    String organizationUuid = defaultOrganizationProvider.get().getUuid();
-    permissionTemplateService.applyDefaultPermissionTemplate(dbSession, organizationUuid, provisionedComponent.getKey());
-    if (Qualifiers.PROJECT.equals(provisionedComponent.qualifier())
-      && permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, provisionedComponent)) {
-      // TODO Set userId as null as this method will be removed in a next commit
-      favoriteUpdater.add(dbSession, provisionedComponent, null);
-      dbSession.commit();
-    }
-
-    return provisionedComponent.getId();
   }
 
 }

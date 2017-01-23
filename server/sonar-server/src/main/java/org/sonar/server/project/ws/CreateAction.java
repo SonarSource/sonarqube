@@ -25,10 +25,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentService;
-import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
@@ -49,18 +47,13 @@ public class CreateAction implements ProjectsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ComponentService componentService;
+  private final ComponentUpdater componentUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final PermissionTemplateService permissionTemplateService;
-  private final FavoriteUpdater favoriteUpdater;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, ComponentService componentService, PermissionTemplateService permissionTemplateService,
-    FavoriteUpdater favoriteUpdater, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CreateAction(DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.componentService = componentService;
-    this.permissionTemplateService = permissionTemplateService;
-    this.favoriteUpdater = favoriteUpdater;
+    this.componentUpdater = componentUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
@@ -99,26 +92,16 @@ public class CreateAction implements ProjectsWsAction {
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
-    String organizationUuid = defaultOrganizationProvider.get().getUuid();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto componentDto = componentService.create(dbSession, newComponentBuilder()
-        .setOrganizationUuid(organizationUuid)
+      ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setKey(request.getKey())
         .setName(request.getName())
         .setBranch(request.getBranch())
         .setQualifier(PROJECT)
-        .build());
-      handlePermissionTemplate(dbSession, componentDto, organizationUuid);
+        .build(),
+        userSession.isLoggedIn() ? userSession.getUserId().longValue() : null);
       return toCreateResponse(componentDto);
-    }
-  }
-
-  private void handlePermissionTemplate(DbSession dbSession, ComponentDto componentDto, String organizationUuid) {
-    Long userId = userSession.isLoggedIn() ? userSession.getUserId().longValue() : null;
-    permissionTemplateService.applyDefault(dbSession, organizationUuid, componentDto, userId);
-    if (permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(dbSession, organizationUuid, componentDto)) {
-      favoriteUpdater.add(dbSession, componentDto, userId);
-      dbSession.commit();
     }
   }
 

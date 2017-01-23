@@ -38,7 +38,7 @@ import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
@@ -359,8 +359,8 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectsWsModule.class,
       ProjectsEsModule.class,
       ComponentsWsModule.class,
-      DefaultRubyComponentService.class,
       ComponentService.class,
+      ComponentUpdater.class,
       ComponentFinder.class,
       NewAlerts.class,
       NewAlerts.newMetadata(),

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.component;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,15 +34,16 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,7 +51,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
 public class DefaultRubyComponentServiceTest {
 
@@ -57,24 +59,26 @@ public class DefaultRubyComponentServiceTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public EsTester es = new EsTester(
+    new ComponentIndexDefinition(new MapSettings()),
+    new ProjectMeasuresIndexDefinition(new MapSettings()),
+    new IssueIndexDefinition(new MapSettings()),
+    new ViewIndexDefinition(new MapSettings()));
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private I18nRule i18n = new I18nRule();
-
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2,
-    new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
+  private ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, favoriteUpdater,
+    new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
+    new ComponentIndexer(db.getDbClient(), es.client()));
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, componentService,
-    permissionTemplateService, favoriteUpdater, defaultOrganizationProvider);
+  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(userSession, dbClient, componentUpdater, defaultOrganizationProvider);
 
   private String defaultOrganizationUuid;
 
@@ -85,7 +89,7 @@ public class DefaultRubyComponentServiceTest {
 
   @Test
   public void create_component() {
-    userSession.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.login("john").setUserId(100);
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
@@ -98,14 +102,7 @@ public class DefaultRubyComponentServiceTest {
     assertThat(project.name()).isEqualTo(componentName);
     assertThat(project.qualifier()).isEqualTo(qualifier);
     assertThat(project.getId()).isEqualTo(result);
-    verify(permissionTemplateService).applyDefaultPermissionTemplate(any(DbSession.class), eq(defaultOrganizationUuid), eq(componentKey));
-    verify(favoriteUpdater).add(any(DbSession.class), eq(project), eq(null));
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_throw_if_malformed_key1() {
-    userSession.login("john").setGlobalPermissions(PROVISIONING);
-    underTest.createComponent("1234", "New Project", Qualifiers.PROJECT);
+    verify(permissionTemplateService).applyDefault(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class), eq(100L));
   }
 
 }

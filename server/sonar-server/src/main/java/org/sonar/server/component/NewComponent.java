@@ -20,6 +20,7 @@
 package org.sonar.server.component;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 
@@ -90,7 +91,7 @@ public class NewComponent {
       return this;
     }
 
-    public Builder setBranch(String branch) {
+    public Builder setBranch(@Nullable String branch) {
       this.branch = branch;
       return this;
     }

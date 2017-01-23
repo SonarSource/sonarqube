@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
@@ -101,11 +101,11 @@ public class CreateActionTest {
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
-      new ComponentService(db.getDbClient(), i18n, userSession, system2,
+      new ComponentUpdater(db.getDbClient(), i18n, system2,
+        new PermissionTemplateService(db.getDbClient(), settings, new PermissionIndexer(db.getDbClient(), es.client()), userSession),
+        new FavoriteUpdater(db.getDbClient()),
         new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
         new ComponentIndexer(db.getDbClient(), es.client())),
-      new PermissionTemplateService(db.getDbClient(), settings, new PermissionIndexer(db.getDbClient(), es.client()), userSession),
-      new FavoriteUpdater(db.getDbClient()),
       defaultOrganizationProvider));
 
   @Before
