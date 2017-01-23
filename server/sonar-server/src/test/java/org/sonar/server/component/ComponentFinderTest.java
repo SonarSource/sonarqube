@@ -94,46 +94,6 @@ public class ComponentFinderTest {
     underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
   }
 
-  @Test
-  public void getByIdOrKey_fail_when_id_and_key_are_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided, not both");
-
-    underTest.getByIdOrKey(dbSession, null, null, ID_AND_KEY);
-  }
-
-  @Test
-  public void getByIdOrKey_fail_when_both_id_and_key_are_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided, not both");
-
-    underTest.getByIdOrKey(dbSession, 1L, "project-key", ID_AND_KEY);
-  }
-
-  @Test
-  public void getByIdOrKey_fail_when_key_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter must not be empty");
-
-    underTest.getByIdOrKey(dbSession, null, "", ID_AND_KEY);
-  }
-
-
-  @Test
-  public void getByIdOrKey_fail_when_component_id_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id '175' not found");
-
-    underTest.getByIdOrKey(dbSession, 175L, null, ID_AND_KEY);
-  }
-
-  @Test
-  public void getByIdOrKey_fail_when_component_key_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'project-key' not found");
-
-    underTest.getByIdOrKey(dbSession, null, "project-key", ID_AND_KEY);
-  }
 
   @Test
   public void get_component_by_uuid() {
@@ -149,24 +109,6 @@ public class ComponentFinderTest {
     componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
-
-    assertThat(component.key()).isEqualTo("project-key");
-  }
-
-  @Test
-  public void getByIdOrKey_get_component_by_id() {
-    ComponentDto source = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
-
-    ComponentDto component = underTest.getByIdOrKey(dbSession, source.getId(), null, ID_AND_KEY);
-
-    assertThat(component.getId()).isEqualTo(source.getId());
-  }
-
-  @Test
-  public void getByIdOrKey_get_component_by_key() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
-
-    ComponentDto component = underTest.getByIdOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
     assertThat(component.key()).isEqualTo("project-key");
   }

@@ -19,11 +19,13 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Optional;
+import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -31,14 +33,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ComponentFinder {
   private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided, not both";
-  public static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
+  private static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
 
   private final DbClient dbClient;
 
@@ -58,27 +59,12 @@ public class ComponentFinder {
     return getByKey(dbSession, componentKey);
   }
 
-  public ComponentDto getByIdOrKey(DbSession dbSession, @Nullable Long componentId, @Nullable String componentKey, ParamNames parameterNames) {
-    checkArgument(componentId != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
-
-    if (componentId != null) {
-      return getById(dbSession, componentId);
-    }
-
-    checkArgument(!componentKey.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getKeyParam());
-    return getByKey(dbSession, componentKey);
-  }
-
   public ComponentDto getByKey(DbSession dbSession, String key) {
-    return getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, key), format("Component key '%s' not found", key));
+    return checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, key), "Component key '%s' not found", key);
   }
 
   public ComponentDto getByUuid(DbSession dbSession, String uuid) {
-    return getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, uuid), format("Component id '%s' not found", uuid));
-  }
-
-  public ComponentDto getById(DbSession dbSession, long id) {
-    return getIfPresentOrFail(dbClient.componentDao().selectById(dbSession, id), format("Component id '%s' not found", id));
+    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component id '%s' not found", uuid);
   }
 
   /**
@@ -92,26 +78,21 @@ public class ComponentFinder {
   public ComponentDto getRootComponentOrModuleByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
     ComponentDto project;
     if (projectUuid != null) {
-      project = getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, projectUuid), format("Project id '%s' not found", projectUuid));
+      project = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid), "Project id '%s' not found", projectUuid);
     } else {
-      project = getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, projectKey), format("Project key '%s' not found", projectKey));
+      project = checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, projectKey), "Project key '%s' not found", projectKey);
     }
     checkIsProjectOrModule(project, resourceTypes);
 
     return project;
   }
 
-  private static ComponentDto getIfPresentOrFail(Optional<ComponentDto> component, String errorMsg) {
-    if (!component.isPresent()) {
-      throw new NotFoundException(errorMsg);
-    }
-    return component.get();
-  }
-
   private static void checkIsProjectOrModule(ComponentDto component, ResourceTypes resourceTypes) {
-    Set<String> rootQualifiers = from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
-      .toSet();
+    Collection<ResourceType> rootTypes = resourceTypes.getRoots();
+    Set<String> rootQualifiers = rootTypes
+      .stream()
+      .map(ResourceType::getQualifier)
+      .collect(Collectors.toSet(rootTypes.size()));
     String qualifier = component.qualifier();
 
     checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),
@@ -126,6 +107,7 @@ public class ComponentFinder {
 
   public enum ParamNames {
     PROJECT_ID_AND_KEY("projectId", "projectKey"),
+    PROJECT_UUID_AND_KEY("projectUuid", "projectKey"),
     UUID_AND_KEY("uuid", "key"),
     ID_AND_KEY("id", "key"),
     COMPONENT_ID_AND_KEY("componentId", "componentKey"),
