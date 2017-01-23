@@ -100,12 +100,12 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     // Check project key has been updated
-    assertThat(underTest.getNullableByKey(project.key())).isNull();
-    assertThat(underTest.getNullableByKey("sample2:root")).isNotNull();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, project.key())).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "sample2:root")).isPresent();
 
     // Check file key has been updated
-    assertThat(underTest.getNullableByKey(file.key())).isNull();
-    assertThat(underTest.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, file.key())).isAbsent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "sample2:root:src/File.xoo")).isPresent();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
 

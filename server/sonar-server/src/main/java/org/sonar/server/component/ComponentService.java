@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.i18n.I18n;
@@ -77,40 +76,8 @@ public class ComponentService {
   }
 
   public ComponentDto getByKey(String key) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return getByKey(session, key);
-    } finally {
-      session.close();
-    }
-  }
-
-  @CheckForNull
-  public ComponentDto getNullableByKey(String key) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      Optional<ComponentDto> component = dbClient.componentDao().selectByKey(session, key);
-      return component.orNull();
-    } finally {
-      session.close();
-    }
-  }
-
-  public ComponentDto getNonNullByUuid(String uuid) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dbClient.componentDao().selectOrFailByUuid(session, uuid);
-    } finally {
-      session.close();
-    }
-  }
-
-  public Optional<ComponentDto> getByUuid(String uuid) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dbClient.componentDao().selectByUuid(session, uuid);
-    } finally {
-      session.close();
+    try (DbSession session = dbClient.openSession(false)) {
+      return componentFinder.getByKey(session, key);
     }
   }
 
@@ -158,8 +125,8 @@ public class ComponentService {
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
 
-    ComponentDto existingComponent = getNullableByKey(keyWithBranch);
-    if (existingComponent != null) {
+    Optional<ComponentDto> existingComponent = dbClient.componentDao().selectByKey(session, keyWithBranch);
+    if (existingComponent.isPresent()) {
       throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", newComponent.qualifier(), keyWithBranch));
     }
 
@@ -197,15 +164,6 @@ public class ComponentService {
       dbClient.componentDao().delete(session, duplicated.get(i).getId());
     }
     session.commit();
-  }
-
-  public Collection<String> componentUuids(@Nullable Collection<String> componentKeys) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return componentUuids(session, componentKeys, false);
-    } finally {
-      dbClient.closeSession(session);
-    }
   }
 
   public Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys, boolean ignoreMissingComponents) {
@@ -272,7 +230,4 @@ public class ComponentService {
     return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
   }
 
-  private ComponentDto getByKey(DbSession session, String key) {
-    return componentFinder.getByKey(session, key);
-  }
 }

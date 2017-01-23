@@ -21,7 +21,6 @@ package org.sonar.server.component;
 
 import com.google.common.base.Optional;
 import java.util.Arrays;
-import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +41,6 @@ import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
@@ -104,26 +102,6 @@ public class ComponentServiceTest {
   }
 
   @Test
-  public void get_nullable_by_key() {
-    ComponentDto project = insertSampleProject();
-    assertThat(underTest.getNullableByKey(project.getKey())).isNotNull();
-    assertThat(underTest.getNullableByKey("unknown")).isNull();
-  }
-
-  @Test
-  public void get_by_uuid() {
-    ComponentDto project = insertSampleProject();
-    assertThat(underTest.getNonNullByUuid(project.uuid())).isNotNull();
-  }
-
-  @Test
-  public void get_nullable_by_uuid() {
-    ComponentDto project = insertSampleProject();
-    assertThat(underTest.getByUuid(project.uuid())).isPresent();
-    assertThat(underTest.getByUuid("unknown")).isAbsent();
-  }
-
-  @Test
   public void create_project() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
@@ -136,7 +114,7 @@ public class ComponentServiceTest {
         .build())
       .getKey();
 
-    ComponentDto project = underTest.getNullableByKey(key);
+    ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, key);
     assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("struts");
     assertThat(project.deprecatedKey()).isEqualTo("struts");
@@ -167,7 +145,7 @@ public class ComponentServiceTest {
         .build())
       .getKey();
 
-    ComponentDto project = underTest.getNullableByKey(key);
+    ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, key);
     assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("struts:origin/branch");
     assertThat(project.deprecatedKey()).isEqualTo("struts:origin/branch");
@@ -187,7 +165,7 @@ public class ComponentServiceTest {
         .build())
       .getKey();
 
-    ComponentDto project = underTest.getNullableByKey(key);
+    ComponentDto project = dbClient.componentDao().selectOrFailByKey(dbSession, key);
     assertThat(project.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(project.key()).isEqualTo("all-project");
     assertThat(project.deprecatedKey()).isEqualTo("all-project");
@@ -220,7 +198,7 @@ public class ComponentServiceTest {
       .getKey();
     dbTester.getSession().commit();
 
-    ComponentDto dev = underTest.getNullableByKey(key);
+    ComponentDto dev = dbClient.componentDao().selectOrFailByKey(dbSession, key);
     assertThat(dev.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(dev.key()).isEqualTo("DEV:jon.name@mail.com");
     assertThat(dev.deprecatedKey()).isEqualTo("DEV:jon.name@mail.com");
@@ -326,35 +304,6 @@ public class ComponentServiceTest {
 
     verify(componentDao).delete(session, 2L);
     verify(componentDao).delete(session, 3L);
-  }
-
-  @Test
-  public void should_return_project_uuids() {
-    ComponentDto project = insertSampleProject();
-    String moduleKey = "sample:root:module";
-    ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
-    dbClient.componentDao().insert(dbSession, module);
-    String fileKey = "sample:root:module:Foo.xoo";
-    ComponentDto file = newFileDto(module, null).setKey(fileKey);
-    dbClient.componentDao().insert(dbSession, file);
-    dbSession.commit();
-
-    assertThat(underTest.componentUuids(Arrays.asList(moduleKey, fileKey))).hasSize(2);
-    assertThat(underTest.componentUuids(null)).isEmpty();
-    assertThat(underTest.componentUuids(Arrays.<String>asList())).isEmpty();
-  }
-
-  @Test
-  public void should_fail_on_components_not_found() {
-    String moduleKey = "sample:root:module";
-    String fileKey = "sample:root:module:Foo.xoo";
-
-    try {
-      underTest.componentUuids(Arrays.asList(moduleKey, fileKey));
-      Fail.fail("Should throw NotFoundException");
-    } catch (NotFoundException notFound) {
-      assertThat(notFound.getMessage()).contains(moduleKey).contains(fileKey);
-    }
   }
 
   @Test
