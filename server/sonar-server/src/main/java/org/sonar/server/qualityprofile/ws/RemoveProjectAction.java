@@ -23,8 +23,10 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.qualityprofile.RemoveProjectRequest;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
@@ -39,14 +41,14 @@ public class RemoveProjectAction implements QProfileWsAction {
   private final ProjectAssociationParameters projectAssociationParameters;
   private final ProjectAssociationFinder projectAssociationFinder;
   private final QProfileProjectOperations profileProjectOperations;
-  private final UserSession userSession;
+  private final DbClient dbClient;
 
   public RemoveProjectAction(ProjectAssociationParameters projectAssociationParameters, ProjectAssociationFinder projectAssociationFinder,
-    QProfileProjectOperations profileProjectOperations, UserSession userSession) {
+    QProfileProjectOperations profileProjectOperations, DbClient dbClient) {
     this.projectAssociationParameters = projectAssociationParameters;
     this.projectAssociationFinder = projectAssociationFinder;
     this.profileProjectOperations = profileProjectOperations;
-    this.userSession = userSession;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -61,9 +63,11 @@ public class RemoveProjectAction implements QProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     RemoveProjectRequest removeProjectRequest = toWsRequest(request);
-    String profileKey = projectAssociationFinder.getProfileKey(removeProjectRequest.getLanguage(), removeProjectRequest.getProfileName(), removeProjectRequest.getProfileKey());
-    String projectUuid = projectAssociationFinder.getProjectUuid(removeProjectRequest.getProjectKey(), removeProjectRequest.getProjectUuid());
-    profileProjectOperations.removeProject(profileKey, projectUuid, userSession);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String profileKey = projectAssociationFinder.getProfileKey(removeProjectRequest.getLanguage(), removeProjectRequest.getProfileName(), removeProjectRequest.getProfileKey());
+      ComponentDto project = projectAssociationFinder.getProject(dbSession, removeProjectRequest.getProjectKey(), removeProjectRequest.getProjectUuid());
+      profileProjectOperations.removeProject(dbSession, profileKey, project);
+    }
     response.noContent();
   }
 

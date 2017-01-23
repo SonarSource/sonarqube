@@ -19,127 +19,68 @@
  */
 package org.sonar.server.qualityprofile;
 
-import javax.annotation.Nullable;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 
 /**
  * Should be refactored in order to use project key. Maybe should it be move to {@link QProfileFactory}
  * Permission checks should also be done in the upper service.
  */
 @ServerSide
-@ComputeEngineSide
 public class QProfileProjectOperations {
 
   private final DbClient db;
+  private final UserSession userSession;
 
-  public QProfileProjectOperations(DbClient db) {
+  public QProfileProjectOperations(DbClient db, UserSession userSession) {
     this.db = db;
+    this.userSession = userSession;
   }
 
-  public void addProject(String profileKey, String projectUuid, UserSession userSession) {
-    DbSession session = db.openSession(false);
-    try {
-      addProject(profileKey, projectUuid, userSession, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
+  public void addProject(DbSession dbSession, String profileKey, ComponentDto project) {
+    checkAdminOnProject(project.key());
+    QualityProfileDto qualityProfile = selectProfileByKey(dbSession, profileKey);
 
-  private void addProject(String profileKey, String projectUuid, UserSession userSession, DbSession session) {
-    ComponentDto project = db.componentDao().selectOrFailByUuid(session, projectUuid);
-    checkPermission(userSession, project.key());
-    QualityProfileDto qualityProfile = findNotNull(profileKey, session);
-
-    QualityProfileDto currentProfile = db.qualityProfileDao().selectByProjectAndLanguage(session, project.key(), qualityProfile.getLanguage());
+    QualityProfileDto currentProfile = db.qualityProfileDao().selectByProjectAndLanguage(dbSession, project.key(), qualityProfile.getLanguage());
 
     boolean updated = false;
     if (currentProfile == null) {
-      db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
+      db.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
       updated = true;
     } else if (!profileKey.equals(currentProfile.getKey())) {
-      db.qualityProfileDao().updateProjectProfileAssociation(projectUuid, profileKey, currentProfile.getKey(), session);
+      db.qualityProfileDao().updateProjectProfileAssociation(project.uuid(), profileKey, currentProfile.getKey(), dbSession);
       updated = true;
     }
     if (updated) {
-      session.commit();
+      dbSession.commit();
     }
   }
 
-  public void removeProject(String profileKey, String projectUuid, UserSession userSession) {
-    DbSession session = db.openSession(false);
-    try {
-      ComponentDto project = db.componentDao().selectOrFailByUuid(session, projectUuid);
-      checkPermission(userSession, project.key());
-      QualityProfileDto qualityProfile = findNotNull(profileKey, session);
+  public void removeProject(DbSession dbSession, String profileKey, ComponentDto project) {
+    checkAdminOnProject(project.key());
+    QualityProfileDto qualityProfile = selectProfileByKey(dbSession, profileKey);
 
-      db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
+    dbSession.commit();
   }
 
-  void removeProject(String language, long projectId, UserSession userSession) {
-    DbSession session = db.openSession(false);
-    try {
-      ComponentDto project = db.componentDao().selectOrFailById(session, projectId);
-      checkPermission(userSession, project.key());
-
-      QualityProfileDto associatedProfile = db.qualityProfileDao().selectByProjectAndLanguage(session, project.getKey(), language);
-      if (associatedProfile != null) {
-        db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), associatedProfile.getKey(), session);
-        session.commit();
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  private QualityProfileDto selectProfileByKey(DbSession session, String profileKey) {
+    QualityProfileDto qualityProfile = db.qualityProfileDao().selectByKey(session, profileKey);
+    return WsUtils.checkFound(qualityProfile, "Quality profile does not exist");
   }
 
-  void removeAllProjects(String profileKey, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = db.openSession(false);
-    try {
-      QualityProfileDto qualityProfile = findNotNull(profileKey, session);
-      db.qualityProfileDao().deleteAllProjectProfileAssociation(qualityProfile.getKey(), session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private QualityProfileDto findNotNull(String key, DbSession session) {
-    QualityProfileDto qualityProfile = db.qualityProfileDao().selectByKey(session, key);
-    checkProfileIsNotNull(qualityProfile);
-    return qualityProfile;
-  }
-
-  private static void checkPermission(UserSession userSession) {
-    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
-
-  private static void checkPermission(UserSession userSession, String projectKey) {
+  private void checkAdminOnProject(String projectKey) {
     if (!userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasComponentPermission(UserRole.ADMIN, projectKey)) {
       throw new ForbiddenException("Insufficient privileges");
     }
-  }
-
-  private static QualityProfileDto checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
-    if (profile == null) {
-      throw new NotFoundException("This quality profile does not exists.");
-    }
-    return profile;
   }
 
 }

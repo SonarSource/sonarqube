@@ -34,12 +34,9 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
@@ -72,7 +69,7 @@ public class AddProjectActionTest {
 
   private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   private QualityProfileDbTester qualityProfileDbTester = new QualityProfileDbTester(dbTester);
-  private QProfileProjectOperations qProfileProjectOperations = new QProfileProjectOperations(dbClient);
+  private QProfileProjectOperations qProfileProjectOperations = new QProfileProjectOperations(dbClient, userSession);
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private ProjectAssociationParameters projectAssociationParameters = new ProjectAssociationParameters(languages);
 
@@ -80,9 +77,7 @@ public class AddProjectActionTest {
 
   private WsActionTester ws = new WsActionTester(new AddProjectAction(projectAssociationParameters,
     qProfileProjectOperations, new ProjectAssociationFinder(new QProfileLookup(dbClient),
-      new ComponentService(dbClient, null, userSession, null, new ComponentFinder(dbClient), new ProjectMeasuresIndexer(system2, dbClient, es.client()),
-        new ComponentIndexer(dbClient, es.client()))),
-    userSession));
+      new ComponentFinder(dbClient)),dbClient));
 
   @Before
   public void setUp() throws Exception {

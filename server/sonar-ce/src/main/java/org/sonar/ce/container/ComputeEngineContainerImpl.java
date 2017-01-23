@@ -122,7 +122,6 @@ import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
@@ -303,7 +302,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       AnnotationProfileParser.class,
       Rules.QProfiles.class,
       QProfileLookup.class,
-      QProfileProjectOperations.class,
 
       // rule
       RuleIndexer.class,
