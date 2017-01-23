@@ -50,6 +50,12 @@ public class RoutesFilterTest {
   }
 
   @Test
+  public void send_redirect_when_url_contains_only_api() throws Exception {
+    verifyRedirection("/api", null, "/sonarqube/api/webservices/list");
+    verifyRedirection("/api/", null, "/sonarqube/api/webservices/list");
+  }
+
+  @Test
   public void send_redirect_when_url_contains_batch_with_jar() throws Exception {
     verifyRedirection("/batch/file.jar", null, "/sonarqube/batch/file?name=file.jar");
   }
@@ -57,16 +63,19 @@ public class RoutesFilterTest {
   @Test
   public void send_redirect_when_url_contains_batch_bootstrap() throws Exception {
     verifyRedirection("/batch_bootstrap/index", null, "/sonarqube/batch/index");
+    verifyRedirection("/batch_bootstrap/index/", null, "/sonarqube/batch/index");
   }
 
   @Test
   public void send_redirect_when_url_contains_api_sources() throws Exception {
     verifyRedirection("/api/sources", "resource=my.project", "/sonarqube/api/sources/index?resource=my.project");
+    verifyRedirection("/api/sources/", "resource=my.project", "/sonarqube/api/sources/index?resource=my.project");
   }
 
   @Test
   public void send_redirect_when_url_contains_profiles_export() throws Exception {
     verifyRedirection("/profiles/export", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
+    verifyRedirection("/profiles/export/", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
   }
 
   @Test

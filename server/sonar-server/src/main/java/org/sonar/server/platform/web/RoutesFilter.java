@@ -42,6 +42,7 @@ public class RoutesFilter implements Filter {
   private static final String EMPTY = "";
 
   private static final List<Route> ROUTES = ImmutableList.of(
+    new WebServiceListRoute(),
     new BatchRoute(),
     new BatchBootstrapRoute(),
     new ApiSourcesRoute(),
@@ -79,6 +80,19 @@ public class RoutesFilter implements Filter {
 
     @Override
     String apply(HttpServletRequest request);
+  }
+
+  private static class WebServiceListRoute implements Route {
+
+    @Override
+    public boolean test(String path) {
+      return "/api".equals(path);
+    }
+
+    @Override
+    public String apply(HttpServletRequest request) {
+      return format("%s/api/webservices/list", request.getContextPath());
+    }
   }
 
   /**
@@ -154,6 +168,13 @@ public class RoutesFilter implements Filter {
   }
 
   private static String extractPath(HttpServletRequest request) {
-    return request.getRequestURI().replaceFirst(request.getContextPath(), EMPTY);
+    return sanitizePath(request.getRequestURI().replaceFirst(request.getContextPath(), EMPTY));
+  }
+
+  private static String sanitizePath(String path) {
+    if (path.length() > 1 && path.endsWith("/")) {
+      return path.substring(0, path.length() - 1);
+    }
+    return path;
   }
 }
