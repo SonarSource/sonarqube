@@ -35,7 +35,6 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
@@ -120,7 +119,7 @@ public class ComponentTreeSort {
     if (wsRequest.getMetricSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
     }
-    Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDtoFunctions.toKey());
+    Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDto::getKey);
     MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
 
     boolean isAscending = wsRequest.getAsc();
@@ -141,7 +140,7 @@ public class ComponentTreeSort {
     if (wsRequest.getMetricSort() == null || wsRequest.getMetricPeriodSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
     }
-    Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDtoFunctions.toKey());
+    Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDto::getKey);
     MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
 
     ValueType metricValueType = ValueType.valueOf(metric.getValueType());

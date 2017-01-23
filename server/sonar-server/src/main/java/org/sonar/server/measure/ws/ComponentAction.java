@@ -38,12 +38,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureDtoFunctions;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
@@ -56,7 +56,6 @@ import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -169,7 +168,7 @@ public class ComponentAction implements MeasuresWsAction {
   private static ComponentWsResponse buildResponse(ComponentWsRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
     List<MetricDto> metrics, List<WsMeasures.Period> periods) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
+    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     Map<MetricDto, MeasureDto> measuresByMetric = new HashMap<>();
     for (MeasureDto measure : measures) {
       MetricDto metric = metricsById.get(measure.getMetricId());
@@ -199,7 +198,7 @@ public class ComponentAction implements MeasuresWsAction {
   private List<MetricDto> searchMetrics(DbSession dbSession, ComponentWsRequest request) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
     if (metrics.size() < request.getMetricKeys().size()) {
-      List<String> foundMetricKeys = Lists.transform(metrics, MetricDtoFunctions.toKey());
+      List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);
       Set<String> missingMetricKeys = Sets.difference(
         new LinkedHashSet<>(request.getMetricKeys()),
         new LinkedHashSet<>(foundMetricKeys));
@@ -240,11 +239,11 @@ public class ComponentAction implements MeasuresWsAction {
       return;
     }
 
-    List<MetricDtoWithBestValue> metricWithBestValueList = from(metrics)
+    List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .transform(new MetricDtoToMetricDtoWithBestValueFunction(periods))
-      .toList();
-    Map<Integer, MeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, MeasureDtoFunctions.toMetricId());
+      .map(new MetricDtoToMetricDtoWithBestValueFunction(periods))
+      .collect(Collectors.toList(metrics.size()));
+    Map<Integer, MeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, MeasureDto::getMetricId);
 
     for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
       if (measuresByMetricId.get(metricWithBestValue.getMetric().getId()) == null) {
