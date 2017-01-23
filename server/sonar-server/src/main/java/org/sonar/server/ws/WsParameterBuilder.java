@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 
@@ -33,7 +34,6 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 
 public class WsParameterBuilder {
   private static final String PARAM_QUALIFIER = "qualifier";
@@ -59,14 +59,14 @@ public class WsParameterBuilder {
 
   private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
     return from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(ResourceType::getQualifier)
       .filter(not(IsDeprecatedQualifier.INSTANCE))
       .toSortedSet(natural());
   }
 
   private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
     return from(resourceTypes.getAll())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(ResourceType::getQualifier)
       .filter(not(IsDeprecatedQualifier.INSTANCE))
       .toSortedSet(natural());
   }

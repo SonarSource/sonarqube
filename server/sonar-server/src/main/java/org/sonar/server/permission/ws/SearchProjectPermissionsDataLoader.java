@@ -26,6 +26,7 @@ import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
@@ -37,7 +38,6 @@ import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 
@@ -49,7 +49,7 @@ public class SearchProjectPermissionsDataLoader {
   public SearchProjectPermissionsDataLoader(DbClient dbClient, PermissionWsSupport wsSupport, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
-    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()]);
+    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
   SearchProjectPermissionsData load(DbSession dbSession, SearchProjectPermissionsWsRequest request) {

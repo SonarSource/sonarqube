@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
@@ -43,7 +45,6 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
@@ -408,7 +409,7 @@ public class SearchAction implements IssuesWsAction {
   private void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
     Set<String> facetRules = facets.getBucketKeys(PARAM_RULES);
     if (facetRules != null) {
-      collector.addAll(SearchAdditionalField.RULES, from(facetRules).transform(RuleKeyFunctions.stringToRuleKey()));
+      collector.addAll(SearchAdditionalField.RULES, Collections2.transform(facetRules, RuleKey::parse));
     }
     collector.addProjectUuids(facets.getBucketKeys(PARAM_PROJECT_UUIDS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));
