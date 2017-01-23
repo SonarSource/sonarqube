@@ -30,7 +30,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -101,19 +100,6 @@ public class SnapshotDaoTest {
     assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
     assertThat(underTest.selectById(db.getSession(), 999L)).isNull();
-  }
-
-  @Test
-  public void test_selectByIds() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    SnapshotDto snapshot1 = componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto));
-    SnapshotDto snapshot2 = componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto));
-    SnapshotDto snapshot3 = componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto));
-
-    List<SnapshotDto> result = underTest.selectByIds(dbSession, newArrayList(snapshot1.getId(), snapshot2.getId(), snapshot3.getId(), 42L));
-
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("id").containsOnly(snapshot1.getId(), snapshot2.getId(), snapshot3.getId());
   }
 
   @Test
