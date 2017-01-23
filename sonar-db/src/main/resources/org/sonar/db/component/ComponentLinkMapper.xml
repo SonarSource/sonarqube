@@ -14,9 +14,7 @@
     SELECT
     <include refid="componentLinkColumns"/>
     FROM project_links p
-    <where>
-      AND p.component_uuid=#{uuid}
-    </where>
+    where p.component_uuid=#{uuid,jdbcType=VARCHAR}
     ORDER BY p.id
   </select>
 
@@ -24,22 +22,19 @@
     SELECT
     <include refid="componentLinkColumns"/>
     FROM project_links p
-    <where>
-      AND p.component_uuid in
+    where
+      p.component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="uuid" separator=",">
-        #{uuid}
+        #{uuid,jdbcType=VARCHAR}
       </foreach>
-    </where>
     order by p.id
   </select>
 
-  <select id="selectById" parameterType="String" resultType="ComponentLink">
+  <select id="selectById" parameterType="long" resultType="ComponentLink">
     SELECT
     <include refid="componentLinkColumns"/>
     FROM project_links p
-    <where>
-      p.id=#{id}
-    </where>
+    where p.id=#{id,jdbcType=BIGINT}
   </select>
 
   <insert id="insert" parameterType="ComponentLink" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -51,11 +46,11 @@
   <insert id="update" parameterType="ComponentLink" useGeneratedKeys="false">
     UPDATE project_links SET component_uuid=#{componentUuid,jdbcType=VARCHAR}, link_type=#{type,jdbcType=VARCHAR},
     name=#{name,jdbcType=VARCHAR}, href=#{href,jdbcType=VARCHAR}
-    WHERE id=#{id}
+    WHERE id=#{id,jdbcType=BIGINT}
   </insert>
 
   <delete id="delete">
-    DELETE FROM project_links WHERE id=#{id}
+    DELETE FROM project_links WHERE id=#{id,jdbcType=BIGINT}
   </delete>
 
 </mapper>

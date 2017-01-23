@@ -38,9 +38,7 @@
     SELECT
     <include refid="snapshotColumns" />
     FROM snapshots s
-    <where>
-      AND s.id=#{key}
-    </where>
+    where s.id=#{key,jdbcType=BIGINT}
   </select>
 
   <select id="selectByIds" parameterType="Long" resultType="Snapshot">
@@ -51,7 +49,7 @@
     WHERE
       s.id in
       <foreach collection="ids" item="id" separator="," open="(" close=")">
-        #{id}
+        #{id,jdbcType=BIGINT}
       </foreach>
   </select>
 
@@ -63,7 +61,7 @@
     WHERE
       s.uuid in
       <foreach collection="uuids" item="uuid" separator="," open="(" close=")">
-        #{uuid}
+        #{uuid,jdbcType=VARCHAR}
       </foreach>
   </select>
 
@@ -73,13 +71,13 @@
     inner join projects p on s.component_uuid = p.project_uuid
     where
       s.islast=${_true}
-      and p.uuid = #{componentUuid}
+      and p.uuid = #{componentUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
     select <include refid="snapshotColumns" />
     from snapshots s
-    where s.islast=${_true} and s.component_uuid = #{componentUuid}
+    where s.islast=${_true} and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectLastSnapshotsByRootComponentUuids" resultType="Snapshot">
@@ -89,7 +87,7 @@
       s.islast=${_true}
       and s.component_uuid in
       <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
-        #{componentUuid}
+        #{componentUuid,jdbcType=VARCHAR}
       </foreach>
       </select>
 
@@ -98,23 +96,23 @@
     <include refid="snapshotColumns" />
     FROM snapshots s
     <if test="query.componentUuid != null">
-      INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid}
+      INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
     </if>
     <where>
       <if test="query.status != null">
-        AND s.status=#{query.status}
+        AND s.status=#{query.status,jdbcType=VARCHAR}
       </if>
       <if test="query.version != null">
-        AND s.version=#{query.version}
+        AND s.version=#{query.version,jdbcType=VARCHAR}
       </if>
       <if test="query.isLast != null">
         AND s.islast=#{query.isLast}
       </if>
       <if test="query.createdAfter != null">
-        AND s.created_at>=#{query.createdAfter}
+        AND s.created_at>=#{query.createdAfter,jdbcType=BIGINT}
       </if>
       <if test="query.createdBefore != null">
-        AND s.created_at&lt;#{query.createdBefore}
+        AND s.created_at&lt;#{query.createdBefore,jdbcType=BIGINT}
       </if>
     </where>
     <if test="query.sortField != null">
@@ -137,7 +135,7 @@
     FROM snapshots s
     INNER JOIN events e ON s.uuid = e.analysis_uuid AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
     <where>
-      s.component_uuid=#{componentUuid}
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
     </where>
     ORDER BY e.event_date DESC
   </select>
@@ -147,7 +145,7 @@
     <include refid="snapshotColumns" />
     FROM snapshots s
     <where>
-      s.component_uuid=#{componentUuid}
+      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
     </where>
     ORDER BY s.created_at ASC
   </select>
@@ -157,9 +155,9 @@
     <include refid="viewsSnapshotColumns" />
     FROM snapshots s
     <where>
-      and s.component_uuid = #{componentUuid}
+      and s.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and s.status = 'P'
-      and s.created_at &lt; #{date}
+      and s.created_at &lt; #{date,jdbcType=BIGINT}
     </where>
     order by created_at desc
   </select>
@@ -167,21 +165,21 @@
   <update id="unsetIsLastFlagForComponentUuid" parameterType="map">
     update snapshots
     set islast = ${_false}
-    where component_uuid = #{componentUuid}
+    where component_uuid = #{componentUuid,jdbcType=VARCHAR}
     and islast = ${_true}
   </update>
 
   <update id="setIsLastFlagForAnalysisUuid" parameterType="map">
     update snapshots
     set islast = ${_true}, status = 'P'
-    where uuid = #{analysisUuid}
+    where uuid = #{analysisUuid,jdbcType=VARCHAR}
   </update>
 
   <update id="update" parameterType="Snapshot">
     update snapshots
     set version = #{version, jdbcType=VARCHAR},
         status = #{status, jdbcType=VARCHAR}
-    where uuid = #{uuid}
+    where uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
