@@ -38,12 +38,5 @@
     WHERE id = #{id}
   </update>
 
-  <update id="updateDateWhenUpdatedDateIsZero" parameterType="org.sonar.db.source.FileSourceDto"
-          useGeneratedKeys="false">
-    UPDATE file_sources SET
-    updated_at = #{date,jdbcType=BIGINT}
-    WHERE project_uuid = #{projectUuid}
-    AND updated_at = 0
-  </update>
 </mapper>
 

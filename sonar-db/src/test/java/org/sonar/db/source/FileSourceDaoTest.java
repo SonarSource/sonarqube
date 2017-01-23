@@ -19,11 +19,9 @@
  */
 package org.sonar.db.source;
 
-import com.google.common.base.Function;
-import com.google.common.base.Throwables;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -35,17 +33,15 @@ import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
-
 
 public class FileSourceDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbSession session = dbTester.getSession();
+  private DbSession session = dbTester.getSession();
 
-  FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
+  private FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
   @Test
   public void select() {
@@ -176,17 +172,6 @@ public class FileSourceDaoTest {
       .setRevision("987654321"));
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
-  }
-
-  @Test
-  public void update_date_when_updated_date_is_zero() {
-    dbTester.prepareDbUnit(getClass(), "update_date_when_updated_date_is_zero.xml");
-
-    underTest.updateDateWhenUpdatedDateIsZero(dbTester.getSession(), "ABCD", 1500000000002L);
-    dbTester.getSession().commit();
-
-    dbTester.assertDbUnitTable(getClass(), "update_date_when_updated_date_is_zero-result.xml", "file_sources",
       "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
   }
 

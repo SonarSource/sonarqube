@@ -33,6 +33,4 @@ public interface FileSourceMapper {
   void insert(FileSourceDto dto);
 
   void update(FileSourceDto dto);
-
-  void updateDateWhenUpdatedDateIsZero(@Param("projectUuid") String projectUuid, @Param("date") Long updateDate);
 }
