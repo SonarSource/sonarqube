@@ -33,8 +33,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.stream.Collectors;
 
-import static org.sonar.core.util.stream.Collectors.toList;
-
 public class RuleFinderCompatibility implements RuleFinder {
 
   private final Rules rules;

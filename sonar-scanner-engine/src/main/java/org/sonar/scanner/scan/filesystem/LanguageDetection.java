@@ -75,12 +75,17 @@ class LanguageDetection {
     // First try with lang patterns
     if (forcedLanguage != null) {
       if (!patternsByLanguage.containsKey(forcedLanguage)) {
-        throw MessageException.of("No language is installed with key '" + forcedLanguage + "'. Please update property '" + CoreProperties.PROJECT_LANGUAGE_PROPERTY + "'");
+        throw MessageException.of("You must install a plugin that supports the language '" + forcedLanguage + "'");
       }
+      LOG.info("Language is forced to {}", forcedLanguage);
       languagesToConsider.add(forcedLanguage);
     } else {
       languagesToConsider.addAll(patternsByLanguage.keySet());
     }
+  }
+
+  public String forcedLanguage() {
+    return forcedLanguage;
   }
 
   Map<String, PathPattern[]> patternsByLanguage() {

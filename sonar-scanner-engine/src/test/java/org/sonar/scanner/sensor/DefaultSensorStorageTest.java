@@ -37,8 +37,6 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
@@ -105,7 +103,6 @@ public class DefaultSensorStorageTest {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
     ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
-    Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     when(measureCache.put(eq(file.key()), eq(CoreMetrics.NCLOC_KEY), argumentCaptor.capture())).thenReturn(null);
     underTest.store(new DefaultMeasure()
       .on(file)

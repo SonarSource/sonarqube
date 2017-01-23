@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FileSystem.Index;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
@@ -43,7 +42,7 @@ public class RelativePathPredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(IndexedFile f) {
+  public boolean apply(InputFile f) {
     return path.equals(f.relativePath());
   }
 

@@ -68,11 +68,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
     return index.getMeasure(module.key(), metric);
   }
 
-  private String getEffectiveKey(Resource r) {
-    if (r.getEffectiveKey() != null) {
-      return r.getEffectiveKey();
-    }
-
+  private String getComponentKey(Resource r) {
     if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
       return r.getKey();
     } else {
@@ -107,12 +103,12 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public Resource getResource(Resource resource) {
-    return index.getResource(getEffectiveKey(resource));
+    return index.getResource(getComponentKey(resource));
   }
 
   @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
-    return index.getMeasures(getEffectiveKey(resource), filter);
+    return index.getMeasures(getComponentKey(resource), filter);
   }
 
   @Override
@@ -124,7 +120,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public Measure saveMeasure(@Nullable Resource resource, Measure measure) {
     Resource resourceOrProject = resourceOrProject(resource);
-    return index.addMeasure(getEffectiveKey(resourceOrProject), measure);
+    return index.addMeasure(getComponentKey(resourceOrProject), measure);
   }
 
   @Override

@@ -134,7 +134,7 @@ public class FileIndexer {
     Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
     DefaultIndexedFile indexedFile = indexedFileBuilder.create(realFile, type, fileSystem.baseDirPath());
     if (indexedFile != null) {
-      InputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.readMetadata(f, fileSystem.encoding()));
+      InputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, fileSystem.encoding()));
       if (exclusionFilters.accept(indexedFile, type) && accept(inputFile)) {
         fileSystem.add(inputFile);
         indexParentDir(fileSystem, inputFile);

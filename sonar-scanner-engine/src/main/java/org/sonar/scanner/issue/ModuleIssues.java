@@ -95,26 +95,28 @@ public class ModuleIssues {
     return false;
   }
 
-  private void applyFlows(ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder, ScannerReport.TextRange.Builder textRangeBuilder, Issue issue) {
+  private static void applyFlows(ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder,
+    ScannerReport.TextRange.Builder textRangeBuilder, Issue issue) {
     ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
     for (Flow flow : issue.flows()) {
-      if (!flow.locations().isEmpty()) {
-        flowBuilder.clear();
-        for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
-          locationBuilder.clear();
-          locationBuilder.setComponentRef(((DefaultInputComponent) location.inputComponent()).batchId());
-          String message = location.message();
-          if (message != null) {
-            locationBuilder.setMsg(message);
-          }
-          TextRange textRange = location.textRange();
-          if (textRange != null) {
-            locationBuilder.setTextRange(toProtobufTextRange(textRangeBuilder, textRange));
-          }
-          flowBuilder.addLocation(locationBuilder.build());
-        }
-        builder.addFlow(flowBuilder.build());
+      if (flow.locations().isEmpty()) {
+        return;
       }
+      flowBuilder.clear();
+      for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
+        locationBuilder.clear();
+        locationBuilder.setComponentRef(((DefaultInputComponent) location.inputComponent()).batchId());
+        String message = location.message();
+        if (message != null) {
+          locationBuilder.setMsg(message);
+        }
+        TextRange textRange = location.textRange();
+        if (textRange != null) {
+          locationBuilder.setTextRange(toProtobufTextRange(textRangeBuilder, textRange));
+        }
+        flowBuilder.addLocation(locationBuilder.build());
+      }
+      builder.addFlow(flowBuilder.build());
     }
   }
 

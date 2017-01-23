@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
@@ -34,7 +33,7 @@ class TypePredicate extends AbstractFilePredicate {
   }
 
   @Override
-  public boolean apply(IndexedFile f) {
+  public boolean apply(InputFile f) {
     return type == f.type();
   }
 
