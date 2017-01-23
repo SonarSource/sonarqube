@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -48,22 +47,6 @@ public class SnapshotDao implements Dao {
   @CheckForNull
   public SnapshotDto selectById(DbSession session, long id) {
     return mapper(session).selectByKey(id);
-  }
-
-  /**
-   * @deprecated use {@link #selectByUuid(DbSession, String)}
-   */
-  @Deprecated
-  public SnapshotDto selectOrFailById(DbSession session, long id) {
-    SnapshotDto value = selectById(session, id);
-    if (value == null) {
-      throw new RowNotFoundException(String.format("Snapshot id does not exist: %d", id));
-    }
-    return value;
-  }
-
-  public List<SnapshotDto> selectByIds(DbSession dbSession, Collection<Long> snapshotIds) {
-    return executeLargeInputs(snapshotIds, mapper(dbSession)::selectByIds);
   }
 
   public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {

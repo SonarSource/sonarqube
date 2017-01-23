@@ -30,8 +30,6 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectByKey(long id);
 
-  List<SnapshotDto> selectByIds(@Param("ids") List<Long> ids);
-
   List<SnapshotDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   void insert(SnapshotDto snapshot);
