@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Optional;
 import java.util.function.Function;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -140,14 +139,8 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name());
-      Optional<String> lastAnalysisDate = data.lastAnalysisDateFor(dto.uuid());
-      if (lastAnalysisDate.isPresent()) {
-        project.setLastAnalysisDate(lastAnalysisDate.get());
-      }
-      Optional<String> qualityGate = data.qualityGateStatusFor(dto.uuid());
-      if (qualityGate.isPresent()) {
-        project.setQualityGate(qualityGate.get());
-      }
+      data.lastAnalysisDateFor(dto.uuid()).ifPresent(project::setLastAnalysisDate);
+      data.qualityGateStatusFor(dto.uuid()).ifPresent(project::setQualityGate);
       setNullable(emptyToNull(dto.description()), project::setDescription);
 
       data.projectLinksFor(dto.uuid()).stream()
