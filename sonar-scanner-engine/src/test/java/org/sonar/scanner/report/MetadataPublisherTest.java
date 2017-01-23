@@ -61,7 +61,7 @@ public class MetadataPublisherTest {
   @Before
   public void prepare() {
     projectDef = ProjectDefinition.create().setKey("foo");
-    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.batchId++);
+    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
     inputModuleHierarchy = mock(InputModuleHierarchy.class);

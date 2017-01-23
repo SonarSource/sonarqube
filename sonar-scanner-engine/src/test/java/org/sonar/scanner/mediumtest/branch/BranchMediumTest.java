@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,6 +50,9 @@ public class BranchMediumTest {
 
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
+    // active a rule just to be sure that xoo files are published
+    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();
 

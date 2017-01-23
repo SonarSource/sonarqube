@@ -488,7 +488,9 @@ public interface CoreProperties {
 
   /**
    * @since 5.1
+   * @deprecated since 6.3. No longer taken into consideration as all files are always imported.
    */
+  @Deprecated
   String IMPORT_UNKNOWN_FILES_KEY = "sonar.import_unknown_files";
 
   /**

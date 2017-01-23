@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
@@ -55,7 +56,7 @@ public class DefaultFileSystem implements FileSystem {
   private Path workDir;
   private Charset encoding;
   protected final FilePredicates predicates;
-  private InputFilePredicate defaultPredicate;
+  private Predicate<InputFile> defaultPredicate;
 
   /**
    * Only for testing
@@ -110,7 +111,7 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  public DefaultFileSystem setDefaultPredicate(@Nullable InputFilePredicate predicate) {
+  public DefaultFileSystem setDefaultPredicate(@Nullable Predicate<InputFile> predicate) {
     this.defaultPredicate = predicate;
     return this;
   }
@@ -161,7 +162,7 @@ public class DefaultFileSystem implements FileSystem {
     Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
     if (defaultPredicate != null) {
       return StreamSupport.stream(iterable.spliterator(), false)
-        .filter(defaultPredicate::apply)::iterator;
+        .filter(defaultPredicate::test)::iterator;
     }
     return iterable;
   }
@@ -279,6 +280,7 @@ public class DefaultFileSystem implements FileSystem {
       return dirMap.get(relativePath);
     }
 
+    @Override
     public InputModule module() {
       return module;
     }

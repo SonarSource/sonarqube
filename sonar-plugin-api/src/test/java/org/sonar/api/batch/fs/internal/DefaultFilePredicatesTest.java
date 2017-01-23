@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
@@ -48,14 +47,16 @@ public class DefaultFilePredicatesTest {
     moduleBasePath = temp.newFolder().toPath();
   }
 
-  IndexedFile javaFile;
+  InputFile javaFile;
   FilePredicates predicates;
 
   @Before
   public void before() throws IOException {
     predicates = new DefaultFilePredicates(temp.newFolder().toPath());
-    javaFile = new DefaultIndexedFile("foo", moduleBasePath, "src/main/java/struts/Action.java")
-      .setLanguage("java");
+    javaFile = new TestInputFileBuilder("foo", "src/main/java/struts/Action.java")
+      .setModuleBaseDir(moduleBasePath)
+      .setLanguage("java")
+      .build();
   }
 
   @Test

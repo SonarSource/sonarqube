@@ -21,7 +21,6 @@ package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 
 class TruePredicate extends AbstractFilePredicate {
@@ -29,7 +28,7 @@ class TruePredicate extends AbstractFilePredicate {
   static final FilePredicate TRUE = new TruePredicate();
 
   @Override
-  public boolean apply(IndexedFile inputFile) {
+  public boolean apply(InputFile inputFile) {
     return true;
   }
 

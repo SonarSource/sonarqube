@@ -28,26 +28,34 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileSystemLogger;
+import org.sonar.scanner.scm.ScmPublisher;
 
 public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
 
   private final EventBus eventBus;
   private final ReportPublisher reportPublisher;
   private final CpdExecutor cpdExecutor;
+  private final ScmPublisher scm;
 
   public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
     EventBus eventBus, ReportPublisher reportPublisher, FileSystemLogger fsLogger, DefaultModuleFileSystem fs,
-    QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor) {
+    QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor, ScmPublisher scm) {
     super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;
+    this.scm = scm;
   }
 
   @Override
   protected void executeOnRoot() {
     computeDuplications();
     publishReportJob();
+  }
+
+  @Override
+  protected void afterSensors() {
+    scm.publish();
   }
 
   private void computeDuplications() {

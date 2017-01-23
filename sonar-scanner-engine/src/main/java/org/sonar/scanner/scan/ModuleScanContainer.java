@@ -60,9 +60,9 @@ import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.FileSystemLogger;
-import org.sonar.scanner.scan.filesystem.IndexedFileBuilderProvider;
+import org.sonar.scanner.scan.filesystem.InputFileBuilder;
+import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGeneratorProvider;
-import org.sonar.scanner.scan.filesystem.LanguageDetectionFactory;
 import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
@@ -95,10 +95,6 @@ public class ModuleScanContainer extends ComponentContainer {
       module,
       ModuleSettings.class);
 
-    // hack to initialize settings before ExtensionProviders
-    ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
-   //module.setSettings(moduleSettings);
-
     if (getComponentByType(AnalysisMode.class).isIssues()) {
       add(IssuesPhaseExecutor.class,
         IssuesReports.class);
@@ -120,10 +116,9 @@ public class ModuleScanContainer extends ComponentContainer {
       new MetadataGeneratorProvider(),
       FileMetadata.class,
       StatusDetectionFactory.class,
-      LanguageDetectionFactory.class,
+      LanguageDetection.class,
       FileIndexer.class,
-      new IndexedFileBuilderProvider(),
-      LanguageVerifier.class,
+      InputFileBuilder.class,
       FileSystemLogger.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
@@ -175,9 +170,6 @@ public class ModuleScanContainer extends ComponentContainer {
     index.setCurrentProject(getComponentByType(DefaultSensorStorage.class));
 
     getComponentByType(AbstractPhaseExecutor.class).execute(module);
-
-    // Free memory since module settings are no more used
-    //module.setSettings(null);
   }
 
 }

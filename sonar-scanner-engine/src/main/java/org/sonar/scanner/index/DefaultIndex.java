@@ -188,7 +188,6 @@ public class DefaultIndex {
       throw new IllegalArgumentException("Unknow input path type: " + inputComponent);
     }
 
-    r.setEffectiveKey(inputComponent.key());
     return r;
   }
 

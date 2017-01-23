@@ -78,4 +78,8 @@ public class FileStructure {
   public File contextProperties() {
     return new File(dir, "context-props.pb");
   }
+  
+  public File root() {
+    return dir;
+  }
 }

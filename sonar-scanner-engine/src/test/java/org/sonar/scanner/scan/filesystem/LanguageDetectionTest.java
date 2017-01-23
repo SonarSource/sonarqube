@@ -123,7 +123,7 @@ public class LanguageDetectionTest {
   @Test
   public void fail_if_invalid_language() {
     thrown.expect(MessageException.class);
-    thrown.expectMessage("No language is installed with key 'unknown'. Please update property 'sonar.language'");
+    thrown.expectMessage("You must install a plugin that supports the language 'unknown'");
 
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java"), new MockLanguage("php", "php")));
     Settings settings = new MapSettings();

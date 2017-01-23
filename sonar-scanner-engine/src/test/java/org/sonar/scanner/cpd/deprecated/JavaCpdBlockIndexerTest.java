@@ -69,7 +69,9 @@ public class JavaCpdBlockIndexerTest {
 
     File baseDir = temp.newFolder();
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    file = new TestInputFileBuilder("foo", "src/ManyStatements.java").setLanguage(JAVA).build();
+    file = new TestInputFileBuilder("foo", "src/ManyStatements.java")
+      .setModuleBaseDir(baseDir.toPath())
+      .setLanguage(JAVA).build();
     fs.add(file);
     File ioFile = file.file();
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);

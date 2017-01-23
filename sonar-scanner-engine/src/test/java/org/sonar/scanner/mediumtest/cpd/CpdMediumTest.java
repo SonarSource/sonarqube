@@ -42,6 +42,7 @@ import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,6 +65,9 @@ public class CpdMediumTest {
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
+    // active a rule just to be sure that xoo files are published
+    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
     .build();
 
   private File baseDir;

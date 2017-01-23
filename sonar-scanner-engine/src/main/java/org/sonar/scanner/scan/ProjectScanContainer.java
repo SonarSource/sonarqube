@@ -147,6 +147,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new AnalysisTempFolderProvider(),
 
       // file system
+      ModuleIndexer.class,
       InputComponentStore.class,
       PathResolver.class,
       DefaultInputModuleHierarchy.class,

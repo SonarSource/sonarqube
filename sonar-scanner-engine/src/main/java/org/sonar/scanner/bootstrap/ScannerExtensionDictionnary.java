@@ -255,7 +255,7 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  private boolean shouldKeep(Class type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
+  private static boolean shouldKeep(Class type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
       || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));
