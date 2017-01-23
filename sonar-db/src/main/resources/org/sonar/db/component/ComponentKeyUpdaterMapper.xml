@@ -16,25 +16,35 @@
   <select id="countResourceByKey" parameterType="String" resultType="int">
     SELECT count(1)
     FROM projects
-    WHERE kee = #{key}
+    WHERE kee = #{key,jdbcType=VARCHAR}
   </select>
 
   <select id="selectProject" parameterType="String" resultMap="resourceResultMap">
-    select * from projects where uuid=#{uuid}
+    select * from projects
+    where uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectResources" parameterType="String" resultMap="resourceResultMap">
-    select * from projects where root_uuid=#{rootUuid} AND scope!='PRJ' and enabled=${_true}
+    select * from projects
+    where
+    root_uuid=#{rootUuid,jdbcType=VARCHAR}
+    and scope!='PRJ'
+    and enabled=${_true}
   </select>
 
   <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">
-    select * from projects where scope='PRJ' and root_uuid=#{rootUuid} and uuid!=#{rootUuid} and enabled=${_true}
+    select * from projects
+    where
+    scope='PRJ'
+    and root_uuid = #{rootUuid,jdbcType=VARCHAR}
+    and uuid != #{rootUuid,jdbcType=VARCHAR}
+    and enabled = ${_true}
   </select>
 
   <update id="update" parameterType="Resource">
     update projects
-    set kee = #{key}, deprecated_kee = #{deprecatedKey}
-    where id = #{id}
+    set kee = #{key,jdbcType=VARCHAR}, deprecated_kee = #{deprecatedKey,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
 </mapper>
