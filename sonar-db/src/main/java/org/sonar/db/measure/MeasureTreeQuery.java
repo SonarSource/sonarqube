@@ -29,7 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.AFTER;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class MeasureTreeQuery {
 
@@ -63,9 +63,12 @@ public class MeasureTreeQuery {
     return nameOrKeyQuery;
   }
 
+  /**
+   * Used by MyBatis mapper
+   */
   @CheckForNull
-  public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase(Locale.ENGLISH);
+  public String getNameOrKeyUpperLikeQuery() {
+    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
   }
 
   @CheckForNull

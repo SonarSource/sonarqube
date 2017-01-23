@@ -33,6 +33,7 @@ import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 public class ComponentTreeQueryTest {
 
   private static final String BASE_UUID = "ABCD";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -49,6 +50,7 @@ public class ComponentTreeQueryTest {
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).containsOnly("FIL", "DIR");
     assertThat(query.getNameOrKeyQuery()).isEqualTo("teSt");
+    assertThat(query.getNameOrKeyUpperLikeQuery()).isEqualTo("%TEST%");
   }
 
   @Test
@@ -62,6 +64,7 @@ public class ComponentTreeQueryTest {
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).isNull();
     assertThat(query.getNameOrKeyQuery()).isNull();
+    assertThat(query.getNameOrKeyUpperLikeQuery()).isNull();
   }
 
   @Test

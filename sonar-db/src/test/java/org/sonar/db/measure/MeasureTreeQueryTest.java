@@ -68,15 +68,15 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void test_getNameOrKeyQueryToSqlForResourceIndex() throws Exception {
+  public void test_getNameOrKeyUpperLikeQuery() throws Exception {
     assertThat(MeasureTreeQuery.builder()
       .setNameOrKeyQuery("like-\\_%/-value")
       .setStrategy(CHILDREN)
-      .build().getNameOrKeyQueryToSqlForResourceIndex()).isEqualTo("like-\\/_/%//-value%");
+      .build().getNameOrKeyUpperLikeQuery()).isEqualTo("%LIKE-\\/_/%//-VALUE%");
 
     assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
-      .build().getNameOrKeyQueryToSqlForResourceIndex()).isNull();
+      .build().getNameOrKeyUpperLikeQuery()).isNull();
   }
 
   @Test
