@@ -113,53 +113,9 @@ public class QualityProfileDao implements Dao {
     mapper.update(profile);
   }
 
-  /**
-   * @deprecated use {@link #update(DbSession, QualityProfileDto, QualityProfileDto...)}
-   */
-  @Deprecated
-  public void update(QualityProfileDto dto) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      update(session, dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void delete(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+  public void delete(DbSession session, int profileId) {
     QualityProfileMapper mapper = mapper(session);
-    doDelete(mapper, profile);
-    for (QualityProfileDto otherProfile : otherProfiles) {
-      doDelete(mapper, otherProfile);
-    }
-  }
-
-  private void doDelete(QualityProfileMapper mapper, QualityProfileDto profile) {
-    Preconditions.checkNotNull(profile.getId(), "Quality profile is not persisted");
-    mapper.delete(profile.getId());
-  }
-
-  /**
-   * @deprecated use {@link #delete(DbSession, QualityProfileDto, QualityProfileDto...)}
-   */
-  @Deprecated
-  public void delete(int id, DbSession session) {
-    mapper(session).delete(id);
-  }
-
-  /**
-   * @deprecated use {@link #delete(DbSession, QualityProfileDto, QualityProfileDto...)}
-   */
-  @Deprecated
-  public void delete(int id) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      delete(id, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    mapper.delete(profileId);
   }
 
   /**
@@ -240,16 +196,6 @@ public class QualityProfileDao implements Dao {
   @CheckForNull
   public QualityProfileDto selectParentById(DbSession session, int childId) {
     return mapper(session).selectParentById(childId);
-  }
-
-  @CheckForNull
-  public QualityProfileDto selectParentById(int childId) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectParentById(session, childId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public List<QualityProfileDto> selectChildren(DbSession session, String key) {

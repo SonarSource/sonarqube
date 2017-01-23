@@ -24,6 +24,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +43,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.ActiveRuleDtoFunctions.ActiveRuleDtoToId;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -51,7 +51,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.db.qualityprofile.ActiveRuleParamDtoFunctions.ActiveRuleDtoParamToKey;
 
 @ServerSide
 public class RuleUpdater {
@@ -253,10 +252,8 @@ public class RuleUpdater {
 
   private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, RuleDto customRule) {
     List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, customRule.getId());
-    Map<Integer, ActiveRuleDto> activeRuleById = from(activeRuleDtos).uniqueIndex(ActiveRuleDtoToId.INSTANCE);
-    List<Integer> activeRuleIds = from(activeRuleDtos)
-      .transform(ActiveRuleDtoToId.INSTANCE)
-      .toList();
+    Map<Integer, ActiveRuleDto> activeRuleById = from(activeRuleDtos).uniqueIndex(ActiveRuleDto::getId);
+    List<Integer> activeRuleIds = Lists.transform(activeRuleDtos, ActiveRuleDto::getId);
     List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
     return from(activeRuleParamDtos)
       .index(new ActiveRuleParamToActiveRule(activeRuleById));
@@ -324,7 +321,7 @@ public class RuleUpdater {
     @Override
     public boolean apply(@Nonnull ActiveRuleDto activeRuleDto) {
       Map<String, ActiveRuleParamDto> activeRuleParamByKey = from(activeRuleParams.get(activeRuleDto))
-        .uniqueIndex(ActiveRuleDtoParamToKey.INSTANCE);
+        .uniqueIndex(ActiveRuleParamDto::getKey);
       ActiveRuleParamDto activeRuleParamDto = activeRuleParamByKey.get(ruleParamDto.getName());
       if (activeRuleParamDto != null) {
         dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(ruleParamDto.getDefaultValue()));

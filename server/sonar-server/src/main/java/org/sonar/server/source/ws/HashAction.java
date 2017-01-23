@@ -19,13 +19,13 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Function;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;

@@ -120,7 +120,7 @@ public class QProfileFactory {
       db.activeRuleDao().delete(session, activeRule.getKey());
       changes.add(ActiveRuleChange.createFor(DEACTIVATED, activeRule.getKey()));
     }
-    db.qualityProfileDao().delete(session, profile);
+    db.qualityProfileDao().delete(session, profile.getId());
     return changes;
   }
 

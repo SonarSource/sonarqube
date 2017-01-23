@@ -84,7 +84,8 @@ public class QualityProfileDaoTest {
       .setParentKee("fghij")
       .setDefault(false);
 
-    underTest.update(dto);
+    underTest.update(dbSession, dto);
+    dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "update-result.xml", new String[]{"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
   }
@@ -93,7 +94,8 @@ public class QualityProfileDaoTest {
   public void delete() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.delete(1);
+    underTest.delete(dbSession, 1);
+    dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "delete-result.xml", "rules_profiles");
   }
@@ -211,7 +213,7 @@ public class QualityProfileDaoTest {
   public void get_parent_by_id() {
     dbTester.prepareDbUnit(getClass(), "inheritance.xml");
 
-    QualityProfileDto dto = underTest.selectParentById(1);
+    QualityProfileDto dto = underTest.selectParentById(dbSession, 1);
     assertThat(dto.getId()).isEqualTo(3);
   }
 

@@ -19,10 +19,8 @@
  */
 package org.sonar.server.metric.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,8 +35,8 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class DeleteAction implements MetricsWsAction {
-  public static final String PARAM_IDS = "ids";
-  public static final String PARAM_KEYS = "keys";
+  private static final String PARAM_IDS = "ids";
+  private static final String PARAM_KEYS = "keys";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -90,25 +88,11 @@ public class DeleteAction implements MetricsWsAction {
     checkArgument(idsAsStrings != null || keys != null, "Ids or keys must be provided.");
     List<Integer> ids = null;
     if (idsAsStrings != null) {
-      ids = Lists.transform(idsAsStrings, new StringToIntegerFunction());
+      ids = Lists.transform(idsAsStrings, Integer::valueOf);
     } else if (keys != null) {
-      ids = Lists.transform(dbClient.metricDao().selectByKeys(dbSession, keys), new MetricDtoToIdFunction());
+      ids = Lists.transform(dbClient.metricDao().selectByKeys(dbSession, keys), MetricDto::getId);
     }
 
     return ids;
-  }
-
-  private static class StringToIntegerFunction implements Function<String, Integer> {
-    @Override
-    public Integer apply(String id) {
-      return Integer.valueOf(id);
-    }
-  }
-
-  private static class MetricDtoToIdFunction implements Function<MetricDto, Integer> {
-    @Override
-    public Integer apply(@Nonnull MetricDto input) {
-      return input.getId();
-    }
   }
 }
