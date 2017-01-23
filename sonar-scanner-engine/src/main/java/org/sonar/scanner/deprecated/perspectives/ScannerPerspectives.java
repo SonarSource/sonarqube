@@ -22,6 +22,8 @@ package org.sonar.scanner.deprecated.perspectives;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
@@ -29,18 +31,15 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class ScannerPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
-  private final DefaultIndex resourceIndex;
   private final InputComponentStore componentStore;
   private final DefaultInputModule module;
 
-  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultInputModule module, DefaultIndex resourceIndex, InputComponentStore componentStore) {
-    this.resourceIndex = resourceIndex;
+  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultInputModule module, InputComponentStore componentStore) {
     this.componentStore = componentStore;
     this.module = module;
 
@@ -52,22 +51,15 @@ public class ScannerPerspectives implements ResourcePerspectives {
   @Override
   @CheckForNull
   public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
-    Resource indexedResource = resource;
-    if (resource.getEffectiveKey() == null) {
-      indexedResource = resourceIndex.getResource(getEffectiveKey(resource));
-    }
-    if (indexedResource != null) {
+    InputComponent component = componentStore.getByKey(getComponentKey(resource));
+    if (component != null) {
       PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-      return builder.loadPerspective(perspectiveClass, componentStore.getByKey(indexedResource.getEffectiveKey()));
+      return builder.loadPerspective(perspectiveClass, component);
     }
     return null;
   }
 
-  private String getEffectiveKey(Resource r) {
-    if (r.getEffectiveKey() != null) {
-      return r.getEffectiveKey();
-    }
-
+  private String getComponentKey(Resource r) {
     if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
       return r.getKey();
     } else {

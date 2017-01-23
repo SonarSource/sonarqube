@@ -132,7 +132,7 @@ public class TestInputFileBuilder {
   public DefaultInputFile build() {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, id);
     indexedFile.setLanguage(language);
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset));
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)));
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
     inputFile.setPublish(publish);
