@@ -6,30 +6,23 @@
   <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
     SELECT proj.id as id, proj.name as name, prop.text_value as gateId
     FROM projects proj
+    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value = #{query.gateId}
+    where
+    proj.qualifier = 'TRK'
+    and proj.enabled = ${_true}
+    and proj.copy_component_uuid is null
+    <choose>
+      <when test="query.membership() == 'selected'">
+        and prop.text_value IS NOT NULL
+      </when>
+      <when test="query.membership() == 'deselected'">
+        and prop.text_value IS NULL
+      </when>
+    </choose>
     <if test="query.projectSearch() != null">
-      JOIN resource_index ind ON ind.root_component_uuid=proj.uuid
+      and (proj.kee = #{query.projectSearch} or upper(proj.name) like #{query.projectSearchUpperLikeSql} escape '/')
     </if>
-    LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value LIKE
-    #{query.gateId}
-    <where>
-      <choose>
-        <when test="query.membership() == 'selected'">
-          AND prop.text_value IS NOT NULL
-        </when>
-        <when test="query.membership() == 'deselected'">
-          AND prop.text_value IS NULL
-        </when>
-      </choose>
-      <if test="query.projectSearch() != null">
-        AND ind.kee LIKE #{query.projectSearchSql}
-      </if>
-      AND proj.qualifier='TRK'
-      AND proj.scope='PRJ'
-      <if test="query.projectSearch() != null">
-        AND ind.qualifier='TRK'
-      </if>
-    </where>
-    ORDER BY proj.name
+    order by proj.name
   </select>
 
   <select id="selectQGateIdByComponentId" parameterType="long" resultType="string">

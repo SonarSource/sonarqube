@@ -26,6 +26,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.db.WildcardPosition;
 
 public class ProjectQgateAssociationQuery {
 
@@ -43,7 +45,7 @@ public class ProjectQgateAssociationQuery {
   private final String projectSearch;
 
   // for internal use in MyBatis
-  private final String projectSearchSql;
+  private final String projectSearchUpperLikeSql;
 
   // max results per page
   private final int pageSize;
@@ -55,21 +57,14 @@ public class ProjectQgateAssociationQuery {
     this.gateId = builder.gateId;
     this.membership = builder.membership;
     this.projectSearch = builder.projectSearch;
-    this.projectSearchSql = projectSearchToSql(projectSearch);
+    if (this.projectSearch == null) {
+      this.projectSearchUpperLikeSql = null;
+    } else {
+      this.projectSearchUpperLikeSql = DatabaseUtils.buildLikeValue(projectSearch.toUpperCase(Locale.ENGLISH), WildcardPosition.BEFORE_AND_AFTER);
+    }
 
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
-  }
-
-  private String projectSearchToSql(@Nullable String value) {
-    if (value == null) {
-      return null;
-    }
-
-    return value
-      .replaceAll("%", "\\\\%")
-      .replaceAll("_", "\\\\_")
-      .toLowerCase(Locale.ENGLISH) + "%";
   }
 
   public String gateId() {
@@ -87,10 +82,6 @@ public class ProjectQgateAssociationQuery {
   @CheckForNull
   public String projectSearch() {
     return projectSearch;
-  }
-
-  public String projectSearchSql() {
-    return projectSearchSql;
   }
 
   public int pageSize() {
