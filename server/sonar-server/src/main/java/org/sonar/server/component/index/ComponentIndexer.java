@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
@@ -36,6 +37,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import static java.util.Objects.requireNonNull;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -55,47 +59,53 @@ public class ComponentIndexer implements Startable {
   /**
    * Copy all components of all projects to the elastic search index.
    * <p>
-   * <b>Warning</b>: This should only be called on an empty index. It does not delete anything.
+   * <b>Warning</b>: This should only be called on an empty index and it should only be called during startup.
    */
   public void index() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
-      bulk.setLarge(true);
-      bulk.start();
-      dbClient.componentDao()
-        .selectAll(dbSession, context -> {
-          ComponentDto dto = (ComponentDto) context.getResultObject();
-          bulk.add(newIndexRequest(toDocument(dto)));
-        });
-      bulk.stop();
-    }
+    doIndexByProjectUuid(null);
   }
 
   /**
    * Update the index for one specific project. The current data from the database is used.
    */
   public void indexByProjectUuid(String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      deleteComponentsByProjectUuid(projectUuid);
-      index(
-        dbClient
-          .componentDao()
-          .selectByProjectUuid(projectUuid, dbSession)
-          .toArray(new ComponentDto[0]));
-    }
+    requireNonNull(projectUuid);
+    deleteComponentsByProjectUuid(projectUuid);
+    doIndexByProjectUuid(projectUuid);
   }
 
-  public void deleteByProjectUuid(String uuid) {
-    deleteComponentsByProjectUuid(uuid);
-    deleteAuthorizationByProjectUuid(uuid);
+  /**
+   * @param projectUuid the uuid of the project to analyze, or <code>null</code> if all content should be indexed.<br/>
+   * <b>Warning:</b> only use <code>null</code> during startup.
+   */
+  private void doIndexByProjectUuid(@Nullable String projectUuid) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_COMPONENTS);
+
+    // setLarge must be enabled only during server startup because it disables replicas
+    bulk.setLarge(projectUuid == null);
+
+    bulk.start();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.componentDao()
+        .selectForIndexing(dbSession, projectUuid, context -> {
+          ComponentDto dto = (ComponentDto) context.getResultObject();
+          bulk.add(newIndexRequest(toDocument(dto)));
+        });
+    }
+    bulk.stop();
+  }
+
+  public void deleteByProjectUuid(String projectUuid) {
+    requireNonNull(projectUuid);
+    deleteComponentsByProjectUuid(projectUuid);
+    deleteAuthorizationByProjectUuid(projectUuid);
   }
 
   private void deleteComponentsByProjectUuid(String projectUuid) {
-    esClient
-      .prepareDelete(INDEX_COMPONENTS, TYPE_COMPONENT, projectUuid)
-      .setRouting(projectUuid)
-      .setRefresh(true)
-      .get();
+    BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient.prepareSearch(INDEX_COMPONENTS)
+      .setQuery(boolQuery()
+        .filter(
+          termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
   }
 
   private void deleteAuthorizationByProjectUuid(String projectUuid) {

@@ -20,9 +20,14 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -561,6 +566,36 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectByProjectUuid("U1", dbSession);
 
     assertThat(components).extracting("id").containsOnly(1L, 2L, 3L, 4L);
+  }
+
+  @Test
+  public void selectForIndexing_all() {
+    assertSelectForIndexing(null)
+      .doesNotContain("DIS7")
+      .doesNotContain("COPY8")
+      .containsOnly("U1", "U2", "U3", "U4", "U5", "U6");
+  }
+
+  @Test
+  public void selectForIndexing_project() {
+    assertSelectForIndexing("U1")
+      .doesNotContain("DIS7")
+      .doesNotContain("COPY8")
+      .containsOnly("U1", "U2", "U3", "U4");
+  }
+
+  private ListAssert<String> assertSelectForIndexing(@Nullable String projectUuid) {
+    db.prepareDbUnit(getClass(), "selectForIndexing.xml");
+
+    List<ComponentDto> components = new ArrayList<>();
+    underTest.selectForIndexing(dbSession, projectUuid, new ResultHandler() {
+
+      @Override
+      public void handleResult(ResultContext context) {
+        components.add((ComponentDto) context.getResultObject());
+      }
+    });
+    return assertThat(components).extracting(ComponentDto::uuid);
   }
 
   @Test
