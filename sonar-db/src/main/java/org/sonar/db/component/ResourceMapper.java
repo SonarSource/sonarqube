@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,8 +26,6 @@ public interface ResourceMapper {
   ResourceDto selectResourceByUuid(String uuid);
 
   List<ResourceDto> selectResources(ResourceQuery query);
-
-  List<ResourceDto> selectProvisionedProjects(@Param("qualifiers") Collection<String> qualifier);
 
   ResourceDto selectProvisionedProject(@Param("key") String key);
 

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.component;
 
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,10 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
@@ -47,8 +43,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -74,16 +68,13 @@ public class DefaultRubyComponentServiceTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private ResourceDao resourceDao = dbClient.resourceDao();
   private ComponentService componentService = new ComponentService(dbClient, i18n, userSession, system2, new ComponentFinder(dbClient),
     new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client()));
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private FavoriteUpdater favoriteUpdater = mock(FavoriteUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-
-  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, resourceDao, componentService,
+  private DefaultRubyComponentService underTest = new DefaultRubyComponentService(dbClient, componentService,
     permissionTemplateService, favoriteUpdater, defaultOrganizationProvider);
 
   private String defaultOrganizationUuid;
@@ -116,55 +107,6 @@ public class DefaultRubyComponentServiceTest {
   public void should_throw_if_malformed_key1() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
     underTest.createComponent("1234", "New Project", Qualifiers.PROJECT);
-  }
-
-  @Test
-  public void should_find_provisioned_projects() {
-    componentDb.insertProject();
-    List<String> qualifiers = newArrayList("TRK");
-    Map<String, Object> map = newHashMap();
-    map.put("qualifiers", qualifiers);
-
-    List<ResourceDto> resourceDtos = underTest.findProvisionedProjects(map);
-    assertThat(resourceDtos).hasSize(1);
-  }
-
-  @Test
-  public void should_create_query_from_parameters() {
-    Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("org.codehaus.sonar"));
-    map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", newArrayList("TRK"));
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-    map.put("sort", "NAME");
-    map.put("asc", true);
-
-    ComponentQuery query = DefaultRubyComponentService.toQuery(map);
-    assertThat(query.keys()).containsOnly("org.codehaus.sonar");
-    assertThat(query.names()).containsOnly("Sonar");
-    assertThat(query.qualifiers()).containsOnly("TRK");
-    assertThat(query.pageSize()).isEqualTo(10);
-    assertThat(query.pageIndex()).isEqualTo(50);
-    assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
-    assertThat(query.asc()).isTrue();
-  }
-
-  @Test
-  public void should_create_query_with_default_paging_from_parameters() {
-    Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("org.codehaus.sonar"));
-    map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", newArrayList("TRK"));
-
-    ComponentQuery query = DefaultRubyComponentService.toQuery(map);
-    assertThat(query.keys()).containsOnly("org.codehaus.sonar");
-    assertThat(query.names()).containsOnly("Sonar");
-    assertThat(query.qualifiers()).containsOnly("TRK");
-    assertThat(query.pageSize()).isEqualTo(100);
-    assertThat(query.pageIndex()).isEqualTo(1);
-    assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
-    assertThat(query.asc()).isTrue();
   }
 
 }

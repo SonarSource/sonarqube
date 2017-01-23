@@ -19,9 +19,6 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Strings;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
@@ -30,29 +27,24 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.util.RubyUtils;
 
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
   private final DbClient dbClient;
-  private final ResourceDao resourceDao;
   private final ComponentService componentService;
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRubyComponentService(DbClient dbClient, ResourceDao resourceDao, ComponentService componentService,
+  public DefaultRubyComponentService(DbClient dbClient, ComponentService componentService,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
     DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
-    this.resourceDao = resourceDao;
     this.componentService = componentService;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
@@ -100,27 +92,6 @@ public class DefaultRubyComponentService implements RubyComponentService {
     }
 
     return provisionedComponent.getId();
-  }
-
-  // Used in GOV
-  public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    return resourceDao.selectProvisionedProjects(query.qualifiers());
-  }
-
-  static ComponentQuery toQuery(Map<String, Object> props) {
-    ComponentQuery.Builder builder = ComponentQuery.builder()
-      .keys(RubyUtils.toStrings(props.get("keys")))
-      .names(RubyUtils.toStrings(props.get("names")))
-      .qualifiers(RubyUtils.toStrings(props.get("qualifiers")))
-      .pageSize(RubyUtils.toInteger(props.get("pageSize")))
-      .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
-    String sort = (String) props.get("sort");
-    if (!Strings.isNullOrEmpty(sort)) {
-      builder.sort(sort);
-      builder.asc(RubyUtils.toBoolean(props.get("asc")));
-    }
-    return builder.build();
   }
 
 }
