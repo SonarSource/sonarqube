@@ -425,6 +425,26 @@
       </if>
   </select>
 
+  <select id="selectProjectsByNameQuery" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      AND p.copy_component_uuid is null
+      <if test="includeModules == false">
+        AND p.qualifier = 'TRK'
+      </if>
+      <if test="includeModules == true">
+        AND (p.qualifier = 'TRK' OR p.qualifier = 'BRC')
+      </if>
+      <if test="nameQuery != null">
+        AND UPPER(p.name) like #{nameQuery,jdbcType=VARCHAR}
+      </if>
+    </where>
+    ORDER BY p.name
+  </select>
+
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO projects (
     organization_uuid,

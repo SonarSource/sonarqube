@@ -42,7 +42,6 @@ import org.sonar.server.property.ws.IndexAction;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.sonar.api.server.ws.RailsHandler.PARAM_FORMAT;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
@@ -172,7 +171,7 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
     private void handleGet(Optional<String> key, Optional<String> component) {
       addParameterIfPresent(IndexAction.PARAM_ID, key);
       addParameterIfPresent(IndexAction.PARAM_COMPONENT, component);
-      addParameterIfPresent(PARAM_FORMAT, readParam(PARAM_FORMAT));
+      addParameterIfPresent(IndexAction.PARAM_FORMAT, readParam(IndexAction.PARAM_FORMAT));
       redirectedPath = CONTROLLER_PROPERTIES + "/index";
       redirectedMethod = "GET";
     }

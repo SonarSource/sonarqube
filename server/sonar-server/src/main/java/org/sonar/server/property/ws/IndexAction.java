@@ -49,8 +49,6 @@ import org.sonar.server.ws.WsAction;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
-import static org.sonar.api.server.ws.RailsHandler.PARAM_FORMAT;
-import static org.sonar.api.server.ws.RailsHandler.addJsonOnlyFormatParam;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.server.setting.ws.SettingsPermissionPredicates.DOT_LICENSE;
 import static org.sonar.server.setting.ws.SettingsPermissionPredicates.DOT_SECURED;
@@ -64,6 +62,7 @@ public class IndexAction implements WsAction {
 
   public static final String PARAM_ID = "id";
   public static final String PARAM_COMPONENT = "resource";
+  public static final String PARAM_FORMAT = "format";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -89,7 +88,9 @@ public class IndexAction implements WsAction {
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key or database id")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    addJsonOnlyFormatParam(action);
+    action.createParam(PARAM_FORMAT)
+      .setDescription("Only json response format is available")
+      .setPossibleValues("json");
   }
 
   @Override

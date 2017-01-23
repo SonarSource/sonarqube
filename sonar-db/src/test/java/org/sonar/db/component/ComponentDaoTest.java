@@ -720,9 +720,9 @@ public class ComponentDaoTest {
 
   @Test
   public void updateBEnabledToFalse() {
-    ComponentDto dto1 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U1");
-    ComponentDto dto2 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U2");
-    ComponentDto dto3 = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "U3");
+    ComponentDto dto1 = newProjectDto(db.getDefaultOrganization(), "U1");
+    ComponentDto dto2 = newProjectDto(db.getDefaultOrganization(), "U2");
+    ComponentDto dto3 = newProjectDto(db.getDefaultOrganization(), "U3");
     underTest.insert(dbSession, dto1, dto2, dto3);
 
     underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
@@ -999,6 +999,28 @@ public class ComponentDaoTest {
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
     assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
     assertThat(components).extracting("organizationUuid").containsOnly(organizationDto.getUuid());
+  }
+
+  @Test
+  public void select_projects_by_name_query() {
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project1 = db.components().insertComponent(newProjectDto(organizationDto).setName("project1"));
+    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("module1"));
+    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("subModule1"));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule1).setName("file"));
+    ComponentDto project2 = db.components().insertComponent(newProjectDto(organizationDto).setName("project2"));
+    ComponentDto project3 = db.components().insertComponent(newProjectDto(organizationDto).setName("project3"));
+
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, null, true)).extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid(), project2.uuid(), project3.uuid(), module1.uuid(), subModule1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "project1", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "ct1", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "pro", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "jec", false)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "1", true)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), module1.uuid(), subModule1.uuid());
+    assertThat(underTest.selectProjectsByNameQuery(dbSession, "unknown", true)).extracting(ComponentDto::uuid).isEmpty();
   }
 
   private static ComponentTreeQuery.Builder newTreeQuery(String baseUuid) {

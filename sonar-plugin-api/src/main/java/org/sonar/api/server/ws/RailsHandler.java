@@ -27,7 +27,6 @@ package org.sonar.api.server.ws;
 public class RailsHandler implements RequestHandler {
 
   public static final RequestHandler INSTANCE = new RailsHandler();
-  public static final String PARAM_FORMAT = "format";
 
   private RailsHandler() {
     // Nothing
@@ -36,28 +35,6 @@ public class RailsHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     throw new UnsupportedOperationException("This web service is implemented in rails");
-  }
-
-  public static WebService.NewParam addFormatParam(WebService.NewAction action) {
-    return action.createParam(PARAM_FORMAT)
-      .setDescription("Response format can be set through:" +
-        "<ul>" +
-        "<li>Parameter format: xml | json</li>" +
-        "<li>Or the 'Accept' property in the HTTP header:" +
-        "<ul>" +
-        "<li>Accept:text/xml</li>" +
-        "<li>Accept:application/json</li>" +
-        "</ul></li></ul>" +
-        "If nothing is set, json is used.<br/>" +
-        "Since 6.1, XML format is deprecated, only JSON format should be used.")
-      .setPossibleValues("json", "xml")
-      .setDeprecatedSince("6.1");
-  }
-
-  public static WebService.NewParam addJsonOnlyFormatParam(WebService.NewAction action) {
-    return action.createParam(PARAM_FORMAT)
-      .setDescription("Only json response format is available")
-      .setPossibleValues("json");
   }
 
 }

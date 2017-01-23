@@ -24,6 +24,7 @@ public class ProjectsWsParameters {
   public static final String CONTROLLER = "api/projects";
 
   public static final String ACTION_CREATE = "create";
+  public static final String ACTION_INDEX = "index";
 
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_NAME = "name";

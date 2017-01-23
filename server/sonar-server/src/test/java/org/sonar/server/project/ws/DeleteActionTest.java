@@ -71,6 +71,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 
 public class DeleteActionTest {
 
@@ -278,6 +279,6 @@ public class DeleteActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(ProjectsWs.ENDPOINT, ACTION);
+    return ws.newPostRequest(CONTROLLER, ACTION);
   }
 }

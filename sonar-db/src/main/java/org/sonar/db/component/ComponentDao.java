@@ -39,15 +39,16 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class ComponentDao implements Dao {
 
@@ -239,7 +240,7 @@ public class ComponentDao implements Dao {
     if (isBlank(textQuery)) {
       return null;
     }
-    return DatabaseUtils.buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), WildcardPosition.BEFORE_AND_AFTER);
+    return DatabaseUtils.buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
   }
 
   public List<ComponentDto> selectGhostProjects(DbSession session, int offset, int limit, @Nullable String query) {
@@ -286,6 +287,11 @@ public class ComponentDao implements Dao {
   public Set<ComponentDto> selectComponentsByQualifiers(DbSession dbSession, Set<String> qualifiers) {
     checkArgument(!qualifiers.isEmpty(), "Qualifiers cannot be empty");
     return new HashSet<>(mapper(dbSession).selectComponentsByQualifiers(qualifiers));
+  }
+
+  public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {
+    String nameQueryForSql = nameQuery == null ? null : buildLikeValue(nameQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
+    return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
   }
 
   private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {

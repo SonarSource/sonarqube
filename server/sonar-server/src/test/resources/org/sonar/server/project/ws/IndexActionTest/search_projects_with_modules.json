@@ -1,0 +1,30 @@
+[
+  {
+    "id": 16,
+    "k": "org.codehaus.sonar-plugins:sonar-ant-db",
+    "nm": "Ant DB",
+    "sc": "PRJ",
+    "qu": "BRC"
+  },
+  {
+    "id": 15,
+    "k": "org.jenkins-ci.plugins:sonar-common",
+    "nm": "Common",
+    "sc": "PRJ",
+    "qu": "BRC"
+  },
+  {
+    "id": 13,
+    "k": "org.jenkins-ci.plugins:sonar",
+    "nm": "Jenkins Sonar Plugin",
+    "sc": "PRJ",
+    "qu": "TRK"
+  },
+  {
+    "id": 14,
+    "k": "org.codehaus.sonar-plugins:sonar-ant-task",
+    "nm": "Sonar Ant Task",
+    "sc": "PRJ",
+    "qu": "TRK"
+  }
+]

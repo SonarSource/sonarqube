@@ -117,6 +117,8 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectComponentsHavingSameKeyOrderedById(String key);
 
+  List<ComponentDto> selectProjectsByNameQuery(@Param("nameQuery") @Nullable String nameQuery, @Param("includeModules") boolean includeModules);
+
   long countGhostProjects(Map<String, Object> parameters);
 
   void selectForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler handler);

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 4,
+    "k": "org.jenkins-ci.plugins:sonar",
+    "nm": "Jenkins Sonar Plugin",
+    "sc": "PRJ",
+    "qu": "TRK"
+  },
+  {
+    "id": 5,
+    "k": "org.codehaus.sonar-plugins:sonar-ant-task",
+    "nm": "Sonar Ant Task",
+    "sc": "PRJ",
+    "qu": "TRK"
+  }
+]

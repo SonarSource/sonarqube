@@ -1,0 +1,16 @@
+[
+  {
+    "id": 7,
+    "k": "org.jenkins-ci.plugins:sonar",
+    "nm": "Jenkins Sonar Plugin",
+    "sc": "PRJ",
+    "qu": "TRK"
+  },
+  {
+    "id": 9,
+    "k": "org.codehaus.sonar-plugins:sonar-build-breaker-plugin",
+    "nm": "Sonar Build Breaker Plugin",
+    "sc": "PRJ",
+    "qu": "TRK"
+  }
+]
