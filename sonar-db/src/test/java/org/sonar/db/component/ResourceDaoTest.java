@@ -19,28 +19,23 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.collect.Iterables;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.component.Component;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ResourceDaoTest {
 
-  static System2 system = mock(System2.class);
+  private static System2 system = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system);
 
-  ResourceDao underTest = dbTester.getDbClient().resourceDao();
+  private ResourceDao underTest = dbTester.getDbClient().resourceDao();
 
   @Test
   public void get_resource_by_uuid() {
@@ -74,18 +69,6 @@ public class ResourceDaoTest {
   }
 
   @Test
-  public void should_select_provisioned_projects_by_qualifiers() {
-    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
-
-    List<ResourceDto> components = underTest.selectProvisionedProjects(newArrayList("TRK"));
-    assertThat(components).hasSize(1);
-    assertThat(components.get(0).getKey()).isEqualTo("org.sample:sample");
-
-    assertThat(underTest.selectProvisionedProjects(newArrayList("unknown"))).isEmpty();
-    assertThat(underTest.selectProvisionedProjects(Collections.<String>emptyList())).isEmpty();
-  }
-
-  @Test
   public void update_authorization_date() {
     dbTester.prepareDbUnit(getClass(), "update_authorization_date.xml");
 
@@ -94,9 +77,5 @@ public class ResourceDaoTest {
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "update_authorization_date-result.xml", "projects");
-  }
-
-  private List<String> getKeys(final List<Component> components) {
-    return newArrayList(Iterables.transform(components, Component::key));
   }
 }

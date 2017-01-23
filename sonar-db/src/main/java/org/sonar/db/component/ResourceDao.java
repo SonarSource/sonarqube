@@ -19,8 +19,6 @@
  */
 package org.sonar.db.component;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
@@ -110,21 +108,6 @@ public class ResourceDao extends AbstractDao {
       }
     }
     return null;
-  }
-
-  /**
-   * Return provisioned projects = enabled projects without snapshot
-   */
-  public List<ResourceDto> selectProvisionedProjects(Collection<String> qualifiers) {
-    if (qualifiers.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   /**
