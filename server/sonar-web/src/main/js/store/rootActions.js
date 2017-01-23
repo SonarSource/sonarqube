@@ -20,11 +20,13 @@
 import { getLanguages } from '../api/languages';
 import { getGlobalNavigation, getComponentNavigation } from '../api/nav';
 import * as auth from '../api/auth';
+import { getOrganizations } from '../api/organizations';
 import { receiveLanguages } from './languages/actions';
 import { receiveComponents } from './components/actions';
 import { addGlobalErrorMessage } from './globalMessages/duck';
 import { parseError } from '../apps/code/utils';
 import { setAppState } from './appState/duck';
+import { receiveOrganizations } from './organizations/duck';
 
 export const onFail = dispatch => error => (
     parseError(error).then(message => dispatch(addGlobalErrorMessage(message)))
@@ -44,6 +46,13 @@ export const fetchLanguages = () => dispatch => {
   );
 };
 
+export const fetchOrganizations = (organizations?: Array<string>) => dispatch => (
+    getOrganizations(organizations).then(
+        r => dispatch(receiveOrganizations(r.organizations)),
+        onFail(dispatch)
+    )
+);
+
 const addQualifier = project => ({
   ...project,
   qualifier: project.breadcrumbs[project.breadcrumbs.length - 1].qualifier
@@ -51,7 +60,12 @@ const addQualifier = project => ({
 
 export const fetchProject = key => dispatch => (
     getComponentNavigation(key).then(
-        component => dispatch(receiveComponents([addQualifier(component)])),
+        component => {
+          dispatch(receiveComponents([addQualifier(component)]));
+          if (component.organization != null) {
+            dispatch(fetchOrganizations([component.organization]));
+          }
+        },
         onFail(dispatch)
     )
 );

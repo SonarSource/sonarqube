@@ -30,6 +30,7 @@ export default FormView.extend({
     });
     this.disableForm();
     return group.save(null, {
+      organization: this.collection.organization,
       statusCode: {
         // do not show global error
         400: null

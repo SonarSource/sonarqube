@@ -1,0 +1,17 @@
+exports[`test should match snapshot 1`] = `
+<span>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/organizations/foo">
+    foo
+  </Link>
+  <span>
+     / 
+  </span>
+</span>
+`;
+
+exports[`test should not be displayed 1`] = `null`;
+
+exports[`test should not be displayed 2`] = `null`;

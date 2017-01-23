@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ListItemView from './list-item-view';
-import Template from './templates/groups-list.hbs';
+import React from 'react';
+import { shallow } from 'enzyme';
+import { UnconnectedOrganization } from '../Organization';
 
-export default Marionette.CompositeView.extend({
-  childView: ListItemView,
-  childViewContainer: '.js-list',
-  template: Template,
+const organization = { key: 'foo', name: 'foo' };
 
-  collectionEvents: {
-    'request': 'showLoading',
-    'sync': 'hideLoading'
-  },
+it('should match snapshot', () => {
+  expect(shallow(
+      <UnconnectedOrganization organization={organization} shouldBeDisplayed={true}/>
+  )).toMatchSnapshot();
+});
 
-  showLoading () {
-    this.$el.addClass('new-loading');
-  },
+it('should not be displayed', () => {
+  expect(shallow(
+      <UnconnectedOrganization organization={organization} shouldBeDisplayed={false}/>
+  )).toMatchSnapshot();
 
-  hideLoading () {
-    this.$el.removeClass('new-loading');
-
-    const query = this.collection.q || '';
-    const shouldHideAnyone = this.collection.organization || !'anyone'.includes(query.toLowerCase());
-    this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
-  }
+  expect(shallow(
+      <UnconnectedOrganization organization={null} shouldBeDisplayed={true}/>
+  )).toMatchSnapshot();
 });
 

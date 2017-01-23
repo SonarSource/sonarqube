@@ -17,30 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ListItemView from './list-item-view';
-import Template from './templates/groups-list.hbs';
+// @flow
+import { getJSON, post } from '../helpers/request';
 
-export default Marionette.CompositeView.extend({
-  childView: ListItemView,
-  childViewContainer: '.js-list',
-  template: Template,
-
-  collectionEvents: {
-    'request': 'showLoading',
-    'sync': 'hideLoading'
-  },
-
-  showLoading () {
-    this.$el.addClass('new-loading');
-  },
-
-  hideLoading () {
-    this.$el.removeClass('new-loading');
-
-    const query = this.collection.q || '';
-    const shouldHideAnyone = this.collection.organization || !'anyone'.includes(query.toLowerCase());
-    this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
+export const getOrganizations = (organizations?: Array<string>) => {
+  const data = {};
+  if (organizations) {
+    Object.assign(data, { organizations: organizations.join() });
   }
-});
+  return getJSON('/api/organizations/search', data);
+};
 
+type GetOrganizationType = null | {
+  avatar: null | string,
+  description: null | string,
+  key: string,
+  name: string,
+  url: null | string
+};
+
+export const getOrganization = (key: string): Promise<GetOrganizationType> => {
+  return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
+};
+
+export const updateOrganization = (key: string, changes: {}) => (
+    post('/api/organizations/update', { key, ...changes })
+);
+
+export const deleteOrganization = (key: string) => (
+    post('/api/organizations/delete', { key })
+);

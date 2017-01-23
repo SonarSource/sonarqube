@@ -1,0 +1,55 @@
+exports[`test should not render breadcrumbs with one element 1`] = `
+<ul
+  className="nav navbar-nav nav-crumbs">
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "my-project",
+          },
+        }
+      }>
+      <qualifier-icon
+        qualifier="TRK" />
+       
+      My Project
+    </Link>
+  </li>
+</ul>
+`;
+
+exports[`test should render organization 1`] = `
+<ul
+  className="nav navbar-nav nav-crumbs">
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo">
+      The Foo Organization
+    </Link>
+  </li>
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "my-project",
+          },
+        }
+      }>
+      <qualifier-icon
+        qualifier="TRK" />
+       
+      My Project
+    </Link>
+  </li>
+</ul>
+`;

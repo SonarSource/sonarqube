@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ListItemView from './list-item-view';
-import Template from './templates/groups-list.hbs';
+// @flow
+import React from 'react';
+import { connect } from 'react-redux';
+import init from '../../groups/init';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
-export default Marionette.CompositeView.extend({
-  childView: ListItemView,
-  childViewContainer: '.js-list',
-  template: Template,
+class OrganizationGroups extends React.Component {
+  props: {
+    organization: Organization
+  };
 
-  collectionEvents: {
-    'request': 'showLoading',
-    'sync': 'hideLoading'
-  },
-
-  showLoading () {
-    this.$el.addClass('new-loading');
-  },
-
-  hideLoading () {
-    this.$el.removeClass('new-loading');
-
-    const query = this.collection.q || '';
-    const shouldHideAnyone = this.collection.organization || !'anyone'.includes(query.toLowerCase());
-    this.$('.js-anyone').toggleClass('hidden', shouldHideAnyone);
+  componentDidMount () {
+    init(this.refs.container, this.props.organization);
   }
+
+  render () {
+    return <div ref="container"/>;
+  }
+}
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
+export default connect(mapStateToProps)(OrganizationGroups);
