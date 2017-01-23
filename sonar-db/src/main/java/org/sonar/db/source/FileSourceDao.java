@@ -19,7 +19,6 @@
  */
 package org.sonar.db.source;
 
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import java.io.Reader;
 import java.sql.Connection;
@@ -28,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -135,10 +135,6 @@ public class FileSourceDao implements Dao {
 
   public void update(DbSession session, FileSourceDto dto) {
     mapper(session).update(dto);
-  }
-
-  public void updateDateWhenUpdatedDateIsZero(DbSession session, String projectUuid, long updateDate) {
-    mapper(session).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
   }
 
   private static FileSourceMapper mapper(DbSession session) {
