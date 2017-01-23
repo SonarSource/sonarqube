@@ -36,8 +36,11 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private String language;
   private final Type type;
 
+  /**
+   * Testing purposes only!
+   */
   public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath) {
-    this(moduleKey, moduleBaseDir, relativePath, TestInputFileBuilder.batchId++);
+    this(moduleKey, moduleBaseDir, relativePath, TestInputFileBuilder.nextBatchId());
   }
 
   public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, int batchId) {

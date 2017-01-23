@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
 public class TestInputFileBuilder {
-  public static int batchId = 1;
+  private static int batchId = 1;
 
   private final int id;
   private final String relativePath;
@@ -44,6 +44,7 @@ public class TestInputFileBuilder {
   private String hash;
   private int nonBlankLines;
   private int[] originalLineOffsets;
+  private boolean publish = true;
 
   public TestInputFileBuilder(String moduleKey, String relativePath) {
     this(moduleKey, relativePath, batchId++);
@@ -54,6 +55,10 @@ public class TestInputFileBuilder {
     this.moduleBaseDir = Paths.get(moduleKey);
     this.relativePath = PathUtils.sanitize(relativePath);
     this.id = id;
+  }
+
+  public static int nextBatchId() {
+    return batchId++;
   }
 
   public TestInputFileBuilder setModuleBaseDir(Path moduleBaseDir) {
@@ -106,6 +111,11 @@ public class TestInputFileBuilder {
     return this;
   }
 
+  public TestInputFileBuilder setPublish(boolean publish) {
+    this.publish = publish;
+    return this;
+  }
+
   public TestInputFileBuilder setMetadata(Metadata metadata) {
     this.setLines(metadata.lines());
     this.setLastValidOffset(metadata.lastValidOffset());
@@ -125,6 +135,7 @@ public class TestInputFileBuilder {
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset));
     inputFile.setStatus(status);
     inputFile.setCharset(charset);
+    inputFile.setPublish(publish);
     return inputFile;
   }
 }

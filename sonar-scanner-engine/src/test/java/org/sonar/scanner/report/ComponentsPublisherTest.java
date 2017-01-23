@@ -96,10 +96,13 @@ public class ComponentsPublisherTest {
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).build();
     tree.index(file, dir);
 
-    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 5).setLines(10).build();
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src/Foo2.java", 5).setPublish(false).setLines(2).build();
+    tree.index(file2, dir);
+
+    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 6).setLines(10).build();
     tree.index(fileWithoutLang, dir);
 
-    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 6).setType(Type.TEST).setLines(4).build();
+    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 7).setType(Type.TEST).setLines(4).build();
     tree.index(testFile, dir);
 
     ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
@@ -109,11 +112,13 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
 
+    // not marked for publishing
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isFalse();
     // no such reference
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 8)).isFalse();
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);

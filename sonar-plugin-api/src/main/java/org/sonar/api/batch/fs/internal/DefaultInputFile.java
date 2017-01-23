@@ -40,6 +40,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Status status;
   private Charset charset;
   private Metadata metadata;
+  private boolean publish = false;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Function<DefaultInputFile, Metadata> metadataGenerator) {
     super(indexedFile.batchId());
@@ -52,6 +53,14 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     if (metadata == null) {
       setMetadata(metadataGenerator.apply(this));
     }
+  }
+  
+  public void setPublish(boolean publish) {
+    this.publish = publish;
+  }
+  
+  public boolean publish() {
+    return publish;
   }
 
   @Override

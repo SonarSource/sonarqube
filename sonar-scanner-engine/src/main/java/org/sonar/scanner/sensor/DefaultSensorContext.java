@@ -25,6 +25,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -160,6 +161,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public void markForPublishing(InputFile inputFile) {
-    
+    DefaultInputFile file = (DefaultInputFile) inputFile;
+    file.setPublish(true);
   }
 }
