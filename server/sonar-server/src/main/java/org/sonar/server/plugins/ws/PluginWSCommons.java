@@ -46,8 +46,6 @@ import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
-import static org.sonar.core.platform.PluginInfoFunctions.toKey;
-import static org.sonar.core.platform.PluginInfoFunctions.toName;
 
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
@@ -73,8 +71,8 @@ public class PluginWSCommons {
   static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
 
   public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
-    .onResultOf(toName())
-    .compound(Ordering.natural().onResultOf(toKey()));
+    .onResultOf(PluginInfo::getName)
+    .compound(Ordering.natural().onResultOf(PluginInfo::getKey));
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
     .onResultOf(PluginToName.INSTANCE)
     .compound(

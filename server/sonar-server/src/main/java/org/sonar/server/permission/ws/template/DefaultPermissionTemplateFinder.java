@@ -25,11 +25,11 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 
@@ -44,14 +44,14 @@ public class DefaultPermissionTemplateFinder {
 
   public Set<String> getDefaultTemplateUuids() {
     return from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(ResourceType::getQualifier)
       .transform(new QualifierToDefaultTemplate(settings))
       .toSortedSet(natural());
   }
 
   public List<TemplateUuidQualifier> getDefaultTemplatesByQualifier() {
     return from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(ResourceType::getQualifier)
       .transform(new QualifierToTemplateUuidQualifier(settings))
       .toList();
   }

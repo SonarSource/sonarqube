@@ -25,7 +25,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
@@ -56,7 +55,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
@@ -453,7 +451,7 @@ public class IssueQueryService {
   @CheckForNull
   private static Collection<RuleKey> stringsToRules(@Nullable Collection<String> rules) {
     if (rules != null) {
-      return newArrayList(Iterables.transform(rules, RuleKeyFunctions.stringToRuleKey()));
+      return Collections2.transform(rules, RuleKey::parse);
     }
     return null;
   }

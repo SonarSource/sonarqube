@@ -24,6 +24,7 @@ import com.google.common.collect.Collections2;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,7 +41,6 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
@@ -116,7 +116,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private String[] qualifiers(@Nullable String qualifier) {
     return qualifier == null
-      ? Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()])
+      ? Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()])
       : (new String[] {qualifier});
   }
 
