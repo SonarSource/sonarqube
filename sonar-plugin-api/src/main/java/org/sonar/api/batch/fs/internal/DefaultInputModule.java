@@ -30,6 +30,9 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
   private final String moduleKey;
   private final ProjectDefinition definition;
 
+  /**
+   * For testing only!
+   */
   public DefaultInputModule(String moduleKey) {
     this(ProjectDefinition.create().setKey(moduleKey), TestInputFileBuilder.nextBatchId());
   }

@@ -24,7 +24,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,13 +36,13 @@ import org.sonar.api.batch.fs.TextRange;
  */
 public class DefaultInputFile extends DefaultInputComponent implements InputFile {
   private final DefaultIndexedFile indexedFile;
-  private final Function<DefaultInputFile, Metadata> metadataGenerator;
+  private final Consumer<DefaultInputFile> metadataGenerator;
   private Status status;
   private Charset charset;
   private Metadata metadata;
   private boolean publish = false;
 
-  public DefaultInputFile(DefaultIndexedFile indexedFile, Function<DefaultInputFile, Metadata> metadataGenerator) {
+  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     super(indexedFile.batchId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
@@ -51,14 +51,14 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   private void checkMetadata() {
     if (metadata == null) {
-      setMetadata(metadataGenerator.apply(this));
+      metadataGenerator.accept(this);
     }
   }
-  
+
   public void setPublish(boolean publish) {
     this.publish = publish;
   }
-  
+
   public boolean publish() {
     return publish;
   }
@@ -262,7 +262,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return Math.abs(Arrays.binarySearch(originalLineOffsets(), globalOffset) + 1);
   }
 
-  private DefaultInputFile setMetadata(Metadata metadata) {
+  public DefaultInputFile setMetadata(Metadata metadata) {
     this.metadata = metadata;
     return this;
   }

@@ -49,9 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MeasuresPublisherTest {
-
-  private static final String FILE_KEY = "foo:src/Foo.php";
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -65,12 +62,14 @@ public class MeasuresPublisherTest {
   private File outputDir;
   private ScannerReportWriter writer;
   private DefaultInputFile inputFile;
+  private DefaultInputModule InputModule;
 
   @Before
   public void prepare() throws IOException {
-    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").build();
+    InputModule = new DefaultInputModule("foo");
+    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setPublish(true).build();
     componentCache = new InputComponentStore();
-    componentCache.put(new DefaultInputModule("foo"));
+    componentCache.put(InputModule);
     componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
@@ -86,12 +85,12 @@ public class MeasuresPublisherTest {
     // String value
     DefaultMeasure<String> stringMeasure = new DefaultMeasure<String>().forMetric(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
       .withValue("foo bar");
-    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(asList(measure, stringMeasure));
+    when(measureCache.byComponentKey(inputFile.key())).thenReturn(asList(measure, stringMeasure));
 
     publisher.publish(writer);
     ScannerReportReader reader = new ScannerReportReader(outputDir);
 
-    assertThat(reader.readComponentMeasures(1)).hasSize(0);
+    assertThat(reader.readComponentMeasures(InputModule.batchId())).hasSize(0);
     try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(inputFile.batchId())) {
       assertThat(componentMeasures).hasSize(2);
     }
@@ -100,7 +99,7 @@ public class MeasuresPublisherTest {
   @Test
   public void fail_with_IAE_when_measure_has_no_value() throws Exception {
     DefaultMeasure<Integer> measure = new DefaultMeasure<Integer>().forMetric(CoreMetrics.LINES_TO_COVER);
-    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(Collections.singletonList(measure));
+    when(measureCache.byComponentKey(inputFile.key())).thenReturn(Collections.singletonList(measure));
 
     try {
       publisher.publish(writer);
