@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.report;
 
+import java.util.Collection;
+
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -29,13 +31,18 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
+import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 /**
@@ -45,6 +52,8 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   private InputComponentTree componentTree;
   private InputModuleHierarchy moduleHierarchy;
+  private ScannerReportReader reader;
+  private ScannerReportWriter writer;
 
   public ComponentsPublisher(InputModuleHierarchy moduleHierarchy, InputComponentTree inputComponentTree) {
     this.moduleHierarchy = moduleHierarchy;
@@ -53,10 +62,24 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    recursiveWriteComponent((DefaultInputComponent) moduleHierarchy.root(), writer);
+    this.reader = new ScannerReportReader(writer.getFileStructure().root());
+    this.writer = writer;
+    recursiveWriteComponent((DefaultInputComponent) moduleHierarchy.root());
   }
 
-  private void recursiveWriteComponent(DefaultInputComponent component, ScannerReportWriter writer) {
+  /**
+   * Writes the tree of components recursively, deep-first. 
+   * @return true if component was written (not skipped)
+   */
+  private boolean recursiveWriteComponent(DefaultInputComponent component) {
+    Collection<InputComponent> children = componentTree.getChildren(component).stream()
+      .filter(c -> recursiveWriteComponent((DefaultInputComponent) c))
+      .collect(Collectors.toList());
+
+    if (shouldSkipComponent(component, children)) {
+      return false;
+    }
+
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder();
 
     // non-null fields
@@ -83,7 +106,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
 
     if (component.isFile()) {
-      InputFile file = (InputFile) component;
+      DefaultInputFile file = (DefaultInputFile) component;
       builder.setIsTest(file.type() == InputFile.Type.TEST);
       builder.setLines(file.lines());
 
@@ -98,18 +121,31 @@ public class ComponentsPublisher implements ReportPublisherStep {
       builder.setPath(path);
     }
 
-    for (InputComponent child : componentTree.getChildren(component)) {
+    for (InputComponent child : children) {
       builder.addChildRef(((DefaultInputComponent) child).batchId());
     }
     writeLinks(component, builder);
     writer.writeComponent(builder.build());
-
-    for (InputComponent child : componentTree.getChildren(component)) {
-      recursiveWriteComponent((DefaultInputComponent) child, writer);
-    }
+    return true;
   }
 
-  private void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
+  private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
+    if (component instanceof InputDir && children.isEmpty()) {
+      try (CloseableIterator<Issue> componentIssuesIt = reader.readComponentIssues(component.batchId())) {
+        if (!componentIssuesIt.hasNext()) {
+          // no file to publish on a directory without issues -> skip it
+          return true;
+        }
+      }
+    } else if (component instanceof DefaultInputFile) {
+      // skip files not marked for publishing
+      DefaultInputFile inputFile = (DefaultInputFile) component;
+      return !inputFile.publish();
+    }
+    return false;
+  }
+
+  private static void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
     ProjectDefinition def = module.definition();
     String version = getVersion(def);
     if (version != null) {
@@ -142,7 +178,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     return def.getParent() != null ? getVersion(def.getParent()) : null;
   }
 
-  private void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {
+  private static void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {
     if (c instanceof InputModule) {
       DefaultInputModule inputModule = (DefaultInputModule) c;
       ProjectDefinition def = inputModule.definition();

@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.batch.fs.IndexedFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.AbstractFilePredicate;
 
 /**
@@ -40,7 +40,7 @@ class AdditionalFilePredicates {
     }
 
     @Override
-    public boolean apply(IndexedFile f) {
+    public boolean apply(InputFile f) {
       return key.equals(f.key());
     }
   }

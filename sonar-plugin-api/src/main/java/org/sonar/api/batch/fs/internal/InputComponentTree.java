@@ -24,7 +24,7 @@ import java.util.Collection;
 import org.sonar.api.batch.fs.InputComponent;
 
 public interface InputComponentTree {
-  public Collection<InputComponent> getChildren(InputComponent module);
+  Collection<InputComponent> getChildren(InputComponent module);
 
-  public InputComponent getParent(InputComponent module);
+  InputComponent getParent(InputComponent module);
 }

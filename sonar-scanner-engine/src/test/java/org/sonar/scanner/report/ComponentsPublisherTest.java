@@ -38,6 +38,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.FileStructure;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.report.ComponentsPublisher;
@@ -63,6 +64,10 @@ public class ComponentsPublisherTest {
     tree = new DefaultComponentTree();
     outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);
+  }
+
+  private void writeIssue(int componentId) {
+    writer.writeComponentIssues(componentId, Collections.singleton(ScannerReport.Issue.newBuilder().build()));
   }
 
   @Test
@@ -96,10 +101,13 @@ public class ComponentsPublisherTest {
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).build();
     tree.index(file, dir);
 
-    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 5).setLines(10).build();
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src/Foo2.java", 5).setPublish(false).setLines(2).build();
+    tree.index(file2, dir);
+
+    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 6).setLines(10).build();
     tree.index(fileWithoutLang, dir);
 
-    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 6).setType(Type.TEST).setLines(4).build();
+    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 7).setType(Type.TEST).setLines(4).build();
     tree.index(testFile, dir);
 
     ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
@@ -109,11 +117,13 @@ public class ComponentsPublisherTest {
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
 
+    // not marked for publishing
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isFalse();
     // no such reference
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 8)).isFalse();
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
@@ -126,6 +136,59 @@ public class ComponentsPublisherTest {
     assertThat(module1Protobuf.getKey()).isEqualTo("module1");
     assertThat(module1Protobuf.getDescription()).isEqualTo("Module description");
     assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
+  }
+
+  @Test
+  public void should_skip_dir_without_published_files() {
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description");
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
+
+    // dir with files
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
+    tree.index(dir, root);
+
+    // dir without files and issues
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
+    tree.index(dir2, root);
+
+    // dir without files but has issues
+    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4);
+    tree.index(dir3, root);
+    writeIssue(4);
+
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 5).setLines(2).build();
+    tree.index(file, dir);
+
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src2/Foo2.java", 6).setPublish(false).setLines(2).build();
+    tree.index(file2, dir2);
+
+    DefaultInputFile file3 = new TestInputFileBuilder("module1", "src2/Foo3.java", 7).setPublish(false).setLines(2).build();
+    tree.index(file3, dir3);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    publisher.publish(writer);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
+
+    // file was not marked for publishing and directory doesn't contain issues, so directory won't be included as well
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+
   }
 
   @Test

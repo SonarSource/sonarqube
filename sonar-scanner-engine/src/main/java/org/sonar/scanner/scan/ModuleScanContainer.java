@@ -95,10 +95,6 @@ public class ModuleScanContainer extends ComponentContainer {
       module,
       ModuleSettings.class);
 
-    // hack to initialize settings before ExtensionProviders
-    ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
-   //module.setSettings(moduleSettings);
-
     if (getComponentByType(AnalysisMode.class).isIssues()) {
       add(IssuesPhaseExecutor.class,
         IssuesReports.class);
@@ -123,7 +119,6 @@ public class ModuleScanContainer extends ComponentContainer {
       LanguageDetectionFactory.class,
       FileIndexer.class,
       new IndexedFileBuilderProvider(),
-      LanguageVerifier.class,
       FileSystemLogger.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
@@ -175,9 +170,6 @@ public class ModuleScanContainer extends ComponentContainer {
     index.setCurrentProject(getComponentByType(DefaultSensorStorage.class));
 
     getComponentByType(AbstractPhaseExecutor.class).execute(module);
-
-    // Free memory since module settings are no more used
-    //module.setSettings(null);
   }
 
 }

@@ -19,16 +19,17 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.util.function.Predicate;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.InputFilePredicate;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-public class SameInputFilePredicate implements InputFilePredicate {
+public class SameInputFilePredicate implements Predicate<InputFile> {
   private static final Logger LOG = LoggerFactory.getLogger(SameInputFilePredicate.class);
   private final ProjectRepositories projectRepositories;
   private final String moduleKey;
@@ -39,7 +40,7 @@ public class SameInputFilePredicate implements InputFilePredicate {
   }
 
   @Override
-  public boolean apply(InputFile inputFile) {
+  public boolean test(InputFile inputFile) {
     FileData fileDataPerPath = projectRepositories.fileData(moduleKey, inputFile.relativePath());
     if (fileDataPerPath == null) {
       // ADDED

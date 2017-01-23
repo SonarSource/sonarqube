@@ -29,6 +29,6 @@ public interface FilePredicate {
   /**
    * Test if provided file is valid for this predicate
    */
-  boolean apply(IndexedFile inputFile);
+  boolean apply(InputFile inputFile);
 
 }

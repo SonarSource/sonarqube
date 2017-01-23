@@ -25,10 +25,8 @@ import javax.annotation.CheckForNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class IndexedFileBuilder {
@@ -36,13 +34,11 @@ public class IndexedFileBuilder {
   private final String moduleKey;
   private final PathResolver pathResolver;
   private final LanguageDetection langDetection;
-  private final Settings settings;
   private final BatchIdGenerator idGenerator;
 
-  IndexedFileBuilder(String moduleKey, PathResolver pathResolver, Settings settings, LanguageDetection langDetection, BatchIdGenerator idGenerator) {
+  IndexedFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection, BatchIdGenerator idGenerator) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
-    this.settings = settings;
     this.langDetection = langDetection;
     this.idGenerator = idGenerator;
   }
@@ -56,11 +52,10 @@ public class IndexedFileBuilder {
     }
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, idGenerator.get());
     String language = langDetection.language(indexedFile);
-    if (language == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
-      LOG.debug("'{}' language is not supported by any analyzer. Skipping it.", relativePath);
+    if (language == null && langDetection.forcedLanguage() != null) {
+      LOG.warn("File '{}' is ignored because it doens't belong to the forced langauge '{}'", file.toAbsolutePath(), langDetection.forcedLanguage());
       return null;
     }
-
     indexedFile.setLanguage(language);
     return indexedFile;
   }

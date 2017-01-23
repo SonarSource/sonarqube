@@ -29,14 +29,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
@@ -238,26 +235,6 @@ public class PhasesSumUpTimeProfilerTest {
     };
   }
 
-  private DecoratorExecutionHandler.DecoratorExecutionEvent decoratorEvent(final Decorator decorator, final boolean start) {
-    return new DecoratorExecutionHandler.DecoratorExecutionEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public Decorator getDecorator() {
-        return decorator;
-      }
-    };
-  }
-
   private PostJobExecutionHandler.PostJobExecutionEvent postJobEvent(final PostJob postJob, final boolean start) {
     return new PostJobExecutionHandler.PostJobExecutionEvent() {
 
@@ -333,26 +310,6 @@ public class PhasesSumUpTimeProfilerTest {
 
       @Override
       public List<PostJob> getPostJobs() {
-        return null;
-      }
-    };
-  }
-
-  private DecoratorsPhaseHandler.DecoratorsPhaseEvent decoratorsEvent(final boolean start) {
-    return new DecoratorsPhaseHandler.DecoratorsPhaseEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public List<Decorator> getDecorators() {
         return null;
       }
     };

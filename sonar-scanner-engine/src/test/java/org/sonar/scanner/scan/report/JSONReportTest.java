@@ -82,7 +82,7 @@ public class JSONReportTest {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(server.getVersion()).thenReturn("3.6");
 
-    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.batchId++);
+    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.nextBatchId());
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java").build();
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputComponentStore fileCache = mock(InputComponentStore.class);

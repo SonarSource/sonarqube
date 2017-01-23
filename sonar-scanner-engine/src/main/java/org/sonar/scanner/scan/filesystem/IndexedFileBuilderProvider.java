@@ -21,14 +21,13 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class IndexedFileBuilderProvider extends ProviderAdapter {
 
-  public IndexedFileBuilder provide(ProjectDefinition def, PathResolver pathResolver, Settings settings,
-    LanguageDetectionFactory langDetectionFactory, BatchIdGenerator idGenerator) {
-    return new IndexedFileBuilder(def.getKey(), pathResolver, settings, langDetectionFactory.create(), idGenerator);
+  public IndexedFileBuilder provide(ProjectDefinition def, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
+    BatchIdGenerator idGenerator) {
+    return new IndexedFileBuilder(def.getKey(), pathResolver, langDetectionFactory.create(), idGenerator);
   }
 
 }

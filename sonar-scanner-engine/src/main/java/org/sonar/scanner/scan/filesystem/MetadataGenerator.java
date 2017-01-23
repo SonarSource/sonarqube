@@ -76,15 +76,15 @@ class MetadataGenerator {
     }
   }
 
-  public Metadata readMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
+  public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
     try {
       Charset charset = detectCharset(inputFile.file(), defaultEncoding);
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
+      inputFile.setMetadata(metadata);
       inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash()));
       LOG.debug("'{}' generated metadata {} with and charset '{}'",
         inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
-      return metadata;
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
