@@ -56,6 +56,15 @@ public interface FilePredicates {
   FilePredicate hasRelativePath(String s);
 
   /**
+   * Predicate that gets a file by its filename, in any directory.
+   * For example, the parameter <code>Foo.java</code> will match both
+   * <code>some/path/Foo.java</code> and <code>other/path/Foo.java</code>.
+   * The parameter must match exactly, no patterns are allowed,
+   * and it must not be <code>null</code>.
+   */
+  FilePredicate hasFilename(String s);
+
+  /**
    * Predicate that gets the files which relative or absolute path matches a wildcard pattern.
    * <br>
    * If the parameter starts with <code>file:</code>, then absolute path is used, else relative path. Pattern

@@ -20,6 +20,8 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -264,6 +266,7 @@ public class DefaultFileSystem implements FileSystem {
     private final Map<String, InputFile> fileMap = new HashMap<>();
     private final Map<String, InputDir> dirMap = new HashMap<>();
     private InputModule module;
+    private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -286,8 +289,14 @@ public class DefaultFileSystem implements FileSystem {
     }
 
     @Override
+    public Iterable<InputFile> getFilesByName(String filename) {
+      return filesByNameCache.get(filename);
+    }
+
+    @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
+      filesByNameCache.put(inputFile.file().getName(), inputFile);
     }
 
     @Override
