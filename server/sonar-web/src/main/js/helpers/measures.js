@@ -181,7 +181,7 @@ function floatVariationFormatter (value) {
 
 function percentFormatter (value) {
   value = parseFloat(value);
-  return numeral(value / 100).format('0,0.0%');
+  return value === 100 ? '100%' : numeral(value / 100).format('0,0.0%');
 }
 
 function percentVariationFormatter (value) {
