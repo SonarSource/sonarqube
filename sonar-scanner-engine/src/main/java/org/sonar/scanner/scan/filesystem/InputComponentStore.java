@@ -50,6 +50,7 @@ public class InputComponentStore {
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
+  private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private InputModule root;
 
   public Collection<InputComponent> all() {
@@ -108,6 +109,7 @@ public class InputComponentStore {
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(inputFile.file().getName(), inputFile);
+    filesByExtensionCache.put(inputFile.file().getName(), inputFile);
     return this;
   }
 
@@ -140,5 +142,9 @@ public class InputComponentStore {
 
   public Iterable<InputFile> getFilesByName(String filename) {
     return filesByNameCache.get(filename);
+  }
+
+  public Iterable<InputFile> getFilesByExtension(String extension) {
+    return filesByExtensionCache.get(extension);
   }
 }

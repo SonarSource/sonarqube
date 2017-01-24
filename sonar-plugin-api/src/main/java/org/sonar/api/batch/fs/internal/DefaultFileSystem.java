@@ -267,6 +267,7 @@ public class DefaultFileSystem implements FileSystem {
     private final Map<String, InputDir> dirMap = new HashMap<>();
     private InputModule module;
     private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
+    private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -291,6 +292,10 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     public Iterable<InputFile> getFilesByName(String filename) {
       return filesByNameCache.get(filename);
+    }
+
+    @Override public Iterable<InputFile> getFilesByExtension(String extension) {
+      return filesByExtensionCache.get(extension);
     }
 
     @Override

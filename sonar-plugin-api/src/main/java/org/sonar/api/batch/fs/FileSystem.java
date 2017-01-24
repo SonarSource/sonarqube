@@ -167,5 +167,7 @@ public interface FileSystem {
     InputModule module();
 
     Iterable<InputFile> getFilesByName(String filename);
+
+    Iterable<InputFile> getFilesByExtension(String extension);
   }
 }

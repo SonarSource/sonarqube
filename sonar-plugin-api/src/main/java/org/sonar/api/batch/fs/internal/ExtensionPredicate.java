@@ -40,8 +40,7 @@ public class ExtensionPredicate extends AbstractFilePredicate {
 
   @Override
   public Iterable<InputFile> get(FileSystem.Index index) {
-    //    return index.getFilesByName(extension);
-    throw new UnsupportedOperationException();
+    return index.getFilesByExtension(extension);
   }
 
   String extension(String name) {

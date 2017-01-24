@@ -80,6 +80,10 @@ public class DefaultFilePredicates implements FilePredicates {
     return new FilenamePredicate(s);
   }
 
+  @Override public FilePredicate hasExtension(String s) {
+    return new ExtensionPredicate(s);
+  }
+
   @Override
   public FilePredicate matchesPathPattern(String inclusionPattern) {
     return new PathPatternPredicate(PathPattern.create(inclusionPattern));

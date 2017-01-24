@@ -75,4 +75,8 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   public Iterable<InputFile> getFilesByName(String filename) {
     return inputComponentStore.getFilesByName(filename);
   }
+
+  @Override public Iterable<InputFile> getFilesByExtension(String extension) {
+    return inputComponentStore.getFilesByExtension(extension);
+  }
 }
