@@ -51,32 +51,27 @@ public class SearchMyProjectsDataLoader {
     this.dbClient = dbClient;
   }
 
-  SearchMyProjectsData load(SearchMyProjectsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      SearchMyProjectsData.Builder data = builder();
-      ProjectsResult searchResult = searchProjects(dbSession, request);
-      List<ComponentDto> projects = searchResult.projects;
-      List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
-      List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
-      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
-      MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
-      MeasureQuery measureQuery = MeasureQuery.builder()
-        .setProjectUuids(projectUuids)
-        .setMetricId(gateStatusMetric.getId())
-        .build();
-      List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
+  SearchMyProjectsData load(DbSession dbSession, SearchMyProjectsRequest request) {
+    SearchMyProjectsData.Builder data = builder();
+    ProjectsResult searchResult = searchProjects(dbSession, request);
+    List<ComponentDto> projects = searchResult.projects;
+    List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
+    List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
+    MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
+    MeasureQuery measureQuery = MeasureQuery.builder()
+      .setProjectUuids(projectUuids)
+      .setMetricId(gateStatusMetric.getId())
+      .build();
+    List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
 
-      data.setProjects(projects)
-        .setProjectLinks(projectLinks)
-        .setSnapshots(snapshots)
-        .setQualityGates(qualityGates)
-        .setTotalNbOfProjects(searchResult.total);
+    data.setProjects(projects)
+      .setProjectLinks(projectLinks)
+      .setSnapshots(snapshots)
+      .setQualityGates(qualityGates)
+      .setTotalNbOfProjects(searchResult.total);
 
-      return data.build();
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    return data.build();
   }
 
   @VisibleForTesting
@@ -86,7 +81,6 @@ public class SearchMyProjectsDataLoader {
     List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
     ComponentQuery dbQuery = ComponentQuery.builder()
       .setQualifiers(Qualifiers.PROJECT)
-      .setNameOrKeyQuery(request.getQuery())
       .setComponentIds(ImmutableSet.copyOf(componentIds))
       .build();
 
