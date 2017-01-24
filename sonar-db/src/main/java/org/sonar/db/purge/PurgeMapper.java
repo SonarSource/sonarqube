@@ -40,8 +40,6 @@ public interface PurgeMapper {
 
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
-  void deleteSnapshotMeasures(@Param("analysisUuids") List<String> analysisUuids);
-
   void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
 
   List<Long> selectMetricIdsWithoutHistoricalData();
