@@ -19,10 +19,10 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.*;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -30,14 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FilenamePredicateTest {
-  @Rule
-  public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
   @Test
   public void should_match_file_by_filename() throws IOException {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(temporaryFolder.newFile(filename));
+    when(inputFile.file()).thenReturn(newDummyFile(filename));
 
     assertThat(new FilenamePredicate(filename).apply(inputFile)).isTrue();
   }
@@ -46,7 +43,7 @@ public class FilenamePredicateTest {
   public void should_not_match_file_by_different_filename() throws IOException {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(temporaryFolder.newFile(filename + "x"));
+    when(inputFile.file()).thenReturn(newDummyFile(filename + "x"));
 
     assertThat(new FilenamePredicate(filename).apply(inputFile)).isFalse();
   }
@@ -55,11 +52,15 @@ public class FilenamePredicateTest {
   public void should_find_matching_file_in_index() throws IOException {
     String filename = "some name";
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(temporaryFolder.newFile(filename));
+    when(inputFile.file()).thenReturn(newDummyFile(filename));
 
     FileSystem.Index index = mock(FileSystem.Index.class);
     when(index.getFilesByName(filename)).thenReturn(Collections.singleton(inputFile));
 
     assertThat(new FilenamePredicate(filename).get(index)).containsOnly(inputFile);
+  }
+
+  private File newDummyFile(String filename) {
+    return new File("dummy parent", filename);
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
 import java.io.IOException;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
@@ -29,9 +30,6 @@ import static org.mockito.Mockito.*;
 import static org.sonar.api.batch.fs.internal.FileExtensionPredicate.getExtension;
 
 public class FileExtensionPredicateTest {
-
-  @Rule
-  public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
   public void should_match_correct_extension() throws IOException {
@@ -69,7 +67,7 @@ public class FileExtensionPredicateTest {
 
   private InputFile mockWithName(String filename) throws IOException {
     InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(temporaryFolder.newFile(filename));
+    when(inputFile.file()).thenReturn(new File("dummy parent", filename));
     return inputFile;
   }
 }
