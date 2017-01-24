@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { DonutChart } from '../charts/donut-chart';
 
+const SIZE_TO_WIDTH_MAPPING = {
+  'small': 16,
+  'normal': 24,
+  'big': 40
+};
+
+const SIZE_TO_THICKNESS_MAPPING = {
+  'small': 2,
+  'normal': 3,
+  'big': 4
+};
+
 export default class CoverageRating extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
-    small: React.PropTypes.bool,
-    muted: React.PropTypes.bool
+  props: {
+    value: number | string,
+    size?: 'small' | 'normal' | 'big',
+    muted?: boolean,
   };
 
   static defaultProps = {
-    small: false,
+    size: 'normal',
     muted: false
   };
 
@@ -43,8 +56,11 @@ export default class CoverageRating extends React.Component {
       ];
     }
 
-    const size = this.props.small ? 16 : 24;
-    const thickness = this.props.small ? 2 : 3;
+    // $FlowFixMe
+    const size = SIZE_TO_WIDTH_MAPPING[this.props.size];
+
+    // $FlowFixMe
+    const thickness = SIZE_TO_THICKNESS_MAPPING[this.props.size];
 
     return (
         <DonutChart

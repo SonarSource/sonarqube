@@ -23,6 +23,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
+import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 
 class Duplications extends React.Component {
   renderHeader () {
@@ -39,14 +40,6 @@ class Duplications extends React.Component {
     return this.props.renderMeasure('duplicated_blocks');
   }
 
-  renderDuplicationsDonut (duplications) {
-    const data = [
-      { value: duplications, fill: '#f3ca8e' },
-      { value: Math.max(0, 20 - duplications), fill: '#e6e6e6' }
-    ];
-    return this.props.renderDonut(data);
-  }
-
   renderDuplications () {
     const { component, measures } = this.props;
     const measure = measures.find(measure => measure.metric.key === 'duplicated_lines_density');
@@ -54,7 +47,9 @@ class Duplications extends React.Component {
 
     return (
         <div className="overview-domain-measure">
-          {this.renderDuplicationsDonut(duplications)}
+          <div className="display-inline-block text-middle big-spacer-right">
+            <DuplicationsRating value={duplications} size="big"/>
+          </div>
 
           <div className="display-inline-block text-middle">
             <div className="overview-domain-measure-value">

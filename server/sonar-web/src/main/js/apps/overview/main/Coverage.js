@@ -23,6 +23,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
+import CoverageRating from '../../../components/ui/CoverageRating';
 
 class Coverage extends React.Component {
   getCoverage () {
@@ -55,14 +56,6 @@ class Coverage extends React.Component {
     return this.props.renderMeasure('tests');
   }
 
-  renderCoverageDonut (coverage) {
-    const data = [
-      { value: coverage, fill: '#85bb43' },
-      { value: 100 - coverage, fill: '#d4333f' }
-    ];
-    return this.props.renderDonut(data);
-  }
-
   renderCoverage () {
     const { component } = this.props;
     const metric = 'coverage';
@@ -70,7 +63,9 @@ class Coverage extends React.Component {
 
     return (
         <div className="overview-domain-measure">
-          {this.renderCoverageDonut(coverage)}
+          <div className="display-inline-block text-middle big-spacer-right">
+            <CoverageRating value={coverage} size="big"/>
+          </div>
 
           <div className="display-inline-block text-middle">
             <div className="overview-domain-measure-value">

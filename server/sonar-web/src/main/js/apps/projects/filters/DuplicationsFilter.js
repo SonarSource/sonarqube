@@ -26,7 +26,7 @@ export default class DuplicationsFilter extends React.Component {
   renderOption = (option, selected) => {
     return (
         <span>
-          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)} small={true} muted={!selected}/>
+          <DuplicationsRating value={getDuplicationsRatingAverageValue(option)} size="small" muted={!selected}/>
           <span className="spacer-left">
             {getDuplicationsRatingLabel(option)}
           </span>

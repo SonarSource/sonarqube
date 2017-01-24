@@ -22,7 +22,6 @@ import { Link } from 'react-router';
 import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import { DonutChart } from '../../../components/charts/donut-chart';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import {
@@ -121,18 +120,6 @@ export default function enhance (ComposedComponent) {
       );
     }
 
-    renderDonut (data) {
-      return (
-          <div className="display-inline-block text-middle big-spacer-right">
-            <DonutChart
-                data={data}
-                width={40}
-                height={40}
-                thickness={4}/>
-          </div>
-      );
-    }
-
     renderRating (metricKey) {
       const { component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
@@ -208,7 +195,6 @@ export default function enhance (ComposedComponent) {
               renderHeader={this.renderHeader.bind(this)}
               renderMeasure={this.renderMeasure.bind(this)}
               renderMeasureVariation={this.renderMeasureVariation.bind(this)}
-              renderDonut={this.renderDonut.bind(this)}
               renderRating={this.renderRating.bind(this)}
               renderIssues={this.renderIssues.bind(this)}
               renderTimeline={this.renderTimeline.bind(this)}/>

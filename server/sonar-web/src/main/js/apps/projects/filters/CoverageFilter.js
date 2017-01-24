@@ -26,7 +26,7 @@ export default class CoverageFilter extends React.Component {
   renderOption = (option, selected) => {
     return (
         <span>
-          <CoverageRating value={getCoverageRatingAverageValue(option)} small={true} muted={!selected}/>
+          <CoverageRating value={getCoverageRatingAverageValue(option)} size="small" muted={!selected}/>
           <span className="spacer-left">
             {getCoverageRatingLabel(option)}
           </span>

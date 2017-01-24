@@ -218,7 +218,7 @@ exports[`test should not render duplications 1`] = `
           className="spacer-right">
           <CoverageRating
             muted={false}
-            small={false}
+            size="normal"
             value="88.3" />
         </span>
         <Measure
@@ -370,7 +370,7 @@ exports[`test should not render ncloc 1`] = `
           className="spacer-right">
           <CoverageRating
             muted={false}
-            small={false}
+            size="normal"
             value="88.3" />
         </span>
         <Measure
