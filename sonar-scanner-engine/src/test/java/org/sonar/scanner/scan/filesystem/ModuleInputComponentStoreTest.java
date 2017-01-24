@@ -78,4 +78,17 @@ public class ModuleInputComponentStoreTest {
     assertThat(store.getFilesByName(filename)).containsOnly(inputFile);
     assertThat(store.getFilesByExtension(ext)).containsOnly(inputFile);
   }
+
+  @Test
+  public void should_get_empty_iterable_on_cache_miss() {
+    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+
+    String ext = "java";
+    String filename = "Program." + ext;
+    InputFile inputFile = new TestInputFileBuilder("dummy key", "some/path/" + filename).build();
+    store.doAdd(inputFile);
+
+    assertThat(store.getFilesByName("nonexistent")).isEmpty();
+    assertThat(store.getFilesByExtension("nonexistent")).isEmpty();
+  }
 }
