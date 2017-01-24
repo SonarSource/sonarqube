@@ -19,29 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropTableResourceIndexTest {
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DropTableResourceIndexTest.class, "schema.sql");
+
+  private DropTableResourceIndex underTest = new DropTableResourceIndex(db.database());
 
   @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+  public void should_drop_table() throws SQLException {
+    underTest.execute();
+
+    db.assertTableDoesNotExist("resource_index");
   }
 
   @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
+  public void migration_is_not_re_entrant() throws Exception {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
+    expectedException.expect(IllegalStateException.class);
+    underTest.execute();
   }
-
 }

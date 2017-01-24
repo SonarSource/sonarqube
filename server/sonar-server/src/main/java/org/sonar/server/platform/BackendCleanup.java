@@ -48,7 +48,7 @@ public class BackendCleanup {
 
   private static final String[] INSPECTION_TABLES = {
     "authors", "duplications_index", "events", "issues", "issue_changes", "manual_measures",
-    "notifications", "project_links", "project_measures", "projects", "resource_index",
+    "notifications", "project_links", "project_measures", "projects",
     "snapshots", "file_sources"
   };
   private static final String[] RESOURCE_RELATED_TABLES = {
