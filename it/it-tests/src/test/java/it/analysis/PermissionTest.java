@@ -24,6 +24,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category3Suite;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +32,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
@@ -45,7 +47,7 @@ import static util.ItUtils.projectDir;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
-public class AuthenticationTest {
+public class PermissionTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
@@ -56,23 +58,23 @@ public class AuthenticationTest {
   private static WsClient adminWsClient;
   private static UserTokensService userTokensWsClient;
 
-  private static final String LOGIN = "george.orwell";
+  private static final String USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION = "george.orwell";
 
   @BeforeClass
   public static void setUp() {
     adminWsClient = newAdminWsClient(orchestrator);
     userTokensWsClient = adminWsClient.userTokens();
 
-    userRule.createUser(LOGIN, "123456");
-    addUserPermission(LOGIN, "admin");
-    addUserPermission(LOGIN, "scan");
+    userRule.createUser(USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION, "123456");
+    addUserPermission(USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION, "scan");
 
     userRule.createUser("simple-user", "password");
   }
 
   @AfterClass
-  public static void tearDown() throws Exception {
+  public static void resetSettingsAndUsers() throws Exception {
     resetSettings(orchestrator, null, "sonar.forceAuthentication");
+    userRule.deactivateUsers(USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION, "simple-user");
   }
 
   @Before
@@ -81,11 +83,16 @@ public class AuthenticationTest {
     resetSettings(orchestrator, null, "sonar.forceAuthentication");
   }
 
+  @After
+  public void restoreAnyonePermissionOnScan() throws Exception {
+    addGroupPermission("Anyone", "scan");
+  }
+
   @Test
   public void run_analysis_with_token_authentication() {
     String tokenName = "Analyze Project";
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
-      .setLogin(LOGIN)
+      .setLogin(USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION)
       .setName(tokenName));
     SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
     sampleProject.setProperties(
@@ -95,7 +102,7 @@ public class AuthenticationTest {
     BuildResult buildResult = orchestrator.executeBuild(sampleProject);
 
     assertThat(buildResult.isSuccess()).isTrue();
-    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
+    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(USER_WITH_EXECUTE_ANALYSIS_AND_ADMIN_PERMISSION).setName(tokenName));
   }
 
   @Test
@@ -139,9 +146,22 @@ public class AuthenticationTest {
     assertThat(buildResult.getLastStatus()).isEqualTo(0);
   }
 
+  @Test
+  public void execute_analysis_permission_on_project() throws Exception {
+    removeGroupPermission("Anyone", "scan");
+    
+
+  }
+
   private static void addUserPermission(String login, String permission) {
     adminWsClient.permissions().addUser(new AddUserWsRequest()
       .setLogin(login)
+      .setPermission(permission));
+  }
+
+  private static void addGroupPermission(String groupName, String permission) {
+    adminWsClient.permissions().addGroup(new AddGroupWsRequest()
+      .setGroupName(groupName)
       .setPermission(permission));
   }
 
