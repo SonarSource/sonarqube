@@ -136,8 +136,10 @@ export default class Search extends React.Component {
       const { component, onError } = this.props;
       this.setState({ loading: true });
 
-      // request all qualifiers except DIR
-      getTree(component.key, { q: query, s: 'qualifier,name', qualifiers: 'VW,SVW,TRK,BRC,UTS,FIL' })
+      const isView = component.qualifier === 'VW' || component.qualifier === 'SVW';
+      const qualifiers = isView ? 'SVW,TRK' : 'BRC,UTS,FIL';
+
+      getTree(component.key, { q: query, s: 'qualifier,name', qualifiers })
           .then(r => {
             // second time check if value has change due to api request
             if (this.mounted && this.checkInputValue(query)) {
