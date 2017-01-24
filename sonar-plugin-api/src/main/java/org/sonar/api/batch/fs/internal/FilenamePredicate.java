@@ -34,11 +34,15 @@ public class FilenamePredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile inputFile) {
-    return filename.equals(inputFile.file().getName());
+    return filename.equals(getFilename(inputFile));
   }
 
   @Override
   public Iterable<InputFile> get(FileSystem.Index index) {
     return index.getFilesByName(filename);
+  }
+
+  public static String getFilename(InputFile inputFile) {
+    return inputFile.file().getName();
   }
 }

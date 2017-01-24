@@ -38,6 +38,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
+import org.sonar.api.batch.fs.internal.FilenamePredicate;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -109,7 +110,7 @@ public class InputComponentStore {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
-    filesByNameCache.put(inputFile.file().getName(), inputFile);
+    filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
     filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     return this;
   }
