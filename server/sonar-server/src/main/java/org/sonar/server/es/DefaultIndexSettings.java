@@ -43,12 +43,12 @@ public class DefaultIndexSettings {
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase")
 
-      // Edge NGram index-analyzer
+      // NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
-      .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
+      .put("index.analysis.analyzer.index_grams.tokenizer", "gram_tokenizer")
+      .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase")
 
-      // Edge NGram search-analyzer
+      // NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
@@ -72,11 +72,11 @@ public class DefaultIndexSettings {
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
       .putArray("index.analysis.analyzer.html_analyzer.char_filter", "html_strip")
 
-      // Edge NGram filter
-      .put("index.analysis.filter.gram_filter.type", "nGram")
-      .put("index.analysis.filter.gram_filter.min_gram", 2)
-      .put("index.analysis.filter.gram_filter.max_gram", MAXIMUM_NGRAM_LENGTH)
-      .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
+      // NGram tokenizer
+      .put("index.analysis.tokenizer.gram_tokenizer.type", "nGram")
+      .put("index.analysis.tokenizer.gram_tokenizer.min_gram", 2)
+      .put("index.analysis.tokenizer.gram_tokenizer.max_gram", MAXIMUM_NGRAM_LENGTH)
+      .putArray("index.analysis.tokenizer.gram_tokenizer.token_chars", "letter", "digit", "punctuation", "symbol")
 
       // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
