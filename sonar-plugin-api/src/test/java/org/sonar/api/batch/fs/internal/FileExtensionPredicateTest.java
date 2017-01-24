@@ -52,9 +52,9 @@ public class FileExtensionPredicateTest {
 
   @Test
   public void test_empty_extension() {
-    assertThat(predicate.extension("prog")).isEmpty();
-    assertThat(predicate.extension("prog.")).isEmpty();
-    assertThat(predicate.extension(".")).isEmpty();
+    assertThat(predicate.getExtension("prog")).isEmpty();
+    assertThat(predicate.getExtension("prog.")).isEmpty();
+    assertThat(predicate.getExtension(".")).isEmpty();
   }
 
   private InputFile mockWithName(String filename) throws IOException {

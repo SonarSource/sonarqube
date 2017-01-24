@@ -302,7 +302,7 @@ public class DefaultFileSystem implements FileSystem {
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
       filesByNameCache.put(inputFile.file().getName(), inputFile);
-      filesByExtensionCache.put(FileExtensionPredicate.extension(inputFile.file().getName()), inputFile);
+      filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile.file().getName()), inputFile);
     }
 
     @Override

@@ -110,7 +110,7 @@ public class InputComponentStore {
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
     filesByNameCache.put(inputFile.file().getName(), inputFile);
-    filesByExtensionCache.put(FileExtensionPredicate.extension(inputFile.file().getName()), inputFile);
+    filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile.file().getName()), inputFile);
     return this;
   }
 
