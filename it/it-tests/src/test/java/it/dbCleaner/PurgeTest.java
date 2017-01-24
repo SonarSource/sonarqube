@@ -35,10 +35,12 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
+import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -205,14 +207,12 @@ public class PurgeTest {
     runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH);
 
     // Check that only analysis from last thursday is kept (as it's the last one from previous week)
-    WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
-      new GetRequest("/api/timemachine/index")
-        .setParam("resource", PROJECT_KEY)
-        .setParam("metrics", "ncloc"))
-      .failIfNotSuccessful();
-    String content = response.content();
-    assertThat(content).contains(lastThursdayFormatted);
-    assertThat(content).doesNotContain(lastWednesdayFormatted);
+    WsMeasures.SearchHistoryResponse response = newAdminWsClient(orchestrator).measures().searchHistory(SearchHistoryRequest.builder()
+      .setComponent(PROJECT_KEY)
+      .setMetrics(singletonList("ncloc"))
+      .build());
+    assertThat(response.getMeasuresCount()).isEqualTo(1);
+    assertThat(response.getMeasuresList().get(0).getHistoryList()).extracting(HistoryValue::getDate).doesNotContain(lastWednesdayFormatted, lastThursdayFormatted);
   }
 
   /**
@@ -279,7 +279,7 @@ public class PurgeTest {
     scan(PROJECT_SAMPLE_PATH, ONE_DAY_AGO);
 
     // second analysis as NEW_* metrics
-    assertThat(count(COUNT_FILE_MEASURES)).isLessThan( 2 * fileMeasures);
+    assertThat(count(COUNT_FILE_MEASURES)).isLessThan(2 * fileMeasures);
     assertThat(count(COUNT_DIR_MEASURES)).isGreaterThan(2 * dirMeasures);
   }
 

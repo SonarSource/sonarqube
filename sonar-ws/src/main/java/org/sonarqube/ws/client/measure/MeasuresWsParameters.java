@@ -28,14 +28,16 @@ public class MeasuresWsParameters {
 
   // actions
   public static final String ACTION_COMPONENT_TREE = "component_tree";
-
   public static final String ACTION_COMPONENT = "component";
+  public static final String ACTION_SEARCH_HISTORY = "search_history";
+
   // parameters
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-
   public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_QUALIFIERS = "qualifiers";
+  public static final String PARAM_METRICS = "metrics";
   public static final String PARAM_METRIC_KEYS = "metricKeys";
   public static final String PARAM_METRIC_SORT = "metricSort";
   public static final String PARAM_METRIC_PERIOD_SORT = "metricPeriodSort";
@@ -46,9 +48,12 @@ public class MeasuresWsParameters {
   public static final String PARAM_PROJECT_KEYS = "projectKeys";
   public static final String PARAM_DEVELOPER_ID = "developerId";
   public static final String PARAM_DEVELOPER_KEY = "developerKey";
-  public static final String ADDITIONAL_METRICS = "metrics";
+  public static final String PARAM_FROM = "from";
+  public static final String PARAM_TO = "to";
 
+  public static final String ADDITIONAL_METRICS = "metrics";
   public static final String ADDITIONAL_PERIODS = "periods";
+
   public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, ADDITIONAL_PERIODS);
 
   private MeasuresWsParameters() {

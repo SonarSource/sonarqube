@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -447,6 +448,24 @@ public class MeasureDaoTest {
 
     // Leaves measure on file
     verifyMeasures(file1, MeasureTreeQuery.builder().setStrategy(LEAVES), "M2", "M3");
+  }
+
+  @Test
+  public void select_past_measures_with_several_analyses() {
+    ComponentDto project = db.components().insertProject();
+    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
+    insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
+    db.components().indexAllComponents();
+
+    // project
+    insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    insertMeasure("PROJECT_M2", OTHER_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    db.commit();
+
+    // Children measures of project
+    List<MeasureDto> result = underTest.selectPastMeasures(db.getSession(), project.uuid(), newArrayList(LAST_ANALYSIS_UUID, OTHER_ANALYSIS_UUID), singletonList(NCLOC_METRIC_ID));
+
+    assertThat(result).hasSize(2).extracting(MeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
   }
 
   private Optional<MeasureDto> selectSingle(MeasureQuery.Builder query) {

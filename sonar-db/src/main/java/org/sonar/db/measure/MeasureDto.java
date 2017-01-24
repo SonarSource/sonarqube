@@ -86,6 +86,9 @@ public class MeasureDto {
     return this;
   }
 
+  /**
+   * @param index starts at 1
+   */
   @CheckForNull
   public Double getVariation(int index) {
     switch (index) {

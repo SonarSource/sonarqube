@@ -22,7 +22,6 @@ package org.sonar.db.measure;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.session.ResultHandler;
@@ -30,6 +29,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
@@ -58,7 +58,7 @@ public class MeasureDao implements Dao {
    */
   public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query) {
     if (query.returnsEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     if (query.isOnComponents()) {
       return executeLargeInputs(
@@ -106,18 +106,28 @@ public class MeasureDao implements Dao {
 
   public List<MeasureDto> selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query) {
     if (query.returnsEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent));
   }
 
-  public List<PastMeasureDto> selectPastMeasures(DbSession dbSession,
-    String componentUuid,
-    String analysisUuid,
-    Collection<Integer> metricIds) {
+  public List<PastMeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, String analysisUuid, Collection<Integer> metricIds) {
+    if (metricIds.isEmpty()) {
+      return emptyList();
+    }
     return executeLargeInputs(
       metricIds,
-      ids -> mapper(dbSession).selectPastMeasures(componentUuid, analysisUuid, ids));
+      ids -> mapper(dbSession).selectPastMeasuresOnSingleAnalysis(componentUuid, analysisUuid, ids));
+  }
+
+  public List<MeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, List<String> analysisUuids, List<Integer> metricIds) {
+    if (analysisUuids.isEmpty() || metricIds.isEmpty()) {
+      return emptyList();
+    }
+
+    return executeLargeInputs(
+      analysisUuids,
+      analyses -> mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(componentUuid, analyses, metricIds));
   }
 
   /**

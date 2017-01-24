@@ -265,6 +265,9 @@ public final class SnapshotDto {
     return this;
   }
 
+  /**
+   * @return analysis date
+   */
   public Long getCreatedAt() {
     return createdAt;
   }

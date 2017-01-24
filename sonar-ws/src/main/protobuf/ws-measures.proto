@@ -47,6 +47,22 @@ message SearchWsResponse {
   repeated Measure measures = 1;
 }
 
+// WS api/measures/search_history
+message SearchHistoryResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated HistoryMeasure measures = 2;
+
+  message HistoryMeasure {
+    optional string metric = 1;
+    repeated HistoryValue history = 2;
+  }
+
+  message HistoryValue {
+    optional string date = 1;
+    optional string value = 2;
+  }
+}
+
 message Component {
   optional string id = 1;
   optional string key = 2;

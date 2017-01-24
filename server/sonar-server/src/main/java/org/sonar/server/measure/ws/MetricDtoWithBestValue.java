@@ -19,17 +19,23 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.common.collect.ImmutableSortedSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
 
 class MetricDtoWithBestValue {
   private static final String LOWER_CASE_NEW_METRIC_PREFIX = "new_";
+  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSortedSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
 
   private final MetricDto metric;
   private final MeasureDto bestValue;
@@ -55,6 +61,10 @@ class MetricDtoWithBestValue {
 
   MeasureDto getBestValue() {
     return bestValue;
+  }
+
+  static Predicate<ComponentDto> isEligibleForBestValue() {
+    return component -> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier());
   }
 
   static class MetricDtoToMetricDtoWithBestValueFunction implements Function<MetricDto, MetricDtoWithBestValue> {

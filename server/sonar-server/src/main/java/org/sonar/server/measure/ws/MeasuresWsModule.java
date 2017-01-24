@@ -30,6 +30,7 @@ public class MeasuresWsModule extends Module {
       MeasuresWs.class,
       ComponentTreeAction.class,
       ComponentAction.class,
-      SearchAction.class);
+      SearchAction.class,
+      SearchHistoryAction.class);
   }
 }

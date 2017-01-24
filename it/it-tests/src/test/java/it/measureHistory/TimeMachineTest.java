@@ -24,33 +24,40 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.TimeMachine;
-import org.sonar.wsclient.services.TimeMachineCell;
-import org.sonar.wsclient.services.TimeMachineQuery;
 import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
+import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
+import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 import util.ItUtils;
 import util.ItUtils.ComponentNavigation;
 
-import static java.lang.Double.parseDouble;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.formatDate;
 import static util.ItUtils.getComponentNavigation;
 import static util.ItUtils.getMeasuresByMetricKey;
 import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
 public class TimeMachineTest {
 
   private static final String PROJECT = "sample";
+  private static final String FIRST_ANALYSIS_DATE = "2014-10-19";
+  private static final String SECOND_ANALYSIS_DATE = "2014-11-13";
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  private static MeasuresService wsMeasures;
 
   @BeforeClass
   public static void initialize() {
@@ -59,8 +66,10 @@ public class TimeMachineTest {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    analyzeProject("measure/xoo-history-v1", "2014-10-19");
-    analyzeProject("measure/xoo-history-v2", "2014-11-13");
+    analyzeProject("measure/xoo-history-v1", FIRST_ANALYSIS_DATE);
+    analyzeProject("measure/xoo-history-v2", SECOND_ANALYSIS_DATE);
+
+    wsMeasures = newAdminWsClient(orchestrator).measures();
   }
 
   public static void initPeriods() {
@@ -87,73 +96,38 @@ public class TimeMachineTest {
 
   @Test
   public void testHistoryOfIssues() {
-    TimeMachineQuery query = TimeMachineQuery.createForMetrics(PROJECT, "blocker_violations", "critical_violations", "major_violations",
-      "minor_violations", "info_violations");
-    TimeMachine timemachine = orchestrator.getServer().getWsClient().find(query);
-    assertThat(timemachine.getCells().length).isEqualTo(2);
+    SearchHistoryResponse response = searchHistory("blocker_violations", "critical_violations", "info_violations", "major_violations", "minor_violations");
+    assertThat(response.getPaging().getTotal()).isEqualTo(2);
 
-    TimeMachineCell cell1 = timemachine.getCells()[0];
-    TimeMachineCell cell2 = timemachine.getCells()[1];
-
-    assertThat(cell1.getDate().getMonth()).isEqualTo(9);
-    assertThat(cell1.getValues()).isEqualTo(new Object[] {0L, 0L, 0L, 26L, 0L});
-
-    assertThat(cell2.getDate().getMonth()).isEqualTo(10);
-    assertThat(cell2.getValues()).isEqualTo(new Object[] {0L, 0L, 0L, 43L, 0L});
+    assertHistory(response, "blocker_violations", "0", "0");
+    assertHistory(response, "critical_violations", "0", "0");
+    assertHistory(response, "info_violations", "0", "0");
+    assertHistory(response, "major_violations", "0", "0");
+    assertHistory(response, "minor_violations", "26", "43");
   }
 
   @Test
   public void testHistoryOfMeasures() {
-    TimeMachineQuery query = TimeMachineQuery.createForMetrics(PROJECT, "lines", "ncloc");
-    TimeMachine timemachine = orchestrator.getServer().getWsClient().find(query);
-    assertThat(timemachine.getCells().length).isEqualTo(2);
+    SearchHistoryResponse response = searchHistory("lines", "ncloc");
 
-    TimeMachineCell cell1 = timemachine.getCells()[0];
-    TimeMachineCell cell2 = timemachine.getCells()[1];
-
-    assertThat(cell1.getDate().getMonth()).isEqualTo(9);
-    assertThat(cell1.getValues()).isEqualTo(new Object[] {26L, 24L});
-
-    assertThat(cell2.getDate().getMonth()).isEqualTo(10);
-    assertThat(cell2.getValues()).isEqualTo(new Object[] {43L, 40L});
-  }
-
-  @Test
-  public void unknownMetrics() {
-    TimeMachine timemachine = orchestrator.getServer().getWsClient().find(TimeMachineQuery.createForMetrics(PROJECT, "notfound"));
-    assertThat(timemachine.getCells().length).isEqualTo(0);
-
-    timemachine = orchestrator.getServer().getWsClient().find(TimeMachineQuery.createForMetrics(PROJECT, "lines", "notfound"));
-    assertThat(timemachine.getCells().length).isEqualTo(2);
-    for (TimeMachineCell cell : timemachine.getCells()) {
-      assertThat(cell.getValues().length).isEqualTo(1);
-      assertThat(cell.getValues()[0]).isInstanceOf(Long.class);
-    }
-
-    timemachine = orchestrator.getServer().getWsClient().find(TimeMachineQuery.createForMetrics(PROJECT));
-    assertThat(timemachine.getCells().length).isEqualTo(0);
+    assertThat(response.getPaging().getTotal()).isEqualTo(2);
+    assertHistory(response, "lines", "26", "43");
+    assertHistory(response, "ncloc", "24", "40");
   }
 
   @Test
   public void noDataForInterval() {
     Date now = new Date();
-    TimeMachine timemachine = orchestrator.getServer().getWsClient().find(TimeMachineQuery.createForMetrics(PROJECT, "lines").setFrom(now).setTo(now));
-    assertThat(timemachine.getCells().length).isEqualTo(0);
-  }
 
-  @Test
-  public void unknownResource() {
-    TimeMachine timemachine = orchestrator.getServer().getWsClient().find(TimeMachineQuery.createForMetrics("notfound:notfound", "lines"));
-    assertThat(timemachine).isNull();
-  }
+    SearchHistoryResponse response = wsMeasures.searchHistory(SearchHistoryRequest.builder()
+      .setComponent(PROJECT)
+      .setMetrics(singletonList("lines"))
+      .setFrom(formatDate(now))
+      .setTo(formatDate(now))
+      .build());
 
-  @Test
-  public void test_measure_variations() {
-    Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT, "files", "ncloc", "violations");
-    // variations from previous analysis
-    assertThat(parseDouble(measures.get("files").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(1.0);
-    assertThat(parseDouble(measures.get("ncloc").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(16.0);
-    assertThat(parseDouble(measures.get("violations").getPeriods().getPeriodsValue(0).getValue())).isGreaterThan(0.0);
+    assertThat(response.getPaging().getTotal()).isEqualTo(0);
+    assertThat(response.getMeasures(0).getHistoryList()).isEmpty();
   }
 
   /**
@@ -164,9 +138,29 @@ public class TimeMachineTest {
     Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT, "violations", "new_violations");
     assertThat(measures.get("violations")).isNotNull();
     assertThat(measures.get("new_violations")).isNotNull();
+    SearchHistoryResponse response = searchHistory("new_violations");
+    assertThat(response.getMeasures(0).getHistoryCount()).isGreaterThan(0);
 
     measures = getMeasuresByMetricKey(orchestrator, PROJECT, "violations", "new_violations");
     assertThat(measures.get("violations")).isNotNull();
     assertThat(measures.get("new_violations")).isNull();
+  }
+
+  private static SearchHistoryResponse searchHistory(String... metrics) {
+    return wsMeasures.searchHistory(SearchHistoryRequest.builder()
+      .setComponent(PROJECT)
+      .setMetrics(Arrays.asList(metrics))
+      .build());
+  }
+
+  private static void assertHistory(SearchHistoryResponse response, String metric, String... expectedMeasures) {
+    for (SearchHistoryResponse.HistoryMeasure measures : response.getMeasuresList()) {
+      if (metric.equals(measures.getMetric())) {
+        assertThat(measures.getHistoryList()).extracting(HistoryValue::getValue).containsExactly(expectedMeasures);
+        return;
+      }
+    }
+
+    throw new IllegalArgumentException("Metric not found");
   }
 }

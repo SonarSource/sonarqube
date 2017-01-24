@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -34,18 +35,24 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
 
 public class MeasuresServiceTest {
   private static final String VALUE_BASE_COMPONENT_ID = "base-component-id";
   private static final String VALUE_BASE_COMPONENT_KEY = "base-component-key";
+  private static final String VALUE_COMPONENT = "component-key";
   private static final List<String> VALUE_METRIC_KEYS = newArrayList("ncloc", "complexity");
+  private static final List<String> VALUE_METRICS = newArrayList("ncloc", "complexity");
   private static final String VALUE_STRATEGY = "all";
   private static final List<String> VALUE_QUALIFIERS = newArrayList("FIL", "PRJ");
   private static final ArrayList<String> VALUE_ADDITIONAL_FIELDS = newArrayList("metrics");
@@ -54,10 +61,12 @@ public class MeasuresServiceTest {
   private static final String VALUE_METRIC_SORT = "ncloc";
   private static final String VALUE_METRIC_SORT_FILTER = "all";
   private static final int VALUE_PAGE = 42;
-  private static final int VALUE_PAGE_SIZE = 1984;
+  private static final int VALUE_PAGE_SIZE = 1000;
   private static final String VALUE_QUERY = "query-sq";
   private static final String VALUE_DEVELOPER_ID = "developer-id";
   private static final String VALUE_DEVELOPER_KEY = "developer-key";
+  private static final String VALUE_FROM = "2017-10-01";
+  private static final String VALUE_TO = "2017-11-01";
 
   @Rule
   public ServiceTester<MeasuresService> serviceTester = new ServiceTester<>(new MeasuresService(mock(WsConnector.class)));
@@ -103,6 +112,31 @@ public class MeasuresServiceTest {
       .hasParam(PARAM_DEVELOPER_ID, VALUE_DEVELOPER_ID)
       .hasParam(PARAM_DEVELOPER_KEY, VALUE_DEVELOPER_KEY)
       .hasParam(PARAM_METRIC_SORT_FILTER, VALUE_METRIC_SORT_FILTER)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search_history() {
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(VALUE_COMPONENT)
+      .setMetrics(VALUE_METRICS)
+      .setFrom(VALUE_FROM)
+      .setTo(VALUE_TO)
+      .setPage(VALUE_PAGE)
+      .setPageSize(VALUE_PAGE_SIZE)
+      .build();
+
+    underTest.searchHistory(request);
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchHistoryResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_COMPONENT, VALUE_COMPONENT)
+      .hasParam(PARAM_METRICS, "ncloc,complexity")
+      .hasParam(PARAM_FROM, VALUE_FROM)
+      .hasParam(PARAM_TO, VALUE_TO)
+      .hasParam("p", VALUE_PAGE)
+      .hasParam("ps", VALUE_PAGE_SIZE)
       .andNoOtherParam();
   }
 }

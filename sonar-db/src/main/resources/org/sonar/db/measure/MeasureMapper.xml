@@ -128,7 +128,7 @@
     <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
   </sql>
 
-  <select id="selectPastMeasures" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
+  <select id="selectPastMeasuresOnSingleAnalysis" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
     select pm.id as id, pm.metric_id as metricId, pm.person_id as personId, pm.value as value
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
@@ -137,6 +137,17 @@
       and analysis.uuid = #{analysisUuid}
       and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
       and pm.person_id is null
+  </select>
+
+  <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    where
+    pm.component_uuid = #{componentUuid}
+    and analysis.uuid in <foreach item="analysisUuid" collection="analysisUuids" open="(" separator="," close=")">#{analysisUuid}</foreach>
+    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+    and pm.person_id is null
   </select>
 
   <select id="selectProjectMeasuresOfDeveloper" parameterType="map" resultType="Measure">
