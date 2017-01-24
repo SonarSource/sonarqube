@@ -28,19 +28,22 @@ import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class ModuleIndexerTest {
   private ModuleIndexer indexer;
   private DefaultComponentTree tree;
   private DefaultInputModuleHierarchy moduleHierarchy;
   private ImmutableProjectReactor reactor;
+  private InputComponentStore componentStore;
 
   @Before
   public void setUp() {
     reactor = mock(ImmutableProjectReactor.class);
+    componentStore = new InputComponentStore();
     tree = new DefaultComponentTree();
     moduleHierarchy = new DefaultInputModuleHierarchy();
-    indexer = new ModuleIndexer(reactor, tree, new BatchIdGenerator(), moduleHierarchy);
+    indexer = new ModuleIndexer(reactor, tree, componentStore, new BatchIdGenerator(), moduleHierarchy);
   }
 
   @Test

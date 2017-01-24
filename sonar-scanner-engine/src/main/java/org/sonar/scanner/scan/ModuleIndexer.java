@@ -23,17 +23,24 @@ import org.picocontainer.Startable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
+/**
+ * Indexes all modules into {@link DefaultComponentTree}, {@link DefaultInputModuleHierarchy) and {@link InputComponentStore}, using the 
+ * project definitions provided by the {@link ImmutableProjectReactor}.
+ */
 public class ModuleIndexer implements Startable {
   private final ImmutableProjectReactor projectReactor;
   private final DefaultComponentTree componentTree;
   private final DefaultInputModuleHierarchy moduleHierarchy;
   private final BatchIdGenerator batchIdGenerator;
+  private final InputComponentStore componentStore;
 
   public ModuleIndexer(ImmutableProjectReactor projectReactor, DefaultComponentTree componentTree,
-    BatchIdGenerator batchIdGenerator, DefaultInputModuleHierarchy moduleHierarchy) {
+    InputComponentStore componentStore, BatchIdGenerator batchIdGenerator, DefaultInputModuleHierarchy moduleHierarchy) {
     this.projectReactor = projectReactor;
     this.componentTree = componentTree;
+    this.componentStore = componentStore;
     this.moduleHierarchy = moduleHierarchy;
     this.batchIdGenerator = batchIdGenerator;
   }
@@ -42,6 +49,7 @@ public class ModuleIndexer implements Startable {
   public void start() {
     DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.get());
     moduleHierarchy.setRoot(root);
+    componentStore.put(root);
     createChildren(root);
   }
 
@@ -50,6 +58,7 @@ public class ModuleIndexer implements Startable {
       DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
       moduleHierarchy.index(child, parent);
       componentTree.index(child, parent);
+      componentStore.put(child);
       createChildren(child);
     }
   }

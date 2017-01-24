@@ -28,8 +28,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 
 /**
- * Used by views !!
- *
+ * @since 6.3
  */
 @ScannerSide
 public class ProjectAnalysisInfo implements Startable {

@@ -93,7 +93,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(mock(DefaultSensorStorage.class));
+    index.setCurrentStorage(mock(DefaultSensorStorage.class));
   }
 
   @Test

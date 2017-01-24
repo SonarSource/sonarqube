@@ -32,6 +32,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 
 /**
+ * Represents the indexed view of an {@link InputFile}. Accessing any of data exposed here won't trigger the expensive generation of 
+ * metadata for the {@link InputFile}.
+ * 
  * @since 6.3 
  */
 public interface IndexedFile extends InputPath {

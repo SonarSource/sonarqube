@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
@@ -69,8 +68,8 @@ public class ConsoleReportTest {
   @Test
   public void testNoFile() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Collections.<InputFile>emptyList());
-    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.emptyList());
+    when(issueCache.all()).thenReturn(Collections.emptyList());
     report.execute();
     assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
@@ -82,7 +81,7 @@ public class ConsoleReportTest {
   @Test
   public void testNoNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/Foo.php").build()));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(false, null)));
     report.execute();
     assertDeprecated();
@@ -95,7 +94,7 @@ public class ConsoleReportTest {
   @Test
   public void testOneNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/Foo.php").build()));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(true, Severity.BLOCKER)));
     report.execute();
     assertDeprecated();
@@ -109,7 +108,7 @@ public class ConsoleReportTest {
   @Test
   public void testOneNewIssuePerSeverity() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new TestInputFileBuilder("foo", "src/Foo.php").build()));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(
       createIssue(true, Severity.BLOCKER),
       createIssue(true, Severity.CRITICAL),

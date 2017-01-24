@@ -157,7 +157,12 @@ public interface SensorContext {
    * @since 6.1
    */
   void addContextProperty(String key, String value);
-  
+
+  /**
+   * Indicate that a file should be published in the report sent to SonarQube.
+   * Files are automatically marked if any data is created for it (issues, highlighting, coverage, etc.).
+   * @since 6.3
+   */
   void markForPublishing(InputFile inputFile);
 
 }

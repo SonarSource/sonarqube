@@ -40,7 +40,6 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -73,13 +72,13 @@ public class JSONReport implements Reporter {
   private final Server server;
   private final Rules rules;
   private final IssueCache issueCache;
-  private final InputComponentStore fileCache;
+  private final InputComponentStore componentStore;
   private final DefaultInputModule rootModule;
   private final UserRepositoryLoader userRepository;
   private final InputModuleHierarchy moduleHierarchy;
 
   public JSONReport(InputModuleHierarchy moduleHierarchy, Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-    DefaultInputModule rootModule, InputComponentStore fileCache, UserRepositoryLoader userRepository) {
+    DefaultInputModule rootModule, InputComponentStore componentStore, UserRepositoryLoader userRepository) {
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.fileSystem = fileSystem;
@@ -87,7 +86,7 @@ public class JSONReport implements Reporter {
     this.rules = rules;
     this.issueCache = issueCache;
     this.rootModule = rootModule;
-    this.fileCache = fileCache;
+    this.componentStore = componentStore;
     this.userRepository = userRepository;
   }
 
@@ -166,17 +165,17 @@ public class JSONReport implements Reporter {
     json.name("components").beginArray();
     // Dump modules
     writeJsonModuleComponents(json, rootModule);
-    for (InputFile inputFile : fileCache.allFiles()) {
-      String key = ((DefaultInputFile) inputFile).key();
+    for (DefaultInputFile inputFile : componentStore.allFilesToPublish()) {
+      String key = inputFile.key();
       json
         .beginObject()
         .prop("key", key)
         .prop("path", inputFile.relativePath())
-        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+        .prop("moduleKey", inputFile.moduleKey())
         .prop("status", inputFile.status().name())
         .endObject();
     }
-    for (InputDir inputDir : fileCache.allDirs()) {
+    for (InputDir inputDir : componentStore.allDirs()) {
       String key = ((DefaultInputDir) inputDir).key();
       json
         .beginObject()

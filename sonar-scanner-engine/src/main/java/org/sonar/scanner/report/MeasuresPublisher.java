@@ -68,12 +68,12 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
-  private final InputComponentStore componentCache;
+  private final InputComponentStore componentStore;
   private final MeasureCache measureCache;
   private final TestPlanBuilder testPlanBuilder;
 
-  public MeasuresPublisher(InputComponentStore componentCache, MeasureCache measureCache, TestPlanBuilder testPlanBuilder) {
-    this.componentCache = componentCache;
+  public MeasuresPublisher(InputComponentStore componentStore, MeasureCache measureCache, TestPlanBuilder testPlanBuilder) {
+    this.componentStore = componentStore;
     this.measureCache = measureCache;
     this.testPlanBuilder = testPlanBuilder;
   }
@@ -82,7 +82,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     final ScannerReport.Measure.Builder builder = ScannerReport.Measure.newBuilder();
 
-    for (final InputComponent c : componentCache.all()) {
+    for (final InputComponent c : componentStore.all()) {
       DefaultInputComponent component = (DefaultInputComponent) c;
       // Recompute all coverage measures from line data to take into account the possible merge of several reports
       updateCoverageFromLineData(component);

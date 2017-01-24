@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scm;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -34,10 +33,10 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 
@@ -51,19 +50,17 @@ public final class ScmPublisher {
   private final ScmConfiguration configuration;
   private final ProjectRepositories projectRepositories;
   private final ModuleInputComponentStore componentStore;
-
-  private DefaultModuleFileSystem fs;
-  private ScannerReportWriter writer;
+  private final DefaultModuleFileSystem fs;
+  private final ScannerReportWriter writer;
 
   public ScmPublisher(DefaultInputModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
-    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ImmutableProjectReactor reactor) {
+    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher) {
     this.inputModule = inputModule;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
     this.componentStore = componentStore;
     this.fs = fs;
-    File reportDir = new File(reactor.getRoot().getWorkDir(), "batch-report");
-    writer = new ScannerReportWriter(reportDir);
+    this.writer = reportPublisher.getWriter();
   }
 
   public void publish() {

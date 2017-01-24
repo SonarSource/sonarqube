@@ -86,7 +86,6 @@ public class FileIndexer {
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
-    fileSystem.add(module);
     if (isAggregator) {
       // No indexing for an aggregator module
       return;
@@ -100,11 +99,15 @@ public class FileIndexer {
     indexFiles(fileSystem, progress, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, fileSystem.tests(), InputFile.Type.TEST);
 
-    progressReport.stop(progress.count() + " files indexed");
+    progressReport.stop(progress.count() + " " + pluralizeFiles(progress.count()) + " indexed");
 
     if (exclusionFilters.hasPattern()) {
-      LOG.info("{} files ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount());
+      LOG.info("{} {} ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount(), pluralizeFiles(progress.excludedByPatternsCount()));
     }
+  }
+
+  private static String pluralizeFiles(int count) {
+    return count == 1 ? "file" : "files";
   }
 
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, List<File> sources, InputFile.Type type) {
@@ -228,7 +231,7 @@ public class FileIndexer {
           + "disjoint sets for main and test files");
       }
       indexed.add(inputFile.path());
-      progressReport.message(indexed.size() + " files indexed...  (last one was " + inputFile.relativePath() + ")");
+      progressReport.message(indexed.size() + " " + pluralizeFiles(indexed.size()) + " indexed...  (last one was " + inputFile.relativePath() + ")");
     }
 
     void increaseExcludedByPatternsCount() {

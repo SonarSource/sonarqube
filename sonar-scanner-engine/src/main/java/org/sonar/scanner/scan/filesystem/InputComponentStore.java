@@ -59,6 +59,12 @@ public class InputComponentStore {
     return inputComponents.values();
   }
 
+  public Iterable<DefaultInputFile> allFilesToPublish() {
+    return inputFileCache.values().stream()
+      .map(f -> (DefaultInputFile) f)
+      .filter(DefaultInputFile::publish)::iterator;
+  }
+
   public Iterable<InputFile> allFiles() {
     return inputFileCache.values();
   }

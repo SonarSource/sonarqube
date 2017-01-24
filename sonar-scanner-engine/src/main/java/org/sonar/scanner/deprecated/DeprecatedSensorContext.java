@@ -55,12 +55,12 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public Resource getParent(Resource reference) {
-    return index.getParent(reference.getEffectiveKey());
+    return index.getParent(getComponentKey(reference));
   }
 
   @Override
   public Collection<Resource> getChildren(Resource reference) {
-    return index.getChildren(reference.getEffectiveKey());
+    return index.getChildren(getComponentKey(reference));
   }
 
   @Override
@@ -68,6 +68,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
     return index.getMeasure(module.key(), metric);
   }
 
+  /**
+   * Returns effective key of a resource, without branch.
+   */
   private String getComponentKey(Resource r) {
     if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
       return r.getKey();
@@ -93,7 +96,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric) {
-    return index.getMeasure(resource.getEffectiveKey(), metric);
+    return index.getMeasure(getComponentKey(resource), metric);
   }
 
   @Override

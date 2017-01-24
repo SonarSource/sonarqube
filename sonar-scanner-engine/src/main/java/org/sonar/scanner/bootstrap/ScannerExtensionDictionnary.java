@@ -63,8 +63,7 @@ public class ScannerExtensionDictionnary {
   private final PostJobOptimizer postJobOptimizer;
 
   public ScannerExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext,
-    SensorOptimizer sensorOptimizer, PostJobContext postJobContext,
-    PostJobOptimizer postJobOptimizer) {
+    SensorOptimizer sensorOptimizer, PostJobContext postJobContext, PostJobOptimizer postJobOptimizer) {
     this.componentContainer = componentContainer;
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;

@@ -139,7 +139,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectAnalysisInfo.class,
       DefaultIndex.class,
       Storages.class,
-      DefaultIssueCallback.class,
       new RulesProvider(),
       new ProjectRepositoriesProvider(),
 
@@ -159,6 +158,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new QualityProfileProvider(),
 
       // issues
+      DefaultIssueCallback.class,
       IssueCache.class,
       DefaultProjectIssues.class,
       IssueTransition.class,

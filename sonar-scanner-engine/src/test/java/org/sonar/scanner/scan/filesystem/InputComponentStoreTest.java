@@ -19,18 +19,21 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
-import java.nio.charset.StandardCharsets;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class InputComponentStoreTest {
   @Rule
@@ -39,10 +42,14 @@ public class InputComponentStoreTest {
   @Test
   public void should_add_input_file() throws Exception {
     InputComponentStore cache = new InputComponentStore();
-    DefaultInputFile fooFile = new TestInputFileBuilder("struts", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath()).build();
+    DefaultInputFile fooFile = new TestInputFileBuilder("struts", "src/main/java/Foo.java")
+      .setModuleBaseDir(temp.newFolder().toPath())
+      .setPublish(true)
+      .build();
     cache.put(fooFile);
     cache.put(new TestInputFileBuilder("struts-core", "src/main/java/Bar.java")
       .setLanguage("bla")
+      .setPublish(false)
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
       .setLines(2)
@@ -60,6 +67,10 @@ public class InputComponentStoreTest {
     for (InputPath inputPath : cache.allFiles()) {
       assertThat(inputPath.relativePath()).startsWith("src/main/java/");
     }
+
+    List<InputFile> toPublish = new LinkedList<>();
+    cache.allFilesToPublish().forEach(toPublish::add);
+    assertThat(toPublish).containsOnly(fooFile);
 
     cache.remove(fooFile);
     assertThat(cache.allFiles()).hasSize(1);

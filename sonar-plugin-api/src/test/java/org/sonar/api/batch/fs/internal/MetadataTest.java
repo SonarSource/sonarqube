@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
-/**
- * Common interface for all input components.
- *
- * @since 5.2
- * @see InputFile
- * @see InputDir
- * @see InputModule
- */
-public interface InputComponent {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * Component key shared by all part of SonarQube (batch, server, WS...). 
-   * It doesn't include the branch.
-   */
-  String key();
+import org.junit.Test;
 
-  /**
-   * Is the component an {@link InputFile}
-   */
-  boolean isFile();
-
+public class MetadataTest {
+  @Test
+  public void testRoundtrip() {
+    Metadata metadata = new Metadata(10, 20, "hash", new int[] {1, 2}, 30);
+    assertThat(metadata.lastValidOffset()).isEqualTo(30);
+    assertThat(metadata.lines()).isEqualTo(10);
+    assertThat(metadata.nonBlankLines()).isEqualTo(20);
+    assertThat(metadata.originalLineOffsets()).isEqualTo(new int[] {1, 2});
+    assertThat(metadata.hash()).isEqualTo("hash");
+  }
 }

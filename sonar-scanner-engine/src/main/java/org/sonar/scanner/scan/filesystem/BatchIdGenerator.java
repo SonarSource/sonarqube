@@ -21,6 +21,13 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.util.function.Supplier;
 
+import org.sonar.api.batch.fs.InputComponent;
+
+/**
+ * Generates unique IDs for any {@link InputComponent}. 
+ * The IDs must be unique among all types of components and for all modules in the project.
+ * The ID should never be 0, as it is sometimes used to indicate invalid components. 
+ */
 public class BatchIdGenerator implements Supplier<Integer> {
   private int nextBatchId = 1;
 

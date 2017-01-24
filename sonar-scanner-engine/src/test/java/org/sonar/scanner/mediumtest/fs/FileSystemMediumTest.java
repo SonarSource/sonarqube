@@ -28,12 +28,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.scanner.mediumtest.LogOutputRecorder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,13 +52,15 @@ public class FileSystemMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private LogOutputRecorder logs = new LogOutputRecorder();
+
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .setLogOutput(logs)
     .build();
 
   private File baseDir;
-
   private ImmutableMap.Builder<String, String> builder;
 
   @Before
@@ -75,6 +81,7 @@ public class FileSystemMediumTest {
   @After
   public void stop() {
     tester.stop();
+    logs = new LogOutputRecorder();
   }
 
   @Test
@@ -103,9 +110,87 @@ public class FileSystemMediumTest {
     assertThat(result.getReportReader().readComponent(ref).getName()).isEmpty();
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(result.inputDirs()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").type()).isEqualTo(InputFile.Type.MAIN);
-    assertThat(result.inputFile("src/sample.xoo").relativePath()).isEqualTo("src/sample.xoo");
-    assertThat(result.inputDir("src").relativePath()).isEqualTo("src");
+
+    DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    InputDir dir = result.inputDir("src");
+    assertThat(file.type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(file.relativePath()).isEqualTo("src/sample.xoo");
+    assertThat(dir.relativePath()).isEqualTo("src");
+
+    // file and dirs were not published
+    assertThat(file.publish()).isFalse();
+    assertThat(result.getReportComponent(dir.key())).isNull();
+    assertThat(result.getReportComponent(file.key())).isNull();
+  }
+
+  @Test
+  public void onlyGenerateMetadataIfNeeded() throws IOException {
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.task", "scan")
+      .put("sonar.verbose", "true")
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.projectVersion", "1.0-SNAPSHOT")
+      .put("sonar.projectDescription", "Description of Foo Project");
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "sample.unknown");
+    FileUtils.write(unknownFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("2 files indexed");
+    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.unknown' generated metadata");
+  }
+
+  @Test
+  public void publishFilesWithIssues() throws IOException {
+    ScannerMediumTester tester2 = ScannerMediumTester.builder()
+      .registerPlugin("xoo", new XooPlugin())
+      .addDefaultQProfile("xoo", "Sonar Way")
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
+      .build();
+    tester2.start();
+
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.task", "scan")
+      .put("sonar.verbose", "true")
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.projectVersion", "1.0-SNAPSHOT")
+      .put("sonar.projectDescription", "Description of Foo Project");
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    TaskResult result = tester2.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    DefaultInputFile file = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    InputDir dir = result.inputDir("src");
+
+    assertThat(file.publish()).isTrue();
+    assertThat(result.getReportComponent(dir.key())).isNotNull();
+    assertThat(result.getReportComponent(file.key())).isNotNull();
+
+    tester2.stop();
   }
 
   @Test

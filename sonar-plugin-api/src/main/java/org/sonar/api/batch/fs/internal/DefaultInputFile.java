@@ -40,13 +40,14 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private Status status;
   private Charset charset;
   private Metadata metadata;
-  private boolean publish = false;
+  private boolean publish;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     super(indexedFile.batchId());
     this.indexedFile = indexedFile;
     this.metadataGenerator = metadataGenerator;
     this.metadata = null;
+    this.publish = false;
   }
 
   private void checkMetadata() {
@@ -55,10 +56,16 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     }
   }
 
+  /**
+   * @since 6.3
+   */
   public void setPublish(boolean publish) {
     this.publish = publish;
   }
 
+  /**
+   * @since 6.3
+   */
   public boolean publish() {
     return publish;
   }
@@ -95,7 +102,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   /**
-   * Component key.
+   * Component key (without branch).
    */
   @Override
   public String key() {
