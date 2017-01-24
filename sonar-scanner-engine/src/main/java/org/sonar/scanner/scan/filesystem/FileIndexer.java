@@ -41,7 +41,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -61,8 +60,7 @@ public class FileIndexer {
   private final InputFileFilter[] filters;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
-  private final IndexedFileBuilder indexedFileBuilder;
-  private final MetadataGenerator metadataGenerator;
+  private final InputFileBuilder inputFileBuilder;
   private final DefaultComponentTree componentTree;
   private final DefaultInputModule module;
   private final BatchIdGenerator batchIdGenerator;
@@ -71,21 +69,20 @@ public class FileIndexer {
   private ProgressReport progressReport;
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def, InputFileFilter[] filters) {
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def, InputFileFilter[] filters) {
     this.batchIdGenerator = batchIdGenerator;
     this.componentStore = componentStore;
     this.module = module;
     this.componentTree = componentTree;
-    this.indexedFileBuilder = indexedFileBuilder;
-    this.metadataGenerator = inputFileBuilder;
+    this.inputFileBuilder = inputFileBuilder;
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
   public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
-    DefaultComponentTree componentTree, IndexedFileBuilder indexedFileBuilder, MetadataGenerator inputFileBuilder, ProjectDefinition def) {
-    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, indexedFileBuilder, inputFileBuilder, def, new InputFileFilter[0]);
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def) {
+    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, def, new InputFileFilter[0]);
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
@@ -132,14 +129,13 @@ public class FileIndexer {
   private void indexFile(DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
     // get case of real file without resolving link
     Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
-    DefaultIndexedFile indexedFile = indexedFileBuilder.create(realFile, type, fileSystem.baseDirPath());
-    if (indexedFile != null) {
-      InputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, fileSystem.encoding()));
-      if (exclusionFilters.accept(indexedFile, type) && accept(inputFile)) {
+    DefaultInputFile inputFile = inputFileBuilder.create(realFile, type, fileSystem.encoding());
+    if (inputFile != null) {
+      if (exclusionFilters.accept(inputFile, type) && accept(inputFile)) {
         fileSystem.add(inputFile);
         indexParentDir(fileSystem, inputFile);
-        progress.markAsIndexed(indexedFile);
-        LOG.debug("'{}' indexed {} with language '{}'", indexedFile.relativePath(), type == Type.TEST ? "as test " : "", indexedFile.language());
+        progress.markAsIndexed(inputFile);
+        LOG.debug("'{}' indexed {} with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
       } else {
         progress.increaseExcludedByPatternsCount();
       }
