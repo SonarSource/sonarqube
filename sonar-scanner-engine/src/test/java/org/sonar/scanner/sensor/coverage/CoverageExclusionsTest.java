@@ -22,7 +22,7 @@ package org.sonar.scanner.sensor.coverage;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -43,7 +43,7 @@ public class CoverageExclusionsTest {
 
   @Test
   public void shouldExcludeFileBasedOnPattern() {
-    InputFile file = new DefaultInputFile("foo", "src/org/polop/File.php");
+    InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
     coverageExclusions.initPatterns();
     assertThat(coverageExclusions.isExcluded(file)).isTrue();
@@ -51,7 +51,7 @@ public class CoverageExclusionsTest {
 
   @Test
   public void shouldNotExcludeFileBasedOnPattern() {
-    InputFile file = new DefaultInputFile("foo", "src/org/polop/File.php");
+    InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
     coverageExclusions.initPatterns();
     assertThat(coverageExclusions.isExcluded(file)).isFalse();

@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -67,7 +67,7 @@ public class ModuleIssuesTest {
   ModuleIssues moduleIssues;
 
   BatchComponentCache componentCache = new BatchComponentCache();
-  InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n");
+  InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
   @Before

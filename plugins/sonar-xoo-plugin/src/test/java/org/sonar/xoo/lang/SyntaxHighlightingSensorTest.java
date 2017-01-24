@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.component.ResourcePerspectives;
@@ -62,7 +63,10 @@ public class SyntaxHighlightingSensorTest {
 
   @Test
   public void testNoExecutionIfNoSyntaxFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage("xoo")
+      .setModuleBaseDir(baseDir.toPath())
+      .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
   }
@@ -71,8 +75,11 @@ public class SyntaxHighlightingSensorTest {
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
     FileUtils.write(symbol, "1:4:k\n12:15:cppd\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo")
-      .initMetadata(" xoo\nazertyazer\nfoo");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage("xoo")
+      .setModuleBaseDir(baseDir.toPath())
+      .initMetadata(" xoo\nazertyazer\nfoo")
+      .build();
     context.fileSystem().add(inputFile);
 
     Highlightable highlightable = mock(Highlightable.class);

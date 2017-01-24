@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.scan.filesystem.InputPathCache;
 import java.nio.charset.StandardCharsets;
 
@@ -49,15 +50,16 @@ public class InputPathCacheTest {
   @Test
   public void should_add_input_file() throws Exception {
     InputPathCache cache = new InputPathCache();
-    DefaultInputFile fooFile = new DefaultInputFile("foo", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
+    DefaultInputFile fooFile = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath()).build();
     cache.put("struts", fooFile);
-    cache.put("struts-core", new DefaultInputFile("foo", "src/main/java/Bar.java")
+    cache.put("struts-core", new TestInputFileBuilder("foo", "src/main/java/Bar.java")
       .setLanguage("bla")
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
       .setLines(2)
       .setCharset(StandardCharsets.UTF_8)
-      .setModuleBaseDir(temp.newFolder().toPath()));
+      .setModuleBaseDir(temp.newFolder().toPath())
+      .build());
 
     DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile("struts-core", "src/main/java/Bar.java");
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");

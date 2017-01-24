@@ -17,18 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs;
+package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.fs.InputFile;
 
-/**
- * Determines if a file must be kept in search results. See {@link org.sonar.api.batch.fs.FileSystem}
- * and {@link org.sonar.api.batch.fs.FilePredicates}.
- * @since 4.2
- */
-public interface FilePredicate {
-  /**
-   * Test if provided file is valid for this predicate
-   */
-  boolean apply(IndexedFile inputFile);
-
+@FunctionalInterface
+public interface InputFilePredicate {
+  boolean apply(InputFile inputFile);
 }
