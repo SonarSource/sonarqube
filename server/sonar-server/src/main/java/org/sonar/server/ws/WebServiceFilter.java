@@ -28,7 +28,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
 
@@ -51,8 +50,8 @@ public class WebServiceFilter extends ServletFilter {
     webServiceEngine.controllers()
       .forEach(controller -> controller.actions()
         .forEach(action -> {
-          // Rails, Rest and servlet filter WS should not be executed by the web service engine
-          if (isJavaWs(controller, action)) {
+          // Rest and servlet filter WS should not be executed by the web service engine
+          if (shouldBeExecutedByWebServiceEngine(controller, action)) {
             includeUrls.add("/" + controller.path() + "/*");
           } else {
             excludeUrls.add("/" + action.path() + "*");
@@ -87,9 +86,8 @@ public class WebServiceFilter extends ServletFilter {
     // Nothing to do
   }
 
-  private static boolean isJavaWs(WebService.Controller controller, WebService.Action action) {
-    return !(action.handler() instanceof RailsHandler)
-      && !(action.handler() instanceof ServletFilterHandler)
+  private static boolean shouldBeExecutedByWebServiceEngine(WebService.Controller controller, WebService.Action action) {
+    return !(action.handler() instanceof ServletFilterHandler)
       && !controller.path().equals(CONTROLLER_PROPERTIES);
   }
 

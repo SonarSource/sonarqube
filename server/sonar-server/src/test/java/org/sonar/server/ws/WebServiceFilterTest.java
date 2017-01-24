@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -68,9 +67,7 @@ public class WebServiceFilterTest {
     initWebServiceEngine(
       newWsUrl("api/issues", "search"),
       newWsUrl("batch", "index"),
-      newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE),
-      newWsUrl("api/resources", "index").setHandler(RailsHandler.INSTANCE),
-      newWsUrl("api/issues", "deprecatedSearch").setHandler(RailsHandler.INSTANCE));
+      newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE));
 
     assertThat(underTest.doGetPattern().matches("/api/issues/search")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/issues/search.protobuf")).isTrue();
@@ -78,7 +75,6 @@ public class WebServiceFilterTest {
 
     assertThat(underTest.doGetPattern().matches("/api/resources/index")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/api/issues/deprecatedSearch")).isFalse();
     assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();
   }
