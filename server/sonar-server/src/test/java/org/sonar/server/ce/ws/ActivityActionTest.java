@@ -230,7 +230,6 @@ public class ActivityActionTest {
     componentDb.insertProjectAndSnapshot(zookeeper);
     componentDb.insertProjectAndSnapshot(eclipse);
     dbTester.commit();
-    componentDb.indexComponents(struts.uuid(), zookeeper.uuid(), eclipse.uuid());
     globalAdmin();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
@@ -248,7 +247,6 @@ public class ActivityActionTest {
     ComponentDto developer = newDeveloper(organizationDto, "Apache Developer").setUuid("D1").setProjectUuid("D1");
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertViewAndSnapshot(apacheView);
-    componentDb.indexComponents(developer.uuid(), apacheView.uuid());
     globalAdmin();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);

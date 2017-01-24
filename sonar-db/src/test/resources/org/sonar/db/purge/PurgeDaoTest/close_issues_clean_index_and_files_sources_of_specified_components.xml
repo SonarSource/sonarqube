@@ -291,19 +291,4 @@
                 src_hash="123456"
                 data_type="TEST"/>
 
-  <resource_index id="1"
-                  kee="project one"
-                  component_uuid="P1"
-                  root_component_uuid="P1"
-                  position="0"
-                  name_size="11"
-                  qualifier="TRK"/>
-  <resource_index id="2"
-                  kee="roject one"
-                  component_uuid="P1"
-                  root_component_uuid="P1"
-                  position="1"
-                  name_size="11"
-                  qualifier="TRK"/>
-
 </dataset>

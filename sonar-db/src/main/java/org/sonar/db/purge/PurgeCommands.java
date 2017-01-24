@@ -79,11 +79,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteResourceIndex (resource_index)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteResourceIndex);
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteResourceGroupRoles (group_roles)");
     componentIdPartitions.forEach(purgeMapper::deleteComponentGroupRoles);
     session.commit();

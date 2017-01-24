@@ -29,6 +29,6 @@ public class DaoModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new DaoModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 46);
+    assertThat(container.size()).isEqualTo(2 + 45);
   }
 }

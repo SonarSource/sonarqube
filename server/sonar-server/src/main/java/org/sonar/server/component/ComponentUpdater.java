@@ -104,7 +104,6 @@ public class ComponentUpdater {
       .setQualifier(newComponent.qualifier())
       .setCreatedAt(new Date(system2.now()));
     dbClient.componentDao().insert(session, component);
-    dbClient.componentIndexDao().indexResource(session, component.uuid());
     return component;
   }
 

@@ -127,7 +127,6 @@ public class PurgeDao implements Dao {
     PurgeMapper mapper = mapper(session);
     executeLargeInputs(uuids,
       input -> {
-        mapper.deleteResourceIndex(input);
         mapper.deleteFileSourcesByUuid(input);
         mapper.resolveComponentIssuesNotAlreadyResolved(input, system2.now());
         return emptyList();

@@ -140,7 +140,6 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     // match must be exact on key
     ComponentDto projectUntouched = newProjectDto(organizationDto).setKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
-    db.components().indexAllComponents();
     loginAsAdminOnDefaultOrganization();
 
     newRequest()

@@ -19,9 +19,7 @@
  */
 package org.sonar.db.component;
 
-import java.util.List;
 import java.util.function.Consumer;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -121,7 +119,8 @@ public class ComponentDbTester {
   }
 
   private static <T> Consumer<T> noExtraConfiguration() {
-    return (t) -> {};
+    return (t) -> {
+    };
   }
 
   private ComponentDto insertComponentImpl(ComponentDto component, Consumer<ComponentDto> dtoPopulator) {
@@ -137,25 +136,7 @@ public class ComponentDbTester {
     db.commit();
   }
 
-  public void indexAllComponents() {
-    ComponentQuery dbQuery = ComponentQuery.builder()
-      .setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV")
-      .build();
-    List<ComponentDto> rootProjects = dbClient.componentDao().selectByQuery(dbSession, dbQuery, 0, Integer.MAX_VALUE);
-    for (ComponentDto project : rootProjects) {
-      dbClient.componentIndexDao().indexProject(dbSession, project.uuid());
-    }
-    db.commit();
-  }
-
-  public void indexComponents(String... componentUuids) {
-    for (String componentUuid : componentUuids) {
-      dbClient.componentIndexDao().indexResource(dbSession, componentUuid);
-    }
-    db.commit();
-  }
-
-  public SnapshotDto insertSnapshot(SnapshotDto snapshotDto){
+  public SnapshotDto insertSnapshot(SnapshotDto snapshotDto) {
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, snapshotDto);
     db.commit();
     return snapshot;

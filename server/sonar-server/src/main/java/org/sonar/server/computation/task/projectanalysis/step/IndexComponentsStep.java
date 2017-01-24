@@ -19,19 +19,16 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 public class IndexComponentsStep implements ComputationStep {
 
-  private final ResourceIndexDao resourceIndexDao;
   private final ComponentIndexer elasticSearchIndexer;
   private final TreeRootHolder treeRootHolder;
 
-  public IndexComponentsStep(ResourceIndexDao resourceIndexDao, ComponentIndexer elasticSearchIndexer, TreeRootHolder treeRootHolder) {
-    this.resourceIndexDao = resourceIndexDao;
+  public IndexComponentsStep(ComponentIndexer elasticSearchIndexer, TreeRootHolder treeRootHolder) {
     this.elasticSearchIndexer = elasticSearchIndexer;
     this.treeRootHolder = treeRootHolder;
   }
@@ -39,7 +36,6 @@ public class IndexComponentsStep implements ComputationStep {
   @Override
   public void execute() {
     String projectUuid = treeRootHolder.getRoot().getUuid();
-    resourceIndexDao.indexProject(projectUuid);
     elasticSearchIndexer.indexByProjectUuid(projectUuid);
   }
 

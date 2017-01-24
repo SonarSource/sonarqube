@@ -34,7 +34,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
@@ -157,7 +156,6 @@ public class ComponentUpdaterTest {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
-    when(dbClient.componentIndexDao()).thenReturn(mock(ResourceIndexDao.class));
 
     doAnswer(invocation -> {
       ((ComponentDto) invocation.getArguments()[1]).setId(1L);

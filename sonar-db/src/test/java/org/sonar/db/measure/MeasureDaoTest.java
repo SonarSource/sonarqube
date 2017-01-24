@@ -372,7 +372,6 @@ public class MeasureDaoTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(module1).setUuid("C1").setName("File One"));
     db.components().insertComponent(newFileDto(module2).setUuid("C2").setName("File Two").setQualifier(UNIT_TEST_FILE));
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
-    db.components().indexAllComponents();
 
     // project
     insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
@@ -423,7 +422,6 @@ public class MeasureDaoTest {
     db.components().insertComponent(newFileDto(project).setUuid("C2").setName("File Two").setQualifier(UNIT_TEST_FILE));
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
     insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
-    db.components().indexAllComponents();
 
     // project
     insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
@@ -455,7 +453,6 @@ public class MeasureDaoTest {
     ComponentDto project = db.components().insertProject();
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
     insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
-    db.components().indexAllComponents();
 
     // project
     insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);

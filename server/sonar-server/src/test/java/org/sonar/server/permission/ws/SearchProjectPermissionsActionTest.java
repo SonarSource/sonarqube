@@ -155,7 +155,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   public void search_by_query_on_name() throws Exception {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-name"));
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("another-name"));
-    componentDb.indexAllComponents();
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -170,7 +169,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     OrganizationDto organizationDto = db.organizations().insert();
     componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("project-key"));
     componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("another-key"));
-    componentDb.indexAllComponents();
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project-key")
@@ -186,7 +184,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     for (int i = 1; i <= 1001; i++) {
       componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid-" + i));
     }
-    componentDb.indexAllComponents();
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")

@@ -30,7 +30,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
@@ -101,7 +100,6 @@ public class DbClient {
   private final CeScannerContextDao ceScannerContextDao;
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
-  private final ResourceIndexDao componentIndexDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
@@ -156,7 +154,6 @@ public class DbClient {
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
-    componentIndexDao = getDao(map, ResourceIndexDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
@@ -298,10 +295,6 @@ public class DbClient {
 
   public AuthorDao authorDao() {
     return authorDao;
-  }
-
-  public ResourceIndexDao componentIndexDao() {
-    return componentIndexDao;
   }
 
   public ComponentLinkDao componentLinkDao() {
