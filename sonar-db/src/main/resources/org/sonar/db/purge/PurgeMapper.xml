@@ -64,15 +64,6 @@
       </foreach>
   </delete>
 
-  <delete id="deleteSnapshotMeasures" parameterType="map">
-    delete from project_measures
-    where
-      analysis_uuid in
-      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid,jdbcType=VARCHAR}
-      </foreach>
-  </delete>
-
   <delete id="deleteComponentMeasures" parameterType="map">
     delete from project_measures
     where
