@@ -131,16 +131,15 @@ export default class OverviewApp extends React.Component {
   }
 
   loadHistory (component) {
-    const metrics = HISTORY_METRICS_LIST.join(',');
-    return getTimeMachineData(component.key, metrics).then(r => {
+    return getTimeMachineData(component.key, HISTORY_METRICS_LIST).then(r => {
       if (this.mounted) {
         const history = {};
-        r[0].cols.forEach((col, index) => {
-          history[col.metric] = r[0].cells.map(cell => {
-            const date = moment(cell.d).toDate();
-            const value = cell.v[index] || 0;
-            return { date, value };
-          });
+        r.measures.forEach(measure => {
+          const measureHistory = measure.history.map(analysis => ({
+            date: moment(analysis.date).toDate(),
+            value: analysis.value
+          }));
+          history[measure.metric] = measureHistory;
         });
         const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
         this.setState({ history, historyStartDate });

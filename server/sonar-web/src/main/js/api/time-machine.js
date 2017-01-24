@@ -17,10 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import { getJSON } from '../helpers/request';
 
-export function getTimeMachineData (componentKey, metrics) {
-  const url = '/api/timemachine/index';
-  const data = { resource: componentKey, metrics };
-  return getJSON(url, data);
-}
+type Response = {
+  measures: Array<{
+    metric: string,
+    history: Array<{
+      date: string,
+      value: string
+    }>
+  }>,
+  paging: {
+    pageIndex: number,
+    pageSize: number,
+    total: number
+  }
+};
+
+export const getTimeMachineData = (component: string, metrics: Array<string>, other?: {}): Promise<Response> => (
+    getJSON('/api/measures/search_history', {
+      component,
+      metrics: metrics.join(),
+      ps: 1000,
+      ...other
+    })
+);

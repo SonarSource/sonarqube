@@ -29,10 +29,6 @@ import { translate } from '../../../../helpers/l10n';
 
 const HEIGHT = 500;
 
-function parseValue (value, type) {
-  return type === 'RATING' && typeof value === 'string' ? value.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : value;
-}
-
 export default class MeasureHistory extends React.Component {
   state = {
     components: [],
@@ -79,13 +75,14 @@ export default class MeasureHistory extends React.Component {
       metricsToRequest.push(comparisonMetric);
     }
 
-    return getTimeMachineData(this.props.component.key, metricsToRequest.join()).then(r => {
-      return r[0].cells.map(cell => {
-        return {
-          date: moment(cell.d).toDate(),
-          values: cell.v
-        };
-      });
+    return getTimeMachineData(this.props.component.key, metricsToRequest).then(r => {
+      if (r.measures.length === 0) {
+        return [];
+      }
+      return r.measures[0].history.map(analysis => ({
+        date: moment(analysis.date).toDate(),
+        value: analysis.value
+      }));
     });
   }
 
@@ -104,7 +101,7 @@ export default class MeasureHistory extends React.Component {
     });
   }
 
-  renderLineChart (snapshots, metric, index) {
+  renderLineChart (snapshots, metric) {
     if (!metric) {
       return null;
     }
@@ -116,7 +113,7 @@ export default class MeasureHistory extends React.Component {
     const data = snapshots.map(snapshot => {
       return {
         x: snapshot.date,
-        y: parseValue(snapshot.values[index], metric.type)
+        y: Number(snapshot.value)
       };
     });
 
@@ -135,17 +132,6 @@ export default class MeasureHistory extends React.Component {
                     formatYTick={formatYTick}
                     leakPeriodDate={this.props.leakPeriodDate}
                     padding={[25, 25, 25, 60]}/>
-        </div>
-    );
-  }
-
-  renderLineCharts () {
-    const { metric } = this.props;
-
-    return (
-        <div>
-          {this.renderLineChart(this.state.snapshots, metric, 0)}
-          {this.renderLineChart(this.state.snapshots, this.state.comparisonMetric, 1)}
         </div>
     );
   }
@@ -175,7 +161,7 @@ export default class MeasureHistory extends React.Component {
 
     return (
         <div className="measure-details-history">
-          {this.renderLineCharts()}
+          {this.renderLineChart(this.state.snapshots, this.props.metric)}
         </div>
     );
   }
