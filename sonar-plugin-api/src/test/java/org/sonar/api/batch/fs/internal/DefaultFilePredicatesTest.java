@@ -214,4 +214,14 @@ public class DefaultFilePredicatesTest {
     assertThat(predicates.or(new FilePredicate[] {predicates.all(), predicates.none()}).apply(javaFile)).isTrue();
     assertThat(predicates.or(new FilePredicate[] {predicates.none(), predicates.none()}).apply(javaFile)).isFalse();
   }
+
+  @Test
+  public void hasFilename() {
+    assertThat(predicates.hasFilename("Action.java").apply(javaFile)).isTrue();
+  }
+
+  @Test
+  public void hasExtension() {
+    assertThat(predicates.hasExtension("java").apply(javaFile)).isTrue();
+  }
 }
