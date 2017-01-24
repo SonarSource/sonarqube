@@ -232,11 +232,22 @@ public class CpdExecutorTest {
     executor.execute(1);
 
     readDuplications(0);
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .usingElementComparator((l, r) -> l.matches(r) ? 0 : 1)
-      .containsOnly(
-        "Timeout during detection of duplications for .*Foo1.php",
-        "Timeout during detection of duplications for .*Foo2.php");
+
+    String[] expectedPatterns = {
+      "Timeout during detection of duplications for .*Foo1.php",
+      "Timeout during detection of duplications for .*Foo2.php"
+    };
+
+    assertThat(logTester.logs(LoggerLevel.WARN).stream())
+      .extracting(log -> {
+        for (String expectedPattern : expectedPatterns) {
+          if (log.matches(expectedPattern)) {
+            return expectedPattern;
+          }
+        }
+        return log;
+      })
+      .containsExactlyInAnyOrder(expectedPatterns);
   }
 
   private Duplication[] readDuplications(int expected) {
