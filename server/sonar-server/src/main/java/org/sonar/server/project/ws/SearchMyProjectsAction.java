@@ -38,7 +38,6 @@ import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchMyProjectsAction implements ProjectsWsAction {
@@ -82,12 +81,10 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
 
   private SearchMyProjectsWsResponse doHandle(SearchMyProjectsRequest request) {
     checkAuthenticated();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      SearchMyProjectsData data = dataLoader.load(request);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      SearchMyProjectsData data = dataLoader.load(dbSession, request);
       return buildResponse(request, data);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -113,16 +110,10 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
   }
 
   private static SearchMyProjectsRequest toRequest(Request request) {
-    SearchMyProjectsRequest searchMyProjectsRequest = SearchMyProjectsRequest.builder()
-      .setQuery(request.param(Param.TEXT_QUERY))
+    return SearchMyProjectsRequest.builder()
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .build();
-
-    String searchQuery = searchMyProjectsRequest.getQuery();
-    checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
-      "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
-    return searchMyProjectsRequest;
   }
 
   private static class ProjectDtoToWs implements Function<ComponentDto, Project> {

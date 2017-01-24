@@ -26,19 +26,12 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class SearchMyProjectsRequest {
-  private final String query;
   private final Integer page;
   private final Integer pageSize;
 
   private SearchMyProjectsRequest(Builder builder) {
-    this.query = builder.query;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
-  }
-
-  @CheckForNull
-  public String getQuery() {
-    return query;
   }
 
   @CheckForNull
@@ -56,17 +49,11 @@ public class SearchMyProjectsRequest {
   }
 
   public static class Builder {
-    private String query;
     private Integer page;
     private Integer pageSize;
 
     private Builder() {
       // enforce method constructor
-    }
-
-    public Builder setQuery(@Nullable String query) {
-      this.query = query;
-      return this;
     }
 
     public Builder setPage(@Nullable Integer page) {

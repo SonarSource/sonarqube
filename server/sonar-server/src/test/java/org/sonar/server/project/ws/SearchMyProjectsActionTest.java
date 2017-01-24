@@ -43,7 +43,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -54,7 +53,6 @@ import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -238,48 +236,6 @@ public class SearchMyProjectsActionTest {
   }
 
   @Test
-  public void search_my_projects_by_name() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto sonarqube = db.components().insertComponent(newProjectDto(organizationDto).setName("ONE_PROJECT_NAME"));
-    ComponentDto jdk8 = db.components().insertComponent(newProjectDto(organizationDto).setName("TWO_PROJECT_NAME"));
-    ComponentDto ruby = db.components().insertComponent(newProjectDto(organizationDto).setName("ANOTHER_42"));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(jdk8), newAnalysis(ruby));
-    db.components().indexAllComponents();
-    db.commit();
-
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk8);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, ruby);
-
-    SearchMyProjectsWsResponse result = call_ws(ws.newRequest().setParam(TEXT_QUERY, "_project_"));
-
-    assertThat(result.getProjectsCount()).isEqualTo(2);
-    assertThat(result.getProjectsList()).extracting(Project::getId)
-      .containsOnlyOnce(sonarqube.uuid(), jdk8.uuid())
-      .doesNotContain(ruby.uuid());
-  }
-
-  @Test
-  public void search_my_projects_by_exact_match_on_key() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto sonarqube = db.components().insertComponent(newProjectDto(organizationDto).setKey("MY_PROJECT_KEY"));
-    ComponentDto ruby = db.components().insertComponent(newProjectDto(organizationDto).setKey("MY_PROJECT_KEY_OR_ELSE"));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(sonarqube), newAnalysis(ruby));
-    db.components().indexAllComponents();
-    db.commit();
-
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, sonarqube);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, ruby);
-
-    SearchMyProjectsWsResponse result = call_ws(ws.newRequest().setParam(TEXT_QUERY, "MY_PROJECT_KEY"));
-
-    assertThat(result.getProjectsCount()).isEqualTo(1);
-    assertThat(result.getProjectsList()).extracting(Project::getId)
-      .containsOnlyOnce(sonarqube.uuid())
-      .doesNotContain(ruby.uuid());
-  }
-
-  @Test
   public void empty_response() {
     String result = ws.newRequest().execute().getInput();
     assertJson(result).isSimilarTo("{\"projects\":[]}");
@@ -291,14 +247,6 @@ public class SearchMyProjectsActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     call_ws();
-  }
-
-  @Test
-  public void fail_if_query_length_is_less_than_3_characters() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
-
-    call_ws(ws.newRequest().setParam(TEXT_QUERY, "ab"));
   }
 
   private ComponentDto insertClang(OrganizationDto organizationDto) {
