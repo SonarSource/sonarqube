@@ -19,29 +19,33 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropTableResourceIndex extends DdlChange {
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
+  private static final String TABLE_RESOURCE_INDEX = "resource_index";
 
-  @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+  public DropTableResourceIndex(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_RESOURCE_INDEX)
+      .setName("resource_index_key")
+      .build());
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_RESOURCE_INDEX)
+      .setName("resource_index_component")
+      .build());
+
+    context.execute(new DropTableBuilder(getDialect(), TABLE_RESOURCE_INDEX).build());
   }
 
 }

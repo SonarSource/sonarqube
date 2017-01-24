@@ -303,12 +303,10 @@ public class PurgeTest {
 
   private void assertDisabled(String key) {
     assertThat(enabledStatusOfComponent(key)).isFalse();
-    assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
   }
 
   private void assertExists(String key) {
     assertThat(enabledStatusOfComponent(key)).isTrue();
-    assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isGreaterThan(1);
   }
 
   private Boolean enabledStatusOfComponent(String key) {

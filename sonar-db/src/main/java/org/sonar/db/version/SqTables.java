@@ -27,8 +27,6 @@ public final class SqTables {
    * These tables are still involved in DB migrations, so potentially
    * incorrect collation must be fixed so that joins with other
    * tables are possible.
-   *
-   * @see org.sonar.db.charset.ColumnDef#isInSonarQubeTable()
    */
   public static final Set<String> OLD_DROPPED_TABLES = ImmutableSet.of(
     "active_dashboards",
@@ -38,6 +36,7 @@ public final class SqTables {
     "issue_filter_favourites",
     "measure_filters",
     "measure_filter_favourites",
+    "resource_index",
     "widgets",
     "widget_properties");
 
@@ -80,7 +79,6 @@ public final class SqTables {
     "project_qprofiles",
     "properties",
     "qprofile_changes",
-    "resource_index",
     "rules",
     "rules_parameters",
     "rules_profiles",
