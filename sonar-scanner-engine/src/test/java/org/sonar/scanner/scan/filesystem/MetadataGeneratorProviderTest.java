@@ -21,6 +21,7 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +33,6 @@ public class MetadataGeneratorProviderTest {
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
 
     MetadataGeneratorProvider factory = new MetadataGeneratorProvider();
-    assertThat(factory.provide(statusDetectionFactory, new FileMetadata())).isNotNull();
+    assertThat(factory.provide(new DefaultInputModule("module"), statusDetectionFactory, new FileMetadata())).isNotNull();
   }
 }

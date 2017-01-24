@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.PathUtils;
@@ -56,7 +57,7 @@ public class MetadataGeneratorTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     metadata = new FileMetadata();
-    generator = new MetadataGenerator(statusDetection, metadata);
+    generator = new MetadataGenerator(new DefaultInputModule("module"), statusDetection, metadata);
   }
 
   @Test

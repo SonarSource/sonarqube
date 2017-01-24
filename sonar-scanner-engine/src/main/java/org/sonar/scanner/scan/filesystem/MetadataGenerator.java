@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 
@@ -44,8 +45,10 @@ class MetadataGenerator {
 
   private final StatusDetection statusDetection;
   private final FileMetadata fileMetadata;
+  private final DefaultInputModule inputModule;
 
-  MetadataGenerator(StatusDetection statusDetection, FileMetadata fileMetadata) {
+  MetadataGenerator(DefaultInputModule inputModule, StatusDetection statusDetection, FileMetadata fileMetadata) {
+    this.inputModule = inputModule;
     this.statusDetection = statusDetection;
     this.fileMetadata = fileMetadata;
   }
@@ -82,7 +85,7 @@ class MetadataGenerator {
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
       inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash()));
+      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
       LOG.debug("'{}' generated metadata {} with and charset '{}'",
         inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
     } catch (Exception e) {

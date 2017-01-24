@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
@@ -76,63 +75,6 @@ public class MeasuresMediumTest {
   }
 
   @Test
-  public void computeMeasuresOnTempProject() throws IOException {
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xooMeasureFile, "lines:20");
-
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.cpd.xoo.skip", "true")
-        .build())
-      .start();
-
-    Map<String, List<Measure>> allMeasures = result.allMeasures();
-
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "stringValue.value").isEmpty();
-
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value").containsOnly(
-      tuple(CoreMetrics.LINES_KEY, 2));
-  }
-
-  @Test
-  public void computeLinesOnAllFiles() throws IOException {
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\n\ncontent");
-
-    File otherFile = new File(srcDir, "sample.other");
-    FileUtils.write(otherFile, "Sample other\ncontent\n");
-
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.import_unknown_files", "true")
-        .build())
-      .start();
-
-    Map<String, List<Measure>> allMeasures = result.allMeasures();
-
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .contains(tuple("lines", 3));
-    assertThat(allMeasures.get("com.foo.project:src/sample.other")).extracting("metricKey", "intValue.value")
-      .contains(tuple("lines", 3), tuple("ncloc", 2));
-  }
-
-  @Test
   public void applyExclusionsOnCoverageMeasures() throws IOException {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\n\ncontent");
@@ -155,8 +97,7 @@ public class MeasuresMediumTest {
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .containsOnly(tuple("lines", 3),
-        tuple("lines_to_cover", 2));
+      .containsOnly(tuple("lines_to_cover", 2));
 
     result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -173,7 +114,7 @@ public class MeasuresMediumTest {
 
     allMeasures = result.allMeasures();
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .containsOnly(tuple("lines", 3));
+      .isEmpty();
   }
 
   @Test
@@ -199,8 +140,7 @@ public class MeasuresMediumTest {
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
-      .containsOnly(tuple("lines", 3),
-        tuple("lines_to_cover", 2));
+      .containsOnly(tuple("lines_to_cover", 2));
 
     assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("Coverage measure for metric 'lines_to_cover' should not be saved directly by a Sensor. Plugin should be updated to use SensorContext::newCoverage instead.");
@@ -257,7 +197,7 @@ public class MeasuresMediumTest {
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value", "stringValue.value")
-      .containsExactly(tuple("lines", 4, ""), tuple("ncloc_data", 0, "1=1;4=1"));
+      .containsExactly(tuple("ncloc_data", 0, "1=1;4=1"));
   }
 
 }

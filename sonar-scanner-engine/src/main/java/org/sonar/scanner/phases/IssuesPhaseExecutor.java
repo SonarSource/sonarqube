@@ -31,6 +31,7 @@ import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.FileSystemLogger;
 import org.sonar.scanner.scan.report.IssuesReports;
+import org.sonar.scanner.scm.ScmPublisher;
 
 public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
 

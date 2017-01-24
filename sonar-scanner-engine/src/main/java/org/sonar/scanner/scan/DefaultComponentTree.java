@@ -27,14 +27,19 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
+
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.InputComponentTree;
+
+import com.google.common.base.Preconditions;
 
 public class DefaultComponentTree implements InputComponentTree {
   private Map<InputComponent, InputComponent> parents = new HashMap<>();
   private Map<InputComponent, Set<InputComponent>> children = new HashMap<>();
 
   public void index(InputComponent component, InputComponent parent) {
+    Preconditions.checkNotNull(component);
+    Preconditions.checkNotNull(parent);
     parents.put(component, parent);
     Set<InputComponent> list = children.get(parent);
     if (list == null) {

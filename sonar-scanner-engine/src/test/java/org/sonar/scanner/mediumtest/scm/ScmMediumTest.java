@@ -40,6 +40,7 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,6 +65,9 @@ public class ScmMediumTest {
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
+    // active a rule just to be sure that xoo files are published
+    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
     .addFileData("com.foo.project", CHANGED_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_NO_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
@@ -82,7 +86,6 @@ public class ScmMediumTest {
 
   @Test
   public void testScmMeasure() throws IOException {
-
     File baseDir = prepareProject();
 
     tester.newTask()
@@ -185,7 +188,7 @@ public class ScmMediumTest {
     ScannerReport.Changesets fileWithoutBlameScm = getChangesets(baseDir, "src/sample_no_blame.xoo");
     assertThat(fileWithoutBlameScm).isNull();
 
-    assertThat(logTester.logs()).containsSubsequence("3 files to be analyzed", "1/3 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
+    assertThat(logTester.logs()).containsSubsequence("2 files to be analyzed", "1/2 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
       "  * " + PathUtils.sanitize(xooFileWithoutBlame.toPath().toString()));
   }
 
@@ -242,9 +245,9 @@ public class ScmMediumTest {
 
     assertThat(getChangesets(baseDir, NO_BLAME_SCM_ON_SERVER_XOO)).isNull();
 
-    // 5 .xoo files + 3 .scm files. 1 file is SAME so not included in the total
+    // 5 .xoo files + 3 .scm files, but only 4 marked for publishing. 1 file is SAME so not included in the total
     assertThat(logTester.logs()).containsSubsequence("8 files indexed");
-    assertThat(logTester.logs()).containsSubsequence("7 files to be analyzed", "3/7 files analyzed");
+    assertThat(logTester.logs()).containsSubsequence("4 files to be analyzed", "3/4 files analyzed");
     assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * " + noBlameScmOnServer.getPath().replaceAll("\\\\", "/"));
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.phases;
 
+
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.events.BatchStepEvent;
@@ -72,6 +73,8 @@ public abstract class AbstractPhaseExecutor {
     initIssueExclusions();
 
     sensorsExecutor.execute(sensorContext);
+    
+    afterSensors();
 
     if (module.definition().getParent() == null) {
       executeOnRoot();
@@ -79,6 +82,9 @@ public abstract class AbstractPhaseExecutor {
     }
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  protected void afterSensors() {
   }
 
   protected abstract void executeOnRoot();
@@ -107,7 +113,7 @@ public abstract class AbstractPhaseExecutor {
   private void cleanMemory() {
     String cleanMemory = "Clean memory";
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, true));
-    //index.clear();
+    // index.clear();
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, false));
   }
 }

@@ -26,53 +26,31 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 
-import org.sonar.api.Startable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class DefaultInputModuleHierarchy implements InputModuleHierarchy, Startable {
+public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   private final PathResolver pathResolver = new PathResolver();
-  private final ImmutableProjectReactor projectReactor;
-  private final DefaultComponentTree componentTree;
-  private final BatchIdGenerator batchIdGenerator;
-
   private DefaultInputModule root;
-  private Map<DefaultInputModule, DefaultInputModule> parents;
-  private Multimap<DefaultInputModule, DefaultInputModule> children;
+  private final Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
+  private final Multimap<DefaultInputModule, DefaultInputModule> children = HashMultimap.create();
 
-  public DefaultInputModuleHierarchy(ImmutableProjectReactor projectReactor, DefaultComponentTree componentTree, BatchIdGenerator batchIdGenerator) {
-    this.projectReactor = projectReactor;
-    this.componentTree = componentTree;
-    this.batchIdGenerator = batchIdGenerator;
+  public void setRoot(DefaultInputModule root) {
+    this.root = root;
   }
 
-  @Override
-  public void start() {
-    doStart(projectReactor.getRoot());
-  }
-
-  void doStart(ProjectDefinition rootProjectDefinition) {
-    parents = new HashMap<>();
-    children = HashMultimap.create();
-    root = new DefaultInputModule(rootProjectDefinition, batchIdGenerator.get());
-    createChildren(root);
-  }
-
-  private void createChildren(DefaultInputModule parent) {
-    for (ProjectDefinition def : parent.definition().getSubProjects()) {
-      DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
-      parents.put(child, parent);
-      children.put(parent, child);
-      componentTree.index(child, parent);
-      createChildren(child);
-    }
+  public void index(DefaultInputModule child, DefaultInputModule parent) {
+    Preconditions.checkNotNull(child);
+    Preconditions.checkNotNull(parent);
+    parents.put(child, parent);
+    children.put(parent, child);
   }
 
   @Override
@@ -110,10 +88,5 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy, Starta
     Path moduleBaseDir = moduleDefinition.getBaseDir().toPath();
 
     return pathResolver.relativePath(parentBaseDir, moduleBaseDir);
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
   }
 }

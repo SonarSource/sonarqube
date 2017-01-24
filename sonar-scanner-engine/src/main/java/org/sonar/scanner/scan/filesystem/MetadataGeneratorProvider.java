@@ -21,11 +21,12 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 
 @ScannerSide
 public class MetadataGeneratorProvider extends ProviderAdapter {
-  public MetadataGenerator provide(StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata) {
-    return new MetadataGenerator(statusDetectionFactory.create(), fileMetadata);
+  public MetadataGenerator provide(DefaultInputModule inputModule, StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata) {
+    return new MetadataGenerator(inputModule, statusDetectionFactory.create(), fileMetadata);
   }
 }
