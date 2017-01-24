@@ -34,13 +34,14 @@ public class ModuleInputComponentStoreTest {
     ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
 
     String filename = "some name";
-    InputFile inputFile1 = new TestInputFileBuilder("dummy key", "some/path/" + filename).build();
+    String moduleKey = "dummy key";
+    InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/" + filename).build();
     store.doAdd(inputFile1);
 
-    InputFile inputFile2 = new TestInputFileBuilder("dummy key", "other/path/" + filename).build();
+    InputFile inputFile2 = new TestInputFileBuilder(moduleKey, "other/path/" + filename).build();
     store.doAdd(inputFile2);
 
-    InputFile dummyInputFile = new TestInputFileBuilder("dummy key", "some/path/Dummy.java").build();
+    InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/Dummy.java").build();
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByName(filename)).containsOnly(inputFile1, inputFile2);
@@ -61,5 +62,20 @@ public class ModuleInputComponentStoreTest {
     store.doAdd(dummyInputFile);
 
     assertThat(store.getFilesByExtension("java")).containsOnly(inputFile1, inputFile2);
+  }
+
+  @Test
+  public void should_not_cache_duplicates() throws IOException {
+    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+
+    String ext = "java";
+    String filename = "Program." + ext;
+    InputFile inputFile = new TestInputFileBuilder("dummy key", "some/path/" + filename).build();
+    store.doAdd(inputFile);
+    store.doAdd(inputFile);
+    store.doAdd(inputFile);
+
+    assertThat(store.getFilesByName(filename)).containsOnly(inputFile);
+    assertThat(store.getFilesByExtension(ext)).containsOnly(inputFile);
   }
 }
