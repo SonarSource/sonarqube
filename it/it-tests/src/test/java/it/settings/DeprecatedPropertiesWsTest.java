@@ -102,7 +102,8 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void doResetSettings() {
-    resetSettings(orchestrator, null, "some-property", "custom-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list", "undefined");
+    resetSettings(orchestrator, null, "some-property", "custom-property", "int", "multi", "boolean", "hidden", "not_defined", "setting.secured", "setting.license.secured", "list",
+      "undefined");
     resetSettings(orchestrator, PROJECT_KEY, PROJECT_SETTING_KEY, "sonar.coverage.exclusions", "project.setting");
   }
 
@@ -229,29 +230,43 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
+  public void get_global_value_using_id_parameter() throws Exception {
+    setProperty("some-property", "value", null);
+
+    assertThat(getProperty(adminWsClient, "some-property", null, true).getValue()).isEqualTo("value");
+  }
+
+  @Test
   public void put_property() throws Exception {
-    putProperty("some-property", "some-value", null);
+    putProperty("some-property", "some-value", null, false);
+
+    assertThat(getProperty("some-property", null).getValue()).isEqualTo("some-value");
+  }
+
+  @Test
+  public void put_property_using_id_parameter() throws Exception {
+    putProperty("some-property", "some-value", null, true);
 
     assertThat(getProperty("some-property", null).getValue()).isEqualTo("some-value");
   }
 
   @Test
   public void put_property_on_project() throws Exception {
-    putProperty("project.setting", "some-value", PROJECT_KEY);
+    putProperty("project.setting", "some-value", PROJECT_KEY, false);
 
     assertThat(getProperty("project.setting", PROJECT_KEY).getValue()).isEqualTo("some-value");
   }
 
   @Test
   public void put_property_for_undefined_setting() throws Exception {
-    putProperty("undefined", "some-value", null);
+    putProperty("undefined", "some-value", null, false);
 
     assertThat(getProperty("undefined", null).getValue()).isEqualTo("some-value");
   }
 
   @Test
   public void put_property_multi_values() throws Exception {
-    putProperty("multi", "value1,value2,value3", null);
+    putProperty("multi", "value1,value2,value3", null, false);
 
     Properties.Property setting = getProperty("multi", null);
     assertThat(setting.getValue()).isEqualTo("value1,value2,value3");
@@ -262,7 +277,16 @@ public class DeprecatedPropertiesWsTest {
   public void delete_property() throws Exception {
     setProperty("custom-property", "value", null);
 
-    deleteProperty("custom-property", null);
+    deleteProperty("custom-property", null, false);
+
+    assertThat(getProperty("custom-property", null)).isNull();
+  }
+
+  @Test
+  public void delete_property_using_id_parameter() throws Exception {
+    setProperty("custom-property", "value", null);
+
+    deleteProperty("custom-property", null, true);
 
     assertThat(getProperty("custom-property", null)).isNull();
   }
@@ -271,7 +295,7 @@ public class DeprecatedPropertiesWsTest {
   public void delete_property_on_project() throws Exception {
     setProperty("project.setting", "value", PROJECT_KEY);
 
-    deleteProperty("project.setting", PROJECT_KEY);
+    deleteProperty("project.setting", PROJECT_KEY, false);
 
     assertThat(getProperty("project.setting", PROJECT_KEY)).isNull();
   }
@@ -297,29 +321,32 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static Properties.Property getProperty(String key, @Nullable String componentKey) throws UnsupportedEncodingException {
-    return getProperty(adminWsClient, key, componentKey);
+    return getProperty(adminWsClient, key, componentKey, false);
   }
 
   @CheckForNull
-  private static Properties.Property getProperty(WsClient wsClient, String key, @Nullable String componentKey) throws UnsupportedEncodingException {
+  private static Properties.Property getProperty(WsClient wsClient, String key, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
+    GetRequest getRequest = useIdParameter ? new GetRequest("api/properties").setParam("id", encode(key, "UTF-8")).setParam("resource", componentKey)
+      : new GetRequest("api/properties/" + encode(key, "UTF-8")).setParam("resource", componentKey);
     WsResponse response = wsClient.wsConnector()
-      .call(new GetRequest("api/properties/" + encode(key, "UTF-8"))
-        .setParam("resource", componentKey))
+      .call(getRequest)
       .failIfNotSuccessful();
     Properties.Property[] properties = Properties.parse(response.content());
     return Arrays.stream(properties).findFirst().orElseGet(() -> null);
   }
 
-  private static void putProperty(String key, String value, @Nullable String componentKey) throws UnsupportedEncodingException {
-    String url = orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8") + "?value=" + value;
+  private static void putProperty(String key, String value, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
+    String url = useIdParameter ? orchestrator.getServer().getUrl() + "/api/properties?id=" + encode(key, "UTF-8") + "&value=" + value
+      : orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8") + "?value=" + value;
     url += componentKey != null ? "&resource=" + componentKey : "";
     call(new Request.Builder()
       .put(new FormBody.Builder().build())
       .url(url));
   }
 
-  private static void deleteProperty(String key, @Nullable String componentKey) throws UnsupportedEncodingException {
-    String url = orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8");
+  private static void deleteProperty(String key, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
+    String url = useIdParameter ? orchestrator.getServer().getUrl() + "/api/properties?id=" + encode(key, "UTF-8")
+      : orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8");
     url += componentKey != null ? "?resource=" + componentKey : "";
     call(new Request.Builder()
       .delete(new FormBody.Builder().build())

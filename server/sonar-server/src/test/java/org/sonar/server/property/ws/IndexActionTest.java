@@ -456,7 +456,7 @@ public class IndexActionTest {
   private void executeAndVerify(@Nullable String componentKey, @Nullable String key, String expectedFile) {
     TestRequest request = ws.newRequest().setMediaType(MediaTypes.JSON);
     if (key != null) {
-      request.setParam("key", key);
+      request.setParam("id", key);
     }
     if (componentKey != null) {
       request.setParam("resource", componentKey);

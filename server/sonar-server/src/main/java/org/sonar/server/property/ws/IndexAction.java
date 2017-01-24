@@ -62,7 +62,7 @@ public class IndexAction implements WsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
 
-  public static final String PARAM_KEY = "key";
+  public static final String PARAM_ID = "id";
   public static final String PARAM_COMPONENT = "resource";
 
   private final DbClient dbClient;
@@ -83,7 +83,7 @@ public class IndexAction implements WsAction {
       .setResponseExample(getClass().getResource("index-example.json"))
       .setSince("2.6")
       .setHandler(this);
-    action.createParam(PARAM_KEY)
+    action.createParam(PARAM_ID)
       .setDescription("Setting key")
       .setExampleValue("sonar.technicalDebt.hoursInDay");
     action.createParam(PARAM_COMPONENT)
@@ -106,7 +106,7 @@ public class IndexAction implements WsAction {
     DbSession dbSession = dbClient.openSession(true);
     try {
       Optional<ComponentDto> component = loadComponent(dbSession, request);
-      String key = request.param(PARAM_KEY);
+      String key = request.param(PARAM_ID);
       List<PropertyDto> propertyDtos = loadProperties(dbSession, component, Optional.ofNullable(key));
       new ResponseBuilder(propertyDtos).build(json);
     } finally {

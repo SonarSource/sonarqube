@@ -102,7 +102,7 @@ public class DeprecatedRestWebServiceFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertRedirection("api/properties/index", "GET");
-    assertParam("key", "my.property");
+    assertParam("id", "my.property");
     assertNoParam("component", "value", "values");
   }
 
@@ -115,7 +115,7 @@ public class DeprecatedRestWebServiceFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertRedirection("api/properties/index", "GET");
-    assertParam("key", "my.property");
+    assertParam("id", "my.property");
     assertNoParam("component", "value", "values");
   }
 
@@ -128,7 +128,7 @@ public class DeprecatedRestWebServiceFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertRedirection("api/properties/index", "GET");
-    assertParam("key", "my.property");
+    assertParam("id", "my.property");
     assertNoParam("component", "value", "values");
   }
 
@@ -141,7 +141,7 @@ public class DeprecatedRestWebServiceFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertRedirection("api/properties/index", "GET");
-    assertParam("key", "my.property");
+    assertParam("id", "my.property");
     assertParam("resource", "my_project");
     assertNoParam("component", "value", "values");
   }
@@ -155,7 +155,7 @@ public class DeprecatedRestWebServiceFilterTest {
     underTest.doFilter(request, response, chain);
 
     assertRedirection("api/properties/index", "GET");
-    assertParam("key", "my.property");
+    assertParam("id", "my.property");
     assertParam("format", "json");
     assertNoParam("component", "value", "values");
   }

@@ -170,7 +170,7 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
     }
 
     private void handleGet(Optional<String> key, Optional<String> component) {
-      addParameterIfPresent(PARAM_KEY, key);
+      addParameterIfPresent(IndexAction.PARAM_ID, key);
       addParameterIfPresent(IndexAction.PARAM_COMPONENT, component);
       addParameterIfPresent(PARAM_FORMAT, readParam(PARAM_FORMAT));
       redirectedPath = CONTROLLER_PROPERTIES + "/index";
