@@ -31,8 +31,7 @@ type Action = { type: string, definitions: Definition[] };
 
 const reducer = (state: State = {}, action: Action) => {
   if (action.type === RECEIVE_DEFINITIONS) {
-    const definitionsByKey = keyBy(action.definitions, 'key');
-    return { ...state, ...definitionsByKey };
+    return keyBy(action.definitions, 'key');
   }
 
   return state;
