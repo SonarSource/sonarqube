@@ -20,8 +20,6 @@
 package org.sonar.server.component;
 
 import java.util.Arrays;
-import org.junit.Before;
-import org.assertj.core.api.Fail;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,13 +30,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;

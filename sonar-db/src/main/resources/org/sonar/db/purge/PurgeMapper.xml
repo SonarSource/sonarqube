@@ -160,15 +160,6 @@
       and resolution is null
   </update>
 
-  <delete id="deleteResourceIndex" parameterType="map">
-    delete from resource_index
-    where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid,jdbcType=VARCHAR}
-      </foreach>
-  </delete>
-
   <delete id="deleteComponentLinks" parameterType="map">
     delete from project_links
     where

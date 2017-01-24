@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
@@ -45,28 +44,27 @@ public class IndexComponentsStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
-  ComponentIndexer elasticSearchIndexer = mock(ComponentIndexer.class);
-  IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, elasticSearchIndexer, treeRootHolder);
+  private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
+  private IndexComponentsStep underTest = new IndexComponentsStep(componentIndexer, treeRootHolder);
 
   @Test
-  public void call_indexProject_of_dao_for_project() {
+  public void call_indexByProjectUuid_of_indexer_for_project() {
     Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
 
     underTest.execute();
 
-    verify(resourceIndexDao).indexProject(PROJECT_UUID);
+    verify(componentIndexer).indexByProjectUuid(PROJECT_UUID);
   }
 
   @Test
-  public void call_indexProject_of_dao_for_view() {
+  public void call_indexByProjectUuid_of_indexer_for_view() {
     Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid(PROJECT_UUID).build();
     treeRootHolder.setRoot(view);
 
     underTest.execute();
 
-    verify(resourceIndexDao).indexProject(PROJECT_UUID);
+    verify(componentIndexer).indexByProjectUuid(PROJECT_UUID);
   }
 
   @Override

@@ -41,8 +41,6 @@ import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceIndexDto;
-import org.sonar.db.component.ResourceIndexMapper;
 import org.sonar.db.component.ResourceMapper;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
@@ -102,6 +100,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
+import org.sonar.db.schemamigration.SchemaMigrationDto;
+import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.source.FileSourceMapper;
 import org.sonar.db.user.AuthorDto;
 import org.sonar.db.user.AuthorMapper;
@@ -117,8 +117,6 @@ import org.sonar.db.user.UserMapper;
 import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
-import org.sonar.db.schemamigration.SchemaMigrationDto;
-import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 
 public class MyBatis {
@@ -179,7 +177,6 @@ public class MyBatis {
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
     confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
-    confBuilder.loadAlias("ResourceIndex", ResourceIndexDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);
     confBuilder.loadAlias("Rule", RuleDto.class);
@@ -234,7 +231,6 @@ public class MyBatis {
       QualityGateConditionMapper.class,
       QualityGateMapper.class,
       QualityProfileMapper.class,
-      ResourceIndexMapper.class,
       RoleMapper.class,
       RuleMapper.class,
       RuleRepositoryMapper.class,

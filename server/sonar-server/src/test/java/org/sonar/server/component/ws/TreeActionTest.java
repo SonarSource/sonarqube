@@ -122,7 +122,6 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 10));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -152,7 +151,6 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 1));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -176,7 +174,6 @@ public class TreeActionTest {
     componentDb.insertComponent(newFileDto(project, 2));
     componentDb.insertComponent(newModuleDto("module-uuid-1", project));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -198,7 +195,6 @@ public class TreeActionTest {
     componentDb.insertComponent(directory);
     componentDb.insertComponent(newFileDto(module, directory, 3));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
@@ -220,7 +216,6 @@ public class TreeActionTest {
     componentDb.insertComponent(module);
     componentDb.insertComponent(newDirectory(project, "path/directory/", "directory-uuid-1"));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -240,7 +235,6 @@ public class TreeActionTest {
     componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
     db.commit();
-    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -424,7 +418,6 @@ public class TreeActionTest {
         .setCreatedAt(now));
     }
     db.commit();
-    componentDb.indexAllComponents();
     return project;
   }
 

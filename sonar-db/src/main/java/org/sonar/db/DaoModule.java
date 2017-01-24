@@ -30,7 +30,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
@@ -109,7 +108,6 @@ public class DaoModule extends Module {
     QualityGateDao.class,
     QualityProfileDao.class,
     ResourceDao.class,
-    ResourceIndexDao.class,
     RoleDao.class,
     RuleDao.class,
     RuleRepositoryDao.class,

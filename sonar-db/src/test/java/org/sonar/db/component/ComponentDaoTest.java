@@ -790,7 +790,6 @@ public class ComponentDaoTest {
     for (int i = 9; i >= 1; i--) {
       componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setName("project-" + i));
     }
-    componentDb.indexAllComponents();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
@@ -805,7 +804,6 @@ public class ComponentDaoTest {
   @Test
   public void select_by_query_name_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
-    componentDb.indexAllComponents();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -817,7 +815,6 @@ public class ComponentDaoTest {
   @Test
   public void select_by_query_key_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert()).setKey("project-_%-key"));
-    componentDb.indexAllComponents();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -904,7 +901,6 @@ public class ComponentDaoTest {
     ComponentDto file3 = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
     componentDb.insertComponent(file3);
     db.commit();
-    componentDb.indexAllComponents();
 
     // test children of root
     ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
@@ -965,7 +961,6 @@ public class ComponentDaoTest {
     componentDb.insertComponent(newFileDto(project, null, "file-1-uuid"));
     componentDb.insertComponent(newFileDto(project, null, "file-2-uuid"));
     db.commit();
-    componentDb.indexAllComponents();
 
     ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).setStrategy(LEAVES).build();
 
@@ -993,7 +988,6 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto(organizationDto, PROJECT_UUID).setName("project name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
-    componentDb.indexAllComponents();
     ComponentTreeQuery dbQuery = newTreeQuery(A_VIEW_UUID).setNameOrKeyQuery("name").setStrategy(CHILDREN).build();
 
     List<ComponentDto> components = underTest.selectDescendants(dbSession, dbQuery);
