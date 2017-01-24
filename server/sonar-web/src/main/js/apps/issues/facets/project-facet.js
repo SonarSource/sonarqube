@@ -23,20 +23,25 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export default CustomValuesFacet.extend({
 
   getUrl () {
-    const q = this.options.app.state.get('contextComponentQualifier');
-    if (q === 'VW' || q === 'SVW') {
-      return window.baseUrl + '/api/components/search_view_components';
-    } else {
-      return window.baseUrl + '/api/components/search?qualifiers=TRK';
-    }
+    return window.baseUrl + '/api/components/search';
+  },
+
+  prepareSearchForViews () {
+    const contextId = this.options.app.state.get('contextComponentUuid');
+    return {
+      url: window.baseUrl + '/api/components/tree',
+      data (term, page) {
+        return { q: term, p: page, qualifiers: 'TRK', baseComponentId: contextId };
+      }
+    };
   },
 
   prepareAjaxSearch () {
-    return {
+    const options = {
       quietMillis: 300,
       url: this.getUrl(),
       data (term, page) {
-        return { q: term, p: page };
+        return { q: term, p: page, qualifiers: 'TRK' };
       },
       results: r => ({
         more: r.paging.total > r.paging.pageIndex * r.paging.pageSize,
@@ -46,22 +51,17 @@ export default CustomValuesFacet.extend({
         }))
       })
     };
+    const contextQualifier = this.options.app.state.get('contextComponentQualifier');
+    if (contextQualifier === 'VW' || contextQualifier === 'SVW') {
+      Object.assign(options, this.prepareSearchForViews());
+    }
+    return options;
   },
 
   prepareSearch () {
-    const q = this.options.app.state.get('contextComponentQualifier');
-    if (q === 'VW' || q === 'SVW') {
-      return this.prepareSearchForViews();
-    } else {
-      return CustomValuesFacet.prototype.prepareSearch.apply(this, arguments);
-    }
-  },
-
-  prepareSearchForViews () {
-    const componentId = this.options.app.state.get('contextComponentUuid');
     return this.$('.js-custom-value').select2({
       placeholder: translate('search_verb'),
-      minimumInputLength: 2,
+      minimumInputLength: 3,
       allowClear: false,
       formatNoMatches () {
         return translate('select2.noMatches');
@@ -70,29 +70,10 @@ export default CustomValuesFacet.extend({
         return translate('select2.searching');
       },
       formatInputTooShort () {
-        return translateWithParameters('select2.tooShort', 2);
+        return translateWithParameters('select2.tooShort', 3);
       },
       width: '100%',
-      ajax: {
-        quietMillis: 300,
-        url: this.getUrl(),
-        data (term, page) {
-          return {
-            componentId,
-            q: term,
-            p: page,
-            ps: 25
-          };
-        },
-        results (data) {
-          return {
-            more: data.p * data.ps < data.total,
-            results: data.components.map(c => {
-              return { id: c.uuid, text: c.name };
-            })
-          };
-        }
-      }
+      ajax: this.prepareAjaxSearch()
     });
   },
 
