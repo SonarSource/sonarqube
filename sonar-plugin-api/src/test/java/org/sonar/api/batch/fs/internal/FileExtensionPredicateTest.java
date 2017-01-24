@@ -22,7 +22,6 @@ package org.sonar.api.batch.fs.internal;
 import java.io.File;
 import java.io.IOException;
 import org.junit.*;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
