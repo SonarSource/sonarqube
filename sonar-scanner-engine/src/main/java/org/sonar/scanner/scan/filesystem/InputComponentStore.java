@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
+import org.sonar.api.batch.fs.internal.FileExtensionPredicate;
+import org.sonar.api.batch.fs.internal.FilenamePredicate;
 
 /**
  * Store of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -47,6 +51,8 @@ public class InputComponentStore {
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
+  private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
+  private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
   private InputModule root;
 
   public Collection<InputComponent> all() {
@@ -104,6 +110,8 @@ public class InputComponentStore {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     inputFileCache.put(file.moduleKey(), inputFile.relativePath(), inputFile);
     inputComponents.put(inputFile.key(), inputFile);
+    filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
+    filesByExtensionCache.put(FileExtensionPredicate.getExtension(inputFile), inputFile);
     return this;
   }
 
@@ -134,4 +142,11 @@ public class InputComponentStore {
     inputModuleCache.put(inputModule.key(), inputModule);
   }
 
+  public Iterable<InputFile> getFilesByName(String filename) {
+    return filesByNameCache.get(filename);
+  }
+
+  public Iterable<InputFile> getFilesByExtension(String extension) {
+    return filesByExtensionCache.get(extension);
+  }
 }

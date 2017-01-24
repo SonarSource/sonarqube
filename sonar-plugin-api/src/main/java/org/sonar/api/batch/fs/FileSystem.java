@@ -165,5 +165,9 @@ public interface FileSystem {
     InputDir inputDir(String relativePath);
     
     InputModule module();
+
+    Iterable<InputFile> getFilesByName(String filename);
+
+    Iterable<InputFile> getFilesByExtension(String extension);
   }
 }
