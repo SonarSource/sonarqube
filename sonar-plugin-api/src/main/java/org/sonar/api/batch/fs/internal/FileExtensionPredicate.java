@@ -25,11 +25,11 @@ import org.sonar.api.batch.fs.InputFile;
 /**
  * @since 6.3
  */
-public class ExtensionPredicate extends AbstractFilePredicate {
+public class FileExtensionPredicate extends AbstractFilePredicate {
 
   private final String extension;
 
-  public ExtensionPredicate(String extension) {
+  public FileExtensionPredicate(String extension) {
     this.extension = extension;
   }
 

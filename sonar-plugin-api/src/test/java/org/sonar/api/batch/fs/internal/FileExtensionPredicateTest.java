@@ -27,12 +27,12 @@ import org.sonar.api.batch.fs.InputFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class ExtensionPredicateTest {
+public class FileExtensionPredicateTest {
 
   @Rule
   public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private final ExtensionPredicate predicate = new ExtensionPredicate("bat");
+  private final FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
 
   @Test
   public void should_match_correct_extension() throws IOException {

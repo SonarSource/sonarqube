@@ -81,7 +81,7 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   @Override public FilePredicate hasExtension(String s) {
-    return new ExtensionPredicate(s);
+    return new FileExtensionPredicate(s);
   }
 
   @Override
