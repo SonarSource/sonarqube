@@ -35,7 +35,7 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile inputFile) {
-    return extension.equals(getExtension(inputFile.file().getName()));
+    return extension.equals(getExtension(inputFile));
   }
 
   @Override
@@ -43,7 +43,11 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
     return index.getFilesByExtension(extension);
   }
 
-  public static String getExtension(String name) {
+  public static String getExtension(InputFile inputFile) {
+    return getExtension(inputFile.file().getName());
+  }
+
+  static String getExtension(String name) {
     int index = name.lastIndexOf('.');
     if (index < 0) {
       return "";
