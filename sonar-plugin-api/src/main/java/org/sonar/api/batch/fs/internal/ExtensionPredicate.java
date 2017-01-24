@@ -43,7 +43,7 @@ public class ExtensionPredicate extends AbstractFilePredicate {
     return index.getFilesByExtension(extension);
   }
 
-  String extension(String name) {
+  public static String extension(String name) {
     int index = name.lastIndexOf('.');
     if (index < 0) {
       return "";
