@@ -131,7 +131,7 @@ public class ComponentIndexTest {
     assertSearchResults("struts", project, file1);
     assertSearchResults("Struts", project, file1);
     assertSearchResults("StrutsManager", file1);
-    assertSearchResults("STRUTSMA", file1);
+    assertSearchResults("STRUTSMAN", file1);
     assertSearchResults("utsManag", file1);
   }
 
@@ -145,8 +145,6 @@ public class ComponentIndexTest {
     assertSearchResults("manager.java", file1);
 
     // do not match
-    assertNoSearchResults("strutsmanager.txt");
-    assertNoSearchResults("strutsmanagerjava");
     assertNoSearchResults("somethingStrutsManager.java");
   }
 
@@ -210,20 +208,11 @@ public class ComponentIndexTest {
   }
 
   @Test
-  public void should_order_results_by_score() {
-    ComponentDto project1 = indexProject("keyOne", "Struts");
-    ComponentDto project2 = indexProject("keyTwo", "Apache Struts Two");
-    ComponentDto project3 = indexProject("keyThree", "Apache Struts");
-
-    assertSearch("struts").containsExactly(project1.uuid(), project3.uuid(), project2.uuid());
-  }
-
-  @Test
   public void should_prefer_key_matching_over_name_matching() {
     ComponentDto project1 = indexProject("quality", "SonarQube");
     ComponentDto project2 = indexProject("sonarqube", "Quality Product");
 
-    assertSearch("sonarqube").containsExactly(project2.uuid(), project1.uuid());
+    assertExactResults("sonarqube", project2, project1);
   }
 
   @Test
@@ -239,6 +228,34 @@ public class ComponentIndexTest {
 
     assertNoSearchResults("*the*");
     assertNoSearchResults("th?Key");
+  }
+
+  @Test
+  public void should_find_item_despite_missing_character() {
+    ComponentDto project = indexProject("key-1", "SonarQube");
+
+    assertSearchResults("SonrQube", project);
+  }
+
+  @Test
+  public void should_find_item_despite_missing_character_and_lowercase() {
+    ComponentDto project = indexProject("key-1", "SonarQube");
+
+    assertSearchResults("sonrqube", project);
+  }
+
+  @Test
+  public void should_find_item_despite_two_missing_characters_and_lowercase() {
+    ComponentDto project = indexProject("key-1", "SonarQube");
+
+    assertSearchResults("sonqube", project);
+  }
+
+  @Test
+  public void should_find_item_despite_two_missing_characters_and_lowercase_and_incomplete() {
+    ComponentDto project = indexProject("key-1", "SonarQube");
+
+    assertSearchResults("sonqub", project);
   }
 
   @Test
@@ -298,8 +315,11 @@ public class ComponentIndexTest {
   }
 
   private void assertSearchResults(ComponentIndexQuery query, ComponentDto... expectedComponents) {
-    String[] expectedUuids = Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new);
-    assertSearch(query).containsOnly(expectedUuids);
+    assertSearch(query).containsOnly(uuids(expectedComponents));
+  }
+
+  private void assertExactResults(String query, ComponentDto... expectedComponents) {
+    assertSearch(query).containsExactly(uuids(expectedComponents));
   }
 
   private void assertNoSearchResults(String query) {
@@ -332,5 +352,9 @@ public class ComponentIndexTest {
       Collections.singletonList(DefaultGroups.ANYONE),
       emptyList());
     return dto;
+  }
+
+  private static String[] uuids(ComponentDto... expectedComponents) {
+    return Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new);
   }
 }

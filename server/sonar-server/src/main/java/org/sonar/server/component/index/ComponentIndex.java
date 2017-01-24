@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -78,13 +79,15 @@ public class ComponentIndex extends BaseIndex {
 
     query.getQualifier().ifPresent(q -> esQuery.filter(termQuery(FIELD_QUALIFIER, q)));
 
+    String queryText = query.getQuery();
+
     // We will truncate the search to the maximum length of nGrams in the index.
     // Otherwise the search would for sure not find any results.
-    String truncatedQuery = StringUtils.left(query.getQuery(), DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
+    String truncatedQuery = StringUtils.left(queryText, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
 
     return esQuery.must(boolQuery()
-      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery))
-      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, query.getQuery()).boost(3f)));
+      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery).fuzziness(Fuzziness.AUTO))
+      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, queryText).boost(5f)));
   }
 
   private QueryBuilder createAuthorizationFilter() {
