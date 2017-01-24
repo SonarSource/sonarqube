@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
@@ -35,7 +34,7 @@ public class SettingsPermissionPredicates {
 
   public static final String DOT_SECURED = ".secured";
   public static final String DOT_LICENSE = ".license";
-  static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
+  private static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
   static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
 
   private final UserSession userSession;
@@ -53,15 +52,11 @@ public class SettingsPermissionPredicates {
   }
 
   boolean isVisible(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return userSession.hasPermission(SCAN_EXECUTION) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
+    return hasPermission(SCAN_EXECUTION, component) || (verifySecuredSetting(key, definition, component) && (verifyLicenseSetting(key, definition)));
   }
 
   private boolean verifySecuredSetting(String key, @Nullable PropertyDefinition definition, Optional<ComponentDto> component) {
-    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasAdminPermission(component));
-  }
-
-  private boolean hasAdminPermission(Optional<ComponentDto> component) {
-    return component.isPresent() ? userSession.hasComponentUuidPermission(ADMIN, component.get().uuid()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
+    return isLicense(key, definition) || (!key.endsWith(DOT_SECURED) || hasPermission(ADMIN, component));
   }
 
   private boolean verifyLicenseSetting(String key, @Nullable PropertyDefinition definition) {
@@ -70,5 +65,9 @@ public class SettingsPermissionPredicates {
 
   private static boolean isLicense(String key, @Nullable PropertyDefinition definition) {
     return key.endsWith(LICENSE_SUFFIX) || key.endsWith(LICENSE_HASH_SUFFIX) || (definition != null && definition.type() == LICENSE);
+  }
+
+  private boolean hasPermission(String permission, Optional<ComponentDto> component) {
+    return userSession.hasPermission(permission) || (component.isPresent() && userSession.hasComponentUuidPermission(permission, component.get().uuid()));
   }
 }
