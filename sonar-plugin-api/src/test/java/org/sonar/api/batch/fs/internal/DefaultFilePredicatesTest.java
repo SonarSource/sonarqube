@@ -219,4 +219,9 @@ public class DefaultFilePredicatesTest {
   public void hasFilename() {
     assertThat(predicates.hasFilename("Action.java").apply(javaFile)).isTrue();
   }
+
+  @Test
+  public void hasExtension() {
+    assertThat(predicates.hasExtension("java").apply(javaFile)).isTrue();
+  }
 }

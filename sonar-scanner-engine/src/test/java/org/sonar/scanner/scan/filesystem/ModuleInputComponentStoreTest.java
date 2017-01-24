@@ -45,4 +45,21 @@ public class ModuleInputComponentStoreTest {
 
     assertThat(store.getFilesByName(filename)).containsOnly(inputFile1, inputFile2);
   }
+
+  @Test
+  public void should_cache_files_by_extension() throws IOException {
+    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), new InputComponentStore());
+
+    String moduleKey = "dummy key";
+    InputFile inputFile1 = new TestInputFileBuilder(moduleKey, "some/path/Program.java").build();
+    store.doAdd(inputFile1);
+
+    InputFile inputFile2 = new TestInputFileBuilder(moduleKey, "other/path/Utils.java").build();
+    store.doAdd(inputFile2);
+
+    InputFile dummyInputFile = new TestInputFileBuilder(moduleKey, "some/path/NotJava.cpp").build();
+    store.doAdd(dummyInputFile);
+
+    assertThat(store.getFilesByExtension("java")).containsOnly(inputFile1, inputFile2);
+  }
 }
