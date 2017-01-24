@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.sonar.api.batch.fs.internal.FileExtensionPredicate.getExtension;
 
 public class FileExtensionPredicateTest {
 
@@ -52,9 +53,9 @@ public class FileExtensionPredicateTest {
 
   @Test
   public void test_empty_extension() {
-    assertThat(predicate.getExtension("prog")).isEmpty();
-    assertThat(predicate.getExtension("prog.")).isEmpty();
-    assertThat(predicate.getExtension(".")).isEmpty();
+    assertThat(getExtension("prog")).isEmpty();
+    assertThat(getExtension("prog.")).isEmpty();
+    assertThat(getExtension(".")).isEmpty();
   }
 
   private InputFile mockWithName(String filename) throws IOException {
