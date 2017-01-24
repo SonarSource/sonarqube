@@ -42,7 +42,7 @@ public class ComponentsWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WebService.Controller controller;
+  private WebService.Controller controller;
 
   @Before
   public void setUp() {
@@ -51,7 +51,6 @@ public class ComponentsWsTest {
 
     WsTester tester = new WsTester(new ComponentsWs(
       new AppAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
-      new SearchViewComponentsAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
       new SuggestionsAction(mock(DbClient.class), mock(ComponentIndex.class)),
       new SearchAction(mock(DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages)));
     controller = tester.controller("api/components");
@@ -62,7 +61,7 @@ public class ComponentsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(4);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
@@ -87,14 +86,15 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_search_view_components_action() {
-    WebService.Action action = controller.action("search_view_components");
+  public void define_search_action() {
+    WebService.Action action = controller.action("search");
 
     assertThat(action).isNotNull();
+    assertThat(action.param("qualifiers").isRequired()).isTrue();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.description()).isNotEmpty();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.since()).isEqualTo("5.2");
   }
-
 }

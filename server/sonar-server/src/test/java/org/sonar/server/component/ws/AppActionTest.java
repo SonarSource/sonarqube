@@ -70,7 +70,6 @@ public class AppActionTest {
     wsTester = new WsTester(
       new ComponentsWs(
         new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient())),
-        mock(SearchViewComponentsAction.class),
         mock(SuggestionsAction.class)));
   }
 
