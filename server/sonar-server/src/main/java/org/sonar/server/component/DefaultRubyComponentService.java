@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -29,6 +30,7 @@ import static org.sonar.server.component.NewComponent.newComponentBuilder;
 /**
  * Used in GOV
  */
+@ServerSide
 public class DefaultRubyComponentService {
 
   private final UserSession userSession;
