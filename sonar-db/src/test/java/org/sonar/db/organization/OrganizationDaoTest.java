@@ -19,6 +19,9 @@
  */
 package org.sonar.db.organization;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.assertj.core.util.Lists;
 import org.junit.Rule;
@@ -109,6 +113,9 @@ public class OrganizationDaoTest {
     assertThat(row.get("avatarUrl")).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
     assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(row.get("updatedAt")).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
+    assertThat(row.get("defaultTemplate")).isNull();
+    assertThat(row.get("projectDefaultTemplate")).isNull();
+    assertThat(row.get("viewDefaultTemplate")).isNull();
   }
 
   @Test
@@ -125,6 +132,9 @@ public class OrganizationDaoTest {
     assertThat(row.get("avatarUrl")).isNull();
     assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
+    assertThat(row.get("defaultTemplate")).isNull();
+    assertThat(row.get("projectDefaultTemplate")).isNull();
+    assertThat(row.get("viewDefaultTemplate")).isNull();
   }
 
   @Test
@@ -435,8 +445,89 @@ public class OrganizationDaoTest {
       .containsExactly("uuid1", "uuid3");
   }
 
-  private static OrganizationQuery newQueryWithKeys(String... keys) {
-    return newOrganizationQueryBuilder().setKeys(Arrays.asList(keys)).build();
+  @Test
+  public void getDefaultTemplates_returns_empty_when_table_is_empty() {
+    assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void getDefaultTemplates_returns_empty_when_row_exists_but_all_default_templates_columns_are_null() {
+    insertOrganization(ORGANIZATION_DTO_1);
+
+    assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void getDefaultTemplates_returns_data_when_project_default_templates_column_is_not_null() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProject("foo"));
+
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, "foo", null);
+  }
+
+  @Test
+  public void getDefaultTemplates_returns_data_when_project_and_view_default_template_column_are_not_null() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    setDefaultTemplate(ORGANIZATION_DTO_1, "foo", "bar");
+
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, "foo", "bar");
+  }
+
+  @Test
+  public void getDefaultTemplates_returns_empty_when_only_view_default_template_column_is_not_null() {
+    dirtyInsertWithDefaultTemplate("uuid1", null, "bar");
+
+    assertThat(underTest.getDefaultTemplates(dbSession, "uuid1"))
+      .isEmpty();
+  }
+
+  @Test
+  public void getDefaultTemplates_returns_empty_when_project_and_view_default_template_column_are_not_null() {
+    insertOrganization(ORGANIZATION_DTO_1);
+
+    assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid()))
+      .isEmpty();
+  }
+
+  @Test
+  public void getDefaultTemplates_is_case_sensitive() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProject("foo").setView("bar"));
+
+    assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH)))
+      .isEmpty();
+  }
+
+  @Test
+  public void setDefaultTemplates_throws_NPE_when_uuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("uuid can't be null");
+
+    underTest.setDefaultTemplates(dbSession, null, new DefaultTemplates().setProject("p"));
+  }
+
+  @Test
+  public void setDefaultTemplates_throws_NPE_when_defaultTemplate_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("defaultTemplates can't be null");
+
+    underTest.setDefaultTemplates(dbSession, "uuid", null);
+  }
+
+  @Test
+  public void setDefaultTemplates_throws_NPE_when_defaultTemplate_project_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("defaultTemplates.project can't be null");
+
+    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates());
+  }
+
+  @Test
+  public void setDefaultTemplates_throws_NPE_when_defaultTemplate_project_is_null_and_view_is_not() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("defaultTemplates.project can't be null");
+
+    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setView("foo"));
   }
 
   @Test
@@ -603,6 +694,47 @@ public class OrganizationDaoTest {
     dbSession.commit();
   }
 
+  private void dirtyInsertWithDefaultTemplate(String organizationUuid, @Nullable String project, @Nullable String view) {
+    try (Connection connection = dbTester.database().getDataSource().getConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement(
+        "insert into organizations" +
+          "    (" +
+          "      uuid," +
+          "      kee," +
+          "      name," +
+          "      default_perm_template_project," +
+          "      default_perm_template_view," +
+          "      created_at," +
+          "      updated_at" +
+          "    )" +
+          "    values" +
+          "    (" +
+          "      ?," +
+          "      ?," +
+          "      ?," +
+          "      ?," +
+          "      ?," +
+          "      ?," +
+          "      ?" +
+          "    )")) {
+      preparedStatement.setString(1, organizationUuid);
+      preparedStatement.setString(2, organizationUuid);
+      preparedStatement.setString(3, organizationUuid);
+      preparedStatement.setString(4, project);
+      preparedStatement.setString(5, view);
+      preparedStatement.setLong(6, 1000L);
+      preparedStatement.setLong(7, 2000L);
+      preparedStatement.execute();
+    } catch (SQLException e) {
+      throw new RuntimeException("dirty insert failed", e);
+    }
+  }
+
+  private void setDefaultTemplate(OrganizationDto organizationDto1, @Nullable String project, @Nullable String view) {
+    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProject(project).setView(view));
+    dbSession.commit();
+  }
+
   private void verifyOrganization1(Optional<OrganizationDto> optional) {
     assertThat(optional).isNotEmpty();
     verifyOrganization1(optional.get());
@@ -619,11 +751,6 @@ public class OrganizationDaoTest {
     assertThat(dto.getUpdatedAt()).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
   }
 
-  private void verifyOrganization(Optional<OrganizationDto> optional, OrganizationDto expected) {
-    assertThat(optional).isNotEmpty();
-    verifyOrganization(optional.get(), expected);
-  }
-
   private void verifyOrganization(OrganizationDto dto, OrganizationDto expected) {
     assertThat(dto.getUuid()).isEqualTo(expected.getUuid());
     assertThat(dto.getKey()).isEqualTo(expected.getKey());
@@ -638,7 +765,9 @@ public class OrganizationDaoTest {
   private Map<String, Object> selectSingleRow() {
     List<Map<String, Object>> rows = dbTester.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
-      " created_at as \"createdAt\", updated_at as \"updatedAt\"" +
+      " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
+      " default_perm_template_project as \"projectDefaultPermTemplate\"," +
+      " default_perm_template_view as \"viewDefaultPermTemplate\"" +
       " from organizations");
     assertThat(rows).hasSize(1);
     return rows.get(0);
@@ -652,5 +781,18 @@ public class OrganizationDaoTest {
       .setDescription(organizationDto.getDescription())
       .setUrl(organizationDto.getUrl())
       .setAvatarUrl(organizationDto.getAvatarUrl());
+  }
+
+  private static OrganizationQuery newQueryWithKeys(String... keys) {
+    return newOrganizationQueryBuilder().setKeys(Arrays.asList(keys)).build();
+  }
+
+  private void verifyGetDefaultTemplates(OrganizationDto organizationDto,
+    @Nullable String expectedProject, @Nullable String expectedView) {
+    Optional<DefaultTemplates> optional = underTest.getDefaultTemplates(dbSession, organizationDto.getUuid());
+    assertThat(optional).isNotEmpty();
+    DefaultTemplates defaultTemplates = optional.get();
+    assertThat(defaultTemplates.getProject()).isEqualTo(expectedProject);
+    assertThat(defaultTemplates.getView()).isEqualTo(expectedView);
   }
 }

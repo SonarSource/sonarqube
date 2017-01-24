@@ -12,6 +12,11 @@
     org.created_at as "createdAt",
     org.updated_at as "updatedAt"
   </sql>
+
+  <sql id="defaultTemplatesColumns">
+    org.default_perm_template_project as "project",
+    org.default_perm_template_view as "view"
+  </sql>
   
   <select id="selectByUuid" resultType="Organization">
     select
@@ -19,6 +24,15 @@
     from organizations org
     where
       org.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectDefaultTemplatesByUuid" resultType="org.sonar.db.organization.DefaultTemplates">
+    select
+      <include refid="defaultTemplatesColumns"/>
+    from organizations org
+    where
+      org.uuid = #{uuid, jdbcType=VARCHAR}
+      and org.default_perm_template_project is not null
   </select>
 
   <select id="selectByKey" resultType="Organization">
@@ -119,7 +133,17 @@
       avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
       updated_at = #{organization.updatedAt, jdbcType=BIGINT}
     where
-      uuid = #{organization.uuid}
+      uuid = #{organization.uuid, jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateDefaultTemplates">
+    update organizations
+    set
+      default_perm_template_project = #{defaultTemplates.project, jdbcType=VARCHAR},
+      default_perm_template_view = #{defaultTemplates.view, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{organizationUuid, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByUuid">

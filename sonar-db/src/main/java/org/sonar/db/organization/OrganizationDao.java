@@ -52,13 +52,39 @@ public class OrganizationDao implements Dao {
   }
 
   public Optional<OrganizationDto> selectByUuid(DbSession dbSession, String uuid) {
-    requireNonNull(uuid, "uuid can't be null");
+    checkUuid(uuid);
     return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid));
   }
 
   public Optional<OrganizationDto> selectByKey(DbSession dbSession, String key) {
     requireNonNull(key, "key can't be null");
     return Optional.ofNullable(getMapper(dbSession).selectByKey(key));
+  }
+
+  public List<OrganizationDto> selectByUuids(DbSession dbSession, Set<String> organizationUuids) {
+    if (organizationUuids.size() == 1) {
+      return Collections.singletonList(getMapper(dbSession).selectByUuid(organizationUuids.iterator().next()));
+    }
+    return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
+  }
+
+  /**
+   * Retrieve the default template of the specified organization if:
+   * <ol>
+   *   <li>the specified organization exists</li>
+   *   <li>the project default permission template is defined</li>
+   * </ol>
+   */
+  public Optional<DefaultTemplates> getDefaultTemplates(DbSession dbSession, String organizationUuid) {
+    checkUuid(organizationUuid);
+    return Optional.ofNullable(getMapper(dbSession).selectDefaultTemplatesByUuid(organizationUuid));
+  }
+
+  public void setDefaultTemplates(DbSession dbSession, String uuid, DefaultTemplates defaultTemplates) {
+    checkUuid(uuid);
+    checkDefaultTemplates(defaultTemplates);
+    long now = system2.now();
+    getMapper(dbSession).updateDefaultTemplates(uuid, defaultTemplates, now);
   }
 
   public int update(DbSession dbSession, OrganizationDto organization) {
@@ -83,10 +109,12 @@ public class OrganizationDao implements Dao {
     return dbSession.getMapper(OrganizationMapper.class);
   }
 
-  public List<OrganizationDto> selectByUuids(DbSession dbSession, Set<String> organizationUuids) {
-    if (organizationUuids.size() == 1) {
-      return Collections.singletonList(getMapper(dbSession).selectByUuid(organizationUuids.iterator().next()));
-    }
-    return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
+  private static void checkUuid(String uuid) {
+    requireNonNull(uuid, "uuid can't be null");
+  }
+
+  private static void checkDefaultTemplates(DefaultTemplates defaultTemplates) {
+    requireNonNull(defaultTemplates, "defaultTemplates can't be null");
+    requireNonNull(defaultTemplates.getProject(), "defaultTemplates.project can't be null");
   }
 }

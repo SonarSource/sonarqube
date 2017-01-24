@@ -37,6 +37,8 @@ public interface OrganizationMapper {
 
   List<OrganizationDto> selectByUuids(@Param("uuids") List<String> uuids);
 
+  DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
+
   /**
    * Update the organization with UUID specified by {@link OrganizationDto#getUuid()}.
    * <p>
@@ -45,6 +47,9 @@ public interface OrganizationMapper {
    * </p>
    */
   int update(@Param("organization") OrganizationDto organization);
+
+  void updateDefaultTemplates(@Param("organizationUuid") String organizationUuid,
+    @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
 
