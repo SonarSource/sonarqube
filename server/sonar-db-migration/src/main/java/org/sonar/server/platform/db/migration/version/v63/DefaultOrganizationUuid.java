@@ -24,7 +24,18 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 public interface DefaultOrganizationUuid {
   /**
+   * Retrieves the uuid of the default organization from table INTERNAL_PROPERTIES.
+   *
    * @throws IllegalStateException if uuid of the default organization can't be retrieved
    */
   String get(DataChange.Context context) throws SQLException;
+
+  /**
+   * Retrieves the uuid of the default organization from table INTERNAL_PROPERTIES and ensure the specified organization
+   * exists in table ORGANIZATIONS.
+   *
+   * @throws IllegalStateException if uuid of the default organization can't be retrieved
+   * @throws IllegalStateException if the default organization does not exist
+   */
+  String getAndCheck(DataChange.Context context) throws SQLException;
 }

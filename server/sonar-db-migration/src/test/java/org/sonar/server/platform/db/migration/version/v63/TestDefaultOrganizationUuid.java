@@ -24,6 +24,9 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Implementation of {@link DefaultOrganizationUuid} which never fails and returns the specified organization uuid.
+ */
 public class TestDefaultOrganizationUuid implements DefaultOrganizationUuid {
   private final String organizationUuid;
 
@@ -33,6 +36,11 @@ public class TestDefaultOrganizationUuid implements DefaultOrganizationUuid {
 
   @Override
   public String get(DataChange.Context context) throws SQLException {
+    return organizationUuid;
+  }
+
+  @Override
+  public String getAndCheck(DataChange.Context context) throws SQLException {
     return organizationUuid;
   }
 }

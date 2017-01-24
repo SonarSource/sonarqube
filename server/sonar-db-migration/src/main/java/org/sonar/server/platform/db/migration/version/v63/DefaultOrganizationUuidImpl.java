@@ -26,8 +26,8 @@ import org.sonar.server.platform.db.migration.step.Select;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Component which can be injected in steps which provides access to the UUID of the default organization, read directly
- * from the BD.
+ * Component which can be injected in steps which provides access to the UUID of the default organization, it reads
+ * directly from the BD.
  */
 public class DefaultOrganizationUuidImpl implements DefaultOrganizationUuid {
 
@@ -40,5 +40,16 @@ public class DefaultOrganizationUuidImpl implements DefaultOrganizationUuid {
     String uuid = select.get(row -> row.getString(1));
     checkState(uuid != null, "Default organization uuid is missing");
     return uuid;
+  }
+
+  @Override
+  public String getAndCheck(DataChange.Context context) throws SQLException {
+    String organizationUuid = get(context);
+    Select select = context.prepareSelect("select uuid from organizations where uuid=?")
+      .setString(1, organizationUuid);
+    checkState(select.get(row -> row.getString(1)) != null,
+      "Default organization with uuid '%s' does not exist in table ORGANIZATIONS",
+      organizationUuid);
+    return organizationUuid;
   }
 }
