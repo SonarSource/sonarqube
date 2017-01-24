@@ -47,11 +47,25 @@
 
 .overview-quality-gate-condition {
   float: left;
+  display: block;
   margin-top: 15px;
   margin-right: 30px;
   border: 1px solid #e6e6e6;
   border-radius: 2px;
   background-color: #fff;
+  color: #444;
+  transition: none;
+}
+
+.overview-quality-gate-condition:hover,
+.overview-quality-gate-condition:focus {
+  border-width: 2px;
+  color: #444;
+}
+
+.overview-quality-gate-condition:hover .overview-quality-gate-condition-container,
+.overview-quality-gate-condition:focus .overview-quality-gate-condition-container {
+  padding: 9px;
 }
 
 .overview-quality-gate-condition-leak {
