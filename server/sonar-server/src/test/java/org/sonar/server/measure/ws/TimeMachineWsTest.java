@@ -21,7 +21,6 @@ package org.sonar.server.measure.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
 
@@ -49,9 +48,7 @@ public class TimeMachineWsTest {
   public void define_index_action() {
     WebService.Action action = controller.action("index");
     assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(5);
   }
 
 }

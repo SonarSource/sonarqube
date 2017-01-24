@@ -20,52 +20,27 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 public class TimeMachineWs implements WebService {
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/timemachine")
-      .setDescription("Get project measure data from past analyses.")
+      .setDescription("Removed since 6.3, please use api/measures/search_analyses instead")
       .setSince("2.10");
-
-    defineSystemAction(controller);
-
+    defineIndexAction(controller);
     controller.done();
   }
 
-  private void defineSystemAction(NewController controller) {
-    NewAction action = controller.createAction("index")
-      .setDescription("Get a list of past measures. Requires Browse permission on project")
+  private void defineIndexAction(NewController controller) {
+    controller.createAction("index")
+      .setDescription("The web service is removed and you're invited to use api/measures/search_analyses instead")
       .setSince("2.10")
-      .setHandler(RailsHandler.INSTANCE)
+      .setDeprecatedSince("6.3")
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "timemachine-example-index.json"));
-
-    action.createParam("resource")
-      .setDescription("id or key of the resource (ie: component)")
-      .setRequired(true)
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
-    action.createParam("metrics")
-      .setDescription("Comma-separated list of <a href=\"http://redirect.sonarsource.com/doc/metric-definitions.html\">metric keys/ids</a>")
-      .setRequired(true)
-      .setExampleValue("coverage,violations");
-
-    action.createParam("fromDateTime")
-      .setDescription("ISO-8601 datetime (inclusive)")
-      .setExampleValue("2010-12-25T23:59:59+0100");
-
-    action.createParam("toDateTime")
-      .setDescription("ISO-8601 datetime (inclusive)")
-      .setExampleValue("2010-12-25T23:59:59+0100");
-
-    action.createParam("format")
-      .setDescription("Response format")
-      .setPossibleValues("json", "csv");
   }
 
 }
