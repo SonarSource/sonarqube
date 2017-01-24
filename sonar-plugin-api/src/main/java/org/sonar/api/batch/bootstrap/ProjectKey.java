@@ -19,6 +19,9 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+/**
+ * Provides root project key with branch
+ */
 @FunctionalInterface
 public interface ProjectKey {
   String get();

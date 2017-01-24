@@ -58,7 +58,7 @@ public class IssuesReportBuilder {
   public IssuesReport buildReport() {
     DefaultInputModule project = moduleHierarchy.root();
     IssuesReport issuesReport = new IssuesReport();
-    issuesReport.setNoFile(!inputComponentCache.allFiles().iterator().hasNext());
+    issuesReport.setNoFile(!inputComponentCache.allFilesToPublish().iterator().hasNext());
     issuesReport.setTitle(project.definition().getName());
     issuesReport.setDate(projectAnalysisInfo.analysisDate());
 

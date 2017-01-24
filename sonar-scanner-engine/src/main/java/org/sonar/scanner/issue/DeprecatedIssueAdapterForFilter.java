@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -43,9 +42,9 @@ class DeprecatedIssueAdapterForFilter implements Issue {
   private DefaultInputModule module;
   private ProjectAnalysisInfo projectAnalysisInfo;
 
-  DeprecatedIssueAdapterForFilter(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, org.sonar.scanner.protocol.output.ScannerReport.Issue rawIssue,
+  DeprecatedIssueAdapterForFilter(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, org.sonar.scanner.protocol.output.ScannerReport.Issue rawIssue,
     String componentKey) {
-    this.module = (DefaultInputModule) module;
+    this.module = module;
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.rawIssue = rawIssue;
     this.componentKey = componentKey;

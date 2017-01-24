@@ -61,6 +61,8 @@ public interface FilePredicates {
    * <code>some/path/Foo.java</code> and <code>other/path/Foo.java</code>.
    * The parameter must match exactly, no patterns are allowed,
    * and it must not be <code>null</code>.
+   * 
+   * @since 6.3
    */
   FilePredicate hasFilename(String s);
 
@@ -70,6 +72,8 @@ public interface FilePredicates {
    * <code>some/path/Foo.java</code> and <code>other/path/Foo.JAVA</code>
    * but not <code>some/path/Foo.js</code>.
    * The parameter must not be <code>null</code>.
+   * 
+   * @since 6.3
    */
   FilePredicate hasExtension(String s);
 

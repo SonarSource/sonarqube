@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.sonar.api.batch.fs.InputComponent;
+import org.junit.Test;
 
-/**
- * Generates unique IDs for any {@link InputComponent}. 
- * The IDs must be unique among all types of components and for all modules in the project.
- * The ID should never be 0, as it is sometimes used to indicate invalid components. 
- */
-public class BatchIdGenerator implements Supplier<Integer> {
-  private AtomicInteger nextBatchId = new AtomicInteger(1);
-
-  @Override
-  public Integer get() {
-    return nextBatchId.getAndIncrement();
+public class MetadataTest {
+  @Test
+  public void testRoundtrip() {
+    Metadata metadata = new Metadata(10, 20, "hash", new int[] {1, 2}, 30);
+    assertThat(metadata.lastValidOffset()).isEqualTo(30);
+    assertThat(metadata.lines()).isEqualTo(10);
+    assertThat(metadata.nonBlankLines()).isEqualTo(20);
+    assertThat(metadata.originalLineOffsets()).isEqualTo(new int[] {1, 2});
+    assertThat(metadata.hash()).isEqualTo("hash");
   }
 }

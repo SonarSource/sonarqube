@@ -210,7 +210,7 @@ public class CpdExecutorTest {
   public void failOnMissingComponent() {
     executor.runCpdAnalysis(null, "unknown", Collections.emptyList(), 1);
     readDuplications(0);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Resource not found in component cache: unknown. Skipping CPD computation for it");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Resource not found in component store: unknown. Skipping CPD computation for it");
   }
 
   @Test

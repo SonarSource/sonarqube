@@ -62,7 +62,7 @@ public class DefaultIndex {
     this.metricFinder = metricFinder;
   }
 
-  public void setCurrentProject(DefaultSensorStorage sensorStorage) {
+  public void setCurrentStorage(DefaultSensorStorage sensorStorage) {
     // the following components depend on the current module, so they need to be reloaded.
     this.sensorStorage = sensorStorage;
   }
@@ -156,6 +156,9 @@ public class DefaultIndex {
     return measure;
   }
 
+  /**
+   * @param key Effective key, without branch
+   */
   @CheckForNull
   public Resource getParent(String key) {
     InputComponent component = componentStore.getByKey(key);
@@ -170,6 +173,9 @@ public class DefaultIndex {
     return toResource(parent);
   }
 
+  /**
+   * @param key Effective key, without branch
+   */
   public Collection<Resource> getChildren(String key) {
     InputComponent component = componentStore.getByKey(key);
     Collection<InputComponent> children = tree.getChildren(component);
@@ -191,6 +197,10 @@ public class DefaultIndex {
     return r;
   }
 
+  /**
+   * Gets a component from the store as a resource.
+   * @param key Effective key, without branch
+   */
   @CheckForNull
   public Resource getResource(String key) {
     InputComponent component = componentStore.getByKey(key);

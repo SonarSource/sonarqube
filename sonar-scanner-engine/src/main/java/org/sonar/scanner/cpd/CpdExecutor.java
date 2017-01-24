@@ -110,7 +110,7 @@ public class CpdExecutor {
   void runCpdAnalysis(ExecutorService executorService, String componentKey, final Collection<Block> fileBlocks, long timeout) {
     DefaultInputComponent component = (DefaultInputComponent) componentStore.getByKey(componentKey);
     if (component == null) {
-      LOG.error("Resource not found in component cache: {}. Skipping CPD computation for it", componentKey);
+      LOG.error("Resource not found in component store: {}. Skipping CPD computation for it", componentKey);
       return;
     }
 

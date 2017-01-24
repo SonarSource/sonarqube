@@ -62,16 +62,6 @@ public class ModuleInputComponentStore extends DefaultFileSystem.Cache {
   }
 
   @Override
-  protected void doAdd(InputModule inputModule) {
-    inputComponentStore.put(inputModule);
-  }
-
-  @Override
-  public InputModule module() {
-    return inputComponentStore.getModule(moduleKey);
-  }
-
-  @Override
   public Iterable<InputFile> getFilesByName(String filename) {
     return inputComponentStore.getFilesByName(filename);
   }

@@ -21,11 +21,12 @@ package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,11 +55,29 @@ class MetadataGenerator {
   }
 
   /**
+   * Sets all metadata in the file, including charset and status.
+   * It is an expensive computation, reading the entire file.
+   */
+  public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
+    try {
+      Charset charset = detectCharset(inputFile.path(), defaultEncoding);
+      inputFile.setCharset(charset);
+      Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
+      inputFile.setMetadata(metadata);
+      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
+      LOG.debug("'{}' generated metadata {} with charset '{}'",
+        inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  /**
    * @return charset detected from BOM in given file or given defaultCharset
    * @throws IllegalStateException if an I/O error occurs
    */
-  private static Charset detectCharset(File file, Charset defaultCharset) {
-    try (FileInputStream inputStream = new FileInputStream(file)) {
+  private static Charset detectCharset(Path path, Charset defaultCharset) {
+    try (InputStream inputStream = Files.newInputStream(path)) {
       byte[] bom = new byte[4];
       int n = inputStream.read(bom, 0, bom.length);
       if ((n >= 3) && (bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
@@ -75,21 +94,7 @@ class MetadataGenerator {
         return defaultCharset;
       }
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file " + file.getAbsolutePath(), e);
-    }
-  }
-
-  public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
-    try {
-      Charset charset = detectCharset(inputFile.file(), defaultEncoding);
-      inputFile.setCharset(charset);
-      Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
-      inputFile.setMetadata(metadata);
-      inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
-      LOG.debug("'{}' generated metadata {} with and charset '{}'",
-        inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Unable to read file " + path.toAbsolutePath().toString(), e);
     }
   }
 }

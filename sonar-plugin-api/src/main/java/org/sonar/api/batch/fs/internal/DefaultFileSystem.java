@@ -43,7 +43,6 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
@@ -204,11 +203,6 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
   
-  public DefaultFileSystem add(InputModule inputModule) {
-    cache.add(inputModule);
-    return this;
-  }
-
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
    * using {@link #add(InputFile)}.
@@ -243,8 +237,6 @@ public class DefaultFileSystem implements FileSystem {
 
     protected abstract void doAdd(InputDir inputDir);
 
-    protected abstract void doAdd(InputModule inputModule);
-
     final void add(InputFile inputFile) {
       doAdd(inputFile);
     }
@@ -252,11 +244,6 @@ public class DefaultFileSystem implements FileSystem {
     public void add(InputDir inputDir) {
       doAdd(inputDir);
     }
-
-    public void add(InputModule inputModule) {
-      doAdd(inputModule);
-    }
-
   }
 
   /**
@@ -265,7 +252,6 @@ public class DefaultFileSystem implements FileSystem {
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<>();
     private final Map<String, InputDir> dirMap = new HashMap<>();
-    private InputModule module;
     private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
     private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
 
@@ -285,11 +271,6 @@ public class DefaultFileSystem implements FileSystem {
     }
 
     @Override
-    public InputModule module() {
-      return module;
-    }
-
-    @Override
     public Iterable<InputFile> getFilesByName(String filename) {
       return filesByNameCache.get(filename);
     }
@@ -298,7 +279,6 @@ public class DefaultFileSystem implements FileSystem {
       return filesByExtensionCache.get(extension);
     }
 
-    @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
       filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);
@@ -308,11 +288,6 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected void doAdd(InputDir inputDir) {
       dirMap.put(inputDir.relativePath(), inputDir);
-    }
-
-    @Override
-    protected void doAdd(InputModule inputModule) {
-      module = inputModule;
     }
   }
 

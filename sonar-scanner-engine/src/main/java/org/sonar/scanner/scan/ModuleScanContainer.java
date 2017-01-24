@@ -167,7 +167,7 @@ public class ModuleScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
-    index.setCurrentProject(getComponentByType(DefaultSensorStorage.class));
+    index.setCurrentStorage(getComponentByType(DefaultSensorStorage.class));
 
     getComponentByType(AbstractPhaseExecutor.class).execute(module);
   }

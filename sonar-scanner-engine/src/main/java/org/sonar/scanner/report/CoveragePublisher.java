@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -48,8 +47,7 @@ public class CoveragePublisher implements ReportPublisherStep {
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final InputFile file : componentCache.allFiles()) {
-      DefaultInputFile inputFile = (DefaultInputFile) file;
+    for (final DefaultInputFile inputFile : componentCache.allFilesToPublish()) {
       Map<Integer, LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
 
       int lineCount = inputFile.lines();

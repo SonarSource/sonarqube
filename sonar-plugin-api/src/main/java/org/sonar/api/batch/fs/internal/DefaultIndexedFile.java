@@ -29,6 +29,9 @@ import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.utils.PathUtils;
 
+/**
+ * @since 6.3
+ */
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
   private final String relativePath;
   private final String moduleKey;
@@ -92,7 +95,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   }
 
   /**
-   * Component key.
+   * Component key (without branch).
    */
   @Override
   public String key() {

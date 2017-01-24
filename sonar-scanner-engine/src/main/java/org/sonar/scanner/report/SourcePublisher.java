@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -39,32 +38,36 @@ public class SourcePublisher implements ReportPublisherStep {
 
   private final InputComponentStore componentCache;
 
-  public SourcePublisher(InputComponentStore componentCache) {
-    this.componentCache = componentCache;
+  public SourcePublisher(InputComponentStore componentStore) {
+    this.componentCache = componentStore;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final InputFile file : componentCache.allFiles()) {
-      DefaultInputFile inputFile = (DefaultInputFile) file;
+    for (final DefaultInputFile inputFile : componentCache.allFilesToPublish()) {
       File iofile = writer.getSourceFile(inputFile.batchId());
-      int line = 0;
+
       try (FileOutputStream output = new FileOutputStream(iofile);
         BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),
           ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
         BufferedReader reader = new BufferedReader(new InputStreamReader(bomIn, inputFile.charset()))) {
-        String lineStr = reader.readLine();
-        while (lineStr != null) {
-          IOUtils.write(lineStr, output, StandardCharsets.UTF_8);
-          line++;
-          if (line < inputFile.lines()) {
-            IOUtils.write("\n", output, StandardCharsets.UTF_8);
-          }
-          lineStr = reader.readLine();
-        }
+        writeSource(reader, output, inputFile.lines());
       } catch (IOException e) {
         throw new IllegalStateException("Unable to store file source in the report", e);
       }
+    }
+  }
+
+  private static void writeSource(BufferedReader reader, FileOutputStream output, int lines) throws IOException {
+    int line = 0;
+    String lineStr = reader.readLine();
+    while (lineStr != null) {
+      IOUtils.write(lineStr, output, StandardCharsets.UTF_8);
+      line++;
+      if (line < lines) {
+        IOUtils.write("\n", output, StandardCharsets.UTF_8);
+      }
+      lineStr = reader.readLine();
     }
   }
 }

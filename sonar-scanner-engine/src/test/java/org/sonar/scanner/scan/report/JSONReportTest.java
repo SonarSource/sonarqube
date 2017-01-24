@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.report;
 
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -31,7 +30,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
@@ -86,8 +84,8 @@ public class JSONReportTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java").build();
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputComponentStore fileCache = mock(InputComponentStore.class);
-    when(fileCache.allFiles()).thenReturn(Arrays.<InputFile>asList(inputFile));
-    when(fileCache.allDirs()).thenReturn(Arrays.<InputDir>asList(inputDir));
+    when(fileCache.allFilesToPublish()).thenReturn(Collections.singleton(inputFile));
+    when(fileCache.allDirs()).thenReturn(Collections.singleton(inputDir));
 
     DefaultInputModule rootModule = new DefaultInputModule("struts");
     DefaultInputModule moduleA = new DefaultInputModule("struts-core");
@@ -123,7 +121,7 @@ public class JSONReportTest {
     issue.setAssignee("simon");
     issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
     issue.setNew(false);
-    when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
+    when(issueCache.all()).thenReturn(Collections.singleton(issue));
     ScannerInput.User user = ScannerInput.User.newBuilder().setLogin("simon").setName("Simon").build();
     when(userRepository.load("simon")).thenReturn(user);
 
@@ -144,7 +142,7 @@ public class JSONReportTest {
     issue.setResolution(Issue.RESOLUTION_FIXED);
     issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
     issue.setNew(false);
-    when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
+    when(issueCache.all()).thenReturn(Collections.singleton(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
