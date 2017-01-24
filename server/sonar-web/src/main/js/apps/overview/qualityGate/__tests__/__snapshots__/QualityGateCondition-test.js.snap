@@ -1,0 +1,327 @@
+exports[`test new_open_issues 1`] = `
+<DrilldownLink
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  component="abcd-key"
+  metric="new_open_issues"
+  periodDate={null}>
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "10",
+            "value": "10",
+          }
+        }
+        metric={
+          Object {
+            "key": "new_open_issues",
+            "name": "new_open_issues",
+            "type": "INT",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        new_open_issues
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT
+         
+        0
+      </div>
+    </div>
+  </div>
+</DrilldownLink>
+`;
+
+exports[`test new_reliability_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=BUG|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR|sinceLeakPeriod=true">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "new_reliability_rating",
+            "name": "new_reliability_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        new_reliability_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`test new_security_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=VULNERABILITY|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR|sinceLeakPeriod=true">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "new_security_rating",
+            "name": "new_security_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        new_security_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`test new_sqale_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=CODE_SMELL|sinceLeakPeriod=true">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "new_sqale_rating",
+            "name": "new_sqale_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        new_sqale_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`test open_issues 1`] = `
+<DrilldownLink
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  component="abcd-key"
+  metric="open_issues"
+  periodDate={null}>
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "10",
+            "value": "10",
+          }
+        }
+        metric={
+          Object {
+            "key": "open_issues",
+            "name": "Open open_issues",
+            "type": "INT",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        Open open_issues
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT
+         
+        0
+      </div>
+    </div>
+  </div>
+</DrilldownLink>
+`;
+
+exports[`test reliability_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=BUG|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "reliability_rating",
+            "name": "reliability_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        reliability_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`test security_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=VULNERABILITY|severities=BLOCKER%2CCRITICAL%2CMAJOR%2CMINOR">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "security_rating",
+            "name": "security_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        security_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
+exports[`test sqale_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/component_issues?id=abcd-key#resolved=false|types=CODE_SMELL">
+  <div
+    className="overview-quality-gate-condition-container">
+    <div
+      className="overview-quality-gate-condition-value">
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "sqale_rating",
+            "name": "sqale_rating",
+            "type": "RATING",
+          }
+        } />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric">
+        sqale_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold">
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
