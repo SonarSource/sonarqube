@@ -97,7 +97,7 @@ export default class ProfilesList extends React.Component {
               currentFilter={language}/>
 
           {Object.keys(profilesToShow).length === 0 && (
-              <div className="alert alert-warning">
+              <div className="alert alert-warning spacer-top">
                 {translate('no_results')}
               </div>
           )}

@@ -51,11 +51,10 @@ class App extends React.Component {
     this.props.fetchCurrentUser()
         .then(() => Promise.all([
           this.props.fetchAppState(),
-          this.props.fetchOrganizations()
+          this.props.fetchOrganizations(),
+          this.props.fetchLanguages()
         ]))
-        .then(this.finishLoading)
-        .then(this.props.fetchLanguages)
-        .catch(this.finishLoading);
+        .then(this.finishLoading, this.finishLoading);
   }
 
   componentWillUnmount () {
