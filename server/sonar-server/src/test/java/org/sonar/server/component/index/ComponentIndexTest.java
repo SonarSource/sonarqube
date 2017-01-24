@@ -259,6 +259,36 @@ public class ComponentIndexTest {
   }
 
   @Test
+  public void should_search_for_word_and_suffix() {
+    assertFileMatches("plugin java", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_search_for_word_and_suffix_in_any_order() {
+    assertFileMatches("java plugin", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_search_for_two_words() {
+    assertFileMatches("abstract factory", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_search_for_two_words_in_any_order() {
+    assertFileMatches("factory abstract", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_find_item_with_at_least_one_matching_word() {
+    assertFileMatches("abstract object", "AbstractPluginFactory.java");
+  }
+
+  @Test
+  public void should_require_at_least_one_matching_word() {
+    assertNoFileMatches("monitor object", "AbstractPluginFactory.java");
+  }
+
+  @Test
   public void should_respect_confidentiallity() {
     indexer.index(newProject("sonarqube", "Quality Product"));
 
@@ -302,6 +332,19 @@ public class ComponentIndexTest {
     userSession.login("john").setUserId(TEST_USER_ID).setUserGroups(TEST_USER_GROUP);
   }
 
+  private void assertFileMatches(String query, String... fileNames) {
+    ComponentDto[] files = Arrays.stream(fileNames)
+      .map(this::indexFile)
+      .toArray(ComponentDto[]::new);
+    assertSearch(query).containsExactlyInAnyOrder(uuids(files));
+  }
+
+  private void assertNoFileMatches(String query, String... fileNames) {
+    Arrays.stream(fileNames)
+      .forEach(this::indexFile);
+    assertSearch(query).isEmpty();
+  }
+
   private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
     return assertSearch(new ComponentIndexQuery(query));
   }
@@ -337,6 +380,11 @@ public class ComponentIndexTest {
     return ComponentTesting.newProjectDto(organization, "UUID_" + key)
       .setKey(key)
       .setName(name);
+  }
+
+  private ComponentDto indexFile(String fileName) {
+    ComponentDto project = indexProject("key-1", "SonarQube");
+    return indexFile(project, "src/main/java/" + fileName, fileName);
   }
 
   private ComponentDto indexFile(ComponentDto project, String fileKey, String fileName) {
