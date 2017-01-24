@@ -33,22 +33,31 @@ public class FileExtensionPredicateTest {
   @Rule
   public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private final FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
-
   @Test
   public void should_match_correct_extension() throws IOException {
+    FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
     assertThat(predicate.apply(mockWithName("prog.bat"))).isTrue();
     assertThat(predicate.apply(mockWithName("prog.bat.bat"))).isTrue();
   }
 
   @Test
   public void should_not_match_incorrect_extension() throws IOException {
+    FileExtensionPredicate predicate = new FileExtensionPredicate("bat");
     assertThat(predicate.apply(mockWithName("prog.batt"))).isFalse();
     assertThat(predicate.apply(mockWithName("prog.abat"))).isFalse();
     assertThat(predicate.apply(mockWithName("prog."))).isFalse();
     assertThat(predicate.apply(mockWithName("prog.bat."))).isFalse();
     assertThat(predicate.apply(mockWithName("prog.bat.batt"))).isFalse();
     assertThat(predicate.apply(mockWithName("prog"))).isFalse();
+  }
+
+  @Test
+  public void should_match_correct_extension_case_insensitively() throws IOException {
+    FileExtensionPredicate predicate = new FileExtensionPredicate("jAVa");
+    assertThat(predicate.apply(mockWithName("Program.java"))).isTrue();
+    assertThat(predicate.apply(mockWithName("Program.JAVA"))).isTrue();
+    assertThat(predicate.apply(mockWithName("Program.Java"))).isTrue();
+    assertThat(predicate.apply(mockWithName("Program.JaVa"))).isTrue();
   }
 
   @Test

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.util.Locale;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -30,7 +31,7 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
   private final String extension;
 
   public FileExtensionPredicate(String extension) {
-    this.extension = extension;
+    this.extension = lowercase(extension);
   }
 
   @Override
@@ -52,6 +53,10 @@ public class FileExtensionPredicate extends AbstractFilePredicate {
     if (index < 0) {
       return "";
     }
-    return name.substring(index + 1);
+    return lowercase(name.substring(index + 1));
+  }
+
+  private static String lowercase(String extension) {
+    return extension.toLowerCase(Locale.ENGLISH);
   }
 }
