@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import javax.annotation.CheckForNull;
@@ -27,24 +28,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 
-public class IndexedFileBuilder {
-  private static final Logger LOG = LoggerFactory.getLogger(IndexedFileBuilder.class);
+public class InputFileBuilder {
+  private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
   private final String moduleKey;
+  private final Path moduleBaseDir;
   private final PathResolver pathResolver;
   private final LanguageDetection langDetection;
   private final BatchIdGenerator idGenerator;
+  private final MetadataGenerator metadataGenerator;
 
-  IndexedFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection, BatchIdGenerator idGenerator) {
-    this.moduleKey = moduleKey;
+  public InputFileBuilder(DefaultInputModule module, PathResolver pathResolver, LanguageDetection langDetection, MetadataGenerator metadataGenerator,
+    BatchIdGenerator idGenerator) {
+    this.moduleKey = module.key();
+    this.moduleBaseDir = module.definition().getBaseDir().toPath();
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
+    this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
   }
 
   @CheckForNull
-  DefaultIndexedFile create(Path file, InputFile.Type type, Path moduleBaseDir) {
+  DefaultInputFile create(Path file, InputFile.Type type, Charset defaultEncoding) {
     String relativePath = pathResolver.relativePath(moduleBaseDir, file);
     if (relativePath == null) {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.toAbsolutePath(), moduleBaseDir);
@@ -57,6 +65,6 @@ public class IndexedFileBuilder {
       return null;
     }
     indexedFile.setLanguage(language);
-    return indexedFile;
+    return new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
   }
 }

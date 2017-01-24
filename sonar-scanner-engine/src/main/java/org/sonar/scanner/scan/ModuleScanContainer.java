@@ -60,9 +60,9 @@ import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ExclusionFilters;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.FileSystemLogger;
-import org.sonar.scanner.scan.filesystem.IndexedFileBuilderProvider;
+import org.sonar.scanner.scan.filesystem.InputFileBuilder;
+import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGeneratorProvider;
-import org.sonar.scanner.scan.filesystem.LanguageDetectionFactory;
 import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
@@ -116,9 +116,9 @@ public class ModuleScanContainer extends ComponentContainer {
       new MetadataGeneratorProvider(),
       FileMetadata.class,
       StatusDetectionFactory.class,
-      LanguageDetectionFactory.class,
+      LanguageDetection.class,
       FileIndexer.class,
-      new IndexedFileBuilderProvider(),
+      InputFileBuilder.class,
       FileSystemLogger.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,

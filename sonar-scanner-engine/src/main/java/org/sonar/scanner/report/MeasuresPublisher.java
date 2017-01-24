@@ -104,7 +104,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
     }
   }
 
-  private static void setValueAccordingToType(ScannerReport.Measure.Builder builder, DefaultMeasure measure) {
+  private static void setValueAccordingToType(ScannerReport.Measure.Builder builder, DefaultMeasure<?> measure) {
     Serializable value = measure.value();
     Metric<?> metric = measure.metric();
     if (Boolean.class.equals(metric.valueType())) {

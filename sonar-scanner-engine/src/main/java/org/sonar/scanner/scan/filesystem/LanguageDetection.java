@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Settings;
@@ -40,7 +41,8 @@ import org.sonar.scanner.repository.language.LanguagesRepository;
 /**
  * Detect language of a source file based on its suffix and configured patterns.
  */
-class LanguageDetection {
+@ScannerSide
+public class LanguageDetection {
 
   private static final Logger LOG = LoggerFactory.getLogger(LanguageDetection.class);
 
@@ -51,7 +53,7 @@ class LanguageDetection {
   private final List<String> languagesToConsider = Lists.newArrayList();
   private final String forcedLanguage;
 
-  LanguageDetection(Settings settings, LanguagesRepository languages) {
+  public LanguageDetection(Settings settings, LanguagesRepository languages) {
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
