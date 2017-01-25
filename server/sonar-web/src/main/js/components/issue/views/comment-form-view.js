@@ -65,7 +65,7 @@ export default PopupView.extend({
   },
 
   cancel () {
-    this.options.detailView.updateAfterAction(false);
+    this.options.detailView.updateAfterAction();
   },
 
   disableForm () {
@@ -77,7 +77,6 @@ export default PopupView.extend({
   },
 
   submit () {
-    const that = this;
     const text = this.ui.textarea.val();
 
     if (!text.length) {
@@ -96,11 +95,10 @@ export default PopupView.extend({
     this.disableForm();
     this.options.detailView.disableControls();
     return $.post(url, data)
-        .done(() => {
-          that.options.detailView.updateAfterAction(true);
-        }).fail(() => {
-          that.enableForm();
-          that.options.detailView.enableControls();
+        .done(r => this.options.detailView.updateAfterAction(r))
+        .fail(() => {
+          this.enableForm();
+          this.options.detailView.enableControls();
         });
   },
 

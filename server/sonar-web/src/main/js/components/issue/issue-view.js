@@ -100,12 +100,12 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  updateAfterAction (fetch) {
+  updateAfterAction (response) {
     if (this.popup) {
       this.popup.destroy();
     }
-    if (fetch) {
-      this.resetIssue();
+    if (response) {
+      this.model.set(this.model.parse(response));
     }
   },
 
@@ -155,7 +155,7 @@ export default Marionette.ItemView.extend({
         $.ajax({
           type: 'POST',
           url: window.baseUrl + '/api/issues/delete_comment?key=' + commentKey
-        }).done(() => this.updateAfterAction(true));
+        }).done(r => this.updateAfterAction(r));
       }
     });
     this.popup.render();
@@ -222,15 +222,10 @@ export default Marionette.ItemView.extend({
   },
 
   action (action) {
-    const that = this;
     this.disableControls();
     return this.model.customAction(action)
-        .done(() => {
-          that.updateAfterAction(true);
-        })
-        .fail(() => {
-          that.enableControls();
-        });
+        .done(r => this.updateAfterAction(r))
+        .fail(() => this.enableControls());
   },
 
   editTags (e) {

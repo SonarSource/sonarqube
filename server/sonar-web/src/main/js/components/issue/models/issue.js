@@ -69,14 +69,13 @@ export default Backbone.Model.extend({
 
   _injectCommentsRelational (issue, users) {
     if (issue.comments) {
-      const that = this;
       const newComments = issue.comments.map(comment => {
         let newComment = { ...comment, author: comment.login };
         delete newComment.login;
-        newComment = that._injectRelational(newComment, users, 'author', 'login');
+        newComment = this._injectRelational(newComment, users, 'author', 'login');
         return newComment;
       });
-      issue = { ...issue, comments: newComments };
+      return { ...issue, comments: newComments };
     }
     return issue;
   },
