@@ -66,8 +66,7 @@ export default class App extends React.Component {
   }
 
   renderChild () {
-    const areLanguagesLoading = Object.keys(this.props.languages).length === 0;
-    if (this.state.loading || areLanguagesLoading) {
+    if (this.state.loading) {
       return <i className="spinner"/>;
     }
 
