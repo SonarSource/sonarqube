@@ -30,12 +30,14 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -44,9 +46,11 @@ import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.measure.MeasureTreeQuery.Strategy.LEAVES;
 
@@ -65,6 +69,8 @@ public class MeasureDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
   private MeasureDao underTest = db.getDbClient().measureDao();
 
@@ -451,16 +457,23 @@ public class MeasureDaoTest {
   @Test
   public void select_past_measures_with_several_analyses() {
     ComponentDto project = db.components().insertProject();
-    insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
-    insertAnalysis(OTHER_ANALYSIS_UUID, project.uuid(), false);
+    long lastAnalysisDate = parseDate("2017-01-25").getTime();
+    long previousAnalysisDate = lastAnalysisDate - 10_000_000_000L;
+    long oldAnalysisDate = lastAnalysisDate - 100_000_000_000L;
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setUuid(LAST_ANALYSIS_UUID).setCreatedAt(lastAnalysisDate));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setUuid(OTHER_ANALYSIS_UUID).setCreatedAt(previousAnalysisDate).setLast(false));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setUuid("OLD_ANALYSIS_UUID").setCreatedAt(oldAnalysisDate).setLast(false));
+    db.commit();
 
     // project
     insertMeasure("PROJECT_M1", LAST_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
     insertMeasure("PROJECT_M2", OTHER_ANALYSIS_UUID, project.uuid(), NCLOC_METRIC_ID);
+    insertMeasure("PROJECT_M3", "OLD_ANALYSIS_UUID", project.uuid(), NCLOC_METRIC_ID);
     db.commit();
 
-    // Children measures of project
-    List<MeasureDto> result = underTest.selectPastMeasures(db.getSession(), project.uuid(), newArrayList(LAST_ANALYSIS_UUID, OTHER_ANALYSIS_UUID), singletonList(NCLOC_METRIC_ID));
+    // Measures of project for last and previous analyses
+    List<MeasureDto> result = underTest.selectPastMeasures(db.getSession(),
+      new PastMeasureQuery(project.uuid(), singletonList(NCLOC_METRIC_ID), previousAnalysisDate, lastAnalysisDate + 1_000L));
 
     assertThat(result).hasSize(2).extracting(MeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
   }
@@ -548,8 +561,8 @@ public class MeasureDaoTest {
     db.getDbClient().measureDao().insert(db.getSession(), measure);
   }
 
-  private void insertAnalysis(String uuid, String projectUuid, boolean isLast) {
-    db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshot()
+  private SnapshotDto insertAnalysis(String uuid, String projectUuid, boolean isLast) {
+    return db.getDbClient().snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshot()
       .setUuid(uuid)
       .setComponentUuid(projectUuid)
       .setLast(isLast));

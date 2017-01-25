@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
@@ -35,7 +37,6 @@ import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.db.metric.MetricDtoFunctions.isOptimizedForBestValue;
 import static org.sonar.server.measure.ws.MetricDtoWithBestValue.isEligibleForBestValue;
 
@@ -51,8 +52,8 @@ class SearchHistoryResult {
     this.request = request;
   }
 
-  boolean hasResults() {
-    return !analyses.isEmpty();
+  public ComponentDto getComponent() {
+    return requireNonNull(component);
   }
 
   SearchHistoryResult setComponent(ComponentDto component) {
@@ -67,7 +68,8 @@ class SearchHistoryResult {
 
   SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
     this.paging = Common.Paging.newBuilder().setPageIndex(request.getPage()).setPageSize(request.getPageSize()).setTotal(analyses.size()).build();
-    this.analyses = analyses.stream().skip(offset(request.getPage(), request.getPageSize())).limit(request.getPageSize()).collect(toList());
+    this.analyses = analyses.stream().skip(offset(request.getPage(), request.getPageSize())).limit(request.getPageSize()).collect(Collectors.toList());
+
     return this;
   }
 
@@ -85,9 +87,16 @@ class SearchHistoryResult {
   }
 
   SearchHistoryResult setMeasures(List<MeasureDto> measures) {
-    this.measures = ImmutableList.<MeasureDto>builder()
-      .addAll(measures)
-      .addAll(addBestValuesToMeasures(component, measures)).build();
+    Set<String> analysisUuids = analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toHashSet());
+    ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
+    List<MeasureDto> filteredMeasures = measures.stream()
+      .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))
+      .collect(Collectors.toArrayList());
+    measuresBuilder.addAll(filteredMeasures);
+    measuresBuilder.addAll(computeBestValues(filteredMeasures));
+
+    this.measures = measuresBuilder.build();
+
     return this;
   }
 
@@ -98,7 +107,7 @@ class SearchHistoryResult {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private List<MeasureDto> addBestValuesToMeasures(ComponentDto component, List<MeasureDto> measures) {
+  private List<MeasureDto> computeBestValues(List<MeasureDto> measures) {
     if (!isEligibleForBestValue().test(component)) {
       return emptyList();
     }

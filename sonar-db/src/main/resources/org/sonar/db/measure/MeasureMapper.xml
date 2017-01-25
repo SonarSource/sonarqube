@@ -142,12 +142,18 @@
   <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm
-    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+      inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-    pm.component_uuid = #{componentUuid}
-    and analysis.uuid in <foreach item="analysisUuid" collection="analysisUuids" open="(" separator="," close=")">#{analysisUuid}</foreach>
-    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+    pm.component_uuid = #{query.componentUuid, jdbcType=VARCHAR}
+    <if test="query.from!= null">
+      and analysis.created_at>=#{query.from, jdbcType=BIGINT}
+    </if>
+    <if test="query.to!=null">
+      and analysis.created_at&lt;#{query.to, jdbcType=BIGINT}
+    </if>
+    and pm.metric_id in <foreach item="metricId" collection="query.metricIds" open="(" separator="," close=")">#{metricId, jdbcType=VARCHAR}</foreach>
     and pm.person_id is null
+    and analysis.status=#{query.status, jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectMeasuresOfDeveloper" parameterType="map" resultType="Measure">

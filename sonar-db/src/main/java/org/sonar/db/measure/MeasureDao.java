@@ -120,14 +120,17 @@ public class MeasureDao implements Dao {
       ids -> mapper(dbSession).selectPastMeasuresOnSingleAnalysis(componentUuid, analysisUuid, ids));
   }
 
-  public List<MeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, List<String> analysisUuids, List<Integer> metricIds) {
-    if (analysisUuids.isEmpty() || metricIds.isEmpty()) {
-      return emptyList();
-    }
-
-    return executeLargeInputs(
-      analysisUuids,
-      analyses -> mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(componentUuid, analyses, metricIds));
+  /**
+   * Select measures of:
+   * - one component
+   * - for a list of metrics
+   * - with analysis from a date (inclusive) - optional
+   * - with analysis to a date (exclusive) - optional
+   *
+   * If no constraints on dates, all the history is returned
+   */
+  public List<MeasureDto> selectPastMeasures(DbSession dbSession, PastMeasureQuery query) {
+    return mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(query);
   }
 
   /**

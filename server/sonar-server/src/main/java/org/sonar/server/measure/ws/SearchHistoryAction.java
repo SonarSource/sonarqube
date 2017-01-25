@@ -21,6 +21,7 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.Sets;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotQuery.SORT_FIELD;
 import org.sonar.db.component.SnapshotQuery.SORT_ORDER;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.PastMeasureQuery;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -122,7 +124,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
           .setComponent(component)
           .setAnalyses(searchAnalyses(dbSession, request, component))
           .setMetrics(searchMetrics(dbSession, request));
-        return result.setMeasures(searchMeasures(dbSession, component, result.getAnalyses(), result.getMetrics()));
+        return result.setMeasures(searchMeasures(dbSession, request, result));
       }
     };
   }
@@ -133,12 +135,15 @@ public class SearchHistoryAction implements MeasuresWsAction {
     return component;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, List<SnapshotDto> analyses, List<MetricDto> metrics) {
-    return dbClient.measureDao().selectPastMeasures(
-      dbSession,
-      component.uuid(),
-      analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()),
-      metrics.stream().map(MetricDto::getId).collect(Collectors.toList()));
+  private List<MeasureDto> searchMeasures(DbSession dbSession, SearchHistoryRequest request, SearchHistoryResult result) {
+    Date from = parseStartingDateOrDateTime(request.getFrom());
+    Date to = parseEndingDateOrDateTime(request.getTo());
+    PastMeasureQuery dbQuery = new PastMeasureQuery(
+      result.getComponent().uuid(),
+      result.getMetrics().stream().map(MetricDto::getId).collect(Collectors.toList()),
+      from == null ? null : from.getTime(),
+      to == null ? null : (to.getTime() + 1_000L));
+    return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);
   }
 
   private List<SnapshotDto> searchAnalyses(DbSession dbSession, SearchHistoryRequest request, ComponentDto component) {

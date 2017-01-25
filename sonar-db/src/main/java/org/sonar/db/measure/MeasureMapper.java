@@ -43,8 +43,7 @@ public interface MeasureMapper {
   List<PastMeasureDto> selectPastMeasuresOnSingleAnalysis(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid,
     @Param("metricIds") List<Integer> metricIds);
 
-  List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("componentUuid") String componentUuid, @Param("analysisUuids") Collection<String> analysisUuid,
-    @Param("metricIds") Collection<Integer> metricIds);
+  List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
 
   List<MeasureDto> selectProjectMeasuresOfDeveloper(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);
 
