@@ -319,8 +319,8 @@
 }
 
 .overview-meta-size-ncloc a {
-  line-height: 1;
-  font-size: 24px;
+  line-height: 24px;
+  font-size: 18px;
   font-weight: 300;
 }
 

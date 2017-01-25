@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import classNames from 'classnames';
 import inRange from 'lodash/inRange';
 import './SizeRating.css';
 
 export default class SizeRating extends React.Component {
-  static propTypes = {
-    value: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
-    small: React.PropTypes.bool,
-    muted: React.PropTypes.bool
+  props: {
+    value: number,
+    small?: boolean,
+    muted?: boolean
   };
 
   static defaultProps = {

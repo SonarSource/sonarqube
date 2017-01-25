@@ -22,6 +22,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
+import SizeRating from '../../../components/ui/SizeRating';
 
 export default class MetaSize extends React.Component {
   static propTypes = {
@@ -42,6 +43,9 @@ export default class MetaSize extends React.Component {
     return (
         <div id="overview-size" className="overview-meta-card">
           <div id="overview-ncloc" className="overview-meta-size-ncloc">
+            <span className="spacer-right">
+              <SizeRating value={ncloc.value}/>
+            </span>
             <DrilldownLink component={this.props.component.key} metric="ncloc">
               {formatMeasure(ncloc.value, 'SHORT_INT')}
             </DrilldownLink>
