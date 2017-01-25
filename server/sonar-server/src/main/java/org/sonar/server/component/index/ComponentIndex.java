@@ -21,16 +21,24 @@ package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.core.util.stream.Collectors;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
+import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.user.UserSession;
@@ -54,33 +62,75 @@ public class ComponentIndex extends BaseIndex {
     this.userSession = userSession;
   }
 
-  public List<String> search(ComponentIndexQuery query) {
+  public List<ComponentsPerQualifier> search(ComponentIndexQuery query) {
     return search(query, ComponentIndexSearchFeature.values());
   }
 
   @VisibleForTesting
-  List<String> search(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
+  List<ComponentsPerQualifier> search(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
+    if (query.getQualifiers().isEmpty()) {
+      return Collections.emptyList();
+    }
+
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)
-      .setFetchSource(false);
+      .setFetchSource(false)
 
-    query.getLimit().ifPresent(request::setSize);
+      // the search hits are part of the aggregations
+      .setSize(0)
 
-    request.setQuery(createQuery(query, features));
+      .setQuery(createQuery(query, features));
+
+    query.getQualifiers().stream()
+      .map(q -> createAggregation(query, q))
+      .forEach(request::addAggregation);
 
     SearchResponse searchResponse = request.get();
 
-    return Arrays.stream(searchResponse.getHits().hits())
-      .map(SearchHit::getId)
+    return query.getQualifiers().stream()
+      .flatMap(q -> {
+
+        InternalFilter agg = searchResponse.getAggregations().get(q);
+        InternalTopHits docs = agg.getAggregations().get("docs");
+
+        SearchHits hits = docs.getHits();
+
+        long totalHits = hits.totalHits();
+        if (totalHits < 1) {
+          return Stream.empty();
+        }
+
+        List<String> componentUuids = Arrays.stream(hits.getHits()).map(SearchHit::getId)
+          .collect(Collectors.toList());
+
+        return Stream.of(new ComponentsPerQualifier(q, componentUuids, totalHits));
+      })
       .collect(Collectors.toList());
+  }
+
+  /**
+   * Create one aggregation per qualifier,
+   *
+   * @param query
+   * @param qualifier
+   * @return
+   */
+  private static FilterAggregationBuilder createAggregation(ComponentIndexQuery query, String qualifier) {
+    return AggregationBuilders.filter(qualifier)
+      .filter(termQuery(FIELD_QUALIFIER, qualifier))
+      .subAggregation(createSubAggregation(query));
+  }
+
+  private static TopHitsBuilder createSubAggregation(ComponentIndexQuery query) {
+    TopHitsBuilder sub = AggregationBuilders.topHits("docs");
+    query.getLimit().ifPresent(sub::setSize);
+    return sub.setFetchSource(false);
   }
 
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(createAuthorizationFilter());
-
-    query.getQualifier().ifPresent(q -> esQuery.filter(termQuery(FIELD_QUALIFIER, q)));
 
     BoolQueryBuilder featureQuery = boolQuery();
 
