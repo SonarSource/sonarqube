@@ -99,6 +99,9 @@ public class ComponentIndex extends BaseIndex {
       // fuzzy name matches
       .should(matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText).fuzziness(Fuzziness.AUTO))
 
+      // prefix matches
+      .should(prefixQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText))
+
       // camel case matches
       .should(
 
