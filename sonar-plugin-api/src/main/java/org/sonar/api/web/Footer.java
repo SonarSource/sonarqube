@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
 public interface Footer {
 
   /**
-   * Static HTML (no Ruby on Rails)
+   * Static HTML
    */
   String getHtml();
 }

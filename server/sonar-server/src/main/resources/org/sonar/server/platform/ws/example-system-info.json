@@ -145,8 +145,6 @@
     "java.vm.specification.version": "1.7",
     "java.vm.vendor": "Oracle Corporation",
     "java.vm.version": "24.71-b01",
-    "jruby.compile.invokedynamic": "false",
-    "jruby.management.enabled": "false",
     "line.separator": "\n",
     "org.apache.catalina.startup.EXIT_ON_INIT_FAILURE": "true",
     "org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH": "true",

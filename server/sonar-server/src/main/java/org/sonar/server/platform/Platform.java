@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -62,17 +61,6 @@ public class Platform {
 
   public static Platform getInstance() {
     return INSTANCE;
-  }
-
-  /**
-   * Used by ruby code
-   */
-  @CheckForNull
-  public static <T> T component(Class<T> type) {
-    if (INSTANCE.started) {
-      return INSTANCE.getContainer().getComponentByType(type);
-    }
-    return null;
   }
 
   public void init(Properties properties, ServletContext servletContext) {

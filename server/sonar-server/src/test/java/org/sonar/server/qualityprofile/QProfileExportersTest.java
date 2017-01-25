@@ -43,7 +43,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -101,34 +100,6 @@ public class QProfileExportersTest {
 
     // default mime type
     assertThat(exporters.mimeType("standard")).isEqualTo("text/plain");
-  }
-
-  @Test
-  public void export() {
-    QualityProfileDto profile = tester.get(QProfileLoader.class).getByLangAndName("xoo", "P1");
-    assertThat(exporters.export(profile.getKey(), "xootool")).isEqualTo("xoo -> P1 -> 1");
-    assertThat(exporters.export(profile.getKey(), "standard")).isEqualTo("standard -> P1 -> 1");
-  }
-
-  @Test
-  public void fail_if_missing_exporter() {
-    QualityProfileDto profile = tester.get(QProfileLoader.class).getByLangAndName("xoo", "P1");
-    try {
-      exporters.export(profile.getKey(), "unknown");
-      fail();
-    } catch (NotFoundException e) {
-      assertThat(e).hasMessage("Unknown quality profile exporter: unknown");
-    }
-  }
-
-  @Test
-  public void fail_if_missing_profile() {
-    try {
-      exporters.export("unknown", "xootool");
-      fail();
-    } catch (NotFoundException e) {
-      assertThat(e).hasMessage("Unknown Quality profile: unknown");
-    }
   }
 
   @Test

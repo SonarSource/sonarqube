@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -111,15 +110,6 @@ public class QProfileExporters {
       throw new NotFoundException("Unknown Quality profile: " + profileKey);
     }
     exporter.exportProfile(wrap(profile), writer);
-  }
-
-  /**
-   * Only for ruby on rails
-   */
-  public String export(String profileKey, String tool) {
-    StringWriter writer = new StringWriter();
-    export(profileKey, tool, writer);
-    return writer.toString();
   }
 
   private RulesProfile wrap(QualityProfileDto profile) {

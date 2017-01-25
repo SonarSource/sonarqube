@@ -41,7 +41,7 @@ public class ServerTest extends PerfTestCase {
   // ES + TOMCAT
   @Test
   public void server_startup_and_shutdown() throws Exception {
-    String defaultWebJavaOptions = "-Xmx768m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false";
+    String defaultWebJavaOptions = "-Xmx768m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8";
     Orchestrator orchestrator = Orchestrator.builderEnv()
       .setOrchestratorProperty("javaVersion", "LATEST_RELEASE")
       .addPlugin("java")

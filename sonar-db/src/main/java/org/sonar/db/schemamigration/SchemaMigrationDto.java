@@ -20,7 +20,7 @@
 package org.sonar.db.schemamigration;
 
 /**
- * Maps the table SCHEMA_MIGRATIONS that is fed by Ruby on Rails Migrations
+ * Maps the table SCHEMA_MIGRATIONS 
  * @since 3.0
  */
 public class SchemaMigrationDto {

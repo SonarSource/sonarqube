@@ -169,10 +169,6 @@ public class DefaultDatabase implements Database {
         result.setProperty(StringUtils.removeStart(key, SONAR_JDBC), (String) entry.getValue());
       }
     }
-
-    // This property is required by the Ruby Oracle enhanced adapter.
-    // It directly uses the Connection implementation provided by the Oracle driver
-    result.setProperty("accessToUnderlyingConnectionAllowed", "true");
     return result;
   }
 

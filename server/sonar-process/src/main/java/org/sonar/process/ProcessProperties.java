@@ -67,9 +67,7 @@ public class ProcessProperties {
    */
   public static final String ENABLE_STOP_COMMAND = "sonar.enableStopCommand";
 
-  public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
-  // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
-    "-Djruby.compile.invokedynamic=false";
+  public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8";
 
   public static final String CE_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8";
 

@@ -50,8 +50,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 /**
- * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
- * the ws is fully implemented in Java and does not require any Ruby on Rails code.
+ * Defines a web service.
  * <br>
  * <br>
  * The classes implementing this extension point must be declared by {@link org.sonar.api.Plugin}.

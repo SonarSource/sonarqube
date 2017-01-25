@@ -159,9 +159,6 @@ public class LocalAuthenticationTest {
     // TODO selenium
   }
 
-  /**
-   * This is currently a limitation of Ruby on Rails stack.
-   */
   @Test
   public void basic_authentication_does_not_support_utf8_passwords() {
     String login = LOGIN;

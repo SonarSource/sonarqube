@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -93,16 +92,6 @@ public class QProfileService {
   public void backup(String profileKey, Writer writer) {
     // Allowed to non-admin users (see http://jira.sonarsource.com/browse/SONAR-2039)
     backuper.backup(profileKey, writer);
-  }
-
-  /**
-   * @deprecated used only by Ruby on Rails. Use {@link #backup(String, java.io.Writer)}
-   */
-  @Deprecated
-  public String backup(String profileKey) {
-    StringWriter output = new StringWriter();
-    backup(profileKey, output);
-    return output.toString();
   }
 
   /**

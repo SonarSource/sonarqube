@@ -205,7 +205,7 @@ public class EmailNotificationChannel extends NotificationChannel {
   }
 
   /**
-   * Send test email. This method called from Ruby.
+   * Send test email.
    *
    * @throws EmailException when unable to send
    */

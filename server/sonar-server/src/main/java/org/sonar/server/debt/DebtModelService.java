@@ -27,7 +27,6 @@ import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.utils.ValidationMessages;
 
 /**
- * Used through ruby code <pre>Internal.debt</pre>
  * Also used by SQALE plugin.
  */
 public class DebtModelService implements DebtModel {

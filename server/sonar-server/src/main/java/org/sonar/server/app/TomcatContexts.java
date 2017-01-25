@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.ServletException;
-import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -45,8 +44,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 public class TomcatContexts {
 
-  private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
-  private static final String RAILS_ENV = "rails.env";
   public static final String PROPERTY_CONTEXT = "sonar.web.context";
   public static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
 
@@ -65,7 +62,6 @@ public class TomcatContexts {
     addStaticDir(tomcat, getContextPath(props) + "/deploy", new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
 
     StandardContext webapp = addContext(tomcat, getContextPath(props), webappDir(props));
-    configureRails(props, webapp);
     for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
       String key = entry.getKey().toString();
       webapp.addParameter(key, entry.getValue().toString());
@@ -115,21 +111,6 @@ public class TomcatContexts {
       return context;
     } catch (ServletException e) {
       throw new IllegalStateException("Fail to configure webapp from " + dir, e);
-    }
-  }
-
-  static void configureRails(Props props, Context context) {
-    // sonar.dev is kept for backward-compatibility
-    if (props.valueAsBoolean("sonar.dev", false)) {
-      props.set("sonar.web.dev", "true");
-    }
-    if (props.valueAsBoolean("sonar.web.dev", false)) {
-      context.addParameter(RAILS_ENV, "development");
-      context.addParameter(JRUBY_MAX_RUNTIMES, "3");
-      Loggers.get(TomcatContexts.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
-    } else {
-      context.addParameter(RAILS_ENV, "production");
-      context.addParameter(JRUBY_MAX_RUNTIMES, "1");
     }
   }
 

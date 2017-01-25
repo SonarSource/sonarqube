@@ -22,7 +22,6 @@ package org.sonar.server.app;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -71,28 +70,6 @@ public class TomcatContextsTest {
 
     // configure webapp with properties
     verify(context).addParameter("foo", "bar");
-  }
-
-  @Test
-  public void configure_rails_dev_mode() {
-    props.setProperty("sonar.web.dev", "true");
-    Context context = mock(Context.class);
-
-    underTest.configureRails(new Props(props), context);
-
-    verify(context).addParameter("jruby.max.runtimes", "3");
-    verify(context).addParameter("rails.env", "development");
-  }
-
-  @Test
-  public void configure_rails_production_mode() {
-    props.setProperty("sonar.web.dev", "false");
-    Context context = mock(Context.class);
-
-    underTest.configureRails(new Props(props), context);
-
-    verify(context).addParameter("jruby.max.runtimes", "1");
-    verify(context).addParameter("rails.env", "production");
   }
 
   @Test

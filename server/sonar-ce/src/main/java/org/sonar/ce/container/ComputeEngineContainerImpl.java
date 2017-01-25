@@ -293,7 +293,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     return new Object[] {
       ResourceTypes.class,
       DefaultResourceTypes.get(),
-      Periods.class, // used by JRuby and EvaluationResultTextConverterImpl
+      Periods.class,
 
       // quality profile
       ActiveRuleIndexer.class,

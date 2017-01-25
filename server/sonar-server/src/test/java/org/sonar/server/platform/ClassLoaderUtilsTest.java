@@ -19,18 +19,11 @@
  */
 package org.sonar.server.platform;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.function.Function;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.server.util.ClassLoaderUtils;
 
 import static org.apache.commons.lang.StringUtils.endsWith;
@@ -39,9 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClassLoaderUtilsTest {
 
   private ClassLoader classLoader;
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
   public void prepareClassLoader() {
@@ -83,23 +73,4 @@ public class ClassLoaderUtilsTest {
       "org/sonar/sqale/app/README.md");
   }
 
-  @Test
-  public void copyRubyRailsApp() throws IOException {
-    File toDir = temp.newFolder("dest");
-    ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, Function.identity());
-
-    assertThat(FileUtils.listFiles(toDir, null, true)).hasSize(2);
-    assertThat(new File(toDir, "org/sonar/sqale/app/copyright.txt")).exists();
-    assertThat(new File(toDir, "org/sonar/sqale/app/README.md")).exists();
-  }
-
-  @Test
-  public void copyRubyRailsApp_relocate_files() throws IOException {
-    File toDir = temp.newFolder("dest");
-    ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, path -> "foo/" + FilenameUtils.getName(path));
-
-    assertThat(FileUtils.listFiles(toDir, null, true)).hasSize(2);
-    assertThat(new File(toDir, "foo/copyright.txt")).exists();
-    assertThat(new File(toDir, "foo/README.md")).exists();
-  }
 }

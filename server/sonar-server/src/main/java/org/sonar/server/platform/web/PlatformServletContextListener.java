@@ -46,10 +46,7 @@ public final class PlatformServletContextListener implements ServletContextListe
       event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
 
     } catch (Throwable t) {
-      // Tomcat 7 "limitations":
-      // - server does not stop if webapp fails at startup
-      // - the second listener for jruby on rails is started even if this listener fails. It generates
-      // unexpected errors
+      // Tomcat 7 "limitations": server does not stop if webapp fails at startup
       stopQuietly();
       throw Throwables.propagate(t);
     }
