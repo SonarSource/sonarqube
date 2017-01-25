@@ -22,8 +22,8 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -79,10 +79,10 @@ public class ReportLanguageDistributionMeasuresStepTest {
                 .addChildren(
                   builder(DIRECTORY, DIRECTORY_REF)
                     .addChildren(
-                      builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE)).build(),
-                      builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE)).build(),
-                      builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, JAVA_LANGUAGE)).build(),
-                      builder(FILE, FILE_4_REF).setFileAttributes(new FileAttributes(false, null)).build())
+                      builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1)).build(),
+                      builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1)).build(),
+                      builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, JAVA_LANGUAGE, 1)).build(),
+                      builder(FILE, FILE_4_REF).setFileAttributes(new FileAttributes(false, null, 1)).build())
                     .build())
                 .build())
             .build())

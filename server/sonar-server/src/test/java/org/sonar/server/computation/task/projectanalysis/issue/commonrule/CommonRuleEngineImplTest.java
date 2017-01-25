@@ -23,8 +23,8 @@ import java.util.Collection;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
+import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,7 +42,7 @@ public class CommonRuleEngineImplTest {
   public void process_files_with_known_language() throws Exception {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
-      .setFileAttributes(new FileAttributes(false, "java"))
+      .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
     DefaultIssue issue = new DefaultIssue();
     when(rule1.processFile(file, "java")).thenReturn(issue);
@@ -56,7 +56,7 @@ public class CommonRuleEngineImplTest {
   public void do_not_process_files_with_unknown_language() throws Exception {
     ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
-      .setFileAttributes(new FileAttributes(false, null))
+      .setFileAttributes(new FileAttributes(false, null, 1))
       .build();
 
     Collection<DefaultIssue> issues = underTest.process(file);

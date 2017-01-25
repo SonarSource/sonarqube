@@ -113,7 +113,7 @@ public class ReportNewCoverageMeasuresStepTest {
 
   private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, periodsHolder, measureRepository, metricRepository, scmInfoRepository);
   public static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, FILE_1_REF)
-    .setFileAttributes(new FileAttributes(false, null)).build();
+    .setFileAttributes(new FileAttributes(false, null, 1)).build();
 
   @Before
   public void setUp() {
@@ -151,7 +151,7 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_unit_test_FILE_component() {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null)).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null, 1)).build());
 
     underTest.execute();
 
@@ -160,7 +160,7 @@ public class ReportNewCoverageMeasuresStepTest {
 
   @Test
   public void no_measures_for_FILE_component_without_code() {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build());
 
     underTest.execute();
 

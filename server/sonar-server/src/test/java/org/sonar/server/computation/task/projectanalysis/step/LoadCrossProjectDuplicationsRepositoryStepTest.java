@@ -42,16 +42,16 @@ import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +76,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   static final Component CURRENT_FILE = ReportComponent.builder(FILE, FILE_REF)
     .setKey(CURRENT_FILE_KEY)
-    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE))
+    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1))
     .build();
 
   @Rule
