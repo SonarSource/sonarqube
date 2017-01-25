@@ -39,8 +39,12 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.MODULE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
 
@@ -101,15 +105,16 @@ public abstract class ComponentIndexTest {
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
-    return assertSearch(new ComponentIndexQuery(query));
+    return assertSearch(new ComponentIndexQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)));
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query, features.get()));
+    return assertThat(index.search(query, features.get()))
+      .flatExtracting(ComponentsPerQualifier::getComponentUuids);
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
-    assertSearchResults(new ComponentIndexQuery(query), expectedComponents);
+    assertSearchResults(new ComponentIndexQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)), expectedComponents);
   }
 
   protected void assertSearchResults(ComponentIndexQuery query, ComponentDto... expectedComponents) {

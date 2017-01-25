@@ -21,10 +21,9 @@ package org.sonar.server.component.ws;
 
 import com.google.common.io.Resources;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
+import org.sonar.server.component.index.ComponentsPerQualifier;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Qualifier;
@@ -99,40 +99,33 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private List<Qualifier> getResultsOfAllQualifiers(String query) {
-    return Arrays
-      .stream(QUALIFIERS)
-      .flatMap(qualifier -> getResultsOfQualifier(query, qualifier).map(Stream::of).orElseGet(Stream::empty))
-      .collect(Collectors.toList());
-  }
-
-  private Optional<Qualifier> getResultsOfQualifier(String query, String qualifier) {
     ComponentIndexQuery componentIndexQuery = new ComponentIndexQuery(query)
-      .setQualifier(qualifier)
+      .setQualifiers(Arrays.asList(QUALIFIERS))
       .setLimit(NUMBER_OF_RESULTS_PER_QUALIFIER);
 
-    List<String> uuids = searchInIndex(componentIndexQuery);
-    if (uuids.isEmpty()) {
-      return Optional.empty();
+    List<ComponentsPerQualifier> componentsPerQualifiers = searchInIndex(componentIndexQuery);
+
+    if (componentsPerQualifiers.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    List<ComponentDto> componentDtos;
-    Map<String, String> organizationKeyByUuids;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      componentDtos = dbClient.componentDao().selectByUuids(dbSession, uuids);
-      organizationKeyByUuids = getOrganizationKeys(dbSession, componentDtos);
+      return componentsPerQualifiers.stream().map(qualifier -> {
+
+        List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, qualifier.getComponentUuids());
+        Map<String, String> organizationKeyByUuids = getOrganizationKeys(dbSession, componentDtos);
+
+        List<Component> results = componentDtos
+          .stream()
+          .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
+          .collect(Collectors.toList());
+
+        return Qualifier.newBuilder()
+          .setQ(qualifier.getQualifier())
+          .addAllItems(results)
+          .build();
+      }).collect(Collectors.toList());
     }
-
-    List<Component> results = componentDtos
-      .stream()
-      .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
-      .collect(Collectors.toList());
-
-    Qualifier q = Qualifier.newBuilder()
-      .setQ(qualifier)
-      .addAllItems(results)
-      .build();
-
-    return Optional.of(q);
   }
 
   private Map<String, String> getOrganizationKeys(DbSession dbSession, List<ComponentDto> componentDtos) {
@@ -143,7 +136,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .collect(Collectors.uniqueIndex(OrganizationDto::getUuid, OrganizationDto::getKey));
   }
 
-  private List<String> searchInIndex(ComponentIndexQuery componentIndexQuery) {
+  private List<ComponentsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
     return index.search(componentIndexQuery);
   }
 

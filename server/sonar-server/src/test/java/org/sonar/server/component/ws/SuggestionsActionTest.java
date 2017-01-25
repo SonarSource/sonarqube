@@ -79,6 +79,7 @@ public class SuggestionsActionTest {
 
     // assert match in qualifier "TRK"
     assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(SuggestionsWsResponse.Qualifier::getQ)
       .containsExactly(Qualifiers.PROJECT);
 

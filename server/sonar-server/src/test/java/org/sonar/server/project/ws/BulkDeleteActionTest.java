@@ -50,7 +50,6 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -166,9 +165,6 @@ public class BulkDeleteActionTest {
   public void delete_documents_indexes() throws Exception {
     IntStream.rangeClosed(1, 4).forEach(this::insertNewProjectInIndexes);
 
-    // all 4 projects should be findable
-    assertComponentIndexSearchResults("project", IntStream.rangeClosed(1, 4).mapToObj(i -> "project-uuid-" + i).toArray(String[]::new));
-
     ws.newPostRequest("api/projects", ACTION)
       .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
 
@@ -178,9 +174,8 @@ public class BulkDeleteActionTest {
     assertThat(es.getIds(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-
-    // only the remaining project should be findable
-    assertComponentIndexSearchResults("project", remainingProjectUuid);
+    assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).containsOnly(remainingProjectUuid);
+    assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).containsOnly(remainingProjectUuid);
   }
 
   @Test
@@ -217,10 +212,6 @@ public class BulkDeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
     ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "project-uuid").execute();
-  }
-
-  private void assertComponentIndexSearchResults(String query, String... expectedResultUuids) {
-    assertThat(componentIndex.search(new ComponentIndexQuery(query))).containsOnly(expectedResultUuids);
   }
 
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {
