@@ -52,6 +52,8 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUT
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 import static org.sonar.server.es.DefaultIndexSettingsElement.CAMEL_CASE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndex extends BaseIndex {
 
@@ -92,7 +94,7 @@ public class ComponentIndex extends BaseIndex {
     return esQuery.must(boolQuery()
 
       // partial name matches
-      .should(matchQuery(FIELD_NAME + "." + SEARCH_PARTIAL_SUFFIX, truncatedQuery))
+      .should(matchQuery(SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME), truncatedQuery))
 
       // fuzzy name matches
       .should(matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText).fuzziness(Fuzziness.AUTO))
@@ -114,7 +116,7 @@ public class ComponentIndex extends BaseIndex {
       )
 
       // exact match on the key
-      .should(matchQuery(FIELD_KEY + "." + SORT_SUFFIX, queryText).boost(5f)));
+      .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), queryText).boost(5f)));
   }
 
   private QueryBuilder createAuthorizationFilter() {

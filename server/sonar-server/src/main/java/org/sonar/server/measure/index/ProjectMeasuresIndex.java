@@ -31,12 +31,13 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.measures.Metric;
 import org.sonar.server.es.BaseIndex;
+import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -97,7 +98,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
       .setFetchSource(false)
       .setFrom(searchOptions.getOffset())
       .setSize(searchOptions.getLimit())
-      .addSort(FIELD_NAME + "." + SORT_SUFFIX, SortOrder.ASC);
+      .addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);
 
     BoolQueryBuilder esFilter = boolQuery();
     Map<String, QueryBuilder> filters = createFilters(query);
@@ -142,7 +143,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
     esSearch.addAggregation(createStickyFacet(metricKey, filters, createRatingFacet(metricKey)));
   }
 
-  private static AggregationBuilder createStickyFacet(String metricKey, Map<String, QueryBuilder> filters, AggregationBuilder aggregationBuilder) {
+  private static AbstractAggregationBuilder createStickyFacet(String metricKey, Map<String, QueryBuilder> filters, AbstractAggregationBuilder aggregationBuilder) {
     StickyFacetBuilder facetBuilder = new StickyFacetBuilder(matchAllQuery(), filters);
     BoolQueryBuilder facetFilter = facetBuilder.getStickyFacetFilter(metricKey);
     return AggregationBuilders
@@ -152,7 +153,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
         .subAggregation(aggregationBuilder));
   }
 
-  private static AggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
+  private static AbstractAggregationBuilder createRangeFacet(String metricKey, List<Double> thresholds) {
     RangeBuilder rangeAgg = AggregationBuilders.range(metricKey)
       .field(FIELD_VALUE);
     final int lastIndex = thresholds.size() - 1;
@@ -176,7 +177,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
           .subAggregation(rangeAgg));
   }
 
-  private static AggregationBuilder createRatingFacet(String metricKey) {
+  private static AbstractAggregationBuilder createRatingFacet(String metricKey) {
     return AggregationBuilders.nested("nested_" + metricKey)
       .path(FIELD_MEASURES)
       .subAggregation(
@@ -190,7 +191,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
             .filter("5", termQuery(FIELD_VALUE, 5d))));
   }
 
-  private static AggregationBuilder createQualityGateFacet() {
+  private static AbstractAggregationBuilder createQualityGateFacet() {
     return AggregationBuilders.filters(ALERT_STATUS_KEY)
       .filter(Metric.Level.ERROR.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.ERROR.name()))
       .filter(Metric.Level.WARN.name(), termQuery(FIELD_QUALITY_GATE, Metric.Level.WARN.name()))

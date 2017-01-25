@@ -27,43 +27,180 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 
 import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
+import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
+import static org.sonar.server.es.DefaultIndexSettings.CLASSIC;
 import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
+import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
+import static org.sonar.server.es.DefaultIndexSettings.MAX_GRAM;
+import static org.sonar.server.es.DefaultIndexSettings.MIN_GRAM;
 import static org.sonar.server.es.DefaultIndexSettings.PATTERN;
+import static org.sonar.server.es.DefaultIndexSettings.PORTER_STEM;
+import static org.sonar.server.es.DefaultIndexSettings.SEARCH_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettings.STANDARD;
+import static org.sonar.server.es.DefaultIndexSettings.STOP;
+import static org.sonar.server.es.DefaultIndexSettings.STRING;
 import static org.sonar.server.es.DefaultIndexSettings.SUB_FIELD_DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.TOKENIZER;
+import static org.sonar.server.es.DefaultIndexSettings.TRIM;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
+import static org.sonar.server.es.DefaultIndexSettings.WHITESPACE;
 
 public enum DefaultIndexSettingsElement {
 
   // Filters
 
+  WORD_FILTER(FILTER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, "word_delimiter");
+      set("generate_word_parts", true);
+      set("catenate_words", true);
+      set("catenate_numbers", true);
+      set("catenate_all", true);
+      set("split_on_case_change", true);
+      set("preserve_original", true);
+      set("split_on_numerics", true);
+      set("stem_english_possessive", true);
+    }
+  },
   EDGE_NGRAM_FILTER(FILTER) {
 
     @Override
     protected void setup() {
       set(TYPE, "edge_ngram");
-      set("min_gram", 1);
-      set("max_gram", 15);
+      set(MIN_GRAM, 1);
+      set(MAX_GRAM, 15);
     }
   },
 
   // Tokenizers
 
+  GRAM_TOKENIZER(TOKENIZER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, "nGram");
+      set(MIN_GRAM, 2);
+      set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
+      setArray("token_chars", "letter", "digit", "punctuation", "symbol");
+    }
+  },
+  UUID_MODULE_TOKENIZER(TOKENIZER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, PATTERN);
+      set(PATTERN, "\\.");
+    }
+  },
   CAMEL_CASE_TOKENIZER(TOKENIZER) {
 
     @Override
     protected void setup() {
-      set(TYPE, "pattern");
+      set(TYPE, PATTERN);
       set(PATTERN, "(?=[\\p{Lu}\\d])");
     }
   },
 
   // Analyzers
 
+  SORTABLE_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, KEYWORD);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, getName());
+    }
+  },
+  INDEX_GRAMS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, GRAM_TOKENIZER);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+  },
+  SEARCH_GRAMS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, WHITESPACE);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, INDEX_GRAMS_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
+    }
+  },
+  INDEX_WORDS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, STANDARD);
+      setArray(FILTER, STANDARD, "word_filter", LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+    }
+  },
+  SEARCH_WORDS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, STANDARD);
+      setArray(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, INDEX_WORDS_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
+    }
+  },
+  ENGLISH_HTML_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, STANDARD);
+      setArray(FILTER, STANDARD, LOWERCASE, STOP, ASCIIFOLDING, PORTER_STEM);
+      setArray("char_filter", "html_strip");
+    }
+  },
+  PATH_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, "path_hierarchy");
+    }
+  },
+  UUID_MODULE_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, UUID_MODULE_TOKENIZER);
+      setArray(FILTER, TRIM);
+    }
+  },
   CAMEL_CASE_ANALYZER(ANALYZER) {
 
     @Override
@@ -75,25 +212,26 @@ public enum DefaultIndexSettingsElement {
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", getName());
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, INDEX_CAMEL_CASE_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
     }
   },
   FUZZY_ANALYZER(ANALYZER) {
 
     @Override
     protected void setup() {
-      set(TOKENIZER, KEYWORD);
+      set(TOKENIZER, CLASSIC);
       setArray(FILTER, LOWERCASE);
     }
 
     @Override
     public SortedMap<String, String> fieldMapping() {
       return ImmutableSortedMap.of(
-        "type", "string",
-        "index", "analyzed",
-        "analyzer", getName());
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, getName());
     }
   },
 
@@ -112,6 +250,10 @@ public enum DefaultIndexSettingsElement {
 
   protected void set(String settingSuffix, int value) {
     put(localName(settingSuffix), Integer.toString(value));
+  }
+
+  protected void set(String settingSuffix, boolean value) {
+    put(localName(settingSuffix), Boolean.toString(value));
   }
 
   protected void set(String settingSuffix, DefaultIndexSettingsElement otherElement) {

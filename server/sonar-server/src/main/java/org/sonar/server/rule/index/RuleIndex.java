@@ -46,7 +46,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.SimpleQueryStringBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
@@ -67,6 +67,8 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.scrollIds;
@@ -123,7 +125,7 @@ public class RuleIndex extends BaseIndex {
     Map<String, QueryBuilder> filters = buildFilters(query);
 
     if (!options.getFacets().isEmpty()) {
-      for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
+      for (AbstractAggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
         esSearch.addAggregation(aggregation);
       }
     }
@@ -179,14 +181,14 @@ public class RuleIndex extends BaseIndex {
 
     // Human readable type of querying
     qb.should(simpleQueryStringQuery(query.getQueryText())
-      .field(FIELD_RULE_NAME + "." + SEARCH_WORDS_SUFFIX, 20f)
+      .field(SEARCH_WORDS_ANALYZER.subField(FIELD_RULE_NAME), 20f)
       .field(FIELD_RULE_HTML_DESCRIPTION, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)).boost(20f);
 
     // Match and partial Match queries
     // Search by key uses the "sortable" sub-field as it requires to be case-insensitive (lower-case filtering)
-    qb.should(matchQuery(FIELD_RULE_KEY + "." + SORT_SUFFIX, queryString).operator(MatchQueryBuilder.Operator.AND).boost(30f));
-    qb.should(matchQuery(FIELD_RULE_RULE_KEY + "." + SORT_SUFFIX, queryString).operator(MatchQueryBuilder.Operator.AND).boost(15f));
+    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_KEY), queryString).operator(MatchQueryBuilder.Operator.AND).boost(30f));
+    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_RULE_KEY), queryString).operator(MatchQueryBuilder.Operator.AND).boost(15f));
     qb.should(termQuery(FIELD_RULE_LANGUAGE, queryString, 3f));
     qb.should(termQuery(FIELD_RULE_ALL_TAGS, queryString, 10f));
     qb.should(termAnyQuery(FIELD_RULE_ALL_TAGS, queryString, 1f));
@@ -196,14 +198,14 @@ public class RuleIndex extends BaseIndex {
 
   private static QueryBuilder termQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + SEARCH_WORDS_SUFFIX)
+      field, SEARCH_WORDS_ANALYZER.subField(field))
       .operator(MatchQueryBuilder.Operator.AND)
       .boost(boost);
   }
 
   private static QueryBuilder termAnyQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + SEARCH_WORDS_SUFFIX)
+      field, SEARCH_WORDS_ANALYZER.subField(field))
       .operator(MatchQueryBuilder.Operator.OR)
       .boost(boost);
   }
@@ -333,8 +335,8 @@ public class RuleIndex extends BaseIndex {
     return filter;
   }
 
-  private static Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder, Map<String, QueryBuilder> filters) {
-    Map<String, AggregationBuilder> aggregations = new HashMap<>();
+  private static Map<String, AbstractAggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder, Map<String, QueryBuilder> filters) {
+    Map<String, AbstractAggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
 
     addDefaultFacets(query, options, aggregations, stickyFacetBuilder);
@@ -350,7 +352,7 @@ public class RuleIndex extends BaseIndex {
     return aggregations;
   }
 
-  private static void addDefaultFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+  private static void addDefaultFacets(RuleQuery query, SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_LANGUAGES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
@@ -377,10 +379,10 @@ public class RuleIndex extends BaseIndex {
     }
   }
 
-  private static void addStatusFacetIfNeeded(SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+  private static void addStatusFacetIfNeeded(SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_STATUSES)) {
       BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(FIELD_RULE_STATUS);
-      AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
+      AbstractAggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
         .filter(facetFilter)
         .subAggregation(
           AggregationBuilders
@@ -394,7 +396,8 @@ public class RuleIndex extends BaseIndex {
     }
   }
 
-  private static void addActiveSeverityFacetIfNeeded(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+  private static void addActiveSeverityFacetIfNeeded(RuleQuery query, SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations,
+    StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES)) {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
@@ -414,7 +417,7 @@ public class RuleIndex extends BaseIndex {
         activeRuleFilter = ruleFilter;
       }
 
-      AggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
+      AbstractAggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
         .childType(TYPE_ACTIVE_RULE)
         .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
           .filter(activeRuleFilter)
@@ -456,7 +459,7 @@ public class RuleIndex extends BaseIndex {
   private static String appendSortSuffixIfNeeded(String field) {
     return field +
       ((field.equals(FIELD_RULE_NAME) || field.equals(FIELD_RULE_KEY))
-        ? ("." + SORT_SUFFIX)
+        ? ("." + SORTABLE_ANALYZER.getSubFieldSuffix())
         : "");
   }
 
