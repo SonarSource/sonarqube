@@ -92,7 +92,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   public void persist_components() {
     Component file = builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
       .setPath("src/main/java/dir/Foo.java")
-      .setFileAttributes(new FileAttributes(false, "java"))
+      .setFileAttributes(new FileAttributes(false, "java", 1))
       .build();
     Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
       .setPath("src/main/java/dir")
@@ -216,7 +216,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
             .addChildren(
               builder(FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java")
                 .setPath("src/test/java/dir/FooTest.java")
-                .setFileAttributes(new FileAttributes(true, null))
+                .setFileAttributes(new FileAttributes(true, null, 1))
                 .build())
             .build())
         .build());

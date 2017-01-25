@@ -23,6 +23,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * The attributes specific to a Component of type {@link org.sonar.server.computation.task.projectanalysis.component.Component.Type#FILE}.
  */
@@ -31,10 +33,13 @@ public class FileAttributes {
   private final boolean unitTest;
   @CheckForNull
   private final String languageKey;
+  private final int lines;
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey) {
+  public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
     this.unitTest = unitTest;
     this.languageKey = languageKey;
+    checkArgument(lines > 0, "Lines has not been set for this file");
+    this.lines = lines;
   }
 
   public boolean isUnitTest() {
@@ -46,11 +51,16 @@ public class FileAttributes {
     return languageKey;
   }
 
+  public int getLines() {
+    return lines;
+  }
+
   @Override
   public String toString() {
     return "FileAttributes{" +
       "languageKey='" + languageKey + '\'' +
       ", unitTest=" + unitTest +
+      ", lines=" + lines +
       '}';
   }
 }

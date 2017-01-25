@@ -191,7 +191,8 @@ public class ComponentRootBuilder {
 
     return new FileAttributes(
       component.getIsTest(),
-      trimToNull(component.getLanguage()));
+      trimToNull(component.getLanguage()),
+      component.getLines());
   }
 
   @VisibleForTesting
