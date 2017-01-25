@@ -27,7 +27,6 @@ import java.sql.Statement;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.dbutils.DbUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
@@ -46,7 +45,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 @ServerSide
 public class BackendCleanup {
 
-  private static final String[] INSPECTION_TABLES = {
+  private static final String[] ANALYSIS_TABLES = {
     "authors", "duplications_index", "events", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects",
     "snapshots", "file_sources"
@@ -106,64 +105,42 @@ public class BackendCleanup {
    * Please be careful when updating this method as it's called by Orchestrator.
    */
   public void resetData() {
-    DbSession dbSession = myBatis.openSession(false);
-    Connection connection = dbSession.getConnection();
-    Statement statement = null;
-    try {
-      statement = connection.createStatement();
+    try (DbSession dbSession = myBatis.openSession(false);
+      Connection connection = dbSession.getConnection()) {
+
+      truncateAnalysisTables(connection);
+      deleteManualRules(connection);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to reset data", e);
+    }
+
+    clearIndex(IssueIndexDefinition.INDEX);
+    clearIndex(ViewIndexDefinition.INDEX);
+    clearIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES);
+    clearIndex(ComponentIndexDefinition.INDEX_COMPONENTS);
+  }
+
+  private void truncateAnalysisTables(Connection connection) throws SQLException {
+    try (Statement statement = connection.createStatement()) {
       // Clear inspection tables
-      for (String table : INSPECTION_TABLES) {
+      for (String table : ANALYSIS_TABLES) {
         statement.execute("TRUNCATE TABLE " + table.toLowerCase());
         // commit is useless on some databases
         connection.commit();
       }
-
       // Clear resource related tables
-      for (String relatedTable : RESOURCE_RELATED_TABLES) {
-        deleteWhereResourceIdNotNull(relatedTable, connection);
+      for (String table : RESOURCE_RELATED_TABLES) {
+        statement.execute("DELETE FROM " + table + " WHERE resource_id IS NOT NULL");
+        connection.commit();
       }
-
-      deleteManualRules(connection);
-
-      clearIndex(IssueIndexDefinition.INDEX);
-      clearIndex(ViewIndexDefinition.INDEX);
-      clearIndex(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES);
-      clearIndex(ComponentIndexDefinition.INDEX_COMPONENTS);
-
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to reset data", e);
-    } finally {
-      DbUtils.closeQuietly(statement);
-      DbUtils.closeQuietly(connection);
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
-  private static void deleteWhereResourceIdNotNull(String tableName, Connection connection) {
-    PreparedStatement statement = null;
-    try {
-      statement = connection.prepareStatement("DELETE FROM " + tableName + " WHERE resource_id IS NOT NULL");
+  private static void deleteManualRules(Connection connection) throws SQLException {
+    try (PreparedStatement statement = connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'")) {
       statement.execute();
       // commit is useless on some databases
       connection.commit();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to delete table : " + tableName, e);
-    } finally {
-      DbUtils.closeQuietly(statement);
-    }
-  }
-
-  private static void deleteManualRules(Connection connection) {
-    PreparedStatement statement = null;
-    try {
-      statement = connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'");
-      statement.execute();
-      // commit is useless on some databases
-      connection.commit();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to remove manual rules", e);
-    } finally {
-      DbUtils.closeQuietly(statement);
     }
   }
 
