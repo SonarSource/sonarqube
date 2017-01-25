@@ -17,6 +17,7 @@
 }
 
 .overview-title > .level {
+  vertical-align: top;
   margin-left: 15px;
 }
 
