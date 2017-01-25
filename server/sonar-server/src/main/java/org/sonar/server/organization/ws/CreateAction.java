@@ -19,19 +19,24 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.user.UserSession;
@@ -53,19 +58,23 @@ public class CreateAction implements OrganizationsAction {
   private static final String ACTION = "create";
   private static final String OWNERS_GROUP_NAME = "Owners";
   private static final String OWNERS_GROUP_DESCRIPTION_PATTERN = "Owners of organization %s";
+  private static final String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
 
   private final Settings settings;
   private final UserSession userSession;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final OrganizationsWsSupport wsSupport;
+  private final System2 system2;
 
-  public CreateAction(Settings settings, UserSession userSession, DbClient dbClient, UuidFactory uuidFactory, OrganizationsWsSupport wsSupport) {
+  public CreateAction(Settings settings, UserSession userSession, DbClient dbClient, UuidFactory uuidFactory,
+    OrganizationsWsSupport wsSupport, System2 system2) {
     this.settings = settings;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
     this.wsSupport = wsSupport;
+    this.system2 = system2;
   }
 
   @Override
@@ -108,14 +117,54 @@ public class CreateAction implements OrganizationsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkKeyIsNotUsed(dbSession, key, requestKey, name);
 
-      OrganizationDto dto = createOrganizationDto(request, name, key);
-      dbClient.organizationDao().insert(dbSession, dto);
-      GroupDto group = createOwnersGroup(dbSession, dto);
+      OrganizationDto organization = createOrganizationDto(dbSession, request, name, key);
+      GroupDto group = createOwnersGroup(dbSession, organization);
+      createDefaultTemplate(dbSession, organization, group);
       addCurrentUserToGroup(dbSession, group);
+
       dbSession.commit();
 
-      writeResponse(request, response, dto);
+      writeResponse(request, response, organization);
     }
+  }
+
+  private OrganizationDto createOrganizationDto(DbSession dbSession, Request request, String name, String key) {
+    OrganizationDto res = new OrganizationDto()
+      .setUuid(uuidFactory.create())
+      .setName(name)
+      .setKey(key)
+      .setDescription(request.param(PARAM_DESCRIPTION))
+      .setUrl(request.param(PARAM_URL))
+      .setAvatarUrl(request.param(PARAM_AVATAR_URL));
+    dbClient.organizationDao().insert(dbSession, res);
+    return res;
+  }
+
+  private void createDefaultTemplate(DbSession dbSession, OrganizationDto organizationDto, GroupDto group) {
+    Date now = new Date(system2.now());
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
+      dbSession,
+      new PermissionTemplateDto()
+        .setOrganizationUuid(organizationDto.getUuid())
+        .setUuid(uuidFactory.create())
+        .setName("Default template")
+        .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
+        .setCreatedAt(now)
+        .setUpdatedAt(now));
+
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ADMIN, group);
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.ISSUE_ADMIN, group);
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.USER, null);
+    insertGroupPermission(dbSession, permissionTemplateDto, UserRole.CODEVIEWER, null);
+
+    dbClient.organizationDao().setDefaultTemplates(
+      dbSession,
+      organizationDto.getUuid(),
+      new DefaultTemplates().setProjectUuid(permissionTemplateDto.getUuid()));
+  }
+
+  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
   }
 
   /**
@@ -171,16 +220,6 @@ public class CreateAction implements OrganizationsAction {
 
   private boolean checkKeyIsUsed(DbSession dbSession, String key) {
     return dbClient.organizationDao().selectByKey(dbSession, key).isPresent();
-  }
-
-  private OrganizationDto createOrganizationDto(Request request, String name, String key) {
-    return new OrganizationDto()
-      .setUuid(uuidFactory.create())
-      .setName(name)
-      .setKey(key)
-      .setDescription(request.param(PARAM_DESCRIPTION))
-      .setUrl(request.param(PARAM_URL))
-      .setAvatarUrl(request.param(PARAM_AVATAR_URL));
   }
 
   private void writeResponse(Request request, Response response, OrganizationDto dto) {

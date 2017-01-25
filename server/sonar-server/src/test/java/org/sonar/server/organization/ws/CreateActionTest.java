@@ -32,12 +32,18 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserMembershipDto;
@@ -52,6 +58,7 @@ import org.sonarqube.ws.Organizations.CreateWsResponse;
 import org.sonarqube.ws.Organizations.Organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE;
@@ -72,10 +79,13 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+
   private Settings settings = new MapSettings()
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private CreateAction underTest = new CreateAction(settings, userSession, dbTester.getDbClient(), uuidFactory, new OrganizationsWsSupport());
+  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, uuidFactory, new OrganizationsWsSupport(), new AlwaysIncreasingSystem2());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -434,19 +444,43 @@ public class CreateActionTest {
     executeRequest("orgFoo");
 
     DbSession dbSession = dbTester.getSession();
-    OrganizationDto organization = dbTester.getDbClient().organizationDao().selectByKey(dbSession, "orgfoo").get();
-    Optional<GroupDto> groupDtoOptional = dbTester.getDbClient().groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
+    Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
     assertThat(groupDtoOptional).isNotEmpty();
     GroupDto groupDto = groupDtoOptional.get();
     assertThat(groupDto.getDescription()).isEqualTo("Owners of organization orgFoo");
-    assertThat(dbTester.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
-    List<UserMembershipDto> members = dbTester.getDbClient().groupMembershipDao().selectMembers(
+    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
       UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
     assertThat(members)
       .extracting(UserMembershipDto::getLogin)
       .containsOnly(user.getLogin());
+  }
+
+  @Test
+  public void request_creates_default_template_for_owner_group_and_anyone() {
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    UserDto user = dbTester.users().makeRoot(dbTester.users().insertUser());
+    userSession.login(user).setRoot();
+
+    executeRequest("orgFoo");
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "orgfoo").get();
+    GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
+    PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
+    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
+    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization orgFoo");
+    DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organization.getUuid()).get();
+    assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
+    assertThat(defaultTemplates.getViewUuid()).isNull();
+    assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(
+        tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN),
+        tuple(0L, UserRole.USER), tuple(0L, UserRole.CODEVIEWER));
+
   }
 
   private void makeUserRoot() {
@@ -522,7 +556,7 @@ public class CreateActionTest {
       assertThat(organization.getAvatar()).isEqualTo(avatar);
     }
 
-    OrganizationDto dto = dbTester.getDbClient().organizationDao().selectByUuid(dbTester.getSession(), id).get();
+    OrganizationDto dto = dbClient.organizationDao().selectByUuid(dbTester.getSession(), id).get();
     assertThat(dto.getUuid()).isEqualTo(id);
     assertThat(dto.getKey()).isEqualTo(key);
     assertThat(dto.getName()).isEqualTo(name);
@@ -534,7 +568,7 @@ public class CreateActionTest {
   }
 
   private void insertOrganization(String key) {
-    dbTester.getDbClient().organizationDao().insert(dbTester.getSession(), new OrganizationDto()
+    dbClient.organizationDao().insert(dbTester.getSession(), new OrganizationDto()
       .setUuid(key + "_uuid")
       .setKey(key)
       .setName(key + "_name")
