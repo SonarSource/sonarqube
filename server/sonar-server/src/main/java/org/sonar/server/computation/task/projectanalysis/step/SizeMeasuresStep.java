@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
@@ -38,6 +37,8 @@ import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
+import static org.sonar.api.measures.CoreMetrics.DIRECTORIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
@@ -54,7 +55,6 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
 public class SizeMeasuresStep implements ComputationStep {
   private static final CounterStackElementFactory COUNTER_STACK_ELEMENT_FACTORY = new CounterStackElementFactory();
   private static final List<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = ImmutableList.<Formula>of(
-    createIntSumFormula(LINES_KEY),
     createIntSumFormula(GENERATED_LINES_KEY),
     createIntSumFormula(NCLOC_KEY),
     createIntSumFormula(GENERATED_NCLOC_KEY),
@@ -75,11 +75,11 @@ public class SizeMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    Metric fileMetric = metricRepository.getByKey(CoreMetrics.FILES_KEY);
-    Metric directoryMetric = metricRepository.getByKey(CoreMetrics.DIRECTORIES_KEY);
-
-    new PathAwareCrawler<>(new FileAndDirectoryMeasureVisitor(directoryMetric, fileMetric))
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(new FileAndDirectoryMeasureVisitor(
+      metricRepository.getByKey(DIRECTORIES_KEY),
+      metricRepository.getByKey(FILES_KEY),
+      metricRepository.getByKey(LINES_KEY)))
+        .visit(treeRootHolder.getRoot());
     new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS))
         .visit(treeRootHolder.getRoot());
@@ -93,40 +93,44 @@ public class SizeMeasuresStep implements ComputationStep {
   private class FileAndDirectoryMeasureVisitor extends PathAwareVisitorAdapter<Counter> {
     private final Metric directoryMetric;
     private final Metric fileMetric;
+    private final Metric linesMetric;
 
-    public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric) {
+    public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric, Metric linesMetric) {
       super(CrawlerDepthLimit.LEAVES, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
       this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
+      this.linesMetric = linesMetric;
     }
 
     @Override
     public void visitProject(Component project, Path<Counter> path) {
-      createMeasures(project, path.current().directories, path.current().files);
+      createMeasures(project, path.current());
     }
 
     @Override
     public void visitModule(Component module, Path<Counter> path) {
-      createMeasures(module, path.current().directories, path.current().files);
-
-      path.parent().directories += path.current().directories;
-      path.parent().files += path.current().files;
+      createMeasures(module, path.current());
+      path.parent().aggregate(path.current());
     }
 
     @Override
     public void visitDirectory(Component directory, Path<Counter> path) {
       int fileCount = path.current().files;
       if (fileCount > 0) {
-        createMeasures(directory, 1, fileCount);
+        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(1));
+        measureRepository.add(directory, fileMetric, newMeasureBuilder().create(fileCount));
+        measureRepository.add(directory, linesMetric, newMeasureBuilder().create(path.current().lines));
         path.parent().directories += 1;
         path.parent().files += fileCount;
+        path.parent().lines += path.current().lines;
       }
     }
 
-    private void createMeasures(Component directory, int dirCount, int fileCount) {
-      if (fileCount > 0) {
-        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(dirCount));
-        measureRepository.add(directory, fileMetric, newMeasureBuilder().create(fileCount));
+    private void createMeasures(Component directory, Counter counter) {
+      if (counter.files > 0) {
+        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(counter.directories));
+        measureRepository.add(directory, fileMetric, newMeasureBuilder().create(counter.files));
+        measureRepository.add(directory, linesMetric, newMeasureBuilder().create(counter.lines));
       }
     }
 
@@ -135,41 +139,47 @@ public class SizeMeasuresStep implements ComputationStep {
       if (file.getFileAttributes().isUnitTest()) {
         return;
       }
+      int lines = file.getFileAttributes().getLines();
       measureRepository.add(file, fileMetric, newMeasureBuilder().create(1));
-
+      measureRepository.add(file, linesMetric, newMeasureBuilder().create(lines));
+      path.parent().lines += lines;
       path.parent().files += 1;
     }
 
     @Override
     public void visitView(Component view, Path<Counter> path) {
-      createMeasures(view, path.current().directories, path.current().files);
+      createMeasures(view, path.current());
     }
 
     @Override
     public void visitSubView(Component subView, Path<Counter> path) {
-      createMeasures(subView, path.current().directories, path.current().files);
-
-      path.parent().directories += path.current().directories;
-      path.parent().files += path.current().files;
+      createMeasures(subView, path.current());
+      path.parent().aggregate(path.current());
     }
 
     @Override
     public void visitProjectView(Component projectView, Path<Counter> path) {
       path.parent().directories += getIntValue(projectView, this.directoryMetric);
       path.parent().files += getIntValue(projectView, this.fileMetric);
+      path.parent().lines += getIntValue(projectView, this.linesMetric);
     }
 
     private int getIntValue(Component component, Metric metric) {
       Optional<Measure> fileMeasure = measureRepository.getRawMeasure(component, metric);
       return fileMeasure.isPresent() ? fileMeasure.get().getIntValue() : 0;
     }
-
   }
 
   private static class Counter {
+    private int lines = 0;
     private int files = 0;
     private int directories = 0;
 
+    void aggregate(Counter counter) {
+      directories += counter.directories;
+      files += counter.files;
+      lines += counter.lines;
+    }
   }
 
   private static class CounterStackElementFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<Counter> {
@@ -188,4 +198,5 @@ public class SizeMeasuresStep implements ComputationStep {
       return null;
     }
   }
+
 }

@@ -490,17 +490,24 @@ public class ComponentRootBuilderTest {
   }
 
   @Test
-  public void fail_with_IAE_when_createFileAttributes_sets_lines_to_0() throws Exception {
+  public void fail_with_IAE_when_createFileAttributes_lines_is_not_set() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Lines has not been set for this file");
-    createFileAttributes(newBuilder().setType(FILE).setLines(0).build());
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").build());
   }
 
   @Test
-  public void fail_with_IAE_when_createFileAttributes_lines_is_not_set() throws Exception {
+  public void fail_with_IAE_when_createFileAttributes_sets_lines_to_0() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Lines has not been set for this file");
-    createFileAttributes(newBuilder().setType(FILE).build());
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").setLines(0).build());
+  }
+
+  @Test
+  public void fail_with_IAE_when_createFileAttributes_sets_lines_to_less_than_0() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").setLines(-10).build());
   }
 
   private static class ScannerComponentProvider extends ExternalResource implements Function<Integer, ScannerReport.Component> {

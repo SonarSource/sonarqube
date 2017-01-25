@@ -38,7 +38,7 @@ public class FileAttributes {
   public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
     this.unitTest = unitTest;
     this.languageKey = languageKey;
-    checkArgument(lines > 0, "Lines has not been set for this file");
+    checkArgument(lines > 0, "Number of lines must be greater than zero");
     this.lines = lines;
   }
 
@@ -51,6 +51,9 @@ public class FileAttributes {
     return languageKey;
   }
 
+  /**
+   * Number of lines of the file, can never be less than 1
+   */
   public int getLines() {
     return lines;
   }
