@@ -23,9 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
@@ -35,11 +35,6 @@ public class SourceLinesRepositoryImplTest {
   static final String FILE_UUID = "FILE_UUID";
   static final String FILE_KEY = "FILE_KEY";
   static final int FILE_REF = 2;
-
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF)
-    .setKey(FILE_KEY)
-    .setUuid(FILE_UUID)
-    .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -51,50 +46,36 @@ public class SourceLinesRepositoryImplTest {
 
   @Test
   public void read_lines_from_report() throws Exception {
-    reportReader.putComponent(createFileBatchComponent(2));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    assertThat(underTest.readLines(FILE)).containsOnly("line1", "line2");
+    assertThat(underTest.readLines(createComponent(2))).containsOnly("line1", "line2");
   }
 
   @Test
   public void read_lines_adds_one_extra_empty_line_when_sourceLine_has_elements_count_equals_to_lineCount_minus_1() throws Exception {
-    reportReader.putComponent(createFileBatchComponent(3));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    assertThat(underTest.readLines(FILE)).containsOnly("line1", "line2", "");
+    assertThat(underTest.readLines(createComponent(3))).containsOnly("line1", "line2", "");
   }
 
   @Test
   public void read_lines_throws_ISE_when_sourceLine_has_less_elements_then_lineCount_minus_1() throws Exception {
-    reportReader.putComponent(createFileBatchComponent(10));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has less lines (2) than the expected number (10)");
 
-    consume(underTest.readLines(FILE));
+    consume(underTest.readLines(createComponent(10)));
   }
 
   @Test
   public void read_lines_throws_ISE_when_sourceLines_has_more_elements_then_lineCount() throws Exception {
-    reportReader.putComponent(createFileBatchComponent(2));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2", "line3");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has at least one more line than the expected number (2)");
 
-    consume(underTest.readLines(FILE));
-  }
-
-  @Test
-  public void not_fail_to_read_lines_on_empty_file_from_report() throws Exception {
-    // File exist but there's no line
-    reportReader.putComponent(createFileBatchComponent(0));
-    reportReader.putFileSourceLines(FILE_REF);
-
-    // Should not try to read source file from the db
-    assertThat(underTest.readLines(FILE)).isEmpty();
+    consume(underTest.readLines(createComponent(2)));
   }
 
   @Test
@@ -102,7 +83,10 @@ public class SourceLinesRepositoryImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("File 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has no source code");
 
-    underTest.readLines(FILE);
+    underTest.readLines(builder(Component.Type.FILE, FILE_REF)
+      .setKey(FILE_KEY)
+      .setUuid(FILE_UUID)
+      .build());
   }
 
   @Test
@@ -121,12 +105,16 @@ public class SourceLinesRepositoryImplTest {
     underTest.readLines(builder(Component.Type.PROJECT, 123).setKey("NotFile").build());
   }
 
-  private static ScannerReport.Component createFileBatchComponent(int lineCount) {
-    return ScannerReport.Component.newBuilder().setRef(FILE_REF).setLines(lineCount).build();
+  private static Component createComponent(int lineCount) {
+    return builder(Component.Type.FILE, FILE_REF)
+      .setKey(FILE_KEY)
+      .setUuid(FILE_UUID)
+      .setFileAttributes(new FileAttributes(false, null, lineCount))
+      .build();
   }
 
   private static void consume(CloseableIterator<String> stringCloseableIterator) {
-    try{
+    try {
       while (stringCloseableIterator.hasNext()) {
         stringCloseableIterator.next();
       }
