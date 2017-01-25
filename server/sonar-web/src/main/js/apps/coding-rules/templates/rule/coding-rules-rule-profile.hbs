@@ -1,5 +1,7 @@
 <td class="coding-rules-detail-quality-profile-name">
-  {{name}}
+  <a href="{{profileUrl key}}">
+    {{name}}
+  </a>
   {{#if parent}}
     <div class="coding-rules-detail-quality-profile-inheritance">
       {{#eq inherit 'OVERRIDES'}}
@@ -8,7 +10,9 @@
       {{#eq inherit 'INHERITED'}}
         <i class="icon-inheritance" title="{{tp 'coding_rules.inherits' name parent.name}}"></i>
       {{/eq}}
-      {{parent.name}}
+      <a class="link-base-color" href="{{profileUrl parent.key}}">
+        {{parent.name}}
+      </a>
     </div>
   {{/if}}
 </td>
