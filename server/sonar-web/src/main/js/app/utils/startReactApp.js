@@ -101,6 +101,9 @@ const startReactApp = () => {
                 <Route component={GlobalContainer}>
                   <Route path="about">{aboutRoutes}</Route>
                   <Route path="account">{accountRoutes}</Route>
+                  <Route path="codingrules" onEnter={(nextState, replace) => {
+                    replace('/coding_rules' + window.location.hash);
+                  }}/>
                   <Route path="coding_rules">{codingRulesRoutes}</Route>
                   <Route path="component">{componentRoutes}</Route>
                   <Route path="extension/:pluginKey/:extensionKey" component={GlobalPageExtension}/>
