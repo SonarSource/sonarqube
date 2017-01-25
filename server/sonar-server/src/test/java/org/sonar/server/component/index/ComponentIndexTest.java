@@ -21,7 +21,9 @@ package org.sonar.server.component.index;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractListAssert;
 import org.junit.Before;
@@ -176,7 +178,7 @@ public class ComponentIndexTest {
 
   @Test
   public void should_search_project_with_colon_in_key() {
-    ComponentDto project = indexProject("org:sonarqube", "SonarQube");
+    ComponentDto project = indexProject("org:sonarqube", "Quality Product");
 
     assertSearchResults("org:sonarqube", project);
     assertNoSearchResults("orgsonarqube");
@@ -320,6 +322,57 @@ public class ComponentIndexTest {
   }
 
   @Test
+  public void should_order_results_by_score() {
+    assertResultOrder("struts",
+      "Struts",
+      "Apache Struts",
+      "Apache Struts Two");
+  }
+
+  @Test
+  public void should_score_fuzzy_results() {
+    assertResultOrder("corem",
+      "CoreMetrics.java",
+      "ScoreMatrix.java");
+  }
+
+  @Test
+  public void should_prefer_components_without_prefix() {
+    assertResultOrder("File.java",
+      "File.java",
+      "MyFile.java");
+  }
+
+  @Test
+  public void should_prefer_components_without_suffix() {
+    assertResultOrder("File",
+      "File",
+      "Filex");
+  }
+
+  @Test
+  public void missing_characters_should_reduce_score() {
+    assertResultOrder("SonarQube.java",
+      "sonarqube.java",
+      "sonaqube.java",
+      "sonqube.java");
+  }
+
+  @Test
+  public void should_order_camel_case_matches_example2() {
+    assertResultOrder("MC",
+      "MethodComplexityCheck.java",
+      "EnumConstantTreeImpl.java");
+  }
+
+  @Test
+  public void should_order_camel_case_match_before_partial_match() {
+    assertResultOrder("MC",
+      "MethodComplexityCheck.java",
+      "PomCheck.java");
+  }
+
+  @Test
   public void should_respect_confidentiallity() {
     indexer.index(newProject("sonarqube", "Quality Product"));
 
@@ -374,6 +427,21 @@ public class ComponentIndexTest {
     Arrays.stream(fileNames)
       .forEach(this::indexFile);
     assertSearch(query).isEmpty();
+  }
+
+  private void assertResultOrder(String query, String... resultsInOrder) {
+    ComponentDto project = indexProject("key-1", "Quality Product");
+    List<ComponentDto> files = Arrays.stream(resultsInOrder)
+      .map(r -> ComponentTesting.newFileDto(project).setName(r))
+      .peek(f -> f.setUuid(f.uuid() + "_" + f.name().replaceAll("[^a-zA-Z0-9]", "")))
+      .collect(Collectors.toList());
+
+    // index them, but not in the expected order
+    files.stream()
+      .sorted(Comparator.comparing(ComponentDto::uuid).reversed())
+      .forEach(this::index);
+
+    assertExactResults(query, files.toArray(new ComponentDto[0]));
   }
 
   private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
