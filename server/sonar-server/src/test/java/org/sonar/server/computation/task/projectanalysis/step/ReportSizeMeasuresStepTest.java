@@ -77,17 +77,17 @@ public class ReportSizeMeasuresStepTest {
               .addChildren(
                 builder(DIRECTORY, DIRECTORY_1_REF)
                   .addChildren(
-                    builder(FILE, FILE_1_REF).build(),
-                    builder(FILE, FILE_2_REF).build())
+                    builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 1)).build(),
+                    builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 2)).build())
                   .build(),
                 builder(DIRECTORY, DIRECTORY_2_REF)
                   .addChildren(
-                    builder(FILE, FILE_3_REF).build(),
-                    builder(FILE, UNIT_TEST_1_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 1)).build())
+                    builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_DOES_NOT_MATTER_HERE, 7)).build(),
+                    builder(FILE, UNIT_TEST_1_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 4)).build())
                   .build(),
                 builder(DIRECTORY, DIRECTORY_3_REF)
                   .addChildren(
-                    builder(FILE, UNIT_TEST_2_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 1)).build())
+                    builder(FILE, UNIT_TEST_2_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE, 10)).build())
                   .build())
               .build())
           .build())
@@ -110,55 +110,25 @@ public class ReportSizeMeasuresStepTest {
   private SizeMeasuresStep underTest = new SizeMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Test
-  public void verify_FILE_and_DIRECTORY_computation_and_aggregation() {
+  public void verify_LINES_and_FILE_and_DIRECTORY_computation_and_aggregation() {
     underTest.execute();
 
-    verifyMeasuresOnFile(FILE_1_REF, 1);
-    verifyMeasuresOnFile(FILE_2_REF, 1);
-    verifyMeasuresOnFile(FILE_3_REF, 1);
+    verifyMeasuresOnFile(FILE_1_REF, 1, 1);
+    verifyMeasuresOnFile(FILE_2_REF, 2, 1);
+    verifyMeasuresOnFile(FILE_3_REF, 7, 1);
     verifyNoMeasure(UNIT_TEST_1_REF);
     verifyNoMeasure(UNIT_TEST_2_REF);
-    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1);
-    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1);
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2);
+    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 3, 2, 1);
+    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 7, 1, 1);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2);
   }
 
   @Test
-  public void verify_LINE_related_measures_aggregation() {
-    verifyTwoMeasureAggregation(LINES_KEY, GENERATED_LINES_KEY);
-  }
-
-  private void verifyTwoMeasureAggregation(String metric1Key, String metric2Key) {
-    measureRepository.addRawMeasure(FILE_1_REF, metric1Key, newMeasureBuilder().create(1));
-    measureRepository.addRawMeasure(FILE_1_REF, metric2Key, newMeasureBuilder().create(10));
-    // FILE_2_REF has no metric2 measure
-    measureRepository.addRawMeasure(FILE_2_REF, metric1Key, newMeasureBuilder().create(6));
-    // FILE_3_REF has no measure at all
-    // UNIT_TEST_1_REF has no metric1
-    measureRepository.addRawMeasure(UNIT_TEST_1_REF, metric2Key, newMeasureBuilder().create(90));
-
-    underTest.execute();
-
-    verifyMeasuresOnFile(FILE_1_REF, 1);
-    verifyMeasuresOnFile(FILE_2_REF, 1);
-    verifyMeasuresOnFile(FILE_3_REF, 1);
-    verifyNoMeasure(UNIT_TEST_1_REF);
-    verifyNoMeasure(UNIT_TEST_2_REF);
-    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1,
-      entryOf(metric1Key, newMeasureBuilder().create(7)), entryOf(metric2Key, newMeasureBuilder().create(10)));
-    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1,
-      entryOf(metric2Key, newMeasureBuilder().create(90)));
-    MeasureRepoEntry[] subModuleAndAboveEntries = {
-      entryOf(metric1Key, newMeasureBuilder().create(7)),
-      entryOf(metric2Key, newMeasureBuilder().create(100))
-    };
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, subModuleAndAboveEntries);
+  public void verify_GENERATED_LINES_related_measures_aggregation() {
+    verifyMetricAggregation(GENERATED_LINES_KEY);
   }
 
   @Test
@@ -173,17 +143,47 @@ public class ReportSizeMeasuresStepTest {
 
     underTest.execute();
 
-    verifyMeasuresOnFile(FILE_1_REF, 1);
-    verifyMeasuresOnFile(FILE_2_REF, 1);
-    verifyMeasuresOnFile(FILE_3_REF, 1);
+    verifyMeasuresOnFile(FILE_1_REF, 1, 1);
+    verifyMeasuresOnFile(FILE_2_REF, 2, 1);
+    verifyMeasuresOnFile(FILE_3_REF, 7, 1);
     verifyNoMeasure(UNIT_TEST_1_REF);
     verifyNoMeasure(UNIT_TEST_2_REF);
-    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
-    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 3, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
+    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 7, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+  }
+
+  private void verifyTwoMeasureAggregation(String metric1Key, String metric2Key) {
+    measureRepository.addRawMeasure(FILE_1_REF, metric1Key, newMeasureBuilder().create(1));
+    measureRepository.addRawMeasure(FILE_1_REF, metric2Key, newMeasureBuilder().create(10));
+    // FILE_2_REF has no metric2 measure
+    measureRepository.addRawMeasure(FILE_2_REF, metric1Key, newMeasureBuilder().create(6));
+    // FILE_3_REF has no measure at all
+    // UNIT_TEST_1_REF has no metric1
+    measureRepository.addRawMeasure(UNIT_TEST_1_REF, metric2Key, newMeasureBuilder().create(90));
+
+    underTest.execute();
+
+    verifyMeasuresOnFile(FILE_1_REF, 1, 1);
+    verifyMeasuresOnFile(FILE_2_REF, 2, 1);
+    verifyMeasuresOnFile(FILE_3_REF, 7, 1);
+    verifyNoMeasure(UNIT_TEST_1_REF);
+    verifyNoMeasure(UNIT_TEST_2_REF);
+    verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 3, 2, 1,
+      entryOf(metric1Key, newMeasureBuilder().create(7)), entryOf(metric2Key, newMeasureBuilder().create(10)));
+    verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 7, 1, 1,
+      entryOf(metric2Key, newMeasureBuilder().create(90)));
+    MeasureRepoEntry[] subModuleAndAboveEntries = {
+      entryOf(metric1Key, newMeasureBuilder().create(7)),
+      entryOf(metric2Key, newMeasureBuilder().create(100))
+    };
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC, NO_METRIC);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 10, 3, 2, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 10, 3, 2, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 10, 3, 2, subModuleAndAboveEntries);
   }
 
   @Test
@@ -196,14 +196,18 @@ public class ReportSizeMeasuresStepTest {
     verifyMetricAggregation(CLASSES_KEY);
   }
 
-  private void verifyMeasuresOnFile(int componentRef, int fileCount) {
+  private void verifyMeasuresOnFile(int componentRef, int linesCount, int fileCount) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)));
+      .containsOnly(
+        entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
+        entryOf(FILES_KEY, newMeasureBuilder().create(fileCount))
+      );
   }
 
-  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer fileCount, @Nullable Integer directoryCount, MeasureRepoEntry... otherMeasures) {
+  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer linesCount, @Nullable Integer fileCount, @Nullable Integer directoryCount, MeasureRepoEntry... otherMeasures) {
     MeasureRepoEntry[] measureRepoEntries = concatIntoArray(
       otherMeasures,
+      linesCount == null ? null : entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
       fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
       directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
     );
