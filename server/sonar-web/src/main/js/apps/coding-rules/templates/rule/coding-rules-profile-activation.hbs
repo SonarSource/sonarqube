@@ -23,7 +23,9 @@
       {{else}}
         <select id="coding-rules-quality-profile-activation-select">
           {{#each qualityProfiles}}
-            <option value="{{key}}" {{#eq key ../contextProfile}}selected{{/eq}}>{{name}}</option>
+            <option value="{{key}}" {{#eq key ../contextProfile}}selected{{/eq}}>
+              {{#repeat depth}}&nbsp;&nbsp;&nbsp;{{/repeat}}{{name}}
+            </option>
           {{/each}}
         </select>
       {{/any}}
@@ -37,8 +39,9 @@
       </select>
     </div>
     {{#if isCustomRule}}
-    <div class="modal-field">
-      <p class="note">{{t 'coding_rules.custom_rule.activation_notice'}}</p>
+      <div class="modal-field">
+        <p class="note">{{t 'coding_rules.custom_rule.activation_notice'}}</p>
+      </div>
     {{else}}
       {{#each params}}
         <div class="modal-field">
@@ -65,11 +68,11 @@
     {{/if}}
   </div>
 
-    <div class="modal-foot">
-      <button id="coding-rules-quality-profile-activation-activate"
-              {{#unless saveEnabled}}disabled="disabled"{{/unless}}>
-        {{#if change}}{{t 'save'}}{{else}}{{t 'coding_rules.activate'}}{{/if}}
-      </button>
-      <a id="coding-rules-quality-profile-activation-cancel" class="js-modal-close">{{t 'cancel'}}</a>
-    </div>
+  <div class="modal-foot">
+    <button id="coding-rules-quality-profile-activation-activate"
+            {{#unless saveEnabled}}disabled="disabled"{{/unless}}>
+      {{#if change}}{{t 'save'}}{{else}}{{t 'coding_rules.activate'}}{{/if}}
+    </button>
+    <a id="coding-rules-quality-profile-activation-cancel" class="js-modal-close">{{t 'cancel'}}</a>
+  </div>
 </form>

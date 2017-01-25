@@ -22,6 +22,7 @@ import Backbone from 'backbone';
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-profile-activation.hbs';
 import { csvEscape } from '../../../helpers/csv';
+import { sortProfiles } from '../../quality-profiles/utils';
 
 export default ModalForm.extend({
   template: Template,
@@ -144,12 +145,18 @@ export default ModalForm.extend({
     const availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
     const contextProfile = this.options.app.state.get('query').qprofile;
 
+    // decrease depth by 1, so the top level starts at 0
+    const profilesWithDepth = sortProfiles(availableProfiles).map(profile => ({
+      ...profile,
+      depth: profile.depth - 1
+    }));
+
     return {
       ...ModalForm.prototype.serializeData.apply(this, arguments),
       params,
       contextProfile,
       change: this.model && this.model.has('severity'),
-      qualityProfiles: availableProfiles,
+      qualityProfiles: profilesWithDepth,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
       saveEnabled: availableProfiles.length > 0 || (this.model && this.model.get('qProfile')),
       isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')

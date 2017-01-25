@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import sortBy from 'lodash/sortBy';
 import moment from 'moment';
 
-export function sortProfiles (profiles) {
+type Profiles = Array<{
+  key: string,
+  name: string,
+  parentKey?: string
+}>;
+
+export function sortProfiles (profiles: Profiles) {
   const result = [];
   const sorted = sortBy(profiles, 'name');
 
@@ -46,7 +53,7 @@ export function sortProfiles (profiles) {
   return result;
 }
 
-export function createFakeProfile (overrides) {
+export function createFakeProfile (overrides: {}) {
   return {
     key: 'key',
     name: 'name',
@@ -61,6 +68,6 @@ export function createFakeProfile (overrides) {
   };
 }
 
-export function isStagnant (profile) {
+export function isStagnant (profile: { userUpdatedAt: string }) {
   return moment().diff(moment(profile.userUpdatedAt), 'years') >= 1;
 }
