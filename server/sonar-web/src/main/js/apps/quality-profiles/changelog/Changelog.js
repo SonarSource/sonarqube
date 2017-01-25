@@ -30,38 +30,60 @@ export default class Changelog extends React.Component {
   };
 
   render () {
-    const rows = this.props.events.map((event, index) => (
-        <tr key={index} className="js-profile-changelog-event">
-          <td className="thin nowrap">
-            {moment(event.date).format('LLL')}
-          </td>
+    let isEvenRow = false;
 
-          <td className="thin nowrap">
-            {event.authorName ? (
-                <span>{event.authorName}</span>
-            ) : (
-                <span className="note">System</span>
-            )}
-          </td>
+    const rows = this.props.events.map((event, index) => {
+      const prev = index > 0 ? this.props.events[index - 1] : null;
+      const isSameDate = prev != null && moment(prev.date).diff(event.date, 'seconds') < 10;
+      const isBulkChange =
+          prev != null &&
+          isSameDate &&
+          prev.authorName === event.authorName &&
+          prev.action === event.action;
 
-          <td className="thin nowrap">
-            {translate('quality_profiles.changelog', event.action)}
-          </td>
+      if (!isBulkChange) {
+        isEvenRow = !isEvenRow;
+      }
 
-          <td style={{ lineHeight: '1.5' }}>
-            <Link to={getRulesUrl({ 'rule_key': event.ruleKey })}>
-              {event.ruleName}
-            </Link>
-          </td>
+      const className = 'js-profile-changelog-event ' + (isEvenRow ? 'even' : 'odd');
 
-          <td className="thin nowrap">
-            <ChangesList changes={event.params}/>
-          </td>
-        </tr>
-    ));
+      return (
+          <tr key={index} className={className}>
+            <td className="thin nowrap">
+              {!isBulkChange && moment(event.date).format('LLL')}
+            </td>
+
+            <td className="thin nowrap">
+              {!isBulkChange && (
+                  event.authorName ? (
+                          <span>{event.authorName}</span>
+                      ) : (
+                          <span className="note">System</span>
+                      )
+              )}
+            </td>
+
+            <td className="thin nowrap">
+              {!isBulkChange && (
+                  translate('quality_profiles.changelog', event.action)
+              )}
+            </td>
+
+            <td style={{ lineHeight: '1.5' }}>
+              <Link to={getRulesUrl({ 'rule_key': event.ruleKey })}>
+                {event.ruleName}
+              </Link>
+            </td>
+
+            <td className="thin nowrap">
+              <ChangesList changes={event.params}/>
+            </td>
+          </tr>
+      );
+    });
 
     return (
-        <table className="data zebra zebra-hover">
+        <table className="data zebra-hover">
           <thead>
             <tr>
               <th className="thin nowrap">
