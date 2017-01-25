@@ -64,6 +64,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     new IssueIndexDefinition(new MapSettings()),
     new ProjectMeasuresIndexDefinition(new MapSettings()),
     new ComponentIndexDefinition(new MapSettings()));
+  @Rule
+  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
 
   private UserDto user1;
   private UserDto user2;
@@ -78,7 +80,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   @Override
   protected ApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-      new MapSettings(), permissionIndexer, userSession);
+        permissionIndexer, userSession, defaultTemplatesResolver);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 

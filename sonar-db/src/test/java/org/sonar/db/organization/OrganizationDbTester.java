@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
@@ -53,4 +54,12 @@ public class OrganizationDbTester {
     dbSession.commit();
     return dto;
   }
+
+  public void setDefaultTemplates(OrganizationDto defaultOrganization,
+    String projectDefaultTemplateUuid, @Nullable String viewDefaultTemplateUuid) {
+    DbSession dbSession = dbTester.getSession();
+    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(), new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
+    dbSession.commit();
+  }
+
 }

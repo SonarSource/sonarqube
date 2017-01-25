@@ -25,31 +25,37 @@ import com.google.common.collect.TreeBasedTable;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class SearchTemplatesDataLoader {
   private final DbClient dbClient;
-  private final DefaultPermissionTemplateFinder defaultPermissionTemplateFinder;
+  private final DefaultTemplatesResolver defaultTemplatesResolver;
 
-  public SearchTemplatesDataLoader(DbClient dbClient, DefaultPermissionTemplateFinder defaultPermissionTemplateFinder) {
+  public SearchTemplatesDataLoader(DbClient dbClient, DefaultTemplatesResolver defaultTemplatesResolver) {
     this.dbClient = dbClient;
-    this.defaultPermissionTemplateFinder = defaultPermissionTemplateFinder;
+    this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
   public SearchTemplatesData load(DbSession dbSession, SearchTemplatesWsRequest request) {
     SearchTemplatesData.Builder data = builder();
     List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
     List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
-    List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
+
+    DefaultTemplates defaultTemplates = checkFoundWithOptional(
+        dbClient.organizationDao().getDefaultTemplates(dbSession, request.getOrganizationUuid()),
+        "No Default templates for organization with uuid '%s'", request.getOrganizationUuid());
+    ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
 
     data.templates(templates)
-      .defaultTemplates(defaultTemplates)
+      .defaultTemplates(resolvedDefaultTemplates)
       .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
       .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds))
       .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));

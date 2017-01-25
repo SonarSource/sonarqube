@@ -2,7 +2,7 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 25,
-    "total": 4
+    "total": 3
   },
   "projects": [
     {
@@ -29,24 +29,6 @@
       "name": "Clang",
       "qualifier": "TRK",
       "permissions": [
-        {
-          "key": "issueadmin",
-          "usersCount": 1,
-          "groupsCount": 0
-        }
-      ]
-    },
-    {
-      "id": "4e607bf9-7ed0-484a-946d-d58ba7dab2fb",
-      "key": "simon-brandhof",
-      "name": "Simon Brandhof",
-      "qualifier": "DEV",
-      "permissions": [
-        {
-          "key": "admin",
-          "usersCount": 0,
-          "groupsCount": 1
-        },
         {
           "key": "issueadmin",
           "usersCount": 1,

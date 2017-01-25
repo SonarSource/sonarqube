@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
@@ -38,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -45,9 +45,12 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolver;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
@@ -58,15 +61,16 @@ import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 public class PermissionTemplateService {
 
   private final DbClient dbClient;
-  private final Settings settings;
   private final PermissionIndexer permissionIndexer;
   private final UserSession userSession;
+  private final DefaultTemplatesResolver defaultTemplatesResolver;
 
-  public PermissionTemplateService(DbClient dbClient, Settings settings, PermissionIndexer permissionIndexer, UserSession userSession) {
+  public PermissionTemplateService(DbClient dbClient, PermissionIndexer permissionIndexer, UserSession userSession,
+    DefaultTemplatesResolver defaultTemplatesResolver) {
     this.dbClient = dbClient;
-    this.settings = settings;
     this.permissionIndexer = permissionIndexer;
     this.userSession = userSession;
+    this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
   /**
@@ -206,16 +210,22 @@ public class PermissionTemplateService {
     if (matchingTemplates.size() == 1) {
       return matchingTemplates.get(0);
     }
-    String qualifierTemplateKey = settings.getString("sonar.permission.template." + component.qualifier() + ".default");
-    if (!StringUtils.isBlank(qualifierTemplateKey)) {
-      return dbClient.permissionTemplateDao().selectByUuid(dbSession, qualifierTemplateKey);
-    }
 
-    String defaultTemplateKey = settings.getString("sonar.permission.template.default");
-    if (StringUtils.isBlank(defaultTemplateKey)) {
-      throw new IllegalStateException("At least one default permission template should be defined");
+    DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organizationUuid)
+      .orElseThrow(() -> new IllegalStateException(
+        format("No Default templates defined for organization with uuid '%s'", organizationUuid)));
+
+    String qualifier = component.qualifier();
+    DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
+    if (Qualifiers.PROJECT.equals(qualifier)) {
+      return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
+    } else if (Qualifiers.VIEW.equals(qualifier)) {
+      String viewDefaultTemplateUuid = resolvedDefaultTemplates.getView().orElseThrow(
+        () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
+      return dbClient.permissionTemplateDao().selectByUuid(dbSession, viewDefaultTemplateUuid);
+    } else {
+      throw new IllegalArgumentException(format("Qualifier '%s' is not supported", qualifier));
     }
-    return dbClient.permissionTemplateDao().selectByUuid(dbSession, defaultTemplateKey);
   }
 
   private static void checkAtMostOneMatchForComponentKey(String componentKey, List<PermissionTemplateDto> matchingTemplates) {

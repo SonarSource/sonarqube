@@ -23,8 +23,6 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -38,6 +36,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
@@ -46,11 +46,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTemplatesAction> {
@@ -58,39 +54,41 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   private I18nRule i18n = new I18nRule();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+  private ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+  private ResourceTypesRule resourceTypesWithoutViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+
+  private WsActionTester underTestWithoutViews;
 
   @Override
   protected SearchTemplatesAction buildWsAction() {
-    Settings settings = new MapSettings();
-    settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), UUID_EXAMPLE_01);
-    settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.VIEW), UUID_EXAMPLE_02);
-    settings.setProperty(defaultRootQualifierTemplateProperty("DEV"), UUID_EXAMPLE_03);
-
-    DefaultPermissionTemplateFinder defaultPermissionTemplateFinder = new DefaultPermissionTemplateFinder(settings, resourceTypes);
-    SearchTemplatesDataLoader dataLoader = new SearchTemplatesDataLoader(dbClient, defaultPermissionTemplateFinder);
-    return new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoader);
+    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
+    SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
+    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews);
+    return searchTemplatesAction;
   }
 
   @Before
   public void setUp() {
+    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
+    SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
+    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews));
     i18n.setProjectPermissions();
     userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
   }
 
   @Test
   public void search_project_permissions() {
-    PermissionTemplateDto projectTemplate = insertProjectTemplateOnDefaultOrganization();
-    PermissionTemplateDto viewsTemplate = insertViewsTemplate();
-    PermissionTemplateDto developerTemplate = insertDeveloperTemplate();
+    OrganizationDto organization = db.getDefaultOrganization();
+    PermissionTemplateDto projectTemplate = insertProjectTemplate(organization);
+    PermissionTemplateDto viewsTemplate = insertViewsTemplate(organization);
 
-    UserDto user1 = insertUser(newUserDto());
-    UserDto user2 = insertUser(newUserDto());
-    UserDto user3 = insertUser(newUserDto());
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    UserDto user3 = db.users().insertUser();
 
-    GroupDto group1 = insertGroup(newGroupDto());
-    GroupDto group2 = insertGroup(newGroupDto());
-    GroupDto group3 = insertGroup(newGroupDto());
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto group3 = db.users().insertGroup(organization);
 
     addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.ISSUE_ADMIN);
     addUserToTemplate(projectTemplate.getId(), user2.getId(), UserRole.ISSUE_ADMIN);
@@ -105,9 +103,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
 
-    addGroupToTemplate(developerTemplate.getId(), group1.getId(), UserRole.USER);
-
-    db.commit();
+    db.organizations().setDefaultTemplates(organization, projectTemplate.getUuid(), viewsTemplate.getUuid());
 
     String result = newRequest().execute().getInput();
 
@@ -117,23 +113,54 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   }
 
   @Test
-  public void empty_result() {
-    String result = newRequest().execute().getInput();
+  public void empty_result_with_views() {
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
+    String result = newRequest(wsTester).execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
       .ignoreFields("permissions")
-      .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/empty.json"));
+      .isSimilarTo("{" +
+        "  \"permissionTemplates\": []," +
+        "  \"defaultTemplates\": [" +
+        "    {" +
+        "      \"templateId\": \"AU-Tpxb--iU5OvuD2FLy\"," +
+        "      \"qualifier\": \"TRK\"" +
+        "    }," +
+        "    {" +
+        "      \"templateId\": \"AU-TpxcA-iU5OvuD2FLz\"," +
+        "      \"qualifier\": \"VW\"" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @Test
+  public void empty_result_without_views() {
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
+    String result = newRequest(underTestWithoutViews).execute().getInput();
+
+    assertJson(result)
+      .withStrictArrayOrder()
+      .ignoreFields("permissions")
+      .isSimilarTo("{" +
+        "  \"permissionTemplates\": []," +
+        "  \"defaultTemplates\": [" +
+        "    {" +
+        "      \"templateId\": \"AU-Tpxb--iU5OvuD2FLy\"," +
+        "      \"qualifier\": \"TRK\"" +
+        "    }" +
+        "  ]" +
+        "}");
   }
 
   @Test
   public void search_by_name_in_default_organization() {
-    insertProjectTemplateOnDefaultOrganization();
-    insertViewsTemplate();
-    insertDeveloperTemplate();
-    db.commit();
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "foo", null);
+    insertProjectTemplate(db.getDefaultOrganization());
+    insertViewsTemplate(db.getDefaultOrganization());
 
-    String result = newRequest()
+    String result = newRequest(wsTester)
       .setParam(TEXT_QUERY, "views")
       .execute()
       .getInput();
@@ -146,16 +173,18 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   @Test
   public void search_in_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
+    db.organizations().setDefaultTemplates(org, "foo", null);
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
-    insertProjectTemplateOnDefaultOrganization();
+    insertProjectTemplate(db.getDefaultOrganization());
     db.commit();
     userSession.addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
 
-    WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(newRequest()
-      .setParam("organization", org.getKey())
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputStream());
+    WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(
+      newRequest(underTestWithoutViews)
+        .setParam("organization", org.getKey())
+        .setMediaType(MediaTypes.PROTOBUF)
+        .execute()
+        .getInputStream());
 
     assertThat(result.getPermissionTemplatesCount()).isEqualTo(1);
     assertThat(result.getPermissionTemplates(0).getId()).isEqualTo(templateInOrg.getUuid());
@@ -171,16 +200,45 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions() {
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "foo", "bar");
+
     String result = newRequest().execute().getInput();
 
     assertJson(result)
       .withStrictArrayOrder()
       .ignoreFields("defaultTemplates", "permissionTemplates")
-      .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/display_all_project_permissions.json"));
-  }
-
-  private PermissionTemplateDto insertProjectTemplateOnDefaultOrganization() {
-    return insertProjectTemplate(db.getDefaultOrganization());
+      .isSimilarTo(
+        "{" +
+          "  \"permissions\": [" +
+          "    {" +
+          "      \"key\": \"admin\"," +
+          "      \"name\": \"Administer\"," +
+          "      \"description\": \"Ability to access project settings and perform administration tasks. (Users will also need \\\"Browse\\\" permission)\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"codeviewer\"," +
+          "      \"name\": \"See Source Code\"," +
+          "      \"description\": \"Ability to view the project\\u0027s source code. (Users will also need \\\"Browse\\\" permission)\"" +
+          "    }," +
+          "    {" +
+          "      \"key\": \"issueadmin\"," +
+          "      \"name\": \"Administer Issues\"," +
+          "      \"description\": \"Grants the permission to perform advanced editing on issues: marking an issue False Positive / Won\\u0027t Fix or changing an Issue\\u0027s severity. (Users will also need \\\"Browse\\\" permission)\""
+          +
+          "    }," +
+          "    {" +
+          "      \"key\": \"scan\"," +
+          "      \"name\": \"Execute Analysis\"," +
+          "      \"description\": \"Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.\""
+          +
+          "    }," +
+          "    {" +
+          "      \"key\": \"user\"," +
+          "      \"name\": \"Browse\"," +
+          "      \"description\": \"Ability to access a project, browse its measures, and create/edit issues for it.\"" +
+          "    }" +
+          "  ]" +
+          "}");
   }
 
   private PermissionTemplateDto insertProjectTemplate(OrganizationDto org) {
@@ -194,9 +252,9 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
       .setUpdatedAt(new Date(1_000_000_000_000L)));
   }
 
-  private PermissionTemplateDto insertViewsTemplate() {
+  private PermissionTemplateDto insertViewsTemplate(OrganizationDto organization) {
     return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .setOrganizationUuid(organization.getUuid())
       .setUuid(UUID_EXAMPLE_02)
       .setName("Default template for Views")
       .setDescription("Template for new views")
@@ -205,35 +263,20 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
       .setUpdatedAt(new Date(1_100_000_000_000L)));
   }
 
-  private PermissionTemplateDto insertDeveloperTemplate() {
-    return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-      .setUuid(UUID_EXAMPLE_03)
-      .setName("Default template for Developers")
-      .setKeyPattern(".*sonar.developer.*")
-      .setDescription(null)
-      .setCreatedAt(new Date(1_100_500_000_000L))
-      .setUpdatedAt(new Date(1_100_900_000_000L)));
-  }
-
   private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(db.getSession(), template);
-  }
-
-  private GroupDto insertGroup(GroupDto groupDto) {
-    return dbClient.groupDao().insert(db.getSession(), groupDto);
-  }
-
-  private UserDto insertUser(UserDto userDto) {
-    return dbClient.userDao().insert(db.getSession(), userDto.setActive(true));
+    PermissionTemplateDto insert = dbClient.permissionTemplateDao().insert(db.getSession(), template);
+    db.getSession().commit();
+    return insert;
   }
 
   private void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
     dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateId, groupId, permission);
+    db.getSession().commit();
   }
 
   private void addUserToTemplate(long templateId, long userId, String permission) {
     dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateId, userId, permission);
+    db.getSession().commit();
   }
 
   private void addPermissionTemplateWithProjectCreator(long templateId, String permission) {
@@ -244,5 +287,9 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));
     db.commit();
+  }
+
+  private TestRequest newRequest(WsActionTester underTest) {
+    return underTest.newRequest().setMethod("POST");
   }
 }

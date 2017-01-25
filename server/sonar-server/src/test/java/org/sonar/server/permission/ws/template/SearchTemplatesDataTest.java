@@ -23,7 +23,6 @@ import com.google.common.collect.HashBasedTable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
@@ -33,7 +32,7 @@ public class SearchTemplatesDataTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   SearchTemplatesData.Builder underTest = SearchTemplatesData.builder()
-    .defaultTemplates(singletonList(new DefaultPermissionTemplateFinder.TemplateUuidQualifier("template_uuid", Qualifiers.PROJECT)))
+    .defaultTemplates(new DefaultTemplatesResolverImpl.ResolvedDefaultTemplates("template_uuid", null))
     .templates(singletonList(newPermissionTemplateDto()))
     .userCountByTemplateIdAndPermission(HashBasedTable.create())
     .groupCountByTemplateIdAndPermission(HashBasedTable.create())

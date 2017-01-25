@@ -34,22 +34,30 @@ public class DefaultTemplatesTest {
   @Test
   public void setProject_throws_NPE_if_argument_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project default template can't be null");
+    expectedException.expectMessage("defaultTemplates.project can't be null");
 
-    underTest.setProject(null);
+    underTest.setProjectUuid(null);
+  }
+
+  @Test
+  public void getProject_throws_NPE_if_project_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("defaultTemplates.project can't be null");
+
+    underTest.getProjectUuid();
   }
 
   @Test
   public void setView_accepts_null() {
-    underTest.setView(null);
+    underTest.setViewUuid(null);
   }
 
   @Test
   public void check_toString() {
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{project='null', view='null'}");
+    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', viewUuid='null'}");
     underTest
-        .setProject("a project")
-        .setView("a view");
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{project='a project', view='a view'}");
+        .setProjectUuid("a project")
+        .setViewUuid("a view");
+    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='a project', viewUuid='a view'}");
   }
 }

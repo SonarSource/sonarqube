@@ -14,8 +14,8 @@
   </sql>
 
   <sql id="defaultTemplatesColumns">
-    org.default_perm_template_project as "project",
-    org.default_perm_template_view as "view"
+    org.default_perm_template_project as "projectUuid",
+    org.default_perm_template_view as "viewUuid"
   </sql>
   
   <select id="selectByUuid" resultType="Organization">
@@ -139,8 +139,8 @@
   <update id="updateDefaultTemplates">
     update organizations
     set
-      default_perm_template_project = #{defaultTemplates.project, jdbcType=VARCHAR},
-      default_perm_template_view = #{defaultTemplates.view, jdbcType=VARCHAR},
+      default_perm_template_project = #{defaultTemplates.projectUuid, jdbcType=VARCHAR},
+      default_perm_template_view = #{defaultTemplates.viewUuid, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{organizationUuid, jdbcType=VARCHAR}

@@ -26,7 +26,6 @@ import org.sonar.server.permission.ws.template.AddUserToTemplateAction;
 import org.sonar.server.permission.ws.template.ApplyTemplateAction;
 import org.sonar.server.permission.ws.template.BulkApplyTemplateAction;
 import org.sonar.server.permission.ws.template.CreateTemplateAction;
-import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
 import org.sonar.server.permission.ws.template.DeleteTemplateAction;
 import org.sonar.server.permission.ws.template.RemoveGroupFromTemplateAction;
 import org.sonar.server.permission.ws.template.RemoveProjectCreatorFromTemplateAction;
@@ -70,7 +69,6 @@ public class PermissionsWsModule extends Module {
       // utility classes
       SearchProjectPermissionsDataLoader.class,
       SearchTemplatesDataLoader.class,
-      PermissionWsSupport.class,
-      DefaultPermissionTemplateFinder.class);
+      PermissionWsSupport.class);
   }
 }

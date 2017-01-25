@@ -19,126 +19,375 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.Collections;
-import java.util.Date;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.permission.ws.BasePermissionWsTest;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.permission.ws.PermissionWsSupport;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
-import static com.google.common.primitives.Longs.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.util.collections.Sets.newSet;
+import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
-public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplateAction> {
+public class DeleteTemplateActionTest {
 
-  private DefaultPermissionTemplateFinder defaultTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
-  private PermissionTemplateDto template;
+  @Rule
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Override
-  protected DeleteTemplateAction buildWsAction() {
-    return new DeleteTemplateAction(db.getDbClient(), userSession, newPermissionWsSupport(), defaultTemplatePermissionFinder);
-  }
+  private UserSessionRule userSession = UserSessionRule.standalone();
+  private DbClient dbClient = db.getDbClient();
+  private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
+  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(resourceTypes);
+  private DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
+
+  private WsActionTester underTestWithoutViews;
+  private WsActionTester underTestWithViews;
 
   @Before
-  public void setUp() {
-    loginAsAdminOnDefaultOrganization();
-    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.emptySet());
-    template = insertTemplateAndAssociatedPermissions();
+  public void setUp() throws Exception {
+    GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db));
+    this.underTestWithoutViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), groupWsSupport, resourceTypes),
+      defaultTemplatesResolver));
+    this.underTestWithViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), groupWsSupport, resourceTypesWithViews),
+      defaultTemplatesResolverWithViews));
   }
 
   @Test
   public void delete_template_in_db() throws Exception {
-    TestResponse result = newRequest(template.getUuid());
+    runOnAllUnderTests((underTest) -> {
+      OrganizationDto organization = db.organizations().insert();
+      PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+      db.organizations().setDefaultTemplates(organization, "foo", "bar");
+      loginAsAdmin(organization);
 
-    assertThat(result.getInput()).isEmpty();
-    assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
+      TestResponse result = newRequestByUuid(underTest, template.getUuid());
+
+      assertThat(result.getInput()).isEmpty();
+      assertTemplateDoesNotExist(template);
+    });
   }
 
   @Test
   public void delete_template_by_name_case_insensitive() throws Exception {
-    newRequest()
-      .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
-      .execute();
+    runOnAllUnderTests((underTest) -> {
+      OrganizationDto organization = db.organizations().insert();
+      db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+      PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+      loginAsAdmin(organization);
+      newRequestByName(underTest, organization, template);
 
-    assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
+      assertTemplateDoesNotExist(template);
+    });
   }
 
   @Test
-  public void fail_if_uuid_is_not_known() throws Exception {
+  public void delete_template_by_name_returns_empty_when_no_organization_is_provided_and_templates_does_not_belong_to_default_organization() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    loginAsAdmin(organization);
+
+    runOnAllUnderTests((underTest) -> {
+      try {
+        newRequestByName(underTest, null, template);
+        fail("NotFoundException should have been raised");
+      } catch (NotFoundException e) {
+        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive)");
+      }
+    });
+  }
+
+  @Test
+  public void delete_template_by_name_returns_empty_when_wrong_organization_is_provided() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    loginAsAdmin(organization);
+
+    runOnAllUnderTests((underTest) -> {
+      try {
+        newRequestByName(underTest, otherOrganization, template);
+        fail("NotFoundException should have been raised");
+      } catch (NotFoundException e) {
+        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive)");
+      }
+    });
+  }
+
+  @Test
+  public void fail_if_uuid_is_not_known_without_views() throws Exception {
+    userSession.login();
+
     expectedException.expect(NotFoundException.class);
 
-    newRequest("unknown-template-uuid");
+    newRequestByUuid(underTestWithoutViews, "unknown-template-uuid");
   }
 
   @Test
-  public void fail_if_template_is_default() throws Exception {
-    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(template.getUuid()));
+  public void fail_if_uuid_is_not_known_with_views() throws Exception {
+    userSession.login();
+
+    expectedException.expect(NotFoundException.class);
+
+    newRequestByUuid(underTestWithViews, "unknown-template-uuid");
+  }
+
+  @Test
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_without_views() throws Exception {
+    fail_to_delete_by_uuid_if_template_is_default_template_for_project(this.underTestWithoutViews);
+  }
+
+  @Test
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_project_with_views() throws Exception {
+    fail_to_delete_by_uuid_if_template_is_default_template_for_project(this.underTestWithViews);
+  }
+
+  private void fail_to_delete_by_uuid_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(organization, template.getUuid(), "view def template uuid");
+    loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete a default template");
+    expectedException.expectMessage("It is not possible to delete the default permission template for projects");
 
-    newRequest(template.getUuid());
+    newRequestByUuid(underTest, template.getUuid());
   }
 
   @Test
-  public void fail_if_not_logged_in() throws Exception {
+  public void fail_to_delete_by_name_if_template_is_default_template_for_project_without_views() throws Exception {
+    fail_to_delete_by_name_if_template_is_default_template_for_project(this.underTestWithoutViews);
+  }
+
+  @Test
+  public void fail_to_delete_by_name_if_template_is_default_template_for_project_with_views() throws Exception {
+    fail_to_delete_by_name_if_template_is_default_template_for_project(this.underTestWithViews);
+  }
+
+  private void fail_to_delete_by_name_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(organization, template.getUuid(), "view def template uuid");
+    loginAsAdmin(organization);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("It is not possible to delete the default permission template for projects");
+
+    newRequestByName(underTest, organization.getKey(), template.getName());
+  }
+
+  @Test
+  public void fail_to_delete_by_uuid_if_template_is_default_template_for_view_with_views() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(organization, "project def template uuid", template.getUuid());
+    loginAsAdmin(organization);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("It is not possible to delete the default permission template for views");
+
+    newRequestByUuid(this.underTestWithViews, template.getUuid());
+  }
+
+  @Test
+  public void default_template_for_views_can_be_deleted_by_uuid_if_views_is_not_installed_and_default_template_for_views_is_reset() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(organization, "project def template uuid", template.getUuid());
+    loginAsAdmin(organization);
+
+    newRequestByUuid(this.underTestWithoutViews, template.getUuid());
+
+    assertTemplateDoesNotExist(template);
+
+    assertThat(db.getDbClient().organizationDao().getDefaultTemplates(db.getSession(), organization.getUuid())
+      .get().getViewUuid())
+        .isNull();
+  }
+
+  @Test
+  public void fail_to_delete_by_uuid_if_not_logged_in_without_views() throws Exception {
     expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
 
-    newRequest(template.getUuid());
+    newRequestByUuid(underTestWithoutViews, "uuid");
   }
 
   @Test
-  public void fail_if_not_admin() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_logged_in_with_views() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+
+    newRequestByUuid(underTestWithViews, "uuid");
+  }
+
+  @Test
+  public void fail_to_delete_by_name_if_not_logged_in_without_views() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+
+    newRequestByName(underTestWithoutViews, "whatever", "name");
+  }
+
+  @Test
+  public void fail_to_delete_by_name_if_not_logged_in_with_views() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+
+    newRequestByName(underTestWithViews, "whatever", "name");
+  }
+
+  @Test
+  public void fail_to_delete_by_uuid_if_not_admin_without_views() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    userSession.login();
+
     expectedException.expect(ForbiddenException.class);
-    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(template.getUuid());
+    newRequestByUuid(underTestWithoutViews, template.getUuid());
   }
 
   @Test
-  public void fail_if_uuid_is_not_provided() throws Exception {
+  public void fail_to_delete_by_uuid_if_not_admin_with_views() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequestByUuid(underTestWithViews, template.getUuid());
+  }
+
+  @Test
+  public void fail_to_delete_by_name_if_not_admin_without_views() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequestByName(underTestWithoutViews, organization.getKey(), template.getName());
+  }
+
+  @Test
+  public void fail_to_delete_by_name_if_not_admin_with_views() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(PermissionTemplateTesting.newPermissionTemplateDto()
+      .setOrganizationUuid(organization.getUuid())
+      .setName("the name"));
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+
+    newRequestByName(underTestWithViews, organization, template);
+  }
+
+  @Test
+  public void fail_if_neither_uuid_nor_name_is_provided_without_views() throws Exception {
+    userSession.login();
+
     expectedException.expect(BadRequestException.class);
 
-    newRequest(null);
+    newRequestByUuid(underTestWithoutViews, null);
   }
 
   @Test
-  public void delete_perm_tpl_characteristic_when_delete_template() throws Exception {
-    db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(), new PermissionTemplateCharacteristicDto()
-      .setPermission(UserRole.USER)
-      .setTemplateId(template.getId())
-      .setWithProjectCreator(true)
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime()));
-    db.commit();
+  public void fail_if_neither_uuid_nor_name_is_provided_with_views() throws Exception {
+    userSession.login();
 
-    newRequest(template.getUuid());
+    expectedException.expect(BadRequestException.class);
 
-    assertThat(db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(db.getSession(), asList(template.getId()))).isEmpty();
+    newRequestByUuid(underTestWithViews, null);
   }
 
-  private PermissionTemplateDto insertTemplateAndAssociatedPermissions() {
-    PermissionTemplateDto dto = addTemplateToDefaultOrganization();
+  @Test
+  public void fail_if_both_uuid_and_name_are_provided_without_views() throws Exception {
+    userSession.login();
+
+    expectedException.expect(BadRequestException.class);
+
+    underTestWithoutViews.newRequest().setMethod("POST")
+      .setParam(PARAM_TEMPLATE_ID, "uuid")
+      .setParam(PARAM_TEMPLATE_NAME, "name")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_both_uuid_and_name_are_provided_with_views() throws Exception {
+    userSession.login();
+
+    expectedException.expect(BadRequestException.class);
+
+    underTestWithViews.newRequest().setMethod("POST")
+      .setParam(PARAM_TEMPLATE_ID, "uuid")
+      .setParam(PARAM_TEMPLATE_NAME, "name")
+      .execute();
+  }
+
+  // @Test
+  // public void delete_perm_tpl_characteristic_when_delete_template() throws Exception {
+  // db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(), new PermissionTemplateCharacteristicDto()
+  // .setPermission(UserRole.USER)
+  // .setTemplateId(template.getId())
+  // .setWithProjectCreator(true)
+  // .setCreatedAt(new Date().getTime())
+  // .setUpdatedAt(new Date().getTime()));
+  // db.commit();
+  //
+  // newRequest(template.getUuid());
+  //
+  // assertThat(db.getDbClient().permissionTemplateCharacteristicDao().selectByTemplateIds(db.getSession(),
+  // asList(template.getId()))).isEmpty();
+  // }
+
+  private UserSessionRule loginAsAdmin(OrganizationDto organization) {
+    return userSession.login().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+  }
+
+  private void runOnAllUnderTests(ConsumerWithException<WsActionTester> consumer) throws Exception {
+    for (WsActionTester underTest : Arrays.asList(underTestWithoutViews, underTestWithViews)) {
+      consumer.accept(underTest);
+    }
+  }
+
+  private interface ConsumerWithException<T> {
+    void accept(T e) throws Exception;
+  }
+
+  private PermissionTemplateDto insertTemplateAndAssociatedPermissions(OrganizationDto organization) {
+    PermissionTemplateDto dto = db.permissionTemplates().insertTemplate(organization);
     UserDto user = db.getDbClient().userDao().insert(db.getSession(), UserTesting.newUserDto().setActive(true));
     GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), GroupTesting.newGroupDto());
     db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getId(), user.getId(), UserRole.ADMIN);
@@ -147,13 +396,36 @@ public class DeleteTemplateActionTest extends BasePermissionWsTest<DeleteTemplat
     return dto;
   }
 
-  private TestResponse newRequest(@Nullable String id) throws Exception {
-    TestRequest request = newRequest();
+  private TestResponse newRequestByUuid(WsActionTester actionTester, @Nullable String id) throws Exception {
+    TestRequest request = actionTester.newRequest().setMethod("POST");
     if (id != null) {
       request.setParam(PARAM_TEMPLATE_ID, id);
     }
+    return request.execute();
+  }
+
+  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable OrganizationDto organizationDto, @Nullable PermissionTemplateDto permissionTemplateDto)
+    throws Exception {
+    return newRequestByName(
+      actionTester,
+      organizationDto == null ? null : organizationDto.getKey(),
+      permissionTemplateDto == null ? null : permissionTemplateDto.getName());
+  }
+
+  private TestResponse newRequestByName(WsActionTester actionTester, @Nullable String organizationKey, @Nullable String name) throws Exception {
+    TestRequest request = actionTester.newRequest().setMethod("POST");
+    if (organizationKey != null) {
+      request.setParam(PARAM_ORGANIZATION_KEY, organizationKey);
+    }
+    if (name != null) {
+      request.setParam(PARAM_TEMPLATE_NAME, name);
+    }
 
     return request.execute();
+  }
+
+  private void assertTemplateDoesNotExist(PermissionTemplateDto template) {
+    assertThat(db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), template.getUuid())).isNull();
   }
 
 }

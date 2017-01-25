@@ -73,7 +73,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   }
 
   protected ResourceTypesRule newRootResourceTypes() {
-    return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
+    return new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);
   }
 
   protected PermissionUpdater newPermissionUpdater() {
@@ -110,11 +110,15 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     return db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), db.getDefaultOrganization().getUuid(), name);
   }
 
-  protected PermissionTemplateDto addTemplateToDefaultOrganization() {
+  protected PermissionTemplateDto addTemplate(OrganizationDto organizationDto) {
     PermissionTemplateDto dto = newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid());
+      .setOrganizationUuid(organizationDto.getUuid());
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
+  }
+
+  protected PermissionTemplateDto addTemplateToDefaultOrganization() {
+    return addTemplate(db.getDefaultOrganization());
   }
 }

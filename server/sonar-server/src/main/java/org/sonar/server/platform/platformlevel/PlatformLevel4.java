@@ -93,6 +93,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerLogging;
@@ -349,6 +350,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UserGroupsModule.class,
 
       // permissions
+      DefaultTemplatesResolverImpl.class,
       PermissionsWsModule.class,
       PermissionTemplateService.class,
       PermissionUpdater.class,

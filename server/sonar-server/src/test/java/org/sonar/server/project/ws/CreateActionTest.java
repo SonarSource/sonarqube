@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -50,6 +49,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -79,30 +79,25 @@ public class CreateActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
-
-  private Settings settings = new MapSettings();
+  @Rule
+  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
   private PermissionTemplateDto permissionTemplateDto;
 
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2,
-        new PermissionTemplateService(db.getDbClient(), settings, new PermissionIndexer(db.getDbClient(), es.client()), userSession),
+        new PermissionTemplateService(db.getDbClient(), new PermissionIndexer(db.getDbClient(), es.client()), userSession, defaultTemplatesResolver),
         new FavoriteUpdater(db.getDbClient()),
         new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
         new ComponentIndexer(db.getDbClient(), es.client())),
@@ -111,7 +106,7 @@ public class CreateActionTest {
   @Before
   public void setUp() throws Exception {
     permissionTemplateDto = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    setTemplateAsDefault(permissionTemplateDto);
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), permissionTemplateDto.getUuid(), null);
   }
 
   @Test
@@ -313,10 +308,6 @@ public class CreateActionTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
-  }
-
-  private void setTemplateAsDefault(PermissionTemplateDto permissionTemplateDto) {
-    settings.appendProperty("sonar.permission.template.default", permissionTemplateDto.getUuid());
   }
 
 }

@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +47,7 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -75,26 +75,23 @@ public class ComponentUpdaterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = new EsTester(
     new ComponentIndexDefinition(new MapSettings()),
     new ProjectMeasuresIndexDefinition(new MapSettings()),
     new IssueIndexDefinition(new MapSettings()),
     new ViewIndexDefinition(new MapSettings()));
-
   @Rule
   public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
-
-  private Settings settings = new MapSettings();
+  @Rule
+  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
 
   private PermissionTemplateDto permissionTemplateDto;
 
   ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
-    new PermissionTemplateService(db.getDbClient(), settings, new PermissionIndexer(db.getDbClient(), es.client()), null),
+    new PermissionTemplateService(db.getDbClient(),  new PermissionIndexer(db.getDbClient(), es.client()), null, defaultTemplatesResolver),
     new FavoriteUpdater(db.getDbClient()),
     new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
     new ComponentIndexer(db.getDbClient(), es.client()));
@@ -102,7 +99,7 @@ public class ComponentUpdaterTest {
   @Before
   public void setUp() throws Exception {
     permissionTemplateDto = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    setTemplateAsDefault(permissionTemplateDto);
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), permissionTemplateDto.getUuid(), null);
   }
 
   @Test
@@ -305,6 +302,8 @@ public class ComponentUpdaterTest {
 
   @Test
   public void create_view() {
+    defaultTemplatesResolver.installGovernance();
+
     ComponentDto view = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey("view-key")
@@ -322,10 +321,6 @@ public class ComponentUpdaterTest {
     assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isEmpty();
     assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isEmpty();
     assertThat(es.getIds(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEmpty();
-  }
-
-  private void setTemplateAsDefault(PermissionTemplateDto permissionTemplateDto) {
-    settings.appendProperty("sonar.permission.template.default", permissionTemplateDto.getUuid());
   }
 
 }

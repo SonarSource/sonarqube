@@ -25,35 +25,39 @@ import javax.annotation.Nullable;
 import static java.util.Objects.requireNonNull;
 
 public class DefaultTemplates {
-  private String project;
-  private String view;
+  private String projectUuid;
+  private String viewUuid;
 
-  @CheckForNull
-  public String getProject() {
-    return project;
+  public String getProjectUuid() {
+    checkProjectNotNull(this.projectUuid);
+    return this.projectUuid;
   }
 
-  public DefaultTemplates setProject(String project) {
-    requireNonNull(project, "project default template can't be null");
-    this.project = project;
+  public DefaultTemplates setProjectUuid(String projectUuid) {
+    checkProjectNotNull(projectUuid);
+    this.projectUuid = projectUuid;
     return this;
   }
 
-  @CheckForNull
-  public String getView() {
-    return view;
+  private static void checkProjectNotNull(String project) {
+    requireNonNull(project, "defaultTemplates.project can't be null");
   }
 
-  public DefaultTemplates setView(@Nullable String view) {
-    this.view = view;
+  @CheckForNull
+  public String getViewUuid() {
+    return viewUuid;
+  }
+
+  public DefaultTemplates setViewUuid(@Nullable String viewUuid) {
+    this.viewUuid = viewUuid;
     return this;
   }
 
   @Override
   public String toString() {
     return "DefaultTemplates{" +
-      "project='" + project + '\'' +
-      ", view='" + view + '\'' +
+      "projectUuid='" + projectUuid + '\'' +
+      ", viewUuid='" + viewUuid + '\'' +
       '}';
   }
 }

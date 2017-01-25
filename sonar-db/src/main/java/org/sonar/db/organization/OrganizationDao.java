@@ -115,6 +115,6 @@ public class OrganizationDao implements Dao {
 
   private static void checkDefaultTemplates(DefaultTemplates defaultTemplates) {
     requireNonNull(defaultTemplates, "defaultTemplates can't be null");
-    requireNonNull(defaultTemplates.getProject(), "defaultTemplates.project can't be null");
+    requireNonNull(defaultTemplates.getProjectUuid());
   }
 }

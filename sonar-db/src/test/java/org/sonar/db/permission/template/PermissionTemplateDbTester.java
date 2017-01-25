@@ -25,6 +25,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateCharacteristicDto;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
@@ -55,9 +57,21 @@ public class PermissionTemplateDbTester {
     return templateInDb;
   }
 
+  public void addGroupToTemplate(PermissionTemplateDto permissionTemplate, GroupDto group, String permission) {
+    addGroupToTemplate(permissionTemplate.getId(), group.getId(), permission);
+  }
+
   public void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateId, groupId, permission);
     db.commit();
+  }
+
+  public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
+    addGroupToTemplate(permissionTemplate.getId(), null, permission);
+  }
+
+  public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, String permission) {
+    addUserToTemplate(permissionTemplate.getId(), user.getId(), permission);
   }
 
   public void addUserToTemplate(long templateId, long userId, String permission) {

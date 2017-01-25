@@ -21,14 +21,13 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -39,126 +38,125 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class PermissionTemplateServiceTest {
 
-  private static final OrganizationDto ORGANIZATION = newOrganizationDto().setUuid("org1");
-  private static final ComponentDto PROJECT = newProjectDto(ORGANIZATION).setId(123L).setUuid("THE_PROJECT_UUID");
-  private static final long NOW = 123456789L;
-
   @Rule
   public ExpectedException throwable = ExpectedException.none();
-
-  private System2 system2 = mock(System2.class);
-
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(new AlwaysIncreasingSystem2());
+  @Rule
+  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withGovernance();
 
   private UserSessionRule userSession = UserSessionRule.standalone();
   private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
   private Settings settings = new MapSettings();
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), settings,
-    permissionIndexer, userSession);
-
-  @Before
-  public void setUp() {
-    when(system2.now()).thenReturn(NOW);
-  }
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), permissionIndexer, userSession, defaultTemplatesResolver);
 
   @Test
   public void apply_permission_template() {
-    dbTester.prepareDbUnit(getClass(), "should_apply_permission_template.xml");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(organization);
+    GroupDto adminGroup = dbTester.users().insertGroup(organization);
+    GroupDto userGroup = dbTester.users().insertGroup(organization);
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertPermissionOnGroup(adminGroup, "admin");
+    dbTester.users().insertPermissionOnGroup(userGroup, "user");
+    dbTester.users().insertPermissionOnUser(organization, user, "admin");
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, adminGroup, "admin");
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, adminGroup, "issueadmin");
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, "user");
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, userGroup, "codeviewer");
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "user");
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "codeviewer");
+    dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "admin");
 
-    assertThat(selectProjectPermissionsOfGroup("org1", 100L, PROJECT)).isEmpty();
-    assertThat(selectProjectPermissionsOfGroup("org1", 101L, PROJECT)).isEmpty();
-    assertThat(selectProjectPermissionsOfGroup("org1", null, PROJECT)).isEmpty();
-    assertThat(selectProjectPermissionsOfUser(200L, PROJECT)).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup(organization, adminGroup, project)).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup(organization, userGroup, project)).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup(organization, null, project)).isEmpty();
+    assertThat(selectProjectPermissionsOfUser(user, project)).isEmpty();
 
-    PermissionTemplateDto template = dbTester.getDbClient().permissionTemplateDao().selectByUuid(session, "default_20130101_010203");
-    underTest.apply(session, template, singletonList(PROJECT));
+    underTest.apply(session, permissionTemplate, singletonList(project));
 
-    assertThat(selectProjectPermissionsOfGroup("org1", 100L, PROJECT)).containsOnly("admin", "issueadmin");
-    assertThat(selectProjectPermissionsOfGroup("org1", 101L, PROJECT)).containsOnly("user", "codeviewer");
-    assertThat(selectProjectPermissionsOfGroup("org1", null, PROJECT)).containsOnly("user", "codeviewer");
-    assertThat(selectProjectPermissionsOfUser(200L, PROJECT)).containsOnly("admin");
+    assertThat(selectProjectPermissionsOfGroup(organization, adminGroup, project)).containsOnly("admin", "issueadmin");
+    assertThat(selectProjectPermissionsOfGroup(organization, userGroup, project)).containsOnly("user", "codeviewer");
+    assertThat(selectProjectPermissionsOfGroup(organization, null, project)).containsOnly("user", "codeviewer");
+    assertThat(selectProjectPermissionsOfUser(user, project)).containsOnly("admin");
 
-    checkAuthorizationUpdatedAtIsUpdated();
+    checkAuthorizationUpdatedAtIsUpdated(project);
   }
 
-  private List<String> selectProjectPermissionsOfGroup(String organizationUuid, @Nullable Long groupId, ComponentDto project) {
+  private List<String> selectProjectPermissionsOfGroup(OrganizationDto organizationDto, @Nullable GroupDto groupDto, ComponentDto project) {
     return dbTester.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(session,
-      organizationUuid, groupId != null ? groupId : null, project.getId());
+      organizationDto.getUuid(), groupDto != null ? groupDto.getId() : null, project.getId());
   }
 
-  private List<String> selectProjectPermissionsOfUser(long userId, ComponentDto project) {
+  private List<String> selectProjectPermissionsOfUser(UserDto userDto, ComponentDto project) {
     return dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session,
-      userId, project.getId());
+      userDto.getId(), project.getId());
   }
 
   @Test
   public void would_user_have_permission_with_default_permission_template() {
+    OrganizationDto organization = dbTester.organizations().insert();
     UserDto user = dbTester.users().insertUser();
-    GroupDto group = dbTester.users().insertGroup(newGroupDto());
+    GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.users().insertMember(group, user);
-    PermissionTemplateDto template = templateDb.insertTemplate();
-    setDefaultTemplateUuid(template.getUuid());
+    PermissionTemplateDto template = templateDb.insertTemplate(organization);
+    dbTester.organizations().setDefaultTemplates(organization, template.getUuid(), null);
     templateDb.addProjectCreatorToTemplate(template.getId(), SCAN_EXECUTION);
     templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.USER);
     templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.CODEVIEWER);
     templateDb.addGroupToTemplate(template.getId(), null, UserRole.ISSUE_ADMIN);
 
     // authenticated user
-    checkWouldUserHavePermission(template.getOrganizationUuid(), user.getId(), UserRole.ADMIN, false);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), user.getId(), SCAN_EXECUTION, true);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), user.getId(), UserRole.USER, true);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), user.getId(), UserRole.CODEVIEWER, true);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), user.getId(), UserRole.ISSUE_ADMIN, true);
+    checkWouldUserHavePermission(organization, user.getId(), UserRole.ADMIN, false);
+    checkWouldUserHavePermission(organization, user.getId(), SCAN_EXECUTION, true);
+    checkWouldUserHavePermission(organization, user.getId(), UserRole.USER, true);
+    checkWouldUserHavePermission(organization, user.getId(), UserRole.CODEVIEWER, true);
+    checkWouldUserHavePermission(organization, user.getId(), UserRole.ISSUE_ADMIN, true);
 
     // anonymous user
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, UserRole.ADMIN, false);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, SCAN_EXECUTION, false);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, UserRole.USER, false);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, UserRole.CODEVIEWER, false);
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, UserRole.ISSUE_ADMIN, true);
+    checkWouldUserHavePermission(organization, null, UserRole.ADMIN, false);
+    checkWouldUserHavePermission(organization, null, SCAN_EXECUTION, false);
+    checkWouldUserHavePermission(organization, null, UserRole.USER, false);
+    checkWouldUserHavePermission(organization, null, UserRole.CODEVIEWER, false);
+    checkWouldUserHavePermission(organization, null, UserRole.ISSUE_ADMIN, true);
   }
 
   @Test
   public void would_user_have_permission_with_unknown_default_permission_template() {
-    setDefaultTemplateUuid("UNKNOWN_TEMPLATE_UUID");
+    dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), "UNKNOWN_TEMPLATE_UUID", null);
 
-    checkWouldUserHavePermission(dbTester.getDefaultOrganization().getUuid(), null, UserRole.ADMIN, false);
+    checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
   }
 
   @Test
   public void would_user_have_permission_with_empty_template() {
-    PermissionTemplateDto template = templateDb.insertTemplate();
-    setDefaultTemplateUuid(template.getUuid());
+    PermissionTemplateDto template = templateDb.insertTemplate(dbTester.getDefaultOrganization());
+    dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), template.getUuid(), null);
 
-    checkWouldUserHavePermission(template.getOrganizationUuid(), null, UserRole.ADMIN, false);
+    checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
   }
 
-  private void checkWouldUserHavePermission(String organizationUuid, @Nullable Long userId, String permission, boolean expectedResult) {
-    assertThat(underTest.wouldUserHavePermissionWithDefaultTemplate(session, organizationUuid, userId, permission, null, "PROJECT_KEY", Qualifiers.PROJECT)).isEqualTo(expectedResult);
+  private void checkWouldUserHavePermission(OrganizationDto organization, @Nullable Long userId, String permission, boolean expectedResult) {
+    assertThat(underTest.wouldUserHavePermissionWithDefaultTemplate(session, organization.getUuid(), userId, permission, null, "PROJECT_KEY", Qualifiers.PROJECT))
+      .isEqualTo(expectedResult);
   }
 
-  private void checkAuthorizationUpdatedAtIsUpdated() {
-    assertThat(dbTester.getDbClient().componentDao().selectOrFailById(session, PROJECT.getId()).getAuthorizationUpdatedAt()).isEqualTo(NOW);
-  }
-
-  private void setDefaultTemplateUuid(String templateUuid) {
-    settings.setProperty("sonar.permission.template.default", templateUuid);
+  private void checkAuthorizationUpdatedAtIsUpdated(ComponentDto project) {
+    assertThat(dbTester.getDbClient().componentDao().selectOrFailById(session, project.getId()).getAuthorizationUpdatedAt())
+      .isNotNull();
   }
 
 }

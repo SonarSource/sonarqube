@@ -102,6 +102,7 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -327,6 +328,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UserIndex.class,
 
       // permissions
+      DefaultTemplatesResolverImpl.class,
       PermissionTemplateService.class,
       PermissionUpdater.class,
       UserPermissionChanger.class,

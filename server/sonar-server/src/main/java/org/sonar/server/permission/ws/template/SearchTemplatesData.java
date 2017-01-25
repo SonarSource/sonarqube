@@ -22,7 +22,7 @@ package org.sonar.server.permission.ws.template;
 import com.google.common.collect.Table;
 import java.util.List;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
+import org.sonar.server.permission.ws.template.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -31,14 +31,14 @@ import static com.google.common.collect.ImmutableTable.copyOf;
 
 class SearchTemplatesData {
   private final List<PermissionTemplateDto> templates;
-  private final List<TemplateUuidQualifier> defaultTemplates;
+  private final ResolvedDefaultTemplates defaultTemplates;
   private final Table<Long, String, Integer> userCountByTemplateIdAndPermission;
   private final Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
   private final Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
 
   private SearchTemplatesData(Builder builder) {
     this.templates = copyOf(builder.templates);
-    this.defaultTemplates = copyOf(builder.defaultTemplates);
+    this.defaultTemplates = builder.defaultTemplates;
     this.userCountByTemplateIdAndPermission = copyOf(builder.userCountByTemplateIdAndPermission);
     this.groupCountByTemplateIdAndPermission = copyOf(builder.groupCountByTemplateIdAndPermission);
     this.withProjectCreatorByTemplateIdAndPermission = copyOf(builder.withProjectCreatorByTemplateIdAndPermission);
@@ -52,7 +52,7 @@ class SearchTemplatesData {
     return templates;
   }
 
-  public List<TemplateUuidQualifier> defaultTemplates() {
+  public ResolvedDefaultTemplates defaultTemplates() {
     return defaultTemplates;
   }
 
@@ -70,7 +70,7 @@ class SearchTemplatesData {
 
   public static class Builder {
     private List<PermissionTemplateDto> templates;
-    private List<TemplateUuidQualifier> defaultTemplates;
+    private ResolvedDefaultTemplates defaultTemplates;
     private Table<Long, String, Integer> userCountByTemplateIdAndPermission;
     private Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
     private Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
@@ -94,7 +94,7 @@ class SearchTemplatesData {
       return this;
     }
 
-    public Builder defaultTemplates(List<TemplateUuidQualifier> defaultTemplates) {
+    public Builder defaultTemplates(ResolvedDefaultTemplates defaultTemplates) {
       this.defaultTemplates = defaultTemplates;
       return this;
     }

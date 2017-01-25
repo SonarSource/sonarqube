@@ -460,7 +460,7 @@ public class OrganizationDaoTest {
   @Test
   public void getDefaultTemplates_returns_data_when_project_default_templates_column_is_not_null() {
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProject("foo"));
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid("foo"));
 
     verifyGetDefaultTemplates(ORGANIZATION_DTO_1, "foo", null);
   }
@@ -492,7 +492,7 @@ public class OrganizationDaoTest {
   @Test
   public void getDefaultTemplates_is_case_sensitive() {
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProject("foo").setView("bar"));
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar"));
 
     assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH)))
       .isEmpty();
@@ -503,7 +503,7 @@ public class OrganizationDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("uuid can't be null");
 
-    underTest.setDefaultTemplates(dbSession, null, new DefaultTemplates().setProject("p"));
+    underTest.setDefaultTemplates(dbSession, null, new DefaultTemplates().setProjectUuid("p"));
   }
 
   @Test
@@ -527,7 +527,7 @@ public class OrganizationDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("defaultTemplates.project can't be null");
 
-    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setView("foo"));
+    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setViewUuid("foo"));
   }
 
   @Test
@@ -731,7 +731,7 @@ public class OrganizationDaoTest {
   }
 
   private void setDefaultTemplate(OrganizationDto organizationDto1, @Nullable String project, @Nullable String view) {
-    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProject(project).setView(view));
+    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProjectUuid(project).setViewUuid(view));
     dbSession.commit();
   }
 
@@ -792,7 +792,7 @@ public class OrganizationDaoTest {
     Optional<DefaultTemplates> optional = underTest.getDefaultTemplates(dbSession, organizationDto.getUuid());
     assertThat(optional).isNotEmpty();
     DefaultTemplates defaultTemplates = optional.get();
-    assertThat(defaultTemplates.getProject()).isEqualTo(expectedProject);
-    assertThat(defaultTemplates.getView()).isEqualTo(expectedView);
+    assertThat(defaultTemplates.getProjectUuid()).isEqualTo(expectedProject);
+    assertThat(defaultTemplates.getViewUuid()).isEqualTo(expectedView);
   }
 }

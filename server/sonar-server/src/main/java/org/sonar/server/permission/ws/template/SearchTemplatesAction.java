@@ -21,6 +21,7 @@ package org.sonar.server.permission.ws.template;
 
 import java.util.Locale;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -107,12 +108,18 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private static void buildDefaultTemplatesResponse(SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     TemplateIdQualifier.Builder templateUuidQualifierBuilder = TemplateIdQualifier.newBuilder();
-    for (DefaultPermissionTemplateFinder.TemplateUuidQualifier templateUuidQualifier : data.defaultTemplates()) {
-      response.addDefaultTemplates(templateUuidQualifierBuilder
-        .clear()
-        .setQualifier(templateUuidQualifier.getQualifier())
-        .setTemplateId(templateUuidQualifier.getTemplateUuid()));
-    }
+
+    DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolvedDefaultTemplates = data.defaultTemplates();
+    response.addDefaultTemplates(templateUuidQualifierBuilder
+      .setQualifier(Qualifiers.PROJECT)
+      .setTemplateId(resolvedDefaultTemplates.getProject()));
+
+    resolvedDefaultTemplates.getView()
+      .ifPresent(viewDefaultTemplate -> response.addDefaultTemplates(
+        templateUuidQualifierBuilder
+          .clear()
+          .setQualifier(Qualifiers.VIEW)
+          .setTemplateId(viewDefaultTemplate)));
   }
 
   private static void buildTemplatesResponse(WsPermissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {

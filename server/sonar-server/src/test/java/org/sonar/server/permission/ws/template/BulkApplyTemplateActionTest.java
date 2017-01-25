@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws.template;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
@@ -40,7 +39,6 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -48,6 +46,9 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyTemplateAction> {
+
+  @org.junit.Rule
+  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
 
   private UserDto user1;
   private UserDto user2;
@@ -59,8 +60,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
-    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(), new MapSettings(),
-      issuePermissionIndexer, userSession);
+    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
+        issuePermissionIndexer, userSession, defaultTemplatesResolver);
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 
@@ -91,18 +92,16 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     OrganizationDto organization = db.getDefaultOrganization();
     ComponentDto project = db.components().insertComponent(newProjectDto(organization));
     ComponentDto view = db.components().insertComponent(newView(organization));
-    ComponentDto developer = db.components().insertComponent(newDeveloper(organization, "developer-name"));
-    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, developer);
-    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, developer);
-    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, developer);
-    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, developer);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, view);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, view);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, view);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, view);
     loginAsAdminOnDefaultOrganization();
 
     newRequest().setParam(PARAM_TEMPLATE_ID, template1.getUuid()).execute();
 
     assertTemplate1AppliedToProject(project);
     assertTemplate1AppliedToProject(view);
-    assertTemplate1AppliedToProject(developer);
   }
 
   @Test
