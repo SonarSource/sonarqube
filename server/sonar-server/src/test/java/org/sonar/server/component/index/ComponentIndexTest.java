@@ -373,6 +373,13 @@ public class ComponentIndexTest {
   }
 
   @Test
+  public void should_take_all_characters_into_account_when_doing_camel_case_search() {
+    assertNoFileMatches("MCooooooo", "MeasureCache.java");
+    assertFileMatches("MCo", "MigrationContainer.java");
+    assertNoFileMatches("MCooooooo", "MigrationContainer.java");
+  }
+
+  @Test
   public void should_respect_confidentiallity() {
     indexer.index(newProject("sonarqube", "Quality Product"));
 

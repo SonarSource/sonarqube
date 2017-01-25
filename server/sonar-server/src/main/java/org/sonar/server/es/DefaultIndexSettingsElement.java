@@ -201,12 +201,19 @@ public enum DefaultIndexSettingsElement {
       setArray(FILTER, TRIM);
     }
   },
-  CAMEL_CASE_ANALYZER(ANALYZER) {
+  INDEX_CAMEL_CASE_ANALYZER(ANALYZER) {
 
     @Override
     protected void setup() {
       set(TOKENIZER, CAMEL_CASE_TOKENIZER);
       setArray(FILTER, EDGE_NGRAM_FILTER);
+    }
+  },
+  SEARCH_CAMEL_CASE_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, CAMEL_CASE_TOKENIZER);
     }
 
     @Override

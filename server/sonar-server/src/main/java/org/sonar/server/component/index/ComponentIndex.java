@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -50,8 +51,8 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QU
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.es.DefaultIndexSettingsElement.CAMEL_CASE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_CAMEL_CASE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
@@ -108,12 +109,12 @@ public class ComponentIndex extends BaseIndex {
         boolQuery()
 
           // let PE find NullPointerException, but with a weak score
-          .should(matchPhraseQuery(CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText).boost(0.2f))
+          .should(matchPhraseQuery(SEARCH_CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText).boost(0.2f))
 
           // let NPE find NullPointerException
           .should(
             boolQuery()
-              .must(matchPhraseQuery(CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText))
+              .must(matchPhraseQuery(SEARCH_CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText))
               .must(prefixQuery(FIELD_NAME, StringUtils.left(queryText, 1))))
 
       )
