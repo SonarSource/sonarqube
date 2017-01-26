@@ -33,18 +33,6 @@
   border-top: 1px solid @barBorderColor;
 }
 
-.measures-duplex {
-  font-size: 0;
-  .justify;
-
-  .measures-list {
-    display: inline-block;
-    vertical-align: top;
-    width: 40%;
-    font-size: @baseFontSize;
-  }
-}
-
 .measures-chart {
   display: inline-block;
   vertical-align: middle;
@@ -55,10 +43,6 @@
   .rating {
     font-size: 32px;
   }
-}
-
-.measures-chart-indent {
-  padding-left: 90px;
 }
 
 .measure {
@@ -78,33 +62,6 @@
   color: @darkBlue;
   font-size: @bigFontSize;
   font-weight: 400;
-}
-
-.measure-bar {
-  display: inline-block;
-  width: 60px;
-}
-
-.measure-bar-inner {
-  display: block;
-  min-width: 1px;
-  height: 5px;
-  background-color: #c0c0c0;
-}
-.measure-bar-inner-BLOCKER {
-  background-color: @severityBlockerColor;
-}
-.measure-bar-inner-CRITICAL {
-  background-color: @severityCriticalColor;
-}
-.measure-bar-inner-MAJOR {
-  background-color: @severityMajorColor;
-}
-.measure-bar-inner-MINOR {
-  background-color: @severityMinorColor;
-}
-.measure-bar-inner-INFO {
-  background-color: @severityInfoColor;
 }
 
 .measure-big {
@@ -140,23 +97,5 @@
 
   .measure-value {
     float: right;
-  }
-}
-
-.measure-with-bar {
-  font-size: 0;
-
-  .measure-name {
-    width: 40%;
-  }
-
-  .measure-value {
-    width: 20%;
-  }
-
-  .measure-bar {
-    width: 30%;
-    padding: 7px 5px;
-    box-sizing: border-box;
   }
 }

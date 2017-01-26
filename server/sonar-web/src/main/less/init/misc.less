@@ -26,6 +26,7 @@
 .vertical-middle { vertical-align: middle; }
 
 .nowrap { white-space: nowrap; }
+table.nowrap td, td.nowrap, th.nowrap { white-space: nowrap; }
 
 .hidden {
   display: none !important;
@@ -35,6 +36,10 @@
 .note {
   color: @secondFontColor;
   font-size: @smallFontSize;
+
+  a {
+    color: @secondFontColor;
+  }
 }
 
 .spacer-left   { margin-left: 8px; }

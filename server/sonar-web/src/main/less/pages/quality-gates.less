@@ -19,7 +19,6 @@
  */
 @import (reference) "../variables";
 @import (reference) "../mixins";
-@import (reference) "../components/navigator/config";
 
 .quality-gates-side {
   background-color: @barBackgroundColor;
@@ -73,7 +72,7 @@
       border-color: transparent;
 
       &:hover:not(.active):not(.empty) {
-        background-color: @navigatorBarBackground;
+        background-color: @barBackgroundColor;
       }
 
       &.active {
@@ -102,7 +101,7 @@
 }
 
 .quality-gate-section-empty + .quality-gate-section {
-  border-top: 1px solid @navigatorBorderLightColor;
+  border-top: 1px solid @barBorderColor;
 }
 
 .quality-gate-section-name {
