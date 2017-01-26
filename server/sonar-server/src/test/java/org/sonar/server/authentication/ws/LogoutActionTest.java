@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -113,8 +112,7 @@ public class LogoutActionTest {
     executeRequest();
 
     verify(authenticationEvent).logoutFailure(request, "error!");
-    verify(jwtHttpHandler, never()).removeToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
-    verify(response).setStatus(401);
+    verify(jwtHttpHandler).removeToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
     verifyZeroInteractions(chain);
   }
 

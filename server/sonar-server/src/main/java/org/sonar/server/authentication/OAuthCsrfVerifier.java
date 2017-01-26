@@ -30,8 +30,8 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.sonar.server.authentication.CookieUtils.createCookie;
-import static org.sonar.server.authentication.CookieUtils.findCookie;
+import static org.sonar.server.authentication.Cookies.findCookie;
+import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuthCsrfVerifier {
@@ -42,7 +42,7 @@ public class OAuthCsrfVerifier {
     // Create a state token to prevent request forgery.
     // Store it in the session for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    response.addCookie(createCookie(CSRF_STATE_COOKIE, sha256Hex(state), true, -1, request));
+    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(sha256Hex(state)).setHttpOnly(true).setExpiry(-1).build());
     return state;
   }
 
@@ -54,7 +54,7 @@ public class OAuthCsrfVerifier {
     String hashInCookie = cookie.getValue();
 
     // remove cookie
-    response.addCookie(createCookie(CSRF_STATE_COOKIE, null, true, 0, request));
+    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(null).setHttpOnly(true).setExpiry(0).build());
 
     String stateInRequest = request.getParameter("state");
     if (isBlank(stateInRequest) || !sha256Hex(stateInRequest).equals(hashInCookie)) {

@@ -41,7 +41,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
-import static org.sonar.server.authentication.CookieUtils.findCookie;
+import static org.sonar.server.authentication.Cookies.findCookie;
+import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
 @ServerSide
 public class JwtHttpHandler {
@@ -167,7 +168,7 @@ public class JwtHttpHandler {
   }
 
   private static Cookie createCookie(HttpServletRequest request, String name, @Nullable String value, int expirationInSeconds) {
-    return CookieUtils.createCookie(name, value, true, expirationInSeconds, request);
+    return newCookieBuilder(request).setName(name).setValue(value).setHttpOnly(true).setExpiry(expirationInSeconds).build();
   }
 
   private Optional<UserDto> selectUserFromDb(String userLogin) {

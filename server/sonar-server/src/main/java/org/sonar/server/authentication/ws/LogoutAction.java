@@ -37,7 +37,6 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.ws.ServletFilterHandler;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.sonar.server.authentication.ws.AuthenticationWs.AUTHENTICATION_CONTROLLER;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
@@ -81,19 +80,21 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
   }
 
   private void logout(HttpServletRequest request, HttpServletResponse response) {
-    try {
-      generateAuthenticationEvent(request, response);
-      jwtHttpHandler.removeToken(request, response);
-    } catch (AuthenticationException e) {
-      response.setStatus(HTTP_UNAUTHORIZED);
-      authenticationEvent.logoutFailure(request, e.getMessage());
-    }
+    generateAuthenticationEvent(request, response);
+    jwtHttpHandler.removeToken(request, response);
   }
 
+  /**
+   * The generation of the authentication event should not prevent the removal of JWT cookie, that's why it's done in a separate method
+   */
   private void generateAuthenticationEvent(HttpServletRequest request, HttpServletResponse response) {
-    Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
-    String userLogin = token.isPresent() ? token.get().getUserDto().getLogin() : null;
-    authenticationEvent.logoutSuccess(request, userLogin);
+    try {
+      Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
+      String userLogin = token.isPresent() ? token.get().getUserDto().getLogin() : null;
+      authenticationEvent.logoutSuccess(request, userLogin);
+    } catch (AuthenticationException e) {
+      authenticationEvent.logoutFailure(request, e.getMessage());
+    }
   }
 
   @Override
