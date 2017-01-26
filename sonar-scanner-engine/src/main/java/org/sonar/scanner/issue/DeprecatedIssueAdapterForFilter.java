@@ -24,23 +24,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
+import org.sonar.scanner.ProjectAnalysisInfo;
 
 /**
  * @deprecated since 5.3
  */
 @Deprecated
 class DeprecatedIssueAdapterForFilter implements Issue {
-  private final Project project;
   private final org.sonar.scanner.protocol.output.ScannerReport.Issue rawIssue;
   private final String componentKey;
+  private DefaultInputModule module;
+  private ProjectAnalysisInfo projectAnalysisInfo;
 
-  DeprecatedIssueAdapterForFilter(Project project, org.sonar.scanner.protocol.output.ScannerReport.Issue rawIssue, String componentKey) {
-    this.project = project;
+  DeprecatedIssueAdapterForFilter(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, org.sonar.scanner.protocol.output.ScannerReport.Issue rawIssue,
+    String componentKey) {
+    this.module = (DefaultInputModule) module;
+    this.projectAnalysisInfo = projectAnalysisInfo;
     this.rawIssue = rawIssue;
     this.componentKey = componentKey;
   }
@@ -113,7 +119,7 @@ class DeprecatedIssueAdapterForFilter implements Issue {
 
   @Override
   public Date creationDate() {
-    return project.getAnalysisDate();
+    return projectAnalysisInfo.analysisDate();
   }
 
   @Override
@@ -169,7 +175,7 @@ class DeprecatedIssueAdapterForFilter implements Issue {
 
   @Override
   public String projectKey() {
-    return project.getEffectiveKey();
+    return module.definition().getKeyWithBranch();
   }
 
   @Override

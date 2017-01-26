@@ -20,41 +20,40 @@
 package org.sonar.api.resources;
 
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTest {
-
   @Test
-  public void effectiveKeyShouldEqualKey() {
-    assertThat(new Project("my:project").getEffectiveKey()).isEqualTo("my:project");
+  public void effectiveKeyShouldEqualKeyWithBranch() {
+
+    ProjectDefinition definition = ProjectDefinition.create()
+      .setKey("mykey")
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch");
+    assertThat(new Project(definition).getEffectiveKey()).isEqualTo("mykey:branch");
+    assertThat(new Project(definition).getKey()).isEqualTo("mykey");
   }
 
-  @Test
-  public void createFromMavenIds() {
-    Project project = Project.createFromMavenIds("my", "artifact");
-
-    assertThat(project.getKey()).isEqualTo("my:artifact");
-  }
-  
   @Test
   public void setNameWithBranch() {
-    Project project = new Project("key", "branch", "name");
+    ProjectDefinition definition = ProjectDefinition.create()
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch")
+      .setKey("key")
+      .setName("name");
+    Project project = new Project(definition);
     assertThat(project.getName()).isEqualTo("name branch");
     assertThat(project.getOriginalName()).isEqualTo("name branch");
-
-    project.setOriginalName("Project1");
-    assertThat(project.getOriginalName()).isEqualTo("Project1 branch");
   }
-  
+
   @Test
   public void setNameWithoutBranch() {
-    Project project = new Project("key", null, "name");
+    ProjectDefinition definition = ProjectDefinition.create()
+      .setKey("key")
+      .setName("name");
+    Project project = new Project(definition);
     assertThat(project.getName()).isEqualTo("name");
     assertThat(project.getOriginalName()).isEqualTo("name");
-
-    project.setOriginalName("Project1");
-    assertThat(project.getOriginalName()).isEqualTo("Project1");
   }
-
 }

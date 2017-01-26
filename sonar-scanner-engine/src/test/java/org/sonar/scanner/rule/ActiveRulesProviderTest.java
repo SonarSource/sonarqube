@@ -22,7 +22,6 @@ package org.sonar.scanner.rule;
 import com.google.common.collect.ImmutableList;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,7 +35,6 @@ import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;

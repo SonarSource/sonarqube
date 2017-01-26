@@ -20,12 +20,10 @@
 package org.sonar.scanner;
 
 import java.util.Date;
-import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 
@@ -34,29 +32,24 @@ import org.sonar.api.utils.System2;
  *
  */
 @ScannerSide
-public class ProjectConfigurator {
-
+public class ProjectAnalysisInfo implements Startable {
   private final System2 system2;
   private Settings settings;
 
-  public ProjectConfigurator(Settings settings, System2 system2) {
+  private Date analysisDate;
+  private String analysisVersion;
+
+  public ProjectAnalysisInfo(Settings settings, System2 system2) {
     this.settings = settings;
     this.system2 = system2;
   }
 
-  public Project create(ProjectDefinition definition) {
-    Project project = new Project(definition.getKey(), definition.getBranch(), definition.getName());
-    project.setDescription(StringUtils.defaultString(definition.getDescription()));
-    project.setOriginalName(definition.getOriginalName());
-    return project;
+  public Date analysisDate() {
+    return analysisDate;
   }
 
-  public ProjectConfigurator configure(Project project) {
-    Date analysisDate = loadAnalysisDate();
-    project
-      .setAnalysisDate(analysisDate)
-      .setAnalysisVersion(loadAnalysisVersion());
-    return this;
+  public String analysisVersion() {
+    return analysisVersion;
   }
 
   private Date loadAnalysisDate() {
@@ -77,5 +70,16 @@ public class ProjectConfigurator {
 
   private String loadAnalysisVersion() {
     return settings.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
+  }
+
+  @Override
+  public void start() {
+    this.analysisDate = loadAnalysisDate();
+    this.analysisVersion = loadAnalysisVersion();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 }

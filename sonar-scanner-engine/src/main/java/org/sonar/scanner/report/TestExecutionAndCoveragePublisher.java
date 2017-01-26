@@ -23,29 +23,31 @@ import com.google.common.collect.Iterables;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.StreamSupport;
+
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
 import org.sonar.scanner.deprecated.test.DefaultTestable;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.scanner.protocol.output.ScannerReport.Test;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static java.util.stream.Collectors.toList;
 
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache componentCache;
+  private final InputComponentStore componentStore;
   private final TestPlanBuilder testPlanBuilder;
 
-  public TestExecutionAndCoveragePublisher(BatchComponentCache resourceCache, TestPlanBuilder testPlanBuilder) {
-    this.componentCache = resourceCache;
+  public TestExecutionAndCoveragePublisher(InputComponentStore componentStore, TestPlanBuilder testPlanBuilder) {
+    this.componentStore = componentStore;
     this.testPlanBuilder = testPlanBuilder;
   }
 
@@ -54,8 +56,9 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     final ScannerReport.Test.Builder testBuilder = ScannerReport.Test.newBuilder();
     final ScannerReport.CoverageDetail.Builder builder = ScannerReport.CoverageDetail.newBuilder();
     final ScannerReport.CoverageDetail.CoveredFile.Builder coveredBuilder = ScannerReport.CoverageDetail.CoveredFile.newBuilder();
-    for (final BatchComponent component : componentCache.all()) {
-      final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component.inputComponent());
+    for (final InputComponent c : componentStore.all()) {
+      DefaultInputComponent component = (DefaultInputComponent) c;
+      final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component);
       if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
         continue;
       }
@@ -81,7 +84,8 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     builder.setTestName(testName);
     for (CoverageBlock block : testCase.coverageBlocks()) {
       coveredBuilder.clear();
-      coveredBuilder.setFileRef(componentCache.get(((DefaultTestable) block.testable()).inputFile().key()).batchId());
+      DefaultInputComponent c = (DefaultInputComponent) componentStore.getByKey(((DefaultTestable) block.testable()).inputFile().key());
+      coveredBuilder.setFileRef(c.batchId());
       for (int line : block.lines()) {
         coveredBuilder.addCoveredLine(line);
       }

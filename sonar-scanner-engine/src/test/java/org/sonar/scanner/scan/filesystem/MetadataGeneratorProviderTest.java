@@ -21,30 +21,17 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.scan.filesystem.PathResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class InputFileBuilderFactoryTest {
+public class MetadataGeneratorProviderTest {
   @Test
   public void create_builder() {
-    PathResolver pathResolver = new PathResolver();
-    LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
-    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
 
-    InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
-      statusDetectionFactory, new MapSettings(), new FileMetadata());
-    InputFileBuilder builder = factory.create(fs);
-
-    assertThat(builder.langDetection()).isNotNull();
-    assertThat(builder.statusDetection()).isNotNull();
-    assertThat(builder.pathResolver()).isSameAs(pathResolver);
-    assertThat(builder.fs()).isSameAs(fs);
-    assertThat(builder.moduleKey()).isEqualTo("struts");
+    MetadataGeneratorProvider factory = new MetadataGeneratorProvider();
+    assertThat(factory.provide(statusDetectionFactory, new FileMetadata())).isNotNull();
   }
 }

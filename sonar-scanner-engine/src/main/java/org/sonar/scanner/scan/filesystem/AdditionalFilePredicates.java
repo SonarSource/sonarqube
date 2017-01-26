@@ -21,7 +21,6 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.AbstractFilePredicate;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 /**
  * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
@@ -42,7 +41,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return key.equals(((DefaultInputFile) f).key());
+      return key.equals(f.key());
     }
   }
 

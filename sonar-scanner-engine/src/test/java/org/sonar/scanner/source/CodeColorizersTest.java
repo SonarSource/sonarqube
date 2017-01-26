@@ -29,8 +29,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -125,8 +125,9 @@ public class CodeColorizersTest {
     File htmlFile = new File(this.getClass().getResource("CodeColorizersTest/package.html").toURI());
     SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultHighlighting highlighting = new DefaultHighlighting(sensorStorage);
-    highlighting.onFile(new DefaultInputFile("FOO", "package.html")
-      .initMetadata(new FileMetadata().readMetadata(htmlFile, StandardCharsets.UTF_8)));
+    highlighting.onFile(new TestInputFileBuilder("FOO", "package.html")
+      .setMetadata(new FileMetadata().readMetadata(htmlFile, StandardCharsets.UTF_8))
+      .build());
 
     codeColorizers.toSyntaxHighlighting(htmlFile, StandardCharsets.UTF_8, "web", highlighting);
 

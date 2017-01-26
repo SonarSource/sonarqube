@@ -29,14 +29,15 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,22 +51,24 @@ public class MetadataPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ProjectDefinition projectDef;
-  private Project project;
+  private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
   private Settings settings;
   private ModuleQProfiles qProfiles;
+  private ProjectAnalysisInfo projectAnalysisInfo;
+  private InputModuleHierarchy inputModuleHierarchy;
 
   @Before
   public void prepare() {
     projectDef = ProjectDefinition.create().setKey("foo");
-    project = new Project("foo").setAnalysisDate(new Date(1234567L));
-    BatchComponentCache componentCache = new BatchComponentCache();
-    org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    componentCache.add(project, null);
-    componentCache.add(sampleFile, project);
+    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
+    projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
+    inputModuleHierarchy = mock(InputModuleHierarchy.class);
+    when(inputModuleHierarchy.root()).thenReturn(rootModule);
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
-    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), settings, qProfiles);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings, qProfiles);
   }
 
   @Test
@@ -101,8 +104,7 @@ public class MetadataPublisherTest {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     projectDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
-    project.setKey("foo:myBranch");
-    project.setEffectiveKey("foo:myBranch");
+    projectDef.setKey("foo");
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

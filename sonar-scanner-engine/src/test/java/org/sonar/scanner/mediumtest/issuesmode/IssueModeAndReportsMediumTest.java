@@ -253,6 +253,7 @@ public class IssueModeAndReportsMediumTest {
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .setIssueListener(issueListener)
+      .property("sonar.verbose", "true")
       .start();
 
     assertThat(result.trackedIssues()).hasSize(19);

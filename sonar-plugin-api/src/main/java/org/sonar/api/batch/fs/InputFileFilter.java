@@ -28,6 +28,7 @@ import org.sonar.api.batch.ScannerSide;
  */
 @ScannerSide
 @ExtensionPoint
+@FunctionalInterface
 public interface InputFileFilter {
 
   boolean accept(InputFile f);

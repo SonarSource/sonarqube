@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,11 +29,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.SourcePublisher;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,27 +40,25 @@ public class SourcePublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   private SourcePublisher publisher;
-
   private File sourceFile;
-
   private ScannerReportWriter writer;
-
-  private org.sonar.api.resources.File sampleFile;
+  private DefaultInputFile inputFile;
+  private InputComponentStore componentStore;
 
   @Before
   public void prepare() throws IOException {
-    Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    BatchComponentCache resourceCache = new BatchComponentCache();
-    sampleFile = org.sonar.api.resources.File.create("src/Foo.php");
-    sampleFile.setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
-    resourceCache.add(sampleFile, null).setInputComponent(
-      new DefaultInputFile("foo", "src/Foo.php").setLines(5).setModuleBaseDir(baseDir.toPath()).setCharset(StandardCharsets.ISO_8859_1));
-    publisher = new SourcePublisher(resourceCache);
+    inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+      .setLines(5)
+      .setModuleBaseDir(baseDir.toPath())
+      .setCharset(StandardCharsets.ISO_8859_1)
+      .build();
+    componentStore = new InputComponentStore();
+    componentStore.put(new DefaultInputModule("foo"));
+    componentStore.put(inputFile);
+    publisher = new SourcePublisher(componentStore);
     File outputDir = temp.newFolder();
     writer = new ScannerReportWriter(outputDir);
   }
@@ -73,7 +69,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(2);
+    File out = writer.getSourceFile(inputFile.batchId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("");
   }
 
@@ -83,18 +79,18 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(2);
+    File out = writer.getSourceFile(inputFile.batchId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
   }
 
   @Test
   public void publishTestSource() throws Exception {
     FileUtils.write(sourceFile, "1\n2\n3\n4\n", StandardCharsets.ISO_8859_1);
-    sampleFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
+    // sampleFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(2);
+    File out = writer.getSourceFile(inputFile.batchId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
   }
 
@@ -104,7 +100,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(2);
+    File out = writer.getSourceFile(inputFile.batchId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("1\n2\n3\n4\n5");
   }
 
@@ -114,7 +110,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(2);
+    File out = writer.getSourceFile(inputFile.batchId());
     assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("\n2\n3\n4\n5");
   }
 }

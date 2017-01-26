@@ -24,16 +24,16 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.scanner.DefaultProjectTree;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 @ScannerSide
 public class IssuesReportBuilder {
@@ -42,24 +42,25 @@ public class IssuesReportBuilder {
 
   private final IssueCache issueCache;
   private final Rules rules;
-  private final BatchComponentCache resourceCache;
-  private final DefaultProjectTree projectTree;
-  private final InputPathCache inputPathCache;
+  private final InputComponentStore inputComponentCache;
+  private final InputModuleHierarchy moduleHierarchy;
+  private final ProjectAnalysisInfo projectAnalysisInfo;
 
-  public IssuesReportBuilder(IssueCache issueCache, Rules rules, BatchComponentCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
+  public IssuesReportBuilder(IssueCache issueCache, Rules rules, ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy,
+    InputComponentStore inputComponentCache) {
     this.issueCache = issueCache;
     this.rules = rules;
-    this.resourceCache = resourceCache;
-    this.projectTree = projectTree;
-    this.inputPathCache = inputPathCache;
+    this.projectAnalysisInfo = projectAnalysisInfo;
+    this.moduleHierarchy = moduleHierarchy;
+    this.inputComponentCache = inputComponentCache;
   }
 
   public IssuesReport buildReport() {
-    Project project = projectTree.getRootProject();
+    DefaultInputModule project = moduleHierarchy.root();
     IssuesReport issuesReport = new IssuesReport();
-    issuesReport.setNoFile(!inputPathCache.allFiles().iterator().hasNext());
-    issuesReport.setTitle(project.getName());
-    issuesReport.setDate(project.getAnalysisDate());
+    issuesReport.setNoFile(!inputComponentCache.allFiles().iterator().hasNext());
+    issuesReport.setTitle(project.definition().getName());
+    issuesReport.setDate(projectAnalysisInfo.analysisDate());
 
     processIssues(issuesReport, issueCache.all());
 
@@ -70,7 +71,7 @@ public class IssuesReportBuilder {
     for (TrackedIssue issue : issues) {
       Rule rule = findRule(issue);
       RulePriority severity = RulePriority.valueOf(issue.severity());
-      BatchComponent resource = resourceCache.get(issue.componentKey());
+      InputComponent resource = inputComponentCache.getByKey(issue.componentKey());
       if (!validate(issue, rule, resource)) {
         continue;
       }
@@ -82,7 +83,7 @@ public class IssuesReportBuilder {
     }
   }
 
-  private static boolean validate(TrackedIssue issue, @Nullable Rule rule, @Nullable BatchComponent resource) {
+  private static boolean validate(TrackedIssue issue, @Nullable Rule rule, @Nullable InputComponent resource) {
     if (rule == null) {
       LOG.warn("Unknow rule for issue {}", issue);
       return false;

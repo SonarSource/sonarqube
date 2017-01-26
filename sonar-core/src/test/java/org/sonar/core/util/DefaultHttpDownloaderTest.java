@@ -29,6 +29,7 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -141,7 +142,7 @@ public class DefaultHttpDownloaderTest {
       public boolean matches(Object ex) {
         return
             // Java 8
-            ex instanceof NoRouteToHostException
+            ex instanceof NoRouteToHostException || ex instanceof SocketException
                 // Java 7 or before
             || ex instanceof SocketTimeoutException;
       }

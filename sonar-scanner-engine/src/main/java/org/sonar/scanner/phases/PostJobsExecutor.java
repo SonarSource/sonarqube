@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,17 +38,17 @@ public class PostJobsExecutor {
   private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
   private final ScannerExtensionDictionnary selector;
-  private final Project project;
+  private final DefaultInputModule module;
   private final EventBus eventBus;
 
-  public PostJobsExecutor(ScannerExtensionDictionnary selector, Project project, EventBus eventBus) {
+  public PostJobsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus) {
     this.selector = selector;
-    this.project = project;
+    this.module = module;
     this.eventBus = eventBus;
   }
 
   public void execute(SensorContext context) {
-    Collection<PostJob> postJobs = selector.select(PostJob.class, project, true, null);
+    Collection<PostJob> postJobs = selector.select(PostJob.class, module, true, null);
 
     eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), true));
     execute(context, postJobs);
@@ -57,6 +58,7 @@ public class PostJobsExecutor {
   private void execute(SensorContext context, Collection<PostJob> postJobs) {
     logPostJobs(postJobs);
 
+    Project project = new Project(module.definition());
     for (PostJob postJob : postJobs) {
       LOG.info("Executing post-job {}", ScannerUtils.describe(postJob));
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));

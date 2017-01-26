@@ -19,22 +19,39 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.InputFile;
+public class Metadata {
+  private final int lines;
+  private final int nonBlankLines;
+  private final String hash;
+  private final int[] originalLineOffsets;
+  private final int lastValidOffset;
 
-/**
- * @since 4.2
- */
-class StatusPredicate extends AbstractFilePredicate {
-
-  private final InputFile.Status status;
-
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
+  public Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {
+    this.lines = lines;
+    this.nonBlankLines = nonBlankLines;
+    this.hash = hash;
+    this.originalLineOffsets = originalLineOffsets;
+    this.lastValidOffset = lastValidOffset;
   }
 
-  @Override
-  public boolean apply(InputFile f) {
-    return status == f.status();
+  public int lines() {
+    return lines;
+  }
+
+  public int nonBlankLines() {
+    return nonBlankLines;
+  }
+
+  public String hash() {
+    return hash;
+  }
+
+  public int[] originalLineOffsets() {
+    return originalLineOffsets;
+  }
+
+  public int lastValidOffset() {
+    return lastValidOffset;
   }
 
 }

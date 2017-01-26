@@ -20,8 +20,8 @@
 package org.sonar.scanner.report;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,15 +30,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Project;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static java.util.Arrays.asList;
@@ -49,9 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MeasuresPublisherTest {
-
-  private static final String FILE_KEY = "foo:src/Foo.php";
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -61,18 +58,24 @@ public class MeasuresPublisherTest {
   private MeasureCache measureCache;
   private MeasuresPublisher publisher;
 
-  private org.sonar.api.resources.Resource sampleFile;
+  private InputComponentStore componentCache;
+  private File outputDir;
+  private ScannerReportWriter writer;
+  private DefaultInputFile inputFile;
+  private DefaultInputModule InputModule;
 
   @Before
-  public void prepare() {
-    Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    BatchComponentCache resourceCache = new BatchComponentCache();
-    sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey(FILE_KEY);
-    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
-    resourceCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", "src/Foo.php"));
+  public void prepare() throws IOException {
+    InputModule = new DefaultInputModule("foo");
+    inputFile = new TestInputFileBuilder("foo", "src/Foo.php").setPublish(true).build();
+    componentCache = new InputComponentStore();
+    componentCache.put(InputModule);
+    componentCache.put(inputFile);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byComponentKey(anyString())).thenReturn(Collections.<DefaultMeasure<?>>emptyList());
-    publisher = new MeasuresPublisher(resourceCache, measureCache, mock(TestPlanBuilder.class));
+    publisher = new MeasuresPublisher(componentCache, measureCache, mock(TestPlanBuilder.class));
+    outputDir = temp.newFolder();
+    writer = new ScannerReportWriter(outputDir);
   }
 
   @Test
@@ -82,17 +85,13 @@ public class MeasuresPublisherTest {
     // String value
     DefaultMeasure<String> stringMeasure = new DefaultMeasure<String>().forMetric(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
       .withValue("foo bar");
-    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(asList(measure, stringMeasure));
-
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    when(measureCache.byComponentKey(inputFile.key())).thenReturn(asList(measure, stringMeasure));
 
     publisher.publish(writer);
-
     ScannerReportReader reader = new ScannerReportReader(outputDir);
 
-    assertThat(reader.readComponentMeasures(1)).hasSize(0);
-    try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(2)) {
+    assertThat(reader.readComponentMeasures(InputModule.batchId())).hasSize(0);
+    try (CloseableIterator<ScannerReport.Measure> componentMeasures = reader.readComponentMeasures(inputFile.batchId())) {
       assertThat(componentMeasures).hasSize(2);
     }
   }
@@ -100,10 +99,7 @@ public class MeasuresPublisherTest {
   @Test
   public void fail_with_IAE_when_measure_has_no_value() throws Exception {
     DefaultMeasure<Integer> measure = new DefaultMeasure<Integer>().forMetric(CoreMetrics.LINES_TO_COVER);
-    when(measureCache.byComponentKey(FILE_KEY)).thenReturn(Collections.singletonList(measure));
-
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    when(measureCache.byComponentKey(inputFile.key())).thenReturn(Collections.singletonList(measure));
 
     try {
       publisher.publish(writer);

@@ -32,12 +32,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
@@ -52,7 +56,7 @@ public class DefaultFileSystem implements FileSystem {
   private Path workDir;
   private Charset encoding;
   protected final FilePredicates predicates;
-  private FilePredicate defaultPredicate;
+  private Predicate<InputFile> defaultPredicate;
 
   /**
    * Only for testing
@@ -107,7 +111,7 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  public DefaultFileSystem setDefaultPredicate(@Nullable FilePredicate predicate) {
+  public DefaultFileSystem setDefaultPredicate(@Nullable Predicate<InputFile> predicate) {
     this.defaultPredicate = predicate;
     return this;
   }
@@ -155,11 +159,12 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    FilePredicate combinedPredicate = predicate;
+    Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
     if (defaultPredicate != null) {
-      combinedPredicate = predicates().and(defaultPredicate, predicate);
+      return StreamSupport.stream(iterable.spliterator(), false)
+        .filter(defaultPredicate::test)::iterator;
     }
-    return OptimizedFilePredicateAdapter.create(combinedPredicate).get(cache);
+    return iterable;
   }
 
   @Override
@@ -183,15 +188,7 @@ public class DefaultFileSystem implements FileSystem {
     return cache.inputDir(relativePath);
   }
 
-  /**
-   * Adds InputFile to the list and registers its language, if present.
-   * Synchronized because PersistIt Exchange is not concurrent
-   */
-  public synchronized DefaultFileSystem add(DefaultInputFile inputFile) {
-    if (this.baseDir == null) {
-      throw new IllegalStateException("Please set basedir on filesystem before adding files");
-    }
-    inputFile.setModuleBaseDir(this.baseDir);
+  public DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
     String language = inputFile.language();
     if (language != null) {
@@ -200,22 +197,19 @@ public class DefaultFileSystem implements FileSystem {
     return this;
   }
 
-  /**
-   * Adds InputDir to the list.
-   * Synchronized because PersistIt Exchange is not concurrent
-   */
-  public synchronized DefaultFileSystem add(DefaultInputDir inputDir) {
-    if (this.baseDir == null) {
-      throw new IllegalStateException("Please set basedir on filesystem before adding dirs");
-    }
-    inputDir.setModuleBaseDir(this.baseDir);
+  public DefaultFileSystem add(DefaultInputDir inputDir) {
     cache.add(inputDir);
+    return this;
+  }
+  
+  public DefaultFileSystem add(InputModule inputModule) {
+    cache.add(inputModule);
     return this;
   }
 
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
-   * using {@link #add(DefaultInputFile)}.
+   * using {@link #add(InputFile)}.
    */
   public DefaultFileSystem addLanguages(String language, String... others) {
     languages.add(language);
@@ -247,12 +241,18 @@ public class DefaultFileSystem implements FileSystem {
 
     protected abstract void doAdd(InputDir inputDir);
 
+    protected abstract void doAdd(InputModule inputModule);
+
     final void add(InputFile inputFile) {
       doAdd(inputFile);
     }
 
     public void add(InputDir inputDir) {
       doAdd(inputDir);
+    }
+
+    public void add(InputModule inputModule) {
+      doAdd(inputModule);
     }
 
   }
@@ -263,6 +263,7 @@ public class DefaultFileSystem implements FileSystem {
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<>();
     private final Map<String, InputDir> dirMap = new HashMap<>();
+    private InputModule module;
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -280,6 +281,11 @@ public class DefaultFileSystem implements FileSystem {
     }
 
     @Override
+    public InputModule module() {
+      return module;
+    }
+
+    @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
     }
@@ -287,6 +293,11 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected void doAdd(InputDir inputDir) {
       dirMap.put(inputDir.relativePath(), inputDir);
+    }
+
+    @Override
+    protected void doAdd(InputModule inputModule) {
+      module = inputModule;
     }
   }
 

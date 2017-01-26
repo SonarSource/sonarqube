@@ -185,7 +185,7 @@ public class ScmMediumTest {
     ScannerReport.Changesets fileWithoutBlameScm = getChangesets(baseDir, "src/sample_no_blame.xoo");
     assertThat(fileWithoutBlameScm).isNull();
 
-    assertThat(logTester.logs()).containsSubsequence("2 files to be analyzed", "1/2 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
+    assertThat(logTester.logs()).containsSubsequence("3 files to be analyzed", "1/3 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
       "  * " + PathUtils.sanitize(xooFileWithoutBlame.toPath().toString()));
   }
 
@@ -242,7 +242,9 @@ public class ScmMediumTest {
 
     assertThat(getChangesets(baseDir, NO_BLAME_SCM_ON_SERVER_XOO)).isNull();
 
-    assertThat(logTester.logs()).containsSubsequence("4 files to be analyzed", "3/4 files analyzed");
+    // 5 .xoo files + 3 .scm files. 1 file is SAME so not included in the total
+    assertThat(logTester.logs()).containsSubsequence("8 files indexed");
+    assertThat(logTester.logs()).containsSubsequence("7 files to be analyzed", "3/7 files analyzed");
     assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * " + noBlameScmOnServer.getPath().replaceAll("\\\\", "/"));
   }
 

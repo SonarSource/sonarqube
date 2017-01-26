@@ -36,20 +36,21 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,37 +66,43 @@ public class JSONReportTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   JSONReport jsonReport;
-  Resource resource = mock(Resource.class);
   DefaultFileSystem fs;
   Server server = mock(Server.class);
   Rules rules = mock(Rules.class);
   Settings settings = new MapSettings();
   IssueCache issueCache = mock(IssueCache.class);
   private UserRepositoryLoader userRepository;
+  private InputModuleHierarchy moduleHierarchy;
 
   @Before
   public void before() throws Exception {
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    userRepository = mock(UserRepositoryLoader.class);
     fs = new DefaultFileSystem(temp.newFolder().toPath());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
-    when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
-    userRepository = mock(UserRepositoryLoader.class);
-    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
-    DefaultInputFile inputFile = new DefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
+
+    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts", TestInputFileBuilder.nextBatchId());
+    DefaultInputFile inputFile = new TestInputFileBuilder("struts", "src/main/java/org/apache/struts/Action.java").build();
     inputFile.setStatus(InputFile.Status.CHANGED);
-    InputPathCache fileCache = mock(InputPathCache.class);
+    InputComponentStore fileCache = mock(InputComponentStore.class);
     when(fileCache.allFiles()).thenReturn(Arrays.<InputFile>asList(inputFile));
     when(fileCache.allDirs()).thenReturn(Arrays.<InputDir>asList(inputDir));
-    Project rootModule = new Project("struts");
-    Project moduleA = new Project("struts-core");
-    moduleA.setParent(rootModule).setPath("core");
-    Project moduleB = new Project("struts-ui");
-    moduleB.setParent(rootModule).setPath("ui");
+
+    DefaultInputModule rootModule = new DefaultInputModule("struts");
+    DefaultInputModule moduleA = new DefaultInputModule("struts-core");
+    DefaultInputModule moduleB = new DefaultInputModule("struts-ui");
+
+    when(moduleHierarchy.children(rootModule)).thenReturn(Arrays.asList(moduleA, moduleB));
+    when(moduleHierarchy.parent(moduleA)).thenReturn(rootModule);
+    when(moduleHierarchy.parent(moduleB)).thenReturn(rootModule);
+    when(moduleHierarchy.relativePath(moduleA)).thenReturn("core");
+    when(moduleHierarchy.relativePath(moduleB)).thenReturn("ui");
 
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles");
     rules = builder.build();
-    jsonReport = new JSONReport(settings, fs, server, rules, issueCache, rootModule, fileCache, userRepository);
+    jsonReport = new JSONReport(moduleHierarchy, settings, fs, server, rules, issueCache, rootModule, fileCache, userRepository);
   }
 
   @Test

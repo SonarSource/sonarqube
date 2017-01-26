@@ -23,7 +23,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
@@ -44,7 +43,7 @@ public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
   public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
       InputFile path = (InputFile) component;
-      return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage, analysisMode);
+      return new DefaultSymbolizable(path, sensorStorage, analysisMode);
     }
     return null;
   }
