@@ -65,9 +65,7 @@ export const fetchProject = key => dispatch => (
           if (component.organization != null) {
             dispatch(fetchOrganizations([component.organization]));
           }
-        },
-        onFail(dispatch)
-    )
+        })
 );
 
 export const doLogin = (login, password) => dispatch => (
