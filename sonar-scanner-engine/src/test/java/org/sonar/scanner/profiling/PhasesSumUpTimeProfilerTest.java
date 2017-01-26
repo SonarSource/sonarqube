@@ -19,23 +19,21 @@
  */
 package org.sonar.scanner.profiling;
 
-import com.google.common.collect.Maps;
-import java.util.Arrays;
-import java.util.Collections;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
@@ -50,13 +48,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepEvent;
-import org.sonar.scanner.profiling.AbstractTimeProfiling;
-import org.sonar.scanner.profiling.Phase;
-import org.sonar.scanner.profiling.PhasesSumUpTimeProfiler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Maps;
 
 public class PhasesSumUpTimeProfilerTest {
 
@@ -78,7 +71,6 @@ public class PhasesSumUpTimeProfilerTest {
   public void testSimpleProject() throws InterruptedException {
 
     final Project project = mockProject("my:project", true);
-    when(project.getModules()).thenReturn(Collections.<Project>emptyList());
 
     fakeAnalysis(profiler, project);
 
@@ -93,7 +85,9 @@ public class PhasesSumUpTimeProfilerTest {
     final Project project = mockProject("project root", true);
     final Project moduleA = mockProject("moduleA", false);
     final Project moduleB = mockProject("moduleB", false);
-    when(project.getModules()).thenReturn(Arrays.asList(moduleA, moduleB));
+
+    project.definition().addSubProject(moduleA.definition());
+    project.definition().addSubProject(moduleA.definition());
 
     fakeAnalysis(profiler, moduleA);
     fakeAnalysis(profiler, moduleB);
@@ -140,10 +134,7 @@ public class PhasesSumUpTimeProfilerTest {
   }
 
   private Project mockProject(String name, boolean isRoot) {
-    final Project project = spy(new Project("myProject"));
-    when(project.isRoot()).thenReturn(isRoot);
-    when(project.getName()).thenReturn(name);
-    return project;
+    return new Project(ProjectDefinition.create().setName(name).setKey(name));
   }
 
   private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) {
@@ -244,26 +235,6 @@ public class PhasesSumUpTimeProfilerTest {
     };
   }
 
-  private DecoratorExecutionHandler.DecoratorExecutionEvent decoratorEvent(final Decorator decorator, final boolean start) {
-    return new DecoratorExecutionHandler.DecoratorExecutionEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public Decorator getDecorator() {
-        return decorator;
-      }
-    };
-  }
-
   private PostJobExecutionHandler.PostJobExecutionEvent postJobEvent(final PostJob postJob, final boolean start) {
     return new PostJobExecutionHandler.PostJobExecutionEvent() {
 
@@ -339,26 +310,6 @@ public class PhasesSumUpTimeProfilerTest {
 
       @Override
       public List<PostJob> getPostJobs() {
-        return null;
-      }
-    };
-  }
-
-  private DecoratorsPhaseHandler.DecoratorsPhaseEvent decoratorsEvent(final boolean start) {
-    return new DecoratorsPhaseHandler.DecoratorsPhaseEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public List<Decorator> getDecorators() {
         return null;
       }
     };

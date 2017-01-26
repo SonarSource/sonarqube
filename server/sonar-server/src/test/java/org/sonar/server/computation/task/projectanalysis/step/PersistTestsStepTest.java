@@ -35,10 +35,10 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,8 +87,8 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE_UUID").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
-        ReportComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
+        ReportComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
+        ReportComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null, 1)).build(),
         ReportComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
         ReportComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()).build())
       .build();

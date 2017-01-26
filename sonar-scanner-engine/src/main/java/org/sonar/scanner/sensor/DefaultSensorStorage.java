@@ -55,7 +55,6 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -143,7 +142,6 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MetricFinder metricFinder;
   private final ModuleIssues moduleIssues;
   private final CoverageExclusions coverageExclusions;
-  private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
@@ -157,14 +155,13 @@ public class DefaultSensorStorage implements SensorStorage {
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings,
-    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher,
+    CoverageExclusions coverageExclusions, ReportPublisher reportPublisher,
     MeasureCache measureCache, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.settings = settings;
     this.coverageExclusions = coverageExclusions;
-    this.componentCache = componentCache;
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
     this.index = index;
@@ -207,6 +204,9 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Measure newMeasure) {
+    if (newMeasure.inputComponent() instanceof DefaultInputFile) {
+      ((DefaultInputFile) newMeasure.inputComponent()).setPublish(true);
+    }
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
@@ -347,6 +347,9 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Issue issue) {
+    if (issue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
+      ((DefaultInputFile) issue.primaryLocation().inputComponent()).setPublish(true);
+    }
     moduleIssues.initAndAddIssue(issue);
   }
 
@@ -354,7 +357,8 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
-    int componentRef = componentCache.get(inputFile).batchId();
+    inputFile.setPublish(true);
+    int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save highlighting twice for the same file is not supported: " + inputFile.absolutePath());
     }
@@ -377,7 +381,9 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultSymbolTable symbolTable) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    int componentRef = componentCache.get(symbolTable.inputFile()).batchId();
+    DefaultInputFile inputFile = (DefaultInputFile) symbolTable.inputFile();
+    inputFile.setPublish(true);
+    int componentRef = inputFile.batchId();
     if (writer.hasComponentData(FileStructure.Domain.SYMBOLS, componentRef)) {
       throw new UnsupportedOperationException("Trying to save symbol table twice for the same file is not supported: " + symbolTable.inputFile().absolutePath());
     }
@@ -407,31 +413,34 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(DefaultCoverage defaultCoverage) {
-    if (coverageExclusions.isExcluded(defaultCoverage.inputFile())) {
+    DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
+    inputFile.setPublish(true);
+    if (coverageExclusions.isExcluded(inputFile)) {
       return;
     }
     if (defaultCoverage.linesToCover() > 0) {
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), UNCOVERED_LINES,
+      saveCoverageMetricInternal(inputFile, LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));
+      saveCoverageMetricInternal(inputFile, UNCOVERED_LINES,
         new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue(defaultCoverage.linesToCover() - defaultCoverage.coveredLines()));
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), COVERAGE_LINE_HITS_DATA,
+      saveCoverageMetricInternal(inputFile, COVERAGE_LINE_HITS_DATA,
         new DefaultMeasure<String>().forMetric(COVERAGE_LINE_HITS_DATA).withValue(KeyValueFormat.format(defaultCoverage.hitsByLine())));
     }
     if (defaultCoverage.conditions() > 0) {
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), CONDITIONS_TO_COVER,
+      saveCoverageMetricInternal(inputFile, CONDITIONS_TO_COVER,
         new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(defaultCoverage.conditions()));
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), UNCOVERED_CONDITIONS,
+      saveCoverageMetricInternal(inputFile, UNCOVERED_CONDITIONS,
         new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS).withValue(defaultCoverage.conditions() - defaultCoverage.coveredConditions()));
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), COVERED_CONDITIONS_BY_LINE,
+      saveCoverageMetricInternal(inputFile, COVERED_CONDITIONS_BY_LINE,
         new DefaultMeasure<String>().forMetric(COVERED_CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
-      saveCoverageMetricInternal(defaultCoverage.inputFile(), CONDITIONS_BY_LINE,
+      saveCoverageMetricInternal(inputFile, CONDITIONS_BY_LINE,
         new DefaultMeasure<String>().forMetric(CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
     }
   }
 
   @Override
   public void store(DefaultCpdTokens defaultCpdTokens) {
-    InputFile inputFile = defaultCpdTokens.inputFile();
+    DefaultInputFile inputFile = (DefaultInputFile) defaultCpdTokens.inputFile();
+    inputFile.setPublish(true);
     PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
     List<Block> blocks = blockChunker.chunk(inputFile.key(), defaultCpdTokens.getTokenLines());
     index.insert(inputFile, blocks);
@@ -448,6 +457,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(AnalysisError analysisError) {
+    ((DefaultInputFile) analysisError.inputFile()).setPublish(true);
     // no op
   }
 

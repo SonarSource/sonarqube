@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor;
 import java.io.Serializable;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -156,5 +157,12 @@ public interface SensorContext {
    * @since 6.1
    */
   void addContextProperty(String key, String value);
+
+  /**
+   * Indicate that a file should be published in the report sent to SonarQube.
+   * Files are automatically marked if any data is created for it (issues, highlighting, coverage, etc.).
+   * @since 6.3
+   */
+  void markForPublishing(InputFile inputFile);
 
 }

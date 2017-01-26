@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.SortedMap;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -35,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
-  private DefaultInputFile inputFile;
+  private InputFile inputFile;
   private CoverageType type;
   private int totalCoveredLines = 0;
   private int totalConditions = 0;
@@ -54,7 +53,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public DefaultCoverage onFile(InputFile inputFile) {
-    this.inputFile = (DefaultInputFile) inputFile;
+    this.inputFile = inputFile;
     return this;
   }
 

@@ -36,6 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.Duplicate;
@@ -458,7 +459,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private void initBasicReport(int numberOfLines) {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("MODULE_KEY:src/Foo.java").build())
+        ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("MODULE_KEY:src/Foo.java")
+          .setFileAttributes(new FileAttributes(false, null, numberOfLines)).build())
         .build())
       .build());
 
@@ -475,6 +477,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(ComponentType.FILE)
+      .setLines(numberOfLines)
       .build());
 
     for (int i = 1; i <= numberOfLines; i++) {

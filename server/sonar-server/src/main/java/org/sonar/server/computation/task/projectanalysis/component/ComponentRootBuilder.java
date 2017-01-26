@@ -30,6 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.toArray;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToNull;
@@ -189,9 +190,11 @@ public class ComponentRootBuilder {
       return null;
     }
 
+    checkArgument(component.getLines() > 0, "File '%s' has no line", component.getPath());
     return new FileAttributes(
       component.getIsTest(),
-      trimToNull(component.getLanguage()));
+      trimToNull(component.getLanguage()),
+      component.getLines());
   }
 
   @VisibleForTesting

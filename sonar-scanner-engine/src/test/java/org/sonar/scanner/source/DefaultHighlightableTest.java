@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.scanner.source.DefaultHighlightable;
@@ -41,8 +42,9 @@ public class DefaultHighlightableTest {
   @Test
   public void should_store_highlighting_rules() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
-      .initMetadata("azerty\nbla bla");
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
+      .initMetadata("azerty\nbla bla")
+      .build();
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(inputFile, sensorStorage, mock(AnalysisMode.class));
     highlightablePerspective.newHighlighting().highlight(0, 6, "k").highlight(7, 10, "cppd").done();
 

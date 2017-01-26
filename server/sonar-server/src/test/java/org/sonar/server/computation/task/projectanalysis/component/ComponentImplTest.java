@@ -105,7 +105,7 @@ public class ComponentImplTest {
 
   @Test
   public void isUnitTest_returns_true_if_IsTest_is_set_in_BatchComponent() {
-    ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(true, null)).build();
+    ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(true, null, 1)).build();
 
     assertThat(component.getFileAttributes().isUnitTest()).isTrue();
   }
@@ -113,7 +113,7 @@ public class ComponentImplTest {
   @Test
   public void isUnitTest_returns_value_of_language_of_BatchComponent() {
     String languageKey = "some language key";
-    ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(false, languageKey)).build();
+    ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(false, languageKey, 1)).build();
 
     assertThat(component.getFileAttributes().getLanguageKey()).isEqualTo(languageKey);
   }

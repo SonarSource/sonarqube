@@ -26,13 +26,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
+
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.scanner.index.BatchComponent;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 public final class ResourceReport {
-  private final BatchComponent resource;
+  private final InputComponent component;
   private final IssueVariation total = new IssueVariation();
   private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
 
@@ -42,24 +48,41 @@ public final class ResourceReport {
   private Map<Rule, AtomicInteger> issuesByRule = Maps.newHashMap();
   private Map<RulePriority, AtomicInteger> issuesBySeverity = Maps.newHashMap();
 
-  public ResourceReport(BatchComponent resource) {
-    this.resource = resource;
+  public ResourceReport(InputComponent component) {
+    this.component = component;
   }
 
-  public BatchComponent getResourceNode() {
-    return resource;
+  public InputComponent getResourceNode() {
+    return component;
   }
 
   public String getName() {
-    return resource.resource().getName();
+    if (component instanceof InputPath) {
+      InputPath inputPath = (InputPath) component;
+      return inputPath.path().getFileName().toString();
+    } else if (component instanceof InputModule) {
+      DefaultInputModule module = (DefaultInputModule) component;
+      return module.definition().getName();
+    }
+    throw new IllegalStateException("Unknown component type: " + component.getClass());
   }
 
   public String getKey() {
-    return resource.inputComponent().key();
+    return component.key();
   }
 
+  /**
+   * Must match one of the png in the resources, under org/scanner/scan/report/issuesreport_files
+   */
   public String getType() {
-    return resource.resource().getScope();
+    if (component instanceof InputFile) {
+      return "FIL";
+    } else if (component instanceof InputDir) {
+      return "DIR";
+    } else if (component instanceof InputModule) {
+      return "PRJ";
+    }
+    throw new IllegalStateException("Unknown component type: " + component.getClass());
   }
 
   public IssueVariation getTotal() {

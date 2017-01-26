@@ -20,11 +20,10 @@
 package org.sonar.core.metric;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
@@ -49,7 +48,6 @@ import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC;
-import static org.sonar.api.measures.CoreMetrics.LINES;
 import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
@@ -64,6 +62,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
+import static org.sonar.core.util.stream.Collectors.toSet;
 
 /**
  * This class is used to know the list of metrics that can be sent in the analysis report.
@@ -74,8 +73,7 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 @ScannerSide
 public class ScannerMetrics {
 
-  private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.<Metric>of(
-    LINES,
+  private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.of(
     GENERATED_LINES,
     NCLOC,
     NCLOC_DATA,
@@ -123,17 +121,16 @@ public class ScannerMetrics {
   }
 
   public ScannerMetrics(Metrics[] metricsRepositories) {
-    this.metrics = ImmutableSet.copyOf(Iterables.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS));
+    this.metrics = Stream.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS.stream()).collect(toSet());
   }
 
   public Set<Metric> getMetrics() {
     return metrics;
   }
 
-  private static Iterable<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
+  private static Stream<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
     return Arrays.stream(metricsRepositories)
       .map(Metrics::getMetrics)
-      .flatMap(List::stream)
-      .collect(Collectors.toList());
+      .flatMap(List::stream);
   }
 }

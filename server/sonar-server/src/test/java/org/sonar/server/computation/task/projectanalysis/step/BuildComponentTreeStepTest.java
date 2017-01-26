@@ -338,7 +338,8 @@ public class BuildComponentTreeStepTest {
   private static ScannerReport.Component component(int componentRef, ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder()
       .setType(componentType)
-      .setRef(componentRef);
+      .setRef(componentRef)
+      .setLines(1);
     if (key != null) {
       builder.setKey(key);
     }

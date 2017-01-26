@@ -61,7 +61,8 @@ public class MultiLanguageTest {
     SonarScanner build = SonarScanner.create().setProjectDir(ItUtils.projectDir("analysis/xoo-multi-languages"));
     BuildResult result = orchestrator.executeBuild(build);
 
-    assertThat(result.getLogs()).contains("2 files indexed");
+    // 4 files: 1 .xoo, 1.xoo2, 2 .measures
+    assertThat(result.getLogs()).contains("4 files indexed");
     assertThat(result.getLogs()).contains("Quality profile for xoo: one-issue-per-line");
     assertThat(result.getLogs()).contains("Quality profile for xoo2: one-issue-per-line-xoo2");
 

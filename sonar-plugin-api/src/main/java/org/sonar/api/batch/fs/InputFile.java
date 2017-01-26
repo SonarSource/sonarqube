@@ -41,7 +41,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
  *
  * @since 4.2
  */
-public interface InputFile extends InputPath {
+public interface InputFile extends IndexedFile, InputPath {
 
   enum Type {
     MAIN, TEST
@@ -100,11 +100,13 @@ public interface InputFile extends InputPath {
    * Language, for example "java" or "php". Can be null if indexation of all files is enabled and no language claims to support the file.
    */
   @CheckForNull
+  @Override
   String language();
 
   /**
    * Does it contain main or test code ?
    */
+  @Override
   Type type();
 
   /**
@@ -113,6 +115,7 @@ public interface InputFile extends InputPath {
    * Note that there is a default implementation.
    * @since 6.2
    */
+  @Override
   default InputStream inputStream() throws IOException {
     return Files.newInputStream(path());
   }

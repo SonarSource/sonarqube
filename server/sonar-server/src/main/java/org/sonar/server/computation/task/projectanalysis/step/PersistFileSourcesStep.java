@@ -118,12 +118,10 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      int fileRef = file.getReportAttributes().getRef();
-      ScannerReport.Component component = reportReader.readComponent(fileRef);
       CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file);
       try {
-        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
+        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), file.getFileAttributes().getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChange());
       } catch (Exception e) {

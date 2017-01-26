@@ -27,5 +27,4 @@ import org.sonar.api.batch.sensor.SensorContext;
  * @since 5.2
  */
 public interface InputModule extends InputComponent {
-
 }

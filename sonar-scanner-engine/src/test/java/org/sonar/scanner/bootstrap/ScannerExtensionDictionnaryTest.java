@@ -34,6 +34,7 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.platform.ComponentContainer;
@@ -54,7 +55,8 @@ public class ScannerExtensionDictionnaryTest {
     for (Object extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new ScannerExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+    return new ScannerExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class),
+      mock(PostJobContext.class),
       mock(PostJobOptimizer.class));
   }
 
@@ -102,7 +104,8 @@ public class ScannerExtensionDictionnaryTest {
     ComponentContainer child = parent.createChild();
     child.addSingleton(c);
 
-    ScannerExtensionDictionnary dictionnary = new ScannerExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+    ScannerExtensionDictionnary dictionnary = new ScannerExtensionDictionnary(child, mock(DefaultSensorContext.class),
+      mock(SensorOptimizer.class), mock(PostJobContext.class),
       mock(PostJobOptimizer.class));
     assertThat(dictionnary.select(Sensor.class, null, true, null)).containsOnly(a, b, c);
   }
@@ -235,7 +238,7 @@ public class ScannerExtensionDictionnaryTest {
     BatchExtension ko = new CheckProjectKO();
 
     ScannerExtensionDictionnary selector = newSelector(ok, ko);
-    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, new Project("key"), true, null));
+    List<BatchExtension> extensions = Lists.newArrayList(selector.select(BatchExtension.class, new DefaultInputModule("foo"), true, null));
 
     assertThat(extensions).hasSize(1);
     assertThat(extensions.get(0)).isInstanceOf(CheckProjectOK.class);

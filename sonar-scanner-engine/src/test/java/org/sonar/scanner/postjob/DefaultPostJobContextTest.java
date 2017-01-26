@@ -23,15 +23,14 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.resources.File;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class DefaultPostJobContextTest {
 
   private IssueCache issueCache;
-  private BatchComponentCache resourceCache;
+  private InputComponentStore componentStore;
   private DefaultPostJobContext context;
   private Settings settings;
   private AnalysisMode analysisMode;
@@ -48,10 +47,10 @@ public class DefaultPostJobContextTest {
   @Before
   public void prepare() {
     issueCache = mock(IssueCache.class);
-    resourceCache = new BatchComponentCache();
+    componentStore = new InputComponentStore();
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
-    context = new DefaultPostJobContext(settings, issueCache, resourceCache, analysisMode);
+    context = new DefaultPostJobContext(settings, issueCache, componentStore, analysisMode);
   }
 
   @Test
@@ -79,9 +78,8 @@ public class DefaultPostJobContextTest {
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.inputComponent()).isNull();
 
-    InputFile inputPath = mock(InputFile.class);
-    resourceCache.add(File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php"), null).setInputComponent(inputPath);
-    assertThat(issue.inputComponent()).isEqualTo(inputPath);
+    componentStore.put(new TestInputFileBuilder("foo", "src/Foo.php").build());
+    assertThat(issue.inputComponent()).isNotNull();
 
   }
 }

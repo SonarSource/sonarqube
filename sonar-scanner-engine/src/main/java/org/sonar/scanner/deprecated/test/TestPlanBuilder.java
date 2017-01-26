@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.scanner.deprecated.perspectives.PerspectiveBuilder;
 
@@ -40,8 +41,9 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
   @Override
   public MutableTestPlan loadPerspective(Class<MutableTestPlan> perspectiveClass, InputComponent component) {
     if (component.isFile()) {
-      InputFile inputFile = (InputFile) component;
+      DefaultInputFile inputFile = (DefaultInputFile) component;
       if (inputFile.type() == Type.TEST) {
+        inputFile.setPublish(true);
         if (!testPlanByFile.containsKey(inputFile)) {
           testPlanByFile.put(inputFile, new DefaultTestPlan());
         }
