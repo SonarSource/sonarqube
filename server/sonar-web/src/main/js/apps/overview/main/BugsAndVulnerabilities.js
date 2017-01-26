@@ -63,7 +63,10 @@ class BugsAndVulnerabilities extends React.Component {
           <div className="overview-domain-measures">
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.props.renderIssues('new_bugs', 'BUG')}
+                <span style={{ marginLeft: 30 }}>
+                  {this.props.renderIssues('new_bugs', 'BUG')}
+                </span>
+                {this.props.renderRating('new_reliability_rating')}
               </div>
               <div className="overview-domain-measure-label">
                 <span className="little-spacer-right"><BugIcon/></span>
@@ -73,7 +76,10 @@ class BugsAndVulnerabilities extends React.Component {
 
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
+                <span style={{ marginLeft: 30 }}>
+                  {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
+                </span>
+                {this.props.renderRating('new_security_rating')}
               </div>
               <div className="overview-domain-measure-label">
                 <span className="little-spacer-right"><VulnerabilityIcon/></span>

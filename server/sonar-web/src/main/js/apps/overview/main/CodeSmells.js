@@ -86,7 +86,10 @@ class CodeSmells extends React.Component {
           <div className="overview-domain-measures">
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
+                <span style={{ marginLeft: 30 }}>
+                  {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
+                </span>
+                {this.props.renderRating('new_maintainability_rating')}
               </div>
               <div className="overview-domain-measure-label">
                 {getMetricName('new_effort')}

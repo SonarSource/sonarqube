@@ -128,14 +128,14 @@ export default function enhance (ComposedComponent) {
         return null;
       }
 
-      const title = getRatingTooltip(metricKey, measure.value);
+      const value = this.getValue(measure);
+
+      const title = getRatingTooltip(metricKey, value);
 
       return (
-          <div className="overview-domain-measure-sup"
-               title={title}
-               data-toggle="tooltip">
+          <div className="overview-domain-measure-sup" title={title} data-toggle="tooltip">
             <DrilldownLink className="link-no-underline" component={component.key} metric={metricKey}>
-              <Rating value={measure.value}/>
+              <Rating value={value}/>
             </DrilldownLink>
           </div>
       );
