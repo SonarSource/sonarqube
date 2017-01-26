@@ -27,6 +27,7 @@ import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/me
 import { translate } from '../../../helpers/l10n';
 import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
 export default class QualityGateCondition extends React.Component {
   props: {
@@ -161,6 +162,7 @@ export default class QualityGateCondition extends React.Component {
 
           <div>
             <div className="overview-quality-gate-condition-metric">
+              <IssueTypeIcon query={metric.key} className="spacer-right"/>
               {metric.name}
             </div>
             {!isDiff && period != null && (

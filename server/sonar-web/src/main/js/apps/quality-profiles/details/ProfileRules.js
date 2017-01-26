@@ -26,6 +26,7 @@ import { searchRules, takeFacet } from '../../../api/rules';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl, getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
@@ -162,7 +163,12 @@ export default class ProfileRules extends React.Component {
   }
 
   renderTitleForType (type) {
-    return <span>{translate('issue.type', type, 'plural')}</span>;
+    return (
+        <span>
+          <IssueTypeIcon query={type} className="little-spacer-right"/>
+          {translate('issue.type', type, 'plural')}
+        </span>
+    );
   }
 
   renderCountForType (type) {

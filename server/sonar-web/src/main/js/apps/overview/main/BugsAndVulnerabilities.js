@@ -23,6 +23,8 @@ import enhance from './enhance';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
+import BugIcon from '../../../components/ui/BugIcon';
+import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
 
 class BugsAndVulnerabilities extends React.Component {
   renderHeader () {
@@ -64,6 +66,7 @@ class BugsAndVulnerabilities extends React.Component {
                 {this.props.renderIssues('new_bugs', 'BUG')}
               </div>
               <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><BugIcon/></span>
                 {getMetricName('new_bugs')}
               </div>
             </div>
@@ -73,6 +76,7 @@ class BugsAndVulnerabilities extends React.Component {
                 {this.props.renderIssues('new_vulnerabilities', 'VULNERABILITY')}
               </div>
               <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><VulnerabilityIcon/></span>
                 {getMetricName('new_vulnerabilities')}
               </div>
             </div>
@@ -93,6 +97,7 @@ class BugsAndVulnerabilities extends React.Component {
                   {this.props.renderRating('reliability_rating')}
                 </div>
                 <div className="overview-domain-measure-label">
+                  <span className="little-spacer-right"><BugIcon/></span>
                   {getMetricName('bugs')}
                 </div>
               </div>
@@ -105,6 +110,7 @@ class BugsAndVulnerabilities extends React.Component {
                   {this.props.renderRating('security_rating')}
                 </div>
                 <div className="overview-domain-measure-label">
+                  <span className="little-spacer-right"><VulnerabilityIcon/></span>
                   {getMetricName('vulnerabilities')}
                 </div>
               </div>
