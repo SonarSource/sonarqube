@@ -394,7 +394,9 @@ function getMaintainabilityRatingTooltip (rating) {
 export function getRatingTooltip (metricKey, value) {
   const ratingLetter = formatMeasure(value, 'RATING');
 
-  return metricKey === 'sqale_rating' ?
+  const finalMetricKey = metricKey.startsWith('new_') ? metricKey.substr(4) : metricKey;
+
+  return (finalMetricKey === 'sqale_rating' || finalMetricKey === 'maintainability_rating') ?
       getMaintainabilityRatingTooltip(value) :
-      translate('metric', metricKey, 'tooltip', ratingLetter);
+      translate('metric', finalMetricKey, 'tooltip', ratingLetter);
 }

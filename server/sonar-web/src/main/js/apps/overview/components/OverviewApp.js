@@ -43,16 +43,19 @@ const METRICS = [
   'bugs',
   'new_bugs',
   'reliability_rating',
+  'new_reliability_rating',
 
   // vulnerabilities
   'vulnerabilities',
   'new_vulnerabilities',
   'security_rating',
+  'new_security_rating',
 
   // code smells
   'code_smells',
   'new_code_smells',
   'sqale_rating',
+  'new_maintainability_rating',
   'sqale_index',
   'new_technical_debt',
 
