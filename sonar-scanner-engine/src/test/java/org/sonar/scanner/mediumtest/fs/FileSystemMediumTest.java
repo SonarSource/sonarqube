@@ -154,6 +154,37 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void preloadFileMetadata() throws IOException {
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.task", "scan")
+      .put("sonar.verbose", "true")
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.projectVersion", "1.0-SNAPSHOT")
+      .put("sonar.preloadFileMetadata", "true")
+      .put("sonar.projectDescription", "Description of Foo Project");
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File unknownFile = new File(srcDir, "sample.unknown");
+    FileUtils.write(unknownFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("2 files indexed");
+    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
+  }
+
+  @Test
   public void publishFilesWithIssues() throws IOException {
     ScannerMediumTester tester2 = ScannerMediumTester.builder()
       .registerPlugin("xoo", new XooPlugin())

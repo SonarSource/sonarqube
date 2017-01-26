@@ -34,6 +34,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputFileBuilderTest {
@@ -54,14 +56,15 @@ public class InputFileBuilderTest {
     LanguageDetection langDetection = mock(LanguageDetection.class);
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     BatchIdGenerator idGenerator = new BatchIdGenerator();
-    builder = new InputFileBuilder(module, pathResolver, langDetection, metadataGenerator, idGenerator);
+    Settings settings = new MapSettings();
+    builder = new InputFileBuilder(module, pathResolver, langDetection, metadataGenerator, idGenerator, settings);
   }
 
   @Test
   public void testBuild() {
     Path filePath = baseDir.resolve("src/File1.xoo");
     DefaultInputFile inputFile = builder.create(filePath, Type.MAIN, StandardCharsets.UTF_8);
-    
+
     assertThat(inputFile.moduleKey()).isEqualTo("module1");
     assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString());
     assertThat(inputFile.key()).isEqualTo("module1:src/File1.xoo");

@@ -30,9 +30,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputFileBuilder {
+  private static final String PRELOAD_FILE_METADATA_KEY = "sonar.preloadFileMetadata";
   private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
   private final String moduleKey;
   private final Path moduleBaseDir;
@@ -40,15 +42,17 @@ public class InputFileBuilder {
   private final LanguageDetection langDetection;
   private final BatchIdGenerator idGenerator;
   private final MetadataGenerator metadataGenerator;
+  private final boolean preloadMetadata;
 
   public InputFileBuilder(DefaultInputModule module, PathResolver pathResolver, LanguageDetection langDetection, MetadataGenerator metadataGenerator,
-    BatchIdGenerator idGenerator) {
+    BatchIdGenerator idGenerator, Settings settings) {
     this.moduleKey = module.key();
     this.moduleBaseDir = module.definition().getBaseDir().toPath();
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
+    this.preloadMetadata = settings.getBoolean(PRELOAD_FILE_METADATA_KEY);
   }
 
   @CheckForNull
@@ -65,6 +69,12 @@ public class InputFileBuilder {
       return null;
     }
     indexedFile.setLanguage(language);
-    return new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
+
+    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
+
+    if (preloadMetadata) {
+      inputFile.checkMetadata();
+    }
+    return inputFile;
   }
 }

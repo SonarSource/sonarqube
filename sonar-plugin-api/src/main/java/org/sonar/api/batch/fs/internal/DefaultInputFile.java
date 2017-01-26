@@ -50,7 +50,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     this.publish = false;
   }
 
-  private void checkMetadata() {
+  public void checkMetadata() {
     if (metadata == null) {
       metadataGenerator.accept(this);
     }
