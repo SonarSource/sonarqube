@@ -53,14 +53,15 @@ public class DefaultRubyComponentService {
   @Deprecated
   public Long createComponent(String key, String name, String qualifier) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      NewComponent newComponent = newComponentBuilder()
+        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .setKey(key)
+        .setName(name)
+        .setQualifier(qualifier)
+        .build();
       return componentUpdater.create(
         dbSession,
-        newComponentBuilder()
-          .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
-          .setKey(key)
-          .setName(name)
-          .setQualifier(qualifier)
-          .build(),
+        newComponent,
         userSession.isLoggedIn() ? userSession.getUserId().longValue() : null).getId();
     }
   }

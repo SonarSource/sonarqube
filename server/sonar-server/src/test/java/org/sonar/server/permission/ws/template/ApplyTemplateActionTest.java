@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -33,22 +32,17 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -58,13 +52,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateAction> {
 
   @Rule
-  public EsTester esTester = new EsTester(
-    new IssueIndexDefinition(new MapSettings()),
-    new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
-  @Rule
   public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
-
   private UserDto user1;
   private UserDto user2;
   private GroupDto group1;
@@ -72,13 +60,12 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private ComponentDto project;
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), esTester.client());
+
+  private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
+    mock(PermissionIndexer.class), userSession, defaultTemplatesResolver);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
-    PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-        permissionIndexer, userSession, defaultTemplatesResolver);
     return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
   }
 
@@ -204,8 +191,6 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
     assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getId());
     assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
-
-    authorizationIndexerTester.verifyProjectExistsWithPermission(project.uuid(), singletonList(group2.getName()), Collections.emptyList());
   }
 
   private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) throws Exception {

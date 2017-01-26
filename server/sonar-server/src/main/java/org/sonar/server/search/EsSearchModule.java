@@ -22,10 +22,12 @@ package org.sonar.server.search;
 import org.sonar.core.platform.Module;
 import org.sonar.server.es.EsClientProvider;
 import org.sonar.server.es.EsClientStopper;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 public class EsSearchModule extends Module {
   @Override
   protected void configureModule() {
+    add(AuthorizationTypeSupport.class);
     add(new EsClientProvider());
     add(EsClientStopper.class);
   }

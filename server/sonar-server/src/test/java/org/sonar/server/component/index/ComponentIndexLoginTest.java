@@ -19,11 +19,8 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Collections;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
-
-import static java.util.Collections.emptyList;
 
 public class ComponentIndexLoginTest extends ComponentIndexTest {
 
@@ -45,9 +42,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
     indexer.index(project);
 
     // give the user explicit access
-    authorizationIndexerTester.indexProjectPermission(project.uuid(),
-      emptyList(),
-      Collections.singletonList((long) TEST_USER_ID));
+    authorizationIndexerTester.allowOnlyUser(project, TEST_USER_ID);
 
     assertSearchResults("sonarqube", project);
   }
@@ -60,9 +55,7 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
     indexer.index(project);
 
     // give the user implicit access (though group)
-    authorizationIndexerTester.indexProjectPermission(project.uuid(),
-      Collections.singletonList(TEST_USER_GROUP),
-      emptyList());
+    authorizationIndexerTester.allowOnlyGroup(project, TEST_USER_GROUP);
 
     assertSearchResults("sonarqube", project);
   }

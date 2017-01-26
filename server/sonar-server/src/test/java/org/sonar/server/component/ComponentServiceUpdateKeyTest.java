@@ -20,11 +20,9 @@
 
 package org.sonar.server.component;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -34,27 +32,17 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ComponentServiceUpdateKeyTest {
 
@@ -65,18 +53,13 @@ public class ComponentServiceUpdateKeyTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
-  @Rule
   public DbTester db = DbTester.create(system2);
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-
-  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
-  private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
-  private ComponentService underTest = new ComponentService(dbClient, userSession, projectMeasuresIndexer, componentIndexer);
+  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
+  private ComponentService underTest = new ComponentService(dbClient, userSession, new ProjectIndexer[] {projectIndexer});
 
   @Test
   public void update_project_key() {
@@ -100,7 +83,7 @@ public class ComponentServiceUpdateKeyTest {
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
 
-    assertProjectKeyExistsInIndex("sample2:root");
+    verify(projectIndexer).indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   @Test
@@ -120,7 +103,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyHasBeenUpdated(module.key(), "sample:root2:module");
     assertComponentKeyHasBeenUpdated(file.key(), "sample:root2:module:src/File.xoo");
 
-    assertProjectKeyExistsInIndex(project.key());
+    verify(projectIndexer).indexProject(module.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   @Test
@@ -134,7 +117,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
-    assertProjectKeyExistsInIndex("provisionedProject2");
+    verify(projectIndexer).indexProject(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   @Test
@@ -208,8 +191,6 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
     assertComponentKeyNotUpdated(inactiveModule.key());
     assertComponentKeyNotUpdated(inactiveFile.key());
-
-    assertProjectKeyExistsInIndex("your_project");
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {
@@ -231,33 +212,11 @@ public class ComponentServiceUpdateKeyTest {
 
   private ComponentDto insertProject(String key) {
     ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(key));
-    projectMeasuresIndexer.index(project.uuid());
-    index(project.uuid());
     return project;
-  }
-
-  private void index(String projectUuid) {
-    projectMeasuresIndexer.index(projectUuid);
-    componentIndexer.indexByProjectUuid(projectUuid);
   }
 
   private void assertComponentKeyHasBeenUpdated(String oldKey, String newKey) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
     assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
-  }
-
-  private void assertProjectKeyExistsInIndex(String key) {
-    SearchRequestBuilder request = es.client()
-      .prepareSearch(INDEX_PROJECT_MEASURES)
-      .setTypes(TYPE_PROJECT_MEASURE)
-      .setQuery(boolQuery().must(matchAllQuery()).filter(
-        boolQuery().must(termQuery(ProjectMeasuresIndexDefinition.FIELD_KEY, key))));
-    assertThat(request.get().getHits()).hasSize(1);
-
-    es.client().prepareSearch(INDEX_COMPONENTS)
-      .setTypes(TYPE_COMPONENT)
-      .setQuery(boolQuery().must(matchAllQuery()).filter(
-        boolQuery().must(termQuery(ComponentIndexDefinition.FIELD_KEY, key))));
-    assertThat(request.get().getHits()).hasSize(1);
   }
 }

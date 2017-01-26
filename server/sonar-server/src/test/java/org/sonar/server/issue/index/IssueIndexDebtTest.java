@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
@@ -41,14 +42,14 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueDocTesting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQuery.Builder;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
-import org.sonar.server.view.index.ViewIndexer;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
@@ -66,20 +67,16 @@ public class IssueIndexDebtTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private System2 system2 = System2.INSTANCE;
-  IssueIndex index;
-
-  IssueIndexer issueIndexer;
-  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester);
-  ViewIndexer viewIndexer;
+  private IssueIndex index;
+  private IssueIndexer issueIndexer = new IssueIndexer(system2, null, tester.client());
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
   @Before
   public void setUp() {
-    issueIndexer = new IssueIndexer(system2, null, tester.client());
-    viewIndexer = new ViewIndexer(system2, null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());
-    index = new IssueIndex(tester.client(), system, userSessionRule);
+    index = new IssueIndex(tester.client(), system, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
   }
 
   @Test
@@ -259,7 +256,7 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project, null)).setEffort(10L),
       IssueDocTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2, null)).setEffort(10L));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).facetMode(DEPRECATED_FACET_MODE_DEBT).build(),
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().facetMode(DEPRECATED_FACET_MODE_DEBT).build(),
       new SearchOptions().addFacets(newArrayList("projectUuids")));
     assertThat(result.getFacets().getNames()).containsOnly("projectUuids", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("projectUuids")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
@@ -291,10 +288,17 @@ public class IssueIndexDebtTest {
   }
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
-    authorizationIndexerTester.indexProjectPermission(projectUuid, singletonList(group), singletonList(user));
+    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
+    if (group != null) {
+      access.addGroup(group);
+    }
+    if (user != null) {
+      access.addUser(user);
+    }
+    authorizationIndexerTester.allow(access);
   }
 
   private Builder newQueryBuilder() {
-    return IssueQuery.builder(userSessionRule).facetMode(FACET_MODE_EFFORT);
+    return IssueQuery.builder().facetMode(FACET_MODE_EFFORT);
   }
 }

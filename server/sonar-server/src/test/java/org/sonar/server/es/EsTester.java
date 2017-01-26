@@ -55,7 +55,7 @@ import static java.util.Arrays.asList;
 public class EsTester extends ExternalResource {
 
   private final List<IndexDefinition> indexDefinitions;
-  private EsClient client = new EsClient(NodeHolder.INSTANCE.node.client());
+  private final EsClient client = new EsClient(NodeHolder.INSTANCE.node.client());
   private ComponentContainer container;
 
   public EsTester(IndexDefinition... defs) {

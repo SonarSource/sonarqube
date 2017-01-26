@@ -24,7 +24,6 @@ import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rule.RuleKey;
@@ -39,28 +38,17 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueDocTesting;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.test.index.TestDoc;
-import org.sonar.server.test.index.TestIndexDefinition;
-import org.sonar.server.test.index.TestIndexer;
+import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class ComponentCleanerServiceTest {
 
@@ -70,85 +58,41 @@ public class ComponentCleanerServiceTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(
-    new IssueIndexDefinition(new MapSettings()),
-    new TestIndexDefinition(new MapSettings()),
-    new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
-
-  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client());
-  private IssueIndexer issueIndexer = new IssueIndexer(system2, dbClient, es.client());
-  private TestIndexer testIndexer = new TestIndexer(system2, dbClient, es.client());
-  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(system2, dbClient, es.client());
-  private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
+  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
   private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
-
-  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, issueIndexer, testIndexer, projectMeasuresIndexer, componentIndexer, mockResourceTypes,
-    new ComponentFinder(dbClient));
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, mockResourceTypes, new ProjectIndexer[] {projectIndexer});
 
   @Test
-  public void delete_project_by_key_in_db() {
-    DbData data1 = insertDataInDb(1);
-    DbData data2 = insertDataInDb(2);
+  public void delete_project_from_db_and_index() {
+    DbData data1 = insertData(1);
+    DbData data2 = insertData(2);
 
-    underTest.delete(data1.project.key());
+    underTest.delete(dbSession, data1.project);
 
-    assertDataDoesNotExistInDB(data1);
-    assertDataStillExistsInDb(data2);
+    assertNotExists(data1);
+    assertExists(data2);
   }
 
   @Test
-  public void delete_project_by_key_in_index() throws Exception {
-    IndexData data1 = insertDataInEs(1);
-    IndexData data2 = insertDataInEs(2);
-
-    underTest.delete(data1.project.key());
-
-    assertDataDoesNotExistInIndex(data1);
-    assertDataStillExistsInIndex(data2);
-  }
-
-  @Test
-  public void delete_projects_in_db() {
-    DbData data1 = insertDataInDb(1);
-    DbData data2 = insertDataInDb(2);
-    DbData data3 = insertDataInDb(3);
+  public void delete_list_of_projects_from_db_and_index() {
+    DbData data1 = insertData(1);
+    DbData data2 = insertData(2);
+    DbData data3 = insertData(3);
 
     underTest.delete(dbSession, asList(data1.project, data2.project));
     dbSession.commit();
 
-    assertDataDoesNotExistInDB(data1);
-    assertDataDoesNotExistInDB(data2);
-    assertDataStillExistsInDb(data3);
+    assertNotExists(data1);
+    assertNotExists(data2);
+    assertExists(data3);
   }
 
   @Test
-  public void delete_projects_in_index() throws Exception {
-    IndexData data1 = insertDataInEs(1);
-    IndexData data2 = insertDataInEs(2);
-    IndexData data3 = insertDataInEs(3);
-
-    underTest.delete(dbSession, asList(data1.project, data2.project));
-    dbSession.commit();
-
-    assertDataDoesNotExistInIndex(data1);
-    assertDataDoesNotExistInIndex(data2);
-    assertDataStillExistsInIndex(data3);
-  }
-
-  @Test
-  public void fail_to_delete_unknown_project() throws Exception {
-    expectedException.expect(NotFoundException.class);
-    underTest.delete("unknown");
-  }
-
-  @Test
-  public void fail_to_delete_not_project_scope() throws Exception {
+  public void fail_with_IAE_if_not_a_project() throws Exception {
     mockResourceTypeAsValidProject();
     ComponentDto project = newProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
@@ -157,7 +101,7 @@ public class ComponentCleanerServiceTest {
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(file.key());
+    underTest.delete(dbSession, file);
   }
 
   @Test
@@ -170,7 +114,7 @@ public class ComponentCleanerServiceTest {
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(project.key());
+    underTest.delete(dbSession, project);
   }
 
   @Test
@@ -181,10 +125,10 @@ public class ComponentCleanerServiceTest {
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
-    underTest.delete(project.key());
+    underTest.delete(dbSession, project);
   }
 
-  private DbData insertDataInDb(int id) {
+  private DbData insertData(int id) {
     String suffix = String.valueOf(id);
     ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
@@ -205,12 +149,14 @@ public class ComponentCleanerServiceTest {
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
   }
 
-  private void assertDataStillExistsInDb(DbData data) {
-    assertDataInDb(data, true);
+  private void assertNotExists(DbData data) {
+    assertDataInDb(data, false);
+    verify(projectIndexer).deleteProject(data.project.uuid());
   }
 
-  private void assertDataDoesNotExistInDB(DbData data) {
-    assertDataInDb(data, false);
+  private void assertExists(DbData data) {
+    assertDataInDb(data, true);
+    verify(projectIndexer, never()).deleteProject(data.project.uuid());
   }
 
   private void assertDataInDb(DbData data, boolean exists) {
@@ -219,76 +165,15 @@ public class ComponentCleanerServiceTest {
     assertThat(dbClient.issueDao().selectByKey(dbSession, data.issue.getKey()).isPresent()).isEqualTo(exists);
   }
 
-  private IndexData insertDataInEs(int id) throws Exception {
-    mockResourceTypeAsValidProject();
-
-    String suffix = String.valueOf(id);
-    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
-      .setKey("project-key-" + suffix);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-    projectMeasuresIndexer.index();
-    componentIndexer.index();
-    permissionIndexer.index(dbSession, project.uuid());
-
-    String issueKey = "issue-key-" + suffix;
-    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueDocTesting.newDoc(issueKey, project));
-
-    TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
-
-    return new IndexData(project, issueKey, testDoc.getId());
-  }
-
-  private void assertDataStillExistsInIndex(IndexData data) {
-    assertDataInIndex(data, true);
-  }
-
-  private void assertDataDoesNotExistInIndex(IndexData data) {
-    assertDataInIndex(data, false);
-  }
-
-  private void assertDataInIndex(IndexData data, boolean exists) {
-    if (exists) {
-      assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).contains(data.issueKey);
-      assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).contains(data.project.uuid());
-      assertThat(es.getIds(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE)).contains(data.testId);
-      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE)).contains(data.project.uuid());
-      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).contains(data.project.uuid());
-      assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).contains(data.project.uuid());
-      assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).contains(data.project.uuid());
-    } else {
-      assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).doesNotContain(data.issueKey);
-      assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(data.project.uuid());
-      assertThat(es.getIds(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE)).doesNotContain(data.testId);
-      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE)).doesNotContain(data.project.uuid());
-      assertThat(es.getIds(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(data.project.uuid());
-      assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_COMPONENT)).doesNotContain(data.project.uuid());
-      assertThat(es.getIds(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)).doesNotContain(data.project.uuid());
-    }
-  }
-
   private static class DbData {
     final ComponentDto project;
     final SnapshotDto snapshot;
     final IssueDto issue;
 
-    public DbData(ComponentDto project, SnapshotDto snapshot, IssueDto issue) {
+    DbData(ComponentDto project, SnapshotDto snapshot, IssueDto issue) {
       this.project = project;
       this.snapshot = snapshot;
       this.issue = issue;
-    }
-  }
-
-  private static class IndexData {
-    final ComponentDto project;
-    final String issueKey;
-    final String testId;
-
-    public IndexData(ComponentDto project, String issueKey, String testId) {
-      this.project = project;
-      this.issueKey = issueKey;
-      this.testId = testId;
     }
   }
 }

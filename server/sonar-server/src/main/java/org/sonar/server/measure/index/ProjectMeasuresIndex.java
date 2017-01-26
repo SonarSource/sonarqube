@@ -25,12 +25,10 @@ import com.google.common.collect.Multimap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.range.RangeBuilder;
@@ -43,7 +41,7 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -59,15 +57,12 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndex extends BaseIndex {
@@ -84,11 +79,11 @@ public class ProjectMeasuresIndex extends BaseIndex {
   private static final String FIELD_KEY = FIELD_MEASURES + "." + FIELD_MEASURES_KEY;
   private static final String FIELD_VALUE = FIELD_MEASURES + "." + FIELD_MEASURES_VALUE;
 
-  private final UserSession userSession;
+  private final AuthorizationTypeSupport authorizationTypeSupport;
 
-  public ProjectMeasuresIndex(EsClient client, UserSession userSession) {
+  public ProjectMeasuresIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport) {
     super(client);
-    this.userSession = userSession;
+    this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
   public SearchIdResult<String> search(ProjectMeasuresQuery query, SearchOptions searchOptions) {
@@ -200,7 +195,7 @@ public class ProjectMeasuresIndex extends BaseIndex {
 
   private Map<String, QueryBuilder> createFilters(ProjectMeasuresQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter());
+    filters.put("__authorization", authorizationTypeSupport.createQueryFilter());
     Multimap<String, MetricCriterion> metricCriterionMultimap = ArrayListMultimap.create();
     query.getMetricCriteria().forEach(metricCriterion -> metricCriterionMultimap.put(metricCriterion.getMetricKey(), metricCriterion));
     metricCriterionMultimap.asMap().entrySet().forEach(entry -> {
@@ -242,17 +237,4 @@ public class ProjectMeasuresIndex extends BaseIndex {
     }
   }
 
-  private QueryBuilder createAuthorizationFilter() {
-    Integer userLogin = userSession.getUserId();
-    Set<String> userGroupNames = userSession.getUserGroups();
-    BoolQueryBuilder groupsAndUser = boolQuery();
-    if (userLogin != null) {
-      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userLogin.longValue()));
-    }
-    for (String group : userGroupNames) {
-      groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_GROUPS, group));
-    }
-    return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
-      QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
-  }
 }

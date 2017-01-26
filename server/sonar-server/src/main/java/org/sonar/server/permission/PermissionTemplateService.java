@@ -150,7 +150,7 @@ public class PermissionTemplateService {
   }
 
   private void indexProjectPermissions(DbSession dbSession, List<String> projectOrViewUuids) {
-    permissionIndexer.index(dbSession, projectOrViewUuids);
+    permissionIndexer.indexProjectsByUuids(dbSession, projectOrViewUuids);
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Long projectCreatorUserId) {

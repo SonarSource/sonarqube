@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,15 +32,14 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class SuggestionsActionTest {
@@ -53,29 +51,26 @@ public class SuggestionsActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private ComponentIndexer indexer;
+  private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
   private SuggestionsAction action;
   private OrganizationDto organization;
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
 
   @Before
   public void setUp() {
-    ComponentIndex index = new ComponentIndex(es.client(), userSessionRule);
-    indexer = new ComponentIndexer(db.getDbClient(), es.client());
+    ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
     action = new SuggestionsAction(db.getDbClient(), index);
     organization = db.organizations().insert();
   }
 
   @Test
   public void exact_match_in_one_qualifier() {
-    ComponentDto dto = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
 
-    indexer.index();
-    authorizationIndexerTester.indexProjectPermission(dto.uuid(),
-      Collections.singletonList(ANYONE),
-      emptyList());
+    componentIndexer.index();
+    authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = action.doHandle(dto.getKey());
+    SuggestionsWsResponse response = action.doHandle(project.getKey());
 
     // assert match in qualifier "TRK"
     assertThat(response.getResultsList())
@@ -87,7 +82,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .flatExtracting(SuggestionsWsResponse.Qualifier::getItemsList)
       .extracting(WsComponents.Component::getKey, WsComponents.Component::getOrganization)
-      .containsExactly(tuple(dto.getKey(), organization.getKey()));
+      .containsExactly(tuple(project.getKey(), organization.getKey()));
   }
 
 }

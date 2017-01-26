@@ -37,6 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.TestUtils;
@@ -83,7 +84,7 @@ public class TestIndexerTest {
 
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    underTest.index("PROJECT_UUID");
+    underTest.indexProject("PROJECT_UUID", ProjectIndexer.Cause.NEW_ANALYSIS);
     assertThat(countDocuments()).isEqualTo(3);
   }
 
@@ -93,7 +94,7 @@ public class TestIndexerTest {
 
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    underTest.index("UNKNOWN");
+    underTest.indexProject("UNKNOWN", ProjectIndexer.Cause.NEW_ANALYSIS);
     assertThat(countDocuments()).isZero();
   }
 
@@ -138,7 +139,7 @@ public class TestIndexerTest {
   }
 
   @Test
-  public void delete_file_uuid() throws Exception {
+  public void delete_file_by_uuid() throws Exception {
     indexTest("P1", "F1", "T1", "U111");
     indexTest("P1", "F1", "T2", "U112");
     indexTest("P1", "F2", "T1", "U121");
@@ -153,13 +154,13 @@ public class TestIndexerTest {
   }
 
   @Test
-  public void delete_by_project_uuid() throws Exception {
+  public void delete_project_by_uuid() throws Exception {
     indexTest("P1", "F1", "T1", "U111");
     indexTest("P1", "F1", "T2", "U112");
     indexTest("P1", "F2", "T1", "U121");
     indexTest("P2", "F3", "T1", "U231");
 
-    underTest.deleteByProject("P1");
+    underTest.deleteProject("P1");
 
     List<SearchHit> hits = getDocuments();
     assertThat(hits).hasSize(1);

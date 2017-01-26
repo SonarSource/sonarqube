@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -67,7 +68,7 @@ public class NewIndex {
   }
 
   public NewIndexType createType(String typeName) {
-    NewIndexType type = new NewIndexType(typeName);
+    NewIndexType type = new NewIndexType(this, typeName);
     types.put(typeName, type);
     return type;
   }
@@ -91,17 +92,28 @@ public class NewIndex {
   }
 
   public static class NewIndexType {
+    private final NewIndex index;
     private final String name;
     private final Map<String, Object> attributes = new TreeMap<>();
     private final Map<String, Object> properties = new TreeMap<>();
 
-    private NewIndexType(String typeName) {
+    private NewIndexType(NewIndex index, String typeName) {
+      this.index = index;
       this.name = typeName;
       // defaults
       attributes.put("dynamic", false);
       attributes.put("_all", ImmutableSortedMap.of("enabled", false));
       attributes.put("_source", ImmutableSortedMap.of("enabled", true));
       attributes.put("properties", properties);
+    }
+
+    public NewIndexType requireProjectAuthorization() {
+      AuthorizationTypeSupport.enableProjectAuthorization(this);
+      return this;
+    }
+
+    public NewIndex getIndex() {
+      return index;
     }
 
     public String getName() {

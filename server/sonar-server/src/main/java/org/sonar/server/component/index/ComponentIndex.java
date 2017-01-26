@@ -24,13 +24,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -40,29 +37,26 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Buck
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.sonar.core.util.stream.Collectors;
-import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndex extends BaseIndex {
+public class ComponentIndex {
 
   private static final String FILTERS_AGGREGATION_NAME = "filters";
   private static final String DOCS_AGGREGATION_NAME = "docs";
-  private final UserSession userSession;
 
-  public ComponentIndex(EsClient client, UserSession userSession) {
-    super(client);
-    this.userSession = userSession;
+  private final EsClient client;
+  private final AuthorizationTypeSupport authorizationTypeSupport;
+
+  public ComponentIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport) {
+    this.client = client;
+    this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
   public List<ComponentsPerQualifier> search(ComponentIndexQuery query) {
@@ -76,7 +70,7 @@ public class ComponentIndex extends BaseIndex {
       return Collections.emptyList();
     }
 
-    SearchRequestBuilder request = getClient()
+    SearchRequestBuilder request = client
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)
       .setQuery(createQuery(query, features))
@@ -108,7 +102,7 @@ public class ComponentIndex extends BaseIndex {
 
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
-    esQuery.filter(createAuthorizationFilter());
+    esQuery.filter(authorizationTypeSupport.createQueryFilter());
 
     BoolQueryBuilder featureQuery = boolQuery();
 
@@ -117,22 +111,6 @@ public class ComponentIndex extends BaseIndex {
       .forEach(featureQuery::should);
 
     return esQuery.must(featureQuery);
-  }
-
-  private QueryBuilder createAuthorizationFilter() {
-    Integer userLogin = userSession.getUserId();
-    Set<String> userGroupNames = userSession.getUserGroups();
-    BoolQueryBuilder groupsAndUser = boolQuery();
-
-    Optional.ofNullable(userLogin)
-      .map(Integer::longValue)
-      .ifPresent(userId -> groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_USERS, userId)));
-
-    userGroupNames.stream()
-      .forEach(group -> groupsAndUser.should(termQuery(FIELD_AUTHORIZATION_GROUPS, group)));
-
-    return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
-      QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
   }
 
   private static List<ComponentsPerQualifier> aggregationsToQualifiers(SearchResponse response) {

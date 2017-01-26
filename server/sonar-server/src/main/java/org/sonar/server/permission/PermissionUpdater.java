@@ -66,7 +66,7 @@ public class PermissionUpdater {
     dbSession.commit();
 
     if (!projectIds.isEmpty()) {
-      permissionIndexer.index(dbSession, projectOrViewUuids);
+      permissionIndexer.indexProjectsByUuids(dbSession, projectOrViewUuids);
     }
   }
 

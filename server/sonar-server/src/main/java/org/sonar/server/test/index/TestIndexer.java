@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
@@ -40,7 +41,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
  */
-public class TestIndexer extends BaseIndexer {
+public class TestIndexer extends BaseIndexer implements ProjectIndexer {
 
   private final DbClient dbClient;
 
@@ -49,9 +50,23 @@ public class TestIndexer extends BaseIndexer {
     this.dbClient = dbClient;
   }
 
-  public void index(final String projectUuid) {
-    deleteByProject(projectUuid);
-    super.index(lastUpdatedAt -> doIndex(lastUpdatedAt, projectUuid));
+  @Override
+  public void indexProject(String projectUuid, Cause cause) {
+    switch (cause) {
+      case PROJECT_CREATION:
+        // no need to index, not tests at that time
+        break;
+      case PROJECT_KEY_UPDATE:
+        // no need to index, project key is not used
+        break;
+      case NEW_ANALYSIS:
+        deleteProject(projectUuid);
+        super.index(lastUpdatedAt -> doIndex(lastUpdatedAt, projectUuid));
+        break;
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
@@ -99,7 +114,8 @@ public class TestIndexer extends BaseIndexer {
     BulkIndexer.delete(esClient, INDEX, searchRequest);
   }
 
-  public void deleteByProject(String projectUuid) {
+  @Override
+  public void deleteProject(String projectUuid) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
       .setRouting(projectUuid)
       .setTypes(TYPE)

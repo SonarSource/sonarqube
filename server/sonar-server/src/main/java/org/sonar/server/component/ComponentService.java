@@ -32,9 +32,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -48,15 +47,12 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class ComponentService {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectMeasuresIndexer projectMeasuresIndexer;
-  private final ComponentIndexer componentIndexer;
+  private final ProjectIndexer[] projectIndexers;
 
-  public ComponentService(DbClient dbClient, UserSession userSession, ProjectMeasuresIndexer projectMeasuresIndexer,
-    ComponentIndexer componentIndexer) {
+  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexer[] projectIndexers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.projectMeasuresIndexer = projectMeasuresIndexer;
-    this.componentIndexer = componentIndexer;
+    this.projectIndexers = projectIndexers;
   }
 
   // TODO should be moved to ComponentUpdater
@@ -77,8 +73,9 @@ public class ComponentService {
   }
 
   private void index(String projectUuid) {
-    projectMeasuresIndexer.index(projectUuid);
-    componentIndexer.indexByProjectUuid(projectUuid);
+    for (ProjectIndexer projectIndexer : projectIndexers) {
+      projectIndexer.indexProject(projectUuid, ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    }
   }
 
   public Collection<String> componentUuids(@Nullable Collection<String> componentKeys) {
