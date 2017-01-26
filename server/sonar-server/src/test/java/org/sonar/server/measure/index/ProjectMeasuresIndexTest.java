@@ -29,23 +29,21 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.measure.index.ProjectMeasuresDoc;
-import org.sonar.server.measure.index.ProjectMeasuresIndex;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -72,9 +70,10 @@ public class ProjectMeasuresIndexTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+  private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(System2.INSTANCE, null, es.client());
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
 
-  private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), userSession);
+  private ProjectMeasuresIndex underTest = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession));
 
   @Test
   public void empty_search() {
@@ -874,10 +873,17 @@ public class ProjectMeasuresIndexTest {
   private void addDocs(@Nullable Long authorizeUser, @Nullable String authorizedGroup, ProjectMeasuresDoc... docs) {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, docs);
+
       for (ProjectMeasuresDoc doc : docs) {
-        authorizationIndexerTester.indexProjectPermission(doc.getId(),
-          authorizedGroup != null ? singletonList(authorizedGroup) : emptyList(),
-          authorizeUser != null ? singletonList(authorizeUser) : emptyList());
+        PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
+        if (authorizedGroup != null) {
+          access.addGroup(authorizedGroup);
+        }
+        if (authorizeUser != null) {
+          access.addUser(authorizeUser);
+        }
+        authorizationIndexerTester.allow(access);
+
       }
     } catch (Exception e) {
       Throwables.propagate(e);

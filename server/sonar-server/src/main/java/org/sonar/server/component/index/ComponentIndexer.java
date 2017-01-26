@@ -36,15 +36,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationScope;
+import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
-import static java.util.Objects.requireNonNull;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
-public class ComponentIndexer implements Startable {
+public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexer, Startable {
+
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_COMPONENTS, project -> true);
 
   private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
@@ -65,13 +68,24 @@ public class ComponentIndexer implements Startable {
     doIndexByProjectUuid(null);
   }
 
-  /**
-   * Update the index for one specific project. The current data from the database is used.
-   */
-  public void indexByProjectUuid(String projectUuid) {
-    requireNonNull(projectUuid);
-    deleteComponentsByProjectUuid(projectUuid);
-    doIndexByProjectUuid(projectUuid);
+  @Override
+  public void indexProject(String projectUuid, Cause cause) {
+    switch (cause) {
+      case PROJECT_CREATION:
+      case PROJECT_KEY_UPDATE:
+      case NEW_ANALYSIS:
+        deleteProject(projectUuid);
+        doIndexByProjectUuid(projectUuid);
+        break;
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
+  }
+
+  @Override
+  public AuthorizationScope getAuthorizationScope() {
+    return AUTHORIZATION_SCOPE;
   }
 
   /**
@@ -95,25 +109,12 @@ public class ComponentIndexer implements Startable {
     bulk.stop();
   }
 
-  public void deleteByProjectUuid(String projectUuid) {
-    requireNonNull(projectUuid);
-    deleteComponentsByProjectUuid(projectUuid);
-    deleteAuthorizationByProjectUuid(projectUuid);
-  }
-
-  private void deleteComponentsByProjectUuid(String projectUuid) {
+  @Override
+  public void deleteProject(String projectUuid) {
     BulkIndexer.delete(esClient, INDEX_COMPONENTS, esClient.prepareSearch(INDEX_COMPONENTS)
       .setQuery(boolQuery()
         .filter(
           termQuery(ComponentIndexDefinition.FIELD_PROJECT_UUID, projectUuid))));
-  }
-
-  private void deleteAuthorizationByProjectUuid(String projectUuid) {
-    esClient
-      .prepareDelete(INDEX_COMPONENTS, TYPE_AUTHORIZATION, projectUuid)
-      .setRouting(projectUuid)
-      .setRefresh(true)
-      .get();
   }
 
   void index(ComponentDto... docs) {

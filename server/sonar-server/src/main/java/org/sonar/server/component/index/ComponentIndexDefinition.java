@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.index;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -37,11 +36,6 @@ public class ComponentIndexDefinition implements IndexDefinition {
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
 
-  public static final String TYPE_AUTHORIZATION = "authorization";
-  public static final String FIELD_AUTHORIZATION_GROUPS = "groupNames";
-  public static final String FIELD_AUTHORIZATION_USERS = "users";
-  public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
-
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
   private final Settings settings;
@@ -56,24 +50,11 @@ public class ComponentIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, DEFAULT_NUMBER_OF_SHARDS);
 
-    // type "component"
-    NewIndex.NewIndexType mapping = index.createType(TYPE_COMPONENT);
-    mapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
-    mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
+    NewIndex.NewIndexType mapping = index.createTypeRequiringProjectAuthorization(TYPE_COMPONENT);
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).enable(SORTABLE_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_NAME).enable(SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
-
-    // do not store document but only indexation of information
     mapping.setEnableSource(false);
-
-    // type "authorization"
-    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
-    authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
-    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
-    authorizationMapping.setEnableSource(false);
   }
 }

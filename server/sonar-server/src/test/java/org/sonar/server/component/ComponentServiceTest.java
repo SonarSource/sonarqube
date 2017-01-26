@@ -23,22 +23,18 @@ import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -50,18 +46,14 @@ public class ComponentServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
-  @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(System2.INSTANCE, dbClient, es.client());
-  private ComponentIndexer componentIndexer = new ComponentIndexer(dbClient, es.client());
+  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
 
-  private ComponentService underTest = new ComponentService(dbClient, userSession, projectMeasuresIndexer, componentIndexer);
+  private ComponentService underTest = new ComponentService(dbClient, userSession, new ProjectIndexer[] {projectIndexer});
 
   @Test
   public void should_fail_silently_on_components_not_found_if_told_so() {
@@ -95,10 +87,6 @@ public class ComponentServiceTest {
 
   private void assertComponentKeyNotUpdated(String key) {
     assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
-  }
-
-  private ComponentDto insertSampleProject() {
-    return componentDb.insertComponent(newProjectDto(dbTester.organizations().insert()).setKey("sample:root"));
   }
 
 }

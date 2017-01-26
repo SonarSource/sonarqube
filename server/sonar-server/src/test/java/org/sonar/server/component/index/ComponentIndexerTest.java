@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -163,7 +164,7 @@ public class ComponentIndexerTest {
   }
 
   private void index(String uuid) {
-    createIndexer().indexByProjectUuid(uuid);
+    createIndexer().indexProject(uuid, ProjectIndexer.Cause.PROJECT_CREATION);
   }
 
   private long count() {

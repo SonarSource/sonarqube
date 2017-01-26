@@ -44,7 +44,10 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.GroupPermissionChange;
@@ -56,6 +59,7 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -68,7 +72,7 @@ public class IssueServiceMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  private DbClient db;
+  private DbClient db = tester.get(DbClient.class);
   private IssueIndex issueIndex;
   private DbSession session;
   private IssueService service;
@@ -77,7 +81,6 @@ public class IssueServiceMediumTest {
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
     issueIndex = tester.get(IssueIndex.class);
     session = db.openSession(false);
     service = tester.get(IssueService.class);
@@ -107,11 +110,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(getIssueByKey(issue.getKey()).assignee()).isNull();
 
     service.assign(issue.getKey(), user.getLogin());
 
-    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(getIssueByKey(issue.getKey()).assignee()).isEqualTo("perceval");
   }
 
   @Test
@@ -128,11 +131,11 @@ public class IssueServiceMediumTest {
     session.commit();
     index();
 
-    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isEqualTo("perceval");
+    assertThat(getIssueByKey(issue.getKey()).assignee()).isEqualTo("perceval");
 
     service.assign(issue.getKey(), "");
 
-    assertThat(issueIndex.getByKey(issue.getKey()).assignee()).isNull();
+    assertThat(getIssueByKey(issue.getKey()).assignee()).isNull();
   }
 
   @Test
@@ -180,15 +183,15 @@ public class IssueServiceMediumTest {
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(getIssueByKey(issue.getKey()).tags()).isEmpty();
 
     // Tags are lowercased
     service.setTags(issue.getKey(), ImmutableSet.of("bug", "Convention"));
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
+    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
 
     // nulls and empty tags are ignored
     service.setTags(issue.getKey(), Sets.newHashSet("security", null, "", "convention"));
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // tag validation
     try {
@@ -196,14 +199,14 @@ public class IssueServiceMediumTest {
     } catch (Exception exception) {
       assertThat(exception).isInstanceOf(IllegalArgumentException.class);
     }
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     // unchanged tags
     service.setTags(issue.getKey(), ImmutableSet.of("convention", "security"));
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).containsOnly("security", "convention");
+    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
 
     service.setTags(issue.getKey(), ImmutableSet.<String>of());
-    assertThat(issueIndex.getByKey(issue.getKey()).tags()).isEmpty();
+    assertThat(getIssueByKey(issue.getKey()).tags()).isEmpty();
   }
 
   @Test
@@ -223,7 +226,7 @@ public class IssueServiceMediumTest {
   }
 
   private IssueQuery projectQuery(String projectUuid) {
-    return IssueQuery.builder(userSessionRule).projectUuids(asList(projectUuid)).resolved(false).build();
+    return IssueQuery.builder().projectUuids(asList(projectUuid)).resolved(false).build();
   }
 
   @Test
@@ -276,7 +279,8 @@ public class IssueServiceMediumTest {
     // project can be seen by group "anyone"
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(organization.getUuid()));
+    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project),
+      GroupIdOrAnyone.forAnyone(organization.getUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
     userSessionRule.login();
 
@@ -297,4 +301,8 @@ public class IssueServiceMediumTest {
     return issue;
   }
 
+  private Issue getIssueByKey(String key) {
+    SearchResult<IssueDoc> result = issueIndex.search(IssueQuery.builder().issueKeys(newArrayList(key)).build(), new SearchOptions());
+    return result.getDocs().get(0);
+  }
 }

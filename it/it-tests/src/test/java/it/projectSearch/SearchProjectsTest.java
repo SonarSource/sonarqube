@@ -35,6 +35,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
+/**
+ * Tests WS api/components/search_projects
+ */
 public class SearchProjectsTest {
 
   @ClassRule
@@ -46,16 +49,16 @@ public class SearchProjectsTest {
   }
 
   @Test
-  public void search_projects_with_filter_having_one_criterion() throws Exception {
+  public void filter_projects_by_measure_values() throws Exception {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
-    SearchProjectsWsResponse response = searchProjects("ncloc > 1");
-
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("sample");
+    verifyFilterMatches("ncloc > 1");
+    verifyFilterMatches("ncloc > 1 and comment_lines < 10000");
+    verifyFilterDoesNotMatch("ncloc <= 1");
   }
 
   @Test
-  public void return_project_even_without_analysis() throws Exception {
+  public void provisioned_projects_should_be_included_to_results() throws Exception {
     orchestrator.getServer().provisionProject("sample", "sample");
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().build());
@@ -63,11 +66,20 @@ public class SearchProjectsTest {
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("sample");
   }
 
+
   private SearchProjectsWsResponse searchProjects(String filter) throws IOException {
     return searchProjects(SearchProjectsRequest.builder().setFilter(filter).build());
   }
 
   private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {
     return newAdminWsClient(orchestrator).components().searchProjects(request);
+  }
+
+  private void verifyFilterMatches(String filter) throws IOException {
+    assertThat(searchProjects(filter).getComponentsList()).extracting(Component::getKey).containsOnly("sample");
+  }
+
+  private void verifyFilterDoesNotMatch(String filter) throws IOException {
+    assertThat(searchProjects(filter).getComponentsCount()).isZero();
   }
 }

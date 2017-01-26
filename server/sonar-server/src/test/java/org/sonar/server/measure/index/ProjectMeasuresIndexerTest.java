@@ -32,19 +32,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.measure.index.ProjectMeasuresDoc;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.permission.index.PermissionIndexerTester;
+import org.sonar.server.es.ProjectIndexer;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ProjectMeasuresIndexerTest {
@@ -57,10 +52,8 @@ public class ProjectMeasuresIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester);
-
-  ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(system2, dbTester.getDbClient(), esTester.client());
+  private ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+  private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(system2, dbTester.getDbClient(), esTester.client());
 
   @Test
   public void index_nothing() {
@@ -81,11 +74,32 @@ public class ProjectMeasuresIndexerTest {
     assertThat(esTester.countDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isEqualTo(3);
   }
 
+  /**
+   * Provisioned projects don't have analysis yet
+   */
   @Test
-  public void index_projects_even_when_no_analysis() {
+  public void index_provisioned_projects() {
     ComponentDto project = componentDbTester.insertProject();
 
     underTest.index();
+
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
+  }
+
+  @Test
+  public void indexProject_indexes_provisioned_project() {
+    ComponentDto project = componentDbTester.insertProject();
+
+    underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+
+    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
+  }
+
+  @Test
+  public void indexProject_indexes_project_when_its_key_is_updated() {
+    ComponentDto project = componentDbTester.insertProject();
+
+    underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
   }
@@ -97,7 +111,7 @@ public class ProjectMeasuresIndexerTest {
     componentDbTester.insertProjectAndSnapshot(project);
     componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
 
-    underTest.index(project.uuid());
+    underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
   }
@@ -113,7 +127,7 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name");
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
 
-    underTest.index(project.uuid());
+    underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(uuid);
     SearchRequestBuilder request = esTester.client()
@@ -138,14 +152,10 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project3 = newProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project3);
     underTest.index();
-    authorizationIndexerTester.indexProjectPermission(project1.uuid(), emptyList(), emptyList());
-    authorizationIndexerTester.indexProjectPermission(project2.uuid(), emptyList(), emptyList());
-    authorizationIndexerTester.indexProjectPermission(project3.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject(project1.uuid());
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project2.uuid(), project3.uuid());
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project2.uuid(), project3.uuid());
   }
 
   @Test
@@ -153,11 +163,9 @@ public class ProjectMeasuresIndexerTest {
     ComponentDto project = newProjectDto(dbTester.organizations().insert());
     componentDbTester.insertProjectAndSnapshot(project);
     underTest.index();
-    authorizationIndexerTester.indexProjectPermission(project.uuid(), emptyList(), emptyList());
 
     underTest.deleteProject("UNKNOWN");
 
     assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
-    assertThat(esTester.getIds(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION)).containsOnly(project.uuid());
   }
 }

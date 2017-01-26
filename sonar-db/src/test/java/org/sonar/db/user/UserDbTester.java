@@ -324,11 +324,7 @@ public class UserDbTester {
   }
 
   /**
-<<<<<<< HEAD
-   * Grant permission on given project in default organization
-=======
    * Grant permission on given project
->>>>>>> 6772c5b73a... SONAR-8704 remove error-prone params Organization in UserDbTester
    */
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());

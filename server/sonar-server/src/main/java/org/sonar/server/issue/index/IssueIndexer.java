@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,25 +33,33 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationScope;
+import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
-import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
-public class IssueIndexer extends BaseIndexer {
+public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
 
   public IssueIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
     super(system2, esClient, 300, INDEX, TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  public AuthorizationScope getAuthorizationScope() {
+    return AUTHORIZATION_SCOPE;
   }
 
   @Override
@@ -62,8 +71,22 @@ public class IssueIndexer extends BaseIndexer {
     doIndex(createBulkIndexer(true), 0L, null);
   }
 
-  public void index(String projectUuid) {
-    super.index(lastUpdatedAt -> doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid));
+  @Override
+  public void indexProject(String projectUuid, Cause cause) {
+    switch (cause) {
+      case PROJECT_CREATION:
+        // nothing to do, issues do not exist at project creation
+        break;
+      case PROJECT_KEY_UPDATE:
+        // nothing to do, project key is not used in this index
+        break;
+      case NEW_ANALYSIS:
+        super.index(lastUpdatedAt -> doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid));
+        break;
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
   }
 
   /**
@@ -96,11 +119,12 @@ public class IssueIndexer extends BaseIndexer {
     return maxDate;
   }
 
+  @Override
   public void deleteProject(String uuid) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
-      .setTypes(TYPE_ISSUE, TYPE_AUTHORIZATION)
+      .setTypes(TYPE_ISSUE)
       .setRouting(uuid)
       .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, uuid)));
     bulk.addDeletion(search);
@@ -143,5 +167,4 @@ public class IssueIndexer extends BaseIndexer {
       .parent(projectUuid)
       .source(issue.getFields());
   }
-
 }

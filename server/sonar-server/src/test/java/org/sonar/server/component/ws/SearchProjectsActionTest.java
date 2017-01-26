@@ -24,7 +24,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -33,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -49,6 +47,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.KeyExamples;
@@ -80,6 +80,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FIL
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchProjectsActionTest {
+
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
   private static final String IS_FAVOURITE_CRITERION = "isFavorite";
@@ -97,9 +98,9 @@ public class SearchProjectsActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
-  private final ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), userSession);
-  private final ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(System2.INSTANCE, dbClient, es.client()));
+  private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  private ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
 
   private WsActionTester ws = new WsActionTester(
     new SearchProjectsAction(dbClient, index, queryValidator, userSession));
@@ -398,7 +399,7 @@ public class SearchProjectsActionTest {
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
         new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
-      authorizationIndexerTester.indexProjectPermission(project.uuid(), singletonList(DefaultGroups.ANYONE), Collections.emptyList());
+      authorizationIndexerTester.allowOnlyAnyone(project);
     } catch (Exception e) {
       Throwables.propagate(e);
     }

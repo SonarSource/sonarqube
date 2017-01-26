@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -70,6 +71,13 @@ public class NewIndex {
     NewIndexType type = new NewIndexType(typeName);
     types.put(typeName, type);
     return type;
+  }
+
+  /**
+   * @see AuthorizationTypeSupport#createTypeRequiringProjectAuthorization(NewIndex, String)
+   */
+  public NewIndexType createTypeRequiringProjectAuthorization(String typeName) {
+    return AuthorizationTypeSupport.createTypeRequiringProjectAuthorization(this, typeName);
   }
 
   public Map<String, NewIndexType> getTypes() {

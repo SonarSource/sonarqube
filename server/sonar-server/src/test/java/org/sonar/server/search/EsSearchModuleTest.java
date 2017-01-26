@@ -29,7 +29,7 @@ public class EsSearchModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new EsSearchModule().configure(container);
-    assertThat(container.size()).isEqualTo(4);
+    assertThat(container.size()).isEqualTo(3 + 2);
   }
 
 }

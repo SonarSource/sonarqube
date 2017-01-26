@@ -20,51 +20,28 @@
 
 package org.sonar.server.component;
 
-import com.google.common.base.Optional;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
-import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
 public class ComponentUpdaterTest {
 
@@ -78,53 +55,41 @@ public class ComponentUpdaterTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = new EsTester(
-    new ComponentIndexDefinition(new MapSettings()),
-    new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new IssueIndexDefinition(new MapSettings()),
-    new ViewIndexDefinition(new MapSettings()));
-  @Rule
   public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
-  @Rule
-  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
 
-  private PermissionTemplateDto permissionTemplateDto;
+  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
+  private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
-  ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
-    new PermissionTemplateService(db.getDbClient(),  new PermissionIndexer(db.getDbClient(), es.client()), null, defaultTemplatesResolver),
+  private ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
+    permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
-    new ComponentIndexer(db.getDbClient(), es.client()));
-
-  @Before
-  public void setUp() throws Exception {
-    permissionTemplateDto = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), permissionTemplateDto.getUuid(), null);
-  }
+    new ProjectIndexer[] {projectIndexer});
 
   @Test
-  public void create_project() throws Exception {
-    ComponentDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
+  public void should_persist_and_index_when_creating_project() throws Exception {
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+    ComponentDto returned = underTest.create(db.getSession(), project, null);
 
-    assertThat(project.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(project.deprecatedKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(project.name()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(project.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(project.qualifier()).isEqualTo("TRK");
-    assertThat(project.scope()).isEqualTo("PRJ");
-    assertThat(project.getOrganizationUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
-    assertThat(project.uuid()).isNotNull();
-    assertThat(project.projectUuid()).isEqualTo(project.uuid());
-    assertThat(project.moduleUuid()).isNull();
-    assertThat(project.moduleUuidPath()).isEqualTo("." + project.uuid() + ".");
-    assertThat(project.getCreatedAt()).isNotNull();
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(loaded.deprecatedKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(loaded.name()).isEqualTo(DEFAULT_PROJECT_NAME);
+    assertThat(loaded.longName()).isEqualTo(DEFAULT_PROJECT_NAME);
+    assertThat(loaded.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
+    assertThat(loaded.getOrganizationUuid()).isEqualTo(db.getDefaultOrganization().getUuid());
+    assertThat(loaded.uuid()).isNotNull();
+    assertThat(loaded.projectUuid()).isEqualTo(loaded.uuid());
+    assertThat(loaded.moduleUuid()).isNull();
+    assertThat(loaded.moduleUuidPath()).isEqualTo("." + loaded.uuid() + ".");
+    assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isNotNull();
+
+    verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
   }
 
   @Test
@@ -142,80 +107,38 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void remove_duplicated_components_when_creating_project() throws Exception {
-    String projectKey = "PROJECT_KEY";
+  public void should_apply_default_permission_template() throws Exception {
+    long userId = 42;
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+    ComponentDto dto = underTest.create(db.getSession(), project, userId);
 
-    DbSession session = mock(DbSession.class);
-
-    ComponentDao componentDao = mock(ComponentDao.class);
-    when(componentDao.selectByKey(session, projectKey)).thenReturn(Optional.absent());
-
-    DbClient dbClient = mock(DbClient.class);
-    when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.componentDao()).thenReturn(componentDao);
-
-    doAnswer(invocation -> {
-      ((ComponentDto) invocation.getArguments()[1]).setId(1L);
-      return null;
-    }).when(componentDao).insert(eq(session), any(ComponentDto.class));
-
-    OrganizationDto organization = db.getDefaultOrganization();
-    when(componentDao.selectComponentsHavingSameKeyOrderedById(session, projectKey)).thenReturn(newArrayList(
-      ComponentTesting.newProjectDto(organization).setId(1L).setKey(projectKey),
-      ComponentTesting.newProjectDto(organization).setId(2L).setKey(projectKey),
-      ComponentTesting.newProjectDto(organization).setId(3L).setKey(projectKey)));
-
-    underTest = new ComponentUpdater(dbClient, i18n, System2.INSTANCE, mock(PermissionTemplateService.class), null, mock(ProjectMeasuresIndexer.class),
-      mock(ComponentIndexer.class));
-    underTest.create(
-      session,
-      newComponentBuilder()
-        .setOrganizationUuid(organization.getUuid())
-        .setKey(projectKey)
-        .setName(projectKey)
-        .build(),
-      null);
-
-    verify(componentDao).delete(session, 2L);
-    verify(componentDao).delete(session, 3L);
+    verify(permissionTemplateService).applyDefault(db.getSession(), dto.getOrganizationUuid(), dto, userId);
   }
 
   @Test
-  public void verify_permission_template_is_applied() throws Exception {
+  public void should_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() throws Exception {
     UserDto userDto = db.users().insertUser();
-    db.permissionTemplates().addUserToTemplate(permissionTemplateDto.getId(), userDto.getId(), USER);
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+    when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), eq(project.getOrganizationUuid()), any(ComponentDto.class)))
+      .thenReturn(true);
 
-    ComponentDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
-
-    assertThat(db.users().selectProjectPermissionsOfUser(userDto, project)).containsOnly(USER);
-  }
-
-  @Test
-  public void add_project_to_favorite_when_user() throws Exception {
-    UserDto userDto = db.users().insertUser();
-    db.permissionTemplates().addProjectCreatorToTemplate(permissionTemplateDto.getId(), USER);
-
-    ComponentDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
+    ComponentDto dto = underTest.create(db.getSession(),
+      project,
       userDto.getId());
 
-    assertThat(db.favorites().hasFavorite(project, userDto.getId())).isTrue();
+    assertThat(db.favorites().hasFavorite(dto, userDto.getId())).isTrue();
   }
 
   @Test
-  public void does_not_add_project_to_favorite_when_no_user() throws Exception {
-    db.permissionTemplates().addProjectCreatorToTemplate(permissionTemplateDto.getId(), USER);
-
+  public void does_not_add_project_to_favorite_when_anonymously_created() throws Exception {
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -229,8 +152,6 @@ public class ComponentUpdaterTest {
 
   @Test
   public void does_not_add_project_to_favorite_when_project_has_no_permission_on_template() throws Exception {
-    UserDto userDto = db.users().insertUser();
-
     ComponentDto project = underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
         .setKey(DEFAULT_PROJECT_KEY)
@@ -243,30 +164,17 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void verify_project_exists_in_es_indexes() throws Exception {
-    ComponentDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
+  public void fail_when_project_key_already_exists() throws Exception {
+    ComponentDto existing = db.components().insertProject();
 
-    assertThat(es.getIds(INDEX_COMPONENTS, TYPE_COMPONENT)).containsOnly(project.uuid());
-    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
-  }
-
-  @Test
-  public void fail_when_project_already_exists() throws Exception {
-    db.components().insertComponent(ComponentTesting.newProjectDto(db.getDefaultOrganization()).setKey(DEFAULT_PROJECT_KEY));
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Could not create Project, key already exists: project-key");
+    expectedException.expectMessage("Could not create Project, key already exists: " + existing.key());
 
     underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
+        .setKey(existing.key())
         .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+        .setOrganizationUuid(existing.getOrganizationUuid())
         .build(),
       null);
   }
@@ -301,26 +209,21 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void create_view() {
-    defaultTemplatesResolver.installGovernance();
+  public void persist_and_index_when_creating_view() {
+    NewComponent view = NewComponent.newComponentBuilder()
+      .setKey("view-key")
+      .setName("view-name")
+      .setQualifier(VIEW)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
 
-    ComponentDto view = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey("view-key")
-        .setName("view-name")
-        .setQualifier(VIEW)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build(),
-      null);
+    ComponentDto returned = underTest.create(db.getSession(), view, null);
 
-    assertThat(view.getKey()).isEqualTo("view-key");
-    assertThat(view.name()).isEqualTo("view-name");
-    assertThat(view.qualifier()).isEqualTo("VW");
-    assertThat(es.getIds(INDEX_COMPONENTS, TYPE_COMPONENT)).containsOnly(view.uuid());
-    // Indexes related to project measures, issues and views are not indexed
-    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).isEmpty();
-    assertThat(es.getIds(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION)).isEmpty();
-    assertThat(es.getIds(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEmpty();
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.getKey()).isEqualTo("view-key");
+    assertThat(loaded.name()).isEqualTo("view-name");
+    assertThat(loaded.qualifier()).isEqualTo("VW");
+    verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
   }
 
 }

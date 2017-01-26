@@ -19,28 +19,32 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.test.index.TestIndexer;
+import org.sonar.server.es.ProjectIndexer;
 
-public class IndexTestsStep implements ComputationStep {
+public class IndexAnalysisStep implements ComputationStep {
 
-  private final TestIndexer indexer;
   private final TreeRootHolder treeRootHolder;
+  private final ProjectIndexer[] indexers;
 
-  public IndexTestsStep(TestIndexer indexer, TreeRootHolder treeRootHolder) {
-    this.indexer = indexer;
+  public IndexAnalysisStep(TreeRootHolder treeRootHolder, ProjectIndexer[] indexers) {
     this.treeRootHolder = treeRootHolder;
+    this.indexers = indexers;
   }
 
   @Override
   public void execute() {
-    indexer.index(treeRootHolder.getRoot().getUuid());
+    String projectUuid = treeRootHolder.getRoot().getUuid();
+    for (ProjectIndexer indexer : indexers) {
+      Loggers.get(IndexAnalysisStep.class).info("Index " + indexer);
+      indexer.indexProject(projectUuid, ProjectIndexer.Cause.NEW_ANALYSIS);
+    }
   }
 
   @Override
   public String getDescription() {
-    return "Index tests";
+    return "Index analysis";
   }
-
 }
