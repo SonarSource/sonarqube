@@ -35,6 +35,7 @@ import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
+import static org.sonar.server.es.DefaultIndexSettings.LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
 import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.MAX_GRAM;
@@ -48,6 +49,7 @@ import static org.sonar.server.es.DefaultIndexSettings.STRING;
 import static org.sonar.server.es.DefaultIndexSettings.SUB_FIELD_DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.TOKENIZER;
 import static org.sonar.server.es.DefaultIndexSettings.TRIM;
+import static org.sonar.server.es.DefaultIndexSettings.TRUNCATE;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettings.WHITESPACE;
 
@@ -68,6 +70,15 @@ public enum DefaultIndexSettingsElement {
       set("preserve_original", true);
       set("split_on_numerics", true);
       set("stem_english_possessive", true);
+    }
+  },
+  EDGE_NGRAM_FILTER(FILTER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, "edge_ngram");
+      set(MIN_GRAM, 1);
+      set(MAX_GRAM, 15);
     }
   },
 

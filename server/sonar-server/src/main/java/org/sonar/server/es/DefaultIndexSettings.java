@@ -45,6 +45,7 @@ public class DefaultIndexSettings {
   public static final String CUSTOM = "custom";
   public static final String KEYWORD = "keyword";
   public static final String CLASSIC = "classic";
+  public static final String TRUNCATE = "truncate";
 
   public static final String SUB_FIELD_DELIMITER = ".";
 
@@ -56,6 +57,7 @@ public class DefaultIndexSettings {
   public static final String PORTER_STEM = "porter_stem";
   public static final String MIN_GRAM = "min_gram";
   public static final String MAX_GRAM = "max_gram";
+  public static final String LENGTH = "length";
 
   private DefaultIndexSettings() {
     // only static stuff
