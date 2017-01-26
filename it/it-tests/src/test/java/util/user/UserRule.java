@@ -25,6 +25,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -39,15 +40,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
-public class UserRule extends ExternalResource {
+public class UserRule extends ExternalResource implements GroupManagement {
 
   public static final String ADMIN_LOGIN = "admin";
   private final Orchestrator orchestrator;
 
   private WsClient adminWsClient;
+  private final GroupManagement defaultOrganizationGroupManagement;
 
   private UserRule(Orchestrator orchestrator) {
     this.orchestrator = orchestrator;
+    this.defaultOrganizationGroupManagement = new GroupManagementImpl(null);
   }
 
   public static UserRule from(Orchestrator orchestrator) {
@@ -135,65 +138,149 @@ public class UserRule extends ExternalResource {
   // User groups
   // *****************
 
-  public void createGroup(String name) {
-    createGroup(name, null);
+  public GroupManagement forOrganization(String organizationKey) {
+    return new GroupManagementImpl(organizationKey);
   }
 
-  public void createGroup(String name, @Nullable String description) {
-    adminWsClient().wsConnector().call(
-      new PostRequest("api/user_groups/create")
-        .setParam("name", name)
-        .setParam("description", description));
-  }
+  private final class GroupManagementImpl implements GroupManagement {
+    @CheckForNull
+    private final String organizationKey;
 
-  public void removeGroups(List<String> groupNames) {
-    for (String groupName : groupNames) {
-      if (getGroupByName(groupName).isPresent()) {
-        adminWsClient().wsConnector().call(
-          new PostRequest("api/user_groups/delete")
-            .setParam("name", groupName));
+    private GroupManagementImpl(@Nullable String organizationKey) {
+      this.organizationKey = organizationKey;
+    }
+
+    @Override
+    public void createGroup(String name) {
+      createGroup(name, null);
+    }
+
+    @Override
+    public void createGroup(String name, @Nullable String description) {
+      PostRequest request = new PostRequest("api/user_groups/create")
+          .setParam("name", name)
+          .setParam("description", description);
+      addOrganizationParam(request);
+      adminWsClient().wsConnector().call(request);
+    }
+
+    private void addOrganizationParam(PostRequest request) {
+      if (organizationKey != null) {
+        request.setParam("organization", organizationKey);
+      }
+    }
+
+    private void addOrganizationParam(GetRequest request) {
+      if (organizationKey != null) {
+        request.setParam("organization", organizationKey);
+      }
+    }
+
+    @Override
+    public void removeGroups(List<String> groupNames) {
+      for (String groupName : groupNames) {
+        if (getGroupByName(groupName).isPresent()) {
+          PostRequest request = new PostRequest("api/user_groups/delete")
+              .setParam("name", groupName);
+          addOrganizationParam(request);
+          adminWsClient().wsConnector().call(request);
+        }
+      }
+    }
+
+    @Override
+    public void removeGroups(String... groupNames) {
+      removeGroups(asList(groupNames));
+    }
+
+    @Override
+    public java.util.Optional<Groups.Group> getGroupByName(String name) {
+      return getGroups().getGroups().stream().filter(new MatchGroupName(name)::apply).findFirst();
+    }
+
+    @Override
+    public Groups getGroups() {
+      GetRequest request = new GetRequest("api/user_groups/search");
+      addOrganizationParam(request);
+      WsResponse response = adminWsClient().wsConnector().call(request);
+      assertThat(response.code()).isEqualTo(200);
+      return Groups.parse(response.content());
+    }
+
+    @Override
+    public void verifyUserGroupMembership(String userLogin, String... groups) {
+      Groups userGroup = getUserGroups(userLogin);
+      List<String> userGroupName = FluentIterable.from(userGroup.getGroups()).transform(ToGroupName.INSTANCE).toList();
+      assertThat(userGroupName).containsOnly(groups);
+    }
+
+    @Override
+    public Groups getUserGroups(String userLogin) {
+      GetRequest request = new GetRequest("api/users/groups")
+          .setParam("login", userLogin)
+          .setParam("selected", "selected");
+      addOrganizationParam(request);
+      WsResponse response = adminWsClient().wsConnector().call(request);
+      assertThat(response.code()).isEqualTo(200);
+      return Groups.parse(response.content());
+    }
+
+    @Override
+    public void associateGroupsToUser(String userLogin, String... groups) {
+      for (String group : groups) {
+        PostRequest request = new PostRequest("api/user_groups/add_user")
+            .setParam("login", userLogin)
+            .setParam("name", group);
+        addOrganizationParam(request);
+        WsResponse response = adminWsClient().wsConnector().call(request);
+        assertThat(response.code()).isEqualTo(204);
       }
     }
   }
 
+  @Override
+  public void createGroup(String name) {
+    defaultOrganizationGroupManagement.createGroup(name);
+  }
+
+  @Override
+  public void createGroup(String name, @Nullable String description) {
+    defaultOrganizationGroupManagement.createGroup(name, description);
+  }
+
+  @Override
+  public void removeGroups(List<String> groupNames) {
+    defaultOrganizationGroupManagement.removeGroups(groupNames);
+  }
+
+  @Override
   public void removeGroups(String... groupNames) {
-    removeGroups(asList(groupNames));
+    defaultOrganizationGroupManagement.removeGroups(groupNames);
   }
 
-  public Optional<Groups.Group> getGroupByName(String name) {
-    return FluentIterable.from(getGroups().getGroups()).firstMatch(new MatchGroupName(name));
+  @Override
+  public java.util.Optional<Groups.Group> getGroupByName(String name) {
+    return defaultOrganizationGroupManagement.getGroupByName(name);
   }
 
+  @Override
   public Groups getGroups() {
-    WsResponse response = adminWsClient().wsConnector().call(
-      new GetRequest("api/user_groups/search"));
-    assertThat(response.code()).isEqualTo(200);
-    return Groups.parse(response.content());
+    return defaultOrganizationGroupManagement.getGroups();
   }
 
+  @Override
   public void verifyUserGroupMembership(String userLogin, String... groups) {
-    Groups userGroup = getUserGroups(userLogin);
-    List<String> userGroupName = FluentIterable.from(userGroup.getGroups()).transform(ToGroupName.INSTANCE).toList();
-    assertThat(userGroupName).containsOnly(groups);
+    defaultOrganizationGroupManagement.verifyUserGroupMembership(userLogin, groups);
   }
 
+  @Override
   public Groups getUserGroups(String userLogin) {
-    WsResponse response = adminWsClient().wsConnector().call(
-      new GetRequest("api/users/groups")
-        .setParam("login", userLogin)
-        .setParam("selected", "selected"));
-    assertThat(response.code()).isEqualTo(200);
-    return Groups.parse(response.content());
+    return defaultOrganizationGroupManagement.getUserGroups(userLogin);
   }
 
+  @Override
   public void associateGroupsToUser(String userLogin, String... groups) {
-    for (String group : groups) {
-      WsResponse response = adminWsClient().wsConnector().call(
-        new PostRequest("api/user_groups/add_user")
-          .setParam("login", userLogin)
-          .setParam("name", group));
-      assertThat(response.code()).isEqualTo(204);
-    }
+    defaultOrganizationGroupManagement.associateGroupsToUser(userLogin, groups);
   }
 
   private WsClient adminWsClient() {

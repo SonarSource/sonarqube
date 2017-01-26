@@ -30,14 +30,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.organization.UpdateWsRequest;
 import util.ItUtils;
+import util.user.GroupManagement;
+import util.user.Groups;
 import util.user.UserRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -235,6 +240,48 @@ public class OrganizationIt {
     fooUserOrganizationService.delete("bla-bla");
     userRule.unsetRoot("foo");
     expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
+  }
+
+  @Test
+  public void deleting_an_organization_also_deletes_group_permissions_and_projects_and_check_security() {
+    verifyNoExtraOrganization();
+
+    String orgKeyAndName = "org-key";
+    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
+      .setName(orgKeyAndName)
+      .setKey(orgKeyAndName)
+      .build())
+      .getOrganization();
+    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+
+    GroupManagement groupManagement = userRule.forOrganization(orgKeyAndName);
+
+    userRule.createUser("bob", "bob");
+    groupManagement.createGroup("grp1");
+    groupManagement.createGroup("grp2");
+    groupManagement.associateGroupsToUser("bob", "grp1", "grp2");
+    assertThat(groupManagement.getUserGroups("bob").getGroups())
+      .extracting(Groups.Group::getName)
+      .contains("grp1", "grp2");
+
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+        "sonar.organization", orgKeyAndName);
+    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    assertThat(searchSampleProject(componentsService).getComponentsList()).hasSize(1);
+
+    adminOrganizationService.delete(orgKeyAndName);
+
+    assertThat(searchSampleProject(componentsService).getComponentsList()).hasSize(0);
+    assertThat(groupManagement.getUserGroups("bob").getGroups())
+        .extracting(Groups.Group::getName)
+        .doesNotContain("grp1", "grp2");
+
+    verifyNoExtraOrganization();
+  }
+
+  private WsComponents.SearchWsResponse searchSampleProject(ComponentsService componentsService) {
+    return componentsService
+      .search(new org.sonarqube.ws.client.component.SearchWsRequest().setQualifiers(singletonList("TRK")).setQuery("sample"));
   }
 
   private void expect403HttpError(Runnable runnable) {
