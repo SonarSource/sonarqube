@@ -58,7 +58,11 @@ public class ComponentIndexTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+
+  @Rule
+  public ComponentIndexSearchFeatureRule features = new ComponentIndexSearchFeatureRule();
+
+  protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
 
   private ComponentIndex index;
   private ComponentIndexer indexer;
@@ -455,8 +459,8 @@ public class ComponentIndexTest {
     return assertSearch(new ComponentIndexQuery(query));
   }
 
-  private AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query));
+  protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
+    return assertThat(index.search(query, features.get()));
   }
 
   private void assertSearchResults(String query, ComponentDto... expectedComponents) {

@@ -19,13 +19,12 @@
  */
 package org.sonar.server.component.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -33,28 +32,18 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.es.BaseIndex;
-import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_CAMEL_CASE_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
-import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndex extends BaseIndex {
 
@@ -66,6 +55,11 @@ public class ComponentIndex extends BaseIndex {
   }
 
   public List<String> search(ComponentIndexQuery query) {
+    return search(query, ComponentIndexSearchFeature.values());
+  }
+
+  @VisibleForTesting
+  List<String> search(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
     SearchRequestBuilder request = getClient()
       .prepareSearch(INDEX_COMPONENTS)
       .setTypes(TYPE_COMPONENT)
@@ -73,54 +67,28 @@ public class ComponentIndex extends BaseIndex {
 
     query.getLimit().ifPresent(request::setSize);
 
-    request.setQuery(createQuery(query));
+    request.setQuery(createQuery(query, features));
 
-    return Arrays.stream(request.get().getHits().hits())
+    SearchResponse searchResponse = request.get();
+
+    return Arrays.stream(searchResponse.getHits().hits())
       .map(SearchHit::getId)
       .collect(Collectors.toList());
   }
 
-  private QueryBuilder createQuery(ComponentIndexQuery query) {
+  private QueryBuilder createQuery(ComponentIndexQuery query, ComponentIndexSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(createAuthorizationFilter());
 
     query.getQualifier().ifPresent(q -> esQuery.filter(termQuery(FIELD_QUALIFIER, q)));
 
-    String queryText = query.getQuery();
+    BoolQueryBuilder featureQuery = boolQuery();
 
-    // We will truncate the search to the maximum length of nGrams in the index.
-    // Otherwise the search would for sure not find any results.
-    String truncatedQuery = StringUtils.left(queryText, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
+    Arrays.stream(features)
+      .map(f -> f.getQuery(query.getQuery()))
+      .forEach(featureQuery::should);
 
-    return esQuery.must(boolQuery()
-
-      // partial name matches
-      .should(matchQuery(SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME), truncatedQuery))
-
-      // fuzzy name matches
-      .should(matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText).fuzziness(Fuzziness.AUTO))
-
-      // prefix matches
-      .should(prefixQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText))
-
-      // camel case matches
-      .should(
-
-        boolQuery()
-
-          // let PE find NullPointerException, but with a weak score
-          .should(matchPhraseQuery(SEARCH_CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText).boost(0.2f))
-
-          // let NPE find NullPointerException
-          .should(
-            boolQuery()
-              .must(matchPhraseQuery(SEARCH_CAMEL_CASE_ANALYZER.subField(FIELD_NAME), queryText))
-              .must(prefixQuery(FIELD_NAME, StringUtils.left(queryText, 1))))
-
-      )
-
-      // exact match on the key
-      .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), queryText).boost(5f)));
+    return esQuery.must(featureQuery);
   }
 
   private QueryBuilder createAuthorizationFilter() {
