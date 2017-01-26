@@ -60,11 +60,7 @@ public class ComponentAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>" +
+        "Requires the following permission: 'Browse' on the project of the specified component.<br>" +
         "Either '%s' or '%s' must be provided, not both.<br>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.",
         PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
