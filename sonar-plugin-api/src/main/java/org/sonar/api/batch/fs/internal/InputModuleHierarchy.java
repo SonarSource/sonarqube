@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
-import org.sonar.scanner.repository.language.LanguagesRepository;
+import java.util.Collection;
 
-@ScannerSide
-public class LanguageDetectionFactory {
-  private final Settings settings;
-  private final LanguagesRepository languages;
+import javax.annotation.CheckForNull;
 
-  public LanguageDetectionFactory(Settings settings, LanguagesRepository languages) {
-    this.settings = settings;
-    this.languages = languages;
-  }
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
-  public LanguageDetection create() {
-    return new LanguageDetection(settings, languages);
-  }
+public interface InputModuleHierarchy {
+  DefaultInputModule root();
+  
+  boolean isRoot(InputModule module);
+
+  Collection<DefaultInputModule> children(InputModule module);
+
+  @CheckForNull
+  DefaultInputModule parent(InputModule module);
+  
+  @CheckForNull
+  String relativePath(InputModule module);
 }

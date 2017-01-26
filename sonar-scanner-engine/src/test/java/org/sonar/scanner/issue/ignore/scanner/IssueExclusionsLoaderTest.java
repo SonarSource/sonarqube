@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
@@ -102,11 +102,15 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DefaultInputFile("polop", "src/main/java/Foo.java")
-      .setType(InputFile.Type.MAIN));
+    fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .build());
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DefaultInputFile("polop", "src/test/java/FooTest.java")
-      .setType(InputFile.Type.TEST));
+    fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.TEST)
+      .build());
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
@@ -122,12 +126,12 @@ public class IssueExclusionsLoaderTest {
 
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() {
-    File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DefaultInputFile("polop", "src/main/java/Foo.java")
-      .setType(InputFile.Type.MAIN));
-    File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DefaultInputFile("polop", "src/test/java/FooTest.java")
-      .setType(InputFile.Type.TEST));
+    fs.add(new TestInputFileBuilder("polop", "src/main/java/Foo.java")
+      .setType(InputFile.Type.MAIN)
+      .build());
+    fs.add(new TestInputFileBuilder("polop", "src/test/java/FooTest.java")
+      .setType(InputFile.Type.TEST)
+      .build());
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
     scanner.execute();
@@ -142,8 +146,10 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
-    fs.add(new DefaultInputFile("polop", "src/Foo.php")
-      .setType(InputFile.Type.MAIN));
+    fs.add(new TestInputFileBuilder("polop", "src/Foo.php")
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .build());
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:src/Foo.php", phpFile1, UTF_8);

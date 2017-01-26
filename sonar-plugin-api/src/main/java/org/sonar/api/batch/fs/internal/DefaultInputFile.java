@@ -21,73 +21,106 @@ package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Preconditions;
 import java.io.File;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.function.Consumer;
+
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.FileMetadata.Metadata;
-import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 4.2
  */
 public class DefaultInputFile extends DefaultInputComponent implements InputFile {
-
-  private final String relativePath;
-  private final String moduleKey;
-  private Path moduleBaseDir;
-  private String language;
-  private Type type = Type.MAIN;
+  private final DefaultIndexedFile indexedFile;
+  private final Consumer<DefaultInputFile> metadataGenerator;
   private Status status;
-  private int lines = -1;
   private Charset charset;
-  private int lastValidOffset = -1;
-  private String hash;
-  private int nonBlankLines;
-  private int[] originalLineOffsets;
+  private Metadata metadata;
+  private boolean publish;
 
-  public DefaultInputFile(String moduleKey, String relativePath) {
-    this.moduleKey = moduleKey;
-    this.relativePath = PathUtils.sanitize(relativePath);
+  public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
+    super(indexedFile.batchId());
+    this.indexedFile = indexedFile;
+    this.metadataGenerator = metadataGenerator;
+    this.metadata = null;
+    this.publish = false;
+  }
+
+  private void checkMetadata() {
+    if (metadata == null) {
+      metadataGenerator.accept(this);
+    }
+  }
+
+  /**
+   * @since 6.3
+   */
+  public void setPublish(boolean publish) {
+    this.publish = publish;
+  }
+
+  /**
+   * @since 6.3
+   */
+  public boolean publish() {
+    return publish;
   }
 
   @Override
   public String relativePath() {
-    return relativePath;
+    return indexedFile.relativePath();
   }
 
   @Override
   public String absolutePath() {
-    return PathUtils.sanitize(path().toString());
+    return indexedFile.absolutePath();
   }
 
   @Override
   public File file() {
-    return path().toFile();
+    return indexedFile.file();
   }
 
   @Override
   public Path path() {
-    if (moduleBaseDir == null) {
-      throw new IllegalStateException("Can not return the java.nio.file.Path because module baseDir is not set (see method setModuleBaseDir(java.io.File))");
-    }
-    return moduleBaseDir.resolve(relativePath);
+    return indexedFile.path();
   }
 
   @CheckForNull
   @Override
   public String language() {
-    return language;
+    return indexedFile.language();
   }
 
   @Override
   public Type type() {
-    return type;
+    return indexedFile.type();
+  }
+
+  /**
+   * Component key (without branch).
+   */
+  @Override
+  public String key() {
+    return indexedFile.key();
+  }
+
+  public String moduleKey() {
+    return indexedFile.moduleKey();
+  }
+
+  @Override
+  public int hashCode() {
+    return indexedFile.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return indexedFile.toString();
   }
 
   /**
@@ -95,61 +128,112 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
    */
   @Override
   public Status status() {
+    checkMetadata();
     return status;
   }
 
   @Override
   public int lines() {
-    return lines;
+    checkMetadata();
+    return metadata.lines();
   }
 
   @Override
   public boolean isEmpty() {
-    return lastValidOffset == 0;
-  }
-
-  /**
-   * Component key.
-   */
-  @Override
-  public String key() {
-    return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
-  }
-
-  public String moduleKey() {
-    return moduleKey;
+    checkMetadata();
+    return metadata.lastValidOffset() == 0;
   }
 
   @Override
   public Charset charset() {
+    checkMetadata();
     return charset;
   }
 
+  public int lastValidOffset() {
+    checkMetadata();
+    Preconditions.checkState(metadata.lastValidOffset() >= 0, "InputFile is not properly initialized.");
+    return metadata.lastValidOffset();
+  }
+
   /**
-   * For testing purpose. Will be automaticall set when file is added to {@link DefaultFileSystem}
+   * Digest hash of the file.
    */
-  public DefaultInputFile setModuleBaseDir(Path moduleBaseDir) {
-    this.moduleBaseDir = moduleBaseDir.normalize();
-    return this;
+  public String hash() {
+    checkMetadata();
+    return metadata.hash();
   }
 
-  public DefaultInputFile setLanguage(@Nullable String language) {
-    this.language = language;
-    return this;
+  public int nonBlankLines() {
+    checkMetadata();
+    return metadata.nonBlankLines();
   }
 
-  public DefaultInputFile setType(Type type) {
-    this.type = type;
-    return this;
+  public int[] originalLineOffsets() {
+    checkMetadata();
+    Preconditions.checkState(metadata.originalLineOffsets() != null, "InputFile is not properly initialized.");
+    Preconditions.checkState(metadata.originalLineOffsets().length == metadata.lines(),
+      "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
+    return metadata.originalLineOffsets();
+  }
+
+  @Override
+  public TextPointer newPointer(int line, int lineOffset) {
+    checkMetadata();
+    DefaultTextPointer textPointer = new DefaultTextPointer(line, lineOffset);
+    checkValid(textPointer, "pointer");
+    return textPointer;
+  }
+
+  @Override
+  public TextRange newRange(TextPointer start, TextPointer end) {
+    checkMetadata();
+    checkValid(start, "start pointer");
+    checkValid(end, "end pointer");
+    return newRangeValidPointers(start, end, false);
+  }
+
+  @Override
+  public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    checkMetadata();
+    TextPointer start = newPointer(startLine, startLineOffset);
+    TextPointer end = newPointer(endLine, endLineOffset);
+    return newRangeValidPointers(start, end, false);
+  }
+
+  @Override
+  public TextRange selectLine(int line) {
+    checkMetadata();
+    TextPointer startPointer = newPointer(line, 0);
+    TextPointer endPointer = newPointer(line, lineLength(line));
+    return newRangeValidPointers(startPointer, endPointer, true);
+  }
+
+  public void validate(TextRange range) {
+    checkMetadata();
+    checkValid(range.start(), "start pointer");
+    checkValid(range.end(), "end pointer");
+  }
+
+  /**
+   * Create Range from global offsets. Used for backward compatibility with older API.
+   */
+  public TextRange newRange(int startOffset, int endOffset) {
+    checkMetadata();
+    return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset), false);
+  }
+
+  public TextPointer newPointer(int globalOffset) {
+    checkMetadata();
+    Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
+    Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
+    int line = findLine(globalOffset);
+    int startLineOffset = originalLineOffsets()[line - 1];
+    return new DefaultTextPointer(line, globalOffset - startLineOffset);
   }
 
   public DefaultInputFile setStatus(Status status) {
     this.status = status;
-    return this;
-  }
-
-  public DefaultInputFile setLines(int lines) {
-    this.lines = lines;
     return this;
   }
 
@@ -158,58 +242,9 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return this;
   }
 
-  public int lastValidOffset() {
-    Preconditions.checkState(lastValidOffset >= 0, "InputFile is not properly initialized. Please set 'lastValidOffset' property.");
-    return lastValidOffset;
-  }
-
-  public DefaultInputFile setLastValidOffset(int lastValidOffset) {
-    this.lastValidOffset = lastValidOffset;
-    return this;
-  }
-
-  /**
-   * Digest hash of the file.
-   */
-  public String hash() {
-    return hash;
-  }
-
-  public int nonBlankLines() {
-    return nonBlankLines;
-  }
-
-  public int[] originalLineOffsets() {
-    Preconditions.checkState(originalLineOffsets != null, "InputFile is not properly initialized. Please set 'originalLineOffsets' property.");
-    Preconditions.checkState(originalLineOffsets.length == lines, "InputFile is not properly initialized. 'originalLineOffsets' property length should be equal to 'lines'");
-    return originalLineOffsets;
-  }
-
-  public DefaultInputFile setHash(String hash) {
-    this.hash = hash;
-    return this;
-  }
-
-  public DefaultInputFile setNonBlankLines(int nonBlankLines) {
-    this.nonBlankLines = nonBlankLines;
-    return this;
-  }
-
-  public DefaultInputFile setOriginalLineOffsets(int[] originalLineOffsets) {
-    this.originalLineOffsets = originalLineOffsets;
-    return this;
-  }
-
-  @Override
-  public TextPointer newPointer(int line, int lineOffset) {
-    DefaultTextPointer textPointer = new DefaultTextPointer(line, lineOffset);
-    checkValid(textPointer, "pointer");
-    return textPointer;
-  }
-
   private void checkValid(TextPointer pointer, String owner) {
     Preconditions.checkArgument(pointer.line() >= 1, "%s is not a valid line for a file", pointer.line());
-    Preconditions.checkArgument(pointer.line() <= this.lines, "%s is not a valid line for %s. File %s has %s line(s)", pointer.line(), owner, this, lines);
+    Preconditions.checkArgument(pointer.line() <= this.metadata.lines(), "%s is not a valid line for %s. File %s has %s line(s)", pointer.line(), owner, this, metadata.lines());
     Preconditions.checkArgument(pointer.lineOffset() >= 0, "%s is not a valid line offset for a file", pointer.lineOffset());
     int lineLength = lineLength(pointer.line());
     Preconditions.checkArgument(pointer.lineOffset() <= lineLength,
@@ -221,33 +256,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   private int lastValidGlobalOffsetForLine(int line) {
-    return line < this.lines ? (originalLineOffsets()[line] - 1) : lastValidOffset();
-  }
-
-  @Override
-  public TextRange newRange(TextPointer start, TextPointer end) {
-    checkValid(start, "start pointer");
-    checkValid(end, "end pointer");
-    return newRangeValidPointers(start, end, false);
-  }
-
-  @Override
-  public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    TextPointer start = newPointer(startLine, startLineOffset);
-    TextPointer end = newPointer(endLine, endLineOffset);
-    return newRangeValidPointers(start, end, false);
-  }
-
-  @Override
-  public TextRange selectLine(int line) {
-    TextPointer startPointer = newPointer(line, 0);
-    TextPointer endPointer = newPointer(line, lineLength(line));
-    return newRangeValidPointers(startPointer, endPointer, true);
-  }
-
-  public void validate(TextRange range) {
-    checkValid(range.start(), "start pointer");
-    checkValid(range.end(), "end pointer");
+    return line < this.metadata.lines() ? (originalLineOffsets()[line] - 1) : lastValidOffset();
   }
 
   private static TextRange newRangeValidPointers(TextPointer start, TextPointer end, boolean acceptEmptyRange) {
@@ -256,39 +265,13 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     return new DefaultTextRange(start, end);
   }
 
-  /**
-   * Create Range from global offsets. Used for backward compatibility with older API.
-   */
-  public TextRange newRange(int startOffset, int endOffset) {
-    return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset), false);
-  }
-
-  public TextPointer newPointer(int globalOffset) {
-    Preconditions.checkArgument(globalOffset >= 0, "%s is not a valid offset for a file", globalOffset);
-    Preconditions.checkArgument(globalOffset <= lastValidOffset(), "%s is not a valid offset for file %s. Max offset is %s", globalOffset, this, lastValidOffset());
-    int line = findLine(globalOffset);
-    int startLineOffset = originalLineOffsets()[line - 1];
-    return new DefaultTextPointer(line, globalOffset - startLineOffset);
-  }
-
   private int findLine(int globalOffset) {
     return Math.abs(Arrays.binarySearch(originalLineOffsets(), globalOffset) + 1);
   }
 
-  public DefaultInputFile initMetadata(Metadata metadata) {
-    this.setLines(metadata.lines);
-    this.setLastValidOffset(metadata.lastValidOffset);
-    this.setNonBlankLines(metadata.nonBlankLines);
-    this.setHash(metadata.hash);
-    this.setOriginalLineOffsets(metadata.originalLineOffsets);
+  public DefaultInputFile setMetadata(Metadata metadata) {
+    this.metadata = metadata;
     return this;
-  }
-
-  /**
-   * For testing purpose
-   */
-  public DefaultInputFile initMetadata(String content) {
-    return initMetadata(new FileMetadata().readMetadata(new StringReader(content)));
   }
 
   @Override
@@ -303,17 +286,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     }
 
     DefaultInputFile that = (DefaultInputFile) o;
-    return moduleKey.equals(that.moduleKey) && relativePath.equals(that.relativePath);
-  }
-
-  @Override
-  public int hashCode() {
-    return moduleKey.hashCode() + relativePath.hashCode() * 13;
-  }
-
-  @Override
-  public String toString() {
-    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
+    return this.moduleKey().equals(that.moduleKey()) && this.relativePath().equals(that.relativePath());
   }
 
   @Override

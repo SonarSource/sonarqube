@@ -19,131 +19,52 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
 import javax.annotation.CheckForNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
 
-class InputFileBuilder {
-
+public class InputFileBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
-
-  @VisibleForTesting
-  static final Charset UTF_32BE = Charset.forName("UTF-32BE");
-
-  @VisibleForTesting
-  static final Charset UTF_32LE = Charset.forName("UTF-32LE");
-
   private final String moduleKey;
+  private final Path moduleBaseDir;
   private final PathResolver pathResolver;
   private final LanguageDetection langDetection;
-  private final StatusDetection statusDetection;
-  private final DefaultModuleFileSystem fs;
-  private final Settings settings;
-  private final FileMetadata fileMetadata;
+  private final BatchIdGenerator idGenerator;
+  private final MetadataGenerator metadataGenerator;
 
-  InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-    StatusDetection statusDetection, DefaultModuleFileSystem fs, Settings settings, FileMetadata fileMetadata) {
-    this.moduleKey = moduleKey;
+  public InputFileBuilder(DefaultInputModule module, PathResolver pathResolver, LanguageDetection langDetection, MetadataGenerator metadataGenerator,
+    BatchIdGenerator idGenerator) {
+    this.moduleKey = module.key();
+    this.moduleBaseDir = module.definition().getBaseDir().toPath();
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
-    this.statusDetection = statusDetection;
-    this.fs = fs;
-    this.settings = settings;
-    this.fileMetadata = fileMetadata;
-  }
-
-  String moduleKey() {
-    return moduleKey;
-  }
-
-  PathResolver pathResolver() {
-    return pathResolver;
-  }
-
-  LanguageDetection langDetection() {
-    return langDetection;
-  }
-
-  StatusDetection statusDetection() {
-    return statusDetection;
-  }
-
-  FileSystem fs() {
-    return fs;
+    this.metadataGenerator = metadataGenerator;
+    this.idGenerator = idGenerator;
   }
 
   @CheckForNull
-  DefaultInputFile create(File file) {
-    String relativePath = pathResolver.relativePath(fs.baseDir(), file);
+  DefaultInputFile create(Path file, InputFile.Type type, Charset defaultEncoding) {
+    String relativePath = pathResolver.relativePath(moduleBaseDir, file);
     if (relativePath == null) {
-      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
+      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.toAbsolutePath(), moduleBaseDir);
       return null;
     }
-    return new DefaultInputFile(moduleKey, relativePath);
-  }
-
-  /**
-   * Optimization to not compute InputFile metadata if the file is excluded from analysis.
-   */
-  @CheckForNull
-  DefaultInputFile completeAndComputeMetadata(DefaultInputFile inputFile, InputFile.Type type) {
-    inputFile.setType(type);
-    inputFile.setModuleBaseDir(fs.baseDir().toPath());
-
-    String lang = langDetection.language(inputFile);
-    if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
-      // Return fast to skip costly metadata computation
-      LOG.debug("'{}' language is not supported by any analyzer. Skipping it.", inputFile.relativePath());
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, idGenerator.get());
+    String language = langDetection.language(indexedFile);
+    if (language == null && langDetection.forcedLanguage() != null) {
+      LOG.warn("File '{}' is ignored because it doens't belong to the forced langauge '{}'", file.toAbsolutePath(), langDetection.forcedLanguage());
       return null;
     }
-    inputFile.setLanguage(lang);
-
-    Charset charset = detectCharset(inputFile.file(), fs.encoding());
-    inputFile.setCharset(charset);
-
-    inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), charset));
-
-    inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), inputFile.hash()));
-
-    return inputFile;
-  }
-
-  /**
-   * @return charset detected from BOM in given file or given defaultCharset
-   * @throws IllegalStateException if an I/O error occurs
-   */
-  private static Charset detectCharset(File file, Charset defaultCharset) {
-    try (FileInputStream inputStream = new FileInputStream(file)) {
-      byte[] bom = new byte[4];
-      int n = inputStream.read(bom, 0, bom.length);
-      if ((n >= 3) && (bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
-        return StandardCharsets.UTF_8;
-      } else if ((n >= 4) && (bom[0] == (byte) 0x00) && (bom[1] == (byte) 0x00) && (bom[2] == (byte) 0xFE) && (bom[3] == (byte) 0xFF)) {
-        return UTF_32BE;
-      } else if ((n >= 4) && (bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE) && (bom[2] == (byte) 0x00) && (bom[3] == (byte) 0x00)) {
-        return UTF_32LE;
-      } else if ((n >= 2) && (bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
-        return StandardCharsets.UTF_16BE;
-      } else if ((n >= 2) && (bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
-        return StandardCharsets.UTF_16LE;
-      } else {
-        return defaultCharset;
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file " + file.getAbsolutePath(), e);
-    }
+    indexedFile.setLanguage(language);
+    return new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
   }
 }

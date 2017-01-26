@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ public class DefaultAnalysisErrorTest {
 
   @Before
   public void setUp() {
-    inputFile = new DefaultInputFile("module1", "src/File.java");
+    inputFile = new TestInputFileBuilder("module1", "src/File.java").build();
     textPointer = new DefaultTextPointer(5, 2);
     storage = mock(SensorStorage.class);
   }

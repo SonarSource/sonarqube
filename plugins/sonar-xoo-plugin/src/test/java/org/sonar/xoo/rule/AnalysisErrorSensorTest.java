@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
@@ -65,10 +66,12 @@ public class AnalysisErrorSensorTest {
     createErrorFile(baseDir);
 
     int[] offsets = {10, 20, 30, 40};
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo")
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .setLanguage("xoo")
       .setOriginalLineOffsets(offsets)
-      .setLines(4);
+      .setModuleBaseDir(baseDir)
+      .setLines(4)
+      .build();
     context = SensorContextTester.create(baseDir);
     context.fileSystem().add(inputFile);
 

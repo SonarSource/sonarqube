@@ -21,39 +21,38 @@ package org.sonar.scanner.report;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache componentCache;
-  private final ImmutableProjectReactor reactor;
   private final Settings settings;
   private final ModuleQProfiles qProfiles;
+  private final ProjectAnalysisInfo projectAnalysisInfo;
+  private final InputModuleHierarchy moduleHierarchy;
 
-  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor, Settings settings, ModuleQProfiles qProfiles) {
-    this.componentCache = componentCache;
-    this.reactor = reactor;
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Settings settings, ModuleQProfiles qProfiles) {
+    this.projectAnalysisInfo = projectAnalysisInfo;
+    this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    ProjectDefinition root = reactor.getRoot();
-    BatchComponent rootProject = componentCache.getRoot();
+    DefaultInputModule rootProject = moduleHierarchy.root();
+    ProjectDefinition rootDef = rootProject.definition();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
-      .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
+      .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
       // Here we want key without branch
-      .setProjectKey(root.getKey())
+      .setProjectKey(rootDef.getKey())
       .setCrossProjectDuplicationActivated(SonarCpdBlockIndex.isCrossProjectDuplicationEnabled(settings))
       .setRootComponentRef(rootProject.batchId());
 
@@ -62,7 +61,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       builder.setOrganizationKey(organization);
     }
 
-    String branch = root.getBranch();
+    String branch = rootDef.getBranch();
     if (branch != null) {
       builder.setBranch(branch);
     }

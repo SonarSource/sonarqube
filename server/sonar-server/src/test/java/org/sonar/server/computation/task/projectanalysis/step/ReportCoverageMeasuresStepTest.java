@@ -78,7 +78,7 @@ public class ReportCoverageMeasuresStepTest {
                   builder(DIRECTORY, DIRECTORY_REF)
                     .addChildren(
                       builder(FILE, FILE_1_REF).build(),
-                      builder(FILE, UNIT_TEST_FILE_REF).setFileAttributes(new FileAttributes(true, "some language")).build(),
+                      builder(FILE, UNIT_TEST_FILE_REF).setFileAttributes(new FileAttributes(true, "some language", 1)).build(),
                       builder(FILE, FILE_2_REF).build())
                     .build())
                 .build())

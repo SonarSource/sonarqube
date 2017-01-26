@@ -88,8 +88,8 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
         .addChildren(
           builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
             .addChildren(
-              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file2").build())
+              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
+              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
             .build())
         .build())
     .build();

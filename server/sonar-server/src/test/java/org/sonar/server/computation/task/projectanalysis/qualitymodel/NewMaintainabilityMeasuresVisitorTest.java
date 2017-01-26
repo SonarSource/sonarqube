@@ -145,7 +145,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
         .build());
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
@@ -298,7 +298,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .addChildren(
               builder(DIRECTORY, 111)
                 .addChildren(
-                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
                 .build())
             .build())
         .build());
@@ -340,7 +340,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
-        .addChildren(builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+        .addChildren(builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
         .build());
 
     Measure newDebtMeasure = newMeasureBuilder().setVariations(new MeasureVariations(500d, 500d, 500d, 120d, 120d)).createNoValue();
@@ -374,7 +374,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .addChildren(
               builder(DIRECTORY, 111)
                 .addChildren(
-                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
                 .build())
             .build())
         .build());
@@ -408,7 +408,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .addChildren(
               builder(DIRECTORY, 111)
                 .addChildren(
-                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY)).build())
+                  builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
                 .build())
             .build())
         .build());
@@ -429,7 +429,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
-          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY)).build())
+          builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY, 1)).build())
         .build());
 
     Measure newDebtMeasure = createNewDebtMeasure(newDebtPeriod2, newDebtPeriod4);

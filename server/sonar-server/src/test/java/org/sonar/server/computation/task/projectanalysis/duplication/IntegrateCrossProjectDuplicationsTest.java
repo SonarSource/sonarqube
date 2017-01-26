@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.duplications.block.Block;
@@ -54,7 +54,7 @@ public class IntegrateCrossProjectDuplicationsTest {
   static final String ORIGIN_FILE_KEY = "ORIGIN_FILE_KEY";
   static final Component ORIGIN_FILE = builder(FILE, 1)
     .setKey(ORIGIN_FILE_KEY)
-    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE))
+    .setFileAttributes(new FileAttributes(false, XOO_LANGUAGE, 1))
     .build();
 
   static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
@@ -226,7 +226,7 @@ public class IntegrateCrossProjectDuplicationsTest {
   public void add_duplication_for_java_even_when_no_token() {
     Component javaFile = builder(FILE, 1)
       .setKey(ORIGIN_FILE_KEY)
-      .setFileAttributes(new FileAttributes(false, "java"))
+      .setFileAttributes(new FileAttributes(false, "java", 10))
       .build();
 
     Collection<Block> originBlocks = singletonList(

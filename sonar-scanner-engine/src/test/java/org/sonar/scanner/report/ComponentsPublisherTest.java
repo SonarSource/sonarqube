@@ -21,90 +21,109 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.FakeJava;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.FileStructure;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.report.ComponentsPublisher;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
+import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentsPublisherTest {
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  BatchComponentCache resourceCache = new BatchComponentCache();
+  private DefaultComponentTree tree;
+  private InputModuleHierarchy moduleHierarchy;
+  private File outputDir;
+  private ScannerReportWriter writer;
+
+  @Before
+  public void setUp() throws IOException {
+    tree = new DefaultComponentTree();
+    outputDir = temp.newFolder();
+    writer = new ScannerReportWriter(outputDir);
+  }
+
+  private void writeIssue(int componentId) {
+    writer.writeComponentIssues(componentId, Collections.singleton(ScannerReport.Issue.newBuilder().build()));
+  }
 
   @Test
   public void add_components_to_report() throws Exception {
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
-    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
-    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
-    Project root = new Project("foo").setName("Root project").setDescription("Root description")
-      .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
-    root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setInputComponent(new DefaultInputModule("foo"));
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description");
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
-    Project module1 = new Project("module1").setName("Module1").setDescription("Module description");
-    module1.setParent(root);
-    module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setInputComponent(new DefaultInputModule("module1"));
-    rootDef.addSubProject(ProjectDefinition.create().setKey("module1"));
+    ProjectDefinition module1Def = ProjectDefinition.create()
+      .setKey("module1")
+      .setName("Module1")
+      .setDescription("Module description");
+    rootDef.addSubProject(module1Def);
 
-    Directory dir = Directory.create("src");
-    dir.setEffectiveKey("module1:src");
-    dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setInputComponent(new DefaultInputDir("foo", "src"));
+    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
-    file.setEffectiveKey("module1:src/Foo.java");
-    file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
+    tree.index(module1, root);
 
-    org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
-    fileWithoutLang.setEffectiveKey("module1:src/make");
-    fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setInputComponent(new DefaultInputFile("module1", "src/make").setLines(10));
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    tree.index(dir, module1);
 
-    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", FakeJava.INSTANCE, true);
-    testFile.setEffectiveKey("module1:test/FooTest.java");
-    testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setInputComponent(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).build();
+    tree.index(file, dir);
 
-    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src/Foo2.java", 5).setPublish(false).setLines(2).build();
+    tree.index(file2, dir);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
+    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 6).setLines(10).build();
+    tree.index(fileWithoutLang, dir);
 
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 7).setType(Type.TEST).setLines(4).build();
+    tree.index(testFile, dir);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isTrue();
 
+    // not marked for publishing
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isFalse();
     // no such reference
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 8)).isFalse();
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
@@ -118,47 +137,94 @@ public class ComponentsPublisherTest {
     assertThat(module1Protobuf.getDescription()).isEqualTo("Module description");
     assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
   }
-  
+
+  @Test
+  public void should_skip_dir_without_published_files() {
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setName("Root project")
+      .setDescription("Root description");
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
+
+    // dir with files
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
+    tree.index(dir, root);
+
+    // dir without files and issues
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
+    tree.index(dir2, root);
+
+    // dir without files but has issues
+    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4);
+    tree.index(dir3, root);
+    writeIssue(4);
+
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 5).setLines(2).build();
+    tree.index(file, dir);
+
+    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src2/Foo2.java", 6).setPublish(false).setLines(2).build();
+    tree.index(file2, dir2);
+
+    DefaultInputFile file3 = new TestInputFileBuilder("module1", "src2/Foo3.java", 7).setPublish(false).setLines(2).build();
+    tree.index(file3, dir3);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
+    publisher.publish(writer);
+
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
+
+    // file was not marked for publishing and directory doesn't contain issues, so directory won't be included as well
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 6)).isFalse();
+    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 7)).isFalse();
+
+  }
+
   @Test
   public void add_components_without_version_and_name() throws IOException {
-    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
-    Project root = new Project("foo").setDescription("Root description")
-      .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
-    root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setInputComponent(new DefaultInputModule("foo"));
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
-    Project module1 = new Project("module1").setDescription("Module description");
-    module1.setParent(root);
-    module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setInputComponent(new DefaultInputModule("module1"));
-    rootDef.addSubProject(ProjectDefinition.create().setKey("module1"));
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setDescription("Root description");
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
-    Directory dir = Directory.create("src");
-    dir.setEffectiveKey("module1:src");
-    dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setInputComponent(new DefaultInputDir("foo", "src"));
+    ProjectDefinition module1Def = ProjectDefinition.create()
+      .setKey("module1")
+      .setDescription("Module description");
+    rootDef.addSubProject(module1Def);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
-    file.setEffectiveKey("module1:src/Foo.java");
-    file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
+    tree.index(module1, root);
 
-    org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
-    fileWithoutLang.setEffectiveKey("module1:src/make");
-    fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setInputComponent(new DefaultInputFile("module1", "src/make").setLines(10));
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    tree.index(dir, module1);
 
-    org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", FakeJava.INSTANCE, true);
-    testFile.setEffectiveKey("module1:test/FooTest.java");
-    testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setInputComponent(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).build();
+    tree.index(file, dir);
 
-    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+    DefaultInputFile fileWithoutLang = new TestInputFileBuilder("module1", "src/make", 5).setLines(10).build();
+    tree.index(fileWithoutLang, dir);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
+    DefaultInputFile testFile = new TestInputFileBuilder("module1", "test/FooTest.java", 6).setType(Type.TEST).setLines(4).build();
+    tree.index(testFile, dir);
 
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
     publisher.publish(writer);
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
@@ -188,40 +254,38 @@ public class ComponentsPublisherTest {
 
   @Test
   public void add_components_with_links_and_branch() throws Exception {
-    // inputs
-    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
-    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
-    Project root = new Project("foo:my_branch").setName("Root project")
-      .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
-    root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setInputComponent(new DefaultInputModule("foo"));
-    rootDef.properties().put(CoreProperties.LINKS_HOME_PAGE, "http://home");
-    rootDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
-    Project module1 = new Project("module1:my_branch").setName("Module1");
-    module1.setParent(root);
-    module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setInputComponent(new DefaultInputModule("module1"));
-    ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
-    moduleDef.properties().put(CoreProperties.LINKS_CI, "http://ci");
-    rootDef.addSubProject(moduleDef);
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch")
+      .setName("Root project")
+      .setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home")
+      .setDescription("Root description");
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
-    Directory dir = Directory.create("src");
-    dir.setEffectiveKey("module1:my_branch:my_branch:src");
-    dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setInputComponent(new DefaultInputDir("foo", "src"));
+    ProjectDefinition module1Def = ProjectDefinition.create()
+      .setKey("module1")
+      .setName("Module1")
+      .setProperty(CoreProperties.LINKS_CI, "http://ci")
+      .setDescription("Module description");
+    rootDef.addSubProject(module1Def);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
 
-    org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", FakeJava.INSTANCE, false);
-    file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
-    file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setInputComponent(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
+    tree.index(module1, root);
 
-    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    tree.index(dir, module1);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
+    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).build();
+    tree.index(file, dir);
 
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree);
     publisher.publish(writer);
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);

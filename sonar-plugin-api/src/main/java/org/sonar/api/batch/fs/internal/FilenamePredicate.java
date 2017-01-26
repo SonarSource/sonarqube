@@ -19,22 +19,30 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * @since 4.2
+ * @since 6.3
  */
-class StatusPredicate extends AbstractFilePredicate {
+public class FilenamePredicate extends AbstractFilePredicate {
+  private final String filename;
 
-  private final InputFile.Status status;
-
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
+  public FilenamePredicate(String filename) {
+    this.filename = filename;
   }
 
   @Override
-  public boolean apply(InputFile f) {
-    return status == f.status();
+  public boolean apply(InputFile inputFile) {
+    return filename.equals(getFilename(inputFile));
   }
 
+  @Override
+  public Iterable<InputFile> get(FileSystem.Index index) {
+    return index.getFilesByName(filename);
+  }
+
+  public static String getFilename(InputFile inputFile) {
+    return inputFile.file().getName();
+  }
 }

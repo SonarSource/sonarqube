@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,7 +47,10 @@ public class QualifiersTest {
 
   @Test
   public void testProject() {
-    Resource root = new Project("foo");
+    ProjectDefinition rootDef = ProjectDefinition.create();
+    ProjectDefinition moduleDef = ProjectDefinition.create();
+    rootDef.addSubProject(moduleDef);
+    Resource root = new Project(rootDef);
     assertThat(Qualifiers.isView(root, true), is(false));
     assertThat(Qualifiers.isView(root, false), is(false));
     assertThat(Qualifiers.isProject(root, true), is(true));
@@ -55,7 +59,10 @@ public class QualifiersTest {
 
   @Test
   public void testModule() {
-    Resource sub = new Project("sub").setParent(new Project("root"));
+    ProjectDefinition rootDef = ProjectDefinition.create();
+    ProjectDefinition moduleDef = ProjectDefinition.create();
+    rootDef.addSubProject(moduleDef);
+    Resource sub = new Project(moduleDef);
     assertThat(Qualifiers.isView(sub, true), is(false));
     assertThat(Qualifiers.isView(sub, false), is(false));
     assertThat(Qualifiers.isProject(sub, true), is(true));
@@ -119,5 +126,3 @@ public class QualifiersTest {
     }
   }
 }
-
-

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -67,6 +68,9 @@ public class ComponentRootBuilderTest {
     PROJECT, MODULE, DIRECTORY, FILE);
   private static final String PROJECT_UUID = "project uuid";
   private static final String DEFAULT_VERSION = "not provided";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
@@ -139,7 +143,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setKey(MODULE_KEY).addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setPath(DIRECTORY_PATH).addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH).setLines(1));
 
     String branch = "BRANCH";
     ComponentRootBuilder builder = new ComponentRootBuilder(branch, SIMPLE_UUID_GENERATOR, scannerComponentProvider, NO_COMPONENT_DTO_FOR_PROJECT, NO_BASEANALYSIS);
@@ -163,7 +167,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setKey(MODULE_KEY).addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setPath(DIRECTORY_PATH).addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH).setLines(1));
 
     Component root = underTest.build(project, PROJECT_KEY);
     assertThat(root.getKey()).isEqualTo(PROJECT_KEY);
@@ -180,7 +184,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).setName("").addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setKey(MODULE_KEY).setName("").addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setPath(DIRECTORY_PATH).setName("").addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH).setName(""));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH).setName("").setLines(1));
 
     Component root = underTest.build(project, PROJECT_KEY);
     assertThat(root.getKey()).isEqualTo(PROJECT_KEY);
@@ -202,14 +206,14 @@ public class ComponentRootBuilderTest {
     scannerComponentProvider.add(newBuilder().setRef(22).setType(DIRECTORY).setPath("directory in module 1").addChildRef(36));
     scannerComponentProvider.add(newBuilder().setRef(23).setType(DIRECTORY).setPath("directory in module 2").addChildRef(37));
     scannerComponentProvider.add(newBuilder().setRef(24).setType(DIRECTORY).setPath("directory in module 3").addChildRef(38));
-    scannerComponentProvider.add(newBuilder().setRef(31).setType(FILE).setPath("file in project"));
-    scannerComponentProvider.add(newBuilder().setRef(32).setType(FILE).setPath("file in module 1"));
-    scannerComponentProvider.add(newBuilder().setRef(33).setType(FILE).setPath("file in module 2"));
-    scannerComponentProvider.add(newBuilder().setRef(34).setType(FILE).setPath("file in module 3"));
-    scannerComponentProvider.add(newBuilder().setRef(35).setType(FILE).setPath("file in directory in project"));
-    scannerComponentProvider.add(newBuilder().setRef(36).setType(FILE).setPath("file in directory in module 1"));
-    scannerComponentProvider.add(newBuilder().setRef(37).setType(FILE).setPath("file in directory in module 2"));
-    scannerComponentProvider.add(newBuilder().setRef(38).setType(FILE).setPath("file in directory in module 3"));
+    scannerComponentProvider.add(newBuilder().setRef(31).setType(FILE).setPath("file in project").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(32).setType(FILE).setPath("file in module 1").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(33).setType(FILE).setPath("file in module 2").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(34).setType(FILE).setPath("file in module 3").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(35).setType(FILE).setPath("file in directory in project").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(36).setType(FILE).setPath("file in directory in module 1").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(37).setType(FILE).setPath("file in directory in module 2").setLines(1));
+    scannerComponentProvider.add(newBuilder().setRef(38).setType(FILE).setPath("file in directory in module 3").setLines(1));
 
     Component root = underTest.build(project, PROJECT_KEY);
     Map<Integer, Component> componentsByRef = indexComponentByRef(root);
@@ -337,7 +341,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setKey(MODULE_KEY).addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setPath(DIRECTORY_PATH).addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setPath(FILE_PATH).setLines(1));
 
     Component root = underTest.build(project, PROJECT_KEY);
     Map<Integer, Component> componentByRef = indexComponentByRef(root);
@@ -353,7 +357,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setLines(1));
 
     Component root = underTest.build(project, PROJECT_KEY);
     Map<Integer, Component> componentByRef = indexComponentByRef(root);
@@ -368,7 +372,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).setDescription("").addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setDescription("").addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setDescription("").addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setDescription(""));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setLines(1).setDescription(""));
 
     Component root = underTest.build(project, PROJECT_KEY);
     Map<Integer, Component> componentByRef = indexComponentByRef(root);
@@ -383,7 +387,7 @@ public class ComponentRootBuilderTest {
     ScannerReport.Component project = newBuilder().setType(PROJECT).setRef(1).setDescription("desc of project").addChildRef(2).build();
     scannerComponentProvider.add(newBuilder().setRef(2).setType(MODULE).setDescription("desc of module").addChildRef(3));
     scannerComponentProvider.add(newBuilder().setRef(3).setType(DIRECTORY).setDescription("desc of directory").addChildRef(4));
-    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setDescription("desc of file"));
+    scannerComponentProvider.add(newBuilder().setRef(4).setType(FILE).setLines(1).setDescription("desc of file"));
 
     Component root = underTest.build(project, PROJECT_KEY);
     Map<Integer, Component> componentByRef = indexComponentByRef(root);
@@ -466,18 +470,44 @@ public class ComponentRootBuilderTest {
 
   @Test
   public void createFileAttributes_sets_language_to_null_when_unset_in_Scanner_Component() {
-    assertThat(createFileAttributes(newBuilder().setType(FILE).build()).getLanguageKey()).isNull();
+    assertThat(createFileAttributes(newBuilder().setType(FILE).setLines(1).build()).getLanguageKey()).isNull();
   }
 
   @Test
   public void createFileAttributes_sets_language_to_null_when_empty_in_Scanner_Component() {
-    assertThat(createFileAttributes(newBuilder().setType(FILE).setLanguage("").build()).getLanguageKey()).isNull();
+    assertThat(createFileAttributes(newBuilder().setType(FILE).setLanguage("").setLines(1).build()).getLanguageKey()).isNull();
   }
 
   @Test
   public void createFileAttributes_sets_unitTest_from_Scanner_Component() {
-    assertThat(createFileAttributes(newBuilder().setType(FILE).build()).isUnitTest()).isFalse();
-    assertThat(createFileAttributes(newBuilder().setType(FILE).setIsTest(true).build()).isUnitTest()).isTrue();
+    assertThat(createFileAttributes(newBuilder().setType(FILE).setLines(1).build()).isUnitTest()).isFalse();
+    assertThat(createFileAttributes(newBuilder().setType(FILE).setIsTest(true).setLines(1).build()).isUnitTest()).isTrue();
+  }
+
+  @Test
+  public void createFileAttributes_sets_lines_in_Scanner_Component() {
+    assertThat(createFileAttributes(newBuilder().setType(FILE).setLines(10).build()).getLines()).isEqualTo(10);
+  }
+
+  @Test
+  public void fail_with_IAE_when_createFileAttributes_lines_is_not_set() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").build());
+  }
+
+  @Test
+  public void fail_with_IAE_when_createFileAttributes_sets_lines_to_0() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").setLines(0).build());
+  }
+
+  @Test
+  public void fail_with_IAE_when_createFileAttributes_sets_lines_to_less_than_0() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("File 'src/main/java/Main.java' has no line");
+    createFileAttributes(newBuilder().setType(FILE).setPath("src/main/java/Main.java").setLines(-10).build());
   }
 
   private static class ScannerComponentProvider extends ExternalResource implements Function<Integer, ScannerReport.Component> {

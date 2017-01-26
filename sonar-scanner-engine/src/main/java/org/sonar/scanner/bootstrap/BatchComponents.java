@@ -38,9 +38,8 @@ import org.sonar.scanner.scan.report.JSONReport;
 import org.sonar.scanner.scan.report.RuleNameProvider;
 import org.sonar.scanner.scan.report.SourceProvider;
 import org.sonar.scanner.scm.ScmConfiguration;
-import org.sonar.scanner.scm.ScmSensor;
+import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.source.CodeColorizerSensor;
-import org.sonar.scanner.source.LinesSensor;
 import org.sonar.scanner.source.ZeroCoverageSensor;
 import org.sonar.scanner.task.ListTask;
 import org.sonar.scanner.task.ScanTask;
@@ -65,9 +64,8 @@ public class BatchComponents {
     if (!analysisMode.isIssues()) {
       // SCM
       components.add(ScmConfiguration.class);
-      components.add(ScmSensor.class);
+      components.add(ScmPublisher.class);
 
-      components.add(LinesSensor.class);
       components.add(ZeroCoverageSensor.class);
       components.add(CodeColorizerSensor.class);
 

@@ -36,6 +36,7 @@ import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.sensor.Sensor;
@@ -61,8 +62,8 @@ public class ScannerExtensionDictionnary {
   private final PostJobContext postJobContext;
   private final PostJobOptimizer postJobOptimizer;
 
-  public ScannerExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext, SensorOptimizer sensorOptimizer, PostJobContext postJobContext,
-    PostJobOptimizer postJobOptimizer) {
+  public ScannerExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext,
+    SensorOptimizer sensorOptimizer, PostJobContext postJobContext, PostJobOptimizer postJobOptimizer) {
     this.componentContainer = componentContainer;
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;
@@ -70,8 +71,8 @@ public class ScannerExtensionDictionnary {
     this.postJobOptimizer = postJobOptimizer;
   }
 
-  public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort, @Nullable ExtensionMatcher matcher) {
-    List<T> result = getFilteredExtensions(type, project, matcher);
+  public <T> Collection<T> select(Class<T> type, @Nullable DefaultInputModule module, boolean sort, @Nullable ExtensionMatcher matcher) {
+    List<T> result = getFilteredExtensions(type, module, matcher);
     if (sort) {
       return sort(result);
     }
@@ -92,13 +93,13 @@ public class ScannerExtensionDictionnary {
     return Phase.Name.DEFAULT;
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
     for (Object extension : getExtensions(type)) {
       if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
         extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
       }
-      if (shouldKeep(type, extension, project, matcher)) {
+      if (shouldKeep(type, extension, module, matcher)) {
         result.add((T) extension);
       }
     }
@@ -106,7 +107,7 @@ public class ScannerExtensionDictionnary {
       // Retrieve new Sensors and wrap then in SensorWrapper
       for (Object extension : getExtensions(Sensor.class)) {
         extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
-        if (shouldKeep(type, extension, project, matcher)) {
+        if (shouldKeep(type, extension, module, matcher)) {
           result.add((T) extension);
         }
       }
@@ -115,7 +116,7 @@ public class ScannerExtensionDictionnary {
       // Retrieve new PostJob and wrap then in PostJobWrapper
       for (Object extension : getExtensions(PostJob.class)) {
         extension = new PostJobWrapper((PostJob) extension, postJobContext, postJobOptimizer);
-        if (shouldKeep(type, extension, project, matcher)) {
+        if (shouldKeep(type, extension, module, matcher)) {
           result.add((T) extension);
         }
       }
@@ -253,12 +254,12 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  private static boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
+  private static boolean shouldKeep(Class type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
       || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));
-    if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
-      keep = ((CheckProject) extension).shouldExecuteOnProject(project);
+    if (keep && module != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
+      keep = ((CheckProject) extension).shouldExecuteOnProject(new Project(module.definition()));
     }
     return keep;
   }

@@ -76,6 +76,15 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   @Override
+  public FilePredicate hasFilename(String s) {
+    return new FilenamePredicate(s);
+  }
+
+  @Override public FilePredicate hasExtension(String s) {
+    return new FileExtensionPredicate(s);
+  }
+
+  @Override
   public FilePredicate matchesPathPattern(String inclusionPattern) {
     return new PathPatternPredicate(PathPattern.create(inclusionPattern));
   }
@@ -143,11 +152,6 @@ public class DefaultFilePredicates implements FilePredicates {
       list.add(hasLanguage(language));
     }
     return or(list);
-  }
-
-  @Override
-  public FilePredicate hasStatus(InputFile.Status status) {
-    return new StatusPredicate(status);
   }
 
   @Override

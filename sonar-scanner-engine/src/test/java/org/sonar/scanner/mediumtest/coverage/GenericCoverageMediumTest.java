@@ -69,7 +69,6 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.allMeasures().get(noConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
       .containsOnly(
-        tuple(CoreMetrics.LINES_KEY, 8, ""),
         tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
         tuple(CoreMetrics.UNCOVERED_LINES_KEY, 1, ""),
         tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "6=1;7=0"));
@@ -81,7 +80,6 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.allMeasures().get(withConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
       .containsOnly(
-        tuple(CoreMetrics.LINES_KEY, 6, ""),
         tuple(CoreMetrics.LINES_TO_COVER_KEY, 1, ""),
         tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
         tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "3=1"),
@@ -112,7 +110,6 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.allMeasures().get(noConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
       .containsOnly(
-        tuple(CoreMetrics.LINES_KEY, 8, ""),
         tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
         tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
         tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "6=1;7=1"));
@@ -124,7 +121,6 @@ public class GenericCoverageMediumTest {
 
     assertThat(result.allMeasures().get(withConditions.key())).extracting("metricKey", "intValue.value", "stringValue.value")
       .containsOnly(
-        tuple(CoreMetrics.LINES_KEY, 6, ""),
         tuple(CoreMetrics.LINES_TO_COVER_KEY, 1, ""),
         tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
         tuple(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, 0, "3=2"),

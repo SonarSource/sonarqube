@@ -41,6 +41,7 @@ import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -351,22 +352,6 @@ public class FileMetadata {
     }
   }
 
-  public static class Metadata {
-    final int lines;
-    final int nonBlankLines;
-    final String hash;
-    final int[] originalLineOffsets;
-    final int lastValidOffset;
-
-    private Metadata(int lines, int nonBlankLines, String hash, int[] originalLineOffsets, int lastValidOffset) {
-      this.lines = lines;
-      this.nonBlankLines = nonBlankLines;
-      this.hash = hash;
-      this.originalLineOffsets = originalLineOffsets;
-      this.lastValidOffset = lastValidOffset;
-    }
-  }
-
   @FunctionalInterface
   public interface LineHashConsumer {
 
@@ -377,7 +362,7 @@ public class FileMetadata {
   /**
    * Compute a MD5 hash of each line of the file after removing of all blank chars
    */
-  public static void computeLineHashesForIssueTracking(DefaultInputFile f, LineHashConsumer consumer) {
+  public static void computeLineHashesForIssueTracking(InputFile f, LineHashConsumer consumer) {
     readFile(f.file(), f.charset(), new LineHashComputer(consumer, f.file()));
   }
 }

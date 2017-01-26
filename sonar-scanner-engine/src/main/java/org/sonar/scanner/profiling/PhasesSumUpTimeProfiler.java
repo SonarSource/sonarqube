@@ -71,7 +71,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   private final System2 system;
   private final File out;
-  
+
   public PhasesSumUpTimeProfiler(System2 system, GlobalProperties bootstrapProps) {
     String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     File workingDir = new File(workingDirPath).getAbsoluteFile();
@@ -115,7 +115,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       String fileName = module.getKey() + "-profiler.properties";
       dumpToFile(props, ScannerUtils.cleanKeyForFilename(fileName));
       totalProfiling.merge(currentModuleProfiling);
-      if (module.isRoot() && !module.getModules().isEmpty()) {
+      if (module.getParent() == null && !module.getModules().isEmpty()) {
         dumpTotalExecutionSummary();
       }
     }

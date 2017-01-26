@@ -20,7 +20,8 @@
 package org.sonar.api.batch.sensor.cpd.internal;
 
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
@@ -34,11 +35,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class DefaultCpdTokensTest {
 
-  private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("foo", "src/Foo.java")
+  private static final InputFile INPUT_FILE = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
-    .setLanguage("java")
     .setOriginalLineOffsets(new int[] {0, 50})
-    .setLastValidOffset(100);
+    .setLastValidOffset(100)
+    .build();
 
   @Test
   public void save_no_tokens() {
@@ -145,7 +146,7 @@ public class DefaultCpdTokensTest {
       tokens.addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
       fail("Expected exception");
     } catch (Exception e) {
-      assertThat(e).hasMessage("Tokens of file [moduleKey=foo, relative=src/Foo.java, basedir=null] should be provided in order.\n" +
+      assertThat(e).hasMessage("Tokens of file [moduleKey=foo, relative=src/Foo.java, basedir=foo] should be provided in order.\n" +
         "Previous token: Range[from [line=1, lineOffset=6] to [line=1, lineOffset=10]]\n" +
         "Last token: Range[from [line=1, lineOffset=2] to [line=1, lineOffset=5]]");
     }

@@ -20,10 +20,9 @@
 package org.sonar.scanner.issue;
 
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.issue.Issuable;
-import org.sonar.scanner.DefaultProjectTree;
 import org.sonar.scanner.sensor.DefaultSensorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,12 +31,11 @@ import static org.mockito.Mockito.mock;
 public class IssuableFactoryTest {
 
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
-  DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
 
   @Test
   public void file_should_be_issuable() {
     IssuableFactory factory = new IssuableFactory(mock(DefaultSensorContext.class));
-    Issuable issuable = factory.loadPerspective(Issuable.class, new DefaultInputFile("foo", "src/Foo.java"));
+    Issuable issuable = factory.loadPerspective(Issuable.class, new TestInputFileBuilder("foo", "src/Foo.java").build());
 
     assertThat(issuable).isNotNull();
     assertThat(issuable.issues()).isEmpty();

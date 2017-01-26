@@ -35,7 +35,7 @@ import static java.util.Arrays.asList;
  */
 public class ReportComponent implements Component {
 
-  private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null);
+  private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null, 1);
 
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
 

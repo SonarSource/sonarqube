@@ -40,14 +40,14 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.scanner.issue.IssueCache;
@@ -55,7 +55,7 @@ import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.protocol.input.ScannerInput.User;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 @Properties({
   @Property(
@@ -72,19 +72,21 @@ public class JSONReport implements Reporter {
   private final Server server;
   private final Rules rules;
   private final IssueCache issueCache;
-  private final InputPathCache fileCache;
-  private final Project rootModule;
+  private final InputComponentStore componentStore;
+  private final DefaultInputModule rootModule;
   private final UserRepositoryLoader userRepository;
+  private final InputModuleHierarchy moduleHierarchy;
 
-  public JSONReport(Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-    Project rootModule, InputPathCache fileCache, UserRepositoryLoader userRepository) {
+  public JSONReport(InputModuleHierarchy moduleHierarchy, Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
+    DefaultInputModule rootModule, InputComponentStore componentStore, UserRepositoryLoader userRepository) {
+    this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.rules = rules;
     this.issueCache = issueCache;
     this.rootModule = rootModule;
-    this.fileCache = fileCache;
+    this.componentStore = componentStore;
     this.userRepository = userRepository;
   }
 
@@ -163,17 +165,17 @@ public class JSONReport implements Reporter {
     json.name("components").beginArray();
     // Dump modules
     writeJsonModuleComponents(json, rootModule);
-    for (InputFile inputFile : fileCache.allFiles()) {
-      String key = ((DefaultInputFile) inputFile).key();
+    for (DefaultInputFile inputFile : componentStore.allFilesToPublish()) {
+      String key = inputFile.key();
       json
         .beginObject()
         .prop("key", key)
         .prop("path", inputFile.relativePath())
-        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+        .prop("moduleKey", inputFile.moduleKey())
         .prop("status", inputFile.status().name())
         .endObject();
     }
-    for (InputDir inputDir : fileCache.allDirs()) {
+    for (InputDir inputDir : componentStore.allDirs()) {
       String key = ((DefaultInputDir) inputDir).key();
       json
         .beginObject()
@@ -186,13 +188,13 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private static void writeJsonModuleComponents(JsonWriter json, Project module) {
+  private void writeJsonModuleComponents(JsonWriter json, DefaultInputModule module) {
     json
       .beginObject()
-      .prop("key", module.getEffectiveKey())
-      .prop("path", module.getPath())
+      .prop("key", module.key())
+      .prop("path", moduleHierarchy.relativePath(module))
       .endObject();
-    for (Project subModule : module.getModules()) {
+    for (DefaultInputModule subModule : moduleHierarchy.children(module)) {
       writeJsonModuleComponents(json, subModule);
     }
   }

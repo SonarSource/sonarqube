@@ -25,6 +25,11 @@ import org.sonar.api.batch.fs.InputComponent;
  * @since 5.2
  */
 public abstract class DefaultInputComponent implements InputComponent {
+  private int id;
+
+  public DefaultInputComponent(int batchId) {
+    this.id = batchId;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -37,6 +42,10 @@ public abstract class DefaultInputComponent implements InputComponent {
 
     DefaultInputComponent that = (DefaultInputComponent) o;
     return key().equals(that.key());
+  }
+
+  public int batchId() {
+    return id;
   }
 
   @Override
