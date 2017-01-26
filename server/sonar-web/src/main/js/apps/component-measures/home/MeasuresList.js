@@ -21,6 +21,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import MeasureListValue from './MeasureListValue';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
 const MeasuresList = ({ measures, component, className = 'domain-measures' }) => {
   return (
@@ -31,9 +32,10 @@ const MeasuresList = ({ measures, component, className = 'domain-measures' }) =>
                 id={`measure-${measure.metric.key}`}>
               <Link to={{ pathname: `/component_measures/metric/${measure.metric.key}`, query: { id: component.key } }}>
                 <div className="domain-measures-name">
-                    <span id={`measure-${measure.metric.key}-name`}>
-                      {getLocalizedMetricName(measure.metric)}
-                    </span>
+                  <IssueTypeIcon query={measure.metric.key} className="little-spacer-right"/>
+                  <span id={`measure-${measure.metric.key}-name`}>
+                    {getLocalizedMetricName(measure.metric)}
+                  </span>
                 </div>
 
                 <MeasureListValue measure={measure}/>

@@ -25,11 +25,13 @@ import { ComplexityDistribution } from '../../../components/shared/complexity-di
 import { isDiffMetric } from '../utils';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
+import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
 export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriod }) {
   return (
       <header className="measure-details-header">
         <h2 className="measure-details-metric">
+          <IssueTypeIcon query={metric.key} className="little-spacer-right"/>
           {getLocalizedMetricName(metric)}
         </h2>
 

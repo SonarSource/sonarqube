@@ -22,6 +22,9 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
+import BugIcon from '../../../components/ui/BugIcon';
+import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
+import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
 export default class EntryIssueTypes extends React.Component {
   static propTypes = {
@@ -43,6 +46,7 @@ export default class EntryIssueTypes extends React.Component {
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
               </div>
+              <span className="little-spacer-right"><BugIcon/></span>
               {translate('issue.type.BUG.plural')}
             </li>
             <li>
@@ -52,6 +56,7 @@ export default class EntryIssueTypes extends React.Component {
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
                 </Link>
               </div>
+              <span className="little-spacer-right"><VulnerabilityIcon/></span>
               {translate('issue.type.VULNERABILITY.plural')}
             </li>
             <li>
@@ -61,6 +66,7 @@ export default class EntryIssueTypes extends React.Component {
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
               </div>
+              <span className="little-spacer-right"><CodeSmellIcon/></span>
               {translate('issue.type.CODE_SMELL.plural')}
             </li>
           </ul>

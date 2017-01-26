@@ -19,23 +19,40 @@
  */
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
+import BugIcon from '../../../components/ui/BugIcon';
+import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
+import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
 export default class AboutIssues extends React.Component {
-
   render () {
     return (
         <div className="boxed-group">
           <h2>{translate('about_page.quality_model')}</h2>
 
           <div className="boxed-group-inner clearfix">
-            <h3 className="spacer-bottom">{translate('issue.type.BUG.plural')}</h3>
-            <p className="about-page-text">{translate('about_page.quality_model.bugs')}</p>
+            <h3 className="spacer-bottom">
+              <span className="little-spacer-right"><BugIcon/></span>
+              {translate('issue.type.BUG.plural')}
+            </h3>
+            <p className="about-page-text">
+              {translate('about_page.quality_model.bugs')}
+            </p>
 
-            <h3 className="big-spacer-top spacer-bottom">{translate('issue.type.VULNERABILITY.plural')}</h3>
-            <p className="about-page-text">{translate('about_page.quality_model.vulnerabilities')}</p>
+            <h3 className="big-spacer-top spacer-bottom">
+              <span className="little-spacer-right"><VulnerabilityIcon/></span>
+              {translate('issue.type.VULNERABILITY.plural')}
+            </h3>
+            <p className="about-page-text">
+              {translate('about_page.quality_model.vulnerabilities')}
+            </p>
 
-            <h3 className="big-spacer-top spacer-bottom">{translate('issue.type.CODE_SMELL.plural')}</h3>
-            <p className="about-page-text">{translate('about_page.quality_model.code_smells')}</p>
+            <h3 className="big-spacer-top spacer-bottom">
+              <span className="little-spacer-right"><CodeSmellIcon/></span>
+              {translate('issue.type.CODE_SMELL.plural')}
+            </h3>
+            <p className="about-page-text">
+              {translate('about_page.quality_model.code_smells')}
+            </p>
           </div>
         </div>
     );

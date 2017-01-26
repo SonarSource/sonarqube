@@ -25,6 +25,7 @@ import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
 class CodeSmells extends React.Component {
   renderHeader () {
@@ -97,6 +98,7 @@ class CodeSmells extends React.Component {
                 {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
               </div>
               <div className="overview-domain-measure-label">
+                <span className="little-spacer-right"><CodeSmellIcon/></span>
                 {getMetricName('new_code_smells')}
               </div>
             </div>
@@ -131,6 +133,7 @@ class CodeSmells extends React.Component {
                   {this.props.renderIssues('code_smells', 'CODE_SMELL')}
                 </div>
                 <div className="overview-domain-measure-label">
+                  <span className="little-spacer-right"><CodeSmellIcon/></span>
                   {getMetricName('code_smells')}
                 </div>
               </div>

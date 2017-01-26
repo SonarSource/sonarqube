@@ -68,7 +68,7 @@
   margin-top: 8px;
 }
 
-.main-domain-measures .domain-measures-name > span {
+.main-domain-measures .domain-measures-name > span:last-child {
   border-bottom: 1px solid #cae3f2;
 }
 
