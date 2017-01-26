@@ -114,8 +114,6 @@ public class App implements Stoppable {
       .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
       // required for logback tomcat valve
       .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
-      // ensure JRuby uses SQ's temp directory as temp directory (eg. for temp files used during HTTP uploads)
-      .setEnvVariable("TMPDIR", props.nonNullValue(ProcessProperties.PATH_TEMP))
       .setClassName("org.sonar.server.app.WebServer")
       .addClasspath("./lib/common/*")
       .addClasspath("./lib/server/*");

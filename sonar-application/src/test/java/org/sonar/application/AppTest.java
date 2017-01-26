@@ -35,7 +35,6 @@ import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -111,17 +110,6 @@ public class AppTest {
     List<JavaCommand> commands = start(props);
 
     assertThat(commands.get(1).getClasspath()).contains("oracle/ojdbc6.jar");
-  }
-
-  @Test
-  public void sets_TMPDIR_env_var_of_Web_process() throws Exception {
-    Props props = initDefaultProps();
-    String expectedTmpDir = "expected tmp dir";
-    props.set("sonar.path.temp", expectedTmpDir);
-
-    List<JavaCommand> commands = start(props);
-
-    assertThat(commands.get(1).getEnvVariables()).contains(entry("TMPDIR", expectedTmpDir));
   }
 
   @Test
