@@ -45,6 +45,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FRO
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_NEW_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_TO;
@@ -105,6 +106,7 @@ public class ComponentsService extends BaseService {
 
   public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH_PROJECTS))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_FILTER, request.getFilter())
       .setParam(Param.FACETS, request.getFacets())
       .setParam(Param.PAGE, request.getPage())

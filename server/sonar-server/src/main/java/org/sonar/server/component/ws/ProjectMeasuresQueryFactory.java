@@ -21,11 +21,15 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Splitter;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -43,27 +47,34 @@ class ProjectMeasuresQueryFactory {
     // prevent instantiation
   }
 
-  static ProjectMeasuresQuery newProjectMeasuresQuery(String filter, Set<String> favoriteProjectUuids) {
-    if (StringUtils.isBlank(filter)) {
-      return new ProjectMeasuresQuery();
-    }
-
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery();
-
-    CRITERIA_SPLITTER.split(filter)
-      .forEach(criteria -> processCriterion(criteria, query, favoriteProjectUuids));
-    return query;
+  static List<String> toCriteria(String filter) {
+    return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
+      .filter(Objects::nonNull)
+      .filter(criterion -> !criterion.isEmpty())
+      .collect(Collectors.toList());
   }
 
-  private static void processCriterion(String rawCriterion, ProjectMeasuresQuery query, Set<String> favoriteProjectUuids) {
+  static boolean hasIsFavouriteCriterion(List<String> criteria) {
+    return criteria.stream().anyMatch(IS_FAVORITE_CRITERION::equalsIgnoreCase);
+  }
+
+  static ProjectMeasuresQuery newProjectMeasuresQuery(List<String> criteria, @Nullable Set<String> projectUuids) {
+    ProjectMeasuresQuery res = new ProjectMeasuresQuery();
+    if (projectUuids != null) {
+      res.setProjectUuids(projectUuids);
+    }
+    criteria.forEach(criterion -> processCriterion(criterion, res));
+    return res;
+  }
+
+  private static void processCriterion(String rawCriterion, ProjectMeasuresQuery query) {
     String criterion = rawCriterion.trim();
 
-    try {
-      if (IS_FAVORITE_CRITERION.equalsIgnoreCase(criterion)) {
-        query.setProjectUuids(favoriteProjectUuids);
-        return;
-      }
+    if (IS_FAVORITE_CRITERION.equalsIgnoreCase(criterion)) {
+      return;
+    }
 
+    try {
       Matcher matcher = CRITERIA_PATTERN.matcher(criterion);
       checkArgument(matcher.find() && matcher.groupCount() == 3, "Criterion should be 'isFavourite' or criterion should have a metric, an operator and a value");
       String metric = matcher.group(1).toLowerCase(ENGLISH);

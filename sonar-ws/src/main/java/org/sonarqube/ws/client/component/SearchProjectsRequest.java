@@ -23,6 +23,7 @@ package org.sonarqube.ws.client.component;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -33,14 +34,21 @@ public class SearchProjectsRequest {
 
   private final int page;
   private final int pageSize;
+  private final String organization;
   private final String filter;
   private final List<String> facets;
 
   private SearchProjectsRequest(Builder builder) {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
+    this.organization = builder.organization;
     this.filter = builder.filter;
     this.facets = builder.facets;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
   }
 
   @CheckForNull
@@ -65,6 +73,7 @@ public class SearchProjectsRequest {
   }
 
   public static class Builder {
+    private String organization;
     private Integer page;
     private Integer pageSize;
     private String filter;
@@ -74,7 +83,12 @@ public class SearchProjectsRequest {
       // enforce static factory method
     }
 
-    public Builder setFilter(String filter) {
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
+
+    public Builder setFilter(@Nullable String filter) {
       this.filter = filter;
       return this;
     }

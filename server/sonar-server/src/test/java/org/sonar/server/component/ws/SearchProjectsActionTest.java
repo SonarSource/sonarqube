@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -76,10 +77,12 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDE
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchProjectsActionTest {
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
+  private static final String IS_FAVOURITE_CRITERION = "isFavorite";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -104,10 +107,25 @@ public class SearchProjectsActionTest {
   private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
   @Test
+  public void verify_definition() {
+    WebService.Action def = ws.getDef();
+
+    assertThat(def.key()).isEqualTo("search_projects");
+    assertThat(def.since()).isEqualTo("6.2");
+    assertThat(def.isInternal()).isTrue();
+    assertThat(def.isPost()).isFalse();
+    assertThat(def.responseExampleAsString()).isNotEmpty();
+    Param organization = def.param("organization");
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.description()).isEqualTo("the organization to search projects in");
+    assertThat(organization.since()).isEqualTo("6.3");
+  }
+
+  @Test
   public void json_example() {
     OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
     OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
-    long project1Id = insertProjectInDbAndEs(newProjectDto(organization1Dto)
+    ComponentDto project1 = insertProjectInDbAndEs(newProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1"));
@@ -120,7 +138,7 @@ public class SearchProjectsActionTest {
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3"));
     userSession.login().setUserId(23);
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(project1Id).setUserId(23L));
+    addFavourite(project1);
     dbSession.commit();
 
     String result = ws.newRequest().execute().getInput();
@@ -196,12 +214,82 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  public void filter_projects_with_query_within_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    insertProjectInDbAndEs(newProjectDto(organization1).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization1).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization2).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertMetrics(COVERAGE, NCLOC);
+
+    assertThat(call(request.setOrganization(null)).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly("Sonar Java", "Sonar Markdown", "Sonar Qube");
+    assertThat(call(request.setOrganization(organization1.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly("Sonar Java", "Sonar Markdown");
+    assertThat(call(request.setOrganization(organization2.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly("Sonar Qube");
+  }
+
+  @Test
+  public void filter_favourite_projects_with_query_with_or_without_a_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    OrganizationDto organization3 = db.organizations().insert();
+    OrganizationDto organization4 = db.organizations().insert();
+    OrganizationDto organization5 = db.organizations().insert();
+    List<Map<String, Object>> someMeasure = singletonList(newMeasure(COVERAGE, 81));
+    ComponentDto favourite1_1 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
+    ComponentDto favourite1_2 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
+    ComponentDto nonFavourite1 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
+    ComponentDto favourite2 = insertProjectInDbAndEs(newProjectDto(organization2), someMeasure);
+    ComponentDto nonFavourite2 = insertProjectInDbAndEs(newProjectDto(organization2), someMeasure);
+    ComponentDto favourite3 = insertProjectInDbAndEs(newProjectDto(organization3), someMeasure);
+    ComponentDto nonFavourite4 = insertProjectInDbAndEs(newProjectDto(organization4), someMeasure);
+    Stream.of(favourite1_1, favourite1_2, favourite2, favourite3)
+      .forEach(this::addFavourite);
+    insertMetrics(COVERAGE, NCLOC);
+
+    assertThat(call(request.setFilter(null).setOrganization(null)).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite1_1.name(), favourite1_2.name(), nonFavourite1.name(), favourite2.name(), nonFavourite2.name(), favourite3.name(), nonFavourite4.name());
+    assertThat(call(request.setFilter(IS_FAVOURITE_CRITERION).setOrganization(null)).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite1_1.name(), favourite1_2.name(), favourite2.name(), favourite3.name());
+    assertThat(call(request.setFilter(null).setOrganization(organization1.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite1_1.name(), favourite1_2.name(), nonFavourite1.name());
+    assertThat(call(request.setFilter(IS_FAVOURITE_CRITERION).setOrganization(organization1.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite1_1.name(), favourite1_2.name());
+    assertThat(call(request.setFilter(null).setOrganization(organization3.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite3.name());
+    assertThat(call(request.setFilter(IS_FAVOURITE_CRITERION).setOrganization(organization3.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(favourite3.name());
+    assertThat(call(request.setFilter(null).setOrganization(organization4.getKey())).getComponentsList())
+      .extracting(Component::getName)
+      .containsOnly(nonFavourite4.name());
+    assertThat(call(request.setFilter(IS_FAVOURITE_CRITERION).setOrganization(organization4.getKey())).getComponentsList())
+      .isEmpty();
+    assertThat(call(request.setFilter(null).setOrganization(organization5.getKey())).getComponentsList())
+      .isEmpty();
+    assertThat(call(request.setFilter(IS_FAVOURITE_CRITERION).setOrganization(organization5.getKey())).getComponentsList())
+      .isEmpty();
+  }
+
+  @Test
   public void filter_projects_on_favorites() {
-    long javaId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    long markDownId = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    ComponentDto javaProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
+      newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    ComponentDto markDownProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"),
+      newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
     insertProjectInDbAndEs(newProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(javaId).setUserId(Long.valueOf(userSession.getUserId())));
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(markDownId).setUserId(Long.valueOf(userSession.getUserId())));
+    addFavourite(javaProject);
+    addFavourite(markDownProject);
     dbSession.commit();
     request.setFilter("isFavorite");
 
@@ -237,10 +325,11 @@ public class SearchProjectsActionTest {
 
   @Test
   public void return_nloc_facet() {
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    OrganizationDto organization = db.getDefaultOrganization();
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE, NCLOC);
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
 
@@ -281,6 +370,10 @@ public class SearchProjectsActionTest {
     TestRequest httpRequest = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
 
+    String organization = wsRequest.getOrganization();
+    if (organization != null) {
+      httpRequest.setParam(PARAM_ORGANIZATION, organization);
+    }
     httpRequest.setParam(Param.PAGE, String.valueOf(wsRequest.getPage()));
     httpRequest.setParam(Param.PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
     String filter = wsRequest.getFilter();
@@ -296,23 +389,12 @@ public class SearchProjectsActionTest {
     }
   }
 
-  @Test
-  public void definition() {
-    WebService.Action def = ws.getDef();
-
-    assertThat(def.key()).isEqualTo("search_projects");
-    assertThat(def.since()).isEqualTo("6.2");
-    assertThat(def.isInternal()).isTrue();
-    assertThat(def.isPost()).isFalse();
-    assertThat(def.responseExampleAsString()).isNotEmpty();
-  }
-
-  private long insertProjectInDbAndEs(ComponentDto project) {
+  private ComponentDto insertProjectInDbAndEs(ComponentDto project) {
     return insertProjectInDbAndEs(project, emptyList());
   }
 
-  private long insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
-    componentDb.insertComponent(project);
+  private ComponentDto insertProjectInDbAndEs(ComponentDto project, List<Map<String, Object>> measures) {
+    ComponentDto res = componentDb.insertComponent(project);
     try {
       es.putDocuments(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE,
         new ProjectMeasuresDoc().setId(project.uuid()).setKey(project.key()).setName(project.name()).setMeasures(measures));
@@ -321,7 +403,7 @@ public class SearchProjectsActionTest {
       Throwables.propagate(e);
     }
 
-    return project.getId();
+    return res;
   }
 
   private void insertMetrics(String... metricKeys) {
@@ -333,5 +415,9 @@ public class SearchProjectsActionTest {
 
   private static Map<String, Object> newMeasure(String key, double value) {
     return ImmutableMap.of("key", key, "value", value);
+  }
+
+  private void addFavourite(ComponentDto project) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(Long.valueOf(userSession.getUserId())));
   }
 }

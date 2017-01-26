@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -30,6 +31,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -56,10 +59,15 @@ import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
+import static org.sonar.core.util.stream.Collectors.toSet;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.hasIsFavouriteCriterion;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.toCriteria;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
 
@@ -86,6 +94,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("the organization to search projects in")
+      .setRequired(false)
+      .setSince("6.3");
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(SUPPORTED_FACETS);
@@ -130,22 +142,39 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchProjectsWsResponse doHandle(SearchProjectsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchResults searchResults = searchData(dbSession, request);
-      Set<String> organizationUuids = searchResults.projects.stream().map(ComponentDto::getOrganizationUuid).collect(Collectors.toSet());
-      Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
-        .stream()
-        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
-
-      return buildResponse(request, searchResults, organizationsByUuid);
+      String organizationKey = request.getOrganization();
+      if (organizationKey == null) {
+        return handleForAnyOrganization(dbSession, request);
+      } else {
+        OrganizationDto organization = checkFoundWithOptional(
+          dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+          "No organization for key '%s'", organizationKey);
+        return handleForOrganization(dbSession, request, organization);
+      }
     }
   }
 
-  private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request) {
-    String filter = firstNonNull(request.getFilter(), "");
+  private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
+    SearchResults searchResults = searchData(dbSession, request, null);
+    Set<String> organizationUuids = searchResults.projects.stream().map(ComponentDto::getOrganizationUuid).collect(toSet());
+    Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+      .stream()
+      .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
+    return buildResponse(request, searchResults, organizationsByUuid);
+  }
 
-    Set<String> favoriteProjectUuids = searchFavoriteProjects(dbSession);
+  private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
+    SearchResults searchResults = searchData(dbSession, request, organization);
+    return buildResponse(request, searchResults, ImmutableMap.of(organization.getUuid(), organization));
+  }
 
-    ProjectMeasuresQuery query = newProjectMeasuresQuery(filter, favoriteProjectUuids);
+  private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
+    List<String> criteria = toCriteria(firstNonNull(request.getFilter(), ""));
+
+    List<ComponentDto> favoriteProjects = searchFavoriteProjects(dbSession);
+    Set<String> projectUuids = buildFilterOnProjectUuids(dbSession, criteria, favoriteProjects, organization);
+
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(criteria, projectUuids);
     queryValidator.validate(dbSession, query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
@@ -155,27 +184,60 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ComponentDto> ordering = Ordering.explicit(esResults.getIds()).onResultOf(ComponentDto::uuid);
     List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, esResults.getIds()));
 
-    return new SearchResults(projects, favoriteProjectUuids, esResults);
+    return new SearchResults(projects, favoriteProjects.stream().map(ComponentDto::uuid).collect(toSet()), esResults);
   }
 
-  private Set<String> searchFavoriteProjects(DbSession dbSession) {
-    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(userSession.getUserId())
-      .setKey("favourite")
-      .build(), dbSession)
+  /**
+   * Builds the set of project uuid on which the query on index measure should be filtering.
+   * <ul>
+   *   <li>if neither isFavourite criterion nor an organization is specified, there is not filtering on projects at all</li>
+   *   <li>if isFavourite criterion and an organization are specified, filtering is done on favourite projects of
+   *   the user which belong to the specified organization</li>
+   *   <li>if only isFavourite criterion is specified, filtering is done on favourite projects of the user</li>
+   *   <li>if only an organization is specified, filtering is done on the projects of this organization</li>
+   * </ul>
+   */
+  @CheckForNull
+  private Set<String> buildFilterOnProjectUuids(DbSession dbSession, List<String> criteria, List<ComponentDto> favoriteProjects, @Nullable OrganizationDto organization) {
+    boolean hasIsFavouriteCriterion = hasIsFavouriteCriterion(criteria);
+    if (hasIsFavouriteCriterion && organization != null) {
+      return favoriteProjects.stream()
+        .filter(project -> project.getOrganizationUuid().equals(organization.getUuid()))
+        .map(ComponentDto::uuid)
+        .collect(toSet());
+    }
+    if (hasIsFavouriteCriterion) {
+      return favoriteProjects.stream()
+        .map(ComponentDto::uuid)
+        .collect(toSet());
+    }
+    if (organization != null) {
+      return dbClient.componentDao().selectAllRootsByOrganization(dbSession, organization.getUuid())
+        .stream()
+        .filter(componentDto -> Qualifiers.PROJECT.equals(componentDto.qualifier()))
+        .map(ComponentDto::uuid)
+        .collect(toSet());
+    }
+    return null;
+  }
+
+  private List<ComponentDto> searchFavoriteProjects(DbSession dbSession) {
+    List<Long> favoriteDbIds = dbClient.propertiesDao().selectByQuery(
+      PropertyQuery.builder()
+        .setUserId(userSession.getUserId())
+        .setKey("favourite")
+        .build(),
+      dbSession)
       .stream()
       .map(PropertyDto::getResourceId)
       .collect(Collectors.toList());
 
-    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds)
-      .stream()
-      .filter(dbComponent -> Qualifiers.PROJECT.equals(dbComponent.qualifier()))
-      .map(ComponentDto::uuid)
-      .collect(Collectors.toSet());
+    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds);
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
     SearchProjectsRequest.Builder request = SearchProjectsRequest.builder()
+      .setOrganization(httpRequest.param(PARAM_ORGANIZATION))
       .setFilter(httpRequest.param(PARAM_FILTER))
       .setPage(httpRequest.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(httpRequest.mandatoryParamAsInt(Param.PAGE_SIZE));
