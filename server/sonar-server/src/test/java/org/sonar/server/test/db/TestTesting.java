@@ -29,8 +29,11 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+
+import static java.util.Arrays.asList;
 
 public class TestTesting {
 
@@ -74,5 +77,20 @@ public class TestTesting {
       tests.add(test.build());
     }
     return tests;
+  }
+
+  public static DbFileSources.Test.Builder newTest(ComponentDto mainFile, Integer... coveredLines) throws IOException {
+    DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
+      .setUuid(Uuids.create())
+      .setName(RandomStringUtils.randomAlphanumeric(20))
+      .setStatus(DbFileSources.Test.TestStatus.FAILURE)
+      .setStacktrace(RandomStringUtils.randomAlphanumeric(50))
+      .setMsg(RandomStringUtils.randomAlphanumeric(30))
+      .setExecutionTimeMs(RandomUtils.nextLong());
+    test.addCoveredFile(
+      DbFileSources.Test.CoveredFile.newBuilder()
+        .setFileUuid(mainFile.uuid())
+        .addAllCoveredLine(asList(coveredLines)));
+    return test;
   }
 }

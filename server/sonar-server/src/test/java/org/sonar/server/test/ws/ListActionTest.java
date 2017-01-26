@@ -19,8 +19,8 @@
  */
 package org.sonar.server.test.ws;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,280 +31,255 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.test.index.CoveredFileDoc;
-import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
+import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsTests;
+import org.sonarqube.ws.WsTests.ListResponse;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
+import static org.sonar.server.test.db.TestTesting.newTest;
+import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_ID;
+import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_KEY;
+import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_LINE_NUMBER;
+import static org.sonar.server.test.ws.ListAction.TEST_FILE_ID;
+import static org.sonar.server.test.ws.ListAction.TEST_FILE_KEY;
+import static org.sonar.server.test.ws.ListAction.TEST_ID;
 
 public class ListActionTest {
 
-  private static final String DEFAULT_ORGANIZATION_UUID = "org1";
-
-  @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
+  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE)
-      .setDefaultOrganizationUuid(DEFAULT_ORGANIZATION_UUID);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
 
-  private WsTester ws;
+  private TestIndex testIndex = new TestIndex(es.client());
+  private TestIndexer testIndexer = new TestIndexer(System2.INSTANCE, db.getDbClient(), es.client());
+
+  private ComponentDto project;
+  private ComponentDto mainFile;
+  private ComponentDto testFile;
+
+  private WsActionTester ws = new WsActionTester(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient)));
 
   @Before
-  public void setUp() {
-    TestIndex testIndex = new TestIndex(es.client());
-    ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient))));
+  public void setUp() throws Exception {
+    project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
+    mainFile = db.components().insertComponent(newFileDto(project));
+    testFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
   }
 
   @Test
-  public void list_based_on_test_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
+  public void return_test() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    DbFileSources.Test test = newTest(mainFile, 10, 11, 12, 20, 21, 25).setStatus(OK).build();
+    insertTests(testFile, test);
 
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
+    ListResponse request = call(ws.newRequest().setParam(TEST_ID, test.getUuid()));
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
-
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_ID, TestFile1.UUID);
-
-    request.execute().assertJson(getClass(), "list-test-uuid.json");
+    assertThat(request.getTestsList()).hasSize(1);
+    WsTests.Test result = request.getTests(0);
+    assertThat(result.getId()).isEqualTo(test.getUuid());
+    assertThat(result.getName()).isEqualTo(test.getName());
+    assertThat(result.getStatus()).isEqualTo(WsTests.TestStatus.OK);
+    assertThat(result.getFileId()).isEqualTo(testFile.uuid());
+    assertThat(result.getFileKey()).isEqualTo(testFile.key());
+    assertThat(result.getFileName()).isEqualTo(testFile.path());
+    assertThat(result.getDurationInMs()).isEqualTo(test.getExecutionTimeMs());
+    assertThat(result.getMessage()).isEqualTo(test.getMsg());
+    assertThat(result.getStacktrace()).isEqualTo(test.getStacktrace());
+    assertThat(result.getCoveredLines()).isEqualTo(6);
   }
 
   @Test
-  public void list_based_on_test_file_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
+  public void return_tests_based_on_test_uuid() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    DbFileSources.Test test1 = newTest(mainFile, 10).build();
+    DbFileSources.Test test2 = newTest(mainFile, 11).build();
+    insertTests(testFile, test1, test2);
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
+    ListResponse request = call(ws.newRequest().setParam(TEST_ID, test1.getUuid()));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID);
-
-    request.execute().assertJson(getClass(), "list-test-uuid.json");
+    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid());
   }
 
   @Test
-  public void list_based_on_test_file_key() throws Exception {
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID, TestFile1.KEY);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
+  public void return_tests_based_on_test_file_uuid() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
+    DbFileSources.Test test1 = newTest(mainFile, 10).build();
+    DbFileSources.Test test2 = newTest(mainFile, 11).build();
+    DbFileSources.Test test3 = newTest(mainFile, 12).build();
+    insertTests(testFile, test1, test2);
+    insertTests(anotherTestFile, test3);
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
+    ListResponse request = call(ws.newRequest().setParam(TEST_FILE_ID, testFile.uuid()));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY);
-
-    request.execute().assertJson(getClass(), "list-test-uuid.json");
+    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
   }
 
   @Test
-  public void list_based_on_source_file_uuid_and_line_number() throws Exception {
-    String mainFileUuid = "MAIN-FILE-UUID";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(),
-      TestFile1.dto(),
-      TestFile2.dto(),
-      new ComponentDto()
-        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-        .setUuid(mainFileUuid)
-        .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
-        .setRootUuid(TestFile1.PROJECT_UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID));
-    db.getSession().commit();
+  public void return_tests_based_on_test_file_key() throws Exception {
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, project.key(), testFile.key());
+    ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
+    DbFileSources.Test test1 = newTest(mainFile, 10).build();
+    DbFileSources.Test test2 = newTest(mainFile, 11).build();
+    DbFileSources.Test test3 = newTest(mainFile, 12).build();
+    insertTests(testFile, test1, test2);
+    insertTests(anotherTestFile, test3);
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      TestFile1.doc(),
-      TestFile2.doc());
+    ListResponse request = call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.key()));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
-      .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10");
-
-    request.execute().assertJson(getClass(), "list-main-file.json");
+    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
   }
 
   @Test
-  public void list_based_on_source_file_key_and_line_number() throws Exception {
-    String sourceFileUuid = "MAIN-FILE-UUID";
-    String sourceFileKey = "MAIN-FILE-KEY";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(),
-      TestFile1.dto(),
-      TestFile2.dto(),
-      new ComponentDto()
-        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-        .setUuid(sourceFileUuid)
-        .setUuidPath(TestFile1.PROJECT_UUID + "." + sourceFileUuid + ".")
-        .setRootUuid(TestFile1.PROJECT_UUID)
-        .setKey(sourceFileKey)
-        .setProjectUuid(TestFile1.PROJECT_UUID));
-    db.getSession().commit();
+  public void return_tests_based_on_source_file_uuid_and_line_number() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
+    DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
+    DbFileSources.Test test2 = newTest(mainFile, 9, 11).build();
+    DbFileSources.Test test3 = newTest(mainFile, 10, 12).build();
+    DbFileSources.Test test4 = newTest(anotherMainFile, 11).build();
+    insertTests(testFile, test1, test2, test3, test4);
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      TestFile1.doc(), TestFile2.doc());
+    ListResponse request = call(ws.newRequest().setParam(SOURCE_FILE_ID, mainFile.uuid()).setParam(SOURCE_FILE_LINE_NUMBER, "11"));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.SOURCE_FILE_KEY, sourceFileKey)
-      .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10");
-
-    request.execute().assertJson(getClass(), "list-main-file.json");
+    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
+  public void return_tests_based_on_source_file_key_and_line_number() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
+    DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
+    DbFileSources.Test test2 = newTest(mainFile, 9, 11).build();
+    DbFileSources.Test test3 = newTest(mainFile, 10, 12).build();
+    DbFileSources.Test test4 = newTest(anotherMainFile, 11).build();
+    insertTests(testFile, test1, test2, test3, test4);
+
+    ListResponse request = call(ws.newRequest().setParam(SOURCE_FILE_KEY, mainFile.key()).setParam(SOURCE_FILE_LINE_NUMBER, "10"));
+
+    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test3.getUuid());
+  }
+
+  @Test
+  public void return_pagination() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    insertTests(testFile, newTest(mainFile, 10).build(), newTest(mainFile, 11).build(), newTest(mainFile, 12).build());
+
+    ListResponse request = call(ws.newRequest().setParam(TEST_FILE_ID, testFile.uuid()));
+
+    assertThat(request.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(request.getPaging().getPageSize()).isEqualTo(100);
+    assertThat(request.getPaging().getTotal()).isEqualTo(3);
+  }
+
+  @Test
   public void fail_when_no_argument() throws Exception {
-    ws.newGetRequest("api/tests", "list").execute();
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+
+    expectedException.expect(IllegalArgumentException.class);
+    call(ws.newRequest());
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_when_main_file_uuid_without_line_number() throws Exception {
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.SOURCE_FILE_ID, "ANY-UUID").execute();
+  @Test
+  public void fail_when_source_file_uuid_without_line_number() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+
+    expectedException.expect(IllegalArgumentException.class);
+    call(ws.newRequest().setParam(SOURCE_FILE_ID, mainFile.uuid()));
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_when_no_sufficent_privilege_on_file_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
+  @Test
+  public void fail_when_not_enough_privilege_on_test_uuid() throws Exception {
+    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    DbFileSources.Test test = newTest(mainFile, 10).build();
+    insertTests(testFile, test);
+
+    expectedException.expect(ForbiddenException.class);
+    call(ws.newRequest().setParam(TEST_ID, test.getUuid()));
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_when_no_sufficent_privilege_on_test_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
+  @Test
+  public void fail_when_no_enough_privilege_on_test_file_id() throws Exception {
+    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    insertTests(testFile, newTest(mainFile, 10).build());
+
+    expectedException.expect(ForbiddenException.class);
+    call(ws.newRequest().setParam(TEST_FILE_ID, testFile.uuid()));
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_when_no_sufficent_privilege_on_file_key() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
-    db.getSession().commit();
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY).execute();
+  @Test
+  public void fail_when_not_enough_privilege_on_test_file_key() throws Exception {
+    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    insertTests(testFile, newTest(mainFile, 10).build());
+
+    expectedException.expect(ForbiddenException.class);
+    call(ws.newRequest().setParam(TEST_FILE_KEY, testFile.key()));
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_when_no_sufficient_privilege_on_main_file_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    String mainFileUuid = "MAIN-FILE-UUID";
-    dbClient.componentDao().insert(db.getSession(), new ComponentDto()
-      .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-      .setUuid(mainFileUuid)
-      .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
-      .setRootUuid(TestFile1.PROJECT_UUID)
-      .setProjectUuid(TestFile1.PROJECT_UUID));
-    db.getSession().commit();
+  @Test
+  public void fail_when_not_enough_privilege_on_main_file_uuid() throws Exception {
+    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    insertTests(testFile, newTest(mainFile, 10).build());
 
-    ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
-      .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10")
-      .execute();
+    expectedException.expect(ForbiddenException.class);
+    call(ws.newRequest().setParam(SOURCE_FILE_ID, mainFile.uuid()).setParam(SOURCE_FILE_LINE_NUMBER, "10"));
   }
 
   @Test
   public void fail_when_test_uuid_is_unknown() throws Exception {
+    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    DbFileSources.Test test = newTest(mainFile, 10).build();
+    insertTests(testFile, test);
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Test with id 'unknown-test-uuid' is not found");
-
-    ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.TEST_ID, "unknown-test-uuid")
-      .execute();
+    call(ws.newRequest().setParam(TEST_ID, "unknown-test-uuid"));
   }
 
-  private static final class TestFile1 {
-    public static final String UUID = "TEST-UUID-1";
-    public static final String FILE_UUID = "ABCD";
-    public static final String FILE_UUID_PATH = "PROJECT-UUID.ABCD.";
-    public static final String PROJECT_UUID = "PROJECT-UUID";
-    public static final String NAME = "test1";
-    public static final String STATUS = "OK";
-    public static final long DURATION_IN_MS = 10;
-    public static final String MESSAGE = "MESSAGE-1";
-    public static final String STACKTRACE = "STACKTRACE-1";
-    public static final String KEY = "org.foo.BarTest.java";
-    public static final String LONG_NAME = "src/test/java/org/foo/BarTest.java";
-    public static final List<CoveredFileDoc> COVERED_FILES = Arrays.asList(new CoveredFileDoc().setFileUuid("MAIN-FILE-UUID").setCoveredLines(Arrays.asList(1, 2, 3, 10)));
-
-    public static ComponentDto dto() {
-      return new ComponentDto()
-        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-        .setUuid(TestFile1.FILE_UUID)
-        .setUuidPath(TestFile1.FILE_UUID_PATH)
-        .setRootUuid(TestFile1.PROJECT_UUID)
-        .setLongName(TestFile1.LONG_NAME)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setKey(TestFile1.KEY);
-    }
-
-    public static TestDoc doc() {
-      return new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStackTrace(TestFile1.STACKTRACE);
-    }
-
-    private TestFile1() {
-      // static stuff for test purposes
-    }
+  private void insertTests(ComponentDto testFile, DbFileSources.Test... tests) {
+    db.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(project.uuid())
+      .setFileUuid(testFile.uuid())
+      .setTestData(asList(tests)));
+    db.commit();
+    testIndexer.index(project.uuid());
   }
 
-  private static final class TestFile2 {
-    public static final String UUID = "TEST-UUID-2";
-    public static final String FILE_UUID = "BCDE";
-    public static final String FILE_UUID_PATH = "PROJECT-UUID.BCDE.";
-    public static final String PROJECT_UUID = "PROJECT-UUID";
-    public static final String NAME = "test2";
-    public static final String STATUS = "ERROR";
-    public static final long DURATION_IN_MS = 97;
-    public static final String MESSAGE = "MESSAGE-2";
-    public static final String STACKTRACE = "STACKTRACE-2";
-    public static final String KEY = "org.foo.FileTest.java";
-    public static final String LONG_NAME = "src/test/java/org/foo/FileTest.java";
-    public static final List<CoveredFileDoc> COVERED_FILES = Arrays.asList(new CoveredFileDoc().setFileUuid("MAIN-FILE-UUID").setCoveredLines(Arrays.asList(11, 12, 13, 10)));
+  private static ListResponse call(TestRequest request) {
+    try {
 
-    public static ComponentDto dto() {
-      return new ComponentDto()
-        .setOrganizationUuid(DEFAULT_ORGANIZATION_UUID)
-        .setUuid(FILE_UUID)
-        .setUuidPath(FILE_UUID_PATH)
-        .setRootUuid(TestFile2.PROJECT_UUID)
-        .setLongName(TestFile2.LONG_NAME)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setKey(TestFile2.KEY);
-    }
-
-    public static TestDoc doc() {
-      return new TestDoc()
-        .setUuid(TestFile2.UUID)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setName(TestFile2.NAME)
-        .setFileUuid(TestFile2.FILE_UUID)
-        .setDurationInMs(TestFile2.DURATION_IN_MS)
-        .setStatus(TestFile2.STATUS)
-        .setStackTrace(TestFile2.STATUS)
-        .setMessage(TestFile2.MESSAGE)
-        .setCoveredFiles(TestFile2.COVERED_FILES)
-        .setStackTrace(TestFile2.STACKTRACE);
-    }
-
-    private TestFile2() {
-      // static stuff for test purposes
+      return ListResponse.parseFrom(
+        request
+          .setMediaType(MediaTypes.PROTOBUF)
+          .execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
     }
   }
 
