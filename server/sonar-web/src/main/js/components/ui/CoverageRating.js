@@ -52,7 +52,7 @@ export default class CoverageRating extends React.Component {
       const value = Number(this.props.value);
       data = [
         { value, fill: this.props.muted ? '#bdbdbd' : '#00aa00' },
-        { value: 100 - value, fill: '#d4333f' }
+        { value: 100 - value, fill: this.props.muted ? '#f3f3f3' : '#d4333f' }
       ];
     }
 
