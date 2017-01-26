@@ -128,21 +128,21 @@ class AboutApp extends React.Component {
                 <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }}/>
             )}
 
-            <div className="columns">
-              <div className="column-two-thirds">
+            <div className="flex-columns">
+              <div className="flex-column flex-column-two-thirds about-page-group-boxes">
                 <AboutCleanCode/>
                 <AboutLeakPeriod/>
               </div>
-              <div className="column-third">
+              <div className="flex-column flex-column-third about-page-group-boxes">
                 <AboutIssues/>
               </div>
             </div>
 
-            <div className="columns">
-              <div className="column-half">
+            <div className="flex-columns">
+              <div className="flex-column flex-column-half about-page-group-boxes">
                 <AboutQualityGates/>
               </div>
-              <div className="column-half">
+              <div className="flex-column flex-column-half about-page-group-boxes">
                 <AboutStandards/>
               </div>
             </div>

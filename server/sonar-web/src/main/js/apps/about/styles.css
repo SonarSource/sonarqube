@@ -199,3 +199,12 @@
   width: 310px;
   margin-top: 40px;
 }
+
+.about-page-group-boxes {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-page-group-boxes > .boxed-group {
+  flex-grow: 1;
+}
