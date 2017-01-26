@@ -17,26 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import ComponentNav from './nav/component/ComponentNav';
 import { fetchProject } from '../../store/rootActions';
 import { getComponent } from '../../store/rootReducer';
+import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
+import { parseError } from '../../apps/code/utils';
+import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 class ProjectContainer extends React.Component {
-  static propTypes = {
-    project: React.PropTypes.object,
-    fetchProject: React.PropTypes.func.isRequired
-  };
+  props: {
+    addGlobalErrorMessage: () => void,
+    children: {},
+    location: {
+      query: { id: string }
+    },
+    project?: {
+      configuration: {},
+      qualifier: string
+    },
+    fetchProject: (string) => Promise<*>
+  }
 
   componentDidMount () {
-    this.props.fetchProject();
+    this.fetchProject();
   }
 
   componentDidUpdate (prevProps) {
     if (prevProps.location.query.id !== this.props.location.query.id) {
-      this.props.fetchProject();
+      this.fetchProject();
     }
+  }
+
+  fetchProject () {
+    this.setState({ errorCode: null });
+    this.props.fetchProject(this.props.location.query.id).catch(e => {
+      if (e.response.status === 403) {
+        handleRequiredAuthorization();
+      } else {
+        parseError(e).then(message => this.props.addGlobalErrorMessage(message));
+      }
+    });
   }
 
   render () {
@@ -47,6 +70,7 @@ class ProjectContainer extends React.Component {
 
     const isFile = ['FIL', 'UTS'].includes(this.props.project.qualifier);
 
+    // $FlowFixMe `this.props.project` is always defined at this point
     const configuration = this.props.project.configuration || {};
 
     return (
@@ -64,8 +88,6 @@ const mapStateToProps = (state, ownProps) => ({
   project: getComponent(state, ownProps.location.query.id)
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  fetchProject: () => dispatch(fetchProject(ownProps.location.query.id))
-});
+const mapDispatchToProps = { addGlobalErrorMessage, fetchProject };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectContainer);
