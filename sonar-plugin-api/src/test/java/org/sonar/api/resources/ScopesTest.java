@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,7 +29,7 @@ public class ScopesTest {
 
   @Test
   public void testProject() {
-    Project resource = new Project("key");
+    Project resource = new Project(ProjectDefinition.create());
     assertThat(Scopes.isProject(resource), is(true));
     assertThat(Scopes.isDirectory(resource), is(false));
     assertThat(Scopes.isFile(resource), is(false));

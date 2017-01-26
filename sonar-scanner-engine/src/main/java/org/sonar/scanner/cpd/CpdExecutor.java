@@ -30,7 +30,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -40,12 +43,11 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -64,17 +66,17 @@ public class CpdExecutor {
 
   private final SonarCpdBlockIndex index;
   private final ReportPublisher publisher;
-  private final BatchComponentCache batchComponentCache;
+  private final InputComponentStore componentStore;
   private final Settings settings;
   private final ProgressReport progressReport;
   private int count;
   private int total;
 
-  public CpdExecutor(Settings settings, SonarCpdBlockIndex index, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+  public CpdExecutor(Settings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
-    this.batchComponentCache = batchComponentCache;
+    this.componentStore = inputComponentCache;
     this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
@@ -106,13 +108,13 @@ public class CpdExecutor {
 
   @VisibleForTesting
   void runCpdAnalysis(ExecutorService executorService, String componentKey, final Collection<Block> fileBlocks, long timeout) {
-    BatchComponent component = batchComponentCache.get(componentKey);
+    DefaultInputComponent component = (DefaultInputComponent) componentStore.getByKey(componentKey);
     if (component == null) {
       LOG.error("Resource not found in component cache: {}. Skipping CPD computation for it", componentKey);
       return;
     }
 
-    InputFile inputFile = (InputFile) component.inputComponent();
+    InputFile inputFile = (InputFile) component;
     LOG.debug("Detection of duplications for {}", inputFile.absolutePath());
     progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
@@ -156,9 +158,9 @@ public class CpdExecutor {
   }
 
   @VisibleForTesting
-  final void saveDuplications(final BatchComponent component, List<CloneGroup> duplications) {
+  final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
-      LOG.warn("Too many duplication groups on file " + component.inputComponent() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
+      LOG.warn("Too many duplication groups on file " + component + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
         " groups.");
     }
     Iterable<ScannerReport.Duplication> reportDuplications = from(duplications)
@@ -177,7 +179,7 @@ public class CpdExecutor {
     publisher.getWriter().writeComponentDuplications(component.batchId(), reportDuplications);
   }
 
-  private Duplication toReportDuplication(BatchComponent component, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, CloneGroup input) {
+  private Duplication toReportDuplication(InputComponent component, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, CloneGroup input) {
     dupBuilder.clear();
     ClonePart originBlock = input.getOriginPart();
     blockBuilder.clear();
@@ -190,7 +192,7 @@ public class CpdExecutor {
       if (!duplicate.equals(originBlock)) {
         clonePartCount++;
         if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-          LOG.warn("Too many duplication references on file " + component.inputComponent() + " for block at line " +
+          LOG.warn("Too many duplication references on file " + component + " for block at line " +
             originBlock.getStartLine() + ". Keep only the first "
             + MAX_CLONE_PART_PER_GROUP + " references.");
           break;
@@ -198,7 +200,7 @@ public class CpdExecutor {
         blockBuilder.clear();
         String componentKey = duplicate.getResourceId();
         if (!component.key().equals(componentKey)) {
-          BatchComponent sameProjectComponent = batchComponentCache.get(componentKey);
+          DefaultInputComponent sameProjectComponent = (DefaultInputComponent) componentStore.getByKey(componentKey);
           blockBuilder.setOtherFileRef(sameProjectComponent.batchId());
         }
         dupBuilder.addDuplicate(blockBuilder

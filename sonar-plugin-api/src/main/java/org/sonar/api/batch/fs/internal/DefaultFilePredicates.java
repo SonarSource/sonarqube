@@ -146,11 +146,6 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   @Override
-  public FilePredicate hasStatus(InputFile.Status status) {
-    return new StatusPredicate(status);
-  }
-
-  @Override
   public FilePredicate hasType(InputFile.Type type) {
     return new TypePredicate(type);
   }

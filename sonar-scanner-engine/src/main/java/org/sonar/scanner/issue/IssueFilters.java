@@ -22,39 +22,42 @@ package org.sonar.scanner.issue;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
-import org.sonar.api.resources.Project;
 
 @ScannerSide
 public class IssueFilters {
   private final IssueFilter[] filters;
   private final org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters;
-  private final Project project;
+  private final InputModule module;
+  private final ProjectAnalysisInfo projectAnalysisInfo;
 
-  public IssueFilters(Project project, IssueFilter[] exclusionFilters, org.sonar.api.issue.batch.IssueFilter[] filters) {
-    this.project = project;
+  public IssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters, org.sonar.api.issue.batch.IssueFilter[] filters) {
+    this.module = module;
     this.filters = exclusionFilters;
     this.deprecatedFilters = filters;
+    this.projectAnalysisInfo = projectAnalysisInfo;
   }
 
-  public IssueFilters(Project project, IssueFilter[] filters) {
-    this(project, filters, new org.sonar.api.issue.batch.IssueFilter[0]);
+  public IssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] filters) {
+    this(module, projectAnalysisInfo, filters, new org.sonar.api.issue.batch.IssueFilter[0]);
   }
 
-  public IssueFilters(Project project, org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters) {
-    this(project, new IssueFilter[0], deprecatedFilters);
+  public IssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters) {
+    this(module, projectAnalysisInfo, new IssueFilter[0], deprecatedFilters);
   }
 
-  public IssueFilters(Project project) {
-    this(project, new IssueFilter[0], new org.sonar.api.issue.batch.IssueFilter[0]);
+  public IssueFilters(InputModule module, ProjectAnalysisInfo projectAnalysisInfo) {
+    this(module, projectAnalysisInfo, new IssueFilter[0], new org.sonar.api.issue.batch.IssueFilter[0]);
   }
 
   public boolean accept(String componentKey, ScannerReport.Issue rawIssue) {
     IssueFilterChain filterChain = new DefaultIssueFilterChain(filters);
-    FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, componentKey);
+    FilterableIssue fIssue = new DefaultFilterableIssue(module, projectAnalysisInfo, rawIssue, componentKey);
     if (filterChain.accept(fIssue)) {
       return acceptDeprecated(componentKey, rawIssue);
     }
@@ -63,7 +66,7 @@ public class IssueFilters {
   }
 
   public boolean acceptDeprecated(String componentKey, ScannerReport.Issue rawIssue) {
-    Issue issue = new DeprecatedIssueAdapterForFilter(project, rawIssue, componentKey);
+    Issue issue = new DeprecatedIssueAdapterForFilter(module, projectAnalysisInfo, rawIssue, componentKey);
     return new DeprecatedIssueFilterChain(deprecatedFilters).accept(issue);
   }
 }

@@ -20,105 +20,34 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.CheckForNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.config.Settings;
-import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.batch.fs.internal.Metadata;
 
-class InputFileBuilder {
-
-  private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
-
+class MetadataGenerator {
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);
   @VisibleForTesting
   static final Charset UTF_32BE = Charset.forName("UTF-32BE");
 
   @VisibleForTesting
   static final Charset UTF_32LE = Charset.forName("UTF-32LE");
 
-  private final String moduleKey;
-  private final PathResolver pathResolver;
-  private final LanguageDetection langDetection;
   private final StatusDetection statusDetection;
-  private final DefaultModuleFileSystem fs;
-  private final Settings settings;
   private final FileMetadata fileMetadata;
 
-  InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-    StatusDetection statusDetection, DefaultModuleFileSystem fs, Settings settings, FileMetadata fileMetadata) {
-    this.moduleKey = moduleKey;
-    this.pathResolver = pathResolver;
-    this.langDetection = langDetection;
+  MetadataGenerator(StatusDetection statusDetection, FileMetadata fileMetadata) {
     this.statusDetection = statusDetection;
-    this.fs = fs;
-    this.settings = settings;
     this.fileMetadata = fileMetadata;
-  }
-
-  String moduleKey() {
-    return moduleKey;
-  }
-
-  PathResolver pathResolver() {
-    return pathResolver;
-  }
-
-  LanguageDetection langDetection() {
-    return langDetection;
-  }
-
-  StatusDetection statusDetection() {
-    return statusDetection;
-  }
-
-  FileSystem fs() {
-    return fs;
-  }
-
-  @CheckForNull
-  DefaultInputFile create(File file) {
-    String relativePath = pathResolver.relativePath(fs.baseDir(), file);
-    if (relativePath == null) {
-      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
-      return null;
-    }
-    return new DefaultInputFile(moduleKey, relativePath);
-  }
-
-  /**
-   * Optimization to not compute InputFile metadata if the file is excluded from analysis.
-   */
-  @CheckForNull
-  DefaultInputFile completeAndComputeMetadata(DefaultInputFile inputFile, InputFile.Type type) {
-    inputFile.setType(type);
-    inputFile.setModuleBaseDir(fs.baseDir().toPath());
-
-    String lang = langDetection.language(inputFile);
-    if (lang == null && !settings.getBoolean(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)) {
-      // Return fast to skip costly metadata computation
-      LOG.debug("'{}' language is not supported by any analyzer. Skipping it.", inputFile.relativePath());
-      return null;
-    }
-    inputFile.setLanguage(lang);
-
-    Charset charset = detectCharset(inputFile.file(), fs.encoding());
-    inputFile.setCharset(charset);
-
-    inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), charset));
-
-    inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), inputFile.hash()));
-
-    return inputFile;
   }
 
   /**
@@ -144,6 +73,20 @@ class InputFileBuilder {
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to read file " + file.getAbsolutePath(), e);
+    }
+  }
+
+  public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
+    try {
+      Charset charset = detectCharset(inputFile.file(), defaultEncoding);
+      inputFile.setCharset(charset);
+      Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
+      inputFile.setMetadata(metadata);
+      inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash()));
+      LOG.debug("'{}' generated metadata {} with and charset '{}'",
+        inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
     }
   }
 }

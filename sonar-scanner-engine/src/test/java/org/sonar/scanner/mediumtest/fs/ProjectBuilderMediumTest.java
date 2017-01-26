@@ -142,6 +142,7 @@ public class ProjectBuilderMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", ".")
+        .put("sonar.verbose", "true")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
       .start();

@@ -19,22 +19,23 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.InputFile;
+import java.util.Collection;
 
-/**
- * @since 4.2
- */
-class StatusPredicate extends AbstractFilePredicate {
+import javax.annotation.CheckForNull;
 
-  private final InputFile.Status status;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
-  StatusPredicate(InputFile.Status status) {
-    this.status = status;
-  }
+public interface InputModuleHierarchy {
+  DefaultInputModule root();
+  
+  boolean isRoot(InputModule module);
 
-  @Override
-  public boolean apply(InputFile f) {
-    return status == f.status();
-  }
+  Collection<DefaultInputModule> children(InputModule module);
 
+  @CheckForNull
+  DefaultInputModule parent(InputModule module);
+  
+  @CheckForNull
+  String relativePath(InputModule module);
 }

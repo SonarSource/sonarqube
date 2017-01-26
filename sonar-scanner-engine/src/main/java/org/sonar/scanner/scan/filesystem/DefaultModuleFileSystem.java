@@ -26,12 +26,12 @@ import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.sonar.scanner.repository.ProjectRepositories;
 
 /**
  * @since 3.5
@@ -44,26 +44,28 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
-  private ComponentIndexer componentIndexer;
   private boolean initialized;
+  private Charset charset = null;
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project project,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer, DefaultAnalysisMode mode) {
+  public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module,
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    ProjectRepositories projectRepositories) {
     super(initializer.baseDir(), moduleInputFileCache);
-    setFields(project, settings, indexer, initializer, componentIndexer, mode);
+    setFields(module, settings, indexer, initializer, mode, projectRepositories);
   }
 
   @VisibleForTesting
-  public DefaultModuleFileSystem(Project project,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer, DefaultAnalysisMode mode) {
+  public DefaultModuleFileSystem(DefaultInputModule module,
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    ProjectRepositories projectRepositories) {
     super(initializer.baseDir().toPath());
-    setFields(project, settings, indexer, initializer, componentIndexer, mode);
+    setFields(module, settings, indexer, initializer, mode, projectRepositories);
   }
 
-  private void setFields(Project project,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer, DefaultAnalysisMode mode) {
-    this.componentIndexer = componentIndexer;
-    this.moduleKey = project.getKey();
+  private void setFields(DefaultInputModule module,
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    ProjectRepositories projectRepositories) {
+    this.moduleKey = module.key();
     this.settings = settings;
     this.indexer = indexer;
     setWorkDir(initializer.workingDir());
@@ -72,7 +74,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {
-      setDefaultPredicate(predicates.not(predicates.hasStatus(Status.SAME)));
+      setDefaultPredicate(new SameInputFilePredicate(projectRepositories, moduleKey));
     }
   }
 
@@ -94,12 +96,13 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   @Override
   public Charset encoding() {
-    final Charset charset;
-    String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
-    if (StringUtils.isNotEmpty(encoding)) {
-      charset = Charset.forName(StringUtils.trim(encoding));
-    } else {
-      charset = Charset.defaultCharset();
+    if (charset == null) {
+      String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
+      if (StringUtils.isNotEmpty(encoding)) {
+        charset = Charset.forName(StringUtils.trim(encoding));
+      } else {
+        charset = Charset.defaultCharset();
+      }
     }
     return charset;
   }
@@ -122,9 +125,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
     }
     initialized = true;
     indexer.index(this);
-    if (componentIndexer != null) {
-      componentIndexer.execute(this);
-    }
   }
 
   @Override

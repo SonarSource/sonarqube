@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 @Properties({
   @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, defaultValue = "false", name = "Enable console report",
@@ -47,10 +47,10 @@ public class ConsoleReport implements Reporter {
 
   private Settings settings;
   private IssueCache issueCache;
-  private InputPathCache inputPathCache;
+  private InputComponentStore inputPathCache;
 
   @VisibleForTesting
-  public ConsoleReport(Settings settings, IssueCache issueCache, InputPathCache inputPathCache) {
+  public ConsoleReport(Settings settings, IssueCache issueCache, InputComponentStore inputPathCache) {
     this.settings = settings;
     this.issueCache = issueCache;
     this.inputPathCache = inputPathCache;

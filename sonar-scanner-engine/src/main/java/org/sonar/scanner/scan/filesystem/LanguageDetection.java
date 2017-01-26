@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
@@ -75,12 +75,17 @@ class LanguageDetection {
     // First try with lang patterns
     if (forcedLanguage != null) {
       if (!patternsByLanguage.containsKey(forcedLanguage)) {
-        throw MessageException.of("No language is installed with key '" + forcedLanguage + "'. Please update property '" + CoreProperties.PROJECT_LANGUAGE_PROPERTY + "'");
+        throw MessageException.of("You must install a plugin that supports the language '" + forcedLanguage + "'");
       }
+      LOG.info("Language is forced to {}", forcedLanguage);
       languagesToConsider.add(forcedLanguage);
     } else {
       languagesToConsider.addAll(patternsByLanguage.keySet());
     }
+  }
+
+  public String forcedLanguage() {
+    return forcedLanguage;
   }
 
   Map<String, PathPattern[]> patternsByLanguage() {
@@ -88,7 +93,7 @@ class LanguageDetection {
   }
 
   @CheckForNull
-  String language(InputFile inputFile) {
+  String language(DefaultIndexedFile inputFile) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
       if (isCandidateForLanguage(inputFile, languageKey)) {
@@ -113,7 +118,7 @@ class LanguageDetection {
     return null;
   }
 
-  private boolean isCandidateForLanguage(InputFile inputFile, String languageKey) {
+  private boolean isCandidateForLanguage(DefaultIndexedFile inputFile, String languageKey) {
     PathPattern[] patterns = patternsByLanguage.get(languageKey);
     if (patterns != null) {
       for (PathPattern pathPattern : patterns) {

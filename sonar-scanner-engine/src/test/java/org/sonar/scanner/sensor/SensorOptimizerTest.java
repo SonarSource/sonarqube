@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -68,7 +68,7 @@ public class SensorOptimizerTest {
       .onlyOnLanguages("java", "php");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
-    fs.add(new DefaultInputFile("foo", "src/Foo.java").setLanguage("java"));
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.java").setLanguage("java").build());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
@@ -78,10 +78,10 @@ public class SensorOptimizerTest {
       .onlyOnFileType(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
-    fs.add(new DefaultInputFile("foo", "tests/FooTest.java").setType(InputFile.Type.TEST));
+    fs.add(new TestInputFileBuilder("foo", "tests/FooTest.java").setType(InputFile.Type.TEST).build());
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
-    fs.add(new DefaultInputFile("foo", "src/Foo.java").setType(InputFile.Type.MAIN));
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.java").setType(InputFile.Type.MAIN).build());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
@@ -92,11 +92,11 @@ public class SensorOptimizerTest {
       .onlyOnFileType(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
-    fs.add(new DefaultInputFile("foo", "tests/FooTest.java").setLanguage("java").setType(InputFile.Type.TEST));
-    fs.add(new DefaultInputFile("foo", "src/Foo.cbl").setLanguage("cobol").setType(InputFile.Type.MAIN));
+    fs.add(new TestInputFileBuilder("foo", "tests/FooTest.java").setLanguage("java").setType(InputFile.Type.TEST).build());
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.cbl").setLanguage("cobol").setType(InputFile.Type.MAIN).build());
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
-    fs.add(new DefaultInputFile("foo", "src/Foo.java").setLanguage("java").setType(InputFile.Type.MAIN));
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.java").setLanguage("java").setType(InputFile.Type.MAIN).build());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
