@@ -34,4 +34,7 @@ public class ComponentIndexSearchFeatureRule extends ExternalResource {
     return features;
   }
 
+  public void set(ComponentIndexSearchFeature... features) {
+    this.features = features;
+  }
 }
