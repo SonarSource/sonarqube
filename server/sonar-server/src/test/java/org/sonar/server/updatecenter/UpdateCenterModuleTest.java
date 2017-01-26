@@ -19,16 +19,16 @@
  */
 package org.sonar.server.updatecenter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdateCenterModuleTest {
   @Test
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new UpdateCenterModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 4);
+    assertThat(container.size()).isEqualTo(2 + 5);
   }
 }
