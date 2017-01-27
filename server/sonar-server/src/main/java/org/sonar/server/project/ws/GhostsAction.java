@@ -32,30 +32,36 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class GhostsAction implements ProjectsWsAction {
-  public static final String ACTION = "ghosts";
+  private static final String PARAM_ORGANIZATION = "organization";
+  private static final String ACTION = "ghosts";
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public GhostsAction(DbClient dbClient, UserSession userSession) {
+  public GhostsAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    context
-      .createAction(ACTION)
+    WebService.NewAction action = context.createAction(ACTION);
+
+    action
       .setDescription("List ghost projects.<br /> Requires 'Administer System' permission.")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-ghosts.json"))
       .setSince("5.2")
@@ -63,28 +69,44 @@ public class GhostsAction implements ProjectsWsAction {
       .addFieldsParam(POSSIBLE_FIELDS)
       .addSearchQuery("sonar", "names", "keys")
       .setHandler(this);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("the organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.3");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(UserRole.ADMIN);
-    DbSession dbSession = dbClient.openSession(false);
+    userSession.checkLoggedIn();
+
     SearchOptions searchOptions = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE),
         request.mandatoryParamAsInt(Param.PAGE_SIZE));
     Set<String> desiredFields = fieldsToReturn(request.paramAsStrings(Param.FIELDS));
     String query = request.param(Param.TEXT_QUERY);
 
-    try {
-      long nbOfProjects = dbClient.componentDao().countGhostProjects(dbSession, query);
-      List<ComponentDto> projects = dbClient.componentDao().selectGhostProjects(dbSession, searchOptions.getOffset(), searchOptions.getLimit(), query);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = getOrganization(dbSession, request);
+      userSession.checkOrganizationPermission(organization.getUuid(), UserRole.ADMIN);
+
+      long nbOfProjects = dbClient.componentDao().countGhostProjects(dbSession, organization.getUuid(), query);
+      List<ComponentDto> projects = dbClient.componentDao().selectGhostProjects(dbSession, organization.getUuid(), query,
+        searchOptions.getOffset(), searchOptions.getLimit());
       JsonWriter json = response.newJsonWriter().beginObject();
       writeProjects(json, projects, desiredFields);
       searchOptions.writeJson(json, nbOfProjects);
       json.endObject().close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
+  }
+
+  private OrganizationDto getOrganization(DbSession dbSession, Request request) {
+    String organizationKey = request.getParam(PARAM_ORGANIZATION)
+      .or(defaultOrganizationProvider.get()::getKey);
+    return checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+      "No organization for key '%s'", organizationKey);
   }
 
   private static void writeProjects(JsonWriter json, List<ComponentDto> projects, Set<String> fieldsToReturn) {

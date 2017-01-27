@@ -20,9 +20,12 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
+import java.util.function.Consumer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -35,98 +38,157 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
-import org.sonar.test.JsonAssert;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
+import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class GhostsActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  DbClient dbClient = db.getDbClient();
-  WsTester ws = new WsTester(new ProjectsWs(new GhostsAction(dbClient, userSessionRule)));
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private DbClient dbClient = db.getDbClient();
+  private WsActionTester underTest = new WsActionTester(new GhostsAction(dbClient, userSessionRule, defaultOrganizationProvider));
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = underTest.getDef();
+    assertThat(action.description()).isEqualTo("List ghost projects.<br /> Requires 'Administer System' permission.");
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.isInternal()).isFalse();
+
+    assertThat(action.params()).hasSize(5);
+
+    Param organization = action.param("organization");
+    assertThat(organization.description()).isEqualTo("the organization key");
+    assertThat(organization.since()).isEqualTo("6.3");
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.isInternal()).isTrue();
+  }
 
   @Test
   public void ghost_projects_without_analyzed_projects() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
-    insertNewGhostProject("1");
-    insertNewGhostProject("2");
-    insertNewActiveProject("3");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto ghost1 = insertGhostProject(organization);
+    ComponentDto ghost2 = insertGhostProject(organization);
+    ComponentDto activeProject = insertActiveProject(organization);
+    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts").execute();
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute();
 
-    result.assertJson(getClass(), "all-projects.json");
-    assertThat(result.outputAsString()).doesNotContain("analyzed-uuid-3");
+    String json = result.getInput();
+    assertJson(json).isSimilarTo("{" +
+      "  \"projects\": [" +
+      "    {" +
+      "      \"uuid\": \"" + ghost1.uuid() + "\"," +
+      "      \"key\": \"" + ghost1.key() + "\"," +
+      "      \"name\": \"" + ghost1.name() + "\"" +
+      "    }," +
+      "    {" +
+      "      \"uuid\": \"" + ghost2.uuid() + "\"," +
+      "      \"key\": \"" + ghost2.key() + "\"," +
+      "      \"name\": \"" + ghost2.name() + "\"" +
+      "    }" +
+      "  ]" +
+      "}");
+    assertThat(json).doesNotContain(activeProject.uuid());
   }
 
   @Test
   public void ghost_projects_with_correct_pagination() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    OrganizationDto organization = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
-      insertNewGhostProject(String.valueOf(i));
+      int count = i;
+      insertGhostProject(organization, dto -> dto.setKey("ghost-key-" + count));
     }
+    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts")
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4")
       .execute();
 
-    result.assertJson(getClass(), "pagination.json");
-    assertThat(StringUtils.countMatches(result.outputAsString(), "ghost-uuid-")).isEqualTo(2);
+    String json = result.getInput();
+    assertJson(json).isSimilarTo("{" +
+      "  \"p\": 3," +
+      "  \"ps\": 4," +
+      "  \"total\": 10" +
+      "}");
+    assertThat(StringUtils.countMatches(json, "ghost-key-")).isEqualTo(2);
   }
 
   @Test
   public void ghost_projects_with_chosen_fields() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
-    insertNewGhostProject("1");
+    OrganizationDto organization = db.organizations().insert();
+    insertGhostProject(organization);
+    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts")
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
       .setParam(Param.FIELDS, "name")
       .execute();
 
-    assertThat(result.outputAsString()).contains("uuid", "name")
+    assertThat(result.getInput())
+      .contains("uuid", "name")
       .doesNotContain("key")
       .doesNotContain("creationDate");
   }
 
   @Test
   public void ghost_projects_with_partial_query_on_name() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    OrganizationDto organization = db.organizations().insert();
+    insertGhostProject(organization, dto -> dto.setName("ghost-name-10"));
+    insertGhostProject(organization, dto -> dto.setName("ghost-name-11"));
+    insertGhostProject(organization, dto -> dto.setName("ghost-name-20"));
 
-    insertNewGhostProject("10");
-    insertNewGhostProject("11");
-    insertNewGhostProject("2");
+    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts")
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
       .setParam(Param.TEXT_QUERY, "name-1")
       .execute();
 
-    assertThat(result.outputAsString()).contains("ghost-name-10", "ghost-name-11")
+    assertThat(result.getInput())
+      .contains("ghost-name-10", "ghost-name-11")
       .doesNotContain("ghost-name-2");
   }
 
   @Test
   public void ghost_projects_with_partial_query_on_key() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    OrganizationDto organization = db.organizations().insert();
+    insertGhostProject(organization, dto -> dto.setKey("ghost-key-1"));
 
-    insertNewGhostProject("1");
+    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts")
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organization.getKey())
       .setParam(Param.TEXT_QUERY, "GHOST-key")
       .execute();
 
-    assertThat(result.outputAsString()).contains("ghost-key-1");
+    assertThat(result.getInput())
+      .contains("ghost-key-1");
   }
 
   @Test
   public void ghost_projects_base_on_json_example() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
@@ -134,38 +196,62 @@ public class GhostsActionTest {
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
-      .setStatus(SnapshotDto.STATUS_UNPROCESSED));
+      .setStatus(STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newProjectDto(organizationDto, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), roslynProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(roslynProject)
-      .setStatus(SnapshotDto.STATUS_UNPROCESSED));
+      .setStatus(STATUS_UNPROCESSED));
     db.getSession().commit();
+    userSessionRule.login().addOrganizationPermission(organizationDto, SYSTEM_ADMIN);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "ghosts").execute();
+    TestResponse result = underTest.newRequest()
+      .setParam("organization", organizationDto.getKey())
+      .execute();
 
-    JsonAssert.assertJson(result.outputAsString()).isSimilarTo(Resources.getResource(getClass(), "projects-example-ghosts.json"));
+    assertJson(result.getInput())
+      .isSimilarTo(Resources.getResource(getClass(), "projects-example-ghosts.json"));
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_if_does_not_have_sufficient_rights() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.USER, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER);
+    userSessionRule.login()
+      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.USER)
+      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.ISSUE_ADMIN)
+      .addOrganizationPermission(db.getDefaultOrganization(), UserRole.CODEVIEWER);
 
-    ws.newGetRequest("api/projects", "ghosts").execute();
+    underTest.newRequest().execute();
   }
 
-  private void insertNewGhostProject(String id) {
-    ComponentDto project = ComponentTesting
-      .newProjectDto(db.organizations().insert(), "ghost-uuid-" + id)
-      .setName("ghost-name-" + id)
-      .setKey("ghost-key-" + id);
-    dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.newAnalysis(project)
-      .setStatus(SnapshotDto.STATUS_UNPROCESSED);
-    dbClient.snapshotDao().insert(db.getSession(), snapshot);
-    db.getSession().commit();
+  @Test
+  public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
+    TestRequest request = underTest.newRequest()
+        .setParam("organization", "foo");
+    userSessionRule.login();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization for key 'foo'");
+
+    request.execute();
+  }
+
+  private ComponentDto insertGhostProject(OrganizationDto organization) {
+    return insertGhostProject(organization, dto -> {
+    });
+  }
+
+  private ComponentDto insertGhostProject(OrganizationDto organization, Consumer<ComponentDto> consumer) {
+    ComponentDto project = db.components().insertProject(organization, consumer);
+    db.components().insertSnapshot(project, dto -> dto.setStatus(STATUS_UNPROCESSED));
+    return project;
+  }
+
+  private ComponentDto insertActiveProject(OrganizationDto organization) {
+    ComponentDto project = db.components().insertProject(organization);
+    db.components().insertSnapshot(project, dto -> dto.setStatus(STATUS_PROCESSED));
+    return project;
   }
 
   private void insertNewActiveProject(String id) {

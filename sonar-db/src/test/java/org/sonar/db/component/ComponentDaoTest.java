@@ -49,6 +49,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -596,13 +597,39 @@ public class ComponentDaoTest {
 
   @Test
   public void select_ghost_projects() {
-    db.prepareDbUnit(getClass(), "select_ghost_projects.xml");
+    OrganizationDto organization = db.organizations().insert();
 
-    List<ComponentDto> result = underTest.selectGhostProjects(dbSession, 0, 10, null);
+    // ghosts because has at least one snapshot with status U but none with status P
+    ComponentDto ghostProject = db.components().insertProject(organization);
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
+    ComponentDto ghostProject2 = db.components().insertProject(organization);
+    db.components().insertSnapshot(ghostProject2, dto -> dto.setStatus("U"));
+    ComponentDto disabledGhostProject = db.components().insertProject(dto -> dto.setEnabled(false));
+    db.components().insertSnapshot(disabledGhostProject, dto -> dto.setStatus("U"));
 
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).key()).isEqualTo("org.ghost.project");
-    assertThat(underTest.countGhostProjects(dbSession, null)).isEqualTo(1);
+    ComponentDto project1 = db.components().insertProject(organization);
+    db.components().insertSnapshot(project1, dto -> dto.setStatus("P"));
+    db.components().insertSnapshot(project1, dto -> dto.setStatus("U"));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
+    ComponentDto dir = db.components().insertComponent(newDirectory(module, "foo"));
+    db.components().insertComponent(newFileDto(module, dir, "bar"));
+
+    ComponentDto provisionedProject = db.components().insertProject(organization);
+
+    // not a ghost because has at least one snapshot with status P
+    ComponentDto project2 = db.components().insertProject(organization);
+    db.components().insertSnapshot(project2, dto -> dto.setStatus("P"));
+
+    // not a ghost because it's not a project
+    ComponentDto view = db.components().insertView(organization);
+    db.components().insertSnapshot(view, dto -> dto.setStatus("U"));
+    db.components().insertComponent(newProjectCopy("do", project1, view));
+
+    assertThat(underTest.selectGhostProjects(dbSession, organization.getUuid(), null, 0, 10))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(ghostProject.uuid(), ghostProject2.uuid(), disabledGhostProject.uuid());
+    assertThat(underTest.countGhostProjects(dbSession, organization.getUuid(), null)).isEqualTo(3);
   }
 
   @Test

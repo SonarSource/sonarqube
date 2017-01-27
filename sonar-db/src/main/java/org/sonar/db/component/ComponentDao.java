@@ -41,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -263,20 +262,12 @@ public class ComponentDao implements Dao {
     return DatabaseUtils.buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
   }
 
-  public List<ComponentDto> selectGhostProjects(DbSession session, int offset, int limit, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
-    addProjectQualifier(parameters);
-    addPartialQueryParameterIfNotNull(parameters, query);
-
-    return mapper(session).selectGhostProjects(parameters, new RowBounds(offset, limit));
+  public List<ComponentDto> selectGhostProjects(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectGhostProjects(organizationUuid, queryParameterFrom(query), new RowBounds(offset, limit));
   }
 
-  public long countGhostProjects(DbSession session, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
-    addProjectQualifier(parameters);
-    addPartialQueryParameterIfNotNull(parameters, query);
-
-    return mapper(session).countGhostProjects(parameters);
+  public long countGhostProjects(DbSession session, String organizationUuid, @Nullable String query) {
+    return mapper(session).countGhostProjects(organizationUuid, queryParameterFrom(query));
   }
 
   /**
@@ -317,12 +308,16 @@ public class ComponentDao implements Dao {
   private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {
     // TODO rely on resource_index table and match exactly the key
     if (keyOrNameFilter != null) {
-      parameters.put("query", "%" + keyOrNameFilter.toUpperCase(Locale.ENGLISH) + "%");
+      parameters.put("query", queryParameterFrom(keyOrNameFilter));
     }
   }
 
-  private static void addProjectQualifier(Map<String, Object> parameters) {
-    parameters.put("qualifier", Qualifiers.PROJECT);
+  @CheckForNull
+  private static String queryParameterFrom(@Nullable String keyOrNameFilter) {
+    if (keyOrNameFilter != null) {
+      return "%" + keyOrNameFilter.toUpperCase(Locale.ENGLISH) + "%";
+    }
+    return null;
   }
 
   public void insert(DbSession session, ComponentDto item) {

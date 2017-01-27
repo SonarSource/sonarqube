@@ -380,23 +380,24 @@
 
   <select id="selectGhostProjects" parameterType="map" resultType="Component">
     select distinct
-    <include refid="componentColumns"/>
+      <include refid="componentColumns"/>
     from projects p
-    <include refid="ghostClauses"/>
+      <include refid="ghostProjectClauses"/>
   </select>
 
   <select id="countGhostProjects" parameterType="map" resultType="long">
-    select count(p.id)
+    select
+      count(distinct p.id)
     from projects p
-    <include refid="ghostClauses"/>
+      <include refid="ghostProjectClauses"/>
   </select>
 
-  <sql id="ghostClauses">
+  <sql id="ghostProjectClauses">
     inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
     left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
     where
     s2.id is null
-    and p.qualifier=#{qualifier,jdbcType=VARCHAR}
+    and p.qualifier='TRK'
     and p.copy_component_uuid is null
     <if test="query!=null">
       and (

@@ -95,7 +95,7 @@ public class ComponentDbTester {
   }
 
   public ComponentDto insertView(OrganizationDto organizationDto) {
-    return insertComponentImpl(newView(organizationDto), dto -> {});
+    return insertComponentImpl(newView(organizationDto), noExtraConfiguration());
   }
 
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
@@ -111,7 +111,7 @@ public class ComponentDbTester {
   }
 
   public ComponentDto insertDeveloper(String name, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), noExtraConfiguration());
+    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), dtoPopulator);
   }
 
   public ComponentDto insertDeveloper(String name) {
@@ -141,6 +141,18 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertSnapshot(SnapshotDto snapshotDto) {
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    db.commit();
+    return snapshot;
+  }
+
+  public SnapshotDto insertSnapshot(ComponentDto componentDto) {
+    return insertSnapshot(componentDto, noExtraConfiguration());
+  }
+
+  public SnapshotDto insertSnapshot(ComponentDto componentDto, Consumer<SnapshotDto> consumer) {
+    SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(componentDto);
+    consumer.accept(snapshotDto);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, snapshotDto);
     db.commit();
     return snapshot;
