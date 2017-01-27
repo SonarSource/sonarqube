@@ -274,10 +274,6 @@ public class SearchActionTest {
     assertThat(result.since()).isEqualTo("6.2");
     assertThat(result.params()).hasSize(2);
     assertThat(result.responseExampleAsString()).isNotEmpty();
-    assertThat(result.description()).isEqualToIgnoringWhitespace("" +
-      "Search for project measures ordered by project names.<br>" +
-      "At most 100 projects can be provided.<br>" +
-      "Requires 'Browse' on the provided projects");
   }
 
   private SearchWsResponse call(@Nullable List<String> keys, @Nullable List<String> metrics) {

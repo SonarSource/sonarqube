@@ -74,7 +74,6 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.STRATEGIES;
 import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ComponentTreeDataLoader {
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = newHashSet(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
@@ -300,10 +299,7 @@ public class ComponentTreeDataLoader {
 
   private void checkPermissions(ComponentDto baseComponent) {
     String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
-      throw insufficientPrivilegesException();
-    }
+    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
   }
 
   private enum IsFileComponent implements Predicate<ComponentDto> {

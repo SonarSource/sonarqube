@@ -51,6 +51,7 @@ import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -83,7 +84,7 @@ public class ComponentActionTest {
 
   @Before
   public void setUp() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.login().setRoot().setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
@@ -103,7 +104,7 @@ public class ComponentActionTest {
   @Test
   public void provided_project() {
     componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSession.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
     insertNclocMetric();
 
     ComponentWsResponse response = newRequest(PROJECT_UUID, "ncloc");
@@ -231,7 +232,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
 

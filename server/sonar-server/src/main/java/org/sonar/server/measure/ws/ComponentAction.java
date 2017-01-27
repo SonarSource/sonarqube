@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -69,7 +68,6 @@ import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeve
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -100,12 +98,7 @@ public class ComponentAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription(format("Return component with specified measures. The %s or the %s parameter must be provided.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "<li>'Browse' on the specified project</li>" +
-        "</ul>",
+        "Requires the following permission: 'Browse' on the project of specified component.",
         PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY))
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
@@ -266,10 +259,6 @@ public class ComponentAction implements MeasuresWsAction {
 
   private void checkPermissions(ComponentDto baseComponent) {
     String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
-      throw insufficientPrivilegesException();
-    }
+    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
   }
 }

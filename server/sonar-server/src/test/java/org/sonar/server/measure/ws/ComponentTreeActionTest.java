@@ -106,7 +106,7 @@ public class ComponentTreeActionTest {
 
   @Before
   public void setUp() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.login().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
     resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }
@@ -149,7 +149,7 @@ public class ComponentTreeActionTest {
         .setPeriodMode(1, "last_version")
         .setPeriodDate(3, System.currentTimeMillis())
         .setPeriodMode(3, "last_analysis"));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
     componentDb.insertComponent(directoryDto);
     ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
@@ -179,7 +179,7 @@ public class ComponentTreeActionTest {
   public void load_measures_with_best_value() {
     ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
     componentDb.insertComponent(directoryDto);
     ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
@@ -220,7 +220,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void use_best_value_for_rating() {
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
     ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(projectDto)

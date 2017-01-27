@@ -73,12 +73,24 @@ public class SearchHistoryAction implements MeasuresWsAction {
     this.userSession = userSession;
   }
 
+  private static SearchHistoryRequest toWsRequest(Request request) {
+    return SearchHistoryRequest.builder()
+      .setComponent(request.mandatoryParam(PARAM_COMPONENT))
+      .setMetrics(request.mandatoryParamAsStrings(PARAM_METRICS))
+      .setFrom(request.param(PARAM_FROM))
+      .setTo(request.param(PARAM_TO))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .build();
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH_HISTORY)
       .setDescription("Search measures history of a component.<br>" +
         "Measures are ordered chronologically.<br>" +
-        "Pagination applies to the number of measures for each metric.")
+        "Pagination applies to the number of measures for each metric.<br>" +
+        "Requires the following permission: 'Browse' on the specified component")
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setHandler(this);
@@ -168,17 +180,6 @@ public class SearchHistoryAction implements MeasuresWsAction {
     }
 
     return metrics;
-  }
-
-  private static SearchHistoryRequest toWsRequest(Request request) {
-    return SearchHistoryRequest.builder()
-      .setComponent(request.mandatoryParam(PARAM_COMPONENT))
-      .setMetrics(request.mandatoryParamAsStrings(PARAM_METRICS))
-      .setFrom(request.param(PARAM_FROM))
-      .setTo(request.param(PARAM_TO))
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .build();
   }
 
 }

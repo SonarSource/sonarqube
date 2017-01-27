@@ -72,7 +72,7 @@ public class SearchAction implements MeasuresWsAction {
       .setInternal(true)
       .setDescription("Search for project measures ordered by project names.<br>" +
         "At most %d projects can be provided.<br>" +
-        "Requires 'Browse' on the provided projects",
+        "Returns the projects with the 'Browse' permission.",
         SearchRequest.MAX_NB_PROJECTS)
       .setSince("6.2")
       .setResponseExample(getClass().getResource("search-example.json"))
