@@ -70,11 +70,12 @@ public class InputFileBuilder {
     }
     indexedFile.setLanguage(language);
 
-    DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
+    return new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
+  }
 
+  void checkMetadata(DefaultInputFile inputFile) {
     if (preloadMetadata) {
       inputFile.checkMetadata();
     }
-    return inputFile;
   }
 }

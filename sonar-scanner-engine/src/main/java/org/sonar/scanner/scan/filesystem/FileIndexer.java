@@ -29,11 +29,18 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
@@ -50,6 +57,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.util.ProgressReport;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 /**
  * Index input files into {@link InputComponentStore}.
  */
@@ -65,6 +74,8 @@ public class FileIndexer {
   private final DefaultInputModule module;
   private final BatchIdGenerator batchIdGenerator;
   private final InputComponentStore componentStore;
+  private ExecutorService executorService;
+  private final List<Future<Void>> tasks;
 
   private ProgressReport progressReport;
 
@@ -77,6 +88,7 @@ public class FileIndexer {
     this.inputFileBuilder = inputFileBuilder;
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
+    this.tasks = new ArrayList<>();
     this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
@@ -90,6 +102,10 @@ public class FileIndexer {
       // No indexing for an aggregator module
       return;
     }
+
+    int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    this.executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
+
     progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Index files");
     exclusionFilters.prepare();
@@ -99,10 +115,26 @@ public class FileIndexer {
     indexFiles(fileSystem, progress, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, fileSystem.tests(), InputFile.Type.TEST);
 
+    waitForTasksToComplete();
+
     progressReport.stop(progress.count() + " " + pluralizeFiles(progress.count()) + " indexed");
 
     if (exclusionFilters.hasPattern()) {
       LOG.info("{} {} ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount(), pluralizeFiles(progress.excludedByPatternsCount()));
+    }
+  }
+
+  private void waitForTasksToComplete() {
+    executorService.shutdown();
+    for (Future<Void> task : tasks) {
+      try {
+        task.get();
+      } catch (ExecutionException e) {
+        // Unwrap ExecutionException
+        throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e);
+      }
     }
   }
 
@@ -116,7 +148,7 @@ public class FileIndexer {
         if (dirOrFile.isDirectory()) {
           indexDirectory(fileSystem, progress, dirOrFile.toPath(), type);
         } else {
-          indexFile(fileSystem, progress, dirOrFile.toPath(), type);
+          tasks.add(executorService.submit(() -> indexFile(fileSystem, progress, dirOrFile.toPath(), type)));
         }
       }
     } catch (IOException e) {
@@ -129,20 +161,24 @@ public class FileIndexer {
       new IndexFileVisitor(fileSystem, status, type));
   }
 
-  private void indexFile(DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
+  private Void indexFile(DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
     // get case of real file without resolving link
     Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
     DefaultInputFile inputFile = inputFileBuilder.create(realFile, type, fileSystem.encoding());
     if (inputFile != null) {
       if (exclusionFilters.accept(inputFile, type) && accept(inputFile)) {
-        fileSystem.add(inputFile);
-        indexParentDir(fileSystem, inputFile);
-        progress.markAsIndexed(inputFile);
+        synchronized (this) {
+          fileSystem.add(inputFile);
+          indexParentDir(fileSystem, inputFile);
+          progress.markAsIndexed(inputFile);
+        }
         LOG.debug("'{}' indexed {} with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
+        inputFileBuilder.checkMetadata(inputFile);
       } else {
         progress.increaseExcludedByPatternsCount();
       }
     }
+    return null;
   }
 
   private void indexParentDir(DefaultModuleFileSystem fileSystem, InputFile inputFile) {
@@ -200,7 +236,7 @@ public class FileIndexer {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       if (!Files.isHidden(file)) {
-        indexFile(fileSystem, status, file, type);
+        tasks.add(executorService.submit(() -> indexFile(fileSystem, status, file, type)));
       }
       return FileVisitResult.CONTINUE;
     }
@@ -223,9 +259,9 @@ public class FileIndexer {
 
   private class Progress {
     private final Set<Path> indexed = new HashSet<>();
-    private int excludedByPatternsCount = 0;
+    private AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
 
-    synchronized void markAsIndexed(IndexedFile inputFile) {
+    void markAsIndexed(IndexedFile inputFile) {
       if (indexed.contains(inputFile.path())) {
         throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
@@ -235,11 +271,11 @@ public class FileIndexer {
     }
 
     void increaseExcludedByPatternsCount() {
-      excludedByPatternsCount++;
+      excludedByPatternsCount.incrementAndGet();
     }
 
     public int excludedByPatternsCount() {
-      return excludedByPatternsCount;
+      return excludedByPatternsCount.get();
     }
 
     int count() {

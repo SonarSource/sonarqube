@@ -65,7 +65,7 @@ class MetadataGenerator {
       Metadata metadata = fileMetadata.readMetadata(inputFile.file(), charset);
       inputFile.setMetadata(metadata);
       inputFile.setStatus(statusDetection.status(inputModule.definition().getKeyWithBranch(), inputFile.relativePath(), metadata.hash()));
-      LOG.debug("'{}' generated metadata {} with and charset '{}'",
+      LOG.debug("'{}' generated metadata {} with charset '{}'",
         inputFile.relativePath(), inputFile.type() == Type.TEST ? "as test " : "", charset);
     } catch (Exception e) {
       throw new IllegalStateException(e);

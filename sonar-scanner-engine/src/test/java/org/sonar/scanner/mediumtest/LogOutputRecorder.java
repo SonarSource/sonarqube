@@ -34,7 +34,7 @@ public class LogOutputRecorder implements LogOutput {
   private final StringBuffer asString = new StringBuffer();
 
   @Override
-  public void log(String formattedMessage, Level level) {
+  public synchronized void log(String formattedMessage, Level level) {
     recordedByLevel.put(level.toString(), formattedMessage);
     recorded.add(formattedMessage);
     asString.append(formattedMessage).append("\n");

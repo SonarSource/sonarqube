@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import org.sonar.api.batch.fs.InputComponent;
@@ -29,10 +30,10 @@ import org.sonar.api.batch.fs.InputComponent;
  * The ID should never be 0, as it is sometimes used to indicate invalid components. 
  */
 public class BatchIdGenerator implements Supplier<Integer> {
-  private int nextBatchId = 1;
+  private AtomicInteger nextBatchId = new AtomicInteger(1);
 
   @Override
   public Integer get() {
-    return nextBatchId++;
+    return nextBatchId.getAndIncrement();
   }
 }
