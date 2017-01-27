@@ -28,6 +28,11 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
+/**
+ * Intended to be used in unit tests that need to create {@link InputFile}s.
+ * 
+ * @since 6.3
+ */
 public class TestInputFileBuilder {
   private static int batchId = 1;
 

@@ -39,12 +39,12 @@ public class DefaultPostJobContext implements PostJobContext {
   private final Settings settings;
   private final IssueCache cache;
   private final AnalysisMode analysisMode;
-  private InputComponentStore inputComponentCache;
+  private InputComponentStore inputComponentStore;
 
-  public DefaultPostJobContext(Settings settings, IssueCache cache, InputComponentStore inputComponentCache, AnalysisMode analysisMode) {
+  public DefaultPostJobContext(Settings settings, IssueCache cache, InputComponentStore inputComponentStore, AnalysisMode analysisMode) {
     this.settings = settings;
     this.cache = cache;
-    this.inputComponentCache = inputComponentCache;
+    this.inputComponentStore = inputComponentStore;
     this.analysisMode = analysisMode;
   }
 
@@ -99,7 +99,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public InputComponent inputComponent() {
-      return inputComponentCache.getByKey(wrapped.componentKey());
+      return inputComponentStore.getByKey(wrapped.componentKey());
     }
 
     @Override

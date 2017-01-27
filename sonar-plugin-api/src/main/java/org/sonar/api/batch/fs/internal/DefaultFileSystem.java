@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
@@ -163,7 +164,7 @@ public class DefaultFileSystem implements FileSystem {
     Iterable<InputFile> iterable = OptimizedFilePredicateAdapter.create(predicate).get(cache);
     if (defaultPredicate != null) {
       return StreamSupport.stream(iterable.spliterator(), false)
-        .filter(defaultPredicate::test)::iterator;
+        .filter(defaultPredicate::test).collect(Collectors.toList());
     }
     return iterable;
   }
@@ -202,7 +203,7 @@ public class DefaultFileSystem implements FileSystem {
     cache.add(inputDir);
     return this;
   }
-  
+
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
    * using {@link #add(InputFile)}.
@@ -275,10 +276,12 @@ public class DefaultFileSystem implements FileSystem {
       return filesByNameCache.get(filename);
     }
 
-    @Override public Iterable<InputFile> getFilesByExtension(String extension) {
+    @Override
+    public Iterable<InputFile> getFilesByExtension(String extension) {
       return filesByExtensionCache.get(extension);
     }
 
+    @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
       filesByNameCache.put(FilenamePredicate.getFilename(inputFile), inputFile);

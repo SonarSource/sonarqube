@@ -47,13 +47,13 @@ public class ConsoleReport implements Reporter {
 
   private Settings settings;
   private IssueCache issueCache;
-  private InputComponentStore inputPathCache;
+  private InputComponentStore componentStore;
 
   @VisibleForTesting
-  public ConsoleReport(Settings settings, IssueCache issueCache, InputComponentStore inputPathCache) {
+  public ConsoleReport(Settings settings, IssueCache issueCache, InputComponentStore componentStore) {
     this.settings = settings;
     this.issueCache = issueCache;
-    this.inputPathCache = inputPathCache;
+    this.componentStore = componentStore;
   }
 
   private static class Report {
@@ -100,7 +100,7 @@ public class ConsoleReport implements Reporter {
     if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY)) {
       LOG.warn("Console report is deprecated. Use SonarLint CLI to have local reports of issues");
       Report r = new Report();
-      r.setNoFile(!inputPathCache.allFilesToPublish().iterator().hasNext());
+      r.setNoFile(!componentStore.allFilesToPublish().iterator().hasNext());
       for (TrackedIssue issue : issueCache.all()) {
         r.process(issue);
       }
