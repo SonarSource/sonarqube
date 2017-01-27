@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -33,10 +34,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -48,17 +51,17 @@ public class ComponentUpdater {
   private final System2 system2;
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
-  private final ProjectIndexer[] projectIndexers;
+  private final Collection<ProjectIndexer> projectIndexers;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexer[] projectIndexers) {
+    ProjectIndexer... projectIndexers) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
-    this.projectIndexers = projectIndexers;
+    this.projectIndexers = asList(projectIndexers);
   }
 
   /**
@@ -142,8 +145,6 @@ public class ComponentUpdater {
   }
 
   private void index(ComponentDto project) {
-    for (ProjectIndexer projectIndexer : projectIndexers) {
-      projectIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
-    }
+    projectIndexers.forEach(i -> i.indexProject(project.uuid(), Cause.PROJECT_CREATION));
   }
 }

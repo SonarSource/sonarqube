@@ -63,7 +63,7 @@ public class ComponentUpdaterTest {
   private ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    new ProjectIndexer[] {projectIndexer});
+    projectIndexer);
 
   @Test
   public void should_persist_and_index_when_creating_project() throws Exception {

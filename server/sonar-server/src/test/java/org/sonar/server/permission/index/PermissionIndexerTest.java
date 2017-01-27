@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
@@ -90,7 +91,7 @@ public class PermissionIndexerTest {
     underTest.indexAllIfEmpty();
 
     // anonymous
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
 
     // user1 has access
     verifyAuthorized(project, user1);
@@ -113,7 +114,7 @@ public class PermissionIndexerTest {
     underTest.indexAllIfEmpty();
 
     // anonymous
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
 
     // group1 has access
     verifyAuthorized(project, user1, group1);
@@ -138,7 +139,7 @@ public class PermissionIndexerTest {
     underTest.indexAllIfEmpty();
 
     // anonymous
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
 
     // has direct access
     verifyAuthorized(project, user1);
@@ -158,7 +159,7 @@ public class PermissionIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
     verifyNotAuthorized(project, user);
     verifyNotAuthorized(project, user, group);
   }
@@ -172,7 +173,7 @@ public class PermissionIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    verifyAnonymousAuthorized(project);
+    verifyAnyoneAuthorized(project);
     verifyAuthorized(project, user);
     verifyAuthorized(project, user, group);
   }
@@ -189,7 +190,7 @@ public class PermissionIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
     verifyAuthorized(project, user1);
     verifyNotAuthorized(project, user2);
   }
@@ -226,8 +227,24 @@ public class PermissionIndexerTest {
 
     underTest.indexAllIfEmpty();
 
-    verifyAnonymousNotAuthorized(project);
+    verifyAnyoneNotAuthorized(project);
     verifyNotAuthorized(project, user1);
+  }
+
+  @Test
+  public void permissions_on_anyone_should_not_conflict_between_organizations() {
+    ComponentDto projectOnOrg1 = createAndIndexProject(dbTester.organizations().insert());
+    ComponentDto projectOnOrg2 = createAndIndexProject(dbTester.organizations().insert());
+    UserDto user = userDbTester.insertUser();
+    userDbTester.insertProjectPermissionOnAnyone(USER, projectOnOrg1);
+    userDbTester.insertProjectPermissionOnUser(user, USER, projectOnOrg2);
+
+    underTest.indexAllIfEmpty();
+
+    verifyAnyoneAuthorized(projectOnOrg1);
+    verifyAnyoneNotAuthorized(projectOnOrg2);
+    verifyAuthorized(projectOnOrg1, user);// because anyone
+    verifyAuthorized(projectOnOrg2, user);
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user) {
@@ -250,12 +267,12 @@ public class PermissionIndexerTest {
     verifyAuthorized(project, false);
   }
 
-  private void verifyAnonymousAuthorized(ComponentDto project) {
+  private void verifyAnyoneAuthorized(ComponentDto project) {
     userSession.anonymous();
     verifyAuthorized(project, true);
   }
 
-  private void verifyAnonymousNotAuthorized(ComponentDto project) {
+  private void verifyAnyoneNotAuthorized(ComponentDto project) {
     userSession.anonymous();
     verifyAuthorized(project, false);
   }
@@ -271,6 +288,12 @@ public class PermissionIndexerTest {
 
   private ComponentDto createAndIndexProject() {
     ComponentDto project = componentDbTester.insertProject();
+    fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    return project;
+  }
+
+  private ComponentDto createAndIndexProject(OrganizationDto org) {
+    ComponentDto project = componentDbTester.insertProject(org);
     fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     return project;
   }

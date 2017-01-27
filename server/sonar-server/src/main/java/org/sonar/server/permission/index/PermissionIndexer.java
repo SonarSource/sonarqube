@@ -21,11 +21,11 @@ package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -66,7 +66,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
   private final EsClient esClient;
-  private final List<AuthorizationScope> authorizationScopes;
+  private final Collection<AuthorizationScope> authorizationScopes;
 
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer[] needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
@@ -75,7 +75,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   }
 
   @VisibleForTesting
-  public PermissionIndexer(DbClient dbClient, EsClient esClient, List<AuthorizationScope> authorizationScopes) {
+  public PermissionIndexer(DbClient dbClient, EsClient esClient, Collection<AuthorizationScope> authorizationScopes) {
     this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
     this.esClient = esClient;
@@ -90,8 +90,9 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
 
     if (isEmpty) {
       Future submit = executor.submit(() -> {
-
-        authorizationScopes.forEach(scope -> truncateAuthorizationType(scope.getIndexName()));
+        authorizationScopes.stream()
+          .map(AuthorizationScope::getIndexName)
+          .forEach(this::truncateAuthorizationType);
 
         try (DbSession dbSession = dbClient.openSession(false)) {
           index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
@@ -173,10 +174,16 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   }
 
   private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, String indexName) {
-    Map<String, Object> doc = ImmutableMap.of(
-      AuthorizationTypeSupport.FIELD_GROUP_NAMES, dto.getGroups(),
-      AuthorizationTypeSupport.FIELD_USER_LOGINS, dto.getUsers(),
-      AuthorizationTypeSupport.FIELD_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    Map<String, Object> doc = new HashMap<>();
+    doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    if (dto.isAllowAnyone()) {
+      doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, true);
+      // no need to feed users and groups
+    } else {
+      doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, false);
+      doc.put(AuthorizationTypeSupport.FIELD_GROUP_NAMES, dto.getGroups());
+      doc.put(AuthorizationTypeSupport.FIELD_USER_LOGINS, dto.getUsers());
+    }
     return new IndexRequest(indexName, TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .source(doc);

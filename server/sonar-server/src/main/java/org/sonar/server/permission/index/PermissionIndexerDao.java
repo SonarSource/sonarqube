@@ -47,6 +47,7 @@ public class PermissionIndexerDao {
     private final String qualifier;
     private final List<Long> users = Lists.newArrayList();
     private final List<String> groups = Lists.newArrayList();
+    private boolean allowAnyone = false;
 
     public Dto(String projectUuid, long updatedAt, String qualifier) {
       this.projectUuid = projectUuid;
@@ -83,6 +84,14 @@ public class PermissionIndexerDao {
     public List<String> getGroups() {
       return groups;
     }
+
+    public void allowAnyone() {
+      this.allowAnyone = true;
+    }
+
+    public boolean isAllowAnyone() {
+      return allowAnyone;
+    }
   }
 
   /**
@@ -90,7 +99,12 @@ public class PermissionIndexerDao {
    */
   private static final int NB_OF_CONDITION_PLACEHOLDERS = 3;
 
+  private enum RowKind {
+    USER, GROUP, ANYONE
+  }
+
   private static final String SQL_TEMPLATE = "SELECT " +
+    "  project_authorization.kind as kind, " +
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
     "  project_authorization.permission_group as permission_group, " +
@@ -100,7 +114,7 @@ public class PermissionIndexerDao {
 
     // users
 
-    "      SELECT " +
+    "      SELECT '" + RowKind.USER + "' as kind," +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
@@ -116,7 +130,7 @@ public class PermissionIndexerDao {
 
     // groups
 
-    "      SELECT " +
+    "      SELECT '" + RowKind.GROUP + "' as kind," +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
@@ -134,12 +148,12 @@ public class PermissionIndexerDao {
 
     // Anyone virtual group
 
-    "      SELECT " +
+    "      SELECT '" + RowKind.ANYONE + "' as kind," +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
-    "      'Anyone'     AS permission_group " +
+    "      NULL     AS permission_group " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
     "      WHERE " +
@@ -180,41 +194,49 @@ public class PermissionIndexerDao {
 
   private static PreparedStatement createStatement(DbClient dbClient, DbSession session, List<String> projectUuids) throws SQLException {
     String sql;
-    if (!projectUuids.isEmpty()) {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND (" + repeatCondition("projects.uuid = ?", projectUuids.size(), "OR") + ")");
-    } else {
+    if (projectUuids.isEmpty()) {
       sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", "");
+    } else {
+      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND (" + repeatCondition("projects.uuid = ?", projectUuids.size(), "OR") + ")");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-    if (!projectUuids.isEmpty()) {
-      int index = 1;
-      for (int i = 1; i <= NB_OF_CONDITION_PLACEHOLDERS; i++) {
-        for (int uuidIndex = 0; uuidIndex < projectUuids.size(); uuidIndex++) {
-          stmt.setString(index, projectUuids.get(uuidIndex));
-          index++;
-        }
+    int index = 1;
+    for (int i = 1; i <= NB_OF_CONDITION_PLACEHOLDERS; i++) {
+      for (String projectUuid : projectUuids) {
+        stmt.setString(index, projectUuid);
+        index++;
       }
     }
     return stmt;
   }
 
   private static void processRow(ResultSet rs, Map<String, Dto> dtosByProjectUuid) throws SQLException {
-    String projectUuid = rs.getString(1);
-    String group = rs.getString(3);
+    RowKind rowKind = RowKind.valueOf(rs.getString(1));
+    String projectUuid = rs.getString(2);
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
-      long updatedAt = rs.getLong(4);
-      String qualifier = rs.getString(5);
+      long updatedAt = rs.getLong(5);
+      String qualifier = rs.getString(6);
       dto = new Dto(projectUuid, updatedAt, qualifier);
       dtosByProjectUuid.put(projectUuid, dto);
     }
-    Long userId = rs.getLong(2);
-    if (!rs.wasNull()) {
-      dto.addUser(userId);
-    }
-    if (StringUtils.isNotBlank(group)) {
-      dto.addGroup(group);
+    switch (rowKind) {
+      case USER:
+        Long userId = rs.getLong(3);
+        if (!rs.wasNull()) {
+          dto.addUser(userId);
+        }
+        break;
+      case GROUP:
+        String group = rs.getString(4);
+        if (!rs.wasNull()) {
+          dto.addGroup(group);
+        }
+        break;
+      case ANYONE:
+        dto.allowAnyone();
+        break;
     }
   }
 }

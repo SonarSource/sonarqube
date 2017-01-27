@@ -49,7 +49,7 @@ public class ComponentService {
   private final UserSession userSession;
   private final ProjectIndexer[] projectIndexers;
 
-  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexer[] projectIndexers) {
+  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexer... projectIndexers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
