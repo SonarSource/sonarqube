@@ -169,7 +169,7 @@ public class PermissionIndexerDaoTest {
   }
 
   @Test
-  public void no_authorization() {
+  public void return_zero_rows_if_no_authorization() {
     userDbTester.insertProjectPermissionOnUser(user1, USER, project2);
     userDbTester.insertProjectPermissionOnGroup(group, USER, project2);
     userDbTester.insertProjectPermissionOnUser(user1, USER, view2);
@@ -177,17 +177,8 @@ public class PermissionIndexerDaoTest {
 
     Collection<PermissionIndexerDao.Dto> dtos = underTest.selectAll(dbClient, dbSession);
 
-    assertThat(dtos).hasSize(4);
-    PermissionIndexerDao.Dto project1Authorization = getByProjectUuid(project1.uuid(), dtos);
-    assertThat(project1Authorization.getGroups()).isEmpty();
-    assertThat(project1Authorization.getUsers()).isEmpty();
-    assertThat(project1Authorization.getUpdatedAt()).isNotNull();
-    assertThat(project1Authorization.getQualifier()).isEqualTo(PROJECT);
-    PermissionIndexerDao.Dto view1Authorization = getByProjectUuid(view1.uuid(), dtos);
-    assertThat(view1Authorization.getGroups()).isEmpty();
-    assertThat(view1Authorization.getUsers()).isEmpty();
-    assertThat(view1Authorization.getUpdatedAt()).isNotNull();
-    assertThat(view1Authorization.getQualifier()).isEqualTo(VIEW);
+    // project1 and view1 don't have any permission
+    assertThat(dtos).extracting(PermissionIndexerDao.Dto::getProjectUuid).containsOnly(project2.uuid(), view2.uuid());
   }
 
   private static PermissionIndexerDao.Dto getByProjectUuid(String projectUuid, Collection<PermissionIndexerDao.Dto> dtos) {

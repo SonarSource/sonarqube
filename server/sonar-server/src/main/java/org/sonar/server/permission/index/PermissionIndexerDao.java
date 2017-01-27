@@ -85,6 +85,11 @@ public class PermissionIndexerDao {
     }
   }
 
+  /**
+   * Number of "{projectsCondition}" in SQL template
+   */
+  private static final int NB_OF_CONDITION_PLACEHOLDERS = 3;
+
   private static final String SQL_TEMPLATE = "SELECT " +
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
@@ -92,20 +97,6 @@ public class PermissionIndexerDao {
     "  project_authorization.updated_at as updated_at, " +
     "  project_authorization.qualifier as qualifier " +
     "FROM ( " +
-
-    // project is returned when no authorization
-    "      SELECT " +
-    "      projects.uuid AS project, " +
-    "      projects.authorization_updated_at AS updated_at, " +
-    "      projects.qualifier AS qualifier, " +
-    "      NULL AS user_id, " +
-    "      NULL  AS permission_group " +
-    "      FROM projects " +
-    "      WHERE " +
-    "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
-    "        AND projects.copy_component_uuid is NULL " +
-    "        {projectsCondition} " +
-    "      UNION " +
 
     // users
 
@@ -123,7 +114,7 @@ public class PermissionIndexerDao {
     "        {projectsCondition} " +
     "      UNION " +
 
-    // groups without Anyone
+    // groups
 
     "      SELECT " +
     "      projects.uuid AS project, " +
@@ -141,7 +132,7 @@ public class PermissionIndexerDao {
     "        AND group_id IS NOT NULL " +
     "      UNION " +
 
-    // Anyone groups
+    // Anyone virtual group
 
     "      SELECT " +
     "      projects.uuid AS project, " +
@@ -197,7 +188,7 @@ public class PermissionIndexerDao {
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     if (!projectUuids.isEmpty()) {
       int index = 1;
-      for (int i = 1; i <= 4; i++) {
+      for (int i = 1; i <= NB_OF_CONDITION_PLACEHOLDERS; i++) {
         for (int uuidIndex = 0; uuidIndex < projectUuids.size(); uuidIndex++) {
           stmt.setString(index, projectUuids.get(uuidIndex));
           index++;
