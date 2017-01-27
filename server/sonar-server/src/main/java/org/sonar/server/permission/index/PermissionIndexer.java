@@ -181,7 +181,8 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
       // no need to feed users and groups
     } else {
       doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, false);
-      doc.put(AuthorizationTypeSupport.FIELD_GROUP_NAMES, dto.getGroups());
+      doc.put(AuthorizationTypeSupport.FIELD_GROUP_IDS, dto.getGroupIds());
+      doc.put(AuthorizationTypeSupport.FIELD_GROUP_NAMES, dto.getGroupNames());
       doc.put(AuthorizationTypeSupport.FIELD_USER_LOGINS, dto.getUsers());
     }
     return new IndexRequest(indexName, TYPE_AUTHORIZATION, dto.getProjectUuid())

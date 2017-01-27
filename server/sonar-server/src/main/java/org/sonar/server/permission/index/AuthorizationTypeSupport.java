@@ -38,6 +38,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class AuthorizationTypeSupport {
 
   public static final String TYPE_AUTHORIZATION = "authorization";
+  public static final String FIELD_GROUP_IDS = "groupIds";
   public static final String FIELD_GROUP_NAMES = "groupNames";
   public static final String FIELD_USER_LOGINS = "users";
   public static final String FIELD_UPDATED_AT = "updatedAt";
@@ -74,6 +75,7 @@ public class AuthorizationTypeSupport {
     NewIndex.NewIndexType authType = newIndex.createType(TYPE_AUTHORIZATION);
     authType.setAttribute("_routing", ImmutableMap.of("required", "true"));
     authType.createDateTimeField(FIELD_UPDATED_AT);
+    authType.createLongField(FIELD_GROUP_IDS);
     authType.stringFieldBuilder(FIELD_GROUP_NAMES).disableNorms().build();
     authType.stringFieldBuilder(FIELD_USER_LOGINS).disableNorms().build();
     authType.createBooleanField(FIELD_ALLOW_ANYONE);

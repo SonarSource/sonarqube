@@ -290,7 +290,7 @@ public class IssueIndexDebtTest {
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
     PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
     if (group != null) {
-      access.addGroup(group);
+      access.addGroupName(group);
     }
     if (user != null) {
       access.addUser(user);

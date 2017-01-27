@@ -877,7 +877,7 @@ public class ProjectMeasuresIndexTest {
       for (ProjectMeasuresDoc doc : docs) {
         PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(doc.getId(), System.currentTimeMillis(), Qualifiers.PROJECT);
         if (authorizedGroup != null) {
-          access.addGroup(authorizedGroup);
+          access.addGroupName(authorizedGroup);
         }
         if (authorizeUser != null) {
           access.addUser(authorizeUser);

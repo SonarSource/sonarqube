@@ -38,7 +38,7 @@ public class PermissionIndexerTester {
 
   public PermissionIndexerTester allowOnlyAnyone(ComponentDto project) {
     PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
-      .addGroup("Anyone");
+      .addGroupName("Anyone");
     permissionIndexer.index(asList(dto));
     return this;
   }
@@ -52,7 +52,7 @@ public class PermissionIndexerTester {
 
   public PermissionIndexerTester allowOnlyGroup(ComponentDto project, String groupName) {
     PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
-      .addGroup(groupName);
+      .addGroupName(groupName);
     permissionIndexer.index(asList(dto));
     return this;
   }

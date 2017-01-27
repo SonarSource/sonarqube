@@ -1319,7 +1319,7 @@ public class IssueIndexTest {
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(Arrays.asList(issues).iterator());
     for (IssueDoc issue : issues) {
-      authorizationIndexerTester.allow(new PermissionIndexerDao.Dto(issue.projectUuid(), system2.now(), "TRK").addGroup("Anyone"));
+      authorizationIndexerTester.allow(new PermissionIndexerDao.Dto(issue.projectUuid(), system2.now(), "TRK").addGroupName("Anyone"));
     }
   }
 
