@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.index;
 
-import com.google.common.collect.Lists;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,8 +44,9 @@ public class PermissionIndexerDao {
     private final String projectUuid;
     private final long updatedAt;
     private final String qualifier;
-    private final List<Long> users = Lists.newArrayList();
-    private final List<String> groups = Lists.newArrayList();
+    private final List<Long> users = new ArrayList<>();
+    private final List<String> groupNames = new ArrayList<>();
+    private final List<Long> groupIds = new ArrayList<>();
     private boolean allowAnyone = false;
 
     public Dto(String projectUuid, long updatedAt, String qualifier) {
@@ -76,13 +76,22 @@ public class PermissionIndexerDao {
       return this;
     }
 
-    public Dto addGroup(String s) {
-      groups.add(s);
+    public Dto addGroupName(String s) {
+      groupNames.add(s);
       return this;
     }
 
-    public List<String> getGroups() {
-      return groups;
+    public List<String> getGroupNames() {
+      return groupNames;
+    }
+
+    public Dto addGroupId(long id) {
+      groupIds.add(id);
+      return this;
+    }
+
+    public List<Long> getGroupIds() {
+      return groupIds;
     }
 
     public void allowAnyone() {
@@ -107,7 +116,8 @@ public class PermissionIndexerDao {
     "  project_authorization.kind as kind, " +
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
-    "  project_authorization.permission_group as permission_group, " +
+    "  project_authorization.group_name as group_name, " +
+    "  project_authorization.group_id as group_id, " +
     "  project_authorization.updated_at as updated_at, " +
     "  project_authorization.qualifier as qualifier " +
     "FROM ( " +
@@ -119,7 +129,8 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      user_roles.user_id  AS user_id, " +
-    "      NULL  AS permission_group " +
+    "      NULL  AS group_name, " +
+    "      NULL  AS group_id " +
     "      FROM projects " +
     "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
     "      WHERE " +
@@ -135,7 +146,8 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL  AS user_id, " +
-    "      groups.name  AS permission_group " +
+    "      groups.name  AS group_name, " +
+    "      groups.id  AS group_id " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
     "      INNER JOIN groups ON groups.id = group_roles.group_id " +
@@ -153,7 +165,8 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
-    "      NULL     AS permission_group " +
+    "      NULL     AS group_name, " +
+    "      NULL     AS group_id " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
     "      WHERE " +
@@ -216,23 +229,18 @@ public class PermissionIndexerDao {
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
-      long updatedAt = rs.getLong(5);
-      String qualifier = rs.getString(6);
+      long updatedAt = rs.getLong(6);
+      String qualifier = rs.getString(7);
       dto = new Dto(projectUuid, updatedAt, qualifier);
       dtosByProjectUuid.put(projectUuid, dto);
     }
     switch (rowKind) {
       case USER:
-        Long userId = rs.getLong(3);
-        if (!rs.wasNull()) {
-          dto.addUser(userId);
-        }
+        dto.addUser(rs.getLong(3));
         break;
       case GROUP:
-        String group = rs.getString(4);
-        if (!rs.wasNull()) {
-          dto.addGroup(group);
-        }
+        dto.addGroupName(rs.getString(4));
+        dto.addGroupId(rs.getLong(5));
         break;
       case ANYONE:
         dto.allowAnyone();
