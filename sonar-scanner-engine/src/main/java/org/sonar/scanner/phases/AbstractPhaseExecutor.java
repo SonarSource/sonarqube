@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.phases;
 
+
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.rule.QProfileVerifier;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
@@ -36,21 +36,18 @@ public abstract class AbstractPhaseExecutor {
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
   private final SensorContext sensorContext;
-  private final DefaultIndex index;
   private final FileSystemLogger fsLogger;
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
   public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    SensorContext sensorContext, EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
     this.sensorContext = sensorContext;
-    this.index = index;
     this.eventBus = eventBus;
     this.fsLogger = fsLogger;
     this.fs = fs;
@@ -61,7 +58,7 @@ public abstract class AbstractPhaseExecutor {
   /**
    * Executed on each module
    */
-  public final void execute(Project module) {
+  public final void execute(DefaultInputModule module) {
     eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
 
     executeInitializersPhase();
@@ -76,13 +73,18 @@ public abstract class AbstractPhaseExecutor {
     initIssueExclusions();
 
     sensorsExecutor.execute(sensorContext);
+    
+    afterSensors();
 
-    if (module.isRoot()) {
+    if (module.definition().getParent() == null) {
       executeOnRoot();
       postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  protected void afterSensors() {
   }
 
   protected abstract void executeOnRoot();
@@ -111,7 +113,7 @@ public abstract class AbstractPhaseExecutor {
   private void cleanMemory() {
     String cleanMemory = "Clean memory";
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, true));
-    index.clear();
+    // index.clear();
     eventBus.fireEvent(new BatchStepEvent(cleanMemory, false));
   }
 }

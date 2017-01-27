@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
@@ -32,11 +33,13 @@ import java.util.Arrays;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.any;
 
 public class PostJobsExecutorTest {
   PostJobsExecutor executor;
 
-  Project project = new Project("project");
+  DefaultInputModule module = new DefaultInputModule("project");
   ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
   PostJob job1 = mock(PostJob.class);
   PostJob job2 = mock(PostJob.class);
@@ -44,17 +47,16 @@ public class PostJobsExecutorTest {
 
   @Before
   public void setUp() {
-    executor = new PostJobsExecutor(selector, project, mock(EventBus.class));
+    executor = new PostJobsExecutor(selector, module, mock(EventBus.class));
   }
 
   @Test
   public void should_execute_post_jobs() {
-    when(selector.select(PostJob.class, project, true, null)).thenReturn(Arrays.asList(job1, job2));
+    when(selector.select(PostJob.class, module, true, null)).thenReturn(Arrays.asList(job1, job2));
 
     executor.execute(context);
 
-    verify(job1).executeOn(project, context);
-    verify(job2).executeOn(project, context);
-
+    verify(job1).executeOn(any(Project.class), eq(context));
+    verify(job2).executeOn(any(Project.class), eq(context));
   }
 }

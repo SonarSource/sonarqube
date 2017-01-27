@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystemLoopException;
@@ -40,21 +39,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.util.ProgressReport;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 /**
- * Index input files into {@link InputPathCache}.
+ * Index input files into {@link InputComponentStore}.
  */
 @ScannerSide
 public class FileIndexer {
@@ -63,21 +69,32 @@ public class FileIndexer {
   private final InputFileFilter[] filters;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
-  private final InputFileBuilderFactory inputFileBuilderFactory;
+  private final InputFileBuilder inputFileBuilder;
+  private final DefaultComponentTree componentTree;
+  private final DefaultInputModule module;
+  private final BatchIdGenerator batchIdGenerator;
+  private final InputComponentStore componentStore;
+  private ExecutorService executorService;
+  private final List<Future<Void>> tasks;
 
   private ProgressReport progressReport;
-  private ExecutorService executorService;
-  private List<Future<Void>> tasks;
 
-  public FileIndexer(ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory, ProjectDefinition def, InputFileFilter[] filters) {
+  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def, InputFileFilter[] filters) {
+    this.batchIdGenerator = batchIdGenerator;
+    this.componentStore = componentStore;
+    this.module = module;
+    this.componentTree = componentTree;
+    this.inputFileBuilder = inputFileBuilder;
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
-    this.inputFileBuilderFactory = inputFileBuilderFactory;
+    this.tasks = new ArrayList<>();
     this.isAggregator = !def.getSubProjects().isEmpty();
   }
 
-  public FileIndexer(ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory, ProjectDefinition def) {
-    this(exclusionFilters, inputFileBuilderFactory, def, new InputFileFilter[0]);
+  public FileIndexer(BatchIdGenerator batchIdGenerator, InputComponentStore componentStore, DefaultInputModule module, ExclusionFilters exclusionFilters,
+    DefaultComponentTree componentTree, InputFileBuilder inputFileBuilder, ProjectDefinition def) {
+    this(batchIdGenerator, componentStore, module, exclusionFilters, componentTree, inputFileBuilder, def, new InputFileFilter[0]);
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
@@ -85,25 +102,25 @@ public class FileIndexer {
       // No indexing for an aggregator module
       return;
     }
+
+    int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    this.executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
+
     progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Index files");
     exclusionFilters.prepare();
 
     Progress progress = new Progress();
 
-    InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
-    int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-    executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
-    tasks = new ArrayList<>();
-    indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
-    indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
+    indexFiles(fileSystem, progress, fileSystem.sources(), InputFile.Type.MAIN);
+    indexFiles(fileSystem, progress, fileSystem.tests(), InputFile.Type.TEST);
 
     waitForTasksToComplete();
 
-    progressReport.stop(progress.count() + " files indexed");
+    progressReport.stop(progress.count() + " " + pluralizeFiles(progress.count()) + " indexed");
 
     if (exclusionFilters.hasPattern()) {
-      LOG.info("{} files ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount());
+      LOG.info("{} {} ignored because of inclusion/exclusion patterns", progress.excludedByPatternsCount(), pluralizeFiles(progress.excludedByPatternsCount()));
     }
   }
 
@@ -121,13 +138,17 @@ public class FileIndexer {
     }
   }
 
-  private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
+  private static String pluralizeFiles(int count) {
+    return count == 1 ? "file" : "files";
+  }
+
+  private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, List<File> sources, InputFile.Type type) {
     try {
       for (File dirOrFile : sources) {
         if (dirOrFile.isDirectory()) {
-          indexDirectory(inputFileBuilder, fileSystem, progress, dirOrFile, type);
+          indexDirectory(fileSystem, progress, dirOrFile.toPath(), type);
         } else {
-          indexFile(inputFileBuilder, fileSystem, progress, dirOrFile.toPath(), type);
+          tasks.add(executorService.submit(() -> indexFile(fileSystem, progress, dirOrFile.toPath(), type)));
         }
       }
     } catch (IOException e) {
@@ -135,57 +156,53 @@ public class FileIndexer {
     }
   }
 
-  private void indexDirectory(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fileSystem, final Progress status,
-    final File dirToIndex, final InputFile.Type type) throws IOException {
-    Files.walkFileTree(dirToIndex.toPath().normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
-      new IndexFileVisitor(inputFileBuilder, fileSystem, status, type));
+  private void indexDirectory(final DefaultModuleFileSystem fileSystem, final Progress status, final Path dirToIndex, final InputFile.Type type) throws IOException {
+    Files.walkFileTree(dirToIndex.normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+      new IndexFileVisitor(fileSystem, status, type));
   }
 
-  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
+  private Void indexFile(DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
     // get case of real file without resolving link
     Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
-    DefaultInputFile inputFile = inputFileBuilder.create(realFile.toFile());
+    DefaultInputFile inputFile = inputFileBuilder.create(realFile, type, fileSystem.encoding());
     if (inputFile != null) {
-      // Set basedir on input file prior to adding it to the FS since exclusions filters may require the absolute path
-      inputFile.setModuleBaseDir(fileSystem.baseDirPath());
-      if (exclusionFilters.accept(inputFile, type)) {
-        indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
+      if (exclusionFilters.accept(inputFile, type) && accept(inputFile)) {
+        synchronized (this) {
+          fileSystem.add(inputFile);
+          indexParentDir(fileSystem, inputFile);
+          progress.markAsIndexed(inputFile);
+        }
+        LOG.debug("'{}' indexed {} with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
+        inputFileBuilder.checkMetadata(inputFile);
       } else {
         progress.increaseExcludedByPatternsCount();
       }
     }
+    return null;
   }
 
-  private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
-    final Progress status, final DefaultInputFile inputFile, final InputFile.Type type) {
+  private void indexParentDir(DefaultModuleFileSystem fileSystem, InputFile inputFile) {
+    Path parentDir = inputFile.path().getParent();
+    String relativePath = new PathResolver().relativePath(fileSystem.baseDirPath(), parentDir);
+    if (relativePath == null) {
+      throw new IllegalStateException("Failed to compute relative path of file: " + inputFile);
+    }
 
-    tasks.add(executorService.submit(() -> {
-      DefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
-      if (completedInputFile != null && accept(completedInputFile)) {
-        LOG.debug("'{}' indexed {}with language '{}' and charset '{}'",
-          inputFile.relativePath(),
-          type == Type.TEST ? "as test " : "",
-          inputFile.language(),
-          inputFile.charset());
-        fs.add(completedInputFile);
-        status.markAsIndexed(completedInputFile);
-        File parentDir = completedInputFile.file().getParentFile();
-        String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
-        if (relativePath != null) {
-          DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);
-          fs.add(inputDir);
-        }
-      }
-      return null;
-    }));
-
+    DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), relativePath);
+    if (inputDir == null) {
+      inputDir = new DefaultInputDir(fileSystem.moduleKey(), relativePath, batchIdGenerator.get());
+      inputDir.setModuleBaseDir(fileSystem.baseDirPath());
+      fileSystem.add(inputDir);
+      componentTree.index(inputDir, module);
+    }
+    componentTree.index(inputFile, inputDir);
   }
 
-  private boolean accept(InputFile inputFile) {
-    // InputFileFilter extensions
+  private boolean accept(InputFile indexedFile) {
+    // InputFileFilter extensions. Might trigger generation of metadata
     for (InputFileFilter filter : filters) {
-      if (!filter.accept(inputFile)) {
-        LOG.debug("'{}' excluded by {}", inputFile.relativePath(), filter.getClass().getName());
+      if (!filter.accept(indexedFile)) {
+        LOG.debug("'{}' excluded by {}", indexedFile.relativePath(), filter.getClass().getName());
         return false;
       }
     }
@@ -193,13 +210,11 @@ public class FileIndexer {
   }
 
   private class IndexFileVisitor implements FileVisitor<Path> {
-    private InputFileBuilder inputFileBuilder;
     private DefaultModuleFileSystem fileSystem;
     private Progress status;
     private Type type;
 
-    IndexFileVisitor(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, InputFile.Type type) {
-      this.inputFileBuilder = inputFileBuilder;
+    IndexFileVisitor(DefaultModuleFileSystem fileSystem, Progress status, InputFile.Type type) {
       this.fileSystem = fileSystem;
       this.status = status;
       this.type = type;
@@ -221,7 +236,7 @@ public class FileIndexer {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       if (!Files.isHidden(file)) {
-        indexFile(inputFileBuilder, fileSystem, status, file, type);
+        tasks.add(executorService.submit(() -> indexFile(fileSystem, status, file, type)));
       }
       return FileVisitResult.CONTINUE;
     }
@@ -244,23 +259,23 @@ public class FileIndexer {
 
   private class Progress {
     private final Set<Path> indexed = new HashSet<>();
-    private int excludedByPatternsCount = 0;
+    private AtomicInteger excludedByPatternsCount = new AtomicInteger(0);
 
-    synchronized void markAsIndexed(InputFile inputFile) {
+    void markAsIndexed(IndexedFile inputFile) {
       if (indexed.contains(inputFile.path())) {
         throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
       }
       indexed.add(inputFile.path());
-      progressReport.message(indexed.size() + " files indexed...  (last one was " + inputFile.relativePath() + ")");
+      progressReport.message(indexed.size() + " " + pluralizeFiles(indexed.size()) + " indexed...  (last one was " + inputFile.relativePath() + ")");
     }
 
     void increaseExcludedByPatternsCount() {
-      excludedByPatternsCount++;
+      excludedByPatternsCount.incrementAndGet();
     }
 
     public int excludedByPatternsCount() {
-      return excludedByPatternsCount;
+      return excludedByPatternsCount.get();
     }
 
     int count() {

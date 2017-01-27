@@ -23,51 +23,47 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 
-public final class ScmSensor implements Sensor {
+@InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
+@ScannerSide
+public final class ScmPublisher {
 
-  private static final Logger LOG = Loggers.get(ScmSensor.class);
+  private static final Logger LOG = Loggers.get(ScmPublisher.class);
 
-  private final ProjectDefinition projectDefinition;
+  private final DefaultInputModule inputModule;
   private final ScmConfiguration configuration;
-  private final FileSystem fs;
   private final ProjectRepositories projectRepositories;
-  private final BatchComponentCache componentCache;
-  private final ReportPublisher publishReportJob;
+  private final ModuleInputComponentStore componentStore;
+  private final DefaultModuleFileSystem fs;
+  private final ScannerReportWriter writer;
 
-  public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectRepositories, FileSystem fs, BatchComponentCache componentCache, ReportPublisher publishReportJob) {
-    this.projectDefinition = projectDefinition;
+  public ScmPublisher(DefaultInputModule inputModule, ScmConfiguration configuration, ProjectRepositories projectRepositories,
+    ModuleInputComponentStore componentStore, DefaultModuleFileSystem fs, ReportPublisher reportPublisher) {
+    this.inputModule = inputModule;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;
+    this.componentStore = componentStore;
     this.fs = fs;
-    this.componentCache = componentCache;
-    this.publishReportJob = publishReportJob;
+    this.writer = reportPublisher.getWriter();
   }
 
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor.name("SCM Sensor");
-  }
-
-  @Override
-  public void execute(SensorContext context) {
+  public void publish() {
     if (configuration.isDisabled()) {
       LOG.info("SCM Publisher is disabled");
       return;
@@ -77,11 +73,11 @@ public final class ScmSensor implements Sensor {
       return;
     }
 
-    List<InputFile> filesToBlame = collectFilesToBlame();
+    List<InputFile> filesToBlame = collectFilesToBlame(writer);
     if (!filesToBlame.isEmpty()) {
       String key = configuration.provider().key();
       LOG.info("SCM provider for this project is: " + key);
-      DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), componentCache, filesToBlame);
+      DefaultBlameOutput output = new DefaultBlameOutput(writer, filesToBlame);
       try {
         configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       } catch (Exception e) {
@@ -92,33 +88,36 @@ public final class ScmSensor implements Sensor {
     }
   }
 
-  private List<InputFile> collectFilesToBlame() {
+  private List<InputFile> collectFilesToBlame(ScannerReportWriter writer) {
     if (configuration.forceReloadAll()) {
       LOG.warn("Forced reloading of SCM data for all files.");
     }
     List<InputFile> filesToBlame = new LinkedList<>();
-    for (InputFile f : fs.inputFiles(fs.predicates().all())) {
+    for (InputFile f : componentStore.inputFiles()) {
+      DefaultInputFile inputFile = (DefaultInputFile) f;
+      if (!inputFile.publish()) {
+        continue;
+      }
       if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
       } else {
         // File status is SAME so that mean fileData exists
-        FileData fileData = projectRepositories.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
+        FileData fileData = projectRepositories.fileData(inputModule.definition().getKeyWithBranch(), f.relativePath());
         if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         } else {
-          askToCopyDataFromPreviousAnalysis(f);
+          askToCopyDataFromPreviousAnalysis((DefaultInputFile) f, writer);
         }
       }
     }
     return filesToBlame;
   }
 
-  private void askToCopyDataFromPreviousAnalysis(InputFile f) {
-    BatchComponent batchComponent = componentCache.get(f);
+  private void askToCopyDataFromPreviousAnalysis(DefaultInputFile f, ScannerReportWriter writer) {
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
-    scmBuilder.setComponentRef(batchComponent.batchId());
+    scmBuilder.setComponentRef(f.batchId());
     scmBuilder.setCopyFromPrevious(true);
-    publishReportJob.getWriter().writeComponentChangesets(scmBuilder.build());
+    writer.writeComponentChangesets(scmBuilder.build());
   }
 
   private static void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {

@@ -25,15 +25,14 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.scan.filesystem.InputPathCache;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,14 +45,14 @@ public class ConsoleReportTest {
 
   private Settings settings;
   private IssueCache issueCache;
-  private InputPathCache inputPathCache;
+  private InputComponentStore inputPathCache;
   private ConsoleReport report;
 
   @Before
   public void prepare() {
     settings = new MapSettings();
     issueCache = mock(IssueCache.class);
-    inputPathCache = mock(InputPathCache.class);
+    inputPathCache = mock(InputComponentStore.class);
     report = new ConsoleReport(settings, issueCache, inputPathCache);
   }
 
@@ -69,8 +68,8 @@ public class ConsoleReportTest {
   @Test
   public void testNoFile() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Collections.<InputFile>emptyList());
-    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.emptyList());
+    when(issueCache.all()).thenReturn(Collections.emptyList());
     report.execute();
     assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
@@ -82,7 +81,7 @@ public class ConsoleReportTest {
   @Test
   public void testNoNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(false, null)));
     report.execute();
     assertDeprecated();
@@ -95,7 +94,7 @@ public class ConsoleReportTest {
   @Test
   public void testOneNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(true, Severity.BLOCKER)));
     report.execute();
     assertDeprecated();
@@ -109,7 +108,7 @@ public class ConsoleReportTest {
   @Test
   public void testOneNewIssuePerSeverity() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
-    when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
+    when(inputPathCache.allFilesToPublish()).thenReturn(Collections.singleton(new TestInputFileBuilder("foo", "src/Foo.php").build()));
     when(issueCache.all()).thenReturn(Arrays.asList(
       createIssue(true, Severity.BLOCKER),
       createIssue(true, Severity.CRITICAL),
@@ -128,11 +127,11 @@ public class ConsoleReportTest {
         "        +1 info\n" +
         "\n-------------------------------------------\n\n");
   }
-  
+
   private void assertDeprecated() {
     assertThat(getLogs()).contains("Console report is deprecated");
   }
-  
+
   private void assertNotDeprecated() {
     assertThat(getLogs()).doesNotContain("Console report is deprecated");
   }

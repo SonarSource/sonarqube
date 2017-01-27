@@ -163,5 +163,15 @@ public interface FileSystem {
 
     @CheckForNull
     InputDir inputDir(String relativePath);
+
+    /**
+     * @since 6.3
+     */
+    Iterable<InputFile> getFilesByName(String filename);
+
+    /**
+     * @since 6.3
+     */
+    Iterable<InputFile> getFilesByExtension(String extension);
   }
 }

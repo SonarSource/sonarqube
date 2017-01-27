@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.IssueCallback;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.issue.tracking.IssueTransition;
@@ -43,9 +42,9 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final IssueCallback issueCallback;
 
   public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
-    DefaultIndex index, EventBus eventBus, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    EventBus eventBus, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, IssueCallback issueCallback) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, index, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
+    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, eventBus, fsLogger, fs, profileVerifier, issueExclusionsLoader);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;
     this.localIssueTracking = localIssueTracking;

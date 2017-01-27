@@ -22,17 +22,19 @@ package org.sonar.scanner.mediumtest;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.sonar.batch.bootstrapper.LogOutput;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.HashMultimap;
 
 public class LogOutputRecorder implements LogOutput {
-  private Multimap<String, String> recordedByLevel = HashMultimap.create();
-  private List<String> recorded = new LinkedList<>();
-  private StringBuffer asString = new StringBuffer();
+  private final Multimap<String, String> recordedByLevel = HashMultimap.create();
+  private final List<String> recorded = new LinkedList<>();
+  private final StringBuffer asString = new StringBuffer();
 
   @Override
-  public void log(String formattedMessage, Level level) {
+  public synchronized void log(String formattedMessage, Level level) {
     recordedByLevel.put(level.toString(), formattedMessage);
     recorded.add(formattedMessage);
     asString.append(formattedMessage).append("\n");
@@ -40,6 +42,10 @@ public class LogOutputRecorder implements LogOutput {
 
   public Collection<String> getAll() {
     return recorded;
+  }
+
+  public String getAllAsString() {
+    return recorded.stream().collect(Collectors.joining("\n"));
   }
 
   public Collection<String> get(String level) {

@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -34,7 +35,6 @@ import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
@@ -43,20 +43,18 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
 
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
-  private final BatchComponentCache batchComponentCache;
   private final Settings settings;
   // Files already tokenized
   private final Set<InputFile> indexedFiles = new HashSet<>();
 
-  public SonarCpdBlockIndex(ReportPublisher publisher, BatchComponentCache batchComponentCache, Settings settings) {
+  public SonarCpdBlockIndex(ReportPublisher publisher, Settings settings) {
     this.publisher = publisher;
-    this.batchComponentCache = batchComponentCache;
     this.settings = settings;
   }
 
   public void insert(InputFile inputFile, Collection<Block> blocks) {
     if (isCrossProjectDuplicationEnabled(settings)) {
-      int id = batchComponentCache.get(inputFile).batchId();
+      int id = ((DefaultInputFile) inputFile).batchId();
       if (publisher.getWriter().hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, id)) {
         throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + inputFile.absolutePath());
       }

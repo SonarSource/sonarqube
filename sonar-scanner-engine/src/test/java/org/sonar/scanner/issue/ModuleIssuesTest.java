@@ -19,23 +19,20 @@
  */
 package org.sonar.scanner.issue;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
-import org.sonar.api.resources.File;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.index.BatchComponentCache;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -66,14 +63,8 @@ public class ModuleIssuesTest {
 
   ModuleIssues moduleIssues;
 
-  BatchComponentCache componentCache = new BatchComponentCache();
-  InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n");
+  DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n").build();
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
-
-  @Before
-  public void prepare() {
-    componentCache.add(File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php"), null).setInputComponent(file);
-  }
 
   @Test
   public void fail_on_unknown_rule() {
@@ -153,7 +144,7 @@ public class ModuleIssuesTest {
 
     assertThat(added).isTrue();
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
   }
 
@@ -170,7 +161,7 @@ public class ModuleIssuesTest {
     moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.INFO);
   }
 
@@ -189,7 +180,7 @@ public class ModuleIssuesTest {
 
     assertThat(added).isTrue();
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
-    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
     assertThat(argument.getValue().getMsg()).isEqualTo("Avoid Cycle");
   }
 
@@ -215,7 +206,7 @@ public class ModuleIssuesTest {
    * Every rules and active rules has to be added in builders before creating ModuleIssues
    */
   private void initModuleIssues() {
-    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), filters, reportPublisher, componentCache);
+    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), filters, reportPublisher);
   }
 
 }

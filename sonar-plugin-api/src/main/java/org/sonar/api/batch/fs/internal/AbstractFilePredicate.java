@@ -20,12 +20,11 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * Partial implementation of {@link FilePredicate}.
+ * Partial implementation of {@link OptimizedFilePredicate}.
  * @since 5.1
  */
 public abstract class AbstractFilePredicate implements OptimizedFilePredicate {

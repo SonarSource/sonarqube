@@ -32,9 +32,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +50,9 @@ public class BranchMediumTest {
 
   public ScannerMediumTester tester = ScannerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
+    // active a rule just to be sure that xoo files are published
+    .addActiveRule("xoo", "xoo:OneIssuePerFile", null, "One Issue Per File", null, null, null)
     .addDefaultQProfile("xoo", "Sonar Way")
     .build();
 
@@ -93,7 +98,12 @@ public class BranchMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:branch:src/sample.xoo");
+    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:src/sample.xoo");
+
+    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
+
+    assertThat(result.getReportReader().readMetadata().getBranch()).isEqualTo("branch");
 
     result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -123,7 +133,16 @@ public class BranchMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(1);
-    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:branch:src/sample.xoo");
+    assertThat(result.inputFile("src/sample.xoo").key()).isEqualTo("com.foo.project:moduleA:src/sample.xoo");
+
+    // no branch in the report
+    DefaultInputFile inputfile = (DefaultInputFile) result.inputFile("src/sample.xoo");
+    assertThat(result.getReportReader().readComponent(inputfile.batchId()).getPath()).isEqualTo("src/sample.xoo");
+
+    // no branch in InputModule's key or in report
+    assertThat(result.getReportComponent("com.foo.project:moduleA").getKey()).isEqualTo("com.foo.project:moduleA");
+
+    assertThat(result.getReportReader().readMetadata().getBranch()).isEqualTo("branch");
 
     result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

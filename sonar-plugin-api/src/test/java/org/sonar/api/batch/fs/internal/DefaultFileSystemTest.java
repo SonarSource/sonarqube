@@ -81,12 +81,12 @@ public class DefaultFileSystemTest {
   public void files() {
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
-    fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php"));
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
-    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java"));
+    fs.add(new TestInputFileBuilder("foo", "src/Foo.php").setLanguage("php").build());
+    fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
+    fs.add(new TestInputFileBuilder("foo", "src/Baz.java").setLanguage("java").build());
 
     // no language
-    fs.add(new DefaultInputFile("foo", "src/readme.txt"));
+    fs.add(new TestInputFileBuilder("foo", "src/readme.txt").build());
 
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
@@ -118,15 +118,15 @@ public class DefaultFileSystemTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("expected one element");
 
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
-    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java"));
+    fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
+    fs.add(new TestInputFileBuilder("foo", "src/Baz.java").setLanguage("java").build());
 
     fs.inputFile(fs.predicates().all());
   }
 
   @Test
   public void input_file_supports_non_indexed_predicates() {
-    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
+    fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
 
     // it would fail if more than one java file
     assertThat(fs.inputFile(fs.predicates().hasLanguage("java"))).isNotNull();

@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -39,16 +40,23 @@ public class DefaultFilePredicatesTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  DefaultInputFile javaFile;
+  private Path moduleBasePath;
+
+  @Before
+  public void setUp() throws IOException {
+    moduleBasePath = temp.newFolder().toPath();
+  }
+
+  InputFile javaFile;
   FilePredicates predicates;
 
   @Before
   public void before() throws IOException {
     predicates = new DefaultFilePredicates(temp.newFolder().toPath());
-    javaFile = new DefaultInputFile("foo", "src/main/java/struts/Action.java")
-      .setModuleBaseDir(temp.newFolder().toPath())
+    javaFile = new TestInputFileBuilder("foo", "src/main/java/struts/Action.java")
+      .setModuleBaseDir(moduleBasePath)
       .setLanguage("java")
-      .setStatus(InputFile.Status.ADDED);
+      .build();
   }
 
   @Test
@@ -151,12 +159,6 @@ public class DefaultFilePredicatesTest {
   }
 
   @Test
-  public void has_status() {
-    assertThat(predicates.hasStatus(InputFile.Status.ADDED).apply(javaFile)).isTrue();
-    assertThat(predicates.hasStatus(InputFile.Status.CHANGED).apply(javaFile)).isFalse();
-  }
-
-  @Test
   public void has_type() {
     assertThat(predicates.hasType(InputFile.Type.MAIN).apply(javaFile)).isTrue();
     assertThat(predicates.hasType(InputFile.Type.TEST).apply(javaFile)).isFalse();
@@ -211,5 +213,15 @@ public class DefaultFilePredicatesTest {
     assertThat(predicates.or(new FilePredicate[] {predicates.all(), predicates.all()}).apply(javaFile)).isTrue();
     assertThat(predicates.or(new FilePredicate[] {predicates.all(), predicates.none()}).apply(javaFile)).isTrue();
     assertThat(predicates.or(new FilePredicate[] {predicates.none(), predicates.none()}).apply(javaFile)).isFalse();
+  }
+
+  @Test
+  public void hasFilename() {
+    assertThat(predicates.hasFilename("Action.java").apply(javaFile)).isTrue();
+  }
+
+  @Test
+  public void hasExtension() {
+    assertThat(predicates.hasExtension("java").apply(javaFile)).isTrue();
   }
 }

@@ -24,11 +24,11 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -232,6 +232,6 @@ public class LastCommitVisitorTest {
   }
 
   private ReportComponent createFileComponent(int fileRef) {
-    return ReportComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, "js")).build();
+    return ReportComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, "js", 1)).build();
   }
 }

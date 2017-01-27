@@ -86,7 +86,7 @@ message Component {
   // Only available on PROJECT and MODULE types
   // TODO rename this property -> moduleKey ?
   string key = 10;
-  // Only available on FILE type
+  // Only available on FILE type, should always be at least 1
   int32 lines = 11;
   // Only available on PROJECT and MODULE types
   string description = 12;

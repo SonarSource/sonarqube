@@ -83,8 +83,8 @@ public class MaintainabilityMeasuresVisitorTest {
         .addChildren(
           builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
             .addChildren(
-              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file2").build())
+              builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file1").build(),
+              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1, 1)).setKey("file2").build())
             .build())
         .build())
     .build();
@@ -147,7 +147,7 @@ public class MaintainabilityMeasuresVisitorTest {
                 createFileComponent(LANGUAGE_KEY_1, 1111),
                 createFileComponent(LANGUAGE_KEY_2, 1112),
                 // Unit test should not be ignored
-                builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1)).build())
+                builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1, 1)).build())
               .build(),
             builder(DIRECTORY, 112)
               .addChildren(
@@ -358,7 +358,7 @@ public class MaintainabilityMeasuresVisitorTest {
   }
 
   private static ReportComponent createFileComponent(String languageKey1, int fileRef) {
-    return builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
+    return builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1, 1)).build();
   }
 
   private static Measure createMaintainabilityRatingMeasure(Rating rating) {

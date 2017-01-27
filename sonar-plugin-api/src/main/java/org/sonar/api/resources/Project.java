@@ -19,17 +19,17 @@
  */
 package org.sonar.api.resources;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.component.Component;
-import org.sonar.api.config.Settings;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 /**
  * @since 1.10
@@ -37,125 +37,79 @@ import org.sonar.api.config.Settings;
  */
 @Deprecated
 public class Project extends Resource implements Component {
+  private final ProjectDefinition definition;
 
-  /**
-   * Internal use
-   */
-  public static final Language NONE_LANGUAGE = new AbstractLanguage("none", "None") {
-    @Override
-    public String[] getFileSuffixes() {
-      return new String[0];
-    }
-  };
-
-  static final String MAVEN_KEY_FORMAT = "%s:%s";
-  private static final String BRANCH_KEY_FORMAT = "%s:%s";
-
-  public static final String SCOPE = Scopes.PROJECT;
-
-  private String branch;
-  private String name;
-  private String description;
-  private Date analysisDate;
-  private String analysisVersion;
-  private Settings settings;
-  private String originalName;
-
-  // For internal use
-  private java.io.File baseDir;
-
-  // modules tree
-  private Project parent;
-  private List<Project> modules = new ArrayList<>();
-
-  public Project(String key) {
-    setKey(key);
-    setEffectiveKey(key);
+  public Project(ProjectDefinition definition) {
+    this.definition = definition;
+    this.setKey(definition.getKey());
+    this.setEffectiveKey(definition.getKeyWithBranch());
   }
 
-  public Project(String key, String branch, String name) {
-    if (StringUtils.isNotBlank(branch)) {
-      setKey(String.format(BRANCH_KEY_FORMAT, key, branch));
-      this.name = String.format("%s %s", name, branch);
-    } else {
-      setKey(key);
-      this.name = name;
+  public ProjectDefinition definition() {
+    return definition;
+  }
+
+  @Override
+  public String key() {
+    return definition.getKey();
+  }
+
+  @Override
+  public String path() {
+    ProjectDefinition parent = definition.getParent();
+    if (parent == null) {
+      return null;
     }
-    this.originalName = this.name;
-    setEffectiveKey(getKey());
-    this.branch = branch;
+    return new PathResolver().relativePath(parent.getBaseDir(), definition.getBaseDir());
   }
 
   public String getBranch() {
-    return branch;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setBranch(String branch) {
-    this.branch = branch;
-    return this;
+    return definition.getBranch();
   }
 
   @CheckForNull
   public String getOriginalName() {
-    return originalName;
+    String name = definition.getOriginalName();
+    if (StringUtils.isNotEmpty(getBranch())) {
+      name = name + " " + getBranch();
+    }
+    return name;
   }
 
-  public void setOriginalName(String originalName) {
-    if (StringUtils.isNotBlank(branch)) {
-      this.originalName = String.format("%s %s", originalName, branch);
-    } else {
-      this.originalName = originalName;
+  java.io.File getBaseDir() {
+    return definition.getBaseDir();
+  }
+
+  @Override
+  public String name() {
+    String name = definition.getName();
+    if (StringUtils.isNotEmpty(getBranch())) {
+      name = name + " " + getBranch();
     }
+    return name;
+  }
+
+  @Override
+  public String longName() {
+    return definition.getName();
+  }
+
+  @Override
+  public String qualifier() {
+    return getParent() == null ? Qualifiers.PROJECT : Qualifiers.MODULE;
   }
 
   @Override
   public String getName() {
-    return name;
+    return name();
   }
 
-  @Override
-  public String getLongName() {
-    return name;
-  }
-
-  @Override
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public Language getLanguage() {
-    return null;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  /**
-   * @return whether the current project is root project
-   */
   public boolean isRoot() {
     return getParent() == null;
   }
 
   public Project getRoot() {
-    return parent == null ? this : parent.getRoot();
+    return getParent() == null ? this : getParent().getRoot();
   }
 
   /**
@@ -165,80 +119,50 @@ public class Project extends Resource implements Component {
     return !isRoot();
   }
 
-  /**
-   * For internal use only.
-   *
-   * @deprecated in 3.6. It's not possible to analyze a project before the latest known quality snapshot.
-   * See http://jira.sonarsource.com/browse/SONAR-4334
-   */
-  @Deprecated
-  public Project setLatestAnalysis(boolean b) {
-    if (!b) {
-      throw new UnsupportedOperationException("The analysis is always the latest one. " +
-        "Past analysis must be done in a chronological order.");
-    }
-    return this;
+  @Override
+  public String getLongName() {
+    return longName();
   }
 
-  /**
-     * @return the language key or empty if no language is specified
-     * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
-     */
-  @Deprecated
-  public String getLanguageKey() {
-    if (settings == null) {
-      throw new IllegalStateException("Project is not yet initialized");
-    }
-    return StringUtils.defaultIfEmpty(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), "");
+  @Override
+  public String getDescription() {
+    return definition.getDescription();
   }
 
-  /**
-   * Internal use
+  /** 
+   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
    */
-  public Project setSettings(Settings settings) {
-    this.settings = settings;
-    return this;
+  @Override
+  public Language getLanguage() {
+    throw new UnsupportedOperationException();
   }
 
-  /**
-   * Internal use for backward compatibility. Settings should be retrieved as an IoC dependency.
-   * @deprecated since 5.0
-   */
-  @Deprecated
-  public Settings getSettings() {
-    return settings;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setAnalysisDate(Date analysisDate) {
-    this.analysisDate = analysisDate;
-    return this;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setAnalysisVersion(String analysisVersion) {
-    this.analysisVersion = analysisVersion;
-    return this;
-  }
-
-  /**
-   * @return the scope of the current object
-   */
   @Override
   public String getScope() {
     return Scopes.PROJECT;
   }
 
-  /**
-   * @return the qualifier of the current object
-   */
   @Override
   public String getQualifier() {
-    return isRoot() ? Qualifiers.PROJECT : Qualifiers.MODULE;
+    return qualifier();
+  }
+
+  @Override
+  public Project getParent() {
+    ProjectDefinition parent = definition.getParent();
+    if (parent == null) {
+      return null;
+    }
+    return new Project(parent);
+  }
+
+  /**
+   * @return the list of modules
+   */
+  public List<Project> getModules() {
+    return definition.getSubProjects().stream()
+      .map(Project::new)
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -246,101 +170,13 @@ public class Project extends Resource implements Component {
     return false;
   }
 
-  @CheckForNull
-  @Override
-  public Project getParent() {
-    return parent;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setParent(Project parent) {
-    this.parent = parent;
-    if (parent != null) {
-      parent.modules.add(this);
-    }
-    return this;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public void removeFromParent() {
-    if (parent != null) {
-      parent.modules.remove(this);
-    }
-  }
-
-  /**
-   * @return the list of modules
-   */
-  public List<Project> getModules() {
-    return modules;
-  }
-
-  /**
-   * @return the current version of the project
-   */
-  public String getAnalysisVersion() {
-    return analysisVersion;
-  }
-
-  /**
-   * @return the analysis date, i.e. the date that will be used to store the snapshot
-   */
-  public Date getAnalysisDate() {
-    return analysisDate;
-  }
-
-  public static Project createFromMavenIds(String groupId, String artifactId) {
-    return createFromMavenIds(groupId, artifactId, null);
-  }
-
-  public static Project createFromMavenIds(String groupId, String artifactId, @Nullable String branch) {
-    return new Project(String.format(MAVEN_KEY_FORMAT, groupId, artifactId), branch, "");
-  }
-
   @Override
   public String toString() {
     return new ToStringBuilder(this)
       .append("id", getId())
-      .append("key", getKey())
+      .append("key", key())
       .append("qualifier", getQualifier())
       .toString();
   }
 
-  @Override
-  public String key() {
-    return getKey();
-  }
-
-  @Override
-  public String name() {
-    return getName();
-  }
-
-  @Override
-  public String path() {
-    return getPath();
-  }
-
-  @Override
-  public String longName() {
-    return getLongName();
-  }
-
-  @Override
-  public String qualifier() {
-    return getQualifier();
-  }
-
-  // For internal use
-  public void setBaseDir(java.io.File baseDir) {
-    this.baseDir = baseDir;
-  }
-
-  java.io.File getBaseDir() {
-    return baseDir;
-  }
 }

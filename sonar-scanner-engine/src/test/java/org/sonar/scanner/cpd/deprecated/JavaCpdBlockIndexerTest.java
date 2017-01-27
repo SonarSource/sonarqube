@@ -33,13 +33,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.index.BatchComponentCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -58,7 +58,7 @@ public class JavaCpdBlockIndexerTest {
 
   private Settings settings;
   private JavaCpdBlockIndexer engine;
-  private DefaultInputFile file;
+  private InputFile file;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -69,10 +69,10 @@ public class JavaCpdBlockIndexerTest {
 
     File baseDir = temp.newFolder();
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
-    file = new DefaultInputFile("foo", "src/ManyStatements.java").setLanguage(JAVA);
+    file = new TestInputFileBuilder("foo", "src/ManyStatements.java")
+      .setModuleBaseDir(baseDir.toPath())
+      .setLanguage(JAVA).build();
     fs.add(file);
-    BatchComponentCache batchComponentCache = new BatchComponentCache();
-    batchComponentCache.add(org.sonar.api.resources.File.create("src/Foo.java").setEffectiveKey("foo:src/ManyStatements.java"), null).setInputComponent(file);
     File ioFile = file.file();
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);
 

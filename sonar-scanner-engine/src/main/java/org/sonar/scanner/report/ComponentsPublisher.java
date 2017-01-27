@@ -19,22 +19,30 @@
  */
 package org.sonar.scanner.report;
 
+import java.util.Collection;
+
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.scanner.index.BatchComponent;
-import org.sonar.scanner.index.BatchComponentCache;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputComponentTree;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
+import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 /**
@@ -42,91 +50,138 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
  */
 public class ComponentsPublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache resourceCache;
-  private final ImmutableProjectReactor reactor;
+  private InputComponentTree componentTree;
+  private InputModuleHierarchy moduleHierarchy;
+  private ScannerReportReader reader;
+  private ScannerReportWriter writer;
 
-  public ComponentsPublisher(ImmutableProjectReactor reactor, BatchComponentCache resourceCache) {
-    this.reactor = reactor;
-    this.resourceCache = resourceCache;
+  public ComponentsPublisher(InputModuleHierarchy moduleHierarchy, InputComponentTree inputComponentTree) {
+    this.moduleHierarchy = moduleHierarchy;
+    this.componentTree = inputComponentTree;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    BatchComponent rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
-    recursiveWriteComponent(rootProject, writer);
+    this.reader = new ScannerReportReader(writer.getFileStructure().root());
+    this.writer = writer;
+    recursiveWriteComponent((DefaultInputComponent) moduleHierarchy.root());
   }
 
-  private void recursiveWriteComponent(BatchComponent batchComponent, ScannerReportWriter writer) {
-    Resource r = batchComponent.resource();
+  /**
+   * Writes the tree of components recursively, deep-first. 
+   * @return true if component was written (not skipped)
+   */
+  private boolean recursiveWriteComponent(DefaultInputComponent component) {
+    Collection<InputComponent> children = componentTree.getChildren(component).stream()
+      .filter(c -> recursiveWriteComponent((DefaultInputComponent) c))
+      .collect(Collectors.toList());
+
+    if (shouldSkipComponent(component, children)) {
+      return false;
+    }
+
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder();
 
     // non-null fields
-    builder.setRef(batchComponent.batchId());
-    builder.setType(getType(r));
+    builder.setRef(component.batchId());
+    builder.setType(getType(component));
 
     // Don't set key on directories and files to save space since it can be deduced from path
-    if (batchComponent.isProjectOrModule()) {
+    if (component instanceof InputModule) {
+      DefaultInputModule inputModule = (DefaultInputModule) component;
       // Here we want key without branch
-      ProjectDefinition def = reactor.getProjectDefinition(batchComponent.key());
-      builder.setKey(def.getKey());
+      builder.setKey(inputModule.key());
+
+      // protocol buffers does not accept null values
+      String name = getName(inputModule);
+      if (name != null) {
+        builder.setName(name);
+      }
+      String description = getDescription(inputModule);
+      if (description != null) {
+        builder.setDescription(description);
+      }
+
+      writeVersion(inputModule, builder);
     }
 
-    // protocol buffers does not accept null values
+    if (component.isFile()) {
+      DefaultInputFile file = (DefaultInputFile) component;
+      builder.setIsTest(file.type() == InputFile.Type.TEST);
+      builder.setLines(file.lines());
 
-    if (batchComponent.isFile()) {
-      builder.setIsTest(ResourceUtils.isUnitTestFile(r));
-      builder.setLines(((InputFile) batchComponent.inputComponent()).lines());
+      String lang = getLanguageKey(file);
+      if (lang != null) {
+        builder.setLanguage(lang);
+      }
     }
-    String name = getName(r);
-    if (name != null) {
-      builder.setName(name);
-    }
-    String description = getDescription(r);
-    if (description != null) {
-      builder.setDescription(description);
-    }
-    String path = r.getPath();
+
+    String path = getPath(component);
     if (path != null) {
       builder.setPath(path);
     }
-    String lang = getLanguageKey(r);
-    if (lang != null) {
-      builder.setLanguage(lang);
-    }
-    for (BatchComponent child : batchComponent.children()) {
-      builder.addChildRef(child.batchId());
-    }
-    writeLinks(batchComponent, builder);
-    writeVersion(batchComponent, builder);
-    writer.writeComponent(builder.build());
 
-    for (BatchComponent child : batchComponent.children()) {
-      recursiveWriteComponent(child, writer);
+    for (InputComponent child : children) {
+      builder.addChildRef(((DefaultInputComponent) child).batchId());
+    }
+    writeLinks(component, builder);
+    writer.writeComponent(builder.build());
+    return true;
+  }
+
+  private boolean shouldSkipComponent(DefaultInputComponent component, Collection<InputComponent> children) {
+    if (component instanceof InputDir && children.isEmpty()) {
+      try (CloseableIterator<Issue> componentIssuesIt = reader.readComponentIssues(component.batchId())) {
+        if (!componentIssuesIt.hasNext()) {
+          // no file to publish on a directory without issues -> skip it
+          return true;
+        }
+      }
+    } else if (component instanceof DefaultInputFile) {
+      // skip files not marked for publishing
+      DefaultInputFile inputFile = (DefaultInputFile) component;
+      return !inputFile.publish();
+    }
+    return false;
+  }
+
+  private static void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
+    ProjectDefinition def = module.definition();
+    String version = getVersion(def);
+    if (version != null) {
+      builder.setVersion(version);
     }
   }
 
-  private void writeVersion(BatchComponent c, ScannerReport.Component.Builder builder) {
-    if (c.isProjectOrModule()) {
-      ProjectDefinition def = reactor.getProjectDefinition(c.key());
-      String version = getVersion(def);
-      if(version != null) {
-        builder.setVersion(version);
+  @CheckForNull
+  private String getPath(InputComponent component) {
+    if (component instanceof InputPath) {
+      InputPath inputPath = (InputPath) component;
+      if (StringUtils.isEmpty(inputPath.relativePath())) {
+        return "/";
+      } else {
+        return inputPath.relativePath();
       }
+    } else if (component instanceof InputModule) {
+      InputModule module = (InputModule) component;
+      return moduleHierarchy.relativePath(module);
     }
+    throw new IllegalStateException("Unkown component: " + component.getClass());
   }
 
   private static String getVersion(ProjectDefinition def) {
     String version = def.getOriginalVersion();
-    if(StringUtils.isNotBlank(version)) {
+    if (StringUtils.isNotBlank(version)) {
       return version;
     }
-    
+
     return def.getParent() != null ? getVersion(def.getParent()) : null;
   }
 
-  private void writeLinks(BatchComponent c, ScannerReport.Component.Builder builder) {
-    if (c.isProjectOrModule()) {
-      ProjectDefinition def = reactor.getProjectDefinition(c.key());
+  private static void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {
+    if (c instanceof InputModule) {
+      DefaultInputModule inputModule = (DefaultInputModule) c;
+      ProjectDefinition def = inputModule.definition();
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
@@ -149,37 +204,35 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   @CheckForNull
-  private static String getLanguageKey(Resource r) {
-    Language language = r.getLanguage();
-    return ResourceUtils.isFile(r) && language != null ? language.getKey() : null;
+  private static String getLanguageKey(InputFile file) {
+    return file.language();
   }
 
   @CheckForNull
-  private static String getName(Resource r) {
-    if (ResourceUtils.isProject(r)) {
-      Project project = (Project) r;
-      return project.getOriginalName();
+  private static String getName(DefaultInputModule module) {
+    if (StringUtils.isNotEmpty(module.definition().getBranch())) {
+      return module.definition().getOriginalName() + " " + module.definition().getBranch();
+    } else {
+      return module.definition().getOriginalName();
     }
-    // Don't return name for directories and files since it can be guessed from the path
-    return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
   }
 
   @CheckForNull
-  private static String getDescription(Resource r) {
-    // Only for projets and modules
-    return ResourceUtils.isProject(r) ? r.getDescription() : null;
+  private static String getDescription(DefaultInputModule module) {
+    return module.definition().getDescription();
   }
 
-  private static ComponentType getType(Resource r) {
-    if (ResourceUtils.isFile(r)) {
+  private ComponentType getType(InputComponent r) {
+    if (r instanceof InputFile) {
       return ComponentType.FILE;
-    } else if (ResourceUtils.isDirectory(r)) {
+    } else if (r instanceof InputDir) {
       return ComponentType.DIRECTORY;
-    } else if (ResourceUtils.isModuleProject(r)) {
-      return ComponentType.MODULE;
-    } else if (ResourceUtils.isRootProject(r)) {
+    } else if ((r instanceof InputModule) && moduleHierarchy.isRoot((InputModule) r)) {
       return ComponentType.PROJECT;
+    } else if (r instanceof InputModule) {
+      return ComponentType.MODULE;
     }
+
     throw new IllegalArgumentException("Unknown resource type: " + r);
   }
 

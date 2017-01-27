@@ -74,13 +74,13 @@ public class ComputeQProfileMeasureStepTest {
           ReportComponent.builder(MODULE, SUB_MODULE_REF)
             .addChildren(ReportComponent.builder(DIRECTORY, FOLDER_1_REF)
               .addChildren(
-                ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java")).build(),
-                ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java")).build())
+                ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build(),
+                ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java", 1)).build())
               .build(),
               ReportComponent.builder(DIRECTORY, FOLDER_2_REF)
                 .addChildren(
-                  ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null)).build(),
-                  ReportComponent.builder(FILE, FILE_2_2_REF).setFileAttributes(new FileAttributes(false, "php")).build())
+                  ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null, 1)).build(),
+                  ReportComponent.builder(FILE, FILE_2_2_REF).setFileAttributes(new FileAttributes(false, "php", 1)).build())
                 .build())
             .build())
         .build())

@@ -25,8 +25,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,10 +35,11 @@ import static org.mockito.Mockito.mock;
 
 public class DefaultSymbolTableTest {
 
-  private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("foo", "src/Foo.java")
+  private static final InputFile INPUT_FILE = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
     .setOriginalLineOffsets(new int[] {0, 50})
-    .setLastValidOffset(100);
+    .setLastValidOffset(100)
+    .build();
 
   private Map<TextRange, Set<TextRange>> referencesPerSymbol;
 

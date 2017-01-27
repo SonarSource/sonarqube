@@ -22,21 +22,24 @@ package org.sonar.scanner.issue;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
-  private final Project project;
+  private final ProjectAnalysisInfo projectAnalysisInfo;
   private final String componentKey;
+  private DefaultInputModule module;
 
-  public DefaultFilterableIssue(Project project, Issue rawIssue, String componentKey) {
-    this.project = project;
+  public DefaultFilterableIssue(InputModule module, ProjectAnalysisInfo projectAnalysisInfo, Issue rawIssue, String componentKey) {
+    this.module = (DefaultInputModule) module;
+    this.projectAnalysisInfo = projectAnalysisInfo;
     this.rawIssue = rawIssue;
     this.componentKey = componentKey;
-
   }
 
   @Override
@@ -76,12 +79,12 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public Date creationDate() {
-    return project.getAnalysisDate();
+    return projectAnalysisInfo.analysisDate();
   }
 
   @Override
   public String projectKey() {
-    return project.getEffectiveKey();
+    return module.key();
   }
 
   @Override

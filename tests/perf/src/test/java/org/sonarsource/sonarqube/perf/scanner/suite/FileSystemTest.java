@@ -78,6 +78,7 @@ public class FileSystemTest extends PerfTestCase {
         "sonar.projectVersion", "1.0",
         "sonar.sources", "src",
         "sonar.analysis.mode", "issues",
+        "sonar.preloadFileMetadata", "true",
         "sonar.showProfiling", "true")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx" + xmx + "m -server")
       .setProjectDir(baseDir);
