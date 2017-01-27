@@ -40,7 +40,7 @@ public class AuthorizationTypeSupport {
   public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String FIELD_GROUP_IDS = "groupIds";
   public static final String FIELD_GROUP_NAMES = "groupNames";
-  public static final String FIELD_USER_LOGINS = "users";
+  public static final String FIELD_USER_IDS = "userIds";
   public static final String FIELD_UPDATED_AT = "updatedAt";
 
   /**
@@ -76,7 +76,7 @@ public class AuthorizationTypeSupport {
     authType.createDateTimeField(FIELD_UPDATED_AT);
     authType.createLongField(FIELD_GROUP_IDS);
     authType.stringFieldBuilder(FIELD_GROUP_NAMES).disableNorms().build();
-    authType.stringFieldBuilder(FIELD_USER_LOGINS).disableNorms().build();
+    authType.createLongField(FIELD_USER_IDS);
     authType.createBooleanField(FIELD_ALLOW_ANYONE);
     authType.setEnableSource(false);
     return type;
@@ -87,7 +87,7 @@ public class AuthorizationTypeSupport {
    * user has read access.
    */
   public QueryBuilder createQueryFilter() {
-    Integer userLogin = userSession.getUserId();
+    Integer userId = userSession.getUserId();
     Set<String> userGroupNames = userSession.getUserGroups();
     BoolQueryBuilder filter = boolQuery();
 
@@ -95,9 +95,9 @@ public class AuthorizationTypeSupport {
     filter.should(QueryBuilders.termQuery(FIELD_ALLOW_ANYONE, true));
 
     // users
-    Optional.ofNullable(userLogin)
+    Optional.ofNullable(userId)
       .map(Integer::longValue)
-      .ifPresent(userId -> filter.should(termQuery(FIELD_USER_LOGINS, userId)));
+      .ifPresent(id -> filter.should(termQuery(FIELD_USER_IDS, id)));
 
     // groups
     userGroupNames.forEach(
