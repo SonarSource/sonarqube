@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import java.util.Collections;
@@ -57,16 +58,21 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
+  private static ApplyTemplateWsRequest toApplyTemplateWsRequest(Request request) {
+    return new ApplyTemplateWsRequest()
+      .setProjectId(request.param(PARAM_PROJECT_ID))
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("apply_template")
       .setDescription("Apply a permission template to one project.<br>" +
         "The project id or project key must be provided.<br>" +
         "The template id or name must be provided.<br>" +
-        "Requires the following permission:" +
-        "<ul>" +
-        "  <li>'Administer System'</li>" +
-        "</ul>")
+        "Requires the following permission: 'Administer System'.")
       .setPost(true)
       .setSince("5.2")
       .setHandler(this);
@@ -91,13 +97,5 @@ public class ApplyTemplateAction implements PermissionsWsAction {
 
       permissionTemplateService.apply(dbSession, template, Collections.singletonList(project));
     }
-  }
-
-  private static ApplyTemplateWsRequest toApplyTemplateWsRequest(Request request) {
-    return new ApplyTemplateWsRequest()
-      .setProjectId(request.param(PARAM_PROJECT_ID))
-      .setProjectKey(request.param(PARAM_PROJECT_KEY))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

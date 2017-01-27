@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Multimap;
@@ -67,45 +68,6 @@ public class TemplateUsersAction implements PermissionsWsAction {
     this.support = support;
   }
 
-  @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context
-      .createAction("template_users")
-      .setSince("5.2")
-      .setDescription("Lists the users with their permission as individual users rather than through group affiliation on the chosen template. <br />" +
-        "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
-        "It requires administration permissions to access.<br />")
-      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("template_users-example.json"))
-      .setHandler(this);
-
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
-        "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
-      .setExampleValue("eri");
-    createProjectPermissionParameter(action).setRequired(false);
-    createTemplateParameters(action);
-  }
-
-  @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
-
-      PermissionQuery query = buildQuery(wsRequest, template);
-      int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
-      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
-      List<UserDto> users = findUsers(dbSession, query, template);
-      List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getId(),
-        users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
-      WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
-      writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
-    }
-  }
-
   private static PermissionQuery buildQuery(Request wsRequest, PermissionTemplateDto template) {
     String textQuery = wsRequest.param(TEXT_QUERY);
     String permission = wsRequest.param(PARAM_PERMISSION);
@@ -139,6 +101,45 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .setTotal(paging.total())
       .build();
     return responseBuilder.build();
+  }
+
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context
+      .createAction("template_users")
+      .setSince("5.2")
+      .setDescription("Lists the users with their permission as individual users rather than through group affiliation on the chosen template. <br />" +
+        "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
+        "Requires the following permission: 'Administer System'.")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
+      .setInternal(true)
+      .setResponseExample(getClass().getResource("template_users-example.json"))
+      .setHandler(this);
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
+        "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setExampleValue("eri");
+    createProjectPermissionParameter(action).setRequired(false);
+    createTemplateParameters(action);
+  }
+
+  @Override
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
+      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+
+      PermissionQuery query = buildQuery(wsRequest, template);
+      int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
+      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
+      List<UserDto> users = findUsers(dbSession, query, template);
+      List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getId(),
+        users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
+      WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
+      writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
+    }
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {

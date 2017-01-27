@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import org.sonar.api.server.ws.Request;
@@ -53,6 +54,15 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     this.userSession = userSession;
   }
 
+  private static RemoveUserFromTemplateWsRequest toRemoveUserFromTemplateWsRequest(Request request) {
+    return new RemoveUserFromTemplateWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
@@ -60,7 +70,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Remove a user from a permission template.<br /> " +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
     createTemplateParameters(action);
@@ -89,14 +99,5 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
       dbSession.commit();
     }
-  }
-
-  private static RemoveUserFromTemplateWsRequest toRemoveUserFromTemplateWsRequest(Request request) {
-    return new RemoveUserFromTemplateWsRequest()
-      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
-      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

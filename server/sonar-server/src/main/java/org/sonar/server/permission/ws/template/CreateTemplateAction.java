@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
@@ -65,11 +66,24 @@ public class CreateTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
+  private static CreateTemplateWsRequest toCreateTemplateWsRequest(Request request) {
+    return new CreateTemplateWsRequest()
+      .setName(request.mandatoryParam(PARAM_NAME))
+      .setDescription(request.param(PARAM_DESCRIPTION))
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION_KEY));
+  }
+
+  private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
+    PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
+    return CreateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("create_template")
       .setDescription("Create a permission template.<br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setResponseExample(getClass().getResource("create_template-example.json"))
       .setSince("5.2")
       .setPost(true)
@@ -105,14 +119,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private static CreateTemplateWsRequest toCreateTemplateWsRequest(Request request) {
-    return new CreateTemplateWsRequest()
-      .setName(request.mandatoryParam(PARAM_NAME))
-      .setDescription(request.param(PARAM_DESCRIPTION))
-      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
-      .setOrganizationKey(request.param(PARAM_ORGANIZATION_KEY));
-  }
-
   private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
     validateTemplateNameFormat(name);
 
@@ -133,10 +139,5 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setUpdatedAt(now));
     dbSession.commit();
     return template;
-  }
-
-  private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
-    PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
-    return CreateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 }

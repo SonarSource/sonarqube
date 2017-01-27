@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import org.sonar.api.server.ws.Request;
@@ -57,7 +58,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       .setSince("5.2")
       .setDescription("Remove a group from a permission template.<br /> " +
         "The group id or group name must be provided. <br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
     createTemplateParameters(action);

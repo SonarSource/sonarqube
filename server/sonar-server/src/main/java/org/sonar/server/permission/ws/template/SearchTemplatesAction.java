@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import java.util.Locale;
@@ -42,8 +43,8 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
@@ -64,46 +65,6 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     this.i18n = i18n;
     this.support = support;
     this.dataLoader = dataLoader;
-  }
-
-  @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search_templates")
-      .setDescription("List permission templates.<br />" +
-        "Requires the following permission:" +
-        "<ul>" +
-        "  <li>'Administer System'</li>" +
-        "</ul>")
-      .setResponseExample(getClass().getResource("search_templates-example.json"))
-      .setSince("5.2")
-      .addSearchQuery("defau", "permission template names")
-      .setHandler(this);
-
-    createOrganizationParameter(action);
-  }
-
-  @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
-      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
-        .setOrganizationUuid(org.getUuid())
-        .setQuery(wsRequest.param(Param.TEXT_QUERY));
-      userSession.checkLoggedIn().checkOrganizationPermission(request.getOrganizationUuid(), SYSTEM_ADMIN);
-
-      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
-      writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
-    }
-  }
-
-  private WsPermissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {
-    SearchTemplatesWsResponse.Builder response = SearchTemplatesWsResponse.newBuilder();
-
-    buildTemplatesResponse(response, data);
-    buildDefaultTemplatesResponse(response, data);
-    buildPermissionsResponse(response);
-
-    return response.build();
   }
 
   private static void buildDefaultTemplatesResponse(SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
@@ -146,6 +107,43 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       }
       response.addPermissionTemplates(templateBuilder);
     }
+  }
+
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context.createAction("search_templates")
+      .setDescription("List permission templates.<br />" +
+        "Requires the following permission: 'Administer System'.")
+      .setResponseExample(getClass().getResource("search_templates-example.json"))
+      .setSince("5.2")
+      .addSearchQuery("defau", "permission template names")
+      .setHandler(this);
+
+    createOrganizationParameter(action);
+  }
+
+  @Override
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
+      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
+        .setOrganizationUuid(org.getUuid())
+        .setQuery(wsRequest.param(Param.TEXT_QUERY));
+      checkGlobalAdmin(userSession, request.getOrganizationUuid());
+
+      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
+      writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
+    }
+  }
+
+  private WsPermissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {
+    SearchTemplatesWsResponse.Builder response = SearchTemplatesWsResponse.newBuilder();
+
+    buildTemplatesResponse(response, data);
+    buildDefaultTemplatesResponse(response, data);
+    buildPermissionsResponse(response);
+
+    return response.build();
   }
 
   private void buildPermissionsResponse(SearchTemplatesWsResponse.Builder response) {

@@ -76,7 +76,11 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription("Lists the users with their permissions as individual users rather than through group affiliation.<br>" +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +
         "This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>" +
-        "It requires administration permissions to access.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setInternal(true)
       .setResponseExample(getClass().getResource("users-example.json"))

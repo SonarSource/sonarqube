@@ -75,7 +75,11 @@ public class GroupsAction implements PermissionsWsAction {
       .setDescription("Lists the groups with their permissions.<br>" +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> " +
         "This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>" +
-        "It requires administration permissions to access.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .addSearchQuery("sonar", "names").setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
         "When this parameter is not set, only groups having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)

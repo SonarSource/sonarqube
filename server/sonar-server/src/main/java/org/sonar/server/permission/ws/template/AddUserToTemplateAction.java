@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import java.util.List;
@@ -55,6 +56,15 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     this.userSession = userSession;
   }
 
+  private static AddUserToTemplateWsRequest toAddUserToTemplateWsRequest(Request request) {
+    return new AddUserToTemplateWsRequest()
+      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
@@ -62,7 +72,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Add a user to a permission template.<br /> " +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this);
 
     createTemplateParameters(action);
@@ -92,15 +102,6 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
         dbSession.commit();
       }
     }
-  }
-
-  private static AddUserToTemplateWsRequest toAddUserToTemplateWsRequest(Request request) {
-    return new AddUserToTemplateWsRequest()
-      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
-      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   private boolean isUserAlreadyAdded(DbSession dbSession, long templateId, String userLogin, String permission) {

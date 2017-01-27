@@ -64,7 +64,11 @@ public class RemoveUserAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Remove permission from a user.<br /> " +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
-        "It requires administration permissions to access.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "</ul>")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

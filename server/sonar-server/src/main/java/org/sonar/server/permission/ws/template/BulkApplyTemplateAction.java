@@ -70,15 +70,21 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     this.resourceTypes = resourceTypes;
   }
 
+  private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {
+    return new BulkApplyTemplateWsRequest()
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
+      .setQualifier(request.param(PARAM_QUALIFIER))
+      .setQuery(request.param(Param.TEXT_QUERY));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("bulk_apply_template")
       .setDescription("Apply a permission template to several projects.<br />" +
         "The template id or name must be provided.<br />" +
-        "Requires the following permission:" +
-        "<ul>" +
-        "  <li>'Administer System'</li>" +
-        "</ul>")
+        "Requires the following permission: 'Administer System'.")
       .setPost(true)
       .setSince("5.5")
       .setHandler(this);
@@ -118,14 +124,5 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     return qualifier == null
       ? Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()])
       : (new String[] {qualifier});
-  }
-
-  private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {
-    return new BulkApplyTemplateWsRequest()
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
-      .setQualifier(request.param(PARAM_QUALIFIER))
-      .setQuery(request.param(Param.TEXT_QUERY));
   }
 }

@@ -56,11 +56,22 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     this.system = system;
   }
 
+  private static AddProjectCreatorToTemplateWsRequest toWsRequest(Request request) {
+    AddProjectCreatorToTemplateWsRequest wsRequest = AddProjectCreatorToTemplateWsRequest.builder()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
+      .build();
+    validateProjectPermission(wsRequest.getPermission());
+    return wsRequest;
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("add_project_creator_to_template")
       .setDescription("Add a project creator to a permission template.<br>" +
-        "Requires the 'Administer' permission.")
+        "Requires the following permission: 'Administer System'.")
       .setSince("6.0")
       .setPost(true)
       .setHandler(this);
@@ -108,16 +119,5 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       .setWithProjectCreator(true);
     dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission);
     dbSession.commit();
-  }
-
-  private static AddProjectCreatorToTemplateWsRequest toWsRequest(Request request) {
-    AddProjectCreatorToTemplateWsRequest wsRequest = AddProjectCreatorToTemplateWsRequest.builder()
-      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
-      .build();
-    validateProjectPermission(wsRequest.getPermission());
-    return wsRequest;
   }
 }

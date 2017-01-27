@@ -76,7 +76,11 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search_project_permissions")
       .setDescription("List project permissions. A project can be a technical project, a view or a developer.<br />" +
-        "Requires 'Administer System' permission or 'Administer' rights on the specified project.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("search_project_permissions-example.json"))
       .setSince("5.2")
       .addPagingParams(25)

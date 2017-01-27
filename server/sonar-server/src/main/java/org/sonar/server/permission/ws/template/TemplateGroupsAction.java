@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.Multimap;
@@ -65,44 +66,6 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     this.support = support;
   }
 
-  @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("template_groups")
-      .setSince("5.2")
-      .setInternal(true)
-      .setDescription("Lists the groups with their permission as individual groups rather than through user affiliation on the chosen template.<br />" +
-        "This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>" +
-        "It requires administration permissions to access.")
-      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
-      .setResponseExample(getClass().getResource("template_groups-example.json"))
-      .setHandler(this);
-
-    action.createParam(TEXT_QUERY)
-      .setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
-        "When this parameter is not set, only group having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
-      .setExampleValue("eri");
-
-    createProjectPermissionParameter(action);
-    createTemplateParameters(action);
-  }
-
-  @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
-      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
-
-      PermissionQuery query = buildPermissionQuery(wsRequest);
-      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getId());
-      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
-      List<GroupDto> groups = findGroups(dbSession, query, template);
-      List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
-      WsPermissions.WsGroupsResponse groupsResponse = buildResponse(groups, groupPermissions, paging);
-      writeProtobuf(groupsResponse, wsRequest, wsResponse);
-    }
-  }
-
   private static PermissionQuery buildPermissionQuery(Request request) {
     String textQuery = request.param(TEXT_QUERY);
     String permission = request.param(PARAM_PERMISSION);
@@ -137,6 +100,44 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       .setPageSize(paging.pageSize())
       .setTotal(paging.total());
     return response.build();
+  }
+
+  @Override
+  public void define(WebService.NewController context) {
+    WebService.NewAction action = context.createAction("template_groups")
+      .setSince("5.2")
+      .setInternal(true)
+      .setDescription("Lists the groups with their permission as individual groups rather than through user affiliation on the chosen template.<br />" +
+        "This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>" +
+        "Requires the following permission: 'Administer System'.")
+      .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
+      .setResponseExample(getClass().getResource("template_groups-example.json"))
+      .setHandler(this);
+
+    action.createParam(TEXT_QUERY)
+      .setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
+        "When this parameter is not set, only group having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setExampleValue("eri");
+
+    createProjectPermissionParameter(action);
+    createTemplateParameters(action);
+  }
+
+  @Override
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
+      PermissionTemplateDto template = support.findTemplate(dbSession, templateRef);
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+
+      PermissionQuery query = buildPermissionQuery(wsRequest);
+      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getId());
+      Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
+      List<GroupDto> groups = findGroups(dbSession, query, template);
+      List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
+      WsPermissions.WsGroupsResponse groupsResponse = buildResponse(groups, groupPermissions, paging);
+      writeProtobuf(groupsResponse, wsRequest, wsResponse);
+    }
   }
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {

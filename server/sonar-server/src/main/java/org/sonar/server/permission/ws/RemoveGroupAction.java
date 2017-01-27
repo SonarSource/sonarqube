@@ -63,7 +63,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setDescription("Remove a permission from a group.<br /> " +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
         "The group id or group name must be provided, not both.<br />" +
-        "It requires administration permissions to access.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "</ul>")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

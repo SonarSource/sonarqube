@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
@@ -65,11 +66,24 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
+  private static UpdateTemplateWsRequest toUpdateTemplateWsRequest(Request request) {
+    return new UpdateTemplateWsRequest()
+      .setId(request.mandatoryParam(PARAM_ID))
+      .setName(request.param(PARAM_NAME))
+      .setDescription(request.param(PARAM_DESCRIPTION))
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
+  }
+
+  private static UpdateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplate) {
+    PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplate);
+    return UpdateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("update_template")
       .setDescription("Update a permission template.<br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setResponseExample(getClass().getResource("update_template-example.json"))
       .setSince("5.2")
       .setPost(true)
@@ -109,14 +123,6 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private static UpdateTemplateWsRequest toUpdateTemplateWsRequest(Request request) {
-    return new UpdateTemplateWsRequest()
-      .setId(request.mandatoryParam(PARAM_ID))
-      .setName(request.param(PARAM_NAME))
-      .setDescription(request.param(PARAM_DESCRIPTION))
-      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
-  }
-
   private void validateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
     validateTemplateNameForUpdate(dbSession, templateToUpdate.getOrganizationUuid(), templateToUpdate.getName(), templateToUpdate.getId());
     validateProjectPattern(templateToUpdate.getKeyPattern());
@@ -135,11 +141,6 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
   private PermissionTemplateDto updateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
     return dbClient.permissionTemplateDao().update(dbSession, templateToUpdate);
-  }
-
-  private static UpdateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplate) {
-    PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplate);
-    return UpdateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 
   private void validateTemplateNameForUpdate(DbSession dbSession, String organizationUuid, String name, long id) {

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import org.sonar.api.server.ws.Request;
@@ -53,11 +54,18 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
+  private static DeleteTemplateWsRequest toDeleteTemplateWsRequest(Request request) {
+    return new DeleteTemplateWsRequest()
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("delete_template")
       .setDescription("Delete a permission template.<br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -115,13 +123,6 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       .ifPresent(viewDefaultTemplateUuid -> checkRequest(
         !viewDefaultTemplateUuid.equals(template.getUuid()),
         "It is not possible to delete the default permission template for views"));
-  }
-
-  private static DeleteTemplateWsRequest toDeleteTemplateWsRequest(Request request) {
-    return new DeleteTemplateWsRequest()
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
 }

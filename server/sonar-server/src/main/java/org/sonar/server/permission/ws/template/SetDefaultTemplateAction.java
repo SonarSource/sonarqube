@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.permission.ws.template;
 
 import org.sonar.api.i18n.I18n;
@@ -63,11 +64,19 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     this.i18n = i18n;
   }
 
+  private static SetDefaultTemplateWsRequest toSetDefaultTemplateWsRequest(Request request) {
+    return new SetDefaultTemplateWsRequest()
+      .setQualifier(request.param(PARAM_QUALIFIER))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_default_template")
       .setDescription("Set a permission template as default.<br />" +
-        "It requires administration permissions to access.")
+        "Requires the following permission: 'Administer System'.")
       .setPost(true)
       .setSince("5.2")
       .setHandler(this);
@@ -92,14 +101,6 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       setDefaultTemplateUuid(dbSession, template, qualifier);
       dbSession.commit();
     }
-  }
-
-  private static SetDefaultTemplateWsRequest toSetDefaultTemplateWsRequest(Request request) {
-    return new SetDefaultTemplateWsRequest()
-      .setQualifier(request.param(PARAM_QUALIFIER))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   private PermissionTemplateDto findTemplate(DbSession dbSession, SetDefaultTemplateWsRequest request) {

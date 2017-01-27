@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws.template;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -57,11 +56,22 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     this.system = system;
   }
 
+  private static RemoveProjectCreatorFromTemplateWsRequest toWsRequest(Request request) {
+    RemoveProjectCreatorFromTemplateWsRequest wsRequest = RemoveProjectCreatorFromTemplateWsRequest.builder()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
+      .build();
+    validateProjectPermission(wsRequest.getPermission());
+    return wsRequest;
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("remove_project_creator_from_template")
       .setDescription("Remove a project creator from a permission template.<br>" +
-        "Requires the 'Administer' permission.")
+        "Requires the following permission: 'Administer System'.")
       .setSince("6.0")
       .setPost(true)
       .setHandler(this);
@@ -83,10 +93,8 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionTemplateCharacteristicDao dao = dbClient.permissionTemplateCharacteristicDao();
-      Optional<PermissionTemplateCharacteristicDto> templatePermission = dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
-      if (templatePermission.isPresent()) {
-        updateTemplateCharacteristic(dbSession, templatePermission.get());
-      }
+      dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId())
+        .ifPresent(permissionTemplateCharacteristicDto -> updateTemplateCharacteristic(dbSession, permissionTemplateCharacteristicDto));
     }
   }
 
@@ -96,16 +104,5 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
       .setWithProjectCreator(false);
     dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission);
     dbSession.commit();
-  }
-
-  private static RemoveProjectCreatorFromTemplateWsRequest toWsRequest(Request request) {
-    RemoveProjectCreatorFromTemplateWsRequest wsRequest = RemoveProjectCreatorFromTemplateWsRequest.builder()
-      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
-      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION_KEY))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
-      .build();
-    validateProjectPermission(wsRequest.getPermission());
-    return wsRequest;
   }
 }
