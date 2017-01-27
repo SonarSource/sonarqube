@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class DeleteAction implements UserGroupsWsAction {
     WebService.NewAction action = context.createAction("delete")
       .setDescription(format("Delete a group. The default groups cannot be deleted.<br/>" +
         "'%s' or '%s' must be provided.<br />" +
-        "Requires System Administrator permission.",
+        "Requires the following permission: 'Administer System'.",
         PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setSince("5.2")

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.usergroups.ws;
 
 import java.util.List;
@@ -55,10 +56,40 @@ public class UsersAction implements UserGroupsWsAction {
     this.support = support;
   }
 
+  private static void writeMembers(JsonWriter json, List<UserMembershipDto> users) {
+    json.name("users").beginArray();
+    for (UserMembershipDto user : users) {
+      json.beginObject()
+        .prop(FIELD_LOGIN, user.getLogin())
+        .prop(FIELD_NAME, user.getName())
+        .prop(FIELD_SELECTED, user.getGroupId() != null)
+        .endObject();
+    }
+    json.endArray();
+  }
+
+  private static void writePaging(JsonWriter json, Paging paging) {
+    json.prop(Param.PAGE, paging.pageIndex())
+      .prop(Param.PAGE_SIZE, paging.pageSize())
+      .prop("total", paging.total());
+  }
+
+  private static String getMembership(String selected) {
+    SelectionMode selectionMode = SelectionMode.fromParam(selected);
+    String membership = GroupMembershipQuery.ANY;
+    if (SelectionMode.SELECTED == selectionMode) {
+      membership = GroupMembershipQuery.IN;
+    } else if (SelectionMode.DESELECTED == selectionMode) {
+      membership = GroupMembershipQuery.OUT;
+    }
+    return membership;
+  }
+
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("users")
-      .setDescription("Search for users with membership information with respect to a group.")
+      .setDescription("Search for users with membership information with respect to a group.<br>" +
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("users-example.json"))
@@ -96,34 +127,5 @@ public class UsersAction implements UserGroupsWsAction {
       writePaging(json, paging);
       json.endObject().close();
     }
-  }
-
-  private static void writeMembers(JsonWriter json, List<UserMembershipDto> users) {
-    json.name("users").beginArray();
-    for (UserMembershipDto user : users) {
-      json.beginObject()
-        .prop(FIELD_LOGIN, user.getLogin())
-        .prop(FIELD_NAME, user.getName())
-        .prop(FIELD_SELECTED, user.getGroupId() != null)
-        .endObject();
-    }
-    json.endArray();
-  }
-
-  private static void writePaging(JsonWriter json, Paging paging) {
-    json.prop(Param.PAGE, paging.pageIndex())
-      .prop(Param.PAGE_SIZE, paging.pageSize())
-      .prop("total", paging.total());
-  }
-
-  private static String getMembership(String selected) {
-    SelectionMode selectionMode = SelectionMode.fromParam(selected);
-    String membership = GroupMembershipQuery.ANY;
-    if (SelectionMode.SELECTED == selectionMode) {
-      membership = GroupMembershipQuery.IN;
-    } else if (SelectionMode.DESELECTED == selectionMode) {
-      membership = GroupMembershipQuery.OUT;
-    }
-    return membership;
   }
 }

@@ -69,7 +69,8 @@ public class UpdateAction implements UserGroupsWsAction {
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("update")
-      .setDescription("Update a group.")
+      .setDescription("Update a group.<br>" +
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-update.json"))

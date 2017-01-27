@@ -65,10 +65,7 @@ public class SearchAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
-        "Requires the following permission:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "</ul>")
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")

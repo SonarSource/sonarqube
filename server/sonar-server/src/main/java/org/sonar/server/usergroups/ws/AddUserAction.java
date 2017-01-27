@@ -57,7 +57,8 @@ public class AddUserAction implements UserGroupsWsAction {
   public void define(NewController context) {
     NewAction action = context.createAction("add_user")
       .setDescription(format("Add a user to a group.<br />" +
-        "'%s' or '%s' must be provided", PARAM_GROUP_ID, PARAM_GROUP_NAME))
+        "'%s' or '%s' must be provided.<br />" +
+        "Requires the following permission: 'Administer System'.", PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2");

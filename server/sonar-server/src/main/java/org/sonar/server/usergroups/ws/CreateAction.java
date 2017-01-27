@@ -55,7 +55,8 @@ public class CreateAction implements UserGroupsWsAction {
   @Override
   public void define(NewController controller) {
     NewAction action = controller.createAction("create")
-      .setDescription("Create a group.")
+      .setDescription("Create a group.<br>" +
+        "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
