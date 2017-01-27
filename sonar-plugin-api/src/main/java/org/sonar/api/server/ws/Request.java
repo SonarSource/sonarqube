@@ -71,9 +71,7 @@ public abstract class Request {
    */
   public String mandatoryParam(String key) {
     String value = param(key);
-    if (value == null) {
-      throw new IllegalArgumentException(String.format(MSG_PARAMETER_MISSING, key));
-    }
+    checkArgument(value != null, String.format(MSG_PARAMETER_MISSING, key));
     return value;
   }
 

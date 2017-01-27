@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.property.ws.IndexAction;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
@@ -53,15 +54,15 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 
 /**
- * This filter is used to execute some deprecated Java WS, that were using REST
+ * This filter is used to execute deprecated api/properties WS, that were using REST
  */
-public class DeprecatedRestWebServiceFilter extends ServletFilter {
+public class DeprecatedPropertiesWsFilter extends ServletFilter {
 
   private static final Splitter VALUE_SPLITTER = Splitter.on(",").omitEmptyStrings();
 
   private final WebServiceEngine webServiceEngine;
 
-  public DeprecatedRestWebServiceFilter(WebServiceEngine webServiceEngine) {
+  public DeprecatedPropertiesWsFilter(WebServiceEngine webServiceEngine) {
     this.webServiceEngine = webServiceEngine;
   }
 
@@ -95,7 +96,7 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
 
     private final Response restResponse;
 
-    public RestServletRequest(HttpServletRequest request) {
+    RestServletRequest(HttpServletRequest request) {
       super(request);
       this.restResponse = new Response(request);
     }
@@ -142,17 +143,19 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
 
     void init() {
       String method = request.getMethod();
-      Optional<String> key = getKeyOrId();
+      Optional<String> id = getKeyOrId();
       switch (method) {
         case "POST":
         case "PUT":
-          handlePutAndPost(key, getValues(), getComponent());
+          failIfIdIsNull(id);
+          handlePutAndPost(id, getValues(), getComponent());
           break;
         case "DELETE":
-          handleDelete(key, getComponent());
+          failIfIdIsNull(id);
+          handleDelete(id, getComponent());
           break;
         default:
-          handleGet(key, getComponent());
+          handleGet(id, getComponent());
       }
     }
 
@@ -245,6 +248,9 @@ public class DeprecatedRestWebServiceFilter extends ServletFilter {
       value.ifPresent(s -> additionalParams.put(parameterKey, s));
     }
 
+    private static void failIfIdIsNull(Optional<String> id) {
+      checkArgument(id.isPresent(), "The 'id' parameter is missing");
+    }
   }
 
 }

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DeprecatedRestWebServiceFilterTest {
+public class DeprecatedPropertiesWsFilterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -53,7 +53,7 @@ public class DeprecatedRestWebServiceFilterTest {
   private FilterChain chain = mock(FilterChain.class);
   private ArgumentCaptor<ServletRequest> servletRequestCaptor = ArgumentCaptor.forClass(ServletRequest.class);
 
-  private DeprecatedRestWebServiceFilter underTest = new DeprecatedRestWebServiceFilter(webServiceEngine);
+  private DeprecatedPropertiesWsFilter underTest = new DeprecatedPropertiesWsFilter(webServiceEngine);
 
   @Before
   public void setUp() throws Exception {
@@ -262,6 +262,36 @@ public class DeprecatedRestWebServiceFilterTest {
     assertParam("keys", "my.property");
     assertParam("component", "my_project");
     assertNoParam("value", "values");
+  }
+
+  @Test
+  public void fail_to_redirect_put_api_properties_when_no_id() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties/");
+    when(request.getMethod()).thenReturn("PUT");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'id' parameter is missing");
+    underTest.doFilter(request, response, chain);
+  }
+
+  @Test
+  public void fail_to_redirect_post_api_properties_when_no_id() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties/");
+    when(request.getMethod()).thenReturn("POST");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'id' parameter is missing");
+    underTest.doFilter(request, response, chain);
+  }
+
+  @Test
+  public void fail_to_redirect_delete_api_properties_when_no_id() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/properties");
+    when(request.getMethod()).thenReturn("DELETE");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'id' parameter is missing");
+    underTest.doFilter(request, response, chain);
   }
 
   private void assertRedirection(String path, String method) {

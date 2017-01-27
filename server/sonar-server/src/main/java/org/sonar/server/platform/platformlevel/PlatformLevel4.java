@@ -211,7 +211,7 @@ import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
-import org.sonar.server.ws.DeprecatedRestWebServiceFilter;
+import org.sonar.server.ws.DeprecatedPropertiesWsFilter;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.WebServiceFilter;
 import org.sonar.server.ws.WebServicesWs;
@@ -325,7 +325,7 @@ public class PlatformLevel4 extends PlatformLevel {
       WebServiceEngine.class,
       WebServicesWs.class,
       WebServiceFilter.class,
-      DeprecatedRestWebServiceFilter.class,
+      DeprecatedPropertiesWsFilter.class,
 
       // localization
       L10nWs.class,
