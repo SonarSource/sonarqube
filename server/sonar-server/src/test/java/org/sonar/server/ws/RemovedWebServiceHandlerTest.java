@@ -44,7 +44,7 @@ public class RemovedWebServiceHandlerTest {
       RemovedWebServiceHandler.INSTANCE.handle(request, null);
       fail();
     } catch (ServerException e) {
-      assertThat(e.getMessage()).isEqualTo("The web service '/api/resources/index' doesn't exists anymore, please read its documentation to use alternatives");
+      assertThat(e.getMessage()).isEqualTo("The web service '/api/resources/index' doesn't exist anymore, please read its documentation to use alternatives");
       assertThat(e.httpCode()).isEqualTo(410);
     }
   }
