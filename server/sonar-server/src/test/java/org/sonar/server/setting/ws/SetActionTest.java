@@ -375,6 +375,14 @@ public class SetActionTest {
   }
 
   @Test
+  public void persist_global_setting_with_non_ascii_characters() {
+    callForGlobalSetting("my.key", "ﬁ±∞…");
+
+    assertGlobalSetting("my.key", "ﬁ±∞…");
+    assertThat(settingsChangeNotifier.wasCalled).isTrue();
+  }
+
+  @Test
   public void fail_when_no_key() {
     expectedException.expect(IllegalArgumentException.class);
 

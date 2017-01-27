@@ -353,7 +353,7 @@ public class DeprecatedPropertiesWsTest {
       .url(url));
   }
 
-  public static Response call(Request.Builder requestBuilder) {
+  private static Response call(Request.Builder requestBuilder) {
     try {
       requestBuilder.header("Authorization", Credentials.basic("admin", "admin"));
       Response response = new OkHttpClient.Builder()

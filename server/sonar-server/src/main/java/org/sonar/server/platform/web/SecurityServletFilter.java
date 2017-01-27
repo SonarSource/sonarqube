@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * This servlet filter sets response headers that enable browser protection against several classes if Web attacks.
- * The list of headers is mirrored in environment.rb as a workaround to Rack swallowing the headers..
  */
 public class SecurityServletFilter implements Filter {
 

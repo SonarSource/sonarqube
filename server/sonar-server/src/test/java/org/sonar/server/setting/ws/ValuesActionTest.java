@@ -723,6 +723,19 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_simple_value_with_non_ascii_characters() throws Exception {
+    setAuthenticatedUser();
+    definitions.addComponent(PropertyDefinition
+      .builder("foo")
+      .build());
+    propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("ﬁ±∞…"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties("foo");
+
+    assertThat(result.getSettings(0).getValue()).isEqualTo("ﬁ±∞…");
+  }
+
+  @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
     userSession.login("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
     definitions.addComponent(PropertyDefinition.builder("foo").build());
