@@ -71,7 +71,8 @@ public class AppAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("app")
-      .setDescription("Coverage data required for rendering the component viewer")
+      .setDescription("Coverage data required for rendering the component viewer.<br>" +
+        "Requires the following permission: 'Browse'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.4")
       .setInternal(true)

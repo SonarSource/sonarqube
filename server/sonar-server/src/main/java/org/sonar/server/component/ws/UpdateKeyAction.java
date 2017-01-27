@@ -57,7 +57,8 @@ public class UpdateKeyAction implements ComponentsWsAction {
         "<ul>" +
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
-        "</ul>", PARAM_ID, PARAM_KEY)
+        "</ul>",
+        PARAM_ID, PARAM_KEY)
       .setSince("6.1")
       .setPost(true)
       .setHandler(this);

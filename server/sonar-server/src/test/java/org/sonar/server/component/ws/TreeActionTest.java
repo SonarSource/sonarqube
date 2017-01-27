@@ -89,6 +89,7 @@ public class TreeActionTest {
 
   @Before
   public void setUp() {
+    userSession.login().setRoot();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient), resourceTypes, userSession, Mockito.mock(I18n.class)));
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
@@ -98,6 +99,7 @@ public class TreeActionTest {
   @Test
   public void json_example() throws IOException {
     ComponentDto project = initJsonExampleComponents();
+    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     String response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())

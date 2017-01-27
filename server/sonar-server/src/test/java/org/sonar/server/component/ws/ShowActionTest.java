@@ -56,8 +56,7 @@ public class ShowActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone()
-    .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -75,17 +74,6 @@ public class ShowActionTest {
       .getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("show-example.json"));
-  }
-
-  @Test
-  public void show_by_key_with_project_permission() {
-    userSession.anonymous().login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
-
-    ShowWsResponse response = newRequest(null, "project-key");
-
-    assertThat(response.getAncestorsCount()).isEqualTo(0);
-    assertThat(response.getComponent().getKey()).isEqualTo("project-key");
   }
 
   @Test

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.component.ws;
 
 import java.util.List;
@@ -24,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -39,7 +39,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
@@ -57,18 +56,33 @@ public class ShowAction implements ComponentsWsAction {
     this.componentFinder = componentFinder;
   }
 
+  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors) {
+    ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
+    response.setComponent(componentDtoToWsComponent(component, organizationDto));
+
+    // ancestors are ordered from root to leaf, whereas it's the opposite
+    // in WS response
+    for (int i = orderedAncestors.size() - 1; i >= 0; i--) {
+      ComponentDto ancestor = orderedAncestors.get(i);
+      response.addAncestors(componentDtoToWsComponent(ancestor, organizationDto));
+    }
+
+    return response.build();
+  }
+
+  private static ShowWsRequest toShowWsRequest(Request request) {
+    return new ShowWsRequest()
+      .setId(request.param(PARAM_ID))
+      .setKey(request.param(PARAM_KEY));
+  }
+
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SHOW)
       .setDescription(format("Returns a component (file, directory, project, view…) and its ancestors. " +
-          "The ancestors are ordered from the parent to the root project. " +
-          "The '%s' or '%s' must be provided.<br>" +
-          "Requires one of the following permissions:" +
-          "<ul>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified project</li>" +
-          "<li>'Browse' on the specified project</li>" +
-          "</ul>",
+        "The ancestors are ordered from the parent to the root project. " +
+        "The '%s' or '%s' must be provided.<br>" +
+        "Requires the following permission: 'Browse' on the project of the specified component.",
         PARAM_ID, PARAM_KEY))
       .setResponseExample(getClass().getResource("show-example.json"))
       .setSince("5.4")
@@ -103,34 +117,10 @@ public class ShowAction implements ComponentsWsAction {
     }
   }
 
-  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors) {
-    ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(componentDtoToWsComponent(component, organizationDto));
-
-    // ancestors are ordered from root to leaf, whereas it's the opposite
-    // in WS response
-    for (int i = orderedAncestors.size() - 1; i >= 0; i--) {
-      ComponentDto ancestor = orderedAncestors.get(i);
-      response.addAncestors(componentDtoToWsComponent(ancestor, organizationDto));
-    }
-
-    return response.build();
-  }
-
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {
     ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
     String projectUuid = firstNonNull(component.projectUuid(), component.uuid());
-    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
-      throw insufficientPrivilegesException();
-    }
+    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
     return component;
-  }
-
-  private static ShowWsRequest toShowWsRequest(Request request) {
-    return new ShowWsRequest()
-      .setId(request.param(PARAM_ID))
-      .setKey(request.param(PARAM_KEY));
   }
 }

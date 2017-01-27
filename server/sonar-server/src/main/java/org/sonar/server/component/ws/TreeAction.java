@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -28,6 +27,7 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.i18n.I18n;
@@ -38,7 +38,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -63,10 +63,9 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
@@ -110,12 +109,7 @@ public class TreeAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "<li>'Browse' on the specified project</li>" +
-        "</ul>" +
+        "Requires the following permission: 'Browse' on the specified project.<br>" +
         "When limiting search with the %s parameter, directories are not returned.",
         PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY, Param.TEXT_QUERY))
       .setSince("5.4")
@@ -182,25 +176,21 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private Map<String, ComponentDto> searchReferenceComponentsByUuid(DbSession dbSession, List<ComponentDto> components) {
-    List<String> referenceComponentIds = from(components)
-      .transform(ComponentDto::getCopyResourceUuid)
-      .filter(Predicates.notNull())
-      .toList();
+    List<String> referenceComponentIds = components.stream()
+      .map(ComponentDto::getCopyResourceUuid)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
 
-    return from(dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds))
-      .uniqueIndex(ComponentDto::uuid);
+    return dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds).stream()
+      .collect(Collectors.uniqueIndex(ComponentDto::uuid));
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
     String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
-      throw insufficientPrivilegesException();
-    }
+    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
   }
 
   private static TreeWsResponse buildResponse(ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components,

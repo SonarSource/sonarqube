@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ce.ws;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public class ComponentAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
-        "Requires the following permission: 'Browse' on the project of the specified component.<br>" +
+        "Requires the following permission: 'Browse' on the specified component.<br>" +
         "Either '%s' or '%s' must be provided, not both.<br>" +
         "Since 6.1, field \"logs\" is deprecated and its value is always false.",
         PARAM_COMPONENT_ID, PARAM_COMPONENT_KEY)
