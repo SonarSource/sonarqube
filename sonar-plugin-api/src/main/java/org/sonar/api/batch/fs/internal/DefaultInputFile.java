@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.TextRange;
 
 /**
  * @since 4.2
+ * To create {@link InputFile} in tests, use {@link TestInputFileBuilder}.
  */
 public class DefaultInputFile extends DefaultInputComponent implements InputFile {
   private final DefaultIndexedFile indexedFile;

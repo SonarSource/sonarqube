@@ -26,22 +26,22 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
- * For unit testing purpose you can create some {@link DefaultInputFile} and initialize
- * all fields using 
+ * For unit testing purpose, use {@link TestInputFileBuilder} and initialize
+ * the needed fields:
  * 
  * <pre>
- *   new DefaultInputFile("moduleKey", "relative/path/from/module/baseDir.java")
+ *   new TestInputFileBuilder("moduleKey", "relative/path/from/module/baseDir.java")
  *     .setModuleBaseDir(path)
- *     .initMetadata(new FileMetadata().readMetadata(someReader));
+ *     .build();
  * </pre>
  *
  * @since 4.2
  */
-public interface InputFile extends IndexedFile, InputPath {
+public interface InputFile extends IndexedFile {
 
   enum Type {
     MAIN, TEST
