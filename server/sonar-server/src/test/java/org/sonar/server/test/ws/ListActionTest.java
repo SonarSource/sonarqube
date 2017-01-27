@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -72,7 +71,7 @@ public class ListActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
 
   private DbClient dbClient = db.getDbClient();
 
@@ -93,7 +92,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_test() throws Exception {
+  public void list_tests() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     DbFileSources.Test test = newTest(mainFile, 10, 11, 12, 20, 21, 25).setStatus(OK).build();
     insertTests(testFile, test);
@@ -115,7 +114,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_tests_based_on_test_uuid() throws Exception {
+  public void list_tests_by_test_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
     DbFileSources.Test test2 = newTest(mainFile, 11).build();
@@ -127,7 +126,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_tests_based_on_test_file_uuid() throws Exception {
+  public void list_tests_by_test_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
@@ -142,8 +141,8 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_tests_based_on_test_file_key() throws Exception {
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, project.key(), testFile.key());
+  public void list_tests_by_test_file_key() throws Exception {
+    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
     DbFileSources.Test test2 = newTest(mainFile, 11).build();
@@ -157,7 +156,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_tests_based_on_source_file_uuid_and_line_number() throws Exception {
+  public void list_tests_by_source_file_uuid_and_line_number() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
@@ -172,7 +171,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_tests_based_on_source_file_key_and_line_number() throws Exception {
+  public void list_tests_by_source_file_key_and_line_number() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
@@ -187,7 +186,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void return_pagination() throws Exception {
+  public void tests_are_paginated() throws Exception {
     userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
     insertTests(testFile, newTest(mainFile, 10).build(), newTest(mainFile, 11).build(), newTest(mainFile, 12).build());
 
@@ -253,13 +252,32 @@ public class ListActionTest {
 
   @Test
   public void fail_when_test_uuid_is_unknown() throws Exception {
-    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
-    DbFileSources.Test test = newTest(mainFile, 10).build();
-    insertTests(testFile, test);
-
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Test with id 'unknown-test-uuid' is not found");
-    call(ws.newRequest().setParam(TEST_ID, "unknown-test-uuid"));
+    call(ws.newRequest().setParam(TEST_ID, "unknown"));
+  }
+
+  @Test
+  public void fail_when_test_file_id_is_unknown() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    call(ws.newRequest().setParam(TEST_FILE_ID, "unknown"));
+  }
+
+  @Test
+  public void fail_when_test_file_key_is_unknown() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    call(ws.newRequest().setParam(TEST_FILE_ID, "unknown"));
+  }
+
+  @Test
+  public void fail_when_source_file_id_is_unknown() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    call(ws.newRequest().setParam(SOURCE_FILE_ID, "unknown").setParam(SOURCE_FILE_LINE_NUMBER, "10"));
+  }
+
+  @Test
+  public void fail_when_source_file_key_is_unknown() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    call(ws.newRequest().setParam(SOURCE_FILE_KEY, "unknown").setParam(SOURCE_FILE_LINE_NUMBER, "10"));
   }
 
   private void insertTests(ComponentDto testFile, DbFileSources.Test... tests) {

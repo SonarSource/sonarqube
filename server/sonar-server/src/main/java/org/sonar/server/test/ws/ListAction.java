@@ -227,9 +227,8 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTestsByTestFileKey(DbSession dbSession, String testFileKey, SearchOptions searchOptions) {
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, testFileKey);
     ComponentDto testFile = componentFinder.getByKey(dbSession, testFileKey);
-
+    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, testFile.projectUuid());
     return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
   }
 
@@ -245,7 +244,7 @@ public class ListAction implements TestsWsAction {
   }
 
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
-    ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, componentUuid);
+    ComponentDto component = componentFinder.getByUuid(dbSession, componentUuid);
     userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
   }
 
