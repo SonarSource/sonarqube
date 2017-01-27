@@ -219,6 +219,17 @@ public class PermissionIndexerTest {
     assertThat(esTester.countDocuments(FooIndexDefinition.FOO_INDEX, AuthorizationTypeSupport.TYPE_AUTHORIZATION)).isEqualTo(0);
   }
 
+  @Test
+  public void projects_without_any_permission_are_not_returned() {
+    ComponentDto project = createAndIndexProject();
+    UserDto user1 = userDbTester.insertUser();
+
+    underTest.indexAllIfEmpty();
+
+    verifyAnonymousNotAuthorized(project);
+    verifyNotAuthorized(project, user1);
+  }
+
   private void verifyAuthorized(ComponentDto project, UserDto user) {
     logIn(user);
     verifyAuthorized(project, true);
