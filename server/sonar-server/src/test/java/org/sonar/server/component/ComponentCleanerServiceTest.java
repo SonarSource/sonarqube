@@ -64,7 +64,7 @@ public class ComponentCleanerServiceTest {
   private DbSession dbSession = db.getSession();
   private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
   private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
-  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, mockResourceTypes, new ProjectIndexer[] {projectIndexer});
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, mockResourceTypes, projectIndexer);
 
   @Test
   public void delete_project_from_db_and_index() {

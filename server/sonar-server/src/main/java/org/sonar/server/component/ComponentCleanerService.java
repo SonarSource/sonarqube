@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.ResourceType;
@@ -38,9 +39,9 @@ public class ComponentCleanerService {
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
-  private final List<ProjectIndexer> projectIndexers;
+  private final Collection<ProjectIndexer> projectIndexers;
 
-  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexer[] projectIndexers) {
+  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexer... projectIndexers) {
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.projectIndexers = asList(projectIndexers);

@@ -59,7 +59,7 @@ public class ComponentServiceUpdateKeyTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
-  private ComponentService underTest = new ComponentService(dbClient, userSession, new ProjectIndexer[] {projectIndexer});
+  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexer);
 
   @Test
   public void update_project_key() {

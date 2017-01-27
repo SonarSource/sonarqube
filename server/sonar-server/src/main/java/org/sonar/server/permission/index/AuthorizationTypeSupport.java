@@ -31,7 +31,6 @@ import org.sonar.server.es.NewIndex;
 import org.sonar.server.user.UserSession;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 @ServerSide
@@ -42,6 +41,13 @@ public class AuthorizationTypeSupport {
   public static final String FIELD_GROUP_NAMES = "groupNames";
   public static final String FIELD_USER_LOGINS = "users";
   public static final String FIELD_UPDATED_AT = "updatedAt";
+
+  /**
+   * When true, then anybody can access to the project. In that case
+   * it's useless to store granted groups and users. The related
+   * fields are empty.
+   */
+  public static final String FIELD_ALLOW_ANYONE = "allowAnyone";
 
   private final UserSession userSession;
 
@@ -69,6 +75,7 @@ public class AuthorizationTypeSupport {
     authType.createDateTimeField(FIELD_UPDATED_AT);
     authType.stringFieldBuilder(FIELD_GROUP_NAMES).disableNorms().build();
     authType.stringFieldBuilder(FIELD_USER_LOGINS).disableNorms().build();
+    authType.createBooleanField(FIELD_ALLOW_ANYONE);
     authType.setEnableSource(false);
     return type;
   }
@@ -80,16 +87,21 @@ public class AuthorizationTypeSupport {
   public QueryBuilder createQueryFilter() {
     Integer userLogin = userSession.getUserId();
     Set<String> userGroupNames = userSession.getUserGroups();
-    BoolQueryBuilder groupsAndUser = boolQuery();
+    BoolQueryBuilder filter = boolQuery();
 
+    // anyone
+    filter.should(QueryBuilders.termQuery(FIELD_ALLOW_ANYONE, true));
+
+    // users
     Optional.ofNullable(userLogin)
       .map(Integer::longValue)
-      .ifPresent(userId -> groupsAndUser.should(termQuery(FIELD_USER_LOGINS, userId)));
+      .ifPresent(userId -> filter.should(termQuery(FIELD_USER_LOGINS, userId)));
 
-    userGroupNames
-      .forEach(group -> groupsAndUser.should(termQuery(FIELD_GROUP_NAMES, group)));
+    // groups
+    userGroupNames.forEach(
+      group -> filter.should(termQuery(FIELD_GROUP_NAMES, group)));
 
     return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
-      QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
+      QueryBuilders.boolQuery().filter(filter));
   }
 }

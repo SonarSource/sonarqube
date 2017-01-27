@@ -53,7 +53,7 @@ public class ComponentServiceTest {
   private DbSession dbSession = dbTester.getSession();
   private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
 
-  private ComponentService underTest = new ComponentService(dbClient, userSession, new ProjectIndexer[] {projectIndexer});
+  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexer);
 
   @Test
   public void should_fail_silently_on_components_not_found_if_told_so() {
