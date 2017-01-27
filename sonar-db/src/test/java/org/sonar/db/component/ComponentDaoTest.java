@@ -523,49 +523,74 @@ public class ComponentDaoTest {
 
   @Test
   public void select_projects() {
-    db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto provisionedProject = db.components().insertProject();
+    ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {});
+    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
-    List<ComponentDto> result = underTest.selectProjects(dbSession);
-
-    assertThat(result).extracting("id").containsOnly(42L, 1L);
+    assertThat(underTest.selectProjects(dbSession))
+        .extracting(ComponentDto::uuid)
+        .containsOnly(provisionedProject.uuid(), projectUuid);
   }
 
   @Test
   public void select_provisioned() {
-    db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto provisionedProject = db.components().insertComponent(newProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
+    ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {});
+    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
-    assertProvisionedKeys(null, projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid());
 
     // pagination
-    assertProvisionedKeys(null, projectQualifiers, 2, 10).isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, projectQualifiers, new RowBounds(2, 10)))
+      .isEmpty();
 
     // filter on qualifiers
-    assertProvisionedKeys(null, newHashSet("XXX"), 0, 10).isEmpty();
-    assertProvisionedKeys(null, newHashSet(Qualifiers.PROJECT, "XXX"), 0, 10).containsExactly("org.provisioned.project");
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet("XXX"), new RowBounds(0, 10)))
+      .isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT, "XXX"), new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid());
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT, Qualifiers.VIEW), new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(provisionedProject.uuid(), provisionedView.uuid());
 
     // match key
-    assertProvisionedKeys("org.provisioned.project", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
-    assertProvisionedKeys("ORG.provisioned.PROJECT", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
-    assertProvisionedKeys("missing", projectQualifiers, 0, 10).isEmpty();
-    assertProvisionedKeys("to be escaped '\"\\%", projectQualifiers, 0, 10).isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), provisionedProject.getKey(), projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "pROvisiONed.proJEcT", projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "missing", projectQualifiers, new RowBounds(0, 10)))
+      .isEmpty();
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "to be escaped '\"\\%", projectQualifiers, new RowBounds(0, 10)))
+      .isEmpty();
 
     // match name
-    assertProvisionedKeys("ned proj", projectQualifiers, 0, 10).containsExactly("org.provisioned.project");
-  }
-
-  private ListAssert<String> assertProvisionedKeys(@Nullable String textQuery, Set<String> qualifiers, int offset, int limit) {
-    List<ComponentDto> result = underTest.selectProvisioned(dbSession, textQuery, qualifiers, new RowBounds(offset, limit));
-    return assertThat(result).extracting(ComponentDto::getKey);
+    assertThat(underTest.selectProvisioned(dbSession, organization.getUuid(), "ned proj", projectQualifiers, new RowBounds(0, 10)))
+      .extracting(ComponentDto::uuid)
+      .containsExactly(provisionedProject.uuid());
   }
 
   @Test
   public void count_provisioned() {
-    db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
+    OrganizationDto organization = db.organizations().insert();
+    db.components().insertProject(organization);
+    db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization));
+    db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
 
-    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.PROJECT))).isEqualTo(1);
-    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.VIEW))).isEqualTo(0);
-    assertThat(underTest.countProvisioned(dbSession, null, newHashSet(Qualifiers.VIEW, Qualifiers.PROJECT))).isEqualTo(1);
+    assertThat(underTest.countProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT))).isEqualTo(1);
+    assertThat(underTest.countProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.VIEW))).isEqualTo(0);
+    assertThat(underTest.countProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.VIEW, Qualifiers.PROJECT))).isEqualTo(1);
   }
 
   @Test

@@ -117,9 +117,10 @@ public interface ComponentMapper {
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
 
-  List<ComponentDto> selectProvisioned(@Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers, RowBounds rowBounds);
+  List<ComponentDto> selectProvisioned(@Param("organizationUuid") String organizationUuid, @Nullable @Param("keyOrNameLike") String keyOrNameLike,
+    @Param("qualifiers") Set<String> qualifiers, RowBounds rowBounds);
 
-  int countProvisioned(@Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers);
+  int countProvisioned(@Param("organizationUuid") String organizationUuid, @Nullable @Param("keyOrNameLike") String keyOrNameLike, @Param("qualifiers") Set<String> qualifiers);
 
   List<ComponentDto> selectGhostProjects(Map<String, Object> parameters, RowBounds rowBounds);
 

@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -199,6 +200,11 @@ public class UserSessionRule implements TestRule, UserSession {
 
   public UserSessionRule addOrganizationPermission(String organizationUuid, String permission) {
     ensureAbstractMockUserSession().addOrganizationPermission(organizationUuid, permission);
+    return this;
+  }
+
+  public UserSessionRule addOrganizationPermission(OrganizationDto organizationDto, String permission) {
+    ensureAbstractMockUserSession().addOrganizationPermission(organizationDto.getUuid(), permission);
     return this;
   }
 

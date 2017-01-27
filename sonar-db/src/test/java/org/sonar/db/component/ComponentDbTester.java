@@ -94,6 +94,10 @@ public class ComponentDbTester {
     return insertComponentImpl(newView(db.getDefaultOrganization()), dtoPopulator);
   }
 
+  public ComponentDto insertView(OrganizationDto organizationDto) {
+    return insertComponentImpl(newView(organizationDto), dto -> {});
+  }
+
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
     return insertComponentImpl(newView(organizationDto), dtoPopulator);
   }

@@ -24,83 +24,118 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
-import org.sonar.test.JsonAssert;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProvisionedActionTest {
 
+  private static final String PARAM_ORGANIZATION = "organization";
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
-  private ComponentDao componentDao = dbClient.componentDao();
-  private WsTester ws = new WsTester(new ProjectsWs(new ProvisionedAction(dbClient, userSessionRule)));
+  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(dbClient, userSessionRule, defaultOrganizationProvider));
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = underTest.getDef();
+
+    assertThat(action.description()).isEqualTo("Get the list of provisioned projects.<br /> " +
+      "Require 'Create Projects' permission.");
+    assertThat(action.since()).isEqualTo("5.2");
+
+    assertThat(action.params()).hasSize(5);
+
+    Param organization = action.param(PARAM_ORGANIZATION);
+    assertThat(organization.description()).isEqualTo("The key of the organization");
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.since()).isEqualTo("6.3");
+  }
 
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto analyzedProject = ComponentTesting.newProjectDto(organizationDto, "analyzed-uuid-1");
-    componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"), analyzedProject);
-    SnapshotDto snapshot = SnapshotTesting.newAnalysis(analyzedProject);
-    dbClient.snapshotDao().insert(db.getSession(), snapshot);
-    db.getSession().commit();
+    db.components().insertComponents(newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"), analyzedProject);
+    db.components().insertSnapshot(SnapshotTesting.newAnalysis(analyzedProject));
+    userSessionRule.login().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
+    TestResponse result = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .execute();
 
-    result.assertJson(getClass(), "all-projects.json");
-    assertThat(result.outputAsString()).doesNotContain("analyzed-uuid-1");
+    String json = result.getInput();
+    assertJson(json)
+      .isSimilarTo("{" +
+        "  \"projects\":[" +
+        "    {" +
+        "      \"uuid\":\"provisioned-uuid-1\"," +
+        "      \"key\":\"provisioned-key-1\"," +
+        "      \"name\":\"provisioned-name-1\"" +
+        "    }," +
+        "    {" +
+        "      \"uuid\":\"provisioned-uuid-2\"," +
+        "      \"key\":\"provisioned-key-2\"," +
+        "      \"name\":\"provisioned-name-2\"" +
+        "    }" +
+        "  ]" +
+        "}");
+    assertThat(json).doesNotContain("analyzed-uuid-1");
   }
 
   @Test
   public void provisioned_projects_with_correct_pagination() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 1; i <= 10; i++) {
-      componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, String.valueOf(i)));
+      db.components().insertComponent(newProvisionedProject(organizationDto, String.valueOf(i)));
     }
-    db.getSession().commit();
+    userSessionRule.login().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
 
-    WsTester.TestRequest request = ws.newGetRequest("api/projects", "provisioned")
+    TestRequest request = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4");
 
-    String jsonOutput = request.execute().outputAsString();
+    String jsonOutput = request.execute().getInput();
 
     assertThat(StringUtils.countMatches(jsonOutput, "provisioned-uuid-")).isEqualTo(2);
   }
 
   @Test
   public void provisioned_projects_with_desired_fields() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    componentDao.insert(db.getSession(), newProvisionedProject(db.organizations().insert(), "1"));
-    db.getSession().commit();
+    OrganizationDto organization = db.organizations().insert();
+    db.components().insertComponent(newProvisionedProject(organization, "1"));
+    userSessionRule.login().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
 
-    String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
+    String jsonOutput = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(Param.FIELDS, "key")
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(jsonOutput).contains("uuid", "key")
       .doesNotContain("name")
@@ -109,14 +144,14 @@ public class ProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_query() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    OrganizationDto organizationDto = db.organizations().insert();
-    componentDao.insert(db.getSession(), newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"));
-    db.getSession().commit();
+    OrganizationDto organization = db.organizations().insert();
+    db.components().insertComponents(newProvisionedProject(organization, "1"), newProvisionedProject(organization, "2"));
+    userSessionRule.login().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
 
-    String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
+    String jsonOutput = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(Param.TEXT_QUERY, "PROVISIONED-name-2")
-      .execute().outputAsString();
+      .execute().getInput();
 
     assertThat(jsonOutput)
       .contains("provisioned-name-2", "provisioned-uuid-2")
@@ -125,7 +160,6 @@ public class ProvisionedActionTest {
 
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto hBaseProject = ComponentTesting.newProjectDto(organizationDto, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
@@ -135,21 +169,26 @@ public class ProvisionedActionTest {
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
-    componentDao.insert(db.getSession(), hBaseProject, roslynProject);
-    db.getSession().commit();
+    db.components().insertComponents(hBaseProject, roslynProject);
+    userSessionRule.login().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.PROVISIONING);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
+    TestResponse result = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .execute();
 
-    JsonAssert.assertJson(result.outputAsString()).isSimilarTo(Resources.getResource(getClass(), "projects-example-provisioned.json"));
+    assertJson(result.getInput())
+      .isSimilarTo(Resources.getResource(getClass(), "projects-example-provisioned.json"));
   }
 
   @Test
   public void fail_when_not_enough_privileges() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    componentDao.insert(db.getSession(), newProvisionedProject(db.organizations().insert(), "1"));
+    OrganizationDto organizationDto = db.organizations().insert();
+    db.components().insertComponent(newProvisionedProject(organizationDto, "1"));
+    userSessionRule.login().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.SCAN_EXECUTION);
 
-    ws.newGetRequest("api/projects", "provisioned").execute();
+    expectedException.expect(ForbiddenException.class);
+
+    underTest.newRequest().execute();
   }
 
   private static ComponentDto newProvisionedProject(OrganizationDto organizationDto, String uuid) {

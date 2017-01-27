@@ -34,29 +34,35 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ProvisionedAction implements ProjectsWsAction {
 
+  private static final String PARAM_ORGANIZATION = "organization";
   private static final Set<String> QUALIFIERS_FILTER = newHashSet(Qualifiers.PROJECT);
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public ProvisionedAction(DbClient dbClient, UserSession userSession) {
+  public ProvisionedAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller
-      .createAction("provisioned")
+    WebService.NewAction action = controller.createAction("provisioned");
+    action
       .setDescription(
         "Get the list of provisioned projects.<br /> " +
           "Require 'Create Projects' permission.")
@@ -66,27 +72,44 @@ public class ProvisionedAction implements ProjectsWsAction {
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
+
+    action.createParam(PARAM_ORGANIZATION)
+      .setDescription("The key of the organization")
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.3");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.PROVISIONING);
+    userSession.checkLoggedIn();
+
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
-      request.mandatoryParamAsInt(Param.PAGE_SIZE)
-    );
+      request.mandatoryParamAsInt(Param.PAGE_SIZE));
     Set<String> desiredFields = desiredFields(request);
     String query = request.param(Param.TEXT_QUERY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = getOrganization(dbSession, request);
+      userSession.checkOrganizationPermission(organization.getUuid(), GlobalPermissions.PROVISIONING);
+
       RowBounds rowBounds = new RowBounds(options.getOffset(), options.getLimit());
-      List<ComponentDto> projects = dbClient.componentDao().selectProvisioned(dbSession, query, QUALIFIERS_FILTER, rowBounds);
-      int nbOfProjects = dbClient.componentDao().countProvisioned(dbSession, query, QUALIFIERS_FILTER);
+      List<ComponentDto> projects = dbClient.componentDao().selectProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER, rowBounds);
+      int nbOfProjects = dbClient.componentDao().countProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER);
       JsonWriter json = response.newJsonWriter().beginObject();
       writeProjects(projects, json, desiredFields);
       options.writeJson(json, nbOfProjects);
       json.endObject().close();
     }
+  }
+
+  private OrganizationDto getOrganization(DbSession dbSession, Request request) {
+    String organizationKey = request.getParam(PARAM_ORGANIZATION)
+      .or(defaultOrganizationProvider.get()::getKey);
+    return checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+      "No organization for key '%s'", organizationKey);
   }
 
   private static void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {
