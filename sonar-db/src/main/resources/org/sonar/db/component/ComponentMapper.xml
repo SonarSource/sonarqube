@@ -251,6 +251,9 @@
     where
       p.enabled=${_true}
       AND p.copy_component_uuid is null
+      <if test="organizationUuid!=null">
+        and p.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+      </if>
       <if test="query.qualifiers!=null">
       AND p.qualifier in
         <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">

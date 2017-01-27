@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndex;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -52,7 +53,7 @@ public class ComponentsWsTest {
     WsTester tester = new WsTester(new ComponentsWs(
       new AppAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
       new SuggestionsAction(mock(DbClient.class), mock(ComponentIndex.class)),
-      new SearchAction(mock(DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages)));
+      new SearchAction(mock(DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages, TestDefaultOrganizationProvider.fromUuid("foo"))));
     controller = tester.controller("api/components");
   }
 

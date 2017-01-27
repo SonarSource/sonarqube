@@ -40,6 +40,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -68,6 +69,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.WsComponents.Component;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchActionTest {
@@ -80,6 +82,7 @@ public class SearchActionTest {
 
   private I18nRule i18n = new I18nRule();
 
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule();
   private Languages languages = mock(Languages.class);
   private UserDto user;
@@ -90,10 +93,33 @@ public class SearchActionTest {
   public void setUp() {
     resourceTypes.setAllQualifiers(PROJECT, MODULE, DIRECTORY, FILE);
     when(languages.all()).thenReturn(javaLanguage());
-    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages));
+    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages, defaultOrganizationProvider));
 
     user = db.users().insertUser("john");
     userSession.login(user);
+  }
+
+  @Test
+  public void verify_definition() {
+    WebService.Action action = ws.getDef();
+
+    assertThat(action.description()).isEqualTo("Search for components");
+    assertThat(action.since()).isEqualTo("6.3");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+
+    assertThat(action.params()).hasSize(6);
+
+    WebService.Param qualifiers = action.param("qualifiers");
+    assertThat(qualifiers.isRequired()).isTrue();
+
+    WebService.Param organization = action.param("organization");
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.description()).isEqualTo("Organization key");
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.exampleValue()).isEqualTo("my-org");
+    assertThat(organization.since()).isEqualTo("6.3");
   }
 
   @Test
@@ -129,7 +155,7 @@ public class SearchActionTest {
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
-    SearchWsResponse response = call(new SearchWsRequest().setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly("project-key-4", "project-key-5", "project-key-6");
   }
@@ -141,7 +167,7 @@ public class SearchActionTest {
       newProjectDto(organizationDto).setKey("java-project").setLanguage("java"),
       newProjectDto(organizationDto).setKey("cpp-project").setLanguage("cpp"));
 
-    SearchWsResponse response = call(new SearchWsRequest().setLanguage("java").setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("java-project");
   }
@@ -190,22 +216,10 @@ public class SearchActionTest {
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, MODULE, DIRECTORY, FILE))
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
-  }
-
-  @Test
-  public void test_definition() {
-    WebService.Action action = ws.getDef();
-
-    assertThat(action).isNotNull();
-    assertThat(action.param("qualifiers").isRequired()).isTrue();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.description()).isNotEmpty();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.since()).isEqualTo("6.3");
   }
 
   private void insertProjectsAuthorizedForUser(ComponentDto... projects) {
@@ -222,6 +236,7 @@ public class SearchActionTest {
   private SearchWsResponse call(SearchWsRequest wsRequest) {
     TestRequest request = ws.newRequest()
       .setMediaType(PROTOBUF);
+    setNullable(wsRequest.getOrganization(), p -> request.setParam(PARAM_ORGANIZATION, p));
     setNullable(wsRequest.getLanguage(), p -> request.setParam(PARAM_LANGUAGE, p));
     setNullable(wsRequest.getQualifiers(), p -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p)));
     setNullable(wsRequest.getQuery(), p -> request.setParam(TEXT_QUERY, p));

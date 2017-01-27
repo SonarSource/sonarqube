@@ -77,17 +77,37 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
-    if (query.getComponentIds() != null && query.getComponentIds().isEmpty()) {
+    return selectByQueryImpl(session, null, query, offset, limit);
+  }
+
+  public List<ComponentDto> selectByQuery(DbSession dbSession, String organizationUuid, ComponentQuery query, int offset, int limit) {
+    requireNonNull(organizationUuid, "organizationUuid can't be null");
+    return selectByQueryImpl(dbSession, organizationUuid, query, offset, limit);
+  }
+
+  private static List<ComponentDto> selectByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query, int offset, int limit) {
+    Set<Long> componentIds = query.getComponentIds();
+    if (componentIds != null && componentIds.isEmpty()) {
       return emptyList();
     }
-    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
+    return mapper(session).selectByQuery(organizationUuid, query, new RowBounds(offset, limit));
   }
 
   public int countByQuery(DbSession session, ComponentQuery query) {
-    if (query.getComponentIds() != null && query.getComponentIds().isEmpty()) {
+    return countByQueryImpl(session, null, query);
+  }
+
+  public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
+    requireNonNull(organizationUuid, "organizationUuid can't be null");
+    return countByQueryImpl(session, organizationUuid, query);
+  }
+
+  private static int countByQueryImpl(DbSession session, @Nullable String organizationUuid, ComponentQuery query) {
+    Set<Long> componentIds = query.getComponentIds();
+    if (componentIds != null && componentIds.isEmpty()) {
       return 0;
     }
-    return mapper(session).countByQuery(query);
+    return mapper(session).countByQuery(organizationUuid, query);
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
@@ -342,5 +362,4 @@ public class ComponentDao implements Dao {
   private static ComponentMapper mapper(DbSession session) {
     return session.getMapper(ComponentMapper.class);
   }
-
 }

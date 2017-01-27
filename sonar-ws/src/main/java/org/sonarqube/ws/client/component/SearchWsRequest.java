@@ -26,11 +26,21 @@ import javax.annotation.Nullable;
 import static java.util.Objects.requireNonNull;
 
 public class SearchWsRequest {
+  private String organization;
   private List<String> qualifiers;
   private Integer page;
   private Integer pageSize;
   private String query;
   private String language;
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  public SearchWsRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
 
   public List<String> getQualifiers() {
     return qualifiers;

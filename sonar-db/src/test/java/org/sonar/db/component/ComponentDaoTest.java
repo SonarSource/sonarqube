@@ -66,9 +66,10 @@ public class ComponentDaoTest {
   private static final String FILE_2_UUID = "file-2-uuid";
   private static final String FILE_3_UUID = "file-3-uuid";
   private static final String A_VIEW_UUID = "view-uuid";
+  private static final ComponentQuery ALL_PROJECTS_COMPONENT_QUERY = ComponentQuery.builder().setQualifiers("TRK").build();
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -144,7 +145,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectOrFailByUuid_fails_when_component_not_found() {
-    thrown.expect(RowNotFoundException.class);
+    expectedException.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -175,7 +176,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectOrFailByKey_fails_when_component_not_found() {
-    thrown.expect(RowNotFoundException.class);
+    expectedException.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -345,8 +346,8 @@ public class ComponentDaoTest {
 
   @Test
   public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Qualifiers cannot be empty");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Qualifiers cannot be empty");
 
     db.prepareDbUnit(getClass(), "shared.xml");
     underTest.selectComponentsByQualifiers(dbSession, Collections.<String>emptySet());
@@ -807,7 +808,23 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_with_paging_query_and_qualifiers() {
+  public void selectByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("organizationUuid can't be null");
+
+    underTest.selectByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1);
+  }
+
+  @Test
+  public void countByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("organizationUuid can't be null");
+
+    underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY);
+  }
+
+  @Test
+  public void selectByQuery_with_paging_query_and_qualifiers() {
     OrganizationDto organizationDto = db.organizations().insert();
     componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setName("aaaa-name"));
     componentDb.insertProjectAndSnapshot(newView(organizationDto));
@@ -827,7 +844,44 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_name_with_special_characters() {
+  public void selectByQuery_with_organization_filters_on_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project1 = componentDb.insertProject(organization1);
+    ComponentDto project2 = componentDb.insertProject(organization2);
+
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid(), project2.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization1.getUuid(), ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project1.uuid());
+    assertThat(underTest.selectByQuery(dbSession, organization2.getUuid(), ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project2.uuid());
+    assertThat(underTest.selectByQuery(dbSession, "non existent organization uuid", ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
+      .isEmpty();
+  }
+
+  @Test
+  public void countByQuery_with_organization_filters_on_specified_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project1 = componentDb.insertProject(organization1);
+    ComponentDto project2 = componentDb.insertProject(organization2);
+
+    assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY))
+      .isEqualTo(2);
+    assertThat(underTest.countByQuery(dbSession, organization1.getUuid(), ALL_PROJECTS_COMPONENT_QUERY))
+      .isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, organization2.getUuid(), ALL_PROJECTS_COMPONENT_QUERY))
+      .isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, "non existent organization uuid", ALL_PROJECTS_COMPONENT_QUERY))
+      .isEqualTo(0);
+  }
+
+  @Test
+  public void selectByQuery_name_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
@@ -838,7 +892,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_key_with_special_characters() {
+  public void selectByQuery_key_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert()).setKey("project-_%-key"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
@@ -849,7 +903,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_filter_on_language() {
+  public void selectByQuery_filter_on_language() {
     componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("java-project-key").setLanguage("java"));
     componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("cpp-project-key").setLanguage("cpp"));
 
@@ -861,7 +915,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_on_empty_list_of_component_id() {
+  public void selectByQuery_on_empty_list_of_component_id() {
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
     int count = underTest.countByQuery(dbSession, dbQuery);
@@ -871,7 +925,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_by_query_on_component_ids() {
+  public void selectByQuery_on_component_ids() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto sonarqube = componentDb.insertComponent(newProjectDto(organizationDto));
     ComponentDto jdk8 = componentDb.insertComponent(newProjectDto(organizationDto));
