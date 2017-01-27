@@ -78,7 +78,7 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
       }
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
-      handleAuthenticationError(e, response);
+      handleAuthenticationError(e, response, getContextPath());
     } catch (Exception e) {
       handleError(e, response, format("Fail to callback authentication with '%s'", provider.getKey()));
     }

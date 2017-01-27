@@ -50,16 +50,16 @@ final class AuthenticationError {
     redirectToUnauthorized(response);
   }
 
-  static void handleAuthenticationError(AuthenticationException e, HttpServletResponse response) {
-    redirectTo(response, getPath(e));
+  static void handleAuthenticationError(AuthenticationException e, HttpServletResponse response, String contextPath) {
+    redirectTo(response, getPath(e, contextPath));
   }
 
-  private static String getPath(AuthenticationException e) {
+  private static String getPath(AuthenticationException e, String contextPath) {
     String publicMessage = e.getPublicMessage();
     if (publicMessage == null || publicMessage.isEmpty()) {
       return UNAUTHORIZED_PATH;
     }
-    return format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
+    return contextPath + format(UNAUTHORIZED_PATH_WITH_MESSAGE, encodeMessage(publicMessage));
   }
 
   private static String encodeMessage(String message) {

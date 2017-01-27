@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -220,6 +221,29 @@ public class UserSessionInitializerTest {
     verifyZeroInteractions(userSession);
   }
 
+  @Test
+  public void return_to_session_unauthorized_when_error_on_from_external_provider() throws Exception {
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    doThrow(AuthenticationException.newBuilder().setSource(Source.external(newBasicIdentityProvider("failing"))).setPublicMessage("Token id hasn't been found").build())
+      .when(jwtHttpHandler).validateToken(request, response);
+
+    assertThat(underTest.initUserSession(request, response)).isFalse();
+
+    verify(response).sendRedirect("/sessions/unauthorized?message=Token+id+hasn%27t+been+found");
+  }
+
+  @Test
+  public void return_to_session_unauthorized_when_error_on_from_external_provider_with_context_path() throws Exception {
+    when(request.getContextPath()).thenReturn("/sonarqube");
+    when(ssoAuthenticator.authenticate(request, response)).thenReturn(Optional.empty());
+    doThrow(AuthenticationException.newBuilder().setSource(Source.external(newBasicIdentityProvider("failing"))).setPublicMessage("Token id hasn't been found").build())
+      .when(jwtHttpHandler).validateToken(request, response);
+
+    assertThat(underTest.initUserSession(request, response)).isFalse();
+
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Token+id+hasn%27t+been+found");
+  }
+
   private void assertPathIsIgnored(String path) {
     when(request.getRequestURI()).thenReturn(path);
 
@@ -238,5 +262,11 @@ public class UserSessionInitializerTest {
 
     verify(userSession).set(any(UserSession.class));
     reset(userSession, jwtHttpHandler, basicAuthenticator);
+  }
+
+  private static BaseIdentityProvider newBasicIdentityProvider(String name) {
+    BaseIdentityProvider mock = mock(BaseIdentityProvider.class);
+    when(mock.getName()).thenReturn(name);
+    return mock;
   }
 }

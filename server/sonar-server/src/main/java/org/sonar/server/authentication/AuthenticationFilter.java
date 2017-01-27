@@ -70,4 +70,8 @@ public abstract class AuthenticationFilter extends ServletFilter {
     }
     return null;
   }
+
+  String getContextPath() {
+    return server.getContextPath();
+  }
 }

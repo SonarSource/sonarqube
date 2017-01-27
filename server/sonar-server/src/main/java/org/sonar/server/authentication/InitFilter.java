@@ -83,7 +83,7 @@ public class InitFilter extends AuthenticationFilter {
       }
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
-      handleAuthenticationError(e, response);
+      handleAuthenticationError(e, response, getContextPath());
     } catch (Exception e) {
       handleError(e, response, format("Fail to initialize authentication with provider '%s'", provider.getKey()));
     }

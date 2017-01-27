@@ -167,6 +167,22 @@ public class OAuth2CallbackFilterTest {
   }
 
   @Test
+  public void redirect_with_context_path_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    FailWithUnauthorizedExceptionIdProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider();
+    identityProvider
+      .setKey("failing")
+      .setName("name of failing")
+      .setEnabled(true);
+    when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+  }
+
+  @Test
   public void fail_when_no_oauth2_provider_provided() throws Exception {
     when(request.getRequestURI()).thenReturn("/oauth2/callback");
 

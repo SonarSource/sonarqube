@@ -110,7 +110,7 @@ public class UserSessionInitializer {
       }
       if (isNotLocalOrJwt(e.getSource())) {
         // redirect to Unauthorized error page
-        handleAuthenticationError(e, response);
+        handleAuthenticationError(e, response, request.getContextPath());
         return false;
       }
       // Rails will redirect to login page

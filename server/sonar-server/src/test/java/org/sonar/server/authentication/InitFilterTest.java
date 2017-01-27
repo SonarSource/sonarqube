@@ -173,6 +173,18 @@ public class InitFilterTest {
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
   }
 
+  @Test
+  public void redirect_with_context_path_when_failing_because_of_UnauthorizedException() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    IdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider("failing");
+    when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+  }
+
   private void assertOAuth2InitCalled() {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isInitCalled()).isTrue();
@@ -227,10 +239,10 @@ public class InitFilterTest {
     public boolean isEnabled() {
       return true;
     }
-
     @Override
     public boolean allowsUsersToSignUp() {
       return false;
     }
+
   }
 }
