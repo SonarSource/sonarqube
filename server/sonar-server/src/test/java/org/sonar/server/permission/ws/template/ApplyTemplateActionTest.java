@@ -29,7 +29,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -51,7 +50,6 @@ import org.sonar.server.ws.TestResponse;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -86,11 +84,10 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Before
   public void setUp() {
-    user1 = db.users().insertUser("user-login-1");
-    user2 = db.users().insertUser("user-login-2");
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
-    group1 = db.users().insertGroup(defaultOrg, "group-name-1");
-    group2 = db.users().insertGroup(defaultOrg, "group-name-2");
+    user1 = db.users().insertUser();
+    user2 = db.users().insertUser();
+    group1 = db.users().insertGroup();
+    group2 = db.users().insertGroup();
 
     // template 1
     template1 = insertTemplate();
@@ -105,7 +102,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     addGroupToTemplate(group1, template2, UserRole.USER);
     addGroupToTemplate(group2, template2, UserRole.USER);
 
-    project = db.components().insertComponent(newProjectDto(defaultOrg, "project-uuid-1"));
+    project = db.components().insertProject();
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);

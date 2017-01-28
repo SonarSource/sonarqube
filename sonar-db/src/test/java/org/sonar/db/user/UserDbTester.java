@@ -262,9 +262,9 @@ public class UserDbTester {
     db.commit();
   }
 
-  public GroupPermissionDto insertProjectPermissionOnAnyone(OrganizationDto org, String permission, ComponentDto project) {
+  public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
     GroupPermissionDto dto = new GroupPermissionDto()
-      .setOrganizationUuid(org.getUuid())
+      .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)
       .setRole(permission)
       .setResourceId(project.getId());
@@ -274,6 +274,7 @@ public class UserDbTester {
   }
 
   public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
+    checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
@@ -298,6 +299,7 @@ public class UserDbTester {
       return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(),
         org.getUuid(), null);
     }
+    checkArgument(org.getUuid().equals(project.getOrganizationUuid()), "Different organizations");
     return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(),
       org.getUuid(), null, project.getId());
   }
@@ -322,7 +324,11 @@ public class UserDbTester {
   }
 
   /**
+<<<<<<< HEAD
    * Grant permission on given project in default organization
+=======
+   * Grant permission on given project
+>>>>>>> 6772c5b73a... SONAR-8704 remove error-prone params Organization in UserDbTester
    */
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());

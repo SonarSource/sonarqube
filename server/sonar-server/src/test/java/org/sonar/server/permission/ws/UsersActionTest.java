@@ -105,12 +105,12 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_only_for_users_with_permission_when_no_search_query() throws Exception {
     // User have permission on project
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
-    UserDto user = db.users().insertUser(newUserDto());
+    ComponentDto project = db.components().insertProject();
+    UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User has no permission
-    UserDto withoutPermission = db.users().insertUser(newUserDto());
+    UserDto withoutPermission = db.users().insertUser();
 
     loginAsAdminOnDefaultOrganization();
     String result = newRequest()

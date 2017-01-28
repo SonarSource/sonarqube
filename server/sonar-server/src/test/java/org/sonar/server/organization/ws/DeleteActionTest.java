@@ -229,8 +229,8 @@ public class DeleteActionTest {
     dbTester.users().insertPermissionOnUser(otherOrganizationDto, user1, "not deleted u2");
     dbTester.users().insertPermissionOnGroup(group1, "u3");
     dbTester.users().insertPermissionOnGroup(otherGroup1, "not deleted u3");
-    dbTester.users().insertProjectPermissionOnAnyone(organizationDto, "u4", projectDto);
-    dbTester.users().insertProjectPermissionOnAnyone(otherOrganizationDto, "not deleted u4", otherProjectDto);
+    dbTester.users().insertProjectPermissionOnAnyone("u4", projectDto);
+    dbTester.users().insertProjectPermissionOnAnyone("not deleted u4", otherProjectDto);
     dbTester.users().insertProjectPermissionOnGroup(group1, "u5", projectDto);
     dbTester.users().insertProjectPermissionOnGroup(otherGroup1, "not deleted u5", otherProjectDto);
     dbTester.users().insertProjectPermissionOnUser(user1, "u6", projectDto);

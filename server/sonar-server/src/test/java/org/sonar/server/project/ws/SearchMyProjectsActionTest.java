@@ -63,7 +63,6 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchMyProjectsActionTest {
-  private static final String USER_LOGIN = "TESTER";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -80,8 +79,8 @@ public class SearchMyProjectsActionTest {
 
   @Before
   public void setUp() {
-    user = db.users().insertUser(newUserDto().setLogin(USER_LOGIN));
-    userSession.login(this.user.getLogin()).setUserId(user.getId().intValue());
+    user = db.users().insertUser();
+    userSession.login(user);
     alertStatusMetric = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(ALERT_STATUS_KEY).setValueType(ValueType.LEVEL.name()));
     db.commit();
 
@@ -196,11 +195,11 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void admin_via_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organization);
-    ComponentDto cLang = insertClang(organization);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto jdk7 = insertJdk7(org);
+    ComponentDto cLang = insertClang(org);
 
-    GroupDto group = db.users().insertGroup(organization);
+    GroupDto group = db.users().insertGroup(org);
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
@@ -214,12 +213,12 @@ public class SearchMyProjectsActionTest {
 
   @Test
   public void admin_via_groups_and_users() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto cLang = insertClang(organizationDto);
-    ComponentDto sonarqube = db.components().insertProject(organizationDto);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto jdk7 = insertJdk7(org);
+    ComponentDto cLang = insertClang(org);
+    ComponentDto sonarqube = db.components().insertProject(org);
 
-    GroupDto group = db.users().insertGroup(organizationDto);
+    GroupDto group = db.users().insertGroup(org);
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);

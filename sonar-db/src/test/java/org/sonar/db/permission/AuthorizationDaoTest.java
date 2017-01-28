@@ -119,7 +119,7 @@ public class AuthorizationDaoTest {
   public void selectRootComponentPermissions_for_logged_in_user() {
     db.users().insertMember(group1, user);
     ComponentDto project1 = db.components().insertProject(org);
-    db.users().insertProjectPermissionOnAnyone(org, "perm1", project1);
+    db.users().insertProjectPermissionOnAnyone("perm1", project1);
     db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
     db.users().insertProjectPermissionOnUser(user, "perm3", project1);
 
@@ -143,7 +143,7 @@ public class AuthorizationDaoTest {
   @Test
   public void selectRootComponentPermissions_for_anonymous_user() {
     ComponentDto project1 = db.components().insertProject(org);
-    db.users().insertProjectPermissionOnAnyone(org, "perm1", project1);
+    db.users().insertProjectPermissionOnAnyone("perm1", project1);
 
     // ignored permissions
     db.users().insertPermissionOnAnyone(org, "ignored");

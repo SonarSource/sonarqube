@@ -91,11 +91,11 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     // global permission
     db.users().insertPermissionOnUser(user1, GlobalPermissions.SYSTEM_ADMIN);
 
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization());
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization());
-    GroupDto group3 = db.users().insertGroup(db.getDefaultOrganization());
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
 
-    db.users().insertProjectPermissionOnAnyone(db.getDefaultOrganization(), UserRole.ADMIN, jdk7);
+    db.users().insertProjectPermissionOnAnyone(UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group3, UserRole.ADMIN, jdk7);
@@ -266,7 +266,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid-1")
+    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization())
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

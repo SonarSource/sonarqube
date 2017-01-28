@@ -216,7 +216,7 @@ public class ProjectsActionTest {
 
   private void addBrowsePermissionToAnyone(ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      db.users().insertProjectPermissionOnAnyone(organizationDto, UserRole.USER, project);
+      db.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
     }
   }
 

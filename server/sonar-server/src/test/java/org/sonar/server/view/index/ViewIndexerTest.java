@@ -172,11 +172,11 @@ public class ViewIndexerTest {
     assertThat(issueIndex.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
-  private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto organizationDto) {
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+  private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {
+    ComponentDto project = ComponentTesting.newProjectDto(org);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbTester.components().insertComponents(project, file);
-    dbTester.users().insertProjectPermissionOnAnyone(organizationDto, UserRole.USER, project);
+    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);

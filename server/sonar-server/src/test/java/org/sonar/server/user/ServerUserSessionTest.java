@@ -338,7 +338,7 @@ public class ServerUserSessionTest {
   @Test
   public void hasOrganizationPermission_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertProject(org);
     db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
     db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
 
@@ -385,12 +385,12 @@ public class ServerUserSessionTest {
     }
   }
 
-  private void addAnyonePermissions(OrganizationDto organizationDto, @Nullable ComponentDto component, String... permissions) {
+  private void addAnyonePermissions(OrganizationDto org, @Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
       if (component == null) {
-        db.users().insertPermissionOnAnyone(organizationDto, permission);
+        db.users().insertPermissionOnAnyone(org, permission);
       } else {
-        db.users().insertProjectPermissionOnAnyone(organizationDto, permission, component);
+        db.users().insertProjectPermissionOnAnyone(permission, component);
       }
     }
   }

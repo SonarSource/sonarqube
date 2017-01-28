@@ -67,11 +67,10 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Before
   public void setUp() {
-    user1 = db.users().insertUser("user-login-1");
-    user2 = db.users().insertUser("user-login-2");
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
-    group1 = db.users().insertGroup(defaultOrg, "group-name-1");
-    group2 = db.users().insertGroup(defaultOrg, "group-name-2");
+    user1 = db.users().insertUser();
+    user2 = db.users().insertUser();
+    group1 = db.users().insertGroup();
+    group2 = db.users().insertGroup();
 
     // template 1
     template1 = insertTemplate();
@@ -89,13 +88,13 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void bulk_apply_template_by_template_uuid() throws Exception {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
-    ComponentDto view = db.components().insertComponent(newView(organization));
-    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, view);
-    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, view);
-    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, view);
-    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, view);
+    ComponentDto project = db.components().insertProject();
+    ComponentDto view = db.components().insertView();
+    ComponentDto developer = db.components().insertDeveloper("developer-name");
+    db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, developer);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, developer);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, developer);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, developer);
     loginAsAdminOnDefaultOrganization();
 
     newRequest().setParam(PARAM_TEMPLATE_ID, template1.getUuid()).execute();

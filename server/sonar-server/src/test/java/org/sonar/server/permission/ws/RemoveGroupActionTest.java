@@ -38,7 +38,6 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
@@ -108,7 +107,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void remove_with_view_uuid() throws Exception {
-    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization(), "view-uuid").setKey("view-key"));
+    ComponentDto view = db.components().insertView();
     db.users().insertPermissionOnGroup(aGroup, SYSTEM_ADMIN);
     db.users().insertProjectPermissionOnGroup(aGroup, ADMIN, view);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, view);
@@ -299,17 +298,17 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   private void executeRequest(GroupDto groupDto, String permission) throws Exception {
     newRequest()
-        .setParam(PARAM_GROUP_NAME, groupDto.getName())
-        .setParam(PARAM_PERMISSION, permission)
-        .execute();
+      .setParam(PARAM_GROUP_NAME, groupDto.getName())
+      .setParam(PARAM_PERMISSION, permission)
+      .execute();
   }
 
   private void executeRequest(GroupDto groupDto, OrganizationDto organizationDto, String permission) throws Exception {
     newRequest()
-        .setParam(PARAM_GROUP_NAME, groupDto.getName())
-        .setParam(PARAM_PERMISSION, permission)
-        .setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey())
-        .execute();
+      .setParam(PARAM_GROUP_NAME, groupDto.getName())
+      .setParam(PARAM_PERMISSION, permission)
+      .setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey())
+      .execute();
   }
 
   @Test
