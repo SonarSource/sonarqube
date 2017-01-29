@@ -76,7 +76,7 @@ public class ReportSubmitter {
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       ensureOrganizationIsConsistent(opt, organizationDto);
       ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto.getUuid(), projectKey, projectBranch, projectName));
-      userSession.checkComponentUuidPermission(SCAN_EXECUTION, project.uuid());
+      userSession.checkComponentPermission(SCAN_EXECUTION, project);
       return submitReport(dbSession, reportInput, project);
     }
   }

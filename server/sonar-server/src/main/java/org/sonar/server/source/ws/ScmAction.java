@@ -104,7 +104,7 @@ public class ScmAction implements SourcesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
       Optional<Iterable<DbFileSources.Line>> sourceLines = sourceService.getLines(dbSession, file.uuid(), from, to);
       if (!sourceLines.isPresent()) {
         throw new NotFoundException(String.format("File '%s' has no sources", fileKey));

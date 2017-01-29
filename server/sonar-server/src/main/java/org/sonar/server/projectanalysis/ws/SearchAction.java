@@ -125,7 +125,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private Consumer<SearchResults.Builder> addAnalyses() {
     return data -> {
       SnapshotQuery dbQuery = new SnapshotQuery()
-        .setComponentUuid(data.getProjectUuid())
+        .setComponentUuid(data.getProject().uuid())
         .setStatus(SnapshotDto.STATUS_PROCESSED)
         .setSort(BY_DATE, DESC);
       data.setAnalyses(dbClient.snapshotDao().selectAnalysesByQuery(data.getDbSession(), dbQuery));
@@ -140,14 +140,14 @@ public class SearchAction implements ProjectAnalysesWsAction {
   }
 
   private Consumer<SearchResults.Builder> checkPermission() {
-    return data -> userSession.checkComponentUuidPermission(UserRole.USER, data.getProjectUuid());
+    return data -> userSession.checkComponentPermission(UserRole.USER, data.getProject());
   }
 
   private Consumer<SearchResults.Builder> addProject() {
     return data -> {
       ComponentDto project = componentFinder.getByKey(data.getDbSession(), data.getRequest().getProject());
       checkArgument(Scopes.PROJECT.equals(project.scope()) && Qualifiers.PROJECT.equals(project.qualifier()), "A project is required");
-      data.setProjectUuid(project.uuid());
+      data.setProject(project);
     };
   }
 

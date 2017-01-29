@@ -100,7 +100,7 @@ public class AppAction implements RequestHandler {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByUuid(session, componentUuid);
-      userSession.checkComponentUuidPermission(UserRole.USER, component.uuid());
+      userSession.checkComponentPermission(UserRole.USER, component);
 
       Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
       appendComponent(json, component, userSession, session);

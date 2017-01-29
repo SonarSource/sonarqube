@@ -67,10 +67,10 @@ public class RawAction implements SourcesWsAction {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);
       response.stream().setMediaType("text/plain");
@@ -83,8 +83,6 @@ public class RawAction implements SourcesWsAction {
       }
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 }

@@ -81,6 +81,6 @@ public class DeleteAction implements CustomMeasuresWsAction {
     }
 
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
-    userSession.checkLoggedIn().checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
+    userSession.checkLoggedIn().checkComponentPermission(UserRole.ADMIN, component);
   }
 }

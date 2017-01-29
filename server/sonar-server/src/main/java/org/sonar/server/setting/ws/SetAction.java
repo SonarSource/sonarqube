@@ -271,7 +271,7 @@ public class SetAction implements SettingsWsAction {
 
   private void checkPermissions(Optional<ComponentDto> component) {
     if (component.isPresent()) {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.get().uuid());
+      userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
       userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }

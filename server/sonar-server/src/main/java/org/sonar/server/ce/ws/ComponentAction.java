@@ -83,7 +83,7 @@ public class ComponentAction implements CeWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, wsRequest.param(PARAM_COMPONENT_ID), wsRequest.param(PARAM_COMPONENT_KEY), COMPONENT_ID_AND_KEY);
-      userSession.checkComponentUuidPermission(UserRole.USER, component.uuid());
+      userSession.checkComponentPermission(UserRole.USER, component);
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
         .setComponentUuid(component.uuid())

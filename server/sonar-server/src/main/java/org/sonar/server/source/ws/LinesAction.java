@@ -115,7 +115,7 @@ public class LinesAction implements SourcesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY), UUID_AND_KEY);
-      userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       int from = request.mandatoryParamAsInt(PARAM_FROM);
       int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);

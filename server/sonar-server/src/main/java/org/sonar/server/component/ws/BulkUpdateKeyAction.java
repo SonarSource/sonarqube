@@ -124,7 +124,7 @@ public class BulkUpdateKeyAction implements ComponentsWsAction {
     try {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
       checkIsProjectOrModule(projectOrModule);
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, projectOrModule.uuid());
+      userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
 
       Map<String, String> newKeysByOldKeys = componentKeyUpdater.simulateBulkUpdateKey(dbSession, projectOrModule.uuid(), request.getFrom(), request.getTo());
       Map<String, Boolean> newKeysWithDuplicateMap = componentKeyUpdater.checkComponentKeys(dbSession, ImmutableList.copyOf(newKeysByOldKeys.values()));

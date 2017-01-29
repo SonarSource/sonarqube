@@ -99,6 +99,6 @@ public class CustomMeasureValidator {
       return;
     }
 
-    userSession.checkLoggedIn().checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
+    userSession.checkLoggedIn().checkComponentPermission(UserRole.ADMIN, component);
   }
 }

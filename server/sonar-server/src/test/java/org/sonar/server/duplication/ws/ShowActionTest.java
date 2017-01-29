@@ -19,137 +19,121 @@
  */
 package org.sonar.server.duplication.ws;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.utils.text.JsonWriter;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  @Mock
-  DbSession session;
+  @Rule
+  public DbTester db = DbTester.create();
 
-  @Mock
-  DbClient dbClient;
-
-  @Mock
-  ComponentDao componentDao;
-
-  @Mock
-  MeasureDao measureDao;
-
-  @Mock
-  DuplicationsParser parser;
-
-  @Mock
-  DuplicationsJsonWriter duplicationsJsonWriter;
-
-  WsTester tester;
+  private DuplicationsParser parser = new DuplicationsParser(db.getDbClient().componentDao());
+  private DuplicationsJsonWriter duplicationsJsonWriter = new DuplicationsJsonWriter(db.getDbClient().componentDao());
+  private WsTester tester;
+  private MetricDto dataMetric = RegisterMetrics.MetricToDto.INSTANCE.apply(CoreMetrics.DUPLICATIONS_DATA);
 
   @Before
   public void setUp() {
-    when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.componentDao()).thenReturn(componentDao);
-    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, measureDao, parser, duplicationsJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
+    tester = new WsTester(new DuplicationsWs(new ShowAction(db.getDbClient(), parser, duplicationsJsonWriter, userSessionRule, new ComponentFinder(db.getDbClient()))));
+
+    db.getDbClient().metricDao().insert(db.getSession(), dataMetric);
+    db.commit();
   }
 
   @Test
-  public void show_duplications() throws Exception {
-    String componentKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
-
-    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
-    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
-
-    String data = "{duplications}";
-    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(
-      java.util.Optional.of(new MeasureDto().setData("{duplications}"))
-    );
-
-    List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
-    when(parser.parse(componentDto, data, session)).thenReturn(blocks);
-
-    WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
-    request.execute();
-
-    verify(duplicationsJsonWriter).write(eq(blocks), any(JsonWriter.class), eq(session));
+  public void get_duplications_by_file_key() throws Exception {
+    WsTester.TestRequest request = newBaseRequest();
+    verifyCallToFileWithDuplications(file -> request.setParam("key", file.key()));
   }
 
   @Test
-  public void show_duplications_by_uuid() throws Exception {
-    String uuid = "ABCD";
-    String componentKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
-
-    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
-    when(componentDao.selectByUuid(session, uuid)).thenReturn(Optional.of(componentDto));
-
-    String data = "{duplications}";
-    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(
-      java.util.Optional.of(new MeasureDto().setData("{duplications}"))
-    );
-
-    List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
-    when(parser.parse(componentDto, data, session)).thenReturn(blocks);
-
-    WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("uuid", uuid);
-    request.execute();
-
-    verify(duplicationsJsonWriter).write(eq(blocks), any(JsonWriter.class), eq(session));
+  public void get_duplications_by_file_id() throws Exception {
+    WsTester.TestRequest request = newBaseRequest();
+    verifyCallToFileWithDuplications(file -> request.setParam("uuid", file.uuid()));
   }
 
   @Test
-  public void no_duplications_when_no_data() throws Exception {
-    String componentKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+  public void return_file_with_missing_duplication_data() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
+    db.components().insertSnapshot(newAnalysis(project));
 
-    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
-    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
 
-    when(measureDao.selectSingle(eq(session), any(MeasureQuery.class))).thenReturn(java.util.Optional.empty());
+    WsTester.Result result = newBaseRequest().setParam("key", file.key()).execute();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
-    request.execute();
-
-    verify(duplicationsJsonWriter).write(eq(Lists.newArrayList()), any(JsonWriter.class), eq(session));
+    result.assertJson("{\n" +
+      "  \"duplications\": [],\n" +
+      "  \"files\": {}\n" +
+      "}");
   }
 
-  @Test(expected = NotFoundException.class)
-  public void fail_when_file_not_found() throws Exception {
-    String componentKey = "src/Foo.java";
+  @Test
+  public void return_404_if_file_does_not_exist() throws Exception {
+    expectedException.expect(NotFoundException.class);
 
-    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.absent());
-
-    WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
-    request.execute();
+    newBaseRequest().setParam("key", "missing").execute();
   }
 
+  @Test
+  public void return_403_if_user_is_not_allowed_to_access_project() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    expectedException.expect(ForbiddenException.class);
+
+    newBaseRequest().setParam("key", file.key()).execute();
+  }
+
+  private WsTester.TestRequest newBaseRequest() {
+    return tester.newGetRequest("api/duplications", "show");
+  }
+
+  private void verifyCallToFileWithDuplications(Function<ComponentDto, WsTester.TestRequest> requestFactory) throws Exception {
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
+    SnapshotDto snapshot = db.components().insertSnapshot(newAnalysis(project));
+    String xml = "<duplications>\n" +
+      "  <g>\n" +
+      "    <b s=\"31\" l=\"5\" r=\"foo.js\"/>\n" +
+      "    <b s=\"20\" l=\"5\" r=\"foo.js\"/>\n" +
+      "  </g>\n" +
+      "</duplications>\n";
+    db.getDbClient().measureDao().insert(db.getSession(), newMeasureDto(dataMetric, file, snapshot).setData(xml));
+    db.commit();
+
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
+
+    WsTester.TestRequest request = requestFactory.apply(file);
+    WsTester.Result result = request.execute();
+
+    result.assertJson("{\"duplications\":[" +
+      "{\"blocks\":[{\"from\":20,\"size\":5,\"_ref\":\"1\"},{\"from\":31,\"size\":5,\"_ref\":\"1\"}]}]," +
+      "\"files\":{\"1\":{\"key\":\"foo.js\",\"uuid\":\"" + file.uuid() + "\"}}}");
+  }
 }

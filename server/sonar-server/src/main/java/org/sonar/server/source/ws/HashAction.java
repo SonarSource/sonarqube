@@ -68,25 +68,19 @@ public class HashAction implements SourcesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession session = dbClient.openSession(false);
-    try {
-      final String componentKey = request.mandatoryParam("key");
-      final ComponentDto component = componentFinder.getByKey(session, componentKey);
-      userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
+    try (DbSession session = dbClient.openSession(false)) {
+      String componentKey = request.mandatoryParam("key");
+      ComponentDto component = componentFinder.getByKey(session, componentKey);
+      userSession.checkComponentPermission(UserRole.USER, component);
 
       response.stream().setMediaType("text/plain");
-      OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8);
-      try {
+      try (OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8)) {
         HashFunction hashFunction = new HashFunction(writer, componentKey);
         dbClient.fileSourceDao().readLineHashesStream(session, component.uuid(), hashFunction);
         if (!hashFunction.hasData()) {
           response.noContent();
         }
-      } finally {
-        writer.close();
       }
-    } finally {
-      session.close();
     }
   }
 

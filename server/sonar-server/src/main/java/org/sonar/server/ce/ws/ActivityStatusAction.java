@@ -21,7 +21,6 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -85,7 +84,7 @@ public class ActivityStatusAction implements CeWsAction {
     try {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
-      checkPermissions(componentUuid);
+      checkPermissions(component);
       int pendingCount = dbClient.ceQueueDao().countByStatusAndComponentUuid(dbSession, CeQueueDto.Status.PENDING, componentUuid);
       int failingCount = dbClient.ceActivityDao().countLastByStatusAndComponentUuid(dbSession, CeActivityDto.Status.FAILED, componentUuid);
 
@@ -106,11 +105,11 @@ public class ActivityStatusAction implements CeWsAction {
     return Optional.fromNullable(component);
   }
 
-  private void checkPermissions(@Nullable String componentUuid) {
-    if (componentUuid == null) {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+  private void checkPermissions(Optional<ComponentDto> component) {
+    if (component.isPresent()) {
+      userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, componentUuid);
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
   }
 
