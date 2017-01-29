@@ -106,7 +106,7 @@ public class CreateAction implements ProjectLinksWsAction {
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, createWsRequest);
 
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.uuid());
+      userSession.checkComponentPermission(UserRole.ADMIN, component);
 
       ComponentLinkDto link = new ComponentLinkDto()
         .setComponentUuid(component.uuid())

@@ -98,7 +98,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, component.uuid());
+      userSession.checkComponentPermission(UserRole.ADMIN, component);
     }
 
     void writeTo(Request request, Response response) {

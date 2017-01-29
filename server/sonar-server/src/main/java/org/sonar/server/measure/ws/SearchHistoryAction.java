@@ -143,7 +143,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   private ComponentDto searchComponent(SearchHistoryRequest request, DbSession dbSession) {
     ComponentDto component = componentFinder.getByKey(dbSession, request.getComponent());
-    userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
+    userSession.checkComponentPermission(UserRole.USER, component);
     return component;
   }
 

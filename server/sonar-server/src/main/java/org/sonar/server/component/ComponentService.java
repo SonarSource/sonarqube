@@ -57,7 +57,7 @@ public class ComponentService {
 
   // TODO should be moved to ComponentUpdater
   public void updateKey(DbSession dbSession, ComponentDto component, String newKey) {
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
+    userSession.checkComponentPermission(UserRole.ADMIN, component);
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(component.uuid(), newKey);

@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -65,12 +66,12 @@ public class CreateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  WsActionTester ws;
+  private WsActionTester ws;
 
-  CreateAction underTest;
+  private CreateAction underTest;
 
   @Before
   public void setUp() {
@@ -83,11 +84,11 @@ public class CreateActionTest {
 
   @Test
   public void example_with_key() {
-    insertProject();
+    ComponentDto project = insertProject();
 
     String result = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_PROJECT_KEY, project.key())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute().getInput();
@@ -97,11 +98,11 @@ public class CreateActionTest {
 
   @Test
   public void example_with_id() {
-    insertProject();
+    ComponentDto project = insertProject();
 
     String result = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_ID, PROJECT_UUID)
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute().getInput();
@@ -111,26 +112,26 @@ public class CreateActionTest {
 
   @Test
   public void global_admin() throws IOException {
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
-    insertProject();
-    createAndTest();
+    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+    ComponentDto project = insertProject();
+    createAndTest(project);
   }
 
   @Test
-  public void project_admin() throws IOException {
-    userSession.login("login");
+  public void require_project_admin() throws IOException {
+    userSession.login();
     ComponentDto project = insertProject();
     userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-    createAndTest();
+    createAndTest(project);
   }
 
   @Test
   public void with_long_name() throws IOException {
-    insertProject();
+    ComponentDto project = insertProject();
 
     String longName = StringUtils.leftPad("", 60, "a");
     String expectedType = StringUtils.leftPad("", 20, "a");
-    createAndTest(longName, "http://example.org", expectedType);
+    createAndTest(project, longName, "http://example.org", expectedType);
   }
 
   @Test
@@ -196,7 +197,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_not_project_admin() {
-    userSession.login("login");
+    userSession.login();
     insertProject();
 
     expectedException.expect(ForbiddenException.class);
@@ -208,17 +209,15 @@ public class CreateActionTest {
   }
 
   private ComponentDto insertProject() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    return db.components().insertProject(
-      organizationDto,
-      (t) -> t.setUuid(PROJECT_UUID)
-        .setKey(PROJECT_KEY));
+    OrganizationDto org = db.organizations().insert();
+    return db.components().insertComponent(
+      ComponentTesting.newProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
-  private void createAndTest(String name, String url, String type) throws IOException {
+  private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
     InputStream responseStream = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_PROJECT_KEY, project.key())
       .setParam(PARAM_NAME, name)
       .setParam(PARAM_URL, url)
       .setMediaType(PROTOBUF)
@@ -234,7 +233,7 @@ public class CreateActionTest {
     assertThat(link.getType()).isEqualTo(type);
   }
 
-  private void createAndTest() throws IOException {
-    createAndTest("Custom", "http://example.org", "custom");
+  private void createAndTest(ComponentDto project) throws IOException {
+    createAndTest(project, "Custom", "http://example.org", "custom");
   }
 }

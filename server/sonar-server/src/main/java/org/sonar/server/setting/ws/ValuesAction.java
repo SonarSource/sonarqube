@@ -143,7 +143,7 @@ public class ValuesAction implements SettingsWsAction {
       return Optional.empty();
     }
     ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
-    userSession.checkComponentUuidPermission(USER, component.projectUuid());
+    userSession.checkComponentPermission(USER, component);
     return Optional.of(component);
   }
 

@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonarqube.ws.client.projectanalysis.SearchRequest;
@@ -58,7 +59,7 @@ class SearchResults {
   static class Builder {
     private final DbSession dbSession;
     private final SearchRequest request;
-    private String projectUuid;
+    private ComponentDto project;
     private List<SnapshotDto> analyses;
     private int countAnalyses;
     private List<EventDto> events;
@@ -68,8 +69,8 @@ class SearchResults {
       this.request = request;
     }
 
-    Builder setProjectUuid(String projectUuid) {
-      this.projectUuid = projectUuid;
+    Builder setProject(ComponentDto project) {
+      this.project = project;
       return this;
     }
 
@@ -100,8 +101,8 @@ class SearchResults {
       return request;
     }
 
-    String getProjectUuid() {
-      return projectUuid;
+    ComponentDto getProject() {
+      return project;
     }
 
     List<SnapshotDto> getAnalyses() {

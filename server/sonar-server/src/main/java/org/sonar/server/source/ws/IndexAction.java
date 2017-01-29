@@ -75,12 +75,12 @@ public class IndexAction implements SourcesWsAction {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("resource");
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     int from = request.mandatoryParamAsInt("from");
     Integer to = request.paramAsInt("to");
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
-      Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, componentDto.uuid(), from, to == null ? Integer.MAX_VALUE : to - 1);
+      ComponentDto component = componentFinder.getByKey(session, fileKey);
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
+      Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, component.uuid(), from, to == null ? Integer.MAX_VALUE : to - 1);
       JsonWriter json = response.newJsonWriter().beginArray().beginObject();
       if (lines.isPresent()) {
         int lineCounter = from;

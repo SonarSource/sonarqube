@@ -258,7 +258,7 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return hasComponentUuidPermission(permission, component.projectUuid());
+    return currentUserSession.hasComponentPermission(permission, component);
   }
 
   @Override

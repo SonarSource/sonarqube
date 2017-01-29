@@ -46,7 +46,7 @@ public class QProfileProjectOperations {
   }
 
   public void addProject(DbSession dbSession, String profileKey, ComponentDto project) {
-    checkAdminOnProject(project.key());
+    checkAdminOnProject(project);
     QualityProfileDto qualityProfile = selectProfileByKey(dbSession, profileKey);
 
     QualityProfileDto currentProfile = db.qualityProfileDao().selectByProjectAndLanguage(dbSession, project.key(), qualityProfile.getLanguage());
@@ -65,7 +65,7 @@ public class QProfileProjectOperations {
   }
 
   public void removeProject(DbSession dbSession, String profileKey, ComponentDto project) {
-    checkAdminOnProject(project.key());
+    checkAdminOnProject(project);
     QualityProfileDto qualityProfile = selectProfileByKey(dbSession, profileKey);
 
     db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
@@ -77,8 +77,9 @@ public class QProfileProjectOperations {
     return WsUtils.checkFound(qualityProfile, "Quality profile does not exist");
   }
 
-  private void checkAdminOnProject(String projectKey) {
-    if (!userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasComponentPermission(UserRole.ADMIN, projectKey)) {
+  private void checkAdminOnProject(ComponentDto project) {
+    if (!userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) &&
+      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw new ForbiddenException("Insufficient privileges");
     }
   }

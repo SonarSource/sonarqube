@@ -33,7 +33,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
@@ -44,16 +43,14 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY
 public class ShowAction implements RequestHandler {
 
   private final DbClient dbClient;
-  private final MeasureDao measureDao;
   private final DuplicationsParser parser;
   private final DuplicationsJsonWriter duplicationsJsonWriter;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public ShowAction(DbClient dbClient, MeasureDao measureDao, DuplicationsParser parser,
-                    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession, ComponentFinder componentFinder) {
+  public ShowAction(DbClient dbClient, DuplicationsParser parser,
+    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.measureDao = measureDao;
     this.parser = parser;
     this.duplicationsJsonWriter = duplicationsJsonWriter;
     this.userSession = userSession;
@@ -83,7 +80,7 @@ public class ShowAction implements RequestHandler {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, component.key());
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       JsonWriter json = response.newJsonWriter().beginObject();
       String duplications = findDataFromComponent(dbSession, component);
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
@@ -100,7 +97,7 @@ public class ShowAction implements RequestHandler {
       .setComponentUuid(component.uuid())
       .setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
       .build();
-    Optional<MeasureDto> measure = measureDao.selectSingle(dbSession, query);
+    Optional<MeasureDto> measure = dbClient.measureDao().selectSingle(dbSession, query);
     return measure.isPresent() ? measure.get().getData() : null;
   }
 }

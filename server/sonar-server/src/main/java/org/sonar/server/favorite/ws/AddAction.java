@@ -75,7 +75,7 @@ public class AddAction implements FavoritesWsAction {
         ComponentDto componentDto = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
         userSession
           .checkLoggedIn()
-          .checkComponentUuidPermission(UserRole.USER, componentDto.uuid());
+          .checkComponentPermission(UserRole.USER, componentDto);
         favoriteUpdater.add(dbSession, componentDto, userSession.isLoggedIn() ? userSession.getUserId().longValue() : null);
         dbSession.commit();
       }

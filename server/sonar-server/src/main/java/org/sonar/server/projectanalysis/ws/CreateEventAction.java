@@ -113,18 +113,13 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   private CreateEventResponse doHandle(CreateEventRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SnapshotDto analysis = getAnalysis(dbSession, request);
-      checkPermissions(analysis);
       checkExistingDbEvents(dbSession, request, analysis);
       EventDto dbEvent = insertDbEvent(dbSession, request, analysis);
       return toCreateEventResponse(dbEvent);
     }
   }
 
-  private void checkPermissions(SnapshotDto analysis) {
-    userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
-  }
-
-  private EventDto insertDbEvent(DbSession dbSession, CreateEventRequest request, SnapshotDto analysis) {
+    private EventDto insertDbEvent(DbSession dbSession, CreateEventRequest request, SnapshotDto analysis) {
     EventDto dbEvent = dbClient.eventDao().insert(dbSession, toDbEvent(request, analysis));
     if (VERSION.equals(request.getCategory())) {
       analysis.setVersion(request.getName());
@@ -139,6 +134,7 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .orElseThrow(() -> new NotFoundException(format("Analysis '%s' is not found", request.getAnalysis())));
     ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, analysis.getComponentUuid()).orNull();
     checkState(project != null, "Project of analysis '%s' is not found", analysis.getUuid());
+    userSession.checkComponentPermission(UserRole.ADMIN, project);
     checkArgument(Qualifiers.PROJECT.equals(project.qualifier()) && Scopes.PROJECT.equals(project.scope()),
       "An event must be created on a project");
     return analysis;
