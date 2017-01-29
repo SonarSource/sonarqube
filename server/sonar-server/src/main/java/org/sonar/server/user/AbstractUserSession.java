@@ -19,8 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.Collection;
-import java.util.List;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
@@ -66,18 +64,6 @@ public abstract class AbstractUserSession implements UserSession {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
-  }
-
-  @Override
-  public UserSession checkAnyPermissions(Collection<String> globalPermissionsToTest) {
-    List<String> userGlobalPermissions = globalPermissions();
-    for (String userGlobalPermission : userGlobalPermissions) {
-      if (globalPermissionsToTest.contains(userGlobalPermission)) {
-        return this;
-      }
-    }
-
-    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   }
 
   @Override

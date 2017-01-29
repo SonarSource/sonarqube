@@ -20,7 +20,6 @@
 package org.sonar.server.tester;
 
 import com.google.common.base.Preconditions;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -318,12 +317,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkPermission(String globalPermission) {
     currentUserSession.checkPermission(globalPermission);
-    return this;
-  }
-
-  @Override
-  public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
-    currentUserSession.checkAnyPermissions(globalPermissions);
     return this;
   }
 
