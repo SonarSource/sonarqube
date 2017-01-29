@@ -31,7 +31,6 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
 
 import static org.sonar.db.component.ComponentLinkDto.PROVIDED_TYPES;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_DELETE;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_ID;
 
@@ -79,7 +78,7 @@ public class DeleteAction implements ProjectLinksWsAction {
       ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, id);
 
       link = WsUtils.checkFound(link, "Link with id '%s' not found", id);
-      checkPermissions(link.getComponentUuid());
+      checkProjectAdminPermission(link);
       checkNotProvided(link);
 
       dbClient.componentLinkDao().delete(dbSession, link.getId());
@@ -95,9 +94,7 @@ public class DeleteAction implements ProjectLinksWsAction {
     WsUtils.checkRequest(!isProvided, "Provided link cannot be deleted.");
   }
 
-  private void checkPermissions(String projectUuid) {
-    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid)) {
-      throw insufficientPrivilegesException();
-    }
+  private void checkProjectAdminPermission(ComponentLinkDto link) {
+    userSession.checkComponentUuidPermission(UserRole.ADMIN, link.getComponentUuid());
   }
 }
