@@ -286,7 +286,7 @@ public class ListActionTest {
       .setFileUuid(testFile.uuid())
       .setTestData(asList(tests)));
     db.commit();
-    testIndexer.index(project.uuid());
+    testIndexer.index();
   }
 
   private static ListResponse call(TestRequest request) {
