@@ -76,12 +76,6 @@ public interface UserSession {
   UserSession checkPermission(String globalPermission);
 
   /**
-   * @deprecated Only used by Views plugin.
-   */
-  @Deprecated
-  UserSession checkGlobalPermission(String globalPermission);
-
-  /**
    * Ensures that at least one of the global permissions is granted to user. If none are granted,
    * then throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */

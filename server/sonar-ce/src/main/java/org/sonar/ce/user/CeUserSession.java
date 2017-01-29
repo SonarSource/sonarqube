@@ -86,11 +86,6 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission) {
-    return notImplemented();
-  }
-
-  @Override
   public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
     return notImplemented();
   }
