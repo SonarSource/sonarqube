@@ -50,7 +50,9 @@ public class ComponentIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, DEFAULT_NUMBER_OF_SHARDS);
 
-    NewIndex.NewIndexType mapping = index.createTypeRequiringProjectAuthorization(TYPE_COMPONENT);
+    NewIndex.NewIndexType mapping = index.createType(TYPE_COMPONENT)
+      .requireProjectAuthorization();
+
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).enable(SORTABLE_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_NAME).enable(SEARCH_GRAMS_ANALYZER).build();

@@ -34,7 +34,9 @@ public class FooIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(FOO_INDEX);
     index.refreshHandledByIndexer();
 
-    NewIndex.NewIndexType type = index.createTypeRequiringProjectAuthorization(FOO_TYPE);
+    NewIndex.NewIndexType type = index.createType(FOO_TYPE)
+      .requireProjectAuthorization();
+
     type.stringFieldBuilder(FIELD_NAME).build();
     type.stringFieldBuilder(FIELD_PROJECT_UUID).build();
   }

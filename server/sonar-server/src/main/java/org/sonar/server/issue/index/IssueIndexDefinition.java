@@ -86,7 +86,9 @@ public class IssueIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    NewIndex.NewIndexType type = index.createTypeRequiringProjectAuthorization(TYPE_ISSUE);
+    NewIndex.NewIndexType type = index.createType(TYPE_ISSUE);
+    type.requireProjectAuthorization();
+
     type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().enableSorting().build();
     type.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).disableNorms().disableSearch().build();
     type.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();

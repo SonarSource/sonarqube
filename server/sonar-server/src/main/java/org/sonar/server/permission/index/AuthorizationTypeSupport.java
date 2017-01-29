@@ -65,15 +65,14 @@ public class AuthorizationTypeSupport {
    * Both types {@code typeName} and "authorization" are created. Documents
    * must be created with _parent and _routing having the parent uuid as values.
    *
-   * @see NewIndex#createTypeRequiringProjectAuthorization(String)
+   * @see NewIndex.NewIndexType#requireProjectAuthorization()
    */
-  public static NewIndex.NewIndexType createTypeRequiringProjectAuthorization(NewIndex newIndex, String typeName) {
-    NewIndex.NewIndexType type = newIndex.createType(typeName);
+  public static NewIndex.NewIndexType enableProjectAuthorization(NewIndex.NewIndexType type) {
     type.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
-    type.setAttribute("_routing", ImmutableMap.of("required", "true"));
+    type.setAttribute("_routing", ImmutableMap.of("required", true));
 
-    NewIndex.NewIndexType authType = newIndex.createType(TYPE_AUTHORIZATION);
-    authType.setAttribute("_routing", ImmutableMap.of("required", "true"));
+    NewIndex.NewIndexType authType = type.getIndex().createType(TYPE_AUTHORIZATION);
+    authType.setAttribute("_routing", ImmutableMap.of("required", true));
     authType.createDateTimeField(FIELD_UPDATED_AT);
     authType.createLongField(FIELD_GROUP_IDS);
     authType.stringFieldBuilder(FIELD_GROUP_NAMES).disableNorms().build();

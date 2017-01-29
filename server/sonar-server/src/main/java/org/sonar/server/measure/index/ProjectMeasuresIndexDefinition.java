@@ -48,7 +48,9 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    NewIndex.NewIndexType mapping = index.createTypeRequiringProjectAuthorization(TYPE_PROJECT_MEASURE);
+    NewIndex.NewIndexType mapping = index.createType(TYPE_PROJECT_MEASURE)
+      .requireProjectAuthorization();
+
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_NAME).enableSorting().build();
     mapping.stringFieldBuilder(FIELD_QUALITY_GATE).build();
