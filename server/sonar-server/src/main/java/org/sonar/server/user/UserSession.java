@@ -72,7 +72,12 @@ public interface UserSession {
 
   /**
    * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * @deprecated in 6.3 because it doesn't support organizations
+   *
+   * @see #checkIsRoot() for system administrators
+   * @see #checkOrganizationPermission(String, String) for organization members
    */
+  @Deprecated
   UserSession checkPermission(String globalPermission);
 
   /**
@@ -89,6 +94,8 @@ public interface UserSession {
   /**
    * Returns {@code true} if the permission is granted on the organization, else {@code false}.
    * Root status is not verified, so the method may return {@code false} even for root users.
+   *
+   * @see org.sonar.core.permission.GlobalPermissions
    */
   boolean hasOrganizationPermission(String organizationUuid, String permission);
 
