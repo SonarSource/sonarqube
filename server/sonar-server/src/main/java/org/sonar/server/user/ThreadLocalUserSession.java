@@ -114,11 +114,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return get().hasGlobalPermission(globalPermission);
-  }
-
-  @Override
   public List<String> globalPermissions() {
     return get().globalPermissions();
   }
