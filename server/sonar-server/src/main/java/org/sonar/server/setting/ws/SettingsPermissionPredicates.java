@@ -68,6 +68,6 @@ public class SettingsPermissionPredicates {
   }
 
   private boolean hasPermission(String permission, Optional<ComponentDto> component) {
-    return userSession.hasPermission(permission) || (component.isPresent() && userSession.hasComponentUuidPermission(permission, component.get().uuid()));
+    return userSession.hasPermission(permission) || (component.isPresent() && userSession.hasComponentPermission(permission, component.get()));
   }
 }

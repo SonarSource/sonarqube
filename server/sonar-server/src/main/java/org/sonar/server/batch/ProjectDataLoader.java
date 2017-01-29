@@ -69,8 +69,8 @@ public class ProjectDataLoader {
         throw new BadRequestException(format("Key '%s' belongs to a component which is not a Project", query.getModuleKey()));
       }
 
-      boolean hasScanPerm = userSession.hasComponentUuidPermission(SCAN_EXECUTION, module.projectUuid());
-      boolean hasBrowsePerm = userSession.hasComponentUuidPermission(USER, module.projectUuid());
+      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module);
+      boolean hasBrowsePerm = userSession.hasComponentPermission(USER, module);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 
       ComponentDto project = getProject(module, session);

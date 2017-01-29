@@ -61,7 +61,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
@@ -298,8 +297,7 @@ public class ComponentTreeDataLoader {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
+    userSession.checkComponentPermission(UserRole.USER, baseComponent);
   }
 
   private enum IsFileComponent implements Predicate<ComponentDto> {

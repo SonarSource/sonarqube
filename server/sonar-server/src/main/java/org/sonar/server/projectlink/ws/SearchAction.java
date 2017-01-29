@@ -124,8 +124,8 @@ public class SearchAction implements ProjectLinksWsAction {
       request.getProjectKey(),
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
 
-    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, component.uuid()) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, component.uuid())) {
+    if (!userSession.hasComponentPermission(UserRole.ADMIN, component) &&
+      !userSession.hasComponentPermission(UserRole.USER, component)) {
       throw insufficientPrivilegesException();
     }
 

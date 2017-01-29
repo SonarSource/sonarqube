@@ -35,7 +35,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
@@ -119,8 +118,7 @@ public class ShowAction implements ComponentsWsAction {
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {
     ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
-    String projectUuid = firstNonNull(component.projectUuid(), component.uuid());
-    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
+    userSession.checkComponentPermission(UserRole.USER, component);
     return component;
   }
 }
