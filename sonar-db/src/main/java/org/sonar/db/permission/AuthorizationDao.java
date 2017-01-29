@@ -160,6 +160,10 @@ public class AuthorizationDao implements Dao {
     return dbSession.selectList(sql, params);
   }
 
+  /**
+   * @deprecated because it does not support organizations
+   */
+  @Deprecated
   public List<String> selectGlobalPermissions(@Nullable String userLogin) {
     DbSession session = mybatis.openSession(false);
     try {
