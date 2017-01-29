@@ -145,7 +145,7 @@ public class AppAction implements RequestHandler {
   }
 
   private static void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
-    boolean hasBrowsePermission = userSession.hasComponentUuidPermission(UserRole.USER, component.uuid());
+    boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component);
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
   }
 

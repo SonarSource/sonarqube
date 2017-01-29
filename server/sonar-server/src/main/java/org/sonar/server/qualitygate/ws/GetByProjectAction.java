@@ -92,8 +92,8 @@ public class GetByProjectAction implements QualityGatesWsAction {
   private ComponentDto getProject(DbSession dbSession, String projectUuid, String projectKey) {
     ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ParamNames.PROJECT_ID_AND_KEY);
 
-    if (!userSession.hasComponentUuidPermission(UserRole.USER, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid)) {
+    if (!userSession.hasComponentPermission(UserRole.USER, project) &&
+      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw insufficientPrivilegesException();
     }
 

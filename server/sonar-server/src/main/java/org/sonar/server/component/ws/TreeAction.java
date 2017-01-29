@@ -51,7 +51,6 @@ import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
@@ -189,8 +188,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
-    String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    userSession.checkComponentUuidPermission(UserRole.USER, projectUuid);
+    userSession.checkComponentPermission(UserRole.USER, baseComponent);
   }
 
   private static TreeWsResponse buildResponse(ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components,

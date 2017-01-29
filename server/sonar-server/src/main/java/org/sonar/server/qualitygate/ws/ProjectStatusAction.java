@@ -114,7 +114,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, request);
-      checkPermission(projectAndSnapshot.project.uuid());
+      checkPermission(projectAndSnapshot.project);
       Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.project);
 
       return ProjectStatusWsResponse.newBuilder()
@@ -178,9 +178,9 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     return projectStatusWsRequest;
   }
 
-  private void checkPermission(String projectUuid) {
-    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
+  private void checkPermission(ComponentDto project) {
+    if (!userSession.hasComponentPermission(UserRole.ADMIN, project) &&
+      !userSession.hasComponentPermission(UserRole.USER, project)) {
       throw insufficientPrivilegesException();
     }
   }

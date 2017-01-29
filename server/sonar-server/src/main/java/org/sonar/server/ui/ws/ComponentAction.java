@@ -129,7 +129,7 @@ public class ComponentAction implements NavigationWsAction {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
-      if (!(userSession.hasComponentUuidPermission(USER, component.projectUuid()) || userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()))) {
+      if (!(userSession.hasComponentPermission(USER, component) || userSession.hasComponentPermission(ADMIN, component))) {
         throw new ForbiddenException("Insufficient privileges");
       }
       OrganizationDto organizationDto = componentFinder.getOrganization(session, component);
@@ -140,7 +140,7 @@ public class ComponentAction implements NavigationWsAction {
       writeComponent(json, session, component, organizationDto, analysis.orElse(null));
       writeProfiles(json, session, component);
       writeQualityGate(json, session, component);
-      if (userSession.hasComponentUuidPermission(ADMIN, component.projectUuid()) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
+      if (userSession.hasComponentPermission(ADMIN, component) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component);
       }
       writeBreadCrumbs(json, session, component);
@@ -200,7 +200,7 @@ public class ComponentAction implements NavigationWsAction {
     json.name("extensions").beginArray();
     Predicate<Page> isAuthorized = page -> {
       String requiredPermission = page.isAdmin() ? UserRole.ADMIN : UserRole.USER;
-      return userSession.hasComponentUuidPermission(requiredPermission, component.uuid());
+      return userSession.hasComponentPermission(requiredPermission, component);
     };
     pages.stream()
       .filter(isAuthorized)
@@ -209,7 +209,7 @@ public class ComponentAction implements NavigationWsAction {
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component) {
-    boolean isAdmin = userSession.hasComponentUuidPermission(ADMIN, component.projectUuid());
+    boolean isAdmin = userSession.hasComponentPermission(ADMIN, component);
 
     json.name("configuration").beginObject();
     writeConfigPageAccess(json, isAdmin, component);

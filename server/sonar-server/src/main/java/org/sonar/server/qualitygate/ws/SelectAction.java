@@ -119,7 +119,7 @@ public class SelectAction implements QualityGatesWsAction {
       .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
 
     if (!userSession.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, project.uuid())) {
+      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw insufficientPrivilegesException();
     }
 

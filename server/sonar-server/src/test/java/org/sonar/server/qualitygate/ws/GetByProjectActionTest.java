@@ -62,9 +62,9 @@ public class GetByProjectActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
     new GetByProjectAction(userSession, dbClient, new ComponentFinder(dbClient), new QualityGateFinder(dbClient)));
@@ -85,7 +85,7 @@ public class GetByProjectActionTest {
 
   @Test
   public void empty_response() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentDb.insertProject();
     insertQualityGate("Another QG");
 
     String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
@@ -135,8 +135,8 @@ public class GetByProjectActionTest {
 
   @Test
   public void get_with_project_admin_permission() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    ComponentDto project = componentDb.insertProject();
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
@@ -146,9 +146,9 @@ public class GetByProjectActionTest {
   }
 
   @Test
-  public void get_with_project_browse_permission() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+  public void get_with_project_user_permission() {
+    ComponentDto project = componentDb.insertProject();
+    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
