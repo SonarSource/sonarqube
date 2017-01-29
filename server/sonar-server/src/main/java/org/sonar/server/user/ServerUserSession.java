@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
@@ -53,7 +55,7 @@ public class ServerUserSession extends AbstractUserSession {
   private final UserDto userDto;
   private final DbClient dbClient;
   private final ResourceDao resourceDao;
-  private final Set<String> userGroups;
+  private final Supplier<List<GroupDto>> groups;
   private List<String> globalPermissions = null;
   private SetMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
@@ -66,7 +68,7 @@ public class ServerUserSession extends AbstractUserSession {
     this.userDto = userDto;
     this.dbClient = dbClient;
     this.resourceDao = dbClient.resourceDao();
-    this.userGroups = loadUserGroups();
+    this.groups = Suppliers.memoize(this::loadGroups);
   }
 
   public static ServerUserSession createForUser(DbClient dbClient, UserDto userDto) {
@@ -78,15 +80,12 @@ public class ServerUserSession extends AbstractUserSession {
     return new ServerUserSession(dbClient, null);
   }
 
-  private Set<String> loadUserGroups() {
+  private List<GroupDto> loadGroups() {
     if (this.userDto == null) {
-      return Collections.singleton(DefaultGroups.ANYONE);
+      return Collections.emptyList();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return Stream.concat(
-        Stream.of(DefaultGroups.ANYONE),
-        dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin()).stream().map(GroupDto::getName))
-        .collect(Collectors.toSet());
+      return dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
     }
   }
 
@@ -109,8 +108,17 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
+  public Collection<GroupDto> getGroups() {
+    return groups.get();
+  }
+
+  @Override
   public Set<String> getUserGroups() {
-    return userGroups;
+    Collection<GroupDto> groups = getGroups();
+    return Stream.concat(
+      Stream.of(DefaultGroups.ANYONE),
+      groups.stream().map(GroupDto::getName))
+      .collect(Collectors.toSet(groups.size() + 1));
   }
 
   @Override

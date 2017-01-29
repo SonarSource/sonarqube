@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.db.user.GroupDto;
 
 public interface UserSession {
   @CheckForNull
@@ -35,11 +37,25 @@ public interface UserSession {
   Integer getUserId();
 
   /**
-   * @deprecated does not support organizations as group names are not unique
+   * The groups that the logged-in user is member of. An empty
+   * collection is returned if user is anonymous.
+   */
+  Collection<GroupDto> getGroups();
+
+  /**
+   * The groups that the user is member of, always including
+   * the virtual group named {@link DefaultGroups#ANYONE}.
+   *
+   * @deprecated does not support organizations because group names 
+   * are not unique
+   * @see #getGroups()
    */
   @Deprecated
   Set<String> getUserGroups();
 
+  /**
+   * Whether the user is logged-in or anonymous.
+   */
   boolean isLoggedIn();
 
   boolean isRoot();

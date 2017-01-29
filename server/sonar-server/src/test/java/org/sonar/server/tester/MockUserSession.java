@@ -19,16 +19,22 @@
  */
 package org.sonar.server.tester;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 
 public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
   private boolean root = false;
   private Integer userId;
   private String name;
+  private List<GroupDto> groups = new ArrayList<>();
 
   public MockUserSession(String login) {
     super(MockUserSession.class);
@@ -85,4 +91,13 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     return this;
   }
 
+  @Override
+  public Collection<GroupDto> getGroups() {
+    return groups;
+  }
+
+  public MockUserSession setGroups(GroupDto... groups) {
+    this.groups = asList(groups);
+    return this;
+  }
 }

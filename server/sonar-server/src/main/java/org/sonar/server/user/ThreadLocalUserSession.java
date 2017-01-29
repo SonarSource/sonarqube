@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 
 /**
@@ -68,6 +69,11 @@ public class ThreadLocalUserSession implements UserSession {
   @CheckForNull
   public Integer getUserId() {
     return get().getUserId();
+  }
+
+  @Override
+  public Collection<GroupDto> getGroups() {
+    return get().getGroups();
   }
 
   @Override

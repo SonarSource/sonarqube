@@ -29,6 +29,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -276,6 +277,11 @@ public class UserSessionRule implements TestRule, UserSession {
   @CheckForNull
   public Integer getUserId() {
     return currentUserSession.getUserId();
+  }
+
+  @Override
+  public Collection<GroupDto> getGroups() {
+    return currentUserSession.getGroups();
   }
 
   @Override
