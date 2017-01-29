@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.user;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.sonar.db.user.GroupDto;
@@ -98,11 +97,6 @@ public class CeUserSession implements UserSession {
   @Override
   public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
     return notImplemented();
-  }
-
-  @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return notImplementedBooleanMethod();
   }
 
   @Override

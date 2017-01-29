@@ -309,16 +309,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void deprecated_has_global_permission() throws Exception {
-    addGlobalPermissions("profileadmin", "admin");
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasGlobalPermission(QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(QUALITY_GATE_ADMIN)).isFalse();
-  }
-
-  @Test
   public void fail_if_user_dto_is_null() throws Exception {
     expectedException.expect(NullPointerException.class);
     newUserSession(null);

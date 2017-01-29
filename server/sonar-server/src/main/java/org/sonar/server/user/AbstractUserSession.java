@@ -72,11 +72,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return isRoot() || hasPermission(globalPermission);
-  }
-
-  @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
     if (!hasComponentPermission(projectPermission, componentKey)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);

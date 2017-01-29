@@ -326,11 +326,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return currentUserSession.hasGlobalPermission(globalPermission);
-  }
-
-  @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
     return currentUserSession.hasOrganizationPermission(organizationUuid, permission);
   }
