@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -72,8 +71,9 @@ public interface UserSession {
 
   /**
    * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+
    * @deprecated in 6.3 because it doesn't support organizations
-   *
+   * @see org.sonar.core.permission.GlobalPermissions
    * @see #checkIsRoot() for system administrators
    * @see #checkOrganizationPermission(String, String) for organization members
    */
@@ -81,14 +81,14 @@ public interface UserSession {
   UserSession checkPermission(String globalPermission);
 
   /**
-   * Ensures that at least one of the global permissions is granted to user. If none are granted,
-   * then throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkAnyPermissions(Collection<String> globalPermissions);
-
-  /**
    * Does the user have the given permission ?
+
+   * @deprecated in 6.3 because if doesn't support organizations
+   * @see org.sonar.core.permission.GlobalPermissions
+   * @see #isRoot()
+   * @see #hasOrganizationPermission(String, String)
    */
+  @Deprecated
   boolean hasPermission(String globalPermission);
 
   /**

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -106,12 +105,6 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public UserSession checkPermission(String globalPermission) {
     get().checkPermission(globalPermission);
-    return this;
-  }
-
-  @Override
-  public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
-    get().checkAnyPermissions(globalPermissions);
     return this;
   }
 
