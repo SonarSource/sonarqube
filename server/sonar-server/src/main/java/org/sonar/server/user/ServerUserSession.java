@@ -46,7 +46,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Part of the current HTTP session
+ * Implementation of {@link UserSession} used in web server
  */
 public class ServerUserSession extends AbstractUserSession {
   private Map<String, String> projectKeyByComponentKey = newHashMap();

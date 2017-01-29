@@ -69,11 +69,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission) {
-    return checkPermission(globalPermission);
-  }
-
-  @Override
   public UserSession checkAnyPermissions(Collection<String> globalPermissionsToTest) {
     List<String> userGlobalPermissions = globalPermissions();
     for (String userGlobalPermission : userGlobalPermissions) {
