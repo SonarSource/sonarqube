@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -108,6 +109,11 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   @Override
   public List<String> globalPermissions() {
     return globalPermissions;
+  }
+
+  @Override
+  public boolean hasComponentPermission(String permission, ComponentDto component) {
+    return hasComponentUuidPermission(permission, component.projectUuid());
   }
 
   @Override
