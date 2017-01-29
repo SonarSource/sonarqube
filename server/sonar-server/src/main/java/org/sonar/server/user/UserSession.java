@@ -19,10 +19,12 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
 public interface UserSession {
@@ -71,7 +73,7 @@ public interface UserSession {
 
   /**
    * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-
+  
    * @deprecated in 6.3 because it doesn't support organizations
    * @see org.sonar.core.permission.GlobalPermissions
    * @see #checkIsRoot() for system administrators
@@ -82,7 +84,7 @@ public interface UserSession {
 
   /**
    * Does the user have the given permission ?
-
+  
    * @deprecated in 6.3 because if doesn't support organizations
    * @see org.sonar.core.permission.GlobalPermissions
    * @see #isRoot()
@@ -112,6 +114,15 @@ public interface UserSession {
   List<String> globalPermissions();
 
   /**
+   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * If the component doesn't exist and the user doesn't have the permission, throws
+   * a {@link org.sonar.server.exceptions.ForbiddenException}.
+   *
+   * @see org.sonar.api.web.UserRole for list of project permissions
+   */
+  UserSession checkComponentPermission(String projectPermission, ComponentDto component);
+
+  /**
    * Ensures that permission is granted to user on the specified component, otherwise throws
    * a {@link org.sonar.server.exceptions.ForbiddenException}.
    * If the component doesn't exist and the user doesn't have the global permission,
@@ -125,6 +136,12 @@ public interface UserSession {
    * a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentUuidPermission(String permission, String componentUuid);
+
+  /**
+   * Whether the user has the permission on the component. Returns {@code false}
+   * if the component does not exist in database.
+   */
+  boolean hasComponentPermission(String permission, ComponentDto component);
 
   /**
    * Does the user have the given permission for a component key ?

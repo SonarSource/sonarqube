@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
@@ -69,6 +70,19 @@ public abstract class AbstractUserSession implements UserSession {
   @Override
   public boolean hasPermission(String globalPermission) {
     return isRoot() || globalPermissions().contains(globalPermission);
+  }
+
+  @Override
+  public boolean hasComponentPermission(String permission, ComponentDto component) {
+    return hasComponentUuidPermission(permission, component.projectUuid());
+  }
+
+  @Override
+  public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
+    if (!hasComponentPermission(projectPermission, component)) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+    }
+    return this;
   }
 
   @Override
