@@ -432,7 +432,7 @@ public class BulkChangeActionTest {
 
   @Test
   public void fail_when_number_of_issues_is_more_than_500() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
     expectedException.expectMessage("Number of issues is limited to 500");
     expectedException.expect(IllegalArgumentException.class);
 
@@ -482,7 +482,7 @@ public class BulkChangeActionTest {
   }
 
   private void setUserProjectPermissions(String... permissions) {
-    userSession.login(user);
+    userSession.logIn(user);
     addUserProjectPermissions(project, permissions);
   }
 

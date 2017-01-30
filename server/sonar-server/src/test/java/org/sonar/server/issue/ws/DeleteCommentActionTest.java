@@ -74,7 +74,7 @@ public class DeleteCommentActionTest {
   public void delete_comment() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     call(commentDto.getKey());
 
@@ -86,7 +86,7 @@ public class DeleteCommentActionTest {
   public void delete_comment_using_deprecated_key_parameter() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
 
@@ -98,7 +98,7 @@ public class DeleteCommentActionTest {
   public void fail_when_comment_does_not_belong_to_current_user() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.login("another").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("another").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only delete your own comments");
@@ -109,7 +109,7 @@ public class DeleteCommentActionTest {
   public void fail_when_comment_has_not_user() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only delete your own comments");
@@ -118,7 +118,7 @@ public class DeleteCommentActionTest {
 
   @Test
   public void fail_when_missing_comment_key() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
     call(null);
@@ -126,7 +126,7 @@ public class DeleteCommentActionTest {
 
   @Test
   public void fail_when_comment_does_not_exist() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
     call("ABCD");
@@ -142,7 +142,7 @@ public class DeleteCommentActionTest {
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.login("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
     call(commentDto.getKey());

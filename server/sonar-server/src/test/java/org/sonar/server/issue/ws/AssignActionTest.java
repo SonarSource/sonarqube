@@ -49,7 +49,7 @@ public class AssignActionTest {
 
   @Test
   public void assign_to_me() throws Exception {
-    userSession.login("perceval");
+    userSession.logIn("perceval");
 
     tester.newRequest()
       .setParam("issue", "ABC")
@@ -62,7 +62,7 @@ public class AssignActionTest {
 
   @Test
   public void assign_to_me_with_deprecated_param() throws Exception {
-    userSession.login("perceval");
+    userSession.logIn("perceval");
 
     tester.newRequest()
       .setParam("issue", "ABC")
@@ -75,7 +75,7 @@ public class AssignActionTest {
 
   @Test
   public void assign_to_someone() throws Exception {
-    userSession.login("perceval");
+    userSession.logIn("perceval");
 
     tester.newRequest()
       .setParam("issue", "ABC")
@@ -98,7 +98,7 @@ public class AssignActionTest {
 
   @Test
   public void unassign() throws Exception {
-    userSession.login("perceval");
+    userSession.logIn("perceval");
 
     tester.newRequest()
       .setParam("issue", "ABC")

@@ -76,7 +76,7 @@ public class UpdateActionTest {
     CustomMeasureValidator validator = new CustomMeasureValidator(newFullTypeValidations());
 
     ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)))));
-    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
@@ -239,7 +239,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
-    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     expectedException.expect(ForbiddenException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);

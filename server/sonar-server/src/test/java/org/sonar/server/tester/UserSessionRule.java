@@ -74,8 +74,8 @@ import static com.google.common.base.Preconditions.checkState;
  * {@code UserSessionRule.standalone().anonymous()}.
  * </p>
  * <p>
- * To emulate an identified user, either use method {@link #login(String)} if you want to specify the user's login, or
- * method {@link #login()} which will do the same but using the value of {@link #DEFAULT_LOGIN} as the user's login
+ * To emulate an identified user, either use method {@link #logIn(String)} if you want to specify the user's login, or
+ * method {@link #logIn()} which will do the same but using the value of {@link #DEFAULT_LOGIN} as the user's login
  * (use the latest override if you don't care about the actual value of the login, it will save noise in your test).
  * </p>
  */
@@ -102,14 +102,14 @@ public class UserSessionRule implements TestRule, UserSession {
   /**
    * Log in with the default login {@link #DEFAULT_LOGIN}
    */
-  public UserSessionRule login() {
-    return login(DEFAULT_LOGIN);
+  public UserSessionRule logIn() {
+    return logIn(DEFAULT_LOGIN);
   }
 
   /**
    * Log in with the specified login
    */
-  public UserSessionRule login(String login) {
+  public UserSessionRule logIn(String login) {
     setCurrentUserSession(new MockUserSession(login));
     return this;
   }
@@ -117,7 +117,7 @@ public class UserSessionRule implements TestRule, UserSession {
   /**
    * Log in with the specified login
    */
-  public UserSessionRule login(UserDto userDto) {
+  public UserSessionRule logIn(UserDto userDto) {
     setCurrentUserSession(new MockUserSession(userDto));
     return this;
   }

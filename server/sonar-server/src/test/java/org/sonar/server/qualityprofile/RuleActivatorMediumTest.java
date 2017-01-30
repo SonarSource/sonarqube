@@ -188,7 +188,7 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(BLOCKER);
     activation.setParameter("max", "7");
     activation.setParameter("min", "3");
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
@@ -508,7 +508,7 @@ public class RuleActivatorMediumTest {
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(BLOCKER);
     activation.setParameter("max", "7");
-    userSessionRule.login();
+    userSessionRule.logIn();
     activate(activation, XOO_P1_KEY);
 
     // deactivation
@@ -614,7 +614,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void propagate_activation_update_on_child_profiles() {
     createChildProfiles();
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     // activate on root profile
     RuleActivation activation = new RuleActivation(XOO_X1);

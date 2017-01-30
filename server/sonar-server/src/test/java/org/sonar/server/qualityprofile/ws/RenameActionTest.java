@@ -79,7 +79,7 @@ public class RenameActionTest {
 
   @Test
   public void rename_nominal() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo2-23456")
@@ -91,7 +91,7 @@ public class RenameActionTest {
 
   @Test(expected = BadRequestException.class)
   public void do_nothing_on_conflict() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo2-23456")
@@ -101,7 +101,7 @@ public class RenameActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("name", "Other Sonar Way")
@@ -110,7 +110,7 @@ public class RenameActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -119,7 +119,7 @@ public class RenameActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.login("obiwan");
+    userSessionRule.logIn("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -129,7 +129,7 @@ public class RenameActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_profile() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "polop")

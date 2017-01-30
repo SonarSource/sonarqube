@@ -117,7 +117,7 @@ public class DeactivateActionTest {
   @Test
   public void cannot_deactivate_self() throws Exception {
     UserDto user = createUser();
-    userSession.login(user.getLogin()).setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn(user.getLogin()).setGlobalPermissions(SYSTEM_ADMIN);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Self-deactivation is not possible");
@@ -137,7 +137,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivation_requires_administrator_permission() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -230,7 +230,7 @@ public class DeactivateActionTest {
   }
 
   private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   private TestResponse deactivate(String login) {

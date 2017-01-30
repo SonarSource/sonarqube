@@ -151,7 +151,7 @@ public class QgateProjectFinderTest {
     // User can only see project 1
     dbTester.users().insertProjectPermissionOnUser(user, UserRole.USER, project1);
 
-    userSession.login(user.getLogin()).setUserId(user.getId().intValue());
+    userSession.logIn(user.getLogin()).setUserId(user.getId().intValue());
     Association result = underTest.find(
       builder()
         .gateId(Long.toString(qGate.getId()))

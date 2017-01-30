@@ -69,7 +69,7 @@ public class ProjectsActionTest {
   public void setUp() {
     organizationDto = db.organizations().insert();
     user = db.users().insertUser(UserTesting.newUserDto().setLogin("obiwan"));
-    userSessionRule.login("obiwan").setUserId(user.getId().intValue());
+    userSessionRule.logIn("obiwan").setUserId(user.getId().intValue());
 
     createProfiles();
 

@@ -83,7 +83,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_component_and_return_no_records() throws Exception {
-    userSession.login().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
+    userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
     Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -96,7 +96,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void search_by_task_and_return_no_records() throws Exception {
-    userSession.login().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
+    userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
     Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -121,7 +121,7 @@ public class WebhookDeliveriesActionTest {
       .setHttpStatus(200);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     String json = ws.newRequest()
       .setParam("componentKey", project.getKey())
@@ -140,7 +140,7 @@ public class WebhookDeliveriesActionTest {
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -157,7 +157,7 @@ public class WebhookDeliveriesActionTest {
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -173,7 +173,7 @@ public class WebhookDeliveriesActionTest {
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -185,7 +185,7 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void throw_IAE_if_both_component_and_task_parameters_are_set() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either parameter 'ceTaskId' or 'componentKey' must be defined");

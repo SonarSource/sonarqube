@@ -106,7 +106,7 @@ public class ComponentTreeActionTest {
 
   @Before
   public void setUp() {
-    userSession.login().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
     resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }

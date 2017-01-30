@@ -102,7 +102,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_all_profiles() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -117,7 +117,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_all_deprecated_profiles() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleDto xooRule2 = newXooX2().setStatus(RuleStatus.DEPRECATED);
     RuleDto xooRule3 = newXooX3().setStatus(RuleStatus.DEPRECATED);
@@ -143,7 +143,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void stat_for_all_profiles() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("MINOR"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -161,7 +161,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_deprecated() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))

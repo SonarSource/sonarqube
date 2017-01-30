@@ -92,7 +92,7 @@ public class ActivityStatusActionTest {
   public void status_for_a_project_as_project_admin() {
     String projectUuid = "project-uuid";
     String anotherProjectUuid = "another-project-uuid";
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, projectUuid);
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, projectUuid);
     OrganizationDto organizationDto = db.organizations().insert();
     componentDb.insertComponent(newProjectDto(organizationDto, projectUuid));
     componentDb.insertComponent(newProjectDto(organizationDto, anotherProjectUuid));

@@ -108,7 +108,7 @@ public class UpdateActionTest {
   @Test
   public void request_fails_if_user_does_not_have_any_SYSTEM_ADMIN_permission() {
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -120,7 +120,7 @@ public class UpdateActionTest {
   public void request_fails_if_user_has_SYSTEM_ADMIN_permission_on_other_organization() {
     OrganizationDto dto = dbTester.organizations().insert();
     userSession.addOrganizationPermission(dbTester.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -130,7 +130,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_key_is_missing() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'key' parameter is missing");
@@ -148,7 +148,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_name_is_one_char_long() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name 'a' must be at least 2 chars long");
@@ -166,7 +166,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_name_is_65_chars_long() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name '" + STRING_65_CHARS_LONG + "' must be at most 64 chars long");
@@ -204,7 +204,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_description_is_257_chars_long() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -224,7 +224,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_url_is_257_chars_long() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -244,7 +244,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_avatar_is_257_chars_long() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -272,7 +272,7 @@ public class UpdateActionTest {
   }
 
   private void giveUserSystemAdminPermission(OrganizationDto organizationDto) {
-    userSession.login().addOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
   }
 
   private OrganizationDto mockForSuccessfulUpdate(long createdAt, long nextNow) {

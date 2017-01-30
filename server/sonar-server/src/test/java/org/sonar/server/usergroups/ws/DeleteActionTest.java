@@ -369,7 +369,7 @@ public class DeleteActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private WsTester.TestRequest newRequest() {

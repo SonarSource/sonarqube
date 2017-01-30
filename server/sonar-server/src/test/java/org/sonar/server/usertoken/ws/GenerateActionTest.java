@@ -71,7 +71,7 @@ public class GenerateActionTest {
     when(tokenGenerator.generate()).thenReturn("123456789");
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
     userSession
-      .login()
+      .logIn()
       .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     db.users().insertUser(newUserDto().setLogin(GRACE_HOPPER));
     db.users().insertUser(newUserDto().setLogin(ADA_LOVELACE));
@@ -93,7 +93,7 @@ public class GenerateActionTest {
 
   @Test
   public void a_user_can_generate_token_for_himself() {
-    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     GenerateWsResponse response = newRequest(null, TOKEN_NAME);
 
@@ -145,7 +145,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.login(ADA_LOVELACE).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(ADA_LOVELACE).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     expectedException.expect(ForbiddenException.class);
 
     newRequest(GRACE_HOPPER, TOKEN_NAME);

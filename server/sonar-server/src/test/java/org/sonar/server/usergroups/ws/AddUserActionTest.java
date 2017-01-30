@@ -271,7 +271,7 @@ public class AddUserActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.login().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(org.getUuid(), SYSTEM_ADMIN);
   }
 
   private GroupWsSupport newGroupWsSupport() {

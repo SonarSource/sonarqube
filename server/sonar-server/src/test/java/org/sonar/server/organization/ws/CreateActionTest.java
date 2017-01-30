@@ -142,7 +142,7 @@ public class CreateActionTest {
 
   @Test
   public void request_fails_if_user_is_not_root_and_logged_in_user_can_not_create_organizations() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -180,7 +180,7 @@ public class CreateActionTest {
   @Test
   public void request_succeeds_if_user_is_not_root_and_logged_in_user_can_create_organizations() {
     settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
-    userSession.login();
+    userSession.logIn();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
     verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
@@ -439,7 +439,7 @@ public class CreateActionTest {
   public void request_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().makeRoot(dbTester.users().insertUser());
-    userSession.login(user).setRoot();
+    userSession.logIn(user).setRoot();
 
     executeRequest("orgFoo");
 
@@ -463,7 +463,7 @@ public class CreateActionTest {
   public void request_creates_default_template_for_owner_group_and_anyone() {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().makeRoot(dbTester.users().insertUser());
-    userSession.login(user).setRoot();
+    userSession.logIn(user).setRoot();
 
     executeRequest("orgFoo");
 
@@ -484,7 +484,7 @@ public class CreateActionTest {
   }
 
   private void makeUserRoot() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
   }
 
   private void mockForSuccessfulInsert(String uuid, long now) {

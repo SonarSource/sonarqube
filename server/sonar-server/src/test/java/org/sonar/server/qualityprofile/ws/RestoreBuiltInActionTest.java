@@ -50,7 +50,7 @@ public class RestoreBuiltInActionTest {
 
   @Test
   public void return_empty_result_when_no_info_or_warning() {
-    userSession.login("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
     TestResponse response = tester.newRequest().setParam("language", "xoo").execute();
 
     verify(reset).resetLanguage("xoo");
@@ -59,7 +59,7 @@ public class RestoreBuiltInActionTest {
 
   @Test
   public void fail_on_unknown_language() throws Exception {
-    userSession.login("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
     expectedException.expect(IllegalArgumentException.class);
     tester.newRequest().setParam("language", "unknown").execute();
   }

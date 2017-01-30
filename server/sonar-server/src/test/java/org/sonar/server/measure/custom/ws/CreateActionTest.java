@@ -91,7 +91,7 @@ public class CreateActionTest {
   public void setUp() {
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new ComponentFinder(dbClient))));
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
@@ -163,7 +163,7 @@ public class CreateActionTest {
   public void create_text_custom_measure_as_project_admin() throws Exception {
     insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
-    userSession.login("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -460,7 +460,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_not_enough_permission() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login("login");
+    userSession.logIn("login");
     insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 

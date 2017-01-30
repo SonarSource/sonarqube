@@ -267,7 +267,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void fail_if_not_enough_permissions() {
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
 

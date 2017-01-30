@@ -100,7 +100,7 @@ public class RestartActionTest {
 
   @Test
   public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_root() {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -109,7 +109,7 @@ public class RestartActionTest {
 
   @Test
   public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() throws Exception {
-    userSessionRule.login().setRoot();
+    userSessionRule.logIn().setRoot();
 
     actionTester.newRequest().execute();
 
@@ -120,7 +120,7 @@ public class RestartActionTest {
   @Test
   public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() throws Exception {
     String login = "BigBother";
-    userSessionRule.login(login).setRoot();
+    userSessionRule.logIn(login).setRoot();
 
     actionTester.newRequest().execute();
 

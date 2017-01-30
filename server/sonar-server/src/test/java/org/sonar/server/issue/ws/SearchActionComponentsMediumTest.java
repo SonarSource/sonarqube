@@ -483,7 +483,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
@@ -502,7 +502,7 @@ public class SearchActionComponentsMediumTest {
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
@@ -522,7 +522,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
@@ -543,7 +543,7 @@ public class SearchActionComponentsMediumTest {
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
+    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())
@@ -565,7 +565,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.login("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())
@@ -670,7 +670,7 @@ public class SearchActionComponentsMediumTest {
   }
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));

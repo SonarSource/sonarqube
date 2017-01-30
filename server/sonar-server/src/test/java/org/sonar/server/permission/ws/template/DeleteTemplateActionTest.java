@@ -151,7 +151,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_uuid_is_not_known_without_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
 
@@ -160,7 +160,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_uuid_is_not_known_with_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
 
@@ -272,7 +272,7 @@ public class DeleteTemplateActionTest {
   public void fail_to_delete_by_uuid_if_not_admin_without_views() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -283,7 +283,7 @@ public class DeleteTemplateActionTest {
   public void fail_to_delete_by_uuid_if_not_admin_with_views() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -294,7 +294,7 @@ public class DeleteTemplateActionTest {
   public void fail_to_delete_by_name_if_not_admin_without_views() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -307,7 +307,7 @@ public class DeleteTemplateActionTest {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(PermissionTemplateTesting.newPermissionTemplateDto()
       .setOrganizationUuid(organization.getUuid())
       .setName("the name"));
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -316,7 +316,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_neither_uuid_nor_name_is_provided_without_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
 
@@ -325,7 +325,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_neither_uuid_nor_name_is_provided_with_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
 
@@ -334,7 +334,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_both_uuid_and_name_are_provided_without_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
 
@@ -346,7 +346,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_both_uuid_and_name_are_provided_with_views() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(BadRequestException.class);
 
@@ -373,7 +373,7 @@ public class DeleteTemplateActionTest {
   // }
 
   private UserSessionRule loginAsAdmin(OrganizationDto organization) {
-    return userSession.login().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+    return userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
   }
 
   private void runOnAllUnderTests(ConsumerWithException<WsActionTester> consumer) throws Exception {

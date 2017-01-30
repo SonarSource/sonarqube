@@ -78,7 +78,7 @@ public class UsersActionTest {
   @Test
   public void fail_if_not_admin_of_organization() throws Exception {
     GroupDto group = db.users().insertGroup();
-    userSession.login("not-admin");
+    userSession.logIn("not-admin");
 
     expectedException.expect(ForbiddenException.class);
 
@@ -273,6 +273,6 @@ public class UsersActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.login().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 }

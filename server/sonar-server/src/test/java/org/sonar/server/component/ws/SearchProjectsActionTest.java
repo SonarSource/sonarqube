@@ -88,7 +88,7 @@ public class SearchProjectsActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId(23);
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(23);
   @Rule
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
   @Rule
@@ -138,7 +138,7 @@ public class SearchProjectsActionTest {
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3"));
-    userSession.login().setUserId(23);
+    userSession.logIn().setUserId(23);
     addFavourite(project1);
     dbSession.commit();
 

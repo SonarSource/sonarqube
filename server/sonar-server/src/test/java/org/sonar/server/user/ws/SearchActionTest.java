@@ -261,11 +261,11 @@ public class SearchActionTest {
   }
 
   private void loginAsAdmin() {
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private void loginAsSimpleUser() {
-    userSession.login("user");
+    userSession.logIn("user");
   }
 
 }

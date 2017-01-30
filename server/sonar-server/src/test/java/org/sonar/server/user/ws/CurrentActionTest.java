@@ -53,7 +53,7 @@ public class CurrentActionTest {
 
   @Test
   public void json_example() throws Exception {
-    userSessionRule.login("obiwan.kenobi").setName("Obiwan Kenobi")
+    userSessionRule.logIn("obiwan.kenobi").setName("Obiwan Kenobi")
       .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
     UserDto obiwan = db.users().insertUser(
       newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")

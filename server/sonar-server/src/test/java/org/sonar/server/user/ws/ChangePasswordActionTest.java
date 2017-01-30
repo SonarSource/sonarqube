@@ -67,7 +67,7 @@ public class ChangePasswordActionTest {
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   private WsTester tester;
   private DbClient dbClient;
@@ -101,7 +101,7 @@ public class ChangePasswordActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    userSessionRule.login("polop");
+    userSessionRule.logIn("polop");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .execute();
@@ -138,7 +138,7 @@ public class ChangePasswordActionTest {
     session.clearCache();
     String originalPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("previousPassword", "Valar Dohaeris")
@@ -156,7 +156,7 @@ public class ChangePasswordActionTest {
     createUser();
     session.clearCache();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")
@@ -168,7 +168,7 @@ public class ChangePasswordActionTest {
     createUser();
     session.clearCache();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("previousPassword", "I dunno")

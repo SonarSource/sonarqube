@@ -136,7 +136,7 @@ public class GetByProjectActionTest {
   @Test
   public void get_with_project_admin_permission() {
     ComponentDto project = componentDb.insertProject();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
@@ -148,7 +148,7 @@ public class GetByProjectActionTest {
   @Test
   public void get_with_project_user_permission() {
     ComponentDto project = componentDb.insertProject();
-    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 

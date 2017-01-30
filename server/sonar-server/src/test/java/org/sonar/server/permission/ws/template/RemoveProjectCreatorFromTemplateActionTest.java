@@ -123,7 +123,7 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)

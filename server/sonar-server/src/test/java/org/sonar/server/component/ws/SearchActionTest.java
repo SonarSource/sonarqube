@@ -96,7 +96,7 @@ public class SearchActionTest {
     ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages, defaultOrganizationProvider));
 
     user = db.users().insertUser("john");
-    userSession.login(user);
+    userSession.logIn(user);
   }
 
   @Test

@@ -59,7 +59,7 @@ public class UpdateActionTest {
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("admin")
     .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   private DbClient dbClient = dbTester.getDbClient();
@@ -83,7 +83,7 @@ public class UpdateActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    userSessionRule.login("polop");
+    userSessionRule.logIn("polop");
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
       .execute();

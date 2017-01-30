@@ -206,7 +206,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -219,7 +219,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Test
   public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
     ComponentDto project = db.components().insertProject();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -237,7 +237,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
     ComponentDto project = db.components().insertProject();
 
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())

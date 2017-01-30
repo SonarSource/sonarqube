@@ -83,7 +83,7 @@ public class AppActionTest {
     insertComponentsAndAnalysis();
     dbTester.commit();
 
-    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
+    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app.json");
   }
@@ -100,7 +100,7 @@ public class AppActionTest {
     dbTester.commit();
 
     userSessionRule
-      .login("john")
+      .logIn("john")
       .addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
@@ -112,7 +112,7 @@ public class AppActionTest {
     insertFileMeasure(metricsByKey.get(COVERAGE_KEY).getId(), 95.4, null);
     dbTester.commit();
 
-    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
+    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_ut_measure.json");
   }

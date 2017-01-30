@@ -163,7 +163,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
     GroupDto groupWithoutPermission = db.users().insertGroup(organizationDto, "group-without-permission");
 
-    userSession.login().addProjectUuidPermissions(ADMIN, "project-uuid");
+    userSession.logIn().addProjectUuidPermissions(ADMIN, "project-uuid");
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
@@ -267,7 +267,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
 
-    userSession.login("login");
+    userSession.logIn("login");
     newRequest()
       .setParam(PARAM_PERMISSION, "scan")
       .execute();

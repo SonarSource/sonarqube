@@ -60,7 +60,7 @@ public class RevokeActionTest {
   @Before
   public void setUp() {
     userSession
-      .login()
+      .logIn()
       .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     ws = new WsActionTester(
@@ -83,7 +83,7 @@ public class RevokeActionTest {
 
   @Test
   public void user_can_delete_its_own_tokens() {
-    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
 
     String response = newRequest(null, "token-to-delete");
@@ -101,7 +101,7 @@ public class RevokeActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
     expectedException.expect(ForbiddenException.class);
 

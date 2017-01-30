@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
@@ -177,10 +176,10 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_not_admin_of_organization() throws Exception {
-    userSession.login().addOrganizationPermission("otherOrg", SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission("otherOrg", SYSTEM_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
-    userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     newRequest(template1.getUuid(), project.uuid(), null);
   }

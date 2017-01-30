@@ -138,7 +138,7 @@ public class SetTypeActionTest {
   @Test
   public void fail_when_missing_browse_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.login("john").addProjectUuidPermissions(ISSUE_ADMIN, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), BUG.name());
@@ -147,7 +147,7 @@ public class SetTypeActionTest {
   @Test
   public void fail_when_missing_administer_issue_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), BUG.name());
@@ -178,7 +178,7 @@ public class SetTypeActionTest {
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
-    userSession.login("john")
+    userSession.logIn("john")
       .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
       .addProjectUuidPermissions(USER, projectUuid);
   }

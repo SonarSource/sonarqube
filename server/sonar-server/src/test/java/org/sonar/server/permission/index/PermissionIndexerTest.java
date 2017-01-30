@@ -248,22 +248,22 @@ public class PermissionIndexerTest {
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user) {
-    logIn(user);
+    log_in(user);
     verifyAuthorized(project, true);
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setGroups(group);
+    log_in(user).setGroups(group);
     verifyAuthorized(project, true);
   }
 
   private void verifyNotAuthorized(ComponentDto project, UserDto user) {
-    logIn(user);
+    log_in(user);
     verifyAuthorized(project, false);
   }
 
   private void verifyNotAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setGroups(group);
+    log_in(user).setGroups(group);
     verifyAuthorized(project, false);
   }
 
@@ -281,8 +281,8 @@ public class PermissionIndexerTest {
     assertThat(fooIndex.hasAccessToProject(project.uuid())).isEqualTo(expectedAccess);
   }
 
-  private UserSessionRule logIn(UserDto u) {
-    userSession.login(u.getLogin()).setUserId(u.getId().intValue());
+  private UserSessionRule log_in(UserDto u) {
+    userSession.logIn(u.getLogin()).setUserId(u.getId().intValue());
     return userSession;
   }
 

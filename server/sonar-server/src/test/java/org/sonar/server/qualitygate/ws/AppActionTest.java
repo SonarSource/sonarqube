@@ -163,7 +163,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_false_when_not_quality_gate_permission() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn("not-admin").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     AppWsResponse response = executeRequest();
 
@@ -172,7 +172,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_true_when_quality_gate_permission() throws Exception {
-    userSession.login("admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
 
     AppWsResponse response = executeRequest();
 

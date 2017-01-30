@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 public class InfoActionTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("login")
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("login")
     .setName("name");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -68,7 +68,7 @@ public class InfoActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_root() {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -96,6 +96,6 @@ public class InfoActionTest {
   }
 
   private void makeAuthenticatedUserRoot() {
-    userSessionRule.login().setRoot();
+    userSessionRule.logIn().setRoot();
   }
 }

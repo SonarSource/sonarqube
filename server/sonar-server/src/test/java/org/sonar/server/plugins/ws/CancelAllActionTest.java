@@ -79,7 +79,7 @@ public class CancelAllActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -89,7 +89,7 @@ public class CancelAllActionTest {
 
   @Test
   public void triggers_cancel_for_downloads_and_uninstalls() throws Exception {
-    userSessionRule.login().setRoot();
+    userSessionRule.logIn().setRoot();
 
     underTest.handle(request, response);
 

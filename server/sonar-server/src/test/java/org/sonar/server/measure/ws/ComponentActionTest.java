@@ -84,7 +84,7 @@ public class ComponentActionTest {
 
   @Before
   public void setUp() {
-    userSession.login().setRoot().setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setRoot().setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
@@ -232,7 +232,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
 

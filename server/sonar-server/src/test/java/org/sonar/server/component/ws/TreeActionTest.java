@@ -89,7 +89,7 @@ public class TreeActionTest {
 
   @Before
   public void setUp() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient), resourceTypes, userSession, Mockito.mock(I18n.class)));
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
@@ -99,7 +99,7 @@ public class TreeActionTest {
   @Test
   public void json_example() throws IOException {
     ComponentDto project = initJsonExampleComponents();
-    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     String response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
@@ -298,7 +298,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_not_enough_privileges() {
     expectedException.expect(ForbiddenException.class);
-    userSession.anonymous().login()
+    userSession.anonymous().logIn()
       .addProjectUuidPermissions(UserRole.CODEVIEWER, "project-uuid");
     componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();

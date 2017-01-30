@@ -155,7 +155,7 @@ public class ComponentActionTest {
     UserDto user = userDbTester.insertUser("obiwan");
     componentDbTester.insertComponent(project);
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
-    userSessionRule.login(user).addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn(user).addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     executeAndVerify(project.key(), "return_component_info_with_favourite.json");
   }
@@ -250,7 +250,7 @@ public class ComponentActionTest {
   public void return_configuration_for_admin() throws Exception {
     UserDto user = userDbTester.insertUser();
     componentDbTester.insertComponent(project);
-    userSessionRule.login(user)
+    userSessionRule.logIn(user)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -361,7 +361,7 @@ public class ComponentActionTest {
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
     dbTester.qualityGates().associateProjectToQualityGate(project, qualityGateDto);
-    userSessionRule.login(user)
+    userSessionRule.logIn(user)
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 

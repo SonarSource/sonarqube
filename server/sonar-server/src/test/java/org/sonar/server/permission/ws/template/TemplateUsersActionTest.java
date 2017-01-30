@@ -275,7 +275,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
 
     expectedException.expect(ForbiddenException.class);
 

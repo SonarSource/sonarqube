@@ -96,7 +96,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_IAE_if_key_param_is_missing() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'key' parameter is missing");
@@ -107,7 +107,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_IAE_if_key_is_the_one_of_default_organization() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Default Organization can't be deleted");
@@ -117,7 +117,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_fails_with_NotFoundException_if_organization_with_specified_key_does_not_exist() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Organization with key 'foo' not found");
@@ -128,7 +128,7 @@ public class DeleteActionTest {
   @Test
   public void request_fails_with_ForbiddenException_when_user_has_no_System_Administer_permission() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -139,7 +139,7 @@ public class DeleteActionTest {
   @Test
   public void request_fails_with_ForbiddenException_when_user_does_not_have_System_Administer_permission_on_specified_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login().addOrganizationPermission(dbTester.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(dbTester.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -150,7 +150,7 @@ public class DeleteActionTest {
   @Test
   public void request_deletes_specified_organization_if_exists_and_user_has_Admin_permission_on_it() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
 
     sendRequest(organization);
 
@@ -160,7 +160,7 @@ public class DeleteActionTest {
   @Test
   public void request_deletes_specified_organization_if_exists_and_user_is_root() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
 
     sendRequest(organization);
 
@@ -169,7 +169,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_also_deletes_components_of_specified_organization() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
 
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertProject(organization);
@@ -192,7 +192,7 @@ public class DeleteActionTest {
 
   @Test
   public void request_also_deletes_permissions_templates_and_permissions_and_groups_of_specified_organization() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
 
     OrganizationDto org = dbTester.organizations().insert();
     OrganizationDto otherOrg = dbTester.organizations().insert();

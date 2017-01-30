@@ -122,7 +122,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_not_admin() throws Exception {
-    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 

@@ -67,7 +67,7 @@ public class SelectActionTest {
     underTest = new SelectAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
 
-    userSession.login("login").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(QUALITY_GATE_ADMIN);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class SelectActionTest {
     QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.login("login").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     callByKey(gateId, project.getKey());
     assertSelected(gateId, project.getId());
@@ -120,7 +120,7 @@ public class SelectActionTest {
     QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
 
     callByKey(gateId, project.getKey());
     assertSelected(gateId, project.getId());
@@ -171,7 +171,7 @@ public class SelectActionTest {
     QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.login("login").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     callByKey(gateId, project.getKey());
@@ -183,7 +183,7 @@ public class SelectActionTest {
     QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.login("login").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     callByKey(gateId, project.getKey());

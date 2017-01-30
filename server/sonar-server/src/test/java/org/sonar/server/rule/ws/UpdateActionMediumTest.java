@@ -56,7 +56,7 @@ public class UpdateActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 

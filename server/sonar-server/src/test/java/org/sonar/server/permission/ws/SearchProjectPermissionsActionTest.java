@@ -57,7 +57,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Before
   public void setUp() {
     i18n.setProjectPermissions();
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_project_permissions_with_project_permission() throws Exception {
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
     db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
     String result = newRequest()
@@ -225,7 +225,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void fail_if_not_admin() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 

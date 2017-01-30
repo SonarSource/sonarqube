@@ -313,7 +313,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
 
   @Test
   public void removing_global_permission_fails_if_not_administrator_of_organization() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -326,7 +326,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
   @Test
   public void removing_project_permission_fails_if_not_administrator_of_project() throws Exception {
     ComponentDto project = db.components().insertProject();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -346,7 +346,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     db.users().insertProjectPermissionOnGroup(aGroup, CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, project);
 
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())

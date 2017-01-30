@@ -100,7 +100,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_not_admin_of_default_organization() throws Exception {
-    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 

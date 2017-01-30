@@ -737,7 +737,7 @@ public class ValuesActionTest {
 
   @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
-    userSession.login("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSession.logIn("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -828,19 +828,19 @@ public class ValuesActionTest {
   }
 
   private void setAuthenticatedUser() {
-    userSession.login("user");
+    userSession.logIn("user");
   }
 
   private void setUserWithBrowsePermissionOnProject() {
-    userSession.login("user").addProjectUuidPermissions(USER, project.uuid());
+    userSession.logIn("user").addProjectUuidPermissions(USER, project.uuid());
   }
 
   private void setUserAsSystemAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   private void setUserAsProjectAdmin() {
-    userSession.login("project-admin")
+    userSession.logIn("project-admin")
       .addProjectUuidPermissions(ADMIN, project.uuid())
       .addProjectUuidPermissions(USER, project.uuid());
   }

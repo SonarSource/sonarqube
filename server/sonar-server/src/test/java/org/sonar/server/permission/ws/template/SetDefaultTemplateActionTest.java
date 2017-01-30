@@ -122,7 +122,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   public void fail_if_not_admin() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplate(organization);
-    userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 

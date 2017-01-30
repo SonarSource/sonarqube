@@ -69,18 +69,18 @@ public class DeleteActionTest {
   @Before
   public void setUp() {
     ws = new WsTester(new ProjectsWs(
-      new DeleteAction(
-        componentCleanerService,
-        new ComponentFinder(dbClient),
-        dbClient,
-        userSessionRule)));
+        new DeleteAction(
+            componentCleanerService,
+            new ComponentFinder(dbClient),
+            dbClient,
+            userSessionRule)));
   }
 
   @Test
   public void global_admin_deletes_project_by_id() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
-    userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(UserRole.ADMIN);
     WsTester.TestRequest request = newRequest().setParam(PARAM_ID, project.uuid());
     call(request);
 
@@ -91,7 +91,7 @@ public class DeleteActionTest {
   public void global_admin_deletes_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
-    userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.logIn().setGlobalPermissions(UserRole.ADMIN);
     call(newRequest().setParam(PARAM_KEY, project.key()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());
@@ -106,7 +106,7 @@ public class DeleteActionTest {
   @Test
   public void project_administrator_deletes_the_project_by_uuid() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
-    userSessionRule.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call(newRequest().setParam(PARAM_ID, project.uuid()));
 
@@ -116,7 +116,7 @@ public class DeleteActionTest {
   @Test
   public void project_administrator_deletes_the_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
-    userSessionRule.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call(newRequest().setParam(PARAM_KEY, project.key()));
 
@@ -127,7 +127,7 @@ public class DeleteActionTest {
   public void return_403_if_not_project_admin_nor_org_admin() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
-    userSessionRule.login().addProjectUuidPermissions(project.uuid(), UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
+    userSessionRule.logIn().addProjectUuidPermissions(project.uuid(), UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
     call(newRequest().setParam(PARAM_ID, project.uuid()));

@@ -191,10 +191,10 @@ public class CreateConditionActionTest {
   }
 
   private void setUserAsQualityGateAdmin() {
-    userSession.login("project-admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    userSession.logIn("project-admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
   }
 
   private void setUserAsNotQualityGateAdmin() {
-    userSession.login("not-admin").setGlobalPermissions(SCAN_EXECUTION);
+    userSession.logIn("not-admin").setGlobalPermissions(SCAN_EXECUTION);
   }
 }

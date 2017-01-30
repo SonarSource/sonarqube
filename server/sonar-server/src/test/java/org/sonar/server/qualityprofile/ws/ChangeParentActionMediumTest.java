@@ -77,7 +77,7 @@ public class ChangeParentActionMediumTest {
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndex = tester.get(RuleIndex.class);
-    userSessionRule.login("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @After
@@ -293,7 +293,7 @@ public class ChangeParentActionMediumTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_if_missing_permission() throws Exception {
-    userSessionRule.login("anakin");
+    userSessionRule.logIn("anakin");
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileRef.PARAM_PROFILE_KEY, "polop")
       .setParam("parentKey", "pulup")

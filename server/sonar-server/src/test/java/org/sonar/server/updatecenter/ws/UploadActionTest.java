@@ -125,7 +125,7 @@ public class UploadActionTest {
 
   @Test
   public void fail_if_not_system_admin() throws Exception {
-    userSession.login().setGlobalPermissions(PROVISIONING);
+    userSession.logIn().setGlobalPermissions(PROVISIONING);
 
     expectedException.expect(ForbiddenException.class);
     call(newInputStream(plugin.toPath()), PLUGIN_NAME);
@@ -138,7 +138,7 @@ public class UploadActionTest {
   }
 
   private void setSystemAdminUser() {
-    userSession.login().setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   private void assertPluginIsUploaded(String pluginName) {

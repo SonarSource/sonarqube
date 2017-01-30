@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Throwables;
@@ -76,10 +75,10 @@ public class CreateActionTest {
   private ComponentUpdater componentUpdater = mock(ComponentUpdater.class, Mockito.RETURNS_MOCKS);
 
   private WsActionTester ws = new WsActionTester(
-    new CreateAction(
-      db.getDbClient(), userSession,
-      componentUpdater,
-      defaultOrganizationProvider));
+      new CreateAction(
+          db.getDbClient(), userSession,
+          componentUpdater,
+          defaultOrganizationProvider));
 
   @Test
   public void create_project() throws Exception {
@@ -87,9 +86,9 @@ public class CreateActionTest {
     expectSuccessfulCallToComponentUpdater();
 
     CreateWsResponse response = call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
+        .setKey(DEFAULT_PROJECT_KEY)
+        .setName(DEFAULT_PROJECT_NAME)
+        .build());
 
     assertThat(response.getProject().getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(response.getProject().getName()).isEqualTo(DEFAULT_PROJECT_NAME);
@@ -101,10 +100,10 @@ public class CreateActionTest {
     userSession.setGlobalPermissions(PROVISIONING);
 
     call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setBranch("origin/master")
-      .build());
+        .setKey(DEFAULT_PROJECT_KEY)
+        .setName(DEFAULT_PROJECT_NAME)
+        .setBranch("origin/master")
+        .build());
 
     NewComponent called = verifyCallToComponentUpdater();
     assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -116,10 +115,10 @@ public class CreateActionTest {
     userSession.setGlobalPermissions(PROVISIONING);
 
     ws.newRequest()
-      .setMethod(POST.name())
-      .setParam("key", DEFAULT_PROJECT_KEY)
-      .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
-      .execute();
+        .setMethod(POST.name())
+        .setParam("key", DEFAULT_PROJECT_KEY)
+        .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
+        .execute();
 
     NewComponent called = verifyCallToComponentUpdater();
     assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -134,9 +133,9 @@ public class CreateActionTest {
     expectedException.expect(BadRequestException.class);
 
     call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
+        .setKey(DEFAULT_PROJECT_KEY)
+        .setName(DEFAULT_PROJECT_NAME)
+        .build());
   }
 
   @Test
@@ -171,9 +170,9 @@ public class CreateActionTest {
     expectSuccessfulCallToComponentUpdater();
 
     String result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
-      .setParam("name", DEFAULT_PROJECT_NAME)
-      .execute().getInput();
+        .setParam("key", DEFAULT_PROJECT_KEY)
+        .setParam("name", DEFAULT_PROJECT_NAME)
+        .execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("create-example.json"));
   }
@@ -191,8 +190,8 @@ public class CreateActionTest {
 
   private CreateWsResponse call(CreateRequest request) {
     TestRequest httpRequest = ws.newRequest()
-      .setMethod(POST.name())
-      .setMediaType(MediaTypes.PROTOBUF);
+        .setMethod(POST.name())
+        .setMediaType(MediaTypes.PROTOBUF);
     setNullable(request.getKey(), e -> httpRequest.setParam("project", e));
     setNullable(request.getName(), e -> httpRequest.setParam("name", e));
     setNullable(request.getBranch(), e -> httpRequest.setParam("branch", e));

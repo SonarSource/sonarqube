@@ -91,7 +91,7 @@ public class SearchActionTest {
   @Before
   public void setUp() throws Exception {
     user = db.users().insertUser("john");
-    userSession.login(user);
+    userSession.logIn(user);
   }
 
   @Test

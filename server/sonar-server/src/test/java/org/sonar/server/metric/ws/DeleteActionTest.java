@@ -57,7 +57,7 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() {
-    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule)));
     metricDao = dbClient.metricDao();
   }

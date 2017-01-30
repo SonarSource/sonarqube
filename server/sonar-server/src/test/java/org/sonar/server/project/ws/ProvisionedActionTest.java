@@ -84,7 +84,7 @@ public class ProvisionedActionTest {
     ComponentDto analyzedProject = ComponentTesting.newProjectDto(organizationDto, "analyzed-uuid-1");
     db.components().insertComponents(newProvisionedProject(organizationDto, "1"), newProvisionedProject(organizationDto, "2"), analyzedProject);
     db.components().insertSnapshot(SnapshotTesting.newAnalysis(analyzedProject));
-    userSessionRule.login().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
 
     TestResponse result = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
@@ -115,7 +115,7 @@ public class ProvisionedActionTest {
     for (int i = 1; i <= 10; i++) {
       db.components().insertComponent(newProvisionedProject(organizationDto, String.valueOf(i)));
     }
-    userSessionRule.login().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addOrganizationPermission(organizationDto, GlobalPermissions.PROVISIONING);
 
     TestRequest request = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
@@ -131,7 +131,7 @@ public class ProvisionedActionTest {
   public void provisioned_projects_with_desired_fields() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertComponent(newProvisionedProject(organization, "1"));
-    userSessionRule.login().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
 
     String jsonOutput = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -147,7 +147,7 @@ public class ProvisionedActionTest {
   public void provisioned_projects_with_query() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertComponents(newProvisionedProject(organization, "1"), newProvisionedProject(organization, "2"));
-    userSessionRule.login().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addOrganizationPermission(organization, GlobalPermissions.PROVISIONING);
 
     String jsonOutput = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -171,7 +171,7 @@ public class ProvisionedActionTest {
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     db.components().insertComponents(hBaseProject, roslynProject);
-    userSessionRule.login().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.PROVISIONING);
+    userSessionRule.logIn().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.PROVISIONING);
 
     TestResponse result = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
@@ -185,7 +185,7 @@ public class ProvisionedActionTest {
   public void fail_when_not_enough_privileges() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertComponent(newProvisionedProject(organizationDto, "1"));
-    userSessionRule.login().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logIn().addOrganizationPermission(organizationDto.getUuid(), GlobalPermissions.SCAN_EXECUTION);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -196,7 +196,7 @@ public class ProvisionedActionTest {
   public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
     TestRequest request = underTest.newRequest()
       .setParam(PARAM_ORGANIZATION, "foo");
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization for key 'foo'");

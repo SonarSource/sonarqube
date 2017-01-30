@@ -107,7 +107,7 @@ public class AddActionTest {
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
     insertProject();
-    userSession.login();
+    userSession.logIn();
     userSession.addProjectUuidPermissions(UserRole.ADMIN, PROJECT_UUID);
 
     expectedException.expect(ForbiddenException.class);
@@ -117,7 +117,7 @@ public class AddActionTest {
 
   @Test
   public void fail_when_component_is_not_found() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
 
@@ -148,7 +148,7 @@ public class AddActionTest {
 
   private ComponentDto insertProjectAndPermissions() {
     userSession
-      .login()
+      .logIn()
       .setUserId(USER_ID)
       .addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 

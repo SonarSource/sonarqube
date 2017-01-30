@@ -79,7 +79,7 @@ public class SearchActionTest {
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_root() {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectInsufficientPrivilegesForbiddenException();
 
@@ -125,7 +125,7 @@ public class SearchActionTest {
   }
 
   private UserSessionRule makeAuthenticatedUserRoot() {
-    return userSessionRule.login().setRoot();
+    return userSessionRule.logIn().setRoot();
   }
 
   private List<WsRoot.Root> executeRequest() {

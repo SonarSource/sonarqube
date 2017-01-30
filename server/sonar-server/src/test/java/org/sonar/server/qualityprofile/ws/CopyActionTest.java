@@ -59,7 +59,7 @@ public class CopyActionTest {
 
   @Test
   public void copy_nominal() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -79,7 +79,7 @@ public class CopyActionTest {
 
   @Test
   public void copy_with_parent() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -100,7 +100,7 @@ public class CopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("name", "Other Sonar Way")
@@ -109,7 +109,7 @@ public class CopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -118,7 +118,7 @@ public class CopyActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.login("obiwan");
+    userSessionRule.logIn("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")

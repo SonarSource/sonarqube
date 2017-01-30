@@ -81,7 +81,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_key() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
     checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
@@ -101,7 +101,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Sonar way").execute().assertNoContent();
 
@@ -111,7 +111,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_key() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
@@ -125,7 +125,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Unknown").execute();
@@ -139,7 +139,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.login("obiwan");
+    userSessionRule.logIn("obiwan");
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();

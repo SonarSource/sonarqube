@@ -73,7 +73,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
     underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews));
     i18n.setProjectPermissions();
-    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
   }
 
   @Test

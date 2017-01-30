@@ -82,7 +82,7 @@ public class SearchActionTest {
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
     ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
     defaultProject = insertDefaultProject();
-    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
@@ -201,7 +201,7 @@ public class SearchActionTest {
 
   @Test
   public void search_as_project_admin() throws Exception {
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
+    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
     MetricDto metric1 = insertCustomMetric(1);
     insertCustomMeasure(1, metric1);
 
@@ -250,7 +250,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_not_enough_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSessionRule.login("login");
+    userSessionRule.logIn("login");
     MetricDto metric1 = insertCustomMetric(1);
     insertCustomMeasure(1, metric1);
 

@@ -84,7 +84,7 @@ public class WebhookDeliveryActionTest {
 
   @Test
   public void return_404_if_delivery_does_not_exist() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
 
@@ -109,7 +109,7 @@ public class WebhookDeliveryActionTest {
       .setPayload("{\"status\"=\"SUCCESS\"}");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     String json = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -129,7 +129,7 @@ public class WebhookDeliveryActionTest {
       .setErrorStacktrace("IOException -> can not connect");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     Webhooks.DeliveryWsResponse response = Webhooks.DeliveryWsResponse.parseFrom(ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -149,7 +149,7 @@ public class WebhookDeliveryActionTest {
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.login().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

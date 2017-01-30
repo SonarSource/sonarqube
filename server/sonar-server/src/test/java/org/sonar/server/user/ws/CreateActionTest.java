@@ -160,7 +160,7 @@ public class CreateActionTest {
 
   @Test
   public void reactivate_user() throws Exception {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com"));
     db.getDbClient().userDao().deactivateUserByLogin(db.getSession(), "john");
@@ -234,7 +234,7 @@ public class CreateActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.login("not_admin");
+    userSessionRule.logIn("not_admin");
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -245,7 +245,7 @@ public class CreateActionTest {
   }
 
   private void authenticateAsAdmin() {
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private void executeRequest(String login) throws Exception {

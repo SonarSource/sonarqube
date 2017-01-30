@@ -80,7 +80,7 @@ public class SearchMyProjectsActionTest {
   @Before
   public void setUp() {
     user = db.users().insertUser();
-    userSession.login(user);
+    userSession.logIn(user);
     alertStatusMetric = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(ALERT_STATUS_KEY).setValueType(ValueType.LEVEL.name()));
     db.commit();
 

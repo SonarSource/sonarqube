@@ -116,7 +116,7 @@ public class GlobalActionTest {
   @Test
   public void return_global_pages_for_user() throws Exception {
     init(createPages(), new ResourceTypeTree[] {});
-    userSessionRule.login("obiwan");
+    userSessionRule.logIn("obiwan");
 
     executeAndVerify("global_pages_for_user.json");
   }
@@ -124,7 +124,7 @@ public class GlobalActionTest {
   @Test
   public void return_global_pages_for_admin_user() throws Exception {
     init(createPages(), new ResourceTypeTree[] {});
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     executeAndVerify("global_pages_for_admin.json");
   }

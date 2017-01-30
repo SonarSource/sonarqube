@@ -196,7 +196,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("additionalFields", "comments,users")
       .execute();
@@ -232,7 +232,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).setParam(PARAM_HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.outputAsString()).doesNotContain("fabrice");
@@ -367,7 +367,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
@@ -391,7 +391,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
@@ -416,7 +416,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
@@ -429,7 +429,7 @@ public class SearchActionMediumTest {
   @Test
   public void assignedToMe_facet_must_escape_login_of_authenticated_user() throws Exception {
     // login looks like an invalid regexp
-    userSessionRule.login("foo[");
+    userSessionRule.logIn("foo[");
 
     // should not fail
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
@@ -474,7 +474,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
@@ -485,7 +485,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_assigned_to_me_unauthenticated() throws Exception {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto(otherOrganization1, "PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
@@ -548,7 +548,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john-bob.polop");
+    userSessionRule.logIn("john-bob.polop");
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
@@ -669,7 +669,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.login("john");
+    userSessionRule.logIn("john");
     WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "severities")
@@ -700,7 +700,7 @@ public class SearchActionMediumTest {
 
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));
@@ -709,7 +709,7 @@ public class SearchActionMediumTest {
 
   private void setProjectPermission(ComponentDto project, String... permissions) {
     // project can be seen by anyone and by code viewer
-    userSessionRule.login("admin");
+    userSessionRule.logIn("admin");
     Arrays.stream(permissions).forEach(permission -> userSessionRule.addProjectUuidPermissions(permission, project.uuid()));
     tester.get(PermissionUpdater.class).apply(session, Arrays.stream(permissions)
       // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone" for each organization

@@ -147,7 +147,7 @@ public class LinesActionTest {
   public void should_check_permission() throws Exception {
     insertFileWithData(FileSourceTesting.newFakeData(1).build());
 
-    userSessionRule.login("login");
+    userSessionRule.logIn("login");
 
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", FILE_UUID)
@@ -232,7 +232,7 @@ public class LinesActionTest {
   }
 
   private void setUserWithValidPermission() {
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
   }
 
   private void insertFile() throws IOException {

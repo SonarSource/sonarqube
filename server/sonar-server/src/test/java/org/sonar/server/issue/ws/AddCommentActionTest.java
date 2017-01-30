@@ -101,7 +101,7 @@ public class AddCommentActionTest {
   @Test
   public void add_comment() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     call(issueDto.getKey(), "please fix it");
 
@@ -122,7 +122,7 @@ public class AddCommentActionTest {
 
   @Test
   public void fail_when_missing_issue_key() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
     call(null, "please fix it");
@@ -130,7 +130,7 @@ public class AddCommentActionTest {
 
   @Test
   public void fail_when_issue_does_not_exist() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
     call("ABCD", "please fix it");
@@ -138,7 +138,7 @@ public class AddCommentActionTest {
 
   @Test
   public void fail_when_missing_comment_text() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
     call("ABCD", null);
@@ -147,7 +147,7 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_empty_comment_text() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     call(issueDto.getKey(), "");
@@ -162,7 +162,7 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.login("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), "please fix it");

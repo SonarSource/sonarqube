@@ -69,7 +69,7 @@ public class GroupsActionTest {
     session.commit();
 
     tester = new WsTester(new UsersWs(new GroupsAction(dbClient, userSession)));
-    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -85,7 +85,7 @@ public class GroupsActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSession.login("not-admin");
+    userSession.logIn("not-admin");
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john").execute();
   }

@@ -76,7 +76,7 @@ public class MetricsActionTest {
       .setEmail("login@login.com")
       .setActive(true));
     ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, new ComponentFinder(dbClient))));
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     defaultProject = insertDefaultProject();
   }
 
@@ -146,7 +146,7 @@ public class MetricsActionTest {
   @Test
   public void list_metrics_as_a_project_admin() throws Exception {
     insertCustomMetric("metric-key-1");
-    userSession.login("login").addProjectUuidPermissions(UserRole.ADMIN, defaultProject.uuid());
+    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, defaultProject.uuid());
 
     String response = newRequest().outputAsString();
 
@@ -198,7 +198,7 @@ public class MetricsActionTest {
   @Test
   public void fail_if_insufficient_privilege() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login("login");
+    userSession.logIn("login");
 
     insertCustomMetric("metric-key-1");
 

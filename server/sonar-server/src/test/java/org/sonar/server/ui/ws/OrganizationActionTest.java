@@ -78,7 +78,7 @@ public class OrganizationActionTest {
   public void verify_example() {
 
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    userSession.login().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
+    userSession.logIn().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
 
     TestResponse response = executeRequest(defaultOrganization);
 
@@ -95,7 +95,7 @@ public class OrganizationActionTest {
 
   @Test
   public void returns_non_admin_and_default_true_when_user_logged_in_but_not_admin_and_key_is_the_default_organization() {
-    userSession.login();
+    userSession.logIn();
 
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
@@ -105,7 +105,7 @@ public class OrganizationActionTest {
   @Test
   public void returns_admin_and_default_true_when_user_logged_in_and_admin_and_key_is_the_default_organization() {
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    userSession.login().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
+    userSession.logIn().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
 
     TestResponse response = executeRequest(defaultOrganization);
 
@@ -132,7 +132,7 @@ public class OrganizationActionTest {
   @Test
   public void returns_non_admin_and_default_false_when_user_logged_in_but_not_admin_and_key_is_not_the_default_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login();
+    userSession.logIn();
 
     TestResponse response = executeRequest(organization);
 
@@ -142,7 +142,7 @@ public class OrganizationActionTest {
   @Test
   public void returns_admin_and_default_false_when_user_logged_in_and_admin_and_key_is_not_the_default_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
-    userSession.login().addOrganizationPermission(organization.getUuid(), "admin");
+    userSession.logIn().addOrganizationPermission(organization.getUuid(), "admin");
 
     TestResponse response = executeRequest(organization);
 

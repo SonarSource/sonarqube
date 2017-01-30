@@ -297,7 +297,7 @@ public class RemoveUserActionTest {
   }
 
   private void loginAsAdmin(OrganizationDto org) {
-    userSession.login("admin").addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("admin").addOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private void verifyUnchanged(UserDto user) {

@@ -309,7 +309,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 

@@ -69,7 +69,7 @@ public class ComponentServiceUpdateKeyTest {
 
     dbSession.commit();
 
-    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     underTest.updateKey(dbSession, project, "sample2:root");
     dbSession.commit();
 
@@ -94,7 +94,7 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto file = ComponentTesting.newFileDto(module, null).setKey("sample:root:module:src/File.xoo");
     dbClient.componentDao().insert(dbSession, file);
     dbSession.commit();
-    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     underTest.updateKey(dbSession, module, "sample:root2:module");
     dbSession.commit();
@@ -112,7 +112,7 @@ public class ComponentServiceUpdateKeyTest {
 
     dbSession.commit();
 
-    userSession.login("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
     underTest.updateKey(dbSession, provisionedProject, "provisionedProject2");
     dbSession.commit();
 
@@ -125,7 +125,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(ForbiddenException.class);
 
     ComponentDto project = insertSampleRootProject();
-    userSession.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     underTest.updateKey(dbSession, project, "sample2:root");
   }

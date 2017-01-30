@@ -62,7 +62,7 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId(USER_ID);
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(USER_ID);
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();

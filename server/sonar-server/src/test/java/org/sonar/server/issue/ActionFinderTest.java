@@ -46,7 +46,7 @@ public class ActionFinderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login("arthur");
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn("arthur");
 
   private ComponentDto project = newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setKey(PROJECT_KEY);
   private IssueDto issue = newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY);
@@ -73,7 +73,7 @@ public class ActionFinderTest {
   @Test
   public void doest_not_return_assign_to_me_action_when_issue_already_assigned_to_user() {
 
-    userSession.login("julien");
+    userSession.logIn("julien");
     IssueDto issue = newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY).setAssignee("julien");
     assertThat(underTest.listAvailableActions(issue)).doesNotContain("assign_to_me");
   }

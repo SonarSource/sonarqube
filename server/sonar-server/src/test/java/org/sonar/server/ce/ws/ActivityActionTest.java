@@ -288,7 +288,7 @@ public class ActivityActionTest {
     String view_uuid = "VIEW_1";
     dbTester.components().insertView(dbTester.getDefaultOrganization(), view_uuid);
     insertActivity("T1", view_uuid, CeActivityDto.Status.SUCCESS);
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, view_uuid);
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, view_uuid);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 

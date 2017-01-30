@@ -66,7 +66,7 @@ public class CreateActionTest {
   @Before
   public void setUp() {
     ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule)));
-    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
@@ -230,7 +230,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSessionRule.login("login");
+    userSessionRule.logIn("login");
 
     newRequest()
       .setParam(PARAM_KEY, "any-key")

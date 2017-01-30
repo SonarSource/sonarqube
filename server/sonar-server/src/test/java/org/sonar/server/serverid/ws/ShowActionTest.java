@@ -141,7 +141,7 @@ public class ShowActionTest {
 
   @Test
   public void fail_when_not_system_admin() throws Exception {
-    userSession.login("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
+    userSession.logIn("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -206,6 +206,6 @@ public class ShowActionTest {
   }
 
   private void setUserAsSystemAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 }

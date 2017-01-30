@@ -56,7 +56,7 @@ public class ShowActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

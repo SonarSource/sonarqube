@@ -90,7 +90,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User has no permission
     UserDto withoutPermission = db.users().insertUser(newUserDto());
 
-    userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(SYSTEM_ADMIN, project.uuid());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -216,7 +216,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
-    userSession.login("login");
+    userSession.logIn("login");
 
     expectedException.expect(ForbiddenException.class);
 

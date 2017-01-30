@@ -110,7 +110,7 @@ public class DoTransitionActionTest {
   @Test
   public void do_transition() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     call(issueDto.getKey(), "confirm");
 
@@ -121,7 +121,7 @@ public class DoTransitionActionTest {
 
   @Test
   public void fail_if_issue_does_not_exist() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
     call("UNKNOWN", "confirm");
@@ -129,7 +129,7 @@ public class DoTransitionActionTest {
 
   @Test
   public void fail_if_no_issue_param() throws Exception {
-    userSession.login("john");
+    userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
     call(null, "confirm");
@@ -138,7 +138,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_no_transition_param() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     call(issueDto.getKey(), null);
@@ -147,7 +147,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_not_enough_permission_to_access_issue() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.login("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), "confirm");
@@ -156,7 +156,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_not_enough_permission_to_apply_transition() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.login("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
 
     // False-positive transition is requiring issue admin permission
     expectedException.expect(ForbiddenException.class);

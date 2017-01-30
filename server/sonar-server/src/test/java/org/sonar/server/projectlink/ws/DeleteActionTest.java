@@ -70,7 +70,7 @@ public class DeleteActionTest {
     underTest = new DeleteAction(dbClient, userSession);
     ws = new WsActionTester(underTest);
 
-    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
@@ -96,7 +96,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_admin() throws IOException {
-    userSession.login("login");
+    userSession.logIn("login");
 
     ComponentDto project = insertProject();
     userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
@@ -150,7 +150,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_not_project_admin() {
-    userSession.login("login");
+    userSession.logIn("login");
 
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());

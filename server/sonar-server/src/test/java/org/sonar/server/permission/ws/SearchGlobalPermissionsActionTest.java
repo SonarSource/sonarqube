@@ -40,7 +40,6 @@ import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<SearchGlobalPermissionsAction> {
@@ -128,7 +127,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
   @Test
   public void fail_if_not_admin_of_default_organization() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 

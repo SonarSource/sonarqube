@@ -292,7 +292,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void removing_global_permission_fails_if_not_administrator_of_organization() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -305,7 +305,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   @Test
   public void removing_project_permission_fails_if_not_administrator_of_project() throws Exception {
     ComponentDto project = db.components().insertProject();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -324,7 +324,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertProject();
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())

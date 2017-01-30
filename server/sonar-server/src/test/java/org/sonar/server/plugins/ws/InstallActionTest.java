@@ -81,7 +81,7 @@ public class InstallActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -157,6 +157,6 @@ public class InstallActionTest {
   }
 
   private void makeAuthenticatedUserRoot() {
-    userSessionRule.login().setRoot();
+    userSessionRule.logIn().setRoot();
   }
 }

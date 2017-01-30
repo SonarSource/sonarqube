@@ -190,7 +190,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_not_admin() throws Exception {
-    userSession.login().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), SCAN_EXECUTION);
 
     expectedException.expect(ForbiddenException.class);
 

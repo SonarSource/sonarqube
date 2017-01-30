@@ -92,7 +92,7 @@ public class InstalledActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_root() throws Exception {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -278,7 +278,7 @@ public class InstalledActionTest {
   }
 
   private void makeAuthenticatedUserRoot() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
   }
 
 }

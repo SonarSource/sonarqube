@@ -69,7 +69,7 @@ public class UsersActionTest {
     es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
-    userSessionRule.login("sonarqtech");
+    userSessionRule.logIn("sonarqtech");
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
 

@@ -62,7 +62,7 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     db.users().insertUser(newUserDto().setLogin(GRACE_HOPPER));
     db.users().insertUser(newUserDto().setLogin(ADA_LOVELACE));
   }
@@ -96,7 +96,7 @@ public class SearchActionTest {
 
   @Test
   public void a_user_can_search_its_own_token() {
-    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     dbClient.userTokenDao().insert(dbSession, newUserToken()
       .setCreatedAt(1448523067221L)
       .setName("Project scan on Travis")
@@ -118,7 +118,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_insufficient_privileges() {
-    userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     expectedException.expect(ForbiddenException.class);
 
     newRequest(GRACE_HOPPER);

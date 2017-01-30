@@ -269,7 +269,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_global_permission_fails_if_not_administrator_of_organization() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     // user is administrator of another organization
-    userSession.login().addOrganizationPermission("anotherOrg", SYSTEM_ADMIN);
+    userSession.logIn().addOrganizationPermission("anotherOrg", SYSTEM_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -283,7 +283,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_project_permission_fails_if_not_administrator_of_project() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertProject();
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -301,7 +301,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertProject();
-    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())

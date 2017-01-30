@@ -60,7 +60,7 @@ public class RemoveActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setUserId(123);
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(123);
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();

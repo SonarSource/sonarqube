@@ -79,7 +79,7 @@ public class DeleteActionTest {
   public void delete_in_db_when_admin_on_project() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
     dbClient.componentDao().insert(dbSession, project);
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
     long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("project-uuid"));
 
     newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
@@ -97,7 +97,7 @@ public class DeleteActionTest {
   @Test
   public void fail_when_insufficient_permissions() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSessionRule.login("login");
+    userSessionRule.logIn("login");
     ComponentDto project = ComponentTesting.newProjectDto(db.organizations().insert(), "any-uuid");
     dbClient.componentDao().insert(dbSession, project);
     long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("any-uuid"));

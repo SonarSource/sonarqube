@@ -122,7 +122,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
-    userSession.login("john").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn("john").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
   }

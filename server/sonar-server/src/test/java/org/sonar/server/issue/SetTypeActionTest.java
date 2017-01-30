@@ -116,7 +116,7 @@ public class SetTypeActionTest {
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
-    userSession.login(USER_LOGIN)
+    userSession.logIn(USER_LOGIN)
       .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
       .addProjectUuidPermissions(USER, projectUuid);
   }

@@ -73,7 +73,7 @@ public class TransitionActionTest {
 
   @Test
   public void execute() {
-    userSession.login("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
@@ -85,7 +85,7 @@ public class TransitionActionTest {
 
   @Test
   public void does_not_execute_if_transition_is_not_available() {
-    userSession.login("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
     issue.setStatus(Issue.STATUS_CLOSED);
 
     action.execute(ImmutableMap.of("transition", "reopen"), context);

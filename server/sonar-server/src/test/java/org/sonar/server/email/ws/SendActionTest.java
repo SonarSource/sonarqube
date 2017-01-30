@@ -140,7 +140,7 @@ public class SendActionTest {
   }
 
   private void setUserAsSystemAdmin() {
-    userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
 }

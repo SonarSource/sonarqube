@@ -92,7 +92,7 @@ public class DeleteActionTest {
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileKey", "sonar-way-xoo1-12345").execute().assertNoContent();
 
@@ -110,7 +110,7 @@ public class DeleteActionTest {
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Sonar way").setParam("language", xoo1.getKey()).execute().assertNoContent();
 
@@ -120,37 +120,37 @@ public class DeleteActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.login("obiwan");
+    userSessionRule.logIn("obiwan");
     tester.newPostRequest("api/qualityprofiles", "delete").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_arguments() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_language() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("language", xoo1.getKey()).execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_too_many_arguments() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").setParam("language", xoo1.getKey()).setParam("profileKey", "polop").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unexisting_profile() throws Exception {
-    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").setParam("language", xoo1.getKey()).execute();
   }
 }

@@ -87,7 +87,7 @@ public class GhostsActionTest {
     ComponentDto ghost1 = insertGhostProject(organization);
     ComponentDto ghost2 = insertGhostProject(organization);
     ComponentDto activeProject = insertActiveProject(organization);
-    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -118,7 +118,7 @@ public class GhostsActionTest {
       int count = i;
       insertGhostProject(organization, dto -> dto.setKey("ghost-key-" + count));
     }
-    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -139,7 +139,7 @@ public class GhostsActionTest {
   public void ghost_projects_with_chosen_fields() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization);
-    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -159,7 +159,7 @@ public class GhostsActionTest {
     insertGhostProject(organization, dto -> dto.setName("ghost-name-11"));
     insertGhostProject(organization, dto -> dto.setName("ghost-name-20"));
 
-    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -176,7 +176,7 @@ public class GhostsActionTest {
     OrganizationDto organization = db.organizations().insert();
     insertGhostProject(organization, dto -> dto.setKey("ghost-key-1"));
 
-    userSessionRule.login().addOrganizationPermission(organization, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organization, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organization.getKey())
@@ -205,7 +205,7 @@ public class GhostsActionTest {
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(roslynProject)
       .setStatus(STATUS_UNPROCESSED));
     db.getSession().commit();
-    userSessionRule.login().addOrganizationPermission(organizationDto, SYSTEM_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(organizationDto, SYSTEM_ADMIN);
 
     TestResponse result = underTest.newRequest()
       .setParam("organization", organizationDto.getKey())
@@ -217,7 +217,7 @@ public class GhostsActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_if_does_not_have_sufficient_rights() throws Exception {
-    userSessionRule.login()
+    userSessionRule.logIn()
       .addOrganizationPermission(db.getDefaultOrganization(), UserRole.USER)
       .addOrganizationPermission(db.getDefaultOrganization(), UserRole.ISSUE_ADMIN)
       .addOrganizationPermission(db.getDefaultOrganization(), UserRole.CODEVIEWER);
@@ -229,7 +229,7 @@ public class GhostsActionTest {
   public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
     TestRequest request = underTest.newRequest()
         .setParam("organization", "foo");
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization for key 'foo'");

@@ -101,7 +101,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -122,7 +122,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
 
@@ -143,7 +143,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -179,7 +179,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -273,7 +273,7 @@ public class IssueServiceMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
 
-    userSessionRule.login("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     session.commit();
 
     // project can be seen by group "anyone"
@@ -282,7 +282,7 @@ public class IssueServiceMediumTest {
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project),
       GroupIdOrAnyone.forAnyone(organization.getUuid()));
     tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
-    userSessionRule.login();
+    userSessionRule.logIn();
 
     return project;
   }
