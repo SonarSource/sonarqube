@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,10 +113,15 @@ public class SuggestionsAction implements ComponentsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return componentsPerQualifiers.stream().map(qualifier -> {
 
-        List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, qualifier.getComponentUuids());
+        List<String> uuids = qualifier.getComponentUuids();
+        List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, uuids);
+        List<ComponentDto> sortedComponentDtos = Ordering.explicit(uuids)
+          .onResultOf(ComponentDto::uuid)
+          .immutableSortedCopy(componentDtos);
+
         Map<String, String> organizationKeyByUuids = getOrganizationKeys(dbSession, componentDtos);
 
-        List<Component> results = componentDtos
+        List<Component> results = sortedComponentDtos
           .stream()
           .map(dto -> dtoToComponent(dto, organizationKeyByUuids))
           .collect(Collectors.toList());
@@ -126,6 +132,7 @@ public class SuggestionsAction implements ComponentsWsAction {
           .build();
       }).collect(Collectors.toList());
     }
+
   }
 
   private Map<String, String> getOrganizationKeys(DbSession dbSession, List<ComponentDto> componentDtos) {

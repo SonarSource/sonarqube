@@ -154,7 +154,7 @@ public abstract class ComponentIndexTest {
         .setName(fileName));
   }
 
-  private ComponentDto index(ComponentDto dto) {
+  protected ComponentDto index(ComponentDto dto) {
     indexer.index(dto);
     authorizationIndexerTester.indexProjectPermission(dto.uuid(),
       Collections.singletonList(DefaultGroups.ANYONE),
