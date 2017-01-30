@@ -22,6 +22,7 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.Collectors.toList;
 import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_INDEX;
@@ -92,7 +92,7 @@ public class IndexAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> projects = getAuthorizedProjects(dbSession, searchProjects(dbSession, request));
+      List<ComponentDto> projects = getAuthorizedComponents(dbSession, searchComponents(dbSession, request));
       JsonWriter json = response.newJsonWriter();
       json.beginArray();
       for (ComponentDto project : projects) {
@@ -112,7 +112,7 @@ public class IndexAction implements ProjectsWsAction {
     }
   }
 
-  private List<ComponentDto> searchProjects(DbSession dbSession, Request request) {
+  private List<ComponentDto> searchComponents(DbSession dbSession, Request request) {
     String projectKey = request.param(PARAM_KEY);
     List<ComponentDto> projects = new ArrayList<>();
     if (projectKey != null) {
@@ -125,16 +125,16 @@ public class IndexAction implements ProjectsWsAction {
     return projects;
   }
 
-  private List<ComponentDto> getAuthorizedProjects(DbSession dbSession, List<ComponentDto> projectDtos) {
-    if (projectDtos.isEmpty()) {
+  private List<ComponentDto> getAuthorizedComponents(DbSession dbSession, List<ComponentDto> components) {
+    if (components.isEmpty()) {
       return Collections.emptyList();
     }
-    Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-    Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
-      projectDtos.stream().map(ComponentDto::getId).collect(toList()),
-      userSession.getUserId(), USER);
-    return projectDtos.stream()
-      .filter(c -> authorizedProjectIds.contains(projectIdsByUuids.get(c.projectUuid())))
+    Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(Collectors.toSet());
+    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
+    Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
+    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
+    return components.stream()
+      .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
       .collect(Collectors.toList());
   }
 

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 15,
+    "k": "org.jenkins-ci.plugins:sonar-common-db",
+    "nm": "Jenkins Common DB",
+    "sc": "PRJ",
+    "qu": "BRC"
+  },
+  {
+    "id": 15,
+    "k": "org.jenkins-ci.plugins:sonar-common-server",
+    "nm": "Jenkins Common Server",
+    "sc": "PRJ",
+    "qu": "BRC"
+  }
+]

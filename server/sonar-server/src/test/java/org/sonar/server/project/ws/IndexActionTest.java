@@ -118,7 +118,7 @@ public class IndexActionTest {
   }
 
   @Test
-  public void search_project_by_name() throws Exception {
+  public void search_projects_by_name() throws Exception {
     insertProjectsAuthorizedForUser(
       newProjectDto(db.getDefaultOrganization()).setKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin"),
       newProjectDto(db.getDefaultOrganization()).setKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task"),
@@ -126,7 +126,22 @@ public class IndexActionTest {
 
     String result = call(null, "Plu", null);
 
-    verifyResult(result, "search_project_by_name.json");
+    verifyResult(result, "search_projects_by_name.json");
+  }
+
+  @Test
+  public void search_projects_with_modules_by_name() throws Exception {
+    ComponentDto project1 = newProjectDto(db.getDefaultOrganization()).setKey("org.jenkins-ci.plugins:sonar").setName("Jenkins Sonar Plugin");
+    ComponentDto project2 = newProjectDto(db.getDefaultOrganization()).setKey("org.codehaus.sonar-plugins:sonar-ant-task").setName("Sonar Ant Task");
+    insertProjectsAuthorizedForUser(project1, project2);
+    db.components().insertComponents(
+      newModuleDto(project1).setKey("org.jenkins-ci.plugins:sonar-common-db").setName("Jenkins Common DB"),
+      newModuleDto(project1).setKey("org.jenkins-ci.plugins:sonar-common-server").setName("Jenkins Common Server"),
+      newModuleDto(project2).setKey("org.codehaus.sonar-plugins:sonar-ant-db").setName("Ant DB"));
+
+    String result = call(null, "Com", true);
+
+    verifyResult(result, "search_projects_with_modules_by_name.json");
   }
 
   @Test
