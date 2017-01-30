@@ -116,11 +116,6 @@ public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_find_item_with_at_least_one_matching_word() {
-    assertFileMatches("abstract object", "AbstractPluginFactory.java");
-  }
-
-  @Test
   public void should_require_at_least_one_matching_word() {
     assertNoFileMatches("monitor object", "AbstractPluginFactory.java");
   }

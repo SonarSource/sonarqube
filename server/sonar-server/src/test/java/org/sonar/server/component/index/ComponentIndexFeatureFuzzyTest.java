@@ -58,4 +58,12 @@ public class ComponentIndexFeatureFuzzyTest extends ComponentIndexTest {
       "sonaqube.java",
       "sonqube.java");
   }
+
+  @Test
+  public void fuzziness_for_filename_without_suffix() {
+    assertFileMatches("StringUtils",
+      "StringUtils.java",
+      "StringUils.java",
+      "StringUls.java");
+  }
 }

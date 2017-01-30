@@ -25,17 +25,16 @@ import java.util.Locale;
 import java.util.SortedMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
+import org.sonar.server.component.index.ComponentIndexSearchFeature;
 
 import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.ASCIIFOLDING;
-import static org.sonar.server.es.DefaultIndexSettings.CLASSIC;
 import static org.sonar.server.es.DefaultIndexSettings.DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.FILTER;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.KEYWORD;
-import static org.sonar.server.es.DefaultIndexSettings.LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.LOWERCASE;
 import static org.sonar.server.es.DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH;
 import static org.sonar.server.es.DefaultIndexSettings.MAX_GRAM;
@@ -49,7 +48,6 @@ import static org.sonar.server.es.DefaultIndexSettings.STRING;
 import static org.sonar.server.es.DefaultIndexSettings.SUB_FIELD_DELIMITER;
 import static org.sonar.server.es.DefaultIndexSettings.TOKENIZER;
 import static org.sonar.server.es.DefaultIndexSettings.TRIM;
-import static org.sonar.server.es.DefaultIndexSettings.TRUNCATE;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettings.WHITESPACE;
 
@@ -100,6 +98,14 @@ public enum DefaultIndexSettingsElement {
     protected void setup() {
       set(TYPE, PATTERN);
       set(PATTERN, "\\.");
+    }
+  },
+  FUZZY_TOKENIZER(TOKENIZER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, PATTERN);
+      set(PATTERN, ComponentIndexSearchFeature.SEARCH_TERM_TOKENIZER_PATTERN);
     }
   },
 
@@ -199,7 +205,7 @@ public enum DefaultIndexSettingsElement {
 
     @Override
     protected void setup() {
-      set(TOKENIZER, CLASSIC);
+      set(TOKENIZER, FUZZY_TOKENIZER);
       setArray(FILTER, LOWERCASE);
     }
 

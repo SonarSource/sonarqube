@@ -19,11 +19,16 @@
  */
 package org.sonar.server.component.index;
 
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.DefaultIndexSettings;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
@@ -37,19 +42,30 @@ public enum ComponentIndexSearchFeature {
   PARTIAL {
     @Override
     public QueryBuilder getQuery(String queryText) {
+      BoolQueryBuilder query = boolQuery();
 
-      // We will truncate the search to the maximum length of nGrams in the index.
-      // Otherwise the search would for sure not find any results.
-      String truncatedQuery = StringUtils.left(queryText, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
+      split(queryText)
+        .map(queryTerm -> {
 
-      return matchQuery(SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME), truncatedQuery);
+          // We will truncate the search to the maximum length of nGrams in the index.
+          // Otherwise the search would for sure not find any results.
+          String truncatedQuery = StringUtils.left(queryTerm, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH);
 
+          return matchQuery(SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME), truncatedQuery);
+        })
+        .forEach(query::must);
+      return query;
     }
   },
   FUZZY {
     @Override
     public QueryBuilder getQuery(String queryText) {
-      return matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText).fuzziness(Fuzziness.AUTO);
+      BoolQueryBuilder query = boolQuery();
+
+      split(queryText)
+        .map(((Function<String, QueryBuilder>) queryTerm -> matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryTerm).fuzziness(Fuzziness.AUTO))::apply)
+        .forEach(query::must);
+      return query;
     }
   },
   FUZZY_PREFIX {
@@ -65,5 +81,14 @@ public enum ComponentIndexSearchFeature {
     }
   };
 
+  /** Pattern, that splits the user search input **/
+  public static final String SEARCH_TERM_TOKENIZER_PATTERN = "[\\:\\.\\s]+";
+
   public abstract QueryBuilder getQuery(String queryText);
+
+  protected Stream<String> split(String queryText) {
+    return Arrays.stream(
+      queryText.split(SEARCH_TERM_TOKENIZER_PATTERN))
+      .filter(StringUtils::isNotEmpty);
+  }
 }
