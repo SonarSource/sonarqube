@@ -19,20 +19,22 @@
  */
 package org.sonar.scanner.repository.user;
 
-import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Lists;
-import com.google.common.base.Joiner;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.protocol.input.ScannerInput;
-import org.sonar.scanner.util.ScannerUtils;
-import org.sonarqube.ws.client.GetRequest;
-import com.google.common.base.Function;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.IOUtils;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.protocol.input.ScannerInput;
+import org.sonar.scanner.util.ScannerUtils;
+import org.sonarqube.ws.client.GetRequest;
 
 public class UserRepositoryLoader {
   private final ScannerWsClient wsClient;
@@ -46,13 +48,27 @@ public class UserRepositoryLoader {
     return parseUser(is);
   }
 
-  public Collection<ScannerInput.User> load(List<String> userLogins) {
+  public Collection<ScannerInput.User> load(Collection<String> userLogins) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    InputStream is = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+    UserEncodingFunction userEncodingFunction = new UserEncodingFunction();
+    String encodedUserLogins = userLogins.stream()
+      .map(userEncodingFunction::apply)
+      .collect(Collectors.joining(","));
+    InputStream is = loadQuery(encodedUserLogins);
 
     return parseUsers(is);
+  }
+
+  public Map<String, ScannerInput.User> map(Collection<String> userLogins) {
+    Collection<ScannerInput.User> users = load(userLogins);
+    Map<String, ScannerInput.User> map = new HashMap<>();
+
+    for (ScannerInput.User user : users) {
+      map.put(user.getLogin(), user);
+    }
+    return map;
   }
 
   private InputStream loadQuery(String loginsQuery) {

@@ -21,6 +21,7 @@ package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
 
+@FunctionalInterface
 public interface SettingsLoader {
   Map<String, String> load(String componentKey);
 }

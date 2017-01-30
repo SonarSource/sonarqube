@@ -123,7 +123,7 @@ public class JSONReportTest {
     issue.setNew(false);
     when(issueCache.all()).thenReturn(Collections.singleton(issue));
     ScannerInput.User user = ScannerInput.User.newBuilder().setLogin("simon").setName("Simon").build();
-    when(userRepository.load("simon")).thenReturn(user);
+    when(userRepository.load(Collections.singleton("simon"))).thenReturn(Collections.singleton(user));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

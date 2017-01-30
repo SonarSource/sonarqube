@@ -22,6 +22,7 @@ package org.sonar.scanner.repository.user;
 import org.assertj.core.util.Lists;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
+import org.sonar.scanner.protocol.input.ScannerInput.User;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.WsTestUtil;
 import org.junit.Before;
@@ -65,6 +66,26 @@ public class UserRepositoryLoaderTest {
     InputStream is = createUsersMock(userMap);
     WsTestUtil.mockStream(wsClient, "/batch/users?logins=fmallet,sbrandhof", is);
     assertThat(userRepo.load(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
+  }
+
+  @Test
+  public void testLoadListWithSingleUser() throws IOException {
+    Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet");
+    InputStream is = createUsersMock(userMap);
+    WsTestUtil.mockStream(wsClient, "/batch/users?logins=fmallet", is);
+    assertThat(userRepo.load(Arrays.asList("fmallet"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"));
+  }
+
+  @Test
+  public void testMapUsers() throws IOException {
+    Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet");
+    InputStream is = createUsersMock(userMap);
+    WsTestUtil.mockStream(wsClient, "/batch/users?logins=fmallet,sbrandhof", is);
+    Map<String, User> map = userRepo.map(Arrays.asList("fmallet", "sbrandhof"));
+
+    // one user doesn't exist
+    assertThat(map).hasSize(1);
+    assertThat(map.values().iterator().next().getLogin()).isEqualTo("fmallet");
   }
 
   @Test

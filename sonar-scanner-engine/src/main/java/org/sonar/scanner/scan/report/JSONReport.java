@@ -29,8 +29,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -214,13 +212,7 @@ public class JSONReport implements Reporter {
   }
 
   private void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
-    List<ScannerInput.User> users = new LinkedList<>();
-    for (String userLogin : userLogins) {
-      User user = userRepository.load(userLogin);
-      if (user != null) {
-        users.add(user);
-      }
-    }
+    Collection<User> users = userRepository.load(userLogins);
 
     json.name("users").beginArray();
     for (ScannerInput.User user : users) {

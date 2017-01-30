@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.protocol.input.ScannerInput.User;
 import org.sonar.scanner.repository.user.UserRepositoryLoader;
@@ -104,12 +106,10 @@ public class DefaultIssueCallback implements IssueCallback {
   }
 
   private void getUsers() {
-    for (String loginName : userLoginNames) {
-      User user = userRepository.load(loginName);
-      if (user != null) {
-        userMap.put(user.getLogin(), user.getName());
-      }
-    }
+    Map<String, User> map = userRepository.map(userLoginNames);
+
+    userMap = map.entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getName()));
   }
 
   private String getRuleName(RuleKey ruleKey) {

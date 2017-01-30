@@ -37,6 +37,7 @@ import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,7 +70,8 @@ public class DefaultIssueCallbackTest {
     ScannerInput.User.Builder userBuilder = ScannerInput.User.newBuilder();
     userBuilder.setLogin("user");
     userBuilder.setName("name");
-    when(userRepository.load("user")).thenReturn(userBuilder.build());
+    when(userRepository.map(Collections.singleton("user")))
+      .thenReturn(Collections.singletonMap("user", userBuilder.build()));
 
     Rule r = mock(Rule.class);
     when(r.name()).thenReturn("rule name");
