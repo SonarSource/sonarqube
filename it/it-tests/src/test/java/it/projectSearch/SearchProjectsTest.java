@@ -40,6 +40,9 @@ import static util.ItUtils.projectDir;
  */
 public class SearchProjectsTest {
 
+  private static final String PROJECT_KEY = "sample";
+  private static final String PROJECT_NAME = "Sample";
+
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
@@ -59,11 +62,11 @@ public class SearchProjectsTest {
 
   @Test
   public void provisioned_projects_should_be_included_to_results() throws Exception {
-    orchestrator.getServer().provisionProject("sample", "sample");
+    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_NAME);
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().build());
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("sample");
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY);
   }
 
 
@@ -76,7 +79,7 @@ public class SearchProjectsTest {
   }
 
   private void verifyFilterMatches(String filter) throws IOException {
-    assertThat(searchProjects(filter).getComponentsList()).extracting(Component::getKey).containsOnly("sample");
+    assertThat(searchProjects(filter).getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY);
   }
 
   private void verifyFilterDoesNotMatch(String filter) throws IOException {

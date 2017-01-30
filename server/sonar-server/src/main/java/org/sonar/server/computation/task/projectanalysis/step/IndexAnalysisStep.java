@@ -29,7 +29,7 @@ public class IndexAnalysisStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final ProjectIndexer[] indexers;
 
-  public IndexAnalysisStep(TreeRootHolder treeRootHolder, ProjectIndexer[] indexers) {
+  public IndexAnalysisStep(TreeRootHolder treeRootHolder, ProjectIndexer... indexers) {
     this.treeRootHolder = treeRootHolder;
     this.indexers = indexers;
   }

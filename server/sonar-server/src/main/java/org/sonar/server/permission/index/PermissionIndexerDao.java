@@ -44,8 +44,7 @@ public class PermissionIndexerDao {
     private final String projectUuid;
     private final long updatedAt;
     private final String qualifier;
-    private final List<Long> users = new ArrayList<>();
-    private final List<String> groupNames = new ArrayList<>();
+    private final List<Long> userIds = new ArrayList<>();
     private final List<Long> groupIds = new ArrayList<>();
     private boolean allowAnyone = false;
 
@@ -67,22 +66,13 @@ public class PermissionIndexerDao {
       return qualifier;
     }
 
-    public List<Long> getUsers() {
-      return users;
+    public List<Long> getUserIds() {
+      return userIds;
     }
 
-    public Dto addUser(Long s) {
-      users.add(s);
+    public Dto addUserId(long l) {
+      userIds.add(l);
       return this;
-    }
-
-    public Dto addGroupName(String s) {
-      groupNames.add(s);
-      return this;
-    }
-
-    public List<String> getGroupNames() {
-      return groupNames;
     }
 
     public Dto addGroupId(long id) {
@@ -116,7 +106,6 @@ public class PermissionIndexerDao {
     "  project_authorization.kind as kind, " +
     "  project_authorization.project as project, " +
     "  project_authorization.user_id as user_id, " +
-    "  project_authorization.group_name as group_name, " +
     "  project_authorization.group_id as group_id, " +
     "  project_authorization.updated_at as updated_at, " +
     "  project_authorization.qualifier as qualifier " +
@@ -129,7 +118,6 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      user_roles.user_id  AS user_id, " +
-    "      NULL  AS group_name, " +
     "      NULL  AS group_id " +
     "      FROM projects " +
     "      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = 'user' " +
@@ -146,7 +134,6 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL  AS user_id, " +
-    "      groups.name  AS group_name, " +
     "      groups.id  AS group_id " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = 'user' " +
@@ -165,7 +152,6 @@ public class PermissionIndexerDao {
     "      projects.authorization_updated_at AS updated_at, " +
     "      projects.qualifier AS qualifier, " +
     "      NULL         AS user_id, " +
-    "      NULL     AS group_name, " +
     "      NULL     AS group_id " +
     "      FROM projects " +
     "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
@@ -229,18 +215,17 @@ public class PermissionIndexerDao {
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
-      long updatedAt = rs.getLong(6);
-      String qualifier = rs.getString(7);
+      long updatedAt = rs.getLong(5);
+      String qualifier = rs.getString(6);
       dto = new Dto(projectUuid, updatedAt, qualifier);
       dtosByProjectUuid.put(projectUuid, dto);
     }
     switch (rowKind) {
       case USER:
-        dto.addUser(rs.getLong(3));
+        dto.addUserId(rs.getLong(3));
         break;
       case GROUP:
-        dto.addGroupName(rs.getString(4));
-        dto.addGroupId(rs.getLong(5));
+        dto.addGroupId(rs.getLong(4));
         break;
       case ANYONE:
         dto.allowAnyone();

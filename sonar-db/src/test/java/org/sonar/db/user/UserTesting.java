@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class UserTesting {
@@ -33,6 +34,7 @@ public class UserTesting {
 
   public static UserDto newUserDto(String login, String name, @Nullable String email) {
     return new UserDto()
+      .setId((long)nextInt())
       .setActive(true)
       .setLocal(true)
       .setName(name)
@@ -49,6 +51,7 @@ public class UserTesting {
 
   public static UserDto newLocalUser(String login, String name, @Nullable String email) {
     return new UserDto()
+      .setId((long)nextInt())
       .setActive(true)
       .setLocal(true)
       .setName(name)
@@ -65,6 +68,7 @@ public class UserTesting {
 
   public static UserDto newExternalUser(String login, String name, @Nullable String email) {
     return new UserDto()
+      .setId((long)nextInt())
       .setActive(true)
       .setLocal(false)
       .setName(name)
@@ -79,6 +83,7 @@ public class UserTesting {
 
   public static UserDto newDisabledUser(String login) {
     return new UserDto()
+      .setId((long)nextInt())
       .setLogin(login)
       .setActive(false)
       .setCreatedAt(nextLong())

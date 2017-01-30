@@ -24,7 +24,6 @@ import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -68,7 +68,7 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
   private final EsClient esClient;
   private final Collection<AuthorizationScope> authorizationScopes;
 
-  public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer[] needAuthorizationIndexers) {
+  public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
       .map(NeedAuthorizationIndexer::getAuthorizationScope)
       .collect(Collectors.toList(needAuthorizationIndexers.length)));
@@ -175,15 +175,14 @@ public class PermissionIndexer implements ProjectIndexer, Startable {
 
   private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, String indexName) {
     Map<String, Object> doc = new HashMap<>();
-    doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, DateUtils.longToDate(dto.getUpdatedAt()));
     if (dto.isAllowAnyone()) {
       doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, true);
       // no need to feed users and groups
     } else {
       doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, false);
       doc.put(AuthorizationTypeSupport.FIELD_GROUP_IDS, dto.getGroupIds());
-      doc.put(AuthorizationTypeSupport.FIELD_GROUP_NAMES, dto.getGroupNames());
-      doc.put(AuthorizationTypeSupport.FIELD_USER_IDS, dto.getUsers());
+      doc.put(AuthorizationTypeSupport.FIELD_USER_IDS, dto.getUserIds());
     }
     return new IndexRequest(indexName, TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())

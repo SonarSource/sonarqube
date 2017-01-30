@@ -60,7 +60,7 @@ public class PermissionIndexerTest {
   private FooIndex fooIndex = new FooIndex(esTester.client(), new AuthorizationTypeSupport(userSession));
   private FooIndexer fooIndexer = new FooIndexer(esTester.client());
   private PermissionIndexer underTest = new PermissionIndexer(
-    dbTester.getDbClient(), esTester.client(), new NeedAuthorizationIndexer[] {fooIndexer});
+    dbTester.getDbClient(), esTester.client(), fooIndexer);
 
   @Before
   public void setUp() throws Exception {
@@ -253,7 +253,7 @@ public class PermissionIndexerTest {
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setUserGroups(group.getName());
+    logIn(user).setGroups(group);
     verifyAuthorized(project, true);
   }
 
@@ -263,7 +263,7 @@ public class PermissionIndexerTest {
   }
 
   private void verifyNotAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setUserGroups(group.getName());
+    logIn(user).setGroups(group);
     verifyAuthorized(project, false);
   }
 

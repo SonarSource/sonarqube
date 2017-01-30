@@ -23,6 +23,8 @@ package org.sonar.server.permission.index;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
 import static java.util.Arrays.asList;
@@ -32,27 +34,27 @@ public class PermissionIndexerTester {
   private final PermissionIndexer permissionIndexer;
 
   public PermissionIndexerTester(EsTester esTester, NeedAuthorizationIndexer indexer, NeedAuthorizationIndexer... others) {
-    NeedAuthorizationIndexer[] indexers = Stream.concat(Stream.of(indexer), Arrays.stream(others)).toArray(i -> new NeedAuthorizationIndexer[i]);
+    NeedAuthorizationIndexer[] indexers = Stream.concat(Stream.of(indexer), Arrays.stream(others)).toArray(NeedAuthorizationIndexer[]::new);
     this.permissionIndexer = new PermissionIndexer(null, esTester.client(), indexers);
   }
 
   public PermissionIndexerTester allowOnlyAnyone(ComponentDto project) {
-    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
-      .addGroupName("Anyone");
+    PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier());
+    dto.allowAnyone();
     permissionIndexer.index(asList(dto));
     return this;
   }
 
-  public PermissionIndexerTester allowOnlyUser(ComponentDto project, long userId) {
+  public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {
     PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
-      .addUser(userId);
+      .addUserId(user.getId());
     permissionIndexer.index(asList(dto));
     return this;
   }
 
-  public PermissionIndexerTester allowOnlyGroup(ComponentDto project, String groupName) {
+  public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
     PermissionIndexerDao.Dto dto = new PermissionIndexerDao.Dto(project.uuid(), System.currentTimeMillis(), project.qualifier())
-      .addGroupName(groupName);
+      .addGroupId(group.getId());
     permissionIndexer.index(asList(dto));
     return this;
   }

@@ -45,7 +45,7 @@ public class IndexAnalysisStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private ProjectIndexer componentIndexer = mock(ProjectIndexer.class);
-  private IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, new ProjectIndexer[] {componentIndexer});
+  private IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, componentIndexer);
 
   @Test
   public void call_indexByProjectUuid_of_indexer_for_project() {
