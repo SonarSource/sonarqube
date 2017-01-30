@@ -45,7 +45,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -66,18 +65,16 @@ public class ActiveRuleCompleter {
   private static final Logger LOG = Loggers.get(ActiveRuleCompleter.class);
 
   private final DbClient dbClient;
-  private final QProfileLoader loader;
   private final Languages languages;
 
-  public ActiveRuleCompleter(DbClient dbClient, QProfileLoader loader, Languages languages) {
+  public ActiveRuleCompleter(DbClient dbClient, Languages languages) {
     this.dbClient = dbClient;
-    this.loader = loader;
     this.languages = languages;
   }
 
   void completeSearch(DbSession dbSession, RuleQuery query, List<RuleDto> rules, SearchResponse.Builder searchResponse) {
     Collection<String> harvestedProfileKeys = writeActiveRules(dbSession, searchResponse, query, rules);
-    searchResponse.setQProfiles(buildQProfiles(harvestedProfileKeys));
+    searchResponse.setQProfiles(buildQProfiles(dbSession, harvestedProfileKeys));
   }
 
   private Collection<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, List<RuleDto> rules) {
@@ -175,11 +172,11 @@ public class ActiveRuleCompleter {
     return activeRuleResponse.build();
   }
 
-  private Rules.QProfiles.Builder buildQProfiles(Collection<String> harvestedProfileKeys) {
+  private Rules.QProfiles.Builder buildQProfiles(DbSession dbSession, Collection<String> harvestedProfileKeys) {
     Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
     for (String qProfileKey : harvestedProfileKeys) {
       if (!qProfilesByKey.containsKey(qProfileKey)) {
-        QualityProfileDto profile = loadProfile(qProfileKey);
+        QualityProfileDto profile = loadProfile(dbSession, qProfileKey);
         if (profile == null) {
           LOG.warn("Could not find quality profile with key " + qProfileKey);
           continue;
@@ -187,7 +184,7 @@ public class ActiveRuleCompleter {
         qProfilesByKey.put(qProfileKey, profile);
         String parentKee = profile.getParentKee();
         if (parentKee != null && !qProfilesByKey.containsKey(parentKee)) {
-          qProfilesByKey.put(parentKee, loadProfile(parentKee));
+          qProfilesByKey.put(parentKee, loadProfile(dbSession, parentKee));
         }
       }
     }
@@ -202,8 +199,8 @@ public class ActiveRuleCompleter {
   }
 
   @CheckForNull
-  QualityProfileDto loadProfile(String qProfileKey) {
-    return loader.getByKey(qProfileKey);
+  QualityProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
+    return dbClient.qualityProfileDao().selectByKey(dbSession, qProfileKey);
   }
 
   private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QualityProfileDto profile) {

@@ -21,14 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import java.io.Writer;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;
@@ -39,16 +37,13 @@ public class QProfileService {
   private final DbClient db;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final RuleActivator ruleActivator;
-  private final QProfileFactory factory;
   private final QProfileBackuper backuper;
   private final UserSession userSession;
 
-  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileBackuper backuper, UserSession userSession) {
+  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileBackuper backuper, UserSession userSession) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
-    this.factory = factory;
     this.backuper = backuper;
     this.userSession = userSession;
   }
@@ -92,14 +87,6 @@ public class QProfileService {
   public void backup(String profileKey, Writer writer) {
     // Allowed to non-admin users (see http://jira.sonarsource.com/browse/SONAR-2039)
     backuper.backup(profileKey, writer);
-  }
-
-  /**
-   * Used in /api/profiles and in /profiles/export
-   */
-  @CheckForNull
-  public QualityProfileDto getDefault(String language) {
-    return factory.getDefault(language);
   }
 
   private void verifyAdminPermission() {

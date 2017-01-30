@@ -41,10 +41,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -57,48 +54,28 @@ public class ExportActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  WsTester wsTester;
+  private WsTester wsTester;
 
-  DbClient dbClient = db.getDbClient();
+  private DbClient dbClient = db.getDbClient();
 
   final DbSession session = db.getSession();
 
-  QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
 
-  QProfileBackuper backuper;
+  private QProfileBackuper backuper = mock(QProfileBackuper.class);
 
-  QProfileExporters exporters;
+  private QProfileExporters exporters;
 
   @Before
   public void before() {
-    backuper = mock(QProfileBackuper.class);
-
     ProfileExporter exporter1 = newExporter("polop");
     ProfileExporter exporter2 = newExporter("palap");
 
-    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, null, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2},
+    exporters = new QProfileExporters(dbClient, null, null, new ProfileExporter[] {exporter1, exporter2},
       null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new ExportAction(dbClient, new QProfileFactory(dbClient), backuper, exporters, LanguageTesting.newLanguages("xoo"))));
-  }
-
-  private ProfileExporter newExporter(final String key) {
-    return new ProfileExporter(key, StringUtils.capitalize(key)) {
-      @Override
-      public String getMimeType() {
-        return "text/plain+" + key;
-      }
-
-      @Override
-      public void exportProfile(RulesProfile profile, Writer writer) {
-        try {
-          writer.write(String.format("Profile %s exported by %s", profile.getName(), key));
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
-      }
-    };
+      new ExportAction(dbClient, backuper, exporters, LanguageTesting.newLanguages("xoo"))));
   }
 
   @Test
@@ -163,10 +140,10 @@ public class ExportActionTest {
 
   @Test
   public void do_not_fail_when_no_exporters() throws Exception {
-    QProfileExporters myExporters = new QProfileExporters(dbClient, null, null, null, new ProfileExporter[0], null);
+    QProfileExporters myExporters = new QProfileExporters(dbClient, null, null, new ProfileExporter[0], null);
     WsTester myWsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new ExportAction(dbClient, new QProfileFactory(dbClient), backuper, myExporters, LanguageTesting.newLanguages("xoo"))));
+      new ExportAction(dbClient, backuper, myExporters, LanguageTesting.newLanguages("xoo"))));
 
     Action export = myWsTester.controller("api/qualityprofiles").action("export");
     assertThat(export.params()).hasSize(2);
@@ -176,6 +153,23 @@ public class ExportActionTest {
     session.commit();
 
     myWsTester.newGetRequest("api/qualityprofiles", "export").setParam("language", "xoo").setParam("name", profile.getName()).execute();
+  }
 
+  private ProfileExporter newExporter(final String key) {
+    return new ProfileExporter(key, StringUtils.capitalize(key)) {
+      @Override
+      public String getMimeType() {
+        return "text/plain+" + key;
+      }
+
+      @Override
+      public void exportProfile(RulesProfile profile, Writer writer) {
+        try {
+          writer.write(String.format("Profile %s exported by %s", profile.getName(), key));
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      }
+    };
   }
 }

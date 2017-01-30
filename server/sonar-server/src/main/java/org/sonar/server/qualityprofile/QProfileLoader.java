@@ -24,7 +24,6 @@ import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
@@ -49,42 +48,11 @@ public class QProfileLoader {
     this.ruleIndex = ruleIndex;
   }
 
-  /**
-   * Returns all Quality profiles as DTOs. This is a temporary solution as long as
-   * profiles are not indexed and declared as a business object
-   */
-  public List<QualityProfileDto> findAll() {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.qualityProfileDao().selectAll(dbSession);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  @CheckForNull
-  public QualityProfileDto getByKey(String key) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.qualityProfileDao().selectByKey(dbSession, key);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  @CheckForNull
-  public QualityProfileDto getByLangAndName(String lang, String name) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.qualityProfileDao().selectByNameAndLanguage(name, lang, dbSession);
-    } finally {
-      dbSession.close();
-    }
-  }
-
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
-    List<String> keys = findAll().stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
-    return activeRuleIndex.getStatsByProfileKeys(keys);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<String> keys = dbClient.qualityProfileDao().selectAll(dbSession).stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
+      return activeRuleIndex.getStatsByProfileKeys(keys);
+    }
   }
 
   public long countDeprecatedActiveRulesByProfile(String key) {
