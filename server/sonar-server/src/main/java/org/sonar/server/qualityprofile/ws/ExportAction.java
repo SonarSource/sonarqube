@@ -19,40 +19,39 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.Lists;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
-import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.MediaTypes;
+
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class ExportAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_LANGUAGE = "language";
-  public static final String PARAM_FORMAT = "exporterKey";
+  private static final String PARAM_FORMAT = "exporterKey";
 
   private final DbClient dbClient;
-
-  private final QProfileFactory profileFactory;
 
   private final QProfileBackuper backuper;
 
@@ -60,9 +59,8 @@ public class ExportAction implements QProfileWsAction {
 
   private final Languages languages;
 
-  public ExportAction(DbClient dbClient, QProfileFactory profileFactory, QProfileBackuper backuper, QProfileExporters exporters, Languages languages) {
+  public ExportAction(DbClient dbClient, QProfileBackuper backuper, QProfileExporters exporters, Languages languages) {
     this.dbClient = dbClient;
-    this.profileFactory = profileFactory;
     this.backuper = backuper;
     this.exporters = exporters;
     this.languages = languages;
@@ -86,12 +84,11 @@ public class ExportAction implements QProfileWsAction {
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
       .setRequired(true);
 
-    List<String> exporterKeys = Lists.newArrayList();
-    for (Language lang : languages.all()) {
-      for (ProfileExporter exporter : exporters.exportersForLanguage(lang.getKey())) {
-        exporterKeys.add(exporter.getKey());
-      }
-    }
+    Set<String> exporterKeys = Arrays.stream(languages.all())
+      .map(language -> exporters.exportersForLanguage(language.getKey()))
+      .flatMap(Collection::stream)
+      .map(ProfileExporter::getKey)
+      .collect(Collectors.toSet());
     if (!exporterKeys.isEmpty()) {
       action.createParam(PARAM_FORMAT)
         .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +
@@ -106,39 +103,26 @@ public class ExportAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     String name = request.param(PARAM_PROFILE_NAME);
     String language = request.mandatoryParam(PARAM_LANGUAGE);
-    String format = null;
-    if (!exporters.exportersForLanguage(language).isEmpty()) {
-      format = request.param(PARAM_FORMAT);
-    }
-
-    DbSession dbSession = dbClient.openSession(false);
+    String exporterKey = exporters.exportersForLanguage(language).isEmpty() ? null : request.param(PARAM_FORMAT);
     Stream stream = response.stream();
-    OutputStream output = stream.output();
-    Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
-
-    try {
-      QualityProfileDto profile;
-      if (name == null) {
-        profile = profileFactory.getDefault(dbSession, language);
-      } else {
-        profile = profileFactory.getByNameAndLanguage(dbSession, name, language);
-      }
-      if (profile == null) {
-        throw new NotFoundException(String.format("Could not find profile with name '%s' for language '%s'", name, language));
-      }
-
-      String profileKey = profile.getKey();
-      if (format == null) {
+    try (DbSession dbSession = dbClient.openSession(false);
+      OutputStream output = stream.output();
+      Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
+      QualityProfileDto profile = getProfile(dbSession, name, language);
+      if (exporterKey == null) {
         stream.setMediaType(MediaTypes.XML);
-        backuper.backup(profileKey, writer);
+        backuper.backup(dbSession, profile, writer);
       } else {
-        stream.setMediaType(exporters.mimeType(format));
-        exporters.export(profileKey, format, writer);
+        stream.setMediaType(exporters.mimeType(exporterKey));
+        exporters.export(profile, exporterKey, writer);
       }
-    } finally {
-      IOUtils.closeQuietly(writer);
-      IOUtils.closeQuietly(output);
-      dbSession.close();
     }
   }
+
+  private QualityProfileDto getProfile(DbSession dbSession, @Nullable String name, String language) {
+    QualityProfileDto profile = name == null ? dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language)
+      : dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, dbSession);
+    return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
+  }
+
 }
