@@ -63,7 +63,7 @@ public class QProfilesWsTest {
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, null, i18n, userSessionRule),
+      new BulkRuleActivationActions(profileService, null, i18n),
       new AddProjectAction(projectAssociationParameters, null, null, dbClient),
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
       new CreateAction(null, null, null, languages, importers, userSessionRule, null),
@@ -190,13 +190,6 @@ public class QProfilesWsTest {
     assertThat(restore).isNotNull();
     assertThat(restore.isPost()).isTrue();
     assertThat(restore.params()).hasSize(1);
-  }
-
-  public void define_bulk_activate_rule_action() {
-    WebService.Action restoreProfiles = controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(20);
   }
 
   @Test

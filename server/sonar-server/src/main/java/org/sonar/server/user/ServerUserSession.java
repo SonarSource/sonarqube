@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -120,11 +119,6 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public Locale locale() {
-    return Locale.ENGLISH;
-  }
-
-  @Override
   public boolean isRoot() {
     return userDto != null && userDto.isRoot();
   }
@@ -142,7 +136,7 @@ public class ServerUserSession extends AbstractUserSession {
       permissionsByOrganizationUuid.putAll(organizationUuid, permissions);
     }
     return permissions.contains(permission);
- }
+  }
 
   private Set<String> loadOrganizationPermissions(String organizationUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {

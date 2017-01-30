@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 
@@ -42,12 +41,6 @@ public interface UserSession {
   Set<String> getUserGroups();
 
   boolean isLoggedIn();
-
-  /**
-   * @deprecated Always returning {@link Locale#ENGLISH}
-   */
-  @Deprecated
-  Locale locale();
 
   boolean isRoot();
 
@@ -129,7 +122,7 @@ public interface UserSession {
 
   /**
    * Does the user have the given project permission for a component uuid ?
-
+  
    * First, check if the user has the global permission (even if the component doesn't exist)
    * If not, check is the user has the permission on the project of the component
    * If the component doesn't exist, return false

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,7 +50,6 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class CreateActionTest {
@@ -81,9 +79,10 @@ public class CreateActionTest {
     userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
     index = new UserIndex(esTester.client());
     DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-    tester = new WsTester(new UsersWs(new CreateAction(db.getDbClient(),
-      new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, defaultOrganizationProvider),
-      i18n, userSessionRule, new UserJsonWriter(userSessionRule))));
+    tester = new WsTester(new UsersWs(
+      new CreateAction(db.getDbClient(),
+        new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, defaultOrganizationProvider),
+        userSessionRule, new UserJsonWriter(userSessionRule))));
   }
 
   @Test
@@ -161,13 +160,12 @@ public class CreateActionTest {
 
   @Test
   public void reactivate_user() throws Exception {
-    userSessionRule.login("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com"));
     db.getDbClient().userDao().deactivateUserByLogin(db.getSession(), "john");
     db.commit();
     userIndexer.index();
-    when(i18n.message(Locale.FRENCH, "user.reactivated", "user.reactivated", "john")).thenReturn("The user 'john' has been reactivated.");
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")

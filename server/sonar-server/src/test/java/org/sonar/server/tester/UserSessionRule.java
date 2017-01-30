@@ -22,7 +22,6 @@ package org.sonar.server.tester;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -213,11 +212,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule setLocale(@Nullable Locale l) {
-    ensureAbstractMockUserSession().setLocale(l);
-    return this;
-  }
-
   public UserSessionRule addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
     ensureAbstractMockUserSession().addComponentUuidPermission(projectPermission, projectUuid, componentUuid);
     return this;
@@ -286,11 +280,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public boolean isLoggedIn() {
     return currentUserSession.isLoggedIn();
-  }
-
-  @Override
-  public Locale locale() {
-    return currentUserSession.locale();
   }
 
   @Override

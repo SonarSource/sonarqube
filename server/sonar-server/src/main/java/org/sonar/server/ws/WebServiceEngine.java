@@ -149,7 +149,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
     try {
       json.beginObject();
-      errors.writeJson(json, i18n, userSession.locale());
+      errors.writeJson(json, i18n);
       json.endObject();
     } finally {
       // TODO if close() fails, the runtime exception should not hide the

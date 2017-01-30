@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
@@ -42,7 +41,7 @@ public class UsersWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
-      new CreateAction(mock(DbClient.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
+      new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class)),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(org.sonar.db.DbClient.class)),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),

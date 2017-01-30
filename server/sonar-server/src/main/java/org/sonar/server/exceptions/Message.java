@@ -20,13 +20,15 @@
 package org.sonar.server.exceptions;
 
 import com.google.common.base.MoreObjects;
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Arrays;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.Arrays;
-
+/**
+ * @deprecated Bundle key should be replaced by real message as only english is returned on server side messages
+ */
+@Deprecated
 public class Message {
 
   private final String key;

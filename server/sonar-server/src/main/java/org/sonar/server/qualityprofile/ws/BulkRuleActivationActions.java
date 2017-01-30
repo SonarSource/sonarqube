@@ -30,7 +30,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.ws.RuleQueryFactory;
-import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 
@@ -46,13 +45,11 @@ public class BulkRuleActivationActions {
   private final QProfileService profileService;
   private final RuleQueryFactory ruleQueryFactory;
   private final I18n i18n;
-  private final UserSession userSession;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleQueryFactory ruleQueryFactory, I18n i18n, UserSession userSession) {
+  public BulkRuleActivationActions(QProfileService profileService, RuleQueryFactory ruleQueryFactory, I18n i18n) {
     this.profileService = profileService;
     this.ruleQueryFactory = ruleQueryFactory;
     this.i18n = i18n;
-    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -98,7 +95,7 @@ public class BulkRuleActivationActions {
     defineProfileKeyParameter(deactivate);
   }
 
-  private void defineProfileKeyParameter(WebService.NewAction action) {
+  private static void defineProfileKeyParameter(WebService.NewAction action) {
     action.createParam(PROFILE_KEY)
       .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see the api/qprofiles documentation")
       .setRequired(true)
@@ -124,7 +121,7 @@ public class BulkRuleActivationActions {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    result.getErrors().writeJsonAsWarnings(json, i18n, userSession.locale());
+    result.getErrors().writeJson(json, i18n);
     json.endObject().close();
   }
 }

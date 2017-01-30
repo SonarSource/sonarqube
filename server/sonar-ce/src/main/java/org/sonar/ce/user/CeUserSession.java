@@ -21,7 +21,6 @@ package org.sonar.ce.user;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import org.sonar.server.user.UserSession;
 
@@ -58,11 +57,6 @@ public class CeUserSession implements UserSession {
   @Override
   public boolean isLoggedIn() {
     return notImplementedBooleanMethod();
-  }
-
-  @Override
-  public Locale locale() {
-    return notImplemented();
   }
 
   @Override

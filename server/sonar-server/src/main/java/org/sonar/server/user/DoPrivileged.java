@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.GlobalPermissions;
@@ -98,11 +97,6 @@ public final class DoPrivileged {
       }
 
       @Override
-      public Locale locale() {
-        return Locale.getDefault();
-      }
-
-      @Override
       public boolean hasPermission(String globalPermission) {
         return true;
       }
@@ -132,7 +126,7 @@ public final class DoPrivileged {
       oldUserSession = threadLocalUserSession.hasSession() ? threadLocalUserSession.get() : null;
       threadLocalUserSession.set(new PrivilegedUserSession());
     }
-  
+
     private void stop() {
       threadLocalUserSession.unload();
       if (oldUserSession != null) {

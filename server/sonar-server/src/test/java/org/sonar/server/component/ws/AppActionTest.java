@@ -20,13 +20,11 @@
 package org.sonar.server.component.ws;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -43,6 +41,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.api.measures.CoreMetrics.getMetric;
 
 public class AppActionTest {
 
@@ -86,17 +91,16 @@ public class AppActionTest {
   @Test
   public void file_with_measures() throws Exception {
     insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(CoreMetrics.LINES_KEY).getId(), 200d, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY).getId(), 7.4, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.SQALE_RATING_KEY).getId(), null, "C");
-    insertFileMeasure(metricsByKey.get(CoreMetrics.TECHNICAL_DEBT_KEY).getId(), 182d, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY).getId(), 35d, null);
-    insertFileMeasure(metricsByKey.get(CoreMetrics.COVERAGE_KEY).getId(), 95.4d, null);
+    insertFileMeasure(metricsByKey.get(LINES_KEY).getId(), 200d, null);
+    insertFileMeasure(metricsByKey.get(DUPLICATED_LINES_DENSITY_KEY).getId(), 7.4, null);
+    insertFileMeasure(metricsByKey.get(SQALE_RATING_KEY).getId(), null, "C");
+    insertFileMeasure(metricsByKey.get(TECHNICAL_DEBT_KEY).getId(), 182d, null);
+    insertFileMeasure(metricsByKey.get(SQALE_DEBT_RATIO_KEY).getId(), 35d, null);
+    insertFileMeasure(metricsByKey.get(COVERAGE_KEY).getId(), 95.4d, null);
     dbTester.commit();
 
     userSessionRule
       .login("john")
-      .setLocale(Locale.ENGLISH)
       .addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
@@ -105,7 +109,7 @@ public class AppActionTest {
   @Test
   public void file_with_coverage() throws Exception {
     insertComponentsAndAnalysis();
-    insertFileMeasure(metricsByKey.get(CoreMetrics.COVERAGE_KEY).getId(), 95.4, null);
+    insertFileMeasure(metricsByKey.get(COVERAGE_KEY).getId(), 95.4, null);
     dbTester.commit();
 
     userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
@@ -116,7 +120,7 @@ public class AppActionTest {
   private void insertMetrics() {
     metricsByKey = new HashMap<>();
     for (String metricKey : AppAction.METRIC_KEYS) {
-      MetricDto dto = RegisterMetrics.MetricToDto.INSTANCE.apply(CoreMetrics.getMetric(metricKey));
+      MetricDto dto = RegisterMetrics.MetricToDto.INSTANCE.apply(getMetric(metricKey));
       dbTester.getDbClient().metricDao().insert(dbTester.getSession(), dto);
       metricsByKey.put(metricKey, dto);
     }

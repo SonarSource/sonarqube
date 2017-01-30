@@ -21,14 +21,14 @@ package org.sonar.server.exceptions;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.text.JsonWriter;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import static java.util.Locale.ENGLISH;
 
 public class Errors {
 
@@ -70,20 +70,12 @@ public class Errors {
     return expression;
   }
 
-  public void writeJson(JsonWriter json, I18n i18n, Locale locale) {
-    writeJson(json, i18n, locale, "errors");
-  }
-
-  public void writeJsonAsWarnings(JsonWriter json, I18n i18n, Locale locale) {
-    writeJson(json, i18n, locale, "warnings");
-  }
-
-  private void writeJson(JsonWriter json, I18n i18n, Locale locale, String name) {
+  public void writeJson(JsonWriter json, I18n i18n) {
     if (!messages.isEmpty()) {
-      json.name(name).beginArray();
+      json.name("errors").beginArray();
       for (Message message : messages) {
         json.beginObject();
-        String text = StringUtils.defaultString(i18n.message(locale, message.getKey(), message.getKey(), message.getParams()), message.getKey());
+        String text = StringUtils.defaultString(i18n.message(ENGLISH, message.getKey(), message.getKey(), message.getParams()), message.getKey());
         json.prop("msg", text);
         json.endObject();
       }

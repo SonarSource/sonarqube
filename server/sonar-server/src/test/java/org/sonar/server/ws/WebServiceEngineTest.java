@@ -248,7 +248,6 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_i18n_message() {
-    userSessionRule.setLocale(Locale.ENGLISH);
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_i18n_message").setParam("count", "3");
     DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
@@ -279,8 +278,6 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_i18n_messages() {
-    userSessionRule.setLocale(Locale.ENGLISH);
-
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_multiple_i18n_messages").setParam("count", "3");
     DumbResponse response = new DumbResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");

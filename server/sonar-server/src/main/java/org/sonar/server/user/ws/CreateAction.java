@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,6 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.client.user.CreateRequest;
 
+import static java.lang.String.format;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
@@ -48,14 +48,12 @@ public class CreateAction implements UsersWsAction {
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
-  private final I18n i18n;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
 
-  public CreateAction(DbClient dbClient, UserUpdater userUpdater, I18n i18n, UserSession userSession, UserJsonWriter userWriter) {
+  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
-    this.i18n = i18n;
     this.userSession = userSession;
     this.userWriter = userWriter;
   }
@@ -131,10 +129,10 @@ public class CreateAction implements UsersWsAction {
     userWriter.write(json, user, ImmutableSet.of(), UserJsonWriter.FIELDS);
   }
 
-  private void writeReactivationMessage(JsonWriter json, String login) {
+  private static void writeReactivationMessage(JsonWriter json, String login) {
     json.name("infos").beginArray();
     json.beginObject();
-    String text = i18n.message(userSession.locale(), "user.reactivated", "user.reactivated", login);
+    String text = format("The user '%s' has been reactivated", login);
     json.prop("msg", text);
     json.endObject();
     json.endArray();

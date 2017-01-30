@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +52,7 @@ public class ThreadLocalUserSessionTest {
 
   @Test
   public void get_session_for_user() {
-    AbstractMockUserSession expected = new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH);
+    AbstractMockUserSession expected = new MockUserSession("karadoc").setUserId(123);
     threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();
@@ -61,7 +60,6 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.getUserId()).isEqualTo(123);
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
-    assertThat(threadLocalUserSession.locale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test
@@ -74,8 +72,6 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.getLogin()).isNull();
     assertThat(threadLocalUserSession.getUserId()).isNull();
     assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
-    // default locale
-    assertThat(threadLocalUserSession.locale()).isEqualTo(Locale.ENGLISH);
   }
 
   @Test

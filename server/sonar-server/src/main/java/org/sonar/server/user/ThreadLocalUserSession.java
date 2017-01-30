@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -79,11 +78,6 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public boolean isLoggedIn() {
     return get().isLoggedIn();
-  }
-
-  @Override
-  public Locale locale() {
-    return get().locale();
   }
 
   @Override
