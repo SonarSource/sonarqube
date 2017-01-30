@@ -103,7 +103,6 @@ public class SearchActionTest {
   public void verify_definition() {
     WebService.Action action = ws.getDef();
 
-    assertThat(action.description()).isEqualTo("Search for components");
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isFalse();
