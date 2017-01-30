@@ -52,6 +52,7 @@ import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssuePerModuleSensor;
+import org.sonar.xoo.rule.OneIssuePerUnknownFileSensor;
 import org.sonar.xoo.rule.OneVulnerabilityIssuePerModuleSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.SaveDataTwiceSensor;
@@ -122,6 +123,7 @@ public class XooPlugin implements Plugin {
       OneIssuePerFileSensor.class,
       OneIssuePerModuleSensor.class,
       OneIssueOnDirPerFileSensor.class,
+      OneIssuePerUnknownFileSensor.class,
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,
       CustomMessageSensor.class,

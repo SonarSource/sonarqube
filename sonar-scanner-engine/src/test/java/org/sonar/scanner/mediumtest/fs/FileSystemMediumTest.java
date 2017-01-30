@@ -83,16 +83,20 @@ public class FileSystemMediumTest {
     tester.stop();
     logs = new LogOutputRecorder();
   }
-
-  @Test
-  public void scanProjectWithoutProjectName() throws IOException {
-    builder = ImmutableMap.<String, String>builder()
+  
+  private ImmutableMap.Builder<String, String> createBuilder() {
+    return ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
       .put("sonar.verbose", "true")
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
       .put("sonar.projectKey", "com.foo.project")
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
       .put("sonar.projectDescription", "Description of Foo Project");
+  }
+
+  @Test
+  public void scanProjectWithoutProjectName() throws IOException {
+    builder = createBuilder();
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -115,23 +119,18 @@ public class FileSystemMediumTest {
     InputDir dir = result.inputDir("src");
     assertThat(file.type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(file.relativePath()).isEqualTo("src/sample.xoo");
+    assertThat(file.language()).isEqualTo("xoo");
     assertThat(dir.relativePath()).isEqualTo("src");
 
-    // file and dirs were not published
-    assertThat(file.publish()).isFalse();
-    assertThat(result.getReportComponent(dir.key())).isNull();
-    assertThat(result.getReportComponent(file.key())).isNull();
+    // file and dirs were published, since language matched xoo
+    assertThat(file.publish()).isTrue();
+    assertThat(result.getReportComponent(dir.key())).isNotNull();
+    assertThat(result.getReportComponent(file.key())).isNotNull();
   }
 
   @Test
   public void onlyGenerateMetadataIfNeeded() throws IOException {
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.verbose", "true")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project");
+    builder = createBuilder();
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -139,8 +138,8 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    File unknownFile = new File(srcDir, "sample.unknown");
-    FileUtils.write(unknownFile, "Sample xoo\ncontent");
+    File javaFile = new File(srcDir, "sample.java");
+    FileUtils.write(javaFile, "Sample xoo\ncontent");
 
     tester.newTask()
       .properties(builder
@@ -150,19 +149,13 @@ public class FileSystemMediumTest {
 
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
-    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.unknown' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
   }
 
   @Test
   public void preloadFileMetadata() throws IOException {
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.verbose", "true")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.preloadFileMetadata", "true")
-      .put("sonar.projectDescription", "Description of Foo Project");
+    builder = createBuilder()
+      .put("sonar.preloadFileMetadata", "true");
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -170,8 +163,8 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    File unknownFile = new File(srcDir, "sample.unknown");
-    FileUtils.write(unknownFile, "Sample xoo\ncontent");
+    File javaFile = new File(srcDir, "sample.java");
+    FileUtils.write(javaFile, "Sample xoo\ncontent");
 
     tester.newTask()
       .properties(builder
@@ -181,7 +174,68 @@ public class FileSystemMediumTest {
 
     assertThat(logs.getAllAsString()).contains("2 files indexed");
     assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).contains("'src/sample.java' generated metadata");
+  }
+
+  @Test
+  public void dontPublishFilesWithoutDetectedLanguage() throws IOException {
+    builder = createBuilder();
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File javaFile = new File(srcDir, "sample.java");
+    FileUtils.write(javaFile, "Sample xoo\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("2 files indexed");
+    assertThat(logs.getAllAsString()).contains("'src/sample.xoo' generated metadata");
+    assertThat(logs.getAllAsString()).doesNotContain("'src/sample.java' generated metadata");
+    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.java");
+    assertThat(result.getReportComponent(javaInputFile.key())).isNull();
+  }
+
+  @Test
+  public void createIssueOnAnyFile() throws IOException {
+    LogOutputRecorder logs = new LogOutputRecorder();
+    ScannerMediumTester tester2 = ScannerMediumTester.builder()
+      .registerPlugin("xoo", new XooPlugin())
+      .addDefaultQProfile("xoo", "Sonar Way")
+      .addRules(new XooRulesDefinition())
+      .setLogOutput(logs)
+      .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo")
+      .build();
+    tester2.start();
+
+    builder = createBuilder();
+
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.unknown");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    TaskResult result = tester2.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("1 file indexed");
+    assertThat(logs.getAllAsString()).contains("'src/sample.unknown' indexed with language 'null'");
     assertThat(logs.getAllAsString()).contains("'src/sample.unknown' generated metadata");
+    DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/sample.unknown");
+    assertThat(result.getReportComponent(javaInputFile.key())).isNotNull();
+
+    tester2.stop();
   }
 
   @Test
@@ -194,13 +248,7 @@ public class FileSystemMediumTest {
       .build();
     tester2.start();
 
-    builder = ImmutableMap.<String, String>builder()
-      .put("sonar.task", "scan")
-      .put("sonar.verbose", "true")
-      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-      .put("sonar.projectKey", "com.foo.project")
-      .put("sonar.projectVersion", "1.0-SNAPSHOT")
-      .put("sonar.projectDescription", "Description of Foo Project");
+    builder = createBuilder();
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -420,7 +468,6 @@ public class FileSystemMediumTest {
     TaskResult result = tester.newTask()
       .properties(builder
         .put("sonar.sources", "src")
-        .put("sonar.import_unknown_files", "true")
         .build())
       .start();
 

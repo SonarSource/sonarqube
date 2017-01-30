@@ -172,7 +172,7 @@ public class FileIndexer {
           indexParentDir(fileSystem, inputFile);
           progress.markAsIndexed(inputFile);
         }
-        LOG.debug("'{}' indexed {} with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
+        LOG.debug("'{}' indexed {}with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
         inputFileBuilder.checkMetadata(inputFile);
       } else {
         progress.increaseExcludedByPatternsCount();
