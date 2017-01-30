@@ -25,14 +25,6 @@ import org.sonar.db.component.ComponentDto;
 public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
-  public void should_order_results_by_score() {
-    assertResultOrder("struts",
-      "Struts",
-      "Apache Struts",
-      "Apache Struts Two");
-  }
-
-  @Test
   public void should_prefer_components_without_prefix() {
     assertResultOrder("File.java",
       "File.java",
@@ -52,12 +44,5 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
     ComponentDto project2 = indexProject("sonarqube", "Quality Product");
 
     assertExactResults("sonarqube", project2, project1);
-  }
-
-  @Test
-  public void should_prefer_prefix_to_partial() {
-    assertResultOrder("corem",
-      "CoreMetrics.java",
-      "ScoreMatrix.java");
   }
 }
