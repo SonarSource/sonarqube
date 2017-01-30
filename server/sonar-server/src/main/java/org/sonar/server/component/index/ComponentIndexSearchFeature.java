@@ -20,20 +20,16 @@
 package org.sonar.server.component.index;
 
 import java.util.Arrays;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.DefaultIndexSettings;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.prefixQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
-import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
@@ -43,7 +39,6 @@ public enum ComponentIndexSearchFeature {
     @Override
     public QueryBuilder getQuery(String queryText) {
       BoolQueryBuilder query = boolQuery();
-
       split(queryText)
         .map(queryTerm -> {
 
@@ -55,23 +50,6 @@ public enum ComponentIndexSearchFeature {
         })
         .forEach(query::must);
       return query;
-    }
-  },
-  FUZZY {
-    @Override
-    public QueryBuilder getQuery(String queryText) {
-      BoolQueryBuilder query = boolQuery();
-
-      split(queryText)
-        .map(((Function<String, QueryBuilder>) queryTerm -> matchQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryTerm).fuzziness(Fuzziness.AUTO))::apply)
-        .forEach(query::must);
-      return query;
-    }
-  },
-  FUZZY_PREFIX {
-    @Override
-    public QueryBuilder getQuery(String queryText) {
-      return prefixQuery(FUZZY_ANALYZER.subField(FIELD_NAME), queryText);
     }
   },
   KEY {

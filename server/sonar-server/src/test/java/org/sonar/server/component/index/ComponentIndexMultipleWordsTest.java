@@ -30,13 +30,6 @@ public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
   }
 
   @Test
-  public void should_find_fuzzy_match() {
-    features.set(ComponentIndexSearchFeature.FUZZY);
-    assertResultOrder("StrutX ProjecX",
-      "Struts Project");
-  }
-
-  @Test
   public void should_find_partial_match() {
     features.set(ComponentIndexSearchFeature.PARTIAL);
     assertResultOrder("struts java",
@@ -88,13 +81,6 @@ public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
   @Test
   public void should_ignore_empty_words() {
     assertFileMatches("     :     .  struts   \n .    :\n\n",
-      "Struts");
-  }
-
-  @Test
-  public void should_require_all_words_to_match_for_fuzziness() {
-    features.set(ComponentIndexSearchFeature.FUZZY);
-    assertNoFileMatches("struts java",
       "Struts");
   }
 

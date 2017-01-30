@@ -100,14 +100,6 @@ public enum DefaultIndexSettingsElement {
       set(PATTERN, "\\.");
     }
   },
-  FUZZY_TOKENIZER(TOKENIZER) {
-
-    @Override
-    protected void setup() {
-      set(TYPE, PATTERN);
-      set(PATTERN, ComponentIndexSearchFeature.SEARCH_TERM_TOKENIZER_PATTERN);
-    }
-  },
 
   // Analyzers
 
@@ -199,22 +191,6 @@ public enum DefaultIndexSettingsElement {
     protected void setup() {
       set(TOKENIZER, UUID_MODULE_TOKENIZER);
       setArray(FILTER, TRIM);
-    }
-  },
-  FUZZY_ANALYZER(ANALYZER) {
-
-    @Override
-    protected void setup() {
-      set(TOKENIZER, FUZZY_TOKENIZER);
-      setArray(FILTER, LOWERCASE);
-    }
-
-    @Override
-    public SortedMap<String, String> fieldMapping() {
-      return ImmutableSortedMap.of(
-        TYPE, STRING,
-        INDEX, ANALYZED,
-        ANALYZER, getName());
     }
   },
 

@@ -24,7 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
-import static org.sonar.server.es.DefaultIndexSettingsElement.FUZZY_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
@@ -63,7 +62,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
     mapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).enable(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME).enable(SEARCH_GRAMS_ANALYZER, FUZZY_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_NAME).enable(SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
 
     // do not store document but only indexation of information
