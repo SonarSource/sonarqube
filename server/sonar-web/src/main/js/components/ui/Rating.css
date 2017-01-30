@@ -2,7 +2,7 @@
   display: inline-block;
   width: 24px;
   height: 24px;
-  line-height: 23px;
+  line-height: 24px;
   border-radius: 24px;
   box-sizing: border-box;
   color: #fff;
@@ -10,15 +10,6 @@
   font-weight: 400;
   text-align: center;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
-}
-
-.rating-small {
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  margin-top: -1px;
-  margin-bottom: -1px;
-  font-size: 12px;
 }
 
 .rating-muted {
@@ -38,6 +29,7 @@ a > .rating:hover {
 }
 
 .rating-A {
+  line-height: 23px;
   background-color: #00aa00;
 }
 
@@ -68,3 +60,12 @@ a .rating-D { border-bottom-color: #ed7d20; }
 }
 
 a .rating-E { border-bottom-color: #e00; }
+
+.rating-small {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  font-size: 12px;
+}
