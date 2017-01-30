@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.favorite.ws;
 
-package org.sonar.server.favorite;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class FavouritesWs implements WebService {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class FavoriteModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new FavoriteModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/favourites")
+      .setDescription("Removed since 6.3, please use api/favorites instead")
+      .setSince("2.6");
+    controller.createAction("index")
+      .setDescription("The web service is removed and you're invited to use api/favorites instead")
+      .setSince("2.6")
+      .setDeprecatedSince("6.3")
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
+    controller.done();
   }
+
 }
