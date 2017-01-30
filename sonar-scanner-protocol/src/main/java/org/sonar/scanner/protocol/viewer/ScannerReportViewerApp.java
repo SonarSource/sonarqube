@@ -31,6 +31,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.annotation.CheckForNull;
@@ -56,6 +57,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Changesets;
+import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Changeset;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
@@ -90,6 +93,8 @@ public class ScannerReportViewerApp {
   private JEditorPane issuesEditor;
   private JScrollPane measuresTab;
   private JEditorPane measuresEditor;
+  private JScrollPane scmTab;
+  private JEditorPane scmEditor;
 
   /**
    * Create the application.
@@ -122,7 +127,7 @@ public class ScannerReportViewerApp {
     final JFileChooser fc = new JFileChooser();
     fc.setDialogTitle("Choose scanner report directory");
     File lastReport = getLastUsedReport();
-    if(lastReport != null) {
+    if (lastReport != null) {
       fc.setCurrentDirectory(lastReport);
     }
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -143,11 +148,11 @@ public class ScannerReportViewerApp {
     }
 
   }
-  
+
   @CheckForNull
-  private File getLastUsedReport()  {
+  private File getLastUsedReport() {
     File f = new File(System.getProperty("java.io.tmpdir"), ".last_batch_report_dir");
-    if(f.exists()) {
+    if (f.exists()) {
       String path;
       try {
         path = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
@@ -155,15 +160,15 @@ public class ScannerReportViewerApp {
         return null;
       }
       File lastReport = new File(path);
-      if(lastReport.exists() && lastReport.isDirectory()) {
+      if (lastReport.exists() && lastReport.isDirectory()) {
         return lastReport;
       }
     }
     return null;
   }
-  
+
   private void setLastUsedReport(File lastReport) throws IOException {
-    
+
     File f = new File(System.getProperty("java.io.tmpdir"), ".last_batch_report_dir");
     String fullPath = lastReport.getAbsolutePath();
     FileUtils.write(f, fullPath, StandardCharsets.UTF_8);
@@ -236,6 +241,7 @@ public class ScannerReportViewerApp {
     updateDuplications(component);
     updateIssues(component);
     updateMeasures(component);
+    updateScm(component);
   }
 
   private void updateDuplications(Component component) {
@@ -244,7 +250,7 @@ public class ScannerReportViewerApp {
       try (CloseableIterator<ScannerReport.Duplication> it = reader.readComponentDuplications(component.getRef())) {
         while (it.hasNext()) {
           ScannerReport.Duplication dup = it.next();
-          duplicationEditor.getDocument().insertString(duplicationEditor.getDocument().getEndPosition().getOffset(), dup.toString() + "\n", null);
+          duplicationEditor.getDocument().insertString(duplicationEditor.getDocument().getEndPosition().getOffset(), dup + "\n", null);
         }
       } catch (Exception e) {
         throw new IllegalStateException("Can't read duplications for " + getNodeName(component), e);
@@ -270,23 +276,23 @@ public class ScannerReportViewerApp {
     try (CloseableIterator<ScannerReport.LineCoverage> it = reader.readComponentCoverage(component.getRef())) {
       while (it.hasNext()) {
         ScannerReport.LineCoverage coverage = it.next();
-        coverageEditor.getDocument().insertString(coverageEditor.getDocument().getEndPosition().getOffset(), coverage.toString() + "\n", null);
+        coverageEditor.getDocument().insertString(coverageEditor.getDocument().getEndPosition().getOffset(), coverage + "\n", null);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read code coverage for " + getNodeName(component), e);
     }
   }
-  
+
   private void updateTests(Component component) {
     testsEditor.setText("");
     File tests = reader.readTests(component.getRef());
-    if(tests == null) {
+    if (tests == null) {
       return;
     }
     try (InputStream inputStream = FileUtils.openInputStream(tests)) {
       ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       while (test != null) {
-        testsEditor.getDocument().insertString(testsEditor.getDocument().getEndPosition().getOffset(), test.toString() + "\n", null);
+        testsEditor.getDocument().insertString(testsEditor.getDocument().getEndPosition().getOffset(), test + "\n", null);
         test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
@@ -316,22 +322,49 @@ public class ScannerReportViewerApp {
     try (CloseableIterator<ScannerReport.SyntaxHighlightingRule> it = reader.readComponentSyntaxHighlighting(component.getRef())) {
       while (it.hasNext()) {
         ScannerReport.SyntaxHighlightingRule rule = it.next();
-        highlightingEditor.getDocument().insertString(highlightingEditor.getDocument().getEndPosition().getOffset(), rule.toString() + "\n", null);
+        highlightingEditor.getDocument().insertString(highlightingEditor.getDocument().getEndPosition().getOffset(), rule + "\n", null);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read syntax highlighting for " + getNodeName(component), e);
     }
   }
-  
+
   private void updateMeasures(Component component) {
     measuresEditor.setText("");
     try (CloseableIterator<ScannerReport.Measure> it = reader.readComponentMeasures(component.getRef())) {
       while (it.hasNext()) {
         ScannerReport.Measure measure = it.next();
-        measuresEditor.getDocument().insertString(measuresEditor.getDocument().getEndPosition().getOffset(), measure.toString() + "\n", null);
+        measuresEditor.getDocument().insertString(measuresEditor.getDocument().getEndPosition().getOffset(), measure + "\n", null);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read measures for " + getNodeName(component), e);
+    }
+  }
+
+  private void updateScm(Component component) {
+    scmEditor.setText("");
+    Changesets changesets = reader.readChangesets(component.getRef());
+    if (changesets == null) {
+      return;
+    }
+    List<Integer> changesetIndexByLine = changesets.getChangesetIndexByLineList();
+    try {
+      int index = 0;
+      for (Changeset changeset : changesets.getChangesetList()) {
+        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), Integer.toString(index) + "\n", null);
+        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), changeset + "\n", null);
+        index++;
+      }
+      
+      scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), "\n", null);
+      int line = 1;
+      for (Integer idx : changesetIndexByLine) {
+        scmEditor.getDocument().insertString(scmEditor.getDocument().getEndPosition().getOffset(), Integer.toString(line) + ": " + idx + "\n", null);
+        line++;
+      }
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read SCM for " + getNodeName(component), e);
     }
   }
 
@@ -340,7 +373,7 @@ public class ScannerReportViewerApp {
     try (CloseableIterator<ScannerReport.Symbol> it = reader.readComponentSymbols(component.getRef())) {
       while (it.hasNext()) {
         ScannerReport.Symbol symbol = it.next();
-        symbolEditor.getDocument().insertString(symbolEditor.getDocument().getEndPosition().getOffset(), symbol.toString() + "\n", null);
+        symbolEditor.getDocument().insertString(symbolEditor.getDocument().getEndPosition().getOffset(), symbol + "\n", null);
       }
     } catch (Exception e) {
       throw new IllegalStateException("Can't read symbol references for " + getNodeName(component), e);
@@ -410,7 +443,7 @@ public class ScannerReportViewerApp {
 
     duplicationEditor = new JEditorPane();
     duplicationTab.setViewportView(duplicationEditor);
-    
+
     testsTab = new JScrollPane();
     tabbedPane.addTab("Tests", null, testsTab, null);
 
@@ -422,12 +455,18 @@ public class ScannerReportViewerApp {
 
     issuesEditor = new JEditorPane();
     issuesTab.setViewportView(issuesEditor);
-    
+
     measuresTab = new JScrollPane();
     tabbedPane.addTab("Measures", null, measuresTab, null);
 
     measuresEditor = new JEditorPane();
     measuresTab.setViewportView(measuresEditor);
+
+    scmTab = new JScrollPane();
+    tabbedPane.addTab("SCM", null, scmTab, null);
+
+    scmEditor = new JEditorPane();
+    scmTab.setViewportView(scmEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));
