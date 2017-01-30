@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import java.util.Map;
 import java.util.TimeZone;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +29,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -283,18 +281,13 @@ public class IssueIndexDebtTest {
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(asList(issues).iterator());
     for (IssueDoc issue : issues) {
-      addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
+      addIssueAuthorization(issue.projectUuid());
     }
   }
 
-  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
+  private void addIssueAuthorization(String projectUuid) {
     PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
-    if (group != null) {
-      access.addGroupName(group);
-    }
-    if (user != null) {
-      access.addUser(user);
-    }
+    access.allowAnyone();
     authorizationIndexerTester.allow(access);
   }
 

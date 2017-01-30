@@ -21,12 +21,12 @@ package org.sonar.server.permission.index;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-import java.util.Set;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.user.UserSession;
 
@@ -39,7 +39,6 @@ public class AuthorizationTypeSupport {
 
   public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String FIELD_GROUP_IDS = "groupIds";
-  public static final String FIELD_GROUP_NAMES = "groupNames";
   public static final String FIELD_USER_IDS = "userIds";
   public static final String FIELD_UPDATED_AT = "updatedAt";
 
@@ -75,7 +74,6 @@ public class AuthorizationTypeSupport {
     authType.setAttribute("_routing", ImmutableMap.of("required", true));
     authType.createDateTimeField(FIELD_UPDATED_AT);
     authType.createLongField(FIELD_GROUP_IDS);
-    authType.stringFieldBuilder(FIELD_GROUP_NAMES).disableNorms().build();
     authType.createLongField(FIELD_USER_IDS);
     authType.createBooleanField(FIELD_ALLOW_ANYONE);
     authType.setEnableSource(false);
@@ -88,7 +86,6 @@ public class AuthorizationTypeSupport {
    */
   public QueryBuilder createQueryFilter() {
     Integer userId = userSession.getUserId();
-    Set<String> userGroupNames = userSession.getUserGroups();
     BoolQueryBuilder filter = boolQuery();
 
     // anyone
@@ -100,8 +97,10 @@ public class AuthorizationTypeSupport {
       .ifPresent(id -> filter.should(termQuery(FIELD_USER_IDS, id)));
 
     // groups
-    userGroupNames.forEach(
-      group -> filter.should(termQuery(FIELD_GROUP_NAMES, group)));
+    userSession.getGroups()
+      .stream()
+      .map(GroupDto::getId)
+      .forEach(groupId -> filter.should(termQuery(FIELD_GROUP_IDS, groupId)));
 
     return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
       QueryBuilders.boolQuery().filter(filter));

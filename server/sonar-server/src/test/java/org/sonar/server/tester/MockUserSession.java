@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -99,5 +103,11 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   public MockUserSession setGroups(GroupDto... groups) {
     this.groups = asList(groups);
     return this;
+  }
+
+  @Override
+  public Set<String> getUserGroups() {
+    return Stream.concat(Stream.of(DefaultGroups.ANYONE),groups.stream().map(GroupDto::getName))
+      .collect(Collectors.toSet());
   }
 }

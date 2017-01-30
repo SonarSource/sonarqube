@@ -21,14 +21,12 @@ package org.sonar.server.batch;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -321,18 +319,13 @@ public class IssuesActionTest {
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(Arrays.asList(issues).iterator());
     for (IssueDoc issue : issues) {
-      addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
+      addIssueAuthorization(issue.projectUuid());
     }
   }
 
-  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
+  private void addIssueAuthorization(String projectUuid) {
     PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
-    if (group != null) {
-      access.addGroupName(group);
-    }
-    if (user != null) {
-      access.addUser(user);
-    }
+    access.allowAnyone();
     authorizationIndexerTester.allow(access);
   }
 

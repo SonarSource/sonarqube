@@ -20,17 +20,20 @@
 package org.sonar.server.tester;
 
 import org.junit.Test;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class MockUserSessionTest {
   @Test
   public void set_mock_session() {
-    MockUserSession mock = new MockUserSession("simon").setUserGroups("sonar-users");
+    GroupDto group = newGroupDto();
+    MockUserSession mock = new MockUserSession("foo").setGroups(group);
 
-    assertThat(mock.getLogin()).isEqualTo("simon");
-    assertThat(mock.getUserGroups()).containsOnly("sonar-users", "Anyone");
+    assertThat(mock.getLogin()).isEqualTo("foo");
+    assertThat(mock.getGroups()).extracting(GroupDto::getId).containsOnly(group.getId());
+    assertThat(mock.getUserGroups()).containsOnly(group.getName(), "Anyone");
     assertThat(mock.globalPermissions()).isEmpty();
     assertThat(mock.isLoggedIn()).isTrue();
   }

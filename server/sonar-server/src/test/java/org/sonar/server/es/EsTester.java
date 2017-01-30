@@ -91,15 +91,19 @@ public class EsTester extends ExternalResource {
     client.nativeClient().admin().indices().prepareDelete("_all").get();
   }
 
-  public void putDocuments(String index, String type, BaseDoc... docs) throws Exception {
-    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
-    for (BaseDoc doc : docs) {
-      bulk.add(new IndexRequest(index, type, doc.getId())
-        .parent(doc.getParent())
-        .routing(doc.getRouting())
-        .source(doc.getFields()));
+  public void putDocuments(String index, String type, BaseDoc... docs) {
+    try {
+      BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+      for (BaseDoc doc : docs) {
+        bulk.add(new IndexRequest(index, type, doc.getId())
+          .parent(doc.getParent())
+          .routing(doc.getRouting())
+          .source(doc.getFields()));
+      }
+      EsUtils.executeBulkRequest(bulk, "");
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
     }
-    EsUtils.executeBulkRequest(bulk, "");
   }
 
   public long countDocuments(String indexName, String typeName) {

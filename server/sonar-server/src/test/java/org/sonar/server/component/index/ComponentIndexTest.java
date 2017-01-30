@@ -46,9 +46,6 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
 
-  protected static final Integer TEST_USER_ID = 42;
-  protected static final String TEST_USER_GROUP = "TestUsers";
-
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
 

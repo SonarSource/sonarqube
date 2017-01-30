@@ -214,8 +214,12 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule setUserGroups(@Nullable String... userGroups) {
-    ensureAbstractMockUserSession().setUserGroups(userGroups);
+  /**
+   * Groups that user is member of. User must be logged in. An exception
+   * is thrown if session is anonymous.
+   */
+  public UserSessionRule setGroups(GroupDto... groups) {
+    ensureMockUserSession().setGroups(groups);
     return this;
   }
 

@@ -253,7 +253,7 @@ public class PermissionIndexerTest {
   }
 
   private void verifyAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setUserGroups(group.getName());
+    logIn(user).setGroups(group);
     verifyAuthorized(project, true);
   }
 
@@ -263,7 +263,7 @@ public class PermissionIndexerTest {
   }
 
   private void verifyNotAuthorized(ComponentDto project, UserDto user, GroupDto group) {
-    logIn(user).setUserGroups(group.getName());
+    logIn(user).setGroups(group);
     verifyAuthorized(project, false);
   }
 

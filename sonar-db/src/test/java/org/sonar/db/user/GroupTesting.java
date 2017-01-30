@@ -32,6 +32,7 @@ public class GroupTesting {
 
   public static GroupDto newGroupDto() {
     GroupDto group = new GroupDto()
+      .setId(nextLong())
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(255))
       .setDescription(randomAlphanumeric(200))
