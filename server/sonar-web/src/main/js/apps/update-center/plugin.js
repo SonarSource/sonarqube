@@ -29,7 +29,7 @@ export default Backbone.Model.extend({
 
   _matchAttribute (attr, query) {
     const value = this.get(attr) || '';
-    return value.search(new RegExp(query, 'i')) !== -1;
+    return value.toLowerCase().includes(query.toLowerCase());
   },
 
   match (query) {
