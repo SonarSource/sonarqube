@@ -36,12 +36,10 @@ import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchMyProjectsAction implements ProjectsWsAction {
-  private static final int QUERY_MINIMUM_LENGTH = 3;
   private static final int MAX_SIZE = 500;
 
   private final DbClient dbClient;
@@ -56,21 +54,13 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search_my_projects")
+    context.createAction("search_my_projects")
       .setDescription("Return list of projects for which the current user has 'Administer' permission.")
       .setResponseExample(getClass().getResource("search_my_projects-example.json"))
       .addPagingParams(100, MAX_SIZE)
       .setSince("6.0")
       .setInternal(true)
       .setHandler(this);
-
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription(format("Limit search to: <ul>" +
-        "<li>project names that contain the supplied string</li>" +
-        "<li>project keys that are exactly the same as the supplied string</li>" +
-        "</ul>" +
-        "Must have at least %d characters", QUERY_MINIMUM_LENGTH))
-      .setExampleValue("PROJECT_NAM");
   }
 
   @Override
