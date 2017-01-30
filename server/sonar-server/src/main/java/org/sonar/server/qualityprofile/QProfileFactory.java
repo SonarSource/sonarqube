@@ -126,21 +126,6 @@ public class QProfileFactory {
 
   // ------------- DEFAULT PROFILE
 
-  @CheckForNull
-  QualityProfileDto getDefault(String language) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      return getDefault(dbSession, language);
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  @CheckForNull
-  public QualityProfileDto getDefault(DbSession session, String language) {
-    return db.qualityProfileDao().selectDefaultProfile(session, language);
-  }
-
   public List<QualityProfileDto> getDefaults(DbSession session, Collection<String> languageKeys) {
     return db.qualityProfileDao().selectDefaultProfiles(session, languageKeys);
   }
@@ -191,15 +176,6 @@ public class QProfileFactory {
     return checkFound(profile, "Unable to find a profile for language '%s' with name '%s'", language, profileName);
   }
 
-  QualityProfileDto getByProjectAndLanguage(String projectKey, String language) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      return getByProjectAndLanguage(dbSession, projectKey, language);
-    } finally {
-      dbSession.close();
-    }
-  }
-
   @CheckForNull
   public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
     return db.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language);
@@ -209,16 +185,11 @@ public class QProfileFactory {
     return db.qualityProfileDao().selectByProjectAndLanguages(session, projectKey, languageKeys);
   }
 
-  @CheckForNull
-  public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
-    return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
-  }
-
   public List<QualityProfileDto> getByNameAndLanguages(DbSession session, String name, Collection<String> languages) {
     return db.qualityProfileDao().selectByNameAndLanguages(name, languages, session);
   }
 
-  private void checkNotDefault(QualityProfileDto p) {
+  private static void checkNotDefault(QualityProfileDto p) {
     if (p.isDefault()) {
       throw new BadRequestException("The profile marked as default can not be deleted: " + p.getKey());
     }

@@ -52,15 +52,13 @@ import org.sonar.server.exceptions.NotFoundException;
 public class QProfileExporters {
 
   private final DbClient dbClient;
-  private final QProfileLoader loader;
   private final RuleFinder ruleFinder;
   private final RuleActivator ruleActivator;
   private final ProfileExporter[] exporters;
   private final ProfileImporter[] importers;
 
-  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, ProfileImporter[] importers) {
+  public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, ProfileImporter[] importers) {
     this.dbClient = dbClient;
-    this.loader = loader;
     this.ruleFinder = ruleFinder;
     this.ruleActivator = ruleActivator;
     this.exporters = exporters;
@@ -70,22 +68,22 @@ public class QProfileExporters {
   /**
    * Used by Pico if no {@link ProfileImporter} is found
    */
-  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters) {
-    this(dbClient, loader, ruleFinder, ruleActivator, exporters, new ProfileImporter[0]);
+  public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters) {
+    this(dbClient, ruleFinder, ruleActivator, exporters, new ProfileImporter[0]);
   }
 
   /**
    * Used by Pico if no {@link ProfileExporter} is found
    */
-  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers) {
-    this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], importers);
+  public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers) {
+    this(dbClient, ruleFinder, ruleActivator, new ProfileExporter[0], importers);
   }
 
   /**
    * Used by Pico if no {@link ProfileImporter} nor {@link ProfileExporter} is found
    */
-  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator) {
-    this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], new ProfileImporter[0]);
+  public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, RuleActivator ruleActivator) {
+    this(dbClient, ruleFinder, ruleActivator, new ProfileExporter[0], new ProfileImporter[0]);
   }
 
   public List<ProfileExporter> exportersForLanguage(String language) {
@@ -103,12 +101,8 @@ public class QProfileExporters {
     return exporter.getMimeType();
   }
 
-  public void export(String profileKey, String exporterKey, Writer writer) {
+  public void export(QualityProfileDto profile, String exporterKey, Writer writer) {
     ProfileExporter exporter = findExporter(exporterKey);
-    QualityProfileDto profile = loader.getByKey(profileKey);
-    if (profile == null) {
-      throw new NotFoundException("Unknown Quality profile: " + profileKey);
-    }
     exporter.exportProfile(wrap(profile), writer);
   }
 

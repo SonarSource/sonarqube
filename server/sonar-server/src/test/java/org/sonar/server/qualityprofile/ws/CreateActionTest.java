@@ -43,10 +43,8 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -91,17 +89,16 @@ public class CreateActionTest {
   RuleIndex ruleIndex = new RuleIndex(esTester.client());
   RuleIndexer ruleIndexer = new RuleIndexer(system2, dbClient, esTester.client());
 
-  ActiveRuleIndex activeRuleIndex = new ActiveRuleIndex(esTester.client());
   ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
 
   ProfileImporter[] profileImporters = createImporters();
 
-  QProfileExporters qProfileExporters = new QProfileExporters(dbClient,
-    new QProfileLoader(dbClient, activeRuleIndex, ruleIndex), null,
+  QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
     profileImporters);
 
-  CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters, newLanguages(XOO_LANGUAGE), profileImporters, userSession, activeRuleIndexer);
+  CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters, newLanguages(XOO_LANGUAGE), profileImporters, userSession,
+    activeRuleIndexer);
   WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
