@@ -21,6 +21,7 @@
 package org.sonar.db.component;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 
 public class ComponentValidator {
@@ -32,18 +33,21 @@ public class ComponentValidator {
   }
 
   public static String checkComponentName(String name) {
+    checkArgument(!isNullOrEmpty(name), "Component name can't be empty");
     checkArgument(name.length() <= MAX_COMPONENT_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       name.length(), MAX_COMPONENT_NAME_LENGTH, name);
     return name;
   }
 
   public static String checkComponentKey(String key) {
+    checkArgument(!isNullOrEmpty(key), "Component key can't be empty");
     checkArgument(key.length() <= MAX_COMPONENT_KEY_LENGTH, "Component key length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       key.length(), MAX_COMPONENT_KEY_LENGTH, key);
     return key;
   }
 
   public static String checkComponentQualifier(String qualifier) {
+    checkArgument(!isNullOrEmpty(qualifier), "Component qualifier can't be empty");
     checkArgument(qualifier.length() <= MAX_COMPONENT_QUALIFIER_LENGTH, "Component qualifier length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       qualifier.length(), MAX_COMPONENT_QUALIFIER_LENGTH, qualifier);
     return qualifier;

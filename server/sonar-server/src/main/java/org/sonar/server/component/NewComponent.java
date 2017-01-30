@@ -22,9 +22,9 @@ package org.sonar.server.component;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
 import static org.sonar.db.component.ComponentValidator.checkComponentQualifier;
@@ -41,7 +41,7 @@ public class NewComponent {
     this.organizationUuid = builder.organizationUuid;
     this.key = builder.key;
     this.branch = builder.branch;
-    this.qualifier = builder.qualifier == null ? Qualifiers.PROJECT : checkComponentQualifier(builder.qualifier);
+    this.qualifier = builder.qualifier;
     this.name = builder.name;
   }
 
@@ -74,7 +74,7 @@ public class NewComponent {
     private String organizationUuid;
     private String key;
     private String branch;
-    private String qualifier;
+    private String qualifier = PROJECT;
     private String name;
 
     private Builder() {
@@ -108,8 +108,9 @@ public class NewComponent {
 
     public NewComponent build() {
       requireNonNull(organizationUuid, "organization uuid can't be null");
-      checkComponentKey(requireNonNull(key, "key can't be null"));
-      checkComponentName(requireNonNull(name, "name can't be null"));
+      checkComponentKey(key);
+      checkComponentName(name);
+      checkComponentQualifier(qualifier);
       return new NewComponent(this);
     }
   }

@@ -22,10 +22,10 @@ package org.sonar.server.component;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class NewComponentTest {
@@ -44,10 +44,19 @@ public class NewComponentTest {
   }
 
   @Test
-  public void build_throws_NPE_when_key_is_null() {
+  public void build_throws_IAE_when_key_is_null() {
     underTest.setOrganizationUuid(ORGANIZATION_UUID);
 
-    expectBuildException(NullPointerException.class, "key can't be null");
+    expectBuildException(IllegalArgumentException.class, "Component key can't be empty");
+  }
+
+  @Test
+  public void build_throws_IAE_when_key_is_empty() {
+    underTest
+      .setKey("")
+      .setOrganizationUuid(ORGANIZATION_UUID);
+
+    expectBuildException(IllegalArgumentException.class, "Component key can't be empty");
   }
 
   @Test
@@ -61,11 +70,20 @@ public class NewComponentTest {
   }
 
   @Test
-  public void build_fails_with_NPE_when_name_is_null() {
+  public void build_fails_with_IAE_when_name_is_null() {
     underTest.setOrganizationUuid(ORGANIZATION_UUID)
       .setKey(KEY);
 
-    expectBuildException(NullPointerException.class, "name can't be null");
+    expectBuildException(IllegalArgumentException.class, "Component name can't be empty");
+  }
+
+  @Test
+  public void build_fails_with_IAE_when_name_is_empty() {
+    underTest.setOrganizationUuid(ORGANIZATION_UUID)
+      .setKey(KEY)
+      .setName("");
+
+    expectBuildException(IllegalArgumentException.class, "Component name can't be empty");
   }
 
   @Test
@@ -77,6 +95,26 @@ public class NewComponentTest {
     expectBuildException(
       IllegalArgumentException.class,
       "Component name length (2001) is longer than the maximum authorized (2000)");
+  }
+
+  @Test
+  public void build_fails_with_IAE_when_qualifier_is_null() {
+    underTest.setOrganizationUuid(ORGANIZATION_UUID)
+      .setKey(KEY)
+      .setName(NAME)
+      .setQualifier(null);
+
+    expectBuildException(IllegalArgumentException.class, "Component qualifier can't be empty");
+  }
+
+  @Test
+  public void build_fails_with_IAE_when_qualifier_is_empty() {
+    underTest.setOrganizationUuid(ORGANIZATION_UUID)
+      .setKey(KEY)
+      .setName(NAME)
+      .setQualifier("");
+
+    expectBuildException(IllegalArgumentException.class, "Component qualifier can't be empty");
   }
 
   @Test
@@ -94,11 +132,11 @@ public class NewComponentTest {
   @Test
   public void getQualifier_returns_PROJECT_when_no_set_in_builder() {
     NewComponent newComponent = underTest.setOrganizationUuid(ORGANIZATION_UUID)
-        .setKey(KEY)
-        .setName(NAME)
-        .build();
+      .setKey(KEY)
+      .setName(NAME)
+      .build();
 
-    assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(newComponent.qualifier()).isEqualTo(PROJECT);
   }
 
   private void expectBuildException(Class<? extends Exception> expectedExceptionType, String expectedMessage) {

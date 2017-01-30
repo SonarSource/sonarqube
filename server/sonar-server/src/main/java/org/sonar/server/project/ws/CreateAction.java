@@ -62,7 +62,8 @@ public class CreateAction implements ProjectsWsAction {
     WebService.NewAction action = context.createAction(ACTION_CREATE)
       .setDescription("Create a project.<br/>" +
         "Requires 'Create Projects' permission<br/>" +
-        "Since 6.3, the response has been updated and does not contain the database ID anymore")
+        "Since 6.3, the response format has been updated and does not contain the database ID anymore<br/>" +
+        "Since 6.3, the 'key' parameter has been renamed 'project'")
       .setSince("4.0")
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
