@@ -21,6 +21,7 @@ import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import { isProvided, isClickable } from './utils';
 import { translate } from '../../../helpers/l10n';
+import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
 export default class LinkRow extends React.Component {
   static propTypes = {
@@ -39,6 +40,14 @@ export default class LinkRow extends React.Component {
   }
 
   renderIcon (iconClassName) {
+    if (iconClassName === 'icon-issue') {
+      return (
+          <div className="display-inline-block text-top spacer-right">
+            <BugTrackerIcon/>
+          </div>
+      );
+    }
+
     return (
         <div className="display-inline-block text-top spacer-right">
           <i className={iconClassName}/>
