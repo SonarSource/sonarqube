@@ -39,7 +39,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,11 +50,8 @@ public class WebServiceEngineTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   private I18n i18n = mock(I18n.class);
-  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n, userSessionRule);
+  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n);
 
   @Before
   public void start() {

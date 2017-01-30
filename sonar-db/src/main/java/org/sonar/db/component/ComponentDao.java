@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -303,13 +302,6 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {
     String nameQueryForSql = nameQuery == null ? null : buildLikeValue(nameQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
     return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
-  }
-
-  private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {
-    // TODO rely on resource_index table and match exactly the key
-    if (keyOrNameFilter != null) {
-      parameters.put("query", queryParameterFrom(keyOrNameFilter));
-    }
   }
 
   @CheckForNull

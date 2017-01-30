@@ -40,7 +40,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -62,10 +61,8 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   private final WebService.Context context;
   private final I18n i18n;
-  private final UserSession userSession;
 
-  public WebServiceEngine(WebService[] webServices, I18n i18n, UserSession userSession) {
-    this.userSession = userSession;
+  public WebServiceEngine(WebService[] webServices, I18n i18n) {
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
