@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.SortedMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
-import org.sonar.server.component.index.ComponentIndexSearchFeature;
 
 import static org.sonar.server.es.DefaultIndexSettings.ANALYSIS;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;

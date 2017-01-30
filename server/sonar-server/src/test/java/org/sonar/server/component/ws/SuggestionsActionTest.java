@@ -89,4 +89,5 @@ public class SuggestionsActionTest {
       .extracting(WsComponents.Component::getKey, WsComponents.Component::getOrganization)
       .containsExactly(tuple(dto.getKey(), organization.getKey()));
   }
+
 }

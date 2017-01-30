@@ -21,6 +21,7 @@ package org.sonar.server.component.index;
 
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
 
@@ -44,5 +45,29 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
     ComponentDto project2 = indexProject("sonarqube", "Quality Product");
 
     assertExactResults("sonarqube", project2, project1);
+  }
+
+  @Test
+  public void scoring_test_DbTester() {
+    features.set(ComponentIndexSearchFeature.PARTIAL);
+
+    ComponentDto project = indexProject("key-1", "Quality Product");
+
+    index(ComponentTesting.newFileDto(project)
+      .setName("DbTester.java")
+      .setKey("java/org/example/DbTester.java")
+      .setUuid("UUID-DbTester"));
+
+    index(ComponentTesting.newFileDto(project)
+      .setName("WebhookDbTesting.java")
+      .setKey("java/org/example/WebhookDbTesting.java")
+      .setUuid("UUID-WebhookDbTesting"));
+
+    assertSearch("dbt").containsExactly(
+
+      "UUID-DbTester",
+      "UUID-WebhookDbTesting"
+
+    );
   }
 }
