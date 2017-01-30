@@ -37,17 +37,17 @@ import org.sonar.scanner.scan.measure.MeasureCache;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
-  private final InputComponentStore componentCache;
+  private final InputComponentStore componentStore;
   private final MeasureCache measureCache;
 
-  public CoveragePublisher(InputComponentStore componentCache, MeasureCache measureCache) {
-    this.componentCache = componentCache;
+  public CoveragePublisher(InputComponentStore componentStore, MeasureCache measureCache) {
+    this.componentStore = componentStore;
     this.measureCache = measureCache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    for (final DefaultInputFile inputFile : componentCache.allFilesToPublish()) {
+    for (final DefaultInputFile inputFile : componentStore.allFilesToPublish()) {
       Map<Integer, LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
 
       int lineCount = inputFile.lines();

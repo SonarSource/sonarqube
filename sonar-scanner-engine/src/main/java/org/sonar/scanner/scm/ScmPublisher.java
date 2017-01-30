@@ -113,7 +113,7 @@ public final class ScmPublisher {
     return filesToBlame;
   }
 
-  private void askToCopyDataFromPreviousAnalysis(DefaultInputFile f, ScannerReportWriter writer) {
+  private static void askToCopyDataFromPreviousAnalysis(DefaultInputFile f, ScannerReportWriter writer) {
     Builder scmBuilder = ScannerReport.Changesets.newBuilder();
     scmBuilder.setComponentRef(f.batchId());
     scmBuilder.setCopyFromPrevious(true);

@@ -42,23 +42,23 @@ public class IssuesReportBuilder {
 
   private final IssueCache issueCache;
   private final Rules rules;
-  private final InputComponentStore inputComponentCache;
+  private final InputComponentStore inputComponentStore;
   private final InputModuleHierarchy moduleHierarchy;
   private final ProjectAnalysisInfo projectAnalysisInfo;
 
   public IssuesReportBuilder(IssueCache issueCache, Rules rules, ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy,
-    InputComponentStore inputComponentCache) {
+    InputComponentStore inputComponentStore) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
-    this.inputComponentCache = inputComponentCache;
+    this.inputComponentStore = inputComponentStore;
   }
 
   public IssuesReport buildReport() {
     DefaultInputModule project = moduleHierarchy.root();
     IssuesReport issuesReport = new IssuesReport();
-    issuesReport.setNoFile(!inputComponentCache.allFilesToPublish().iterator().hasNext());
+    issuesReport.setNoFile(!inputComponentStore.allFilesToPublish().iterator().hasNext());
     issuesReport.setTitle(project.definition().getName());
     issuesReport.setDate(projectAnalysisInfo.analysisDate());
 
@@ -71,7 +71,7 @@ public class IssuesReportBuilder {
     for (TrackedIssue issue : issues) {
       Rule rule = findRule(issue);
       RulePriority severity = RulePriority.valueOf(issue.severity());
-      InputComponent resource = inputComponentCache.getByKey(issue.componentKey());
+      InputComponent resource = inputComponentStore.getByKey(issue.componentKey());
       if (!validate(issue, rule, resource)) {
         continue;
       }

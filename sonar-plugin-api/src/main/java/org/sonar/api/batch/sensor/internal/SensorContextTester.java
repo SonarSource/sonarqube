@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.internal;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -39,6 +40,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -340,6 +342,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public void markForPublishing(InputFile inputFile) {
-    
+    DefaultInputFile file = (DefaultInputFile) inputFile;
+    file.setPublish(true);
   }
 }
