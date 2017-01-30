@@ -218,6 +218,10 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   public void saveMeasure(InputComponent component, DefaultMeasure<?> measure) {
+    if (component.isFile()) {
+      ((DefaultInputFile) component).setPublish(true);
+    }
+    
     if (isDeprecatedMetric(measure.metric().key())) {
       logOnce(measure.metric().key(), "Metric '{}' is deprecated. Provided value is ignored.", measure.metric().key());
       return;

@@ -117,6 +117,9 @@ public class XooRulesDefinition implements RulesDefinition {
     repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations")
       .setHtmlDescription("Issue with range and multiple locations");
 
+    repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extenstion 'unknown'")
+      .setHtmlDescription("This issue is generated on each file with extenstion 'unknown'");
+
     NewRule oneBugIssuePerLine = repo.createRule(OneBugIssuePerLineSensor.RULE_KEY).setName("One Bug Issue Per Line")
       .setHtmlDescription("Generate a bug issue on each line of a file. It requires the metric \"lines\".")
       .setType(RuleType.BUG);
