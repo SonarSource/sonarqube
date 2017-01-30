@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { isProvided, isClickable } from '../../project-admin/links/utils';
+import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
 type Link = {
   id: string,
@@ -48,6 +49,10 @@ export default class MetaLink extends React.Component {
   };
 
   renderLinkIcon (link: Link) {
+    if (link.type === 'issue') {
+      return <BugTrackerIcon/>;
+    }
+
     return isProvided(link) ?
         <i className={`icon-color-link icon-${link.type}`}/> :
         <i className="icon-color-link icon-detach"/>;
