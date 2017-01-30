@@ -106,7 +106,6 @@ public class LoginAction extends ServletFilter implements AuthenticationWsAction
       UserDto userDto = authenticate(request, login, password);
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
-      // TODO add chain.doFilter when Rack filter will not be executed after this filter (or use a Servlet)
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
       response.setStatus(HTTP_UNAUTHORIZED);
