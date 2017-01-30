@@ -20,6 +20,8 @@
 
 package org.sonar.server.ws;
 
+import com.google.common.io.Resources;
+import java.net.URL;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -37,5 +39,9 @@ public enum RemovedWebServiceHandler implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     throw new ServerException(HTTP_GONE, String.format("The web service '%s' doesn't exist anymore, please read its documentation to use alternatives", request.getPath()));
+  }
+
+  public URL getResponseExample() {
+    return Resources.getResource(RemovedWebServiceHandler.class, "removed-ws-example.json");
   }
 }

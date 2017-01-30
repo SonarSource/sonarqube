@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
@@ -46,7 +45,7 @@ public class ResourcesWs implements WebService {
       .setSince("2.10")
       .setDeprecatedSince("5.4")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "resources-example-index.json"));
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 
 }

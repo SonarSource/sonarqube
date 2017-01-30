@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
@@ -55,7 +54,7 @@ public class ProfilesWs implements WebService {
       .setSince("3.3")
       .setDeprecatedSince("5.2")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-index.json"));
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 
   private static void defineListAction(NewController controller) {
@@ -65,6 +64,6 @@ public class ProfilesWs implements WebService {
       .setSince("3.3")
       .setDeprecatedSince("5.2")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 }

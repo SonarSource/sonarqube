@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
@@ -40,7 +39,7 @@ public class TimeMachineWs implements WebService {
       .setSince("2.10")
       .setDeprecatedSince("6.3")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "timemachine-example-index.json"));
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 
 }

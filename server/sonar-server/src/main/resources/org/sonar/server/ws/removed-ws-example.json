@@ -1,0 +1,7 @@
+{
+  "errors": [
+    {
+      "msg": "The web service '/api/...' doesn't exists anymore, please read its documentation to use alternatives"
+    }
+  ]
+}

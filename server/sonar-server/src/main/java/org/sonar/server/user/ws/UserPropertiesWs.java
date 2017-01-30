@@ -38,8 +38,8 @@ public class UserPropertiesWs implements WebService {
       .setDescription("This web service is removed")
       .setSince("2.6")
       .setDeprecatedSince("6.3")
-      .setResponseExample(getClass().getResource("user_properties-index-example.xml"))
-      .setHandler(RemovedWebServiceHandler.INSTANCE);
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample());
   }
 
 }
