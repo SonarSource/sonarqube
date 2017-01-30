@@ -68,6 +68,14 @@ import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/pe
 import getStore from './getStore';
 import getHistory from './getHistory';
 
+function handleUpdate () {
+  const { action } = this.state.location;
+
+  if (action === 'PUSH') {
+    window.scrollTo(0, 0);
+  }
+}
+
 const startReactApp = () => {
   const el = document.getElementById('content');
 
@@ -76,7 +84,7 @@ const startReactApp = () => {
 
   render((
       <Provider store={store}>
-        <Router history={history}>
+        <Router history={history} onUpdate={handleUpdate}>
           <Route path="/dashboard/index/:key" onEnter={(nextState, replace) => {
             replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
           }}/>
