@@ -27,7 +27,7 @@ public class TimeMachineWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/timemachine")
-      .setDescription("Removed since 6.3, please use api/measures/search_analyses instead")
+      .setDescription("Removed since 6.3, please use api/measures/search_history instead")
       .setSince("2.10");
     defineIndexAction(controller);
     controller.done();
@@ -35,7 +35,7 @@ public class TimeMachineWs implements WebService {
 
   private void defineIndexAction(NewController controller) {
     controller.createAction("index")
-      .setDescription("The web service is removed and you're invited to use api/measures/search_analyses instead")
+      .setDescription("The web service is removed and you're invited to use api/measures/search_history instead")
       .setSince("2.10")
       .setDeprecatedSince("6.3")
       .setHandler(RemovedWebServiceHandler.INSTANCE)
