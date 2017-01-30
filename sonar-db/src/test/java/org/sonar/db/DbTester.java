@@ -73,6 +73,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
+import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.user.RootFlagAssertions;
 import org.sonar.db.user.UserDbTester;
@@ -115,6 +116,7 @@ public class DbTester extends ExternalResource {
   private final RuleDbTester ruleDbTester;
   private final NotificationDbTester notificationDbTester;
   private final RootFlagAssertions rootFlagAssertions;
+  private final QualityProfileDbTester qualityProfileDbTester;
 
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
@@ -131,6 +133,7 @@ public class DbTester extends ExternalResource {
     this.ruleDbTester = new RuleDbTester(this);
     this.notificationDbTester = new NotificationDbTester(this);
     this.rootFlagAssertions = new RootFlagAssertions(this);
+    this.qualityProfileDbTester = new QualityProfileDbTester(this);
   }
 
   public static DbTester create() {
@@ -238,6 +241,10 @@ public class DbTester extends ExternalResource {
 
   public NotificationDbTester notifications() {
     return notificationDbTester;
+  }
+
+  public QualityProfileDbTester qualityProfiles() {
+    return qualityProfileDbTester;
   }
 
   @Override

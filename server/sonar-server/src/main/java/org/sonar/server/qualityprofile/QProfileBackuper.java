@@ -25,7 +25,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -52,27 +51,31 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 @ServerSide
 public class QProfileBackuper {
 
+  private static final Joiner RULE_KEY_JOINER = Joiner.on(", ").skipNulls();
+
   private final QProfileReset reset;
   private final DbClient db;
-
-  private static final Joiner RULEKEY_JOINER = Joiner.on(", ").skipNulls();
 
   public QProfileBackuper(QProfileReset reset, DbClient db) {
     this.reset = reset;
     this.db = db;
   }
 
+  /**
+   * @deprecated use {@link #backup(DbSession, QualityProfileDto, Writer)} instead
+   */
+  @Deprecated
   public void backup(String key, Writer writer) {
-    QualityProfileDto profile;
-    DbSession dbSession = db.openSession(false);
-    try {
-      profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
-      List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, key);
-      Collections.sort(activeRules, BackupActiveRuleComparator.INSTANCE);
-      writeXml(dbSession, writer, profile, activeRules.iterator());
-    } finally {
-      db.closeSession(dbSession);
+    try (DbSession dbSession = db.openSession(false)) {
+      QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
+      backup(dbSession, profile, writer);
     }
+  }
+
+  public void backup(DbSession dbSession, QualityProfileDto profileDto, Writer writer) {
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
+    activeRules.sort(BackupActiveRuleComparator.INSTANCE);
+    writeXml(dbSession, writer, profileDto, activeRules.iterator());
   }
 
   private void writeXml(DbSession dbSession, Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
@@ -177,7 +180,7 @@ public class QProfileBackuper {
     }
     if (!duplicatedKeys.isEmpty()) {
       throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +
-        RULEKEY_JOINER.join(duplicatedKeys));
+        RULE_KEY_JOINER.join(duplicatedKeys));
     }
     return activations;
   }
