@@ -103,7 +103,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
 
-    db.organizations().setDefaultTemplates(organization, projectTemplate.getUuid(), viewsTemplate.getUuid());
+    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate);
 
     String result = newRequest().execute().getInput();
 
@@ -156,7 +156,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void search_by_name_in_default_organization() {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "foo", null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
     insertProjectTemplate(db.getDefaultOrganization());
     insertViewsTemplate(db.getDefaultOrganization());
 
@@ -173,7 +173,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   @Test
   public void search_in_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
-    db.organizations().setDefaultTemplates(org, "foo", null);
+    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(org);
+    db.organizations().setDefaultTemplates(projectDefaultTemplate, null);
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
     insertProjectTemplate(db.getDefaultOrganization());
     db.commit();
@@ -186,8 +187,10 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
         .execute()
         .getInputStream());
 
-    assertThat(result.getPermissionTemplatesCount()).isEqualTo(1);
-    assertThat(result.getPermissionTemplates(0).getId()).isEqualTo(templateInOrg.getUuid());
+    assertThat(result.getPermissionTemplatesCount()).isEqualTo(2);
+    assertThat(result.getPermissionTemplatesList())
+        .extracting(WsPermissions.PermissionTemplate::getId)
+        .containsOnly(projectDefaultTemplate.getUuid(), templateInOrg.getUuid());
   }
 
   @Test
@@ -200,7 +203,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions() {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "foo", "bar");
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
 
     String result = newRequest().execute().getInput();
 

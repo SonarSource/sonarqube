@@ -101,10 +101,10 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void do_not_fail_if_default_template_exists_and_is_registered() {
-    db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-      .setUuid(DEFAULT_TEMPLATE_UUID));
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), DEFAULT_TEMPLATE_UUID, null);
+    PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
+        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+        .setUuid(DEFAULT_TEMPLATE_UUID));
+    db.organizations().setDefaultTemplates(projectTemplate, null);
 
     underTest.start();
 

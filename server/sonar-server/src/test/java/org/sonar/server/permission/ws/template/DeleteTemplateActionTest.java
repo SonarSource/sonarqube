@@ -91,7 +91,9 @@ public class DeleteTemplateActionTest {
     runOnAllUnderTests((underTest) -> {
       OrganizationDto organization = db.organizations().insert();
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-      db.organizations().setDefaultTemplates(organization, "foo", "bar");
+      db.organizations().setDefaultTemplates(
+        db.permissionTemplates().insertTemplate(organization),
+        db.permissionTemplates().insertTemplate(organization));
       loginAsAdmin(organization);
 
       TestResponse result = newRequestByUuid(underTest, template.getUuid());
@@ -105,7 +107,9 @@ public class DeleteTemplateActionTest {
   public void delete_template_by_name_case_insensitive() throws Exception {
     runOnAllUnderTests((underTest) -> {
       OrganizationDto organization = db.organizations().insert();
-      db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+      db.organizations().setDefaultTemplates(
+        db.permissionTemplates().insertTemplate(organization),
+        db.permissionTemplates().insertTemplate(organization));
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
       loginAsAdmin(organization);
       newRequestByName(underTest, organization, template);
@@ -117,7 +121,9 @@ public class DeleteTemplateActionTest {
   @Test
   public void delete_template_by_name_returns_empty_when_no_organization_is_provided_and_templates_does_not_belong_to_default_organization() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+    db.organizations().setDefaultTemplates(
+      db.permissionTemplates().insertTemplate(organization),
+      db.permissionTemplates().insertTemplate(organization));
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     loginAsAdmin(organization);
 
@@ -134,7 +140,9 @@ public class DeleteTemplateActionTest {
   @Test
   public void delete_template_by_name_returns_empty_when_wrong_organization_is_provided() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "project def template uuid", "view def template uuid");
+    db.organizations().setDefaultTemplates(
+      db.permissionTemplates().insertTemplate(organization),
+      db.permissionTemplates().insertTemplate(organization));
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
     OrganizationDto otherOrganization = db.organizations().insert();
     loginAsAdmin(organization);
@@ -179,14 +187,15 @@ public class DeleteTemplateActionTest {
 
   private void fail_to_delete_by_uuid_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(organization, template.getUuid(), "view def template uuid");
+    PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(projectTemplate,
+      db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("It is not possible to delete the default permission template for projects");
 
-    newRequestByUuid(underTest, template.getUuid());
+    newRequestByUuid(underTest, projectTemplate.getUuid());
   }
 
   @Test
@@ -201,21 +210,21 @@ public class DeleteTemplateActionTest {
 
   private void fail_to_delete_by_name_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(organization, template.getUuid(), "view def template uuid");
+    PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(projectTemplate, db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("It is not possible to delete the default permission template for projects");
 
-    newRequestByName(underTest, organization.getKey(), template.getName());
+    newRequestByName(underTest, organization.getKey(), projectTemplate.getName());
   }
 
   @Test
   public void fail_to_delete_by_uuid_if_template_is_default_template_for_view_with_views() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(organization, "project def template uuid", template.getUuid());
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), template);
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
@@ -227,13 +236,14 @@ public class DeleteTemplateActionTest {
   @Test
   public void default_template_for_views_can_be_deleted_by_uuid_if_views_is_not_installed_and_default_template_for_views_is_reset() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(organization, "project def template uuid", template.getUuid());
+    PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto viewTemplate = insertTemplateAndAssociatedPermissions(organization);
+    db.organizations().setDefaultTemplates(projectTemplate, viewTemplate);
     loginAsAdmin(organization);
 
-    newRequestByUuid(this.underTestWithoutViews, template.getUuid());
+    newRequestByUuid(this.underTestWithoutViews, viewTemplate.getUuid());
 
-    assertTemplateDoesNotExist(template);
+    assertTemplateDoesNotExist(viewTemplate);
 
     assertThat(db.getDbClient().organizationDao().getDefaultTemplates(db.getSession(), organization.getUuid())
       .get().getViewUuid())

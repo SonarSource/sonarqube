@@ -22,6 +22,9 @@ package org.sonar.db.organization;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class OrganizationDbTester {
   private final DbTester dbTester;
@@ -55,10 +58,24 @@ public class OrganizationDbTester {
     return dto;
   }
 
+  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto viewDefaultTemplate) {
+    checkArgument(viewDefaultTemplate == null
+      || viewDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
+      "default template for project and view must belong to the same organization");
+
+    DbSession dbSession = dbTester.getSession();
+    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
+      new DefaultTemplates()
+        .setProjectUuid(projectDefaultTemplate.getUuid())
+        .setViewUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid()));
+    dbSession.commit();
+  }
+
   public void setDefaultTemplates(OrganizationDto defaultOrganization,
     String projectDefaultTemplateUuid, @Nullable String viewDefaultTemplateUuid) {
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(), new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
+    dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
+      new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
     dbSession.commit();
   }
 

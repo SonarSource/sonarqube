@@ -57,13 +57,15 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   @Test
   public void update_project_default_template() throws Exception {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "project-template-uuid", "view-template-uuid");
+    PermissionTemplateDto viewDefaultTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()),
+        viewDefaultTemplate);
     PermissionTemplateDto template = insertTemplate(db.getDefaultOrganization());
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(template.getUuid(), Qualifiers.PROJECT);
 
-    assertDefaultTemplates(db.getDefaultOrganization(), template.getUuid(), "view-template-uuid");
+    assertDefaultTemplates(db.getDefaultOrganization(), template.getUuid(), viewDefaultTemplate.getUuid());
   }
 
   @Test
@@ -82,7 +84,9 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   @Test
   public void update_project_default_template_by_template_name() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "bar", "roh");
+    PermissionTemplateDto viewDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization),
+        viewDefaultTemplate);
     PermissionTemplateDto template = insertTemplate(organization);
     loginAsAdmin(organization);
 
@@ -92,19 +96,20 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
       .execute();
     db.getSession().commit();
 
-    assertDefaultTemplates(organization, template.getUuid(), "roh");
+    assertDefaultTemplates(organization, template.getUuid(), viewDefaultTemplate.getUuid());
   }
 
   @Test
   public void update_view_default_template() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "foo", null);
+    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
+    db.organizations().setDefaultTemplates(projectDefaultTemplate, null);
     PermissionTemplateDto template = insertTemplate(organization);
     loginAsAdmin(organization);
 
     newRequest(template.getUuid(), VIEW);
 
-    assertDefaultTemplates(organization, "foo", template.getUuid());
+    assertDefaultTemplates(organization, projectDefaultTemplate.getUuid(), template.getUuid());
   }
 
   @Test

@@ -113,7 +113,7 @@ public class PermissionTemplateServiceTest {
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
-    dbTester.organizations().setDefaultTemplates(organization, template.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(template, null);
     templateDb.addProjectCreatorToTemplate(template.getId(), SCAN_EXECUTION);
     templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.USER);
     templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.CODEVIEWER);
@@ -144,7 +144,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void would_user_have_permission_with_empty_template() {
     PermissionTemplateDto template = templateDb.insertTemplate(dbTester.getDefaultOrganization());
-    dbTester.organizations().setDefaultTemplates(dbTester.getDefaultOrganization(), template.getUuid(), null);
+    dbTester.organizations().setDefaultTemplates(template, null);
 
     checkWouldUserHavePermission(dbTester.getDefaultOrganization(), null, UserRole.ADMIN, false);
   }
