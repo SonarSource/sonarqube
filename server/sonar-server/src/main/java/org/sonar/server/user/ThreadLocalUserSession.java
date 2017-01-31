@@ -127,12 +127,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    get().checkComponentPermission(projectPermission, componentKey);
-    return this;
-  }
-
-  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     get().checkComponentUuidPermission(permission, componentUuid);
     return this;

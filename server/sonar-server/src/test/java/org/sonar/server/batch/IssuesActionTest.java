@@ -107,7 +107,7 @@ public class IssuesActionTest {
       .setChecksum(null)
       .setAssignee(null));
 
-    addBrowsePermissionOnComponent(PROJECT_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -146,7 +146,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    addBrowsePermissionOnComponent(PROJECT_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -184,7 +184,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    addBrowsePermissionOnComponent(PROJECT_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -222,7 +222,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    addBrowsePermissionOnComponent(FILE_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -260,7 +260,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    addBrowsePermissionOnComponent(MODULE_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
 
     ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -299,7 +299,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    addBrowsePermissionOnComponent(PROJECT_KEY);
+    addBrowsePermissionOnComponent(project);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -310,10 +310,12 @@ public class IssuesActionTest {
 
   @Test
   public void fail_without_browse_permission_on_file() throws Exception {
-    addBrowsePermissionOnComponent(PROJECT_KEY);
+    ComponentDto project = db.components().insertProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
     thrown.expect(ForbiddenException.class);
-    tester.newGetRequest("batch", "issues").setParam("key", "Other component key").execute();
+
+    tester.newGetRequest("batch", "issues").setParam("key", file.key()).execute();
   }
 
   private void indexIssues(IssueDoc... issues) {
@@ -329,7 +331,7 @@ public class IssuesActionTest {
     authorizationIndexerTester.allow(access);
   }
 
-  private void addBrowsePermissionOnComponent(String componentKey) {
-    userSessionRule.addComponentPermission(UserRole.USER, PROJECT_KEY, componentKey);
+  private void addBrowsePermissionOnComponent(ComponentDto project) {
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
   }
 }

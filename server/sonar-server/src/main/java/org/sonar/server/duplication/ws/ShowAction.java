@@ -77,8 +77,7 @@ public class ShowAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       JsonWriter json = response.newJsonWriter().beginObject();
@@ -86,8 +85,6 @@ public class ShowAction implements RequestHandler {
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
       duplicationsJsonWriter.write(blocks, json, dbSession);
       json.endObject().close();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

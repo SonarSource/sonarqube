@@ -344,12 +344,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    currentUserSession.checkComponentPermission(projectPermission, componentKey);
-    return this;
-  }
-
-  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     currentUserSession.checkComponentUuidPermission(permission, componentUuid);
     return this;

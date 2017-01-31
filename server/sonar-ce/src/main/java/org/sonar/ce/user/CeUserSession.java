@@ -112,11 +112,6 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    return notImplemented();
-  }
-
-  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     return notImplemented();
   }

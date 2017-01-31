@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
@@ -77,21 +76,19 @@ public class IssuesAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String componentKey = request.mandatoryParam(PARAM_KEY);
-    userSession.checkComponentPermission(USER, componentKey);
-
     response.stream().setMediaType(MediaTypes.PROTOBUF);
-    DbSession session = dbClient.openSession(false);
-    try {
+
+    try (DbSession session = dbClient.openSession(false)) {
+      String componentKey = request.mandatoryParam(PARAM_KEY);
       ComponentDto component = componentFinder.getByKey(session, componentKey);
+      userSession.checkComponentPermission(USER, component);
+
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       ScannerInput.ServerIssue.Builder issueBuilder = ScannerInput.ServerIssue.newBuilder();
       for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext();) {
         handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

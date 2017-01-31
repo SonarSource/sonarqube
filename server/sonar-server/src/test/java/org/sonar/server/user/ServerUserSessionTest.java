@@ -230,67 +230,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkComponentPermission_succeeds_if_user_has_permission_for_specified_key_in_db() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    session.checkComponentPermission(UserRole.USER, FILE_KEY);
-  }
-
-  @Test
-  public void checkComponentPermission_succeeds_if_user_has_global_permission_in_db() {
-    addGlobalPermissions(UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    session.checkComponentPermission(UserRole.USER, FILE_KEY);
-  }
-
-  @Test
-  public void checkComponentPermission_succeeds_when_flag_is_true_on_UserDto_no_matter_if_user_has_permission_for_specified_key_in_db() {
-    UserSession underTest = newUserSession(ROOT_USER_DTO);
-
-    assertThat(underTest.checkComponentPermission(UserRole.USER, FILE_KEY)).isSameAs(underTest);
-    assertThat(underTest.checkComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isSameAs(underTest);
-    assertThat(underTest.checkComponentPermission("whatever", "who cares?")).isSameAs(underTest);
-  }
-
-  @Test
-  public void checkComponentPermission_throws_FE_when_user_has_not_permission_for_specified_key_in_db() {
-    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto(db.organizations().insert()));
-    ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null));
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    expectInsufficientPrivilegesForbiddenException();
-
-    session.checkComponentPermission(UserRole.USER, file2.getKey());
-  }
-
-  @Test
-  public void checkComponentPermission_throws_FE_when_project_does_not_exist_in_db() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    expectInsufficientPrivilegesForbiddenException();
-
-    session.checkComponentPermission(UserRole.USER, "another");
-  }
-
-  @Test
-  public void checkComponentPermission_fails_with_FE_when_project_of_specified_uuid_can_not_be_found() {
-    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newProjectDto(db.organizations().insert()));
-    ComponentDto file2 = db.components().insertComponent(ComponentTesting.newFileDto(project2, null)
-      // Simulate file is linked to an invalid project
-      .setProjectUuid("INVALID"));
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    expectInsufficientPrivilegesForbiddenException();
-
-    session.checkComponentPermission(UserRole.USER, file2.getKey());
-  }
-
-  @Test
   public void checkComponentUuidPermission_succeeds_if_user_has_permission_for_specified_uuid_in_db() {
     UserSession underTest = newUserSession(ROOT_USER_DTO);
 
