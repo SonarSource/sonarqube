@@ -33,7 +33,7 @@ public class ResourcesWs implements WebService {
     controller.done();
   }
 
-  private void defineIndexAction(NewController controller) {
+  private static void defineIndexAction(NewController controller) {
     controller.createAction("index")
       .setDescription("The web service is removed and you're invited to use the alternatives: " +
         "<ul>" +
