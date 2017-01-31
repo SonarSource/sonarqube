@@ -16,8 +16,7 @@
     "sonar.lf.gravatarServerUrl": "http://some-server.tld/logo.png",
     "sonar.updatecenter.activate": "false",
     "sonar.technicalDebt.hoursInDay": "10",
-    "sonar.technicalDebt.ratingGrid": "0.05,0.1,0.2,0.5",
-    "sonar.allowUsersToSignUp": "true"
+    "sonar.technicalDebt.ratingGrid": "0.05,0.1,0.2,0.5"
   },
   "logoUrl": "http://example.com/my-custom-logo.png",
   "logoWidth": "135",

@@ -92,7 +92,7 @@ public class LocalAuthenticationTest {
 
   @After
   public void resetProperties() throws Exception {
-    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication", "sonar.allowUsersToSignUp");
+    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication");
   }
 
   @Test

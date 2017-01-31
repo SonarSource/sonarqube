@@ -91,7 +91,6 @@ public class GlobalActionTest {
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.hoursInDay", "10");
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
-    settings.setProperty("sonar.allowUsersToSignUp", true);
     // This setting should be ignored as it's not needed
     settings.setProperty("sonar.defaultGroup", "sonar-users");
 

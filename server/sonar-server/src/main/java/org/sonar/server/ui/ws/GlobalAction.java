@@ -34,7 +34,6 @@ import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.ui.PageRepository;
 
-import static org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY;
 import static org.sonar.api.CoreProperties.HOURS_IN_DAY;
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
@@ -52,8 +51,7 @@ public class GlobalAction implements NavigationWsAction {
     SONAR_LF_GRAVATAR_SERVER_URL,
     SONAR_UPDATECENTER_ACTIVATE,
     HOURS_IN_DAY,
-    RATING_GRID,
-    CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY);
+    RATING_GRID);
 
   private final PageRepository pageRepository;
   private final Settings settings;

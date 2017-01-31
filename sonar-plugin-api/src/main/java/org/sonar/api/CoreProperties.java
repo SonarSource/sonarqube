@@ -183,7 +183,14 @@ public interface CoreProperties {
 
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
+
+  /**
+   * @deprecated since 6.3. This feature is not supported anymore
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-7762">SONAR-7762/a>
+   */
+  @Deprecated
   String CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY = "sonar.allowUsersToSignUp";
+
   String CORE_DEFAULT_GROUP = "sonar.defaultGroup";
   String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
