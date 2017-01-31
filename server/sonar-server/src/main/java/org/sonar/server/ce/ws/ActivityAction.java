@@ -47,7 +47,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
@@ -238,7 +237,7 @@ public class ActivityAction implements CeWsAction {
         .setQualifiers(POSSIBLE_QUALIFIERS.toArray(new String[0]))
         .build();
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
-      return Lists.transform(componentDtos, ComponentDtoFunctions.toUuid());
+      return Lists.transform(componentDtos, ComponentDto::uuid);
     }
 
     return null;

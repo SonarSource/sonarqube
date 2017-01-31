@@ -38,7 +38,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
-import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -93,7 +92,7 @@ public class ComponentService {
       List<ComponentDto> components = dbClient.componentDao().selectByKeys(session, componentKeys);
 
       if (!ignoreMissingComponents && components.size() < componentKeys.size()) {
-        Collection<String> foundKeys = Collections2.transform(components, toKey());
+        Collection<String> foundKeys = Collections2.transform(components, ComponentDto::getKey);
         Set<String> missingKeys = Sets.newHashSet(componentKeys);
         missingKeys.removeAll(foundKeys);
         throw new NotFoundException("The following component keys do not match any component:\n" +
