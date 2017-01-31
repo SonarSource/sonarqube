@@ -45,7 +45,6 @@ import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.debt.DebtModelBackup;
 import org.sonar.server.debt.DebtModelPluginRepository;
-import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
@@ -406,7 +405,6 @@ public class PlatformLevel4 extends PlatformLevel {
       RemoveTagsAction.class,
 
       // technical debt
-      DebtModelService.class,
       DebtModelBackup.class,
       DebtModelPluginRepository.class,
       DebtModelXMLExporter.class,
