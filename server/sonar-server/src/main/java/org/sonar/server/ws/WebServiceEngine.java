@@ -44,12 +44,12 @@ import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.substring;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 /**
  * @since 4.2
@@ -95,7 +95,8 @@ public class WebServiceEngine implements LocalConnector, Startable {
   public void execute(Request request, Response response) {
     try {
       ActionExtractor actionExtractor = new ActionExtractor(request.getPath());
-      WebService.Action action = getAction(actionExtractor.getController(), actionExtractor.getAction());
+      WebService.Action action = getAction(actionExtractor);
+      checkFound(action, "Unknown url : %s", request.getPath());
       if (request instanceof ValidatingRequest) {
         ((ValidatingRequest) request).setAction(action);
         ((ValidatingRequest) request).setLocalConnector(this);
@@ -123,12 +124,12 @@ public class WebServiceEngine implements LocalConnector, Startable {
     }
   }
 
-  private WebService.Action getAction(String controllerPath, String actionKey) {
+  @CheckForNull
+  private WebService.Action getAction(ActionExtractor actionExtractor) {
+    String controllerPath = actionExtractor.getController();
+    String actionKey = actionExtractor.getAction();
     WebService.Controller controller = context.controller(controllerPath);
-    checkArgument(controller != null, format("Unknown controller: %s", controllerPath));
-    WebService.Action action = controller.action(actionKey);
-    checkArgument(action != null, format("Unknown action: %s/%s", controllerPath, actionKey));
-    return action;
+    return controller == null ? null : controller.action(actionKey);
   }
 
   private void sendErrors(Response response, int status, Errors errors) {
@@ -164,8 +165,10 @@ public class WebServiceEngine implements LocalConnector, Startable {
     private final String controller;
     private final String action;
     private final String extension;
+    private final String path;
 
     ActionExtractor(String path) {
+      this.path = path;
       String pathWithoutExtension = substringBeforeLast(path, POINT);
       this.controller = extractController(pathWithoutExtension);
       this.action = substringAfterLast(pathWithoutExtension, SLASH);
@@ -192,6 +195,10 @@ public class WebServiceEngine implements LocalConnector, Startable {
     @CheckForNull
     String getExtension() {
       return extension;
+    }
+
+    String getPath() {
+      return path;
     }
   }
 
