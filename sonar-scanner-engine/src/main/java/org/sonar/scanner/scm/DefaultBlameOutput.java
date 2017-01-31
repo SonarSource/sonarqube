@@ -20,14 +20,12 @@
 package org.sonar.scanner.scm;
 
 import com.google.common.base.Preconditions;
-import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
@@ -44,9 +42,6 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 class DefaultBlameOutput implements BlameOutput {
 
   private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
-
-  private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
-  private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final ScannerReportWriter writer;
   private final Set<InputFile> allFilesToBlame = new HashSet<>();
@@ -117,18 +112,7 @@ class DefaultBlameOutput implements BlameOutput {
     if (inputString == null) {
       return "";
     }
-    String lowerCasedString = inputString.toLowerCase();
-    String stringWithoutAccents = removeAccents(lowerCasedString);
-    return removeNonAsciiCharacters(stringWithoutAccents);
-  }
-
-  private static String removeAccents(String inputString) {
-    String unicodeDecomposedString = Normalizer.normalize(inputString, Normalizer.Form.NFD);
-    return ACCENT_CODES.matcher(unicodeDecomposedString).replaceAll("");
-  }
-
-  private static String removeNonAsciiCharacters(String inputString) {
-    return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
+    return inputString.toLowerCase();
   }
 
   public void finish(boolean success) {
