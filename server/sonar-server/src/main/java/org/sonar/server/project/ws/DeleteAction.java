@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -75,30 +74,23 @@ public class DeleteAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    // fail-fast if not logged in
+    userSession.checkLoggedIn();
     String uuid = request.param(PARAM_ID);
     String key = request.param(PARAM_KEY);
-    checkPermissions(uuid, key);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, ID_AND_KEY);
+      checkPermission(project);
       componentCleanerService.delete(dbSession, project);
     }
 
     response.noContent();
   }
 
-  private void checkPermissions(@Nullable String uuid, @Nullable String key) {
-    if (missPermissionsBasedOnUuid(uuid) || missPermissionsBasedOnKey(key)) {
-      userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+  private void checkPermission(ComponentDto project) {
+    if (!userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+      userSession.checkOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SYSTEM_ADMIN);
     }
   }
-
-  private boolean missPermissionsBasedOnKey(@Nullable String key) {
-    return key != null && !userSession.hasComponentPermission(UserRole.ADMIN, key) && !userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
-  private boolean missPermissionsBasedOnUuid(@Nullable String uuid) {
-    return uuid != null && !userSession.hasComponentUuidPermission(UserRole.ADMIN, uuid) && !userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
 }

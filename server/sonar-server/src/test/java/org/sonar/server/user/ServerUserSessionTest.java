@@ -180,16 +180,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_component_permission() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
-    assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isFalse();
-    assertThat(session.hasComponentPermission(UserRole.ADMIN, FILE_KEY)).isFalse();
-  }
-
-  @Test
   public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
@@ -207,16 +197,6 @@ public class ServerUserSessionTest {
     assertThat(underTest.hasComponentUuidPermission(UserRole.CODEVIEWER, FILE_UUID)).isTrue();
     assertThat(underTest.hasComponentUuidPermission(UserRole.ADMIN, FILE_UUID)).isTrue();
     assertThat(underTest.hasComponentUuidPermission("whatever", "who cares?")).isTrue();
-  }
-
-  @Test
-  public void hasComponentPermission_returns_true_if_user_has_global_permission_in_db() {
-    addGlobalPermissions(UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
-    assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isFalse();
-    assertThat(session.hasComponentPermission(UserRole.ADMIN, FILE_KEY)).isFalse();
   }
 
   @Test
@@ -272,16 +252,6 @@ public class ServerUserSessionTest {
     assertThat(session.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
     assertThat(session.hasPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
     assertThat(session.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN)).isFalse();
-  }
-
-  @Test
-  public void has_project_permission_for_anonymous() throws Exception {
-    addAnyonePermissions(organization, project, UserRole.USER);
-    UserSession session = newAnonymousSession();
-
-    assertThat(session.hasComponentPermission(UserRole.USER, FILE_KEY)).isTrue();
-    assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, FILE_KEY)).isFalse();
-    assertThat(session.hasComponentPermission(UserRole.ADMIN, FILE_KEY)).isFalse();
   }
 
   @Test

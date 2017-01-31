@@ -262,11 +262,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, String componentKey) {
-    return currentUserSession.hasComponentPermission(permission, componentKey);
-  }
-
-  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return currentUserSession.hasComponentUuidPermission(permission, componentUuid);
   }

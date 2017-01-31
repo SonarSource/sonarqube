@@ -138,11 +138,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, String componentKey) {
-    return get().hasComponentPermission(permission, componentKey);
-  }
-
-  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return get().hasComponentUuidPermission(permission, componentUuid);
   }
