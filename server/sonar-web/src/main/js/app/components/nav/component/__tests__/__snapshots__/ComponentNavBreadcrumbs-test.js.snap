@@ -16,7 +16,9 @@ exports[`test should not render breadcrumbs with one element 1`] = `
       <qualifier-icon
         qualifier="TRK" />
        
-      My Project
+      <strong>
+        My Project
+      </strong>
     </Link>
   </li>
 </ul>
@@ -26,9 +28,15 @@ exports[`test should render organization 1`] = `
 <ul
   className="nav navbar-nav nav-crumbs">
   <li>
-    <span>
+    <OrganizationLink
+      organization={
+        Object {
+          "key": "foo",
+          "name": "The Foo Organization",
+        }
+      }>
       The Foo Organization
-    </span>
+    </OrganizationLink>
   </li>
   <li>
     <Link
@@ -45,7 +53,9 @@ exports[`test should render organization 1`] = `
       <qualifier-icon
         qualifier="TRK" />
        
-      My Project
+      <strong>
+        My Project
+      </strong>
     </Link>
   </li>
 </ul>

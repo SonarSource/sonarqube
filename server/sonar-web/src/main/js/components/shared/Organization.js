@@ -21,6 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../store/rootReducer';
+import OrganizationLink from '../ui/OrganizationLink';
 
 type OwnProps = {
   organizationKey: string,
@@ -47,8 +48,8 @@ class Organization extends React.Component {
 
     return (
         <span>
-          {organization.name}
-          <span>&nbsp;&#47;&nbsp;</span>
+          <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+          <span className="slash-separator"/>
         </span>
     );
   }

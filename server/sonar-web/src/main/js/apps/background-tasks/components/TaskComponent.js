@@ -50,12 +50,14 @@ export default class TaskComponent extends React.Component {
           {task.organization != null && (
               <Organization organizationKey={task.organization}/>
           )}
+
           <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }} className="link-with-icon">
             <span className="little-spacer-right">
               <QualifierIcon qualifier={task.componentQualifier}/>
             </span>
             <span>{task.componentName}</span>
           </Link>
+
           {types.length > 1 && (
               <TaskType task={task}/>
           )}

@@ -1,18 +1,24 @@
 <div class="component-name issues-workspace-list-component">
   {{#notNull organization}}
-    <span class="component-name-parent">
+    <a class="link-no-underline" href="{{link '/organizations/' organization.key}}">
       {{organization.name}}
-    </span>
+    </a>
+    <span class="slash-separator"></span>
   {{/notNull}}
-  <a class="component-name-parent link-no-underline" href="{{dashboardUrl project}}">
-    {{qualifierIcon "TRK"}}&nbsp;{{projectLongName}}
+
+  <a class="link-no-underline" href="{{dashboardUrl project}}">
+    <span class="little-spacer-right">{{qualifierIcon "TRK"}}</span>{{projectLongName}}
   </a>
+
   {{#if subProject}}
-    <a class="component-name-parent link-no-underline" href="{{dashboardUrl subProject}}">
-      {{qualifierIcon "TRK"}}&nbsp;{{subProjectLongName}}
+    <span class="slash-separator"></span>
+    <a class="link-no-underline" href="{{dashboardUrl subProject}}">
+      <span class="little-spacer-right">{{qualifierIcon "TRK"}}</span>{{subProjectLongName}}
     </a>
   {{/if}}
-  <a class="component-name-file link-no-underline" href="{{dashboardUrl component}}">
-    {{qualifierIcon componentQualifier}}&nbsp;{{collapsePath componentLongName}}
+
+  <span class="slash-separator"></span>
+  <a class="link-no-underline" href="{{dashboardUrl component}}">
+    <span class="little-spacer-right">{{qualifierIcon componentQualifier}}</span>{{collapsePath componentLongName}}
   </a>
 </div>
