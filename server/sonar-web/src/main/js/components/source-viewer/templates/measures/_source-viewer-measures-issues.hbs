@@ -15,7 +15,7 @@
       <div class="measures-list">
         {{#each typesFacet}}
           <div class="measure measure-one-line">
-            <span class="measure-name">{{issueType val}}</span>
+            <span class="measure-name">{{issueTypeIcon val}} {{issueType val}}</span>
             <span class="measure-value">{{formatMeasure count 'SHORT_INT'}}</span>
           </div>
         {{/each}}
