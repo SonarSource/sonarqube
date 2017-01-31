@@ -60,7 +60,10 @@ public enum PropertyType {
 
   /**
    * Sonar Metric
+   *
+   * @deprecated since 6.3, this type is useless as Dashboards have been removed
    */
+  @Deprecated
   METRIC,
 
   /**
@@ -90,11 +93,17 @@ public enum PropertyType {
 
   /**
    * Level metric type
+   *
+   * @deprecated since 6.3, this type is useless as Dashboards have been removed
    */
+  @Deprecated
   METRIC_LEVEL,
 
   /**
-   * Long value, positivie or negative
+   * Long value, positive or negative
+   *
+   * @deprecated since 6.3, this type is useless as Dashboards have been removed
    */
+  @Deprecated
   LONG
 }
