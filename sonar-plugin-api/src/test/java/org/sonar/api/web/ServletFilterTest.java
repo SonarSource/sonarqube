@@ -19,8 +19,6 @@
  */
 package org.sonar.api.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -30,6 +28,8 @@ import javax.servlet.ServletResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServletFilterTest {
   @Rule
@@ -221,7 +221,10 @@ public class ServletFilterTest {
       "/fonts/*",
       "/images/*",
       "/js/*",
-      "/static/*");
+      "/static/*",
+      "/robots.txt",
+      "/favicon.ico",
+      "/apple-touch-icon*");
   }
 
   private static class FakeFilter extends ServletFilter {
