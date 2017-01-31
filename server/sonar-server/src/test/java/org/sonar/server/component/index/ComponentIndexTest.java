@@ -97,12 +97,12 @@ public abstract class ComponentIndexTest {
     assertExactResults(query, files.toArray(new ComponentDto[0]));
   }
 
-  private ListAssert<String> assertSearch(String query) {
+  protected ListAssert<String> assertSearch(String query) {
     return assertSearch(new ComponentIndexQuery(query));
   }
 
-  private ListAssert<String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query, features.get()))
+  protected ListAssert<String> assertSearch(ComponentIndexQuery query) {
+    return (ListAssert<String>) assertThat(index.search(query, features.get()))
       .flatExtracting(ComponentsPerQualifier::getComponentUuids);
   }
 
