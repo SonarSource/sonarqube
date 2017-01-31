@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
@@ -71,24 +73,26 @@ public class CreateActionTest {
   public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private ComponentUpdater componentUpdater = mock(ComponentUpdater.class, Mockito.RETURNS_MOCKS);
 
   private WsActionTester ws = new WsActionTester(
-      new CreateAction(
-          db.getDbClient(), userSession,
-          componentUpdater,
-          defaultOrganizationProvider));
+    new CreateAction(
+      new ProjectsWsSupport(db.getDbClient()),
+      db.getDbClient(), userSession,
+      componentUpdater,
+      defaultOrganizationProvider));
 
   @Test
   public void create_project() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
+    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
     expectSuccessfulCallToComponentUpdater();
 
     CreateWsResponse response = call(CreateRequest.builder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .build());
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build());
 
     assertThat(response.getProject().getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(response.getProject().getName()).isEqualTo(DEFAULT_PROJECT_NAME);
@@ -97,13 +101,13 @@ public class CreateActionTest {
 
   @Test
   public void create_project_with_branch() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
+    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
 
     call(CreateRequest.builder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setBranch("origin/master")
-        .build());
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setBranch("origin/master")
+      .build());
 
     NewComponent called = verifyCallToComponentUpdater();
     assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -112,13 +116,15 @@ public class CreateActionTest {
 
   @Test
   public void create_project_with_deprecated_parameter() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addOrganizationPermission(organization, PROVISIONING);
 
     ws.newRequest()
-        .setMethod(POST.name())
-        .setParam("key", DEFAULT_PROJECT_KEY)
-        .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
-        .execute();
+      .setMethod(POST.name())
+      .setParam("organization", organization.getKey())
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
+      .execute();
 
     NewComponent called = verifyCallToComponentUpdater();
     assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -127,15 +133,17 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_project_already_exists() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
+    OrganizationDto organization = db.organizations().insert();
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyLong())).thenThrow(new BadRequestException("already exists"));
+    userSession.addOrganizationPermission(organization, PROVISIONING);
 
     expectedException.expect(BadRequestException.class);
 
     call(CreateRequest.builder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .build());
+      .setOrganization(organization.getKey())
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build());
   }
 
   @Test
@@ -166,13 +174,13 @@ public class CreateActionTest {
 
   @Test
   public void test_example() {
-    userSession.setGlobalPermissions(PROVISIONING);
+    userSession.addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
     expectSuccessfulCallToComponentUpdater();
 
     String result = ws.newRequest()
-        .setParam("key", DEFAULT_PROJECT_KEY)
-        .setParam("name", DEFAULT_PROJECT_NAME)
-        .execute().getInput();
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("create-example.json"));
   }
@@ -185,13 +193,21 @@ public class CreateActionTest {
     Assertions.assertThat(definition.since()).isEqualTo("4.0");
     Assertions.assertThat(definition.isInternal()).isFalse();
     Assertions.assertThat(definition.responseExampleAsString()).isNotEmpty();
-    Assertions.assertThat(definition.params()).hasSize(3);
+
+    Assertions.assertThat(definition.params()).hasSize(4);
+
+    WebService.Param organization = definition.param(PARAM_ORGANIZATION);
+    Assertions.assertThat(organization.description()).isEqualTo("The key of the organization");
+    Assertions.assertThat(organization.isInternal()).isTrue();
+    Assertions.assertThat(organization.isRequired()).isFalse();
+    Assertions.assertThat(organization.since()).isEqualTo("6.3");
   }
 
   private CreateWsResponse call(CreateRequest request) {
     TestRequest httpRequest = ws.newRequest()
-        .setMethod(POST.name())
-        .setMediaType(MediaTypes.PROTOBUF);
+      .setMethod(POST.name())
+      .setMediaType(MediaTypes.PROTOBUF);
+    setNullable(request.getOrganization(), e -> httpRequest.setParam("organization", e));
     setNullable(request.getKey(), e -> httpRequest.setParam("project", e));
     setNullable(request.getName(), e -> httpRequest.setParam("name", e));
     setNullable(request.getBranch(), e -> httpRequest.setParam("branch", e));

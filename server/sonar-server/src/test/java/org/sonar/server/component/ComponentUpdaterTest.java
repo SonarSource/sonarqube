@@ -180,6 +180,22 @@ public class ComponentUpdaterTest {
   }
 
   @Test
+  public void fail_when_project_key_already_exists_on_other_organization() throws Exception {
+    ComponentDto existing = db.components().insertProject(db.organizations().insert());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Could not create Project, key already exists: " + existing.key());
+
+    underTest.create(db.getSession(),
+        NewComponent.newComponentBuilder()
+            .setKey(existing.key())
+            .setName(DEFAULT_PROJECT_NAME)
+            .setOrganizationUuid(existing.getOrganizationUuid())
+            .build(),
+        null);
+  }
+
+  @Test
   public void fail_when_key_has_bad_format() throws Exception {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for Project: 1234");

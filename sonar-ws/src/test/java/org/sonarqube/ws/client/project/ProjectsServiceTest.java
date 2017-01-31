@@ -51,6 +51,22 @@ public class ProjectsServiceTest {
   }
 
   @Test
+  public void creates_project_on_organization() {
+    underTest.create(CreateRequest.builder()
+      .setOrganization("org_key")
+      .setKey("project_key")
+      .setName("Project Name")
+      .build());
+
+    assertThat(serviceTester.getPostParser()).isSameAs(WsProjects.CreateWsResponse.parser());
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
+      entry("organization", "org_key"),
+      entry("project", "project_key"),
+      entry("name", "Project Name"));
+  }
+
+  @Test
   public void creates_project_on_branch() {
     underTest.create(CreateRequest.builder()
       .setKey("project_key")

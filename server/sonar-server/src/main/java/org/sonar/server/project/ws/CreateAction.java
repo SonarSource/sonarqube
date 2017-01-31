@@ -25,15 +25,18 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
@@ -43,14 +46,17 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 
 public class CreateAction implements ProjectsWsAction {
 
-  public static final String DEPRECATED_PARAM_KEY = "key";
+  private static final String DEPRECATED_PARAM_KEY = "key";
 
+  private final ProjectsWsSupport support;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CreateAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.support = support;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
@@ -83,19 +89,24 @@ public class CreateAction implements ProjectsWsAction {
     action.createParam(PARAM_BRANCH)
       .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
       .setExampleValue("branch-5.0");
+
+    support.addOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(PROVISIONING);
     CreateRequest createRequest = toCreateRequest(request);
     writeProtobuf(doHandle(createRequest), request, response);
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization())
+        .orElseGet(defaultOrganizationProvider.get()::getKey));
+      userSession.checkOrganizationPermission(organization.getUuid(), PROVISIONING);
+
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
+        .setOrganizationUuid(organization.getUuid())
         .setKey(request.getKey())
         .setName(request.getName())
         .setBranch(request.getBranch())
@@ -108,6 +119,7 @@ public class CreateAction implements ProjectsWsAction {
 
   private static CreateRequest toCreateRequest(Request request) {
     return CreateRequest.builder()
+      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(request.mandatoryParam(PARAM_NAME))
       .setBranch(request.param(PARAM_BRANCH))

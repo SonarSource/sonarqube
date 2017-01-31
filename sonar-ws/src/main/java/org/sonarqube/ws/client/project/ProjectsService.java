@@ -48,6 +48,7 @@ public class ProjectsService extends BaseService {
    */
   public CreateWsResponse create(CreateRequest project) {
     PostRequest request = new PostRequest(path(ACTION_CREATE))
+      .setParam("organization", project.getOrganization())
       .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_NAME, project.getName())
       .setParam(PARAM_BRANCH, project.getBranch());

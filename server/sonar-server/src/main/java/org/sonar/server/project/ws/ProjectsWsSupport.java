@@ -27,7 +27,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ProjectsWsSupport {
-  static final String PARAM_ORGANIZATION = "organization";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   private final DbClient dbClient;
 

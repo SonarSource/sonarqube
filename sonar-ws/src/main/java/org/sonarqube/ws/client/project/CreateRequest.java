@@ -26,14 +26,21 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class CreateRequest {
 
+  private final String organization;
   private final String key;
   private final String name;
   private final String branch;
 
   private CreateRequest(Builder builder) {
+    this.organization = builder.organization;
     this.key = builder.key;
     this.name = builder.name;
     this.branch = builder.branch;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
   }
 
   public String getKey() {
@@ -54,11 +61,17 @@ public class CreateRequest {
   }
 
   public static class Builder {
+    private String organization;
     private String key;
     private String name;
     private String branch;
 
     private Builder() {
+    }
+
+    public Builder setOrganization(String organization) {
+      this.organization = organization;
+      return this;
     }
 
     public Builder setKey(String key) {
