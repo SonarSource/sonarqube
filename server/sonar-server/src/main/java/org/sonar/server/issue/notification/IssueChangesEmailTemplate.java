@@ -20,16 +20,16 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.base.Strings;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * Creates email message for notification "issue-changes".
@@ -37,12 +37,12 @@ import javax.annotation.Nullable;
 public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private static final char NEW_LINE = '\n';
+  private final DbClient dbClient;
   private final EmailSettings settings;
-  private final UserFinder userFinder;
 
-  public IssueChangesEmailTemplate(EmailSettings settings, UserFinder userFinder) {
+  public IssueChangesEmailTemplate(DbClient dbClient, EmailSettings settings) {
+    this.dbClient = dbClient;
     this.settings = settings;
-    this.userFinder = userFinder;
   }
 
   @Override
@@ -72,10 +72,11 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     return message;
   }
 
-  private void appendChanges(Notification notif, StringBuilder sb) {
+  private static void appendChanges(Notification notif, StringBuilder sb) {
     appendField(sb, "Comment", null, notif.getFieldValue("comment"));
     appendFieldWithoutHistory(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
     appendField(sb, "Severity", notif.getFieldValue("old.severity"), notif.getFieldValue("new.severity"));
+    appendField(sb, "Type", notif.getFieldValue("old.type"), notif.getFieldValue("new.type"));
     appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
     appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
     appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
@@ -93,7 +94,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     }
   }
 
-  private void appendHeader(Notification notif, StringBuilder sb) {
+  private static void appendHeader(Notification notif, StringBuilder sb) {
     appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
     appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
     appendField(sb, "Message", null, notif.getFieldValue("message"));
@@ -104,13 +105,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issues/search#issues=").append(issueKey).append(NEW_LINE);
   }
 
-  private void appendLine(StringBuilder sb, @Nullable String line) {
+  private static void appendLine(StringBuilder sb, @Nullable String line) {
     if (!Strings.isNullOrEmpty(line)) {
       sb.append(line).append(NEW_LINE);
     }
   }
 
-  private void appendField(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
+  private static void appendField(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
     if (oldValue != null || newValue != null) {
       sb.append(name).append(": ");
       if (newValue != null) {
@@ -123,7 +124,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     }
   }
 
-  private void appendFieldWithoutHistory(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
+  private static void appendFieldWithoutHistory(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
     if (oldValue != null || newValue != null) {
       sb.append(name);
       if (newValue != null) {
@@ -140,12 +141,14 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     if (login == null) {
       return null;
     }
-    User user = userFinder.findByLogin(login);
-    if (user == null) {
-      // most probably user was deleted
-      return login;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
+      if (userDto == null || !userDto.isActive()) {
+        // most probably user was deleted
+        return login;
+      }
+      return StringUtils.defaultIfBlank(userDto.getName(), login);
     }
-    return StringUtils.defaultIfBlank(user.name(), login);
   }
 
 }

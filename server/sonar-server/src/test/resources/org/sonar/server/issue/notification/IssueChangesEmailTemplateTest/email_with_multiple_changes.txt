@@ -4,6 +4,7 @@ Message: Has 3 cycles
 
 Comment: How to fix it?
 Assignee changed to louis
+Type: BUG
 Resolution: FALSE-POSITIVE
 Status: RESOLVED
 Tags: [bug performance]

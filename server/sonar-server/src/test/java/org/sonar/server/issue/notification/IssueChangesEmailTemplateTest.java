@@ -20,43 +20,34 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.io.Resources;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
+import org.sonar.db.DbTester;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IssueChangesEmailTemplateTest {
 
-  @Mock
-  UserFinder userFinder;
+  @Rule
+  public DbTester db = DbTester.create();
 
-  IssueChangesEmailTemplate template;
+  private Settings settings = new MapSettings().setProperty(SERVER_BASE_URL, "http://nemo.sonarsource.org");
 
-  @Before
-  public void setUp() {
-    EmailSettings settings = mock(EmailSettings.class);
-    when(settings.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
-    template = new IssueChangesEmailTemplate(settings, userFinder);
-  }
+  private IssueChangesEmailTemplate underTest = new IssueChangesEmailTemplate(db.getDbClient(), new EmailSettings(settings));
 
   @Test
   public void should_ignore_non_issue_changes() {
     Notification notification = new Notification("other");
-    EmailMessage message = template.format(notification);
+    EmailMessage message = underTest.format(notification);
     assertThat(message).isNull();
   }
 
@@ -66,15 +57,14 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("old.assignee", "simon")
       .setFieldValue("new.assignee", "louis");
 
-    EmailMessage email = template.format(notification);
+    EmailMessage email = underTest.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_assignee_change.txt"),
-      StandardCharsets.UTF_8
-      );
+      StandardCharsets.UTF_8);
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();
@@ -86,15 +76,14 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("old.actionPlan", null)
       .setFieldValue("new.actionPlan", "ABC 1.0");
 
-    EmailMessage email = template.format(notification);
+    EmailMessage email = underTest.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_action_plan_change.txt"),
-      StandardCharsets.UTF_8
-      );
+      StandardCharsets.UTF_8);
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();
@@ -106,15 +95,14 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("old.resolution", "FALSE-POSITIVE")
       .setFieldValue("new.resolution", "FIXED");
 
-    EmailMessage email = template.format(notification);
+    EmailMessage email = underTest.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_should_display_resolution_change.txt"),
-      StandardCharsets.UTF_8
-      );
+      StandardCharsets.UTF_8);
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();
@@ -125,15 +113,14 @@ public class IssueChangesEmailTemplateTest {
     Notification notification = generateNotification()
       .setFieldValue("componentName", null);
 
-    EmailMessage email = template.format(notification);
+    EmailMessage email = underTest.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/display_component_key_if_no_component_name.txt"),
-      StandardCharsets.UTF_8
-      );
+      StandardCharsets.UTF_8);
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
   }
@@ -146,9 +133,10 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("new.assignee", "louis")
       .setFieldValue("new.resolution", "FALSE-POSITIVE")
       .setFieldValue("new.status", "RESOLVED")
+      .setFieldValue("new.type", "BUG")
       .setFieldValue("new.tags", "bug performance");
 
-    EmailMessage email = template.format(notification);
+    EmailMessage email = underTest.format(notification);
     assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
@@ -162,20 +150,30 @@ public class IssueChangesEmailTemplateTest {
 
   @Test
   public void notification_sender_should_be_the_author_of_change() {
-    User user = mock(User.class);
-    when(user.name()).thenReturn("Simon");
-    when(userFinder.findByLogin("simon")).thenReturn(user);
+    db.users().insertUser(newUserDto().setLogin("simon").setName("Simon"));
 
     Notification notification = new IssueChangeNotification()
       .setChangeAuthorLogin("simon")
       .setProject("Struts", "org.apache:struts");
 
-    EmailMessage message = template.format(notification);
+    EmailMessage message = underTest.format(notification);
     assertThat(message.getFrom()).isEqualTo("Simon");
   }
 
-  private Notification generateNotification() {
+  @Test
+  public void notification_contains_user_login_when_user_is_removed() {
+    db.users().insertUser(newUserDto().setLogin("simon").setName("Simon").setActive(false));
+
     Notification notification = new IssueChangeNotification()
+      .setChangeAuthorLogin("simon")
+      .setProject("Struts", "org.apache:struts");
+
+    EmailMessage message = underTest.format(notification);
+    assertThat(message.getFrom()).isEqualTo("simon");
+  }
+
+  private static Notification generateNotification() {
+    return new IssueChangeNotification()
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("componentName", "Action")
@@ -183,6 +181,5 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("key", "ABCDE")
       .setFieldValue("ruleName", "Avoid Cycles")
       .setFieldValue("message", "Has 3 cycles");
-    return notification;
   }
 }

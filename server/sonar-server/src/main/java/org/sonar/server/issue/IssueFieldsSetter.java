@@ -79,9 +79,7 @@ public class IssueFieldsSetter {
   }
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
-    if (issue.manualSeverity()) {
-      throw new IllegalStateException("Severity can't be changed");
-    }
+    checkState(!issue.manualSeverity(), "Severity can't be changed");
     if (!Objects.equals(severity, issue.severity())) {
       issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
       issue.setSeverity(severity);
