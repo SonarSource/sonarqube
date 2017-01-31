@@ -236,7 +236,7 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"error_occurred\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"An error has occurred. Please contact your administrator\"}]}");
     assertThat(response.stream().status()).isEqualTo(500);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request")).isNotEmpty();
