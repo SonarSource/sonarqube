@@ -20,9 +20,12 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.CheckForNull;
+
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
@@ -42,6 +45,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   private Map<String, Plugin> pluginInstancesByKeys;
   private Map<String, PluginInfo> infosByKeys;
+  private Map<ClassLoader, String> keysByClassLoader;
 
   public ScannerPluginRepository(PluginInstaller installer, PluginLoader loader) {
     this.installer = installer;
@@ -50,17 +54,28 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    infosByKeys = Maps.newHashMap(installer.installRemotes());
-    pluginInstancesByKeys = Maps.newHashMap(loader.load(infosByKeys));
+    infosByKeys = new HashMap<>(installer.installRemotes());
+    pluginInstancesByKeys = new HashMap<>(loader.load(infosByKeys));
 
     // this part is only used by tests
     for (Map.Entry<String, Plugin> entry : installer.installLocals().entrySet()) {
       String pluginKey = entry.getKey();
-      infosByKeys.put(pluginKey, new PluginInfo(pluginKey));
+      PluginInfo pluginInfo = new PluginInfo(pluginKey);
+      infosByKeys.put(pluginKey, pluginInfo);
       pluginInstancesByKeys.put(pluginKey, entry.getValue());
     }
 
+    keysByClassLoader = new HashMap<>();
+    for (Map.Entry<String, Plugin> e : pluginInstancesByKeys.entrySet()) {
+      keysByClassLoader.put(e.getValue().getClass().getClassLoader(), e.getKey());
+    }
+
     logPlugins();
+  }
+
+  @CheckForNull
+  public String getPluginKey(ClassLoader cl) {
+    return keysByClassLoader.get(cl);
   }
 
   private void logPlugins() {
