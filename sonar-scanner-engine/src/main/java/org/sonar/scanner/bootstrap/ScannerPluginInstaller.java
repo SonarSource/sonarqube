@@ -20,11 +20,11 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +71,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
   }
 
   private Map<String, PluginInfo> loadPlugins(List<RemotePlugin> remotePlugins) {
-    Map<String, PluginInfo> infosByKey = new HashMap<>();
+    Map<String, PluginInfo> infosByKey = new HashMap<>(remotePlugins.size());
 
     Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
 
@@ -114,7 +114,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
     try {
       String pluginIndex = loadPluginIndex();
       String[] rows = StringUtils.split(pluginIndex, CharUtils.LF);
-      List<RemotePlugin> result = Lists.newArrayList();
+      List<RemotePlugin> result = new ArrayList<>();
       for (String row : rows) {
         result.add(RemotePlugin.unmarshal(row));
       }
@@ -131,10 +131,10 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String str;
     try (Reader reader = wsClient.call(getRequest).contentReader()) {
       str = IOUtils.toString(reader);
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-    
+
     profiler.stopInfo();
     return str;
   }

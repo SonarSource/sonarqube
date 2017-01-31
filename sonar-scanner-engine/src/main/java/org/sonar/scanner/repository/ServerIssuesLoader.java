@@ -19,7 +19,8 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
 public interface ServerIssuesLoader {

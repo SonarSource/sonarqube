@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import com.google.common.collect.ImmutableSet;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class SourceHashHolder {
 
@@ -69,7 +69,7 @@ public class SourceHashHolder {
   public Collection<Integer> getNewLinesMatching(Integer originLine) {
     FileHashes reference = getHashedReference();
     if (reference == null) {
-      return ImmutableSet.of();
+      return Collections.emptySet();
     } else {
       return getHashedSource().getLinesForHash(reference.getHash(originLine));
     }

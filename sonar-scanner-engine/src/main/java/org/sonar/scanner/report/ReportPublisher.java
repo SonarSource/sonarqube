@@ -21,13 +21,15 @@ package org.sonar.scanner.report;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
-import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -222,8 +224,8 @@ public class ReportPublisher implements Startable {
   }
 
   private void dumpMetadata(Map<String, String> metadata) {
-    File file = new File(projectReactor.getRoot().getWorkDir(), METADATA_DUMP_FILENAME);
-    try (Writer output = Files.newWriter(file, StandardCharsets.UTF_8)) {
+    Path file = projectReactor.getRoot().getWorkDir().toPath().resolve(METADATA_DUMP_FILENAME);
+    try (Writer output = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
       for (Map.Entry<String, String> entry : metadata.entrySet()) {
         output.write(entry.getKey());
         output.write("=");

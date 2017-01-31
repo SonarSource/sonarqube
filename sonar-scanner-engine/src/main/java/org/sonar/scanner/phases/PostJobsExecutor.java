@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.phases;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.PostJob;
@@ -50,9 +50,9 @@ public class PostJobsExecutor {
   public void execute(SensorContext context) {
     Collection<PostJob> postJobs = selector.select(PostJob.class, module, true, null);
 
-    eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), true));
+    eventBus.fireEvent(new PostJobPhaseEvent(new ArrayList<>(postJobs), true));
     execute(context, postJobs);
-    eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), false));
+    eventBus.fireEvent(new PostJobPhaseEvent(new ArrayList<>(postJobs), false));
   }
 
   private void execute(SensorContext context, Collection<PostJob> postJobs) {

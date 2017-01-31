@@ -19,10 +19,11 @@
  */
 package org.sonar.scanner.source;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.StreamSupport;
+
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -36,11 +37,11 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Sets.newHashSet;
+import com.google.common.collect.Sets;
 
 @Phase(name = Phase.Name.POST)
 public final class ZeroCoverageSensor implements Sensor {
@@ -101,9 +102,10 @@ public final class ZeroCoverageSensor implements Sensor {
   }
 
   private boolean isCoverageMeasuresAlreadyDefined(InputFile f) {
-    Set<String> metricKeys = newHashSet(transform(measureCache.byComponentKey(f.key()), new MeasureToMetricKey()));
+    Set<String> metricKeys = StreamSupport.stream(measureCache.byComponentKey(f.key()).spliterator(), false)
+      .map(new MeasureToMetricKey()).collect(Collectors.toSet());
     Function<Metric, String> metricToKey = new MetricToKey();
-    Set<String> allCoverageMetricKeys = newHashSet(transform(CoverageType.UNIT.allMetrics(), metricToKey));
+    Set<String> allCoverageMetricKeys = CoverageType.UNIT.allMetrics().stream().map(metricToKey).collect(Collectors.toSet());
     return !Sets.intersection(metricKeys, allCoverageMetricKeys).isEmpty();
   }
 

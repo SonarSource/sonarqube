@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.base.Function;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Function;
+
 import org.apache.commons.io.IOUtils;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;

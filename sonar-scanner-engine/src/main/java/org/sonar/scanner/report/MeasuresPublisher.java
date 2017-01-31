@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.sonar.api.batch.fs.InputComponent;
@@ -35,7 +36,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase.Status;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.BoolValue;

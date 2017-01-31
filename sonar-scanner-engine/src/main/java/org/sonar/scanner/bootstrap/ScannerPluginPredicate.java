@@ -22,10 +22,11 @@ package org.sonar.scanner.bootstrap;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
@@ -93,6 +94,7 @@ public class ScannerPluginPredicate implements Predicate<String> {
 
   private static List<String> propertyValues(Settings settings, String key, String defaultValue) {
     String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
-    return Lists.newArrayList(Splitter.on(",").trimResults().omitEmptyStrings().split(s));
+    return StreamSupport.stream(Splitter.on(",").trimResults().omitEmptyStrings().split(s).spliterator(), false)
+      .collect(Collectors.toList());
   }
 }

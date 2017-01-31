@@ -20,9 +20,9 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -49,8 +49,8 @@ public class LanguageDetection {
   /**
    * Lower-case extension -> languages
    */
-  private final Map<String, PathPattern[]> patternsByLanguage = Maps.newLinkedHashMap();
-  private final List<String> languagesToConsider = Lists.newArrayList();
+  private final Map<String, PathPattern[]> patternsByLanguage = new LinkedHashMap<>();
+  private final List<String> languagesToConsider = new ArrayList<>();
   private final String forcedLanguage;
 
   public LanguageDetection(Settings settings, LanguagesRepository languages) {

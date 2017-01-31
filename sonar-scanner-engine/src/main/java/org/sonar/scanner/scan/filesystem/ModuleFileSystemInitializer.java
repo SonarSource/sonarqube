@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.collect.Lists;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.ScannerSide;
@@ -36,8 +36,8 @@ public class ModuleFileSystemInitializer {
 
   private File baseDir;
   private File workingDir;
-  private List<File> sourceDirsOrFiles = Lists.newArrayList();
-  private List<File> testDirsOrFiles = Lists.newArrayList();
+  private List<File> sourceDirsOrFiles = new ArrayList<>();
+  private List<File> testDirsOrFiles = new ArrayList<>();
 
   public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();

@@ -19,16 +19,17 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.annotation.Nonnull;
 import org.sonar.api.config.Settings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 
 public class ContextPropertiesPublisher implements ReportPublisherStep {
@@ -46,16 +47,15 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     MapEntryToContextPropertyFunction transformer = new MapEntryToContextPropertyFunction();
 
     // properties defined programmatically by plugins
-    Iterable<ScannerReport.ContextProperty> fromCache = from(cache.getAll().entrySet())
-      .transform(transformer);
+    Stream<ScannerReport.ContextProperty> fromCache = cache.getAll().entrySet().stream().map(transformer);
 
     // properties that are automatically included to report so that
     // they can be included to webhook payloads
-    Iterable<ScannerReport.ContextProperty> fromSettings = from(settings.getProperties().entrySet())
+    Stream<ScannerReport.ContextProperty> fromSettings = settings.getProperties().entrySet().stream()
       .filter(e -> e.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
-      .transform(transformer);
+      .map(transformer);
 
-    writer.writeContextProperties(Iterables.concat(fromCache, fromSettings));
+    writer.writeContextProperties(Stream.concat(fromCache, fromSettings).collect(Collectors.toList()));
   }
 
   private static final class MapEntryToContextPropertyFunction implements Function<Map.Entry<String, String>, ScannerReport.ContextProperty> {

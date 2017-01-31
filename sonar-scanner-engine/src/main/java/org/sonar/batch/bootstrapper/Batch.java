@@ -20,9 +20,10 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -39,11 +40,11 @@ public final class Batch {
   private boolean started = false;
   private LoggingConfiguration loggingConfig;
   private List<Object> components;
-  private Map<String, String> bootstrapProperties = Maps.newHashMap();
+  private Map<String, String> bootstrapProperties = new HashMap<>();
   private GlobalContainer bootstrapContainer;
 
   private Batch(Builder builder) {
-    components = Lists.newArrayList();
+    components = new ArrayList<>();
     components.addAll(builder.components);
     if (builder.environment != null) {
       components.add(builder.environment);
@@ -203,7 +204,7 @@ public final class Batch {
   public static final class Builder {
     private Map<String, String> bootstrapProperties;
     private EnvironmentInformation environment;
-    private List<Object> components = Lists.newArrayList();
+    private List<Object> components = new ArrayList<>();
     private boolean enableLoggingConfiguration = true;
     private LogOutput logOutput;
 

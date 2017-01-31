@@ -21,10 +21,8 @@ package org.sonar.scanner.repository;
 
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.DefaultServerIssuesLoader;
-import com.google.common.base.Function;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.ByteArrayInputStream;
@@ -33,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,13 +60,9 @@ public class DefaultServerIssuesLoaderTest {
     WsTestUtil.mockStream(wsClient, "/batch/issues.protobuf?key=foo", is);
 
     final List<ServerIssue> result = new ArrayList<>();
-    loader.load("foo", new Function<ScannerInput.ServerIssue, Void>() {
-
-      @Override
-      public Void apply(ServerIssue input) {
-        result.add(input);
-        return null;
-      }
+    loader.load("foo", issue -> {
+      result.add(issue);
+      return null;
     });
 
     assertThat(result).extracting("key").containsExactly("ab1", "ab2");

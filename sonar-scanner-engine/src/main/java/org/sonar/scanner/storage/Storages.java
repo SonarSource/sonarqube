@@ -20,7 +20,6 @@
 package org.sonar.scanner.storage;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.persistit.Exchange;
 import com.persistit.Persistit;
 import com.persistit.Value;
@@ -28,6 +27,8 @@ import com.persistit.Volume;
 import com.persistit.encoding.CoderManager;
 import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.picocontainer.Startable;
@@ -35,7 +36,7 @@ import org.sonar.api.batch.ScannerSide;
 
 @ScannerSide
 public class Storages implements Startable {
-  private final Map<String, Exchange> cacheMap = Maps.newHashMap();
+  private final Map<String, Exchange> cacheMap = new HashMap<>();
   private Persistit persistit;
   private Volume volume;
 

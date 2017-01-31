@@ -62,7 +62,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
     }
   }
 
-  private ClassLoader getSensorClassLoader(Sensor sensor) {
+  private static ClassLoader getSensorClassLoader(Sensor sensor) {
     if (sensor instanceof SensorWrapper) {
       SensorWrapper wrapper = (SensorWrapper) sensor;
       return wrapper.wrappedSensor().getClass().getClassLoader();

@@ -20,11 +20,11 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.IssueExclusionProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -67,7 +67,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
   @VisibleForTesting
   protected final void loadFileContentPatterns() {
     // Patterns Block
-    blockPatterns = Lists.newArrayList();
+    blockPatterns = new ArrayList<>();
     String patternConf = StringUtils.defaultIfBlank(getSettings().getString(IssueExclusionProperties.PATTERNS_BLOCK_KEY), "");
     for (String id : StringUtils.split(patternConf, ',')) {
       String propPrefix = IssueExclusionProperties.PATTERNS_BLOCK_KEY + "." + id + ".";
@@ -80,7 +80,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
     }
 
     // Patterns All File
-    allFilePatterns = Lists.newArrayList();
+    allFilePatterns = new ArrayList<>();
     patternConf = StringUtils.defaultIfBlank(getSettings().getString(IssueExclusionProperties.PATTERNS_ALLFILE_KEY), "");
     for (String id : StringUtils.split(patternConf, ',')) {
       String propPrefix = IssueExclusionProperties.PATTERNS_ALLFILE_KEY + "." + id + ".";

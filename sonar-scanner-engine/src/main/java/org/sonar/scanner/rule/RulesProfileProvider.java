@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -57,12 +57,13 @@ public class RulesProfileProvider extends ProviderAdapter {
     if (qProfile != null) {
       return new RulesProfileWrapper(select(qProfile, activeRules));
     }
-    return new RulesProfileWrapper(Lists.<RulesProfile>newArrayList());
+    return new RulesProfileWrapper(new ArrayList<>());
   }
 
   private static RulesProfile loadProfiles(ModuleQProfiles qProfiles, ActiveRules activeRules) {
-    Collection<RulesProfile> dtos = Lists.newArrayList();
-    for (QProfile qProfile : qProfiles.findAll()) {
+    Collection<QProfile> profiles = qProfiles.findAll();
+    Collection<RulesProfile> dtos = new ArrayList<>(profiles.size());
+    for (QProfile qProfile : profiles) {
       dtos.add(select(qProfile, activeRules));
     }
     return new RulesProfileWrapper(dtos);

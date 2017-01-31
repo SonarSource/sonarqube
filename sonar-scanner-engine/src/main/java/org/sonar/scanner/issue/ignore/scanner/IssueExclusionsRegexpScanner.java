@@ -19,9 +19,6 @@
  */
 package org.sonar.scanner.issue.ignore.scanner;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +29,9 @@ import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,9 +53,9 @@ public class IssueExclusionsRegexpScanner {
   public IssueExclusionsRegexpScanner(IssueExclusionPatternInitializer patternsInitializer) {
     this.exclusionPatternInitializer = patternsInitializer;
 
-    lineExclusions = Lists.newArrayList();
-    allFilePatterns = Lists.newArrayList();
-    blockMatchers = Lists.newArrayList();
+    lineExclusions = new ArrayList<>();
+    allFilePatterns = new ArrayList<>();
+    blockMatchers = new ArrayList<>();
 
     for (IssuePattern pattern : patternsInitializer.getAllFilePatterns()) {
       allFilePatterns.add(java.util.regex.Pattern.compile(pattern.getAllFileRegexp()));
@@ -80,7 +80,7 @@ public class IssueExclusionsRegexpScanner {
     LOG.debug("Scanning {}", resource);
     init();
 
-    List<String> lines = FileUtils.readLines(file, sourcesEncoding.name());
+    List<String> lines = Files.readAllLines(file.toPath(), sourcesEncoding);
     int lineIndex = 0;
     for (String line : lines) {
       lineIndex++;
@@ -117,7 +117,7 @@ public class IssueExclusionsRegexpScanner {
   }
 
   private Set<LineRange> convertLineExclusionsToLineRanges() {
-    Set<LineRange> lineRanges = Sets.newHashSet();
+    Set<LineRange> lineRanges = new HashSet<>(lineExclusions.size());
     for (LineExclusion lineExclusion : lineExclusions) {
       lineRanges.add(lineExclusion.toLineRange());
     }

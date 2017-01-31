@@ -20,9 +20,9 @@
 package org.sonar.scanner.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -42,8 +42,8 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
   private FileIndexer indexer;
   private Settings settings;
 
-  private List<File> sourceDirsOrFiles = Lists.newArrayList();
-  private List<File> testDirsOrFiles = Lists.newArrayList();
+  private List<File> sourceDirsOrFiles = new ArrayList<>();
+  private List<File> testDirsOrFiles = new ArrayList<>();
   private boolean initialized;
   private Charset charset = null;
 
