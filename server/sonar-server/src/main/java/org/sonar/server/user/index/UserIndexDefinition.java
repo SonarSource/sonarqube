@@ -19,11 +19,12 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.collect.ImmutableSortedMap;
-import java.util.SortedMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
+
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
 
 /**
  * Definition of ES index "users", including settings and fields.
@@ -42,8 +43,6 @@ public class UserIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE = "active";
   public static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
 
-  public static final String SEARCH_SUB_SUFFIX = "ngrams";
-
   private final Settings settings;
 
   public UserIndexDefinition(Settings settings) {
@@ -56,39 +55,14 @@ public class UserIndexDefinition implements IndexDefinition {
 
     index.configureShards(settings, 1);
 
-    index.getSettings()
-      // NGram filter (not edge) for logins and names
-      .put("index.analysis.filter.ngram_filter.type", "nGram")
-      .put("index.analysis.filter.ngram_filter.min_gram", 2)
-      .put("index.analysis.filter.ngram_filter.max_gram", 15)
-      .putArray("index.analysis.filter.ngram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
-
-      // NGram index analyzer
-      .put("index.analysis.analyzer.index_ngrams.type", "custom")
-      .put("index.analysis.analyzer.index_ngrams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.index_ngrams.filter", "trim", "lowercase", "ngram_filter")
-
-      // NGram search analyzer
-      .put("index.analysis.analyzer.search_ngrams.type", "custom")
-      .put("index.analysis.analyzer.search_ngrams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.search_ngrams.filter", "trim", "lowercase");
-
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
-    mapping.stringFieldBuilder(FIELD_LOGIN).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
-    mapping.stringFieldBuilder(FIELD_NAME).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
-    mapping.stringFieldBuilder(FIELD_EMAIL).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).enableSorting().build();
+    mapping.stringFieldBuilder(FIELD_LOGIN).enable(USER_SEARCH_GRAMS_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_NAME).enable(USER_SEARCH_GRAMS_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_EMAIL).enable(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
     mapping.createDateTimeField(FIELD_CREATED_AT);
     mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().build();
-  }
-
-  private static SortedMap<String, String> buildGramSearchField() {
-    return ImmutableSortedMap.of(
-      "type", "string",
-      "index", "analyzed",
-      "analyzer", "index_ngrams",
-      "search_analyzer", "search_ngrams");
   }
 }
