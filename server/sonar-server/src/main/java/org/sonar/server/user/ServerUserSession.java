@@ -30,11 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
@@ -107,15 +104,6 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   public Collection<GroupDto> getGroups() {
     return groups.get();
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    Collection<GroupDto> groups = getGroups();
-    return Stream.concat(
-      Stream.of(DefaultGroups.ANYONE),
-      groups.stream().map(GroupDto::getName))
-      .collect(Collectors.toSet(groups.size() + 1));
   }
 
   @Override

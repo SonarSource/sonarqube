@@ -21,7 +21,6 @@ package org.sonar.ce.user;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
@@ -53,11 +52,6 @@ public class CeUserSession implements UserSession {
 
   @Override
   public Collection<GroupDto> getGroups() {
-    return notImplemented();
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
     return notImplemented();
   }
 

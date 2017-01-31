@@ -22,7 +22,6 @@ package org.sonar.server.tester;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -287,11 +286,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public Collection<GroupDto> getGroups() {
     return currentUserSession.getGroups();
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    return currentUserSession.getUserGroups();
   }
 
   @Override

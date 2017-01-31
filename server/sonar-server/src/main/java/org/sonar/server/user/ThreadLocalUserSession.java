@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
@@ -75,11 +74,6 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public Collection<GroupDto> getGroups() {
     return get().getGroups();
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    return get().getUserGroups();
   }
 
   @Override
