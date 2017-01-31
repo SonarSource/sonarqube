@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { Route } from 'react-router';
+import { Route, IndexRedirect } from 'react-router';
 import OrganizationPage from './components/OrganizationPage';
+import OrganizationProjects from './components/OrganizationProjects';
+import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
 import OrganizationAdmin from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
@@ -28,6 +30,9 @@ import OrganizationDelete from './components/OrganizationDelete';
 
 export default (
     <Route path=":organizationKey" component={OrganizationPage}>
+      <IndexRedirect to="projects"/>
+      <Route path="projects" component={OrganizationProjects}/>
+      <Route path="projects/favorite" component={OrganizationFavoriteProjects}/>
       <Route component={OrganizationAdmin}>
         <Route path="delete" component={OrganizationDelete}/>
         <Route path="edit" component={OrganizationEdit}/>

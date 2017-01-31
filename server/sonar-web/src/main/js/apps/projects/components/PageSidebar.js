@@ -31,13 +31,19 @@ import { translate } from '../../../helpers/l10n';
 export default class PageSidebar extends React.Component {
   static propTypes = {
     query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool.isRequired
+    isFavorite: React.PropTypes.bool.isRequired,
+    organization: React.PropTypes.object
   };
+
+  get
 
   render () {
     const isFiltered = Object.keys(this.props.query).some(key => this.props.query[key] != null);
 
-    const pathname = this.props.isFavorite ? '/projects/favorite' : '/projects';
+    const basePathName = this.props.organization ?
+        `/organizations/${this.props.organization.key}/projects` :
+        '/projects';
+    const pathname = basePathName + (this.props.isFavorite ? '/favorite' : '');
 
     return (
         <div className="search-navigator-facets-list">
@@ -53,13 +59,34 @@ export default class PageSidebar extends React.Component {
             <h3>{translate('filters')}</h3>
           </div>
 
-          <QualityGateFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <ReliabilityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <SecurityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <MaintainabilityFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <CoverageFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <DuplicationsFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
-          <SizeFilter query={this.props.query} isFavorite={this.props.isFavorite}/>
+          <QualityGateFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <ReliabilityFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <SecurityFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <MaintainabilityFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <CoverageFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <DuplicationsFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
+          <SizeFilter
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}/>
         </div>
     );
   }

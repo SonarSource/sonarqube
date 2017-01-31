@@ -44,7 +44,7 @@ export default class PageHeader extends React.Component {
             )}
           </div>
 
-          <FavoriteFilterContainer/>
+          <FavoriteFilterContainer organization={this.props.organization}/>
         </header>
     );
   }

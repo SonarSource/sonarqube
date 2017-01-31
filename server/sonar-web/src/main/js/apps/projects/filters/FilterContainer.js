@@ -29,7 +29,10 @@ const mapStateToProps = (state, ownProps) => ({
   facet: getProjectsAppFacetByProperty(state, ownProps.property),
   maxFacetValue: getProjectsAppMaxFacetValue(state),
   getFilterUrl: part => {
-    const pathname = ownProps.isFavorite ? '/projects/favorite': '/projects';
+    const basePathName = ownProps.organization ?
+        `/organizations/${ownProps.organization.key}/projects` :
+        '/projects';
+    const pathname = basePathName + (ownProps.isFavorite ? '/favorite' : '');
     const query = omitBy({ ...ownProps.query, ...part }, isNil);
     return { pathname, query };
   }

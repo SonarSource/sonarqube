@@ -20,12 +20,13 @@ exports[`test admin 1`] = `
       <ul
         className="nav navbar-nav nav-tabs">
         <li>
-          <IndexLink
-            activeClassName="active"
-            to="/organizations/foo">
-            <i
-              className="icon-home" />
-          </IndexLink>
+          <Link
+            className=""
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/projects">
+            projects.page
+          </Link>
         </li>
         <li
           className="">
@@ -106,12 +107,13 @@ exports[`test regular user 1`] = `
       <ul
         className="nav navbar-nav nav-tabs">
         <li>
-          <IndexLink
-            activeClassName="active"
-            to="/organizations/foo">
-            <i
-              className="icon-home" />
-          </IndexLink>
+          <Link
+            className=""
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/organizations/foo/projects">
+            projects.page
+          </Link>
         </li>
       </ul>
     </div>
