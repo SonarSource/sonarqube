@@ -27,13 +27,21 @@ export default class FavoriteFilter extends React.Component {
       return null;
     }
 
+    const pathnameForFavorite = this.props.organization ?
+        `/organizations/${this.props.organization.key}/projects/favorite` :
+        '/projects/favorite';
+
+    const pathnameForAll = this.props.organization ?
+        `/organizations/${this.props.organization.key}/projects` :
+        '/projects';
+
     return (
         <div className="projects-sidebar pull-left text-center">
           <div className="button-group">
-            <Link to="/projects/favorite" className="button" activeClassName="button-active">
+            <Link to={pathnameForFavorite} className="button" activeClassName="button-active">
               {translate('my_favorites')}
             </Link>
-            <IndexLink to="/projects" className="button" activeClassName="button-active">
+            <IndexLink to={pathnameForAll} className="button" activeClassName="button-active">
               {translate('all')}
             </IndexLink>
           </div>

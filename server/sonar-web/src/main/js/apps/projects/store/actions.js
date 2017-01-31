@@ -140,17 +140,20 @@ const onReceiveMoreProjects = dispatch => response => {
   dispatch(updateState({ pageIndex: response.paging.pageIndex }));
 };
 
-export const fetchProjects = (query, isFavorite) => dispatch => {
+export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   dispatch(updateState({ loading: true }));
   const data = { ps: PAGE_SIZE, facets: FACETS.join() };
   const filter = convertToFilter(query, isFavorite);
   if (filter) {
     data.filter = filter;
   }
+  if (organization) {
+    data.organization = organization.key;
+  }
   return searchProjects(data).then(onReceiveProjects(dispatch), onFail(dispatch));
 };
 
-export const fetchMoreProjects = (query, isFavorite) => (dispatch, getState) => {
+export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch, getState) => {
   dispatch(updateState({ loading: true }));
   const state = getState();
   const { pageIndex } = getProjectsAppState(state);
@@ -158,6 +161,9 @@ export const fetchMoreProjects = (query, isFavorite) => (dispatch, getState) => 
   const filter = convertToFilter(query, isFavorite);
   if (filter) {
     data.filter = filter;
+  }
+  if (organization) {
+    data.organization = organization.key;
   }
   return searchProjects(data).then(onReceiveMoreProjects(dispatch), onFail(dispatch));
 };

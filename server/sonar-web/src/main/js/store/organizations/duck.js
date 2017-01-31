@@ -19,7 +19,6 @@
  */
 // @flow
 import { combineReducers } from 'redux';
-import keyBy from 'lodash/keyBy';
 import omit from 'lodash/omit';
 
 export type Organization = {
@@ -74,10 +73,18 @@ export const deleteOrganization = (key: string): DeleteOrganizationAction => ({
   key
 });
 
+const onReceiveOrganizations = (state: ByKeyState, action: ReceiveOrganizationsAction): ByKeyState => {
+  const nextState = { ...state };
+  action.organizations.forEach(organization => {
+    nextState[organization.key] = { ...state[organization.key], ...organization };
+  });
+  return nextState;
+};
+
 const byKey = (state: ByKeyState = {}, action: Action) => {
   switch (action.type) {
     case 'RECEIVE_ORGANIZATIONS':
-      return { ...state, ...keyBy(action.organizations, 'key') };
+      return onReceiveOrganizations(state, action);
     case 'UPDATE_ORGANIZATION':
       return {
         ...state,

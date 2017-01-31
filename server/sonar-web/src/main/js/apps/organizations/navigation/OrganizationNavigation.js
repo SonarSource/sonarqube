@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { Link, IndexLink } from 'react-router';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
 const ADMIN_PATHS = [
@@ -78,7 +78,9 @@ export default class OrganizationNavigation extends React.Component {
   }
 
   render () {
-    const { organization } = this.props;
+    const { organization, location } = this.props;
+
+    const isHomeActive = location.pathname.startsWith(`organizations/${organization.key}/projects`);
 
     return (
         <nav className="navbar navbar-context page-container" id="context-navigation">
@@ -94,9 +96,9 @@ export default class OrganizationNavigation extends React.Component {
 
               <ul className="nav navbar-nav nav-tabs">
                 <li>
-                  <IndexLink to={`/organizations/${organization.key}`} activeClassName="active">
-                    <i className="icon-home"/>
-                  </IndexLink>
+                  <Link to={`/organizations/${organization.key}/projects`} className={isHomeActive ? 'active': ''}>
+                    {translate('projects.page')}
+                  </Link>
                 </li>
                 {organization.canAdmin && this.renderAdministration()}
               </ul>

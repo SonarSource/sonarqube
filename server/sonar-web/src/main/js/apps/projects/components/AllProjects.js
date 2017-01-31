@@ -26,7 +26,8 @@ import { parseUrlQuery } from '../store/utils';
 export default class AllProjects extends React.Component {
   static propTypes = {
     isFavorite: React.PropTypes.bool.isRequired,
-    fetchProjects: React.PropTypes.func.isRequired
+    fetchProjects: React.PropTypes.func.isRequired,
+    organization: React.PropTypes.object
   };
 
   state = {
@@ -46,7 +47,7 @@ export default class AllProjects extends React.Component {
   handleQueryChange () {
     const query = parseUrlQuery(this.props.location.query);
     this.setState({ query });
-    this.props.fetchProjects(query, this.props.isFavorite);
+    this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
   }
 
   render () {
@@ -55,11 +56,17 @@ export default class AllProjects extends React.Component {
     return (
         <div className="page-with-sidebar page-with-left-sidebar projects-page">
           <aside className="page-sidebar-fixed projects-sidebar">
-            <PageSidebar query={this.state.query} isFavorite={this.props.isFavorite}/>
+            <PageSidebar
+                query={this.state.query}
+                isFavorite={this.props.isFavorite}
+                organization={this.props.organization}/>
           </aside>
           <div className="page-main">
             <ProjectsListContainer isFavorite={this.props.isFavorite} isFiltered={isFiltered}/>
-            <ProjectsListFooterContainer query={this.state.query} isFavorite={this.props.isFavorite}/>
+            <ProjectsListFooterContainer
+                query={this.state.query}
+                isFavorite={this.props.isFavorite}
+                organization={this.props.organization}/>
           </div>
         </div>
     );
