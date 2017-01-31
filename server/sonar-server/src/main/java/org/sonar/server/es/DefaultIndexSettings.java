@@ -28,6 +28,9 @@ public class DefaultIndexSettings {
   /** Maximum length of ngrams. */
   public static final int MAXIMUM_NGRAM_LENGTH = 15;
 
+  /** Pattern, that splits the user search input **/
+  public static final String SEARCH_TERM_TOKENIZER_PATTERN = "[\\s]+";
+
   public static final String ANALYSIS = "index.analysis";
   public static final String DELIMITER = ".";
 

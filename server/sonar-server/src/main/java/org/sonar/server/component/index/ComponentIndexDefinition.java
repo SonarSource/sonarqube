@@ -55,7 +55,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_KEY).enable(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME).enable(SEARCH_GRAMS_ANALYZER).build();
+    mapping.stringFieldBuilder(FIELD_NAME).enable(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
     mapping.setEnableSource(false);
   }

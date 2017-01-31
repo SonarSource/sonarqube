@@ -80,7 +80,7 @@ public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
 
   @Test
   public void should_ignore_empty_words() {
-    assertFileMatches("     :     .  struts   \n .    :\n\n",
+    assertFileMatches("            struts   \n     \n\n",
       "Struts");
   }
 
