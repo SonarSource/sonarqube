@@ -32,7 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class RulesDefinitionXmlLoaderTest {
 
@@ -199,21 +199,20 @@ public class RulesDefinitionXmlLoaderTest {
 
   @Test
   public void fail_if_invalid_remediation_function() {
-    try {
-      load("" +
-        "<rules>" +
-        "  <rule>" +
-        "    <key>1</key>" +
-        "    <name>One</name>" +
-        "    <description>Desc</description>" +
-        "    <remediationFunction>UNKNOWN</remediationFunction>" +
-        "  </rule>" +
-        "</rules>");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
-      assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.debt.DebtRemediationFunction.Type.UNKNOWN");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to load the rule with key [squid:1]");
+    expectedException.expectCause(hasType(IllegalArgumentException.class)
+      .andMessage("No enum constant org.sonar.api.server.debt.DebtRemediationFunction.Type.UNKNOWN"));
+
+    load("" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+      "    <remediationFunction>UNKNOWN</remediationFunction>" +
+      "  </rule>" +
+      "</rules>");
   }
 
   @Test
@@ -266,7 +265,7 @@ public class RulesDefinitionXmlLoaderTest {
       RulesDefinition.Rule rule = load(xml).rule("1");
       assertThat(rule.markdownDescription()).isEqualTo("Desc");
       assertThat(rule.htmlDescription()).isNull();
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
       assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN");
     }
