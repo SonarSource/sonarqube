@@ -24,15 +24,20 @@ import { PermissionTemplateType } from '../propTypes';
 
 export default class NameCell extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired
   };
 
   render () {
-    const { permissionTemplate: t } = this.props;
+    const { permissionTemplate: t, organization } = this.props;
+
+    const pathname = organization ?
+        `/organizations/${organization.key}/permission_templates` :
+        '/permission_templates';
 
     return (
         <td>
-          <Link to={{ pathname: '/permission_templates', query: { id: t.id } }}>
+          <Link to={{ pathname, query: { id: t.id } }}>
             <strong className="js-name">{t.name}</strong>
           </Link>
 

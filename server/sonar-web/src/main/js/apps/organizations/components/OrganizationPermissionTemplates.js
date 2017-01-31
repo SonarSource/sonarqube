@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import FormView from './FormView';
-import { createPermissionTemplate } from '../../../api/permissions';
-import { parseError } from '../../code/utils';
+// @flow
+import React from 'react';
+import { connect } from 'react-redux';
+import AppContainer from '../../permission-templates/components/AppContainer';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
-export default FormView.extend({
-  sendRequest () {
-    this.disableForm();
-    const data = {
-      name: this.$('#permission-template-name').val(),
-      description: this.$('#permission-template-description').val(),
-      projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
-    };
-    if (this.options.organization) {
-      Object.assign(data, { organization: this.options.organization.key });
-    }
-    createPermissionTemplate(data).then(
-        r => {
-          this.trigger('done', r);
-          this.destroy();
-        },
-        e => {
-          this.enableForm();
-          parseError(e).then(message => this.showSingleError(message));
-        }
+class OrganizationPermissionTemplates extends React.Component {
+  props: {
+    location: {},
+    organization: Organization
+  };
+
+  render () {
+    return (
+        <AppContainer
+            location={this.props.location}
+            organization={this.props.organization}/>
     );
   }
+}
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
+
+export default connect(mapStateToProps)(OrganizationPermissionTemplates);

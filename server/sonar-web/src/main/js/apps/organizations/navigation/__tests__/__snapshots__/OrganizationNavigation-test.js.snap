@@ -54,6 +54,15 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
+                to="/organizations/foo/permission_templates">
+                permission_templates
+              </Link>
+            </li>
+            <li>
+              <Link
+                activeClassName="active"
+                onlyActiveOnIndex={false}
+                style={Object {}}
                 to="/organizations/foo/edit">
                 edit
               </Link>

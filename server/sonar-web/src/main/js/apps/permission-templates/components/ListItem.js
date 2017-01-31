@@ -27,6 +27,7 @@ import { PermissionTemplateType, CallbackType } from '../propTypes';
 
 export default class ListItem extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
     refresh: CallbackType
@@ -63,6 +64,7 @@ export default class ListItem extends React.Component {
             data-id={this.props.permissionTemplate.id}
             data-name={this.props.permissionTemplate.name}>
           <NameCell
+              organization={this.props.organization}
               permissionTemplate={this.props.permissionTemplate}
               topQualifiers={this.props.topQualifiers}/>
 
@@ -70,6 +72,7 @@ export default class ListItem extends React.Component {
 
           <td className="nowrap thin text-right">
             <ActionsCell
+                organization={this.props.organization}
                 permissionTemplate={this.props.permissionTemplate}
                 topQualifiers={this.props.topQualifiers}
                 refresh={this.props.refresh}/>

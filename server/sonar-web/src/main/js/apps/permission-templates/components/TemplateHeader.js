@@ -24,6 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class TemplateHeader extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired,
     loading: React.PropTypes.bool.isRequired,
     refresh: React.PropTypes.func.isRequired,
@@ -31,12 +32,16 @@ export default class TemplateHeader extends React.Component {
   };
 
   render () {
-    const { template } = this.props;
+    const { template, organization } = this.props;
+
+    const pathname = organization ?
+        `/organizations/${organization.key}/permission_templates` :
+        '/permission_templates';
 
     return (
         <header id="project-permissions-header" className="page-header">
           <div className="note spacer-bottom">
-            <Link to="/permission_templates" className="text-muted">
+            <Link to={pathname} className="text-muted">
               {translate('permission_templates.page')}
             </Link>
           </div>
@@ -51,6 +56,7 @@ export default class TemplateHeader extends React.Component {
 
           <div className="pull-right">
             <ActionsCell
+                organization={this.props.organization}
                 permissionTemplate={this.props.template}
                 topQualifiers={this.props.topQualifiers}
                 refresh={this.props.refresh}
