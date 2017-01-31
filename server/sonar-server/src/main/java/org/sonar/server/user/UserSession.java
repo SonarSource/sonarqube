@@ -123,14 +123,6 @@ public interface UserSession {
   UserSession checkComponentPermission(String projectPermission, ComponentDto component);
 
   /**
-   * Ensures that permission is granted to user on the specified component, otherwise throws
-   * a {@link org.sonar.server.exceptions.ForbiddenException}.
-   * If the component doesn't exist and the user doesn't have the global permission,
-   * throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkComponentPermission(String projectPermission, String componentKey);
-
-  /**
    * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    * If the component doesn't exist and the user doesn't have the permission, throws
    * a {@link org.sonar.server.exceptions.ForbiddenException}.

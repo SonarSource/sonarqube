@@ -86,14 +86,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    if (!hasComponentPermission(projectPermission, componentKey)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
-  }
-
-  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     if (!hasComponentUuidPermission(permission, componentUuid)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
