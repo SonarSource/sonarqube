@@ -401,8 +401,8 @@
     and p.copy_component_uuid is null
     <if test="query!=null">
       and (
-      UPPER(p.name) like #{query}
-      or UPPER(p.kee) like #{query}
+      UPPER(p.name) like #{query} ESCAPE '/'
+      or UPPER(p.kee) like #{query} ESCAPE '/'
       )
     </if>
   </sql>
@@ -433,7 +433,7 @@
         AND (p.qualifier = 'TRK' OR p.qualifier = 'BRC')
       </if>
       <if test="nameQuery != null">
-        AND UPPER(p.name) like #{nameQuery,jdbcType=VARCHAR}
+        AND UPPER(p.name) like #{nameQuery,jdbcType=VARCHAR} ESCAPE '/'
       </if>
     </where>
     ORDER BY p.name

@@ -35,7 +35,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -258,15 +257,15 @@ public class ComponentDao implements Dao {
     if (isBlank(textQuery)) {
       return null;
     }
-    return DatabaseUtils.buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
+    return buildLikeValue(textQuery.toUpperCase(Locale.ENGLISH), BEFORE_AND_AFTER);
   }
 
   public List<ComponentDto> selectGhostProjects(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectGhostProjects(organizationUuid, queryParameterFrom(query), new RowBounds(offset, limit));
+    return mapper(session).selectGhostProjects(organizationUuid, buildUpperLikeSql(query), new RowBounds(offset, limit));
   }
 
   public long countGhostProjects(DbSession session, String organizationUuid, @Nullable String query) {
-    return mapper(session).countGhostProjects(organizationUuid, queryParameterFrom(query));
+    return mapper(session).countGhostProjects(organizationUuid, buildUpperLikeSql(query));
   }
 
   /**
@@ -302,14 +301,6 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectProjectsByNameQuery(DbSession dbSession, @Nullable String nameQuery, boolean includeModules) {
     String nameQueryForSql = nameQuery == null ? null : buildLikeValue(nameQuery, BEFORE_AND_AFTER).toUpperCase(Locale.ENGLISH);
     return mapper(dbSession).selectProjectsByNameQuery(nameQueryForSql, includeModules);
-  }
-
-  @CheckForNull
-  private static String queryParameterFrom(@Nullable String keyOrNameFilter) {
-    if (keyOrNameFilter != null) {
-      return "%" + keyOrNameFilter.toUpperCase(Locale.ENGLISH) + "%";
-    }
-    return null;
   }
 
   public void insert(DbSession session, ComponentDto item) {
