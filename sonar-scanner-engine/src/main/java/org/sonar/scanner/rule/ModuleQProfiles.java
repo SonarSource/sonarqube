@@ -22,12 +22,13 @@ package org.sonar.scanner.rule;
 import org.sonar.api.utils.DateUtils;
 
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.batch.ScannerSide;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,17 +41,17 @@ public class ModuleQProfiles {
   private final Map<String, QProfile> byLanguage;
 
   public ModuleQProfiles(Collection<QualityProfile> profiles) {
-    ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
+    Map<String, QProfile> map = new HashMap<>(profiles.size());
 
     for (QualityProfile qProfile : profiles) {
-      builder.put(qProfile.getLanguage(),
+      map.put(qProfile.getLanguage(),
         new QProfile()
           .setKey(qProfile.getKey())
           .setName(qProfile.getName())
           .setLanguage(qProfile.getLanguage())
           .setRulesUpdatedAt(DateUtils.parseDateTime(qProfile.getRulesUpdatedAt())));
     }
-    byLanguage = builder.build();
+    byLanguage = Collections.unmodifiableMap(map);
   }
 
   public Collection<QProfile> findAll() {

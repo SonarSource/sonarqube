@@ -20,11 +20,11 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -62,7 +62,7 @@ public abstract class AbstractPatternInitializer {
   @VisibleForTesting
   protected final void initPatterns() {
     // Patterns Multicriteria
-    multicriteriaPatterns = Lists.newArrayList();
+    multicriteriaPatterns = new ArrayList<>();
     String patternConf = StringUtils.defaultIfBlank(settings.getString(getMulticriteriaConfigurationKey()), "");
     for (String id : StringUtils.split(patternConf, ',')) {
       String propPrefix = getMulticriteriaConfigurationKey() + "." + id + ".";

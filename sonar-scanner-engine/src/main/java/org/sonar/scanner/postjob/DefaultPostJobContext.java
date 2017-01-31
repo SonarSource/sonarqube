@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.postjob;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
@@ -63,7 +64,10 @@ public class DefaultPostJobContext implements PostJobContext {
     if (!analysisMode.isIssues()) {
       throw new UnsupportedOperationException("Issues are only available to PostJobs in 'issues' mode.");
     }
-    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(false)), new IssueTransformer());
+    return StreamSupport.stream(cache.all().spliterator(), false)
+      .filter(new ResolvedPredicate(false))
+      .map(DefaultIssueWrapper::new)
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -71,7 +75,10 @@ public class DefaultPostJobContext implements PostJobContext {
     if (!analysisMode.isIssues()) {
       throw new UnsupportedOperationException("Resolved issues are only available to PostJobs in 'issues' mode.");
     }
-    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(true)), new IssueTransformer());
+    return StreamSupport.stream(cache.all().spliterator(), false)
+      .filter(new ResolvedPredicate(true))
+      .map(DefaultIssueWrapper::new)
+      .collect(Collectors.toList());
   }
 
   private class DefaultIssueWrapper implements PostJobIssue {
@@ -123,13 +130,6 @@ public class DefaultPostJobContext implements PostJobContext {
     }
   }
 
-  private class IssueTransformer implements Function<TrackedIssue, PostJobIssue> {
-    @Override
-    public PostJobIssue apply(TrackedIssue input) {
-      return new DefaultIssueWrapper(input);
-    }
-  }
-
   private static class ResolvedPredicate implements Predicate<TrackedIssue> {
     private final boolean resolved;
 
@@ -138,7 +138,7 @@ public class DefaultPostJobContext implements PostJobContext {
     }
 
     @Override
-    public boolean apply(@Nullable TrackedIssue issue) {
+    public boolean test(@Nullable TrackedIssue issue) {
       if (issue != null) {
         return resolved ? issue.resolution() != null : issue.resolution() == null;
       }

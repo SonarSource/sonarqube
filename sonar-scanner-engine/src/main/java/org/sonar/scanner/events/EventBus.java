@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.events;
 
-import com.google.common.collect.Lists;
 import org.sonar.api.batch.events.EventHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +51,7 @@ public class EventBus {
   }
 
   private List<EventHandler> getDispatchList(Class<? extends EventHandler> handlerType) {
-    List<EventHandler> result = Lists.newArrayList();
+    List<EventHandler> result = new ArrayList<>(registeredHandlers.length);
     for (EventHandler handler : registeredHandlers) {
       if (handlerType.isAssignableFrom(handler.getClass())) {
         result.add(handler);

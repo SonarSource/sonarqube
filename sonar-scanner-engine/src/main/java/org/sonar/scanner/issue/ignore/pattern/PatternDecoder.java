@@ -20,10 +20,10 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class PatternDecoder {
@@ -33,7 +33,7 @@ public class PatternDecoder {
   private static final String CONFIG_FORMAT_ERROR_PREFIX = "Exclusions > Issues : Invalid format. ";
 
   public List<IssuePattern> decode(String patternsList) {
-    List<IssuePattern> patterns = Lists.newLinkedList();
+    List<IssuePattern> patterns = new LinkedList<>();
     String[] patternsLines = StringUtils.split(patternsList, "\n");
     for (String patternLine : patternsLines) {
       IssuePattern pattern = decodeLine(patternLine.trim());

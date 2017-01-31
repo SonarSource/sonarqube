@@ -19,13 +19,13 @@
  */
 package org.sonar.scanner.source;
 
-import com.google.common.collect.Lists;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class CodeColorizers {
    * Used when no plugin is defining some CodeColorizerFormat
    */
   public CodeColorizers() {
-    this(Lists.<CodeColorizerFormat>newArrayList());
+    this(new ArrayList<>());
   }
 
   @CheckForNull

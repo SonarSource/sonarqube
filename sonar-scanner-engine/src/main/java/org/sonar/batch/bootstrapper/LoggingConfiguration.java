@@ -20,7 +20,8 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
+
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -48,7 +49,7 @@ public final class LoggingConfiguration {
   @VisibleForTesting
   static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
-  private Map<String, String> substitutionVariables = Maps.newHashMap();
+  private Map<String, String> substitutionVariables = new HashMap<>();
   private LogOutput logOutput = null;
   private boolean verbose;
 

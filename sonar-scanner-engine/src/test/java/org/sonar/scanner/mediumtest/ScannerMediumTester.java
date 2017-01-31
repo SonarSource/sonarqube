@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import com.google.common.base.Function;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.io.File;
@@ -37,6 +36,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
+
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;

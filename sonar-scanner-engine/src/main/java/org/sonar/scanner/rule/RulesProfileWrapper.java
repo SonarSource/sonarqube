@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.RulesProfile;
@@ -29,6 +28,7 @@ import org.sonar.api.utils.SonarException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,7 +51,7 @@ public class RulesProfileWrapper extends RulesProfile {
   }
 
   public RulesProfileWrapper(RulesProfile profile) {
-    this.profiles = Lists.newArrayList(profile);
+    this.profiles = Collections.singletonList(profile);
     this.singleLanguageProfile = profile;
   }
 

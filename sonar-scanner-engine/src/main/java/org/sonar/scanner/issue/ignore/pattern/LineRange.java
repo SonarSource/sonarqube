@@ -20,8 +20,8 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class LineRange {
@@ -40,7 +40,7 @@ public class LineRange {
   }
 
   public Set<Integer> toLines() {
-    Set<Integer> lines = Sets.newLinkedHashSet();
+    Set<Integer> lines = new LinkedHashSet<>(to-from+1);
     for (int index = from; index <= to; index++) {
       lines.add(index);
     }

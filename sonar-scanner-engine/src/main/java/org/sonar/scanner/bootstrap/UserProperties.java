@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.config.Encryption;
 
 import javax.annotation.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +36,7 @@ public abstract class UserProperties {
 
   public UserProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
     encryption = new Encryption(pathToSecretKey);
-    Map<String, String> decryptedProps = Maps.newHashMap();
+    Map<String, String> decryptedProps = new HashMap<>(properties.size());
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       String value = entry.getValue();
       if (value != null && encryption.isEncrypted(value)) {
@@ -48,7 +48,7 @@ public abstract class UserProperties {
       }
       decryptedProps.put(entry.getKey(), value);
     }
-    this.properties = Maps.newHashMap(decryptedProps);
+    this.properties = decryptedProps;
   }
 
   public Map<String, String> properties() {

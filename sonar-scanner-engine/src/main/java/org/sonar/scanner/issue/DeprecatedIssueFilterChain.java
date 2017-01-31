@@ -19,11 +19,12 @@
  */
 package org.sonar.scanner.issue;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.batch.IssueFilterChain;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,11 +36,11 @@ public class DeprecatedIssueFilterChain implements IssueFilterChain {
   private final List<IssueFilter> filters;
 
   public DeprecatedIssueFilterChain(IssueFilter... filters) {
-    this.filters = ImmutableList.copyOf(filters);
+    this.filters = Arrays.asList(filters);
   }
 
   public DeprecatedIssueFilterChain() {
-    this.filters = ImmutableList.of();
+    this.filters = Collections.emptyList();
   }
 
   private DeprecatedIssueFilterChain(List<IssueFilter> filters) {

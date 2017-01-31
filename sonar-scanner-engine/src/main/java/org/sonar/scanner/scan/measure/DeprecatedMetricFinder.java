@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scan.measure;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.measures.Metric;
@@ -30,8 +30,8 @@ import org.sonar.scanner.repository.MetricsRepository;
 
 public final class DeprecatedMetricFinder implements MetricFinder {
 
-  private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
-  private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
+  private Map<String, Metric> metricsByKey = new LinkedHashMap<>();
+  private Map<Integer, Metric> metricsById = new LinkedHashMap<>();
 
   public DeprecatedMetricFinder(MetricsRepository metricsRepository) {
     for (Metric metric : metricsRepository.metrics()) {
@@ -52,7 +52,7 @@ public final class DeprecatedMetricFinder implements MetricFinder {
 
   @Override
   public Collection<Metric> findAll(List<String> metricKeys) {
-    List<Metric> result = Lists.newLinkedList();
+    List<Metric> result = new LinkedList<>();
     for (String metricKey : metricKeys) {
       Metric metric = findByKey(metricKey);
       if (metric != null) {

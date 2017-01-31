@@ -19,12 +19,14 @@
  */
 package org.sonar.scanner.issue;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.ProjectIssues;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import javax.annotation.Nullable;
 
 /**
@@ -32,7 +34,8 @@ import javax.annotation.Nullable;
  * @since 4.0
  */
 public class DefaultProjectIssues implements ProjectIssues {
-
+  private static final Predicate<TrackedIssue> RESOLVED = new ResolvedPredicate(true);
+  private static final Predicate<TrackedIssue> NOT_RESOLVED = new ResolvedPredicate(false);
   private final IssueCache cache;
 
   public DefaultProjectIssues(IssueCache cache) {
@@ -41,16 +44,18 @@ public class DefaultProjectIssues implements ProjectIssues {
 
   @Override
   public Iterable<Issue> issues() {
-    return Iterables.transform(
-      Iterables.filter(cache.all(), new ResolvedPredicate(false)),
-      new IssueTransformer());
+    return StreamSupport.stream(cache.all().spliterator(), false)
+      .filter(NOT_RESOLVED)
+      .map(TrackedIssueAdapter::new)
+      .collect(Collectors.toList());
   }
 
   @Override
   public Iterable<Issue> resolvedIssues() {
-    return Iterables.transform(
-      Iterables.filter(cache.all(), new ResolvedPredicate(true)),
-      new IssueTransformer());
+    return StreamSupport.stream(cache.all().spliterator(), false)
+      .filter(RESOLVED)
+      .map(TrackedIssueAdapter::new)
+      .collect(Collectors.toList());
   }
 
   private static class ResolvedPredicate implements Predicate<TrackedIssue> {
@@ -61,18 +66,11 @@ public class DefaultProjectIssues implements ProjectIssues {
     }
 
     @Override
-    public boolean apply(@Nullable TrackedIssue issue) {
+    public boolean test(@Nullable TrackedIssue issue) {
       if (issue != null) {
         return resolved ? (issue.resolution() != null) : (issue.resolution() == null);
       }
       return false;
-    }
-  }
-
-  private static class IssueTransformer implements Function<TrackedIssue, Issue> {
-    @Override
-    public Issue apply(TrackedIssue issue) {
-      return new TrackedIssueAdapter(issue);
     }
   }
 }

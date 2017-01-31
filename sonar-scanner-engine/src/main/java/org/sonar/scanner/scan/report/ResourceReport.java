@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.scan.report;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,13 +41,13 @@ import org.sonar.scanner.issue.tracking.TrackedIssue;
 public final class ResourceReport {
   private final InputComponent component;
   private final IssueVariation total = new IssueVariation();
-  private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
+  private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = new HashMap<>();
 
   private List<TrackedIssue> issues = new ArrayList<>();
-  private Map<Integer, List<TrackedIssue>> issuesPerLine = Maps.newHashMap();
-  private Map<Integer, List<TrackedIssue>> newIssuesPerLine = Maps.newHashMap();
-  private Map<Rule, AtomicInteger> issuesByRule = Maps.newHashMap();
-  private Map<RulePriority, AtomicInteger> issuesBySeverity = Maps.newHashMap();
+  private Map<Integer, List<TrackedIssue>> issuesPerLine = new HashMap<>();
+  private Map<Integer, List<TrackedIssue>> newIssuesPerLine = new HashMap<>();
+  private Map<Rule, AtomicInteger> issuesByRule = new HashMap<>();
+  private Map<RulePriority, AtomicInteger> issuesBySeverity = new EnumMap<>(RulePriority.class);
 
   public ResourceReport(InputComponent component) {
     this.component = component;

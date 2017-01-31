@@ -19,9 +19,10 @@
  */
 package org.sonar.scanner.issue;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.sonar.api.scan.issue.filter.FilterableIssue;
@@ -31,11 +32,11 @@ public class DefaultIssueFilterChain implements IssueFilterChain {
   private final List<IssueFilter> filters;
 
   public DefaultIssueFilterChain(IssueFilter... filters) {
-    this.filters = ImmutableList.copyOf(filters);
+    this.filters = Collections.unmodifiableList(Arrays.asList(filters));
   }
 
   public DefaultIssueFilterChain() {
-    this.filters = ImmutableList.of();
+    this.filters = Collections.emptyList();
   }
 
   private DefaultIssueFilterChain(List<IssueFilter> filters) {

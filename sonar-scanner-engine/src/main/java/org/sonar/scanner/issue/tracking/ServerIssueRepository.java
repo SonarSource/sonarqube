@@ -19,7 +19,8 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+
 import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;

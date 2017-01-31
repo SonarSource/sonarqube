@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class ModuleSettings extends Settings {
    * From root to given project
    */
   static List<ProjectDefinition> getTopDownParentProjects(ProjectDefinition project) {
-    List<ProjectDefinition> result = Lists.newArrayList();
+    List<ProjectDefinition> result = new ArrayList<>();
     ProjectDefinition p = project;
     while (p != null) {
       result.add(0, p);

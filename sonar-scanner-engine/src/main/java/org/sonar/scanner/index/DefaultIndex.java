@@ -21,6 +21,7 @@ package org.sonar.scanner.index;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
 
@@ -41,7 +42,6 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.core.util.stream.Collectors;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
