@@ -4,12 +4,6 @@
   height: 65px;
 }
 
-.navbar-context .navbar-nav > li > span {
-  display: inline-block;
-  padding: 3px 10px;
-  line-height: 20px;
-}
-
 .navbar-context-inner {
   position: fixed;
   z-index: 420;

@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/qualifier-icon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
+import OrganizationLink from '../../../../components/ui/OrganizationLink';
 
 class ComponentNavBreadcrumbs extends React.Component {
   static propTypes = {
@@ -41,7 +42,7 @@ class ComponentNavBreadcrumbs extends React.Component {
             <Link to={{ pathname: '/dashboard', query: { id: item.key } }}>
               <QualifierIcon qualifier={item.qualifier}/>
               {' '}
-              {item.name}
+              <strong>{item.name}</strong>
             </Link>
           </li>
       );
@@ -51,7 +52,7 @@ class ComponentNavBreadcrumbs extends React.Component {
         <ul className="nav navbar-nav nav-crumbs">
           {organization != null && shouldOrganizationBeDisplayed && (
               <li>
-                <span>{organization.name}</span>
+                <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
               </li>
           )}
           {items}
