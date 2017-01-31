@@ -26,6 +26,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
@@ -92,6 +93,8 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addCoreComponents() {
     add(
       module.definition(),
+      // still injected by some plugins
+      new Project(module.definition()),
       module,
       ModuleSettings.class);
 
