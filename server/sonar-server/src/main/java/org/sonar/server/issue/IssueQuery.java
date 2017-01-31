@@ -28,10 +28,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 /**
@@ -82,9 +80,6 @@ public class IssueQuery {
   private final String sort;
   private final Boolean asc;
   private final String facetMode;
-
-  private final Integer userId;
-  private final Set<String> userGroups;
   private final boolean checkAuthorization;
 
   private IssueQuery(Builder builder) {
@@ -115,8 +110,6 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
-    this.userId = builder.userId;
-    this.userGroups = builder.userGroups;
     this.checkAuthorization = builder.checkAuthorization;
     this.facetMode = builder.facetMode;
   }
@@ -245,15 +238,6 @@ public class IssueQuery {
     return asc;
   }
 
-  @CheckForNull
-  public Integer userId() {
-    return userId;
-  }
-
-  public Set<String> userGroups() {
-    return newHashSet(defaultCollection(userGroups));
-  }
-
   public boolean checkAuthorization() {
     return checkAuthorization;
   }
@@ -267,8 +251,8 @@ public class IssueQuery {
     return ReflectionToStringBuilder.toString(this);
   }
 
-  public static Builder builder(UserSession userSession) {
-    return new Builder(userSession);
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static class Builder {
@@ -299,14 +283,11 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
-    private Integer userId;
-    private Set<String> userGroups;
     private boolean checkAuthorization = true;
     private String facetMode;
 
-    private Builder(UserSession userSession) {
-      this.userId = userSession.getUserId();
-      this.userGroups = userSession.getUserGroups();
+    private Builder() {
+
     }
 
     public Builder issueKeys(@Nullable Collection<String> l) {

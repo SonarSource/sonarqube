@@ -21,20 +21,20 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.es.ProjectIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
 
-public class IndexComponentsStepTest extends BaseStepTest {
+public class IndexAnalysisStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String PROJECT_UUID = "PROJECT_UUID";
@@ -44,8 +44,8 @@ public class IndexComponentsStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  private ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
-  private IndexComponentsStep underTest = new IndexComponentsStep(componentIndexer, treeRootHolder);
+  private ProjectIndexer componentIndexer = mock(ProjectIndexer.class);
+  private IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, new ProjectIndexer[] {componentIndexer});
 
   @Test
   public void call_indexByProjectUuid_of_indexer_for_project() {
@@ -54,7 +54,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    verify(componentIndexer).indexByProjectUuid(PROJECT_UUID);
+    verify(componentIndexer).indexProject(PROJECT_UUID, ProjectIndexer.Cause.NEW_ANALYSIS);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    verify(componentIndexer).indexByProjectUuid(PROJECT_UUID);
+    verify(componentIndexer).indexProject(PROJECT_UUID, ProjectIndexer.Cause.NEW_ANALYSIS);
   }
 
   @Override

@@ -19,16 +19,18 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Collections;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
-import static java.util.Collections.emptyList;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class ComponentIndexLoginTest extends ComponentIndexTest {
 
   @Test
-  public void should_respect_confidentiallity() {
+  public void should_filter_unauthorized_results() {
     indexer.index(newProject("sonarqube", "Quality Product"));
 
     // do not give any permissions to that project
@@ -39,35 +41,31 @@ public class ComponentIndexLoginTest extends ComponentIndexTest {
 
   @Test
   public void should_find_project_for_which_the_user_has_direct_permission() {
-    login();
+    UserDto user = newUserDto();
+    userSession.login(user);
 
     ComponentDto project = newProject("sonarqube", "Quality Product");
     indexer.index(project);
 
-    // give the user explicit access
-    authorizationIndexerTester.indexProjectPermission(project.uuid(),
-      emptyList(),
-      Collections.singletonList((long) TEST_USER_ID));
+    assertNoSearchResults("sonarqube");
 
+    // give the user explicit access
+    authorizationIndexerTester.allowOnlyUser(project, user);
     assertSearchResults("sonarqube", project);
   }
 
   @Test
   public void should_find_project_for_which_the_user_has_indirect_permission_through_group() {
-    login();
+    GroupDto group = newGroupDto();
+    userSession.login().setGroups(group);
 
     ComponentDto project = newProject("sonarqube", "Quality Product");
     indexer.index(project);
 
+    assertNoSearchResults("sonarqube");
+
     // give the user implicit access (though group)
-    authorizationIndexerTester.indexProjectPermission(project.uuid(),
-      Collections.singletonList(TEST_USER_GROUP),
-      emptyList());
-
+    authorizationIndexerTester.allowOnlyGroup(project, group);
     assertSearchResults("sonarqube", project);
-  }
-
-  protected void login() {
-    userSession.login("john").setUserId(TEST_USER_ID).setUserGroups(TEST_USER_GROUP);
   }
 }

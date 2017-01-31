@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -31,13 +30,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   public static final String INDEX = "issues";
 
-  public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String TYPE_ISSUE = "issue";
-
-  public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
-  public static final String FIELD_AUTHORIZATION_GROUPS = "groupNames";
-  public static final String FIELD_AUTHORIZATION_USERS = "users";
-  public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
 
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
@@ -93,45 +86,34 @@ public class IssueIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings, 5);
 
-    // type "issue"
-    NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
-    issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
-    issueMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).disableNorms().disableSearch().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
-    issueMapping.createLongField(FIELD_ISSUE_EFFORT);
-    issueMapping.createDoubleField(FIELD_ISSUE_GAP);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().enableSorting().build();
-    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
-    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
-    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_KEY).disableNorms().enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
-    issueMapping.createIntegerField(FIELD_ISSUE_LINE);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_MESSAGE).disableNorms().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
-    issueMapping.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
-    issueMapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
-    issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
+    NewIndex.NewIndexType type = index.createType(TYPE_ISSUE);
+    type.requireProjectAuthorization();
 
-    // type "authorization"
-    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
-    authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
-    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
-    // do not store document but only indexation of information
-    authorizationMapping.setEnableSource(false);
+    type.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().enableSorting().build();
+    type.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).disableNorms().disableSearch().build();
+    type.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
+    type.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
+    type.createLongField(FIELD_ISSUE_EFFORT);
+    type.createDoubleField(FIELD_ISSUE_GAP);
+    type.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().enableSorting().build();
+    type.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
+    type.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
+    type.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
+    type.stringFieldBuilder(FIELD_ISSUE_KEY).disableNorms().enableSorting().build();
+    type.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
+    type.createIntegerField(FIELD_ISSUE_LINE);
+    type.stringFieldBuilder(FIELD_ISSUE_MESSAGE).disableNorms().build();
+    type.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
+    type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
+    type.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().enableSorting().build();
+    type.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
+    type.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
+    type.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
+    type.stringFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
+    type.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
+    type.stringFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().enableSorting().build();
+    type.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
+    type.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    type.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
   }
 }

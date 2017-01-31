@@ -19,11 +19,13 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.user.GroupDto;
 
 /**
  * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermissions#SYSTEM_ADMIN} account.
@@ -79,6 +81,11 @@ public final class DoPrivileged {
       @Override
       public Integer getUserId() {
         return null;
+      }
+
+      @Override
+      public Collection<GroupDto> getGroups() {
+        return Collections.emptyList();
       }
 
       @Override

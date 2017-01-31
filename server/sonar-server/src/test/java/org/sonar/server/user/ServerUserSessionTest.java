@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
@@ -76,6 +77,40 @@ public class ServerUserSessionTest {
     project = db.components().insertProject(organization, PROJECT_UUID);
     db.components().insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
     db.users().insertUser(userDto);
+  }
+
+  @Test
+  public void getGroups_is_empty_on_anonymous() {
+    assertThat(newAnonymousSession().getGroups()).isEmpty();
+  }
+
+  @Test
+  public void getGroups_is_empty_if_user_is_not_member_of_any_group() {
+    assertThat(newUserSession(userDto).getGroups()).isEmpty();
+  }
+
+  @Test
+  public void getGroups_returns_the_groups_of_logged_in_user() {
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    db.users().insertMember(group1, userDto);
+    db.users().insertMember(group2, userDto);
+
+    assertThat(newUserSession(userDto).getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId(), group2.getId());
+  }
+
+  @Test
+  public void getGroups_keeps_groups_in_cache() {
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    db.users().insertMember(group1, userDto);
+
+    ServerUserSession session = newUserSession(userDto);
+    assertThat(session.getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId());
+
+    // membership updated but not cache
+    db.users().insertMember(group2, userDto);
+    assertThat(session.getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId());
   }
 
   @Test

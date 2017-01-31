@@ -19,22 +19,17 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,19 +47,20 @@ public class IssueIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
+  private IssueIndexer underTest = new IssueIndexer(system2, dbTester.getDbClient(), esTester.client());
+
   @Test
   public void index_nothing() {
-    IssueIndexer indexer = createIndexer();
-    indexer.index(Iterators.emptyIterator());
+    underTest.index(Collections.emptyIterator());
+
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
   }
 
   @Test
-  public void index() {
+  public void index_all_issues() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    IssueIndexer indexer = createIndexer();
-    indexer.index();
+    underTest.index();
 
     List<IssueDoc> docs = esTester.getDocuments("issues", "issue", IssueDoc.class);
     assertThat(docs).hasSize(1);
@@ -86,47 +82,61 @@ public class IssueIndexerTest {
   }
 
   @Test
-  public void deleteProject_deletes_issues() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
-
-    IssueIndexer indexer = createIndexer();
-    indexer.index();
-
-    List<SearchHit> docs = esTester.getDocuments("issues", "issue");
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
-
-    indexer.deleteProject("THE_PROJECT");
-
-    assertThat(esTester.countDocuments("issues", "issue")).isZero();
-  }
-
-  @Test
-  public void index_issues_from_project() {
+  public void indexProject_creates_docs_of_specific_project() {
     dbTester.prepareDbUnit(getClass(), "index_project.xml");
 
-    IssueIndexer indexer = createIndexer();
-    indexer.index("THE_PROJECT_1");
+    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.NEW_ANALYSIS);
 
     verifyIssueKeys("ABCDE");
   }
 
   @Test
-  public void delete_issues_by_keys() throws Exception {
+  public void indexProject_does_nothing_when_project_is_being_created() {
+    dbTester.prepareDbUnit(getClass(), "index_project.xml");
+
+    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.PROJECT_CREATION);
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
+  }
+
+  @Test
+  public void indexProject_does_nothing_when_project_key_is_being_renamed() {
+    dbTester.prepareDbUnit(getClass(), "index_project.xml");
+
+    underTest.indexProject("THE_PROJECT_1", ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteProject_deletes_issues_of_a_specific_project() {
+    dbTester.prepareDbUnit(getClass(), "index.xml");
+
+    underTest.index();
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
+
+    underTest.deleteProject("THE_PROJECT");
+
+    assertThat(esTester.countDocuments("issues", "issue")).isZero();
+  }
+
+  @Test
+  public void deleteByKeys_deletes_docs_by_keys() throws Exception {
     addIssue("P1", "Issue1");
     addIssue("P1", "Issue2");
     addIssue("P1", "Issue3");
     addIssue("P2", "Issue4");
 
-    IssueIndexer indexer = createIndexer();
     verifyIssueKeys("Issue1", "Issue2", "Issue3", "Issue4");
 
-    indexer.deleteByKeys("P1", asList("Issue1", "Issue2"));
+    underTest.deleteByKeys("P1", asList("Issue1", "Issue2"));
 
     verifyIssueKeys("Issue3", "Issue4");
   }
 
   @Test
-  public void delete_more_than_one_thousand_issues_by_keys() throws Exception {
+  public void deleteByKeys_deletes_more_than_one_thousand_issues_by_keys() throws Exception {
     int numberOfIssues = 1010;
     List<String> keys = new ArrayList<>(numberOfIssues);
     IssueDoc[] issueDocs = new IssueDoc[numberOfIssues];
@@ -136,10 +146,9 @@ public class IssueIndexerTest {
       keys.add(key);
     }
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issueDocs);
-    IssueIndexer indexer = createIndexer();
 
     assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(numberOfIssues);
-    indexer.deleteByKeys(A_PROJECT_UUID, keys);
+    underTest.deleteByKeys(A_PROJECT_UUID, keys);
     assertThat(esTester.countDocuments("issues", "issue")).isZero();
   }
 
@@ -149,16 +158,11 @@ public class IssueIndexerTest {
     addIssue("P1", "Issue2");
     addIssue("P1", "Issue3");
 
-    IssueIndexer indexer = createIndexer();
     verifyIssueKeys("Issue1", "Issue2", "Issue3");
 
-    indexer.deleteByKeys("P1", Collections.<String>emptyList());
+    underTest.deleteByKeys("P1", Collections.emptyList());
 
     verifyIssueKeys("Issue1", "Issue2", "Issue3");
-  }
-
-  private IssueIndexer createIndexer() {
-    return new IssueIndexer(system2, new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
   }
 
   private void addIssue(String projectUuid, String issueKey) throws Exception {
@@ -167,18 +171,7 @@ public class IssueIndexerTest {
   }
 
   private void verifyIssueKeys(String... expectedKeys) {
-    List<String> keys = FluentIterable.from(esTester.getDocuments("issues", "issue", IssueDoc.class))
-      .transform(DocToKey.INSTANCE)
-      .toList();
-    assertThat(keys).containsOnly(expectedKeys);
-  }
-
-  private enum DocToKey implements Function<IssueDoc, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull IssueDoc input) {
-      return input.key();
-    }
+    List<IssueDoc> issues = esTester.getDocuments("issues", "issue", IssueDoc.class);
+    assertThat(issues).extracting(IssueDoc::key).containsOnly(expectedKeys);
   }
 }

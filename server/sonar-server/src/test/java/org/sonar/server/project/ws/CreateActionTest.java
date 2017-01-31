@@ -23,33 +23,22 @@ package org.sonar.server.project.ws;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.es.EsTester;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.index.PermissionIndexer;
-import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -58,14 +47,14 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.sonar.api.web.UserRole.USER;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_COMPONENTS;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
@@ -82,36 +71,20 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()), new ProjectMeasuresIndexDefinition(new MapSettings()));
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
-  @Rule
-  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
-
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private PermissionTemplateDto permissionTemplateDto;
+  private ComponentUpdater componentUpdater = mock(ComponentUpdater.class, Mockito.RETURNS_MOCKS);
 
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
-      new ComponentUpdater(db.getDbClient(), i18n, system2,
-        new PermissionTemplateService(db.getDbClient(), new PermissionIndexer(db.getDbClient(), es.client()), userSession, defaultTemplatesResolver),
-        new FavoriteUpdater(db.getDbClient()),
-        new ProjectMeasuresIndexer(system2, db.getDbClient(), es.client()),
-        new ComponentIndexer(db.getDbClient(), es.client())),
+      componentUpdater,
       defaultOrganizationProvider));
-
-  @Before
-  public void setUp() throws Exception {
-    permissionTemplateDto = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), permissionTemplateDto.getUuid(), null);
-  }
 
   @Test
   public void create_project() throws Exception {
     userSession.setGlobalPermissions(PROVISIONING);
+    expectSuccessfulCallToComponentUpdater();
 
     CreateWsResponse response = call(CreateRequest.builder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -121,95 +94,21 @@ public class CreateActionTest {
     assertThat(response.getProject().getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(response.getProject().getName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(response.getProject().getQualifier()).isEqualTo("TRK");
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(project.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(project.name()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(project.qualifier()).isEqualTo("TRK");
   }
 
   @Test
   public void create_project_with_branch() throws Exception {
     userSession.setGlobalPermissions(PROVISIONING);
 
-    CreateWsResponse response = call(CreateRequest.builder()
+    call(CreateRequest.builder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .setBranch("origin/master")
       .build());
 
-    assertThat(response.getProject().getKey()).isEqualTo("project-key:origin/master");
-  }
-
-  @Test
-  public void verify_permission_template_is_applied() throws Exception {
-    UserDto userDto = db.users().insertUser();
-    userSession.login(userDto).setGlobalPermissions(PROVISIONING);
-    db.permissionTemplates().addUserToTemplate(permissionTemplateDto.getId(), userDto.getId(), USER);
-
-    call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(db.users().selectProjectPermissionsOfUser(userDto, project)).containsOnly(USER);
-  }
-
-  @Test
-  public void add_project_to_favorite_when_logged() throws Exception {
-    UserDto userDto = db.users().insertUser();
-    userSession.login(userDto).setGlobalPermissions(PROVISIONING);
-    db.permissionTemplates().addProjectCreatorToTemplate(permissionTemplateDto.getId(), USER);
-
-    call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(db.favorites().hasFavorite(project, userDto.getId())).isTrue();
-  }
-
-  @Test
-  public void does_not_add_project_to_favorite_when_not_logged() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
-    db.permissionTemplates().addProjectCreatorToTemplate(permissionTemplateDto.getId(), USER);
-
-    call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(db.favorites().hasNoFavorite(project)).isTrue();
-  }
-
-  @Test
-  public void does_not_add_project_to_favorite_when_project_create_has_no_permission_on_template() throws Exception {
-    UserDto userDto = db.users().insertUser();
-    userSession.login(userDto).setGlobalPermissions(PROVISIONING);
-
-    call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(db.favorites().hasNoFavorite(project)).isTrue();
-  }
-
-  @Test
-  public void verify_project_exists_in_es_indexes() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
-
-    call(CreateRequest.builder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-
-    ComponentDto project = db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY);
-    assertThat(es.getIds(INDEX_COMPONENTS, TYPE_COMPONENT)).containsOnly(project.uuid());
-    assertThat(es.getIds(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE)).containsOnly(project.uuid());
+    NewComponent called = verifyCallToComponentUpdater();
+    assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(called.branch()).isEqualTo("origin/master");
   }
 
   @Test
@@ -222,15 +121,17 @@ public class CreateActionTest {
       .setParam(PARAM_NAME, DEFAULT_PROJECT_NAME)
       .execute();
 
-    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).isPresent()).isTrue();
+    NewComponent called = verifyCallToComponentUpdater();
+    assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(called.branch()).isNull();
   }
 
   @Test
   public void fail_when_project_already_exists() throws Exception {
     userSession.setGlobalPermissions(PROVISIONING);
-    db.components().insertComponent(ComponentTesting.newProjectDto(db.getDefaultOrganization()).setKey(DEFAULT_PROJECT_KEY));
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyLong())).thenThrow(new BadRequestException("already exists"));
+
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Could not create Project, key already exists: project-key");
 
     call(CreateRequest.builder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -257,15 +158,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_key_has_bad_format() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: 1234");
-
-    call(CreateRequest.builder().setKey("1234").setName(DEFAULT_PROJECT_NAME).build());
-  }
-
-  @Test
   public void fail_when_missing_create_project_permission() throws Exception {
     userSession.setGlobalPermissions(QUALITY_GATE_ADMIN);
     expectedException.expect(ForbiddenException.class);
@@ -276,6 +168,7 @@ public class CreateActionTest {
   @Test
   public void test_example() {
     userSession.setGlobalPermissions(PROVISIONING);
+    expectSuccessfulCallToComponentUpdater();
 
     String result = ws.newRequest()
       .setParam("key", DEFAULT_PROJECT_KEY)
@@ -310,4 +203,16 @@ public class CreateActionTest {
     }
   }
 
+  private NewComponent verifyCallToComponentUpdater() {
+    ArgumentCaptor<NewComponent> argument = ArgumentCaptor.forClass(NewComponent.class);
+    verify(componentUpdater).create(any(DbSession.class), argument.capture(), anyLong());
+    return argument.getValue();
+  }
+
+  private void expectSuccessfulCallToComponentUpdater() {
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyLong())).thenAnswer(invocation -> {
+      NewComponent newC = invocation.getArgumentAt(1, NewComponent.class);
+      return new ComponentDto().setKey(newC.key()).setQualifier(newC.qualifier()).setName(newC.name());
+    });
+  }
 }

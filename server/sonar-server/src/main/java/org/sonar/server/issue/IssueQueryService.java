@@ -106,7 +106,7 @@ public class IssueQueryService {
     DbSession session = dbClient.openSession(false);
     try {
 
-      IssueQuery.Builder builder = IssueQuery.builder(userSession)
+      IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_ISSUES)))
         .severities(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_SEVERITIES)))
         .statuses(RubyUtils.toStrings(params.get(IssuesWsParameters.PARAM_STATUSES)))
@@ -179,7 +179,7 @@ public class IssueQueryService {
   public IssueQuery createFromRequest(SearchWsRequest request) {
     DbSession session = dbClient.openSession(false);
     try {
-      IssueQuery.Builder builder = IssueQuery.builder(userSession)
+      IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(request.getIssues())
         .severities(request.getSeverities())
         .statuses(request.getStatuses())

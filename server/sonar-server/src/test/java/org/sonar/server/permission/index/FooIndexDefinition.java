@@ -17,30 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.server.permission.index;
 
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.NewIndex;
 
-public class IndexComponentsStep implements ComputationStep {
+public class FooIndexDefinition implements IndexDefinition {
 
-  private final ComponentIndexer elasticSearchIndexer;
-  private final TreeRootHolder treeRootHolder;
-
-  public IndexComponentsStep(ComponentIndexer elasticSearchIndexer, TreeRootHolder treeRootHolder) {
-    this.elasticSearchIndexer = elasticSearchIndexer;
-    this.treeRootHolder = treeRootHolder;
-  }
+  public static final String FOO_INDEX = "foos";
+  public static final String FOO_TYPE = "foo";
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_PROJECT_UUID = "projectUuid";
 
   @Override
-  public void execute() {
-    String projectUuid = treeRootHolder.getRoot().getUuid();
-    elasticSearchIndexer.indexByProjectUuid(projectUuid);
-  }
+  public void define(IndexDefinitionContext context) {
+    NewIndex index = context.create(FOO_INDEX);
+    index.refreshHandledByIndexer();
 
-  @Override
-  public String getDescription() {
-    return "Index components";
+    NewIndex.NewIndexType type = index.createType(FOO_TYPE)
+      .requireProjectAuthorization();
+
+    type.stringFieldBuilder(FIELD_NAME).build();
+    type.stringFieldBuilder(FIELD_PROJECT_UUID).build();
   }
 }

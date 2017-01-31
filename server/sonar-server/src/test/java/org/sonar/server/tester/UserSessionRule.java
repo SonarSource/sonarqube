@@ -29,6 +29,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -213,8 +214,12 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule setUserGroups(@Nullable String... userGroups) {
-    ensureAbstractMockUserSession().setUserGroups(userGroups);
+  /**
+   * Groups that user is member of. User must be logged in. An exception
+   * is thrown if session is anonymous.
+   */
+  public UserSessionRule setGroups(GroupDto... groups) {
+    ensureMockUserSession().setGroups(groups);
     return this;
   }
 
@@ -276,6 +281,11 @@ public class UserSessionRule implements TestRule, UserSession {
   @CheckForNull
   public Integer getUserId() {
     return currentUserSession.getUserId();
+  }
+
+  @Override
+  public Collection<GroupDto> getGroups() {
+    return currentUserSession.getGroups();
   }
 
   @Override

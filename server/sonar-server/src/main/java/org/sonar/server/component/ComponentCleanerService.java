@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.ResourceType;
@@ -27,34 +28,23 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.index.ComponentIndexer;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
-import org.sonar.server.test.index.TestIndexer;
+import org.sonar.server.es.ProjectIndexer;
+
+import static java.util.Arrays.asList;
 
 @ServerSide
 @ComputeEngineSide
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
-  private final IssueIndexer issueIndexer;
-  private final TestIndexer testIndexer;
-  private final ProjectMeasuresIndexer projectMeasuresIndexer;
-  private final ComponentIndexer componentIndexer;
   private final ResourceTypes resourceTypes;
-  private final ComponentFinder componentFinder;
+  private final Collection<ProjectIndexer> projectIndexers;
 
-  public ComponentCleanerService(DbClient dbClient, IssueIndexer issueIndexer, TestIndexer testIndexer, ProjectMeasuresIndexer projectMeasuresIndexer,
-    ComponentIndexer componentIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexer... projectIndexers) {
     this.dbClient = dbClient;
-    this.issueIndexer = issueIndexer;
-    this.testIndexer = testIndexer;
-    this.projectMeasuresIndexer = projectMeasuresIndexer;
-    this.componentIndexer = componentIndexer;
     this.resourceTypes = resourceTypes;
-    this.componentFinder = componentFinder;
+    this.projectIndexers = asList(projectIndexers);
   }
 
   public void delete(DbSession dbSession, List<ComponentDto> projects) {
@@ -63,17 +53,7 @@ public class ComponentCleanerService {
     }
   }
 
-  public void delete(String projectKey) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
-      delete(dbSession, project);
-    } finally {
-      MyBatis.closeQuietly(dbSession);
-    }
-  }
-
-  private void delete(DbSession dbSession, ComponentDto project) {
+  public void delete(DbSession dbSession, ComponentDto project) {
     if (hasNotProjectScope(project) || isNotDeletable(project)) {
       throw new IllegalArgumentException("Only projects can be deleted");
     }
@@ -84,10 +64,7 @@ public class ComponentCleanerService {
   }
 
   private void deleteFromIndices(String projectUuid) {
-    issueIndexer.deleteProject(projectUuid);
-    testIndexer.deleteByProject(projectUuid);
-    projectMeasuresIndexer.deleteProject(projectUuid);
-    componentIndexer.deleteByProjectUuid(projectUuid);
+    projectIndexers.forEach(i -> i.deleteProject(projectUuid));
   }
 
   private static boolean hasNotProjectScope(ComponentDto project) {

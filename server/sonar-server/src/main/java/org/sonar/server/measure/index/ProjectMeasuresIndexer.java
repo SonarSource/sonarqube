@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,13 +33,17 @@ import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationScope;
+import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURE;
 
-public class ProjectMeasuresIndexer extends BaseIndexer {
+public class ProjectMeasuresIndexer extends BaseIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
+
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
 
   private final DbClient dbClient;
 
@@ -48,22 +53,35 @@ public class ProjectMeasuresIndexer extends BaseIndexer {
   }
 
   @Override
+  public AuthorizationScope getAuthorizationScope() {
+    return AUTHORIZATION_SCOPE;
+  }
+
+  @Override
   protected long doIndex(long lastUpdatedAt) {
     return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
   }
 
-  public void index(String projectUuid) {
-    doIndex(createBulkIndexer(false), 0L, projectUuid);
+  @Override
+  public void indexProject(String projectUuid, Cause cause) {
+    switch (cause) {
+      case PROJECT_KEY_UPDATE:
+        // project must be re-indexed because key is used in this index
+      case PROJECT_CREATION:
+        // provisioned projects are supported by WS api/components/search_projects
+      case NEW_ANALYSIS:
+        doIndex(createBulkIndexer(false), 0L, projectUuid);
+        break;
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
   }
 
+  @Override
   public void deleteProject(String uuid) {
     esClient
       .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_PROJECT_MEASURE, uuid)
-      .setRouting(uuid)
-      .setRefresh(true)
-      .get();
-    esClient
-      .prepareDelete(INDEX_PROJECT_MEASURES, TYPE_AUTHORIZATION, uuid)
       .setRouting(uuid)
       .setRefresh(true)
       .get();

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,7 +27,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -81,12 +79,9 @@ public class DeleteAction implements ProjectsWsAction {
     String key = request.param(PARAM_KEY);
     checkPermissions(uuid, key);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, ID_AND_KEY);
-      componentCleanerService.delete(dbSession, Arrays.asList(project));
-    } finally {
-      MyBatis.closeQuietly(dbSession);
+      componentCleanerService.delete(dbSession, project);
     }
 
     response.noContent();

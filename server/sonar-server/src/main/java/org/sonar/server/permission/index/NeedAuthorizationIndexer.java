@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.step;
+package org.sonar.server.permission.index;
 
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.server.computation.task.step.ComputationStep;
-import org.sonar.server.test.index.TestIndexer;
+/**
+ * An {@link NeedAuthorizationIndexer} defines how
+ * a {@link org.sonar.server.es.ProjectIndexer} populates
+ * the type named {@link AuthorizationTypeSupport#TYPE_AUTHORIZATION}, which
+ * is used to verify that a user can access to projects.
+ */
+public interface NeedAuthorizationIndexer {
 
-public class IndexTestsStep implements ComputationStep {
-
-  private final TestIndexer indexer;
-  private final TreeRootHolder treeRootHolder;
-
-  public IndexTestsStep(TestIndexer indexer, TreeRootHolder treeRootHolder) {
-    this.indexer = indexer;
-    this.treeRootHolder = treeRootHolder;
-  }
-
-  @Override
-  public void execute() {
-    indexer.index(treeRootHolder.getRoot().getUuid());
-  }
-
-  @Override
-  public String getDescription() {
-    return "Index tests";
-  }
+  /**
+   * Returns the metadata required by {@link PermissionIndexer} to
+   * populate "authorization" types.
+   */
+  AuthorizationScope getAuthorizationScope();
 
 }

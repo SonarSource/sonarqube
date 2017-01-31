@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
@@ -75,13 +74,12 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.StickyFacetBuilder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
@@ -164,12 +162,14 @@ public class IssueIndex extends BaseIndex {
   private final Sorting sorting;
   private final System2 system;
   private final UserSession userSession;
+  private final AuthorizationTypeSupport authorizationTypeSupport;
 
-  public IssueIndex(EsClient client, System2 system, UserSession userSession) {
+  public IssueIndex(EsClient client, System2 system, UserSession userSession, AuthorizationTypeSupport authorizationTypeSupport) {
     super(client);
 
     this.system = system;
     this.userSession = userSession;
+    this.authorizationTypeSupport = authorizationTypeSupport;
     this.sorting = new Sorting();
     this.sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
     this.sorting.add(IssueQuery.SORT_BY_STATUS, IssueIndexDefinition.FIELD_ISSUE_STATUS);
@@ -189,31 +189,6 @@ public class IssueIndex extends BaseIndex {
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH);
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_LINE);
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
-  }
-
-  /**
-   * Warning, this method is not efficient as routing (the project uuid) is not known.
-   * All the ES cluster nodes are involved.
-   */
-  @CheckForNull
-  public IssueDoc getNullableByKey(String key) {
-    SearchResult<IssueDoc> result = search(IssueQuery.builder(userSession).issueKeys(newArrayList(key)).build(), new SearchOptions());
-    if (result.getTotal() == 1) {
-      return result.getDocs().get(0);
-    }
-    return null;
-  }
-
-  /**
-   * Warning, see {@link #getNullableByKey(String)}.
-   * A {@link org.sonar.server.exceptions.NotFoundException} is thrown if key does not exist.
-   */
-  public IssueDoc getByKey(String key) {
-    IssueDoc value = getNullableByKey(key);
-    if (value == null) {
-      throw new NotFoundException(format("Issue with key '%s' does not exist", key));
-    }
-    return value;
   }
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
@@ -258,7 +233,7 @@ public class IssueIndex extends BaseIndex {
 
   private Map<String, QueryBuilder> createFilters(IssueQuery query) {
     Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userId(), query.userGroups()));
+    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -337,17 +312,9 @@ public class IssueIndex extends BaseIndex {
     return viewsFilter;
   }
 
-  private static QueryBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable Integer userId, Set<String> userGroups) {
+  private QueryBuilder createAuthorizationFilter(boolean checkAuthorization) {
     if (checkAuthorization) {
-      BoolQueryBuilder groupsAndUser = boolQuery();
-      if (userId != null) {
-        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userId.longValue()));
-      }
-      for (String group : userGroups) {
-        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
-      }
-      return QueryBuilders.hasParentQuery(IssueIndexDefinition.TYPE_AUTHORIZATION,
-        QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
+      return authorizationTypeSupport.createQueryFilter();
     }
     return matchAllQuery();
   }
@@ -693,7 +660,7 @@ public class IssueIndex extends BaseIndex {
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
     BoolQueryBuilder filter = boolQuery()
-      .must(createAuthorizationFilter(true, userSession.getUserId(), userSession.getUserGroups()))
+      .must(createAuthorizationFilter(true))
       .mustNot(termsQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
 
     switch (component.scope()) {

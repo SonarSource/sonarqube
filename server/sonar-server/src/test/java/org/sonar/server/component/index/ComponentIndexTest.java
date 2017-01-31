@@ -20,7 +20,6 @@
 package org.sonar.server.component.index;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +27,6 @@ import org.assertj.core.api.AbstractListAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -36,20 +34,17 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
-
-  protected static final Integer TEST_USER_ID = 42;
-  protected static final String TEST_USER_GROUP = "TestUsers";
 
   @Rule
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
@@ -63,16 +58,14 @@ public abstract class ComponentIndexTest {
   @Rule
   public ComponentIndexSearchFeatureRule features = new ComponentIndexSearchFeatureRule();
 
-  protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+  protected ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
 
-  protected ComponentIndex index;
-  protected ComponentIndexer indexer;
+  protected ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private OrganizationDto organization;
 
   @Before
   public void setUp() {
-    index = new ComponentIndex(es.client(), userSession);
-    indexer = new ComponentIndexer(db.getDbClient(), es.client());
     organization = OrganizationTesting.newOrganizationDto();
   }
 
@@ -156,9 +149,7 @@ public abstract class ComponentIndexTest {
 
   protected ComponentDto index(ComponentDto dto) {
     indexer.index(dto);
-    authorizationIndexerTester.indexProjectPermission(dto.uuid(),
-      Collections.singletonList(DefaultGroups.ANYONE),
-      emptyList());
+    authorizationIndexerTester.allowOnlyAnyone(dto);
     return dto;
   }
 

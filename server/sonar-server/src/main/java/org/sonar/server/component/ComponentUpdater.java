@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -32,12 +33,13 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.PermissionTemplateService;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -49,19 +51,17 @@ public class ComponentUpdater {
   private final System2 system2;
   private final PermissionTemplateService permissionTemplateService;
   private final FavoriteUpdater favoriteUpdater;
-  private final ProjectMeasuresIndexer projectMeasuresIndexer;
-  private final ComponentIndexer componentIndexer;
+  private final Collection<ProjectIndexer> projectIndexers;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectMeasuresIndexer projectMeasuresIndexer, ComponentIndexer componentIndexer) {
+    ProjectIndexer... projectIndexers) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
-    this.projectMeasuresIndexer = projectMeasuresIndexer;
-    this.componentIndexer = componentIndexer;
     this.permissionTemplateService = permissionTemplateService;
     this.favoriteUpdater = favoriteUpdater;
+    this.projectIndexers = asList(projectIndexers);
   }
 
   /**
@@ -76,7 +76,7 @@ public class ComponentUpdater {
     removeDuplicatedProjects(dbSession, componentDto.getKey());
     handlePermissionTemplate(dbSession, componentDto, newComponent.getOrganizationUuid(), userId);
     dbSession.commit();
-    index(componentDto.uuid());
+    index(componentDto);
     return componentDto;
   }
 
@@ -144,8 +144,7 @@ public class ComponentUpdater {
     return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
   }
 
-  private void index(String projectUuid) {
-    projectMeasuresIndexer.index(projectUuid);
-    componentIndexer.indexByProjectUuid(projectUuid);
+  private void index(ComponentDto project) {
+    projectIndexers.forEach(i -> i.indexProject(project.uuid(), Cause.PROJECT_CREATION));
   }
 }

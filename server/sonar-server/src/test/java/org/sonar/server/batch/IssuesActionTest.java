@@ -21,13 +21,12 @@ package org.sonar.server.batch;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -44,12 +43,13 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -76,19 +76,15 @@ public class IssuesActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private IssueIndex issueIndex;
-  private IssueIndexer issueIndexer;
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es);
+  private IssueIndexer issueIndexer = new IssueIndexer(system2, db.getDbClient(), es.client());
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
   private WsTester tester;
-  private IssuesAction issuesAction;
 
   @Before
   public void before() {
-    issueIndex = new IssueIndex(es.client(), system2, userSessionRule);
-    issueIndexer = new IssueIndexer(system2, null, es.client());
-    issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
-
+    IssueIndex issueIndex = new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+    IssuesAction issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
     tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));
   }
 
@@ -323,12 +319,14 @@ public class IssuesActionTest {
   private void indexIssues(IssueDoc... issues) {
     issueIndexer.index(Arrays.asList(issues).iterator());
     for (IssueDoc issue : issues) {
-      addIssueAuthorization(issue.projectUuid(), DefaultGroups.ANYONE, null);
+      addIssueAuthorization(issue.projectUuid());
     }
   }
 
-  private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable Long user) {
-    authorizationIndexerTester.indexProjectPermission(projectUuid, singletonList(group), singletonList(user));
+  private void addIssueAuthorization(String projectUuid) {
+    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
+    access.allowAnyone();
+    authorizationIndexerTester.allow(access);
   }
 
   private void addBrowsePermissionOnComponent(String componentKey) {

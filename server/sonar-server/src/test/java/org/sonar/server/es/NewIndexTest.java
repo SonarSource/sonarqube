@@ -21,7 +21,6 @@ package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import org.assertj.core.data.MapEntry;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
@@ -31,6 +30,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
 
 public class NewIndexTest {
@@ -203,7 +203,7 @@ public class NewIndexTest {
 
     mapping = index.getTypes().get("issue");
     assertThat(mapping).isNotNull();
-    assertThat((Map<String, Object>) mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", true));
+    assertThat(getAttributeAsMap(mapping, "_source")).containsExactly(entry("enabled", true));
   }
 
   @Test
@@ -214,6 +214,28 @@ public class NewIndexTest {
 
     mapping = index.getTypes().get("issue");
     assertThat(mapping).isNotNull();
-    assertThat((Map<String, Object>) mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", false));
+    assertThat(getAttributeAsMap(mapping, "_source")).containsExactly(entry("enabled", false));
+  }
+
+  @Test
+  public void index_requires_project_authorization() {
+    NewIndex index = new NewIndex("issues");
+    index.createType("issue")
+      // creates a second type "authorization" and configures _parent and _routing fields
+      .requireProjectAuthorization();
+
+    // issue type
+    NewIndex.NewIndexType issueType = index.getTypes().get("issue");
+    assertThat(getAttributeAsMap(issueType, "_parent")).containsExactly(entry("type", "authorization"));
+    assertThat(getAttributeAsMap(issueType, "_routing")).containsExactly(entry("required", true));
+
+    // authorization type
+    NewIndex.NewIndexType authorizationType = index.getTypes().get("authorization");
+    assertThat(getAttributeAsMap(authorizationType,"_parent")).isNull();
+    assertThat(getAttributeAsMap(authorizationType,"_routing")).containsExactly(entry("required", true));
+  }
+
+  private static Map<String, Object> getAttributeAsMap(NewIndex.NewIndexType type, String attributeKey) {
+    return (Map<String, Object>) type.getAttributes().get(attributeKey);
   }
 }

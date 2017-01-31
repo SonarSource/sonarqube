@@ -40,13 +40,11 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.index.ComponentIndexDefinition;
-import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -57,7 +55,10 @@ import org.sonarqube.ws.WsComponents.BulkUpdateKeyWsResponse.Key;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -87,14 +88,10 @@ public class BulkUpdateKeyActionTest {
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
   private ComponentFinder componentFinder = new ComponentFinder(dbClient);
-
+  private ComponentService componentService = mock(ComponentService.class);
   private WsActionTester ws = new WsActionTester(
-    new BulkUpdateKeyAction(dbClient, componentFinder,
-      new ComponentService(dbClient, null, new ProjectMeasuresIndexer(system2, dbClient, es.client()), new ComponentIndexer(dbClient, es.client())),
-      userSession));
+    new BulkUpdateKeyAction(dbClient, componentFinder, componentService, userSession));
 
   @Before
   public void setUp() {
@@ -147,22 +144,17 @@ public class BulkUpdateKeyActionTest {
         tuple(project.key(), "your_project", false),
         tuple(module.key(), "your_project:root:module", false));
 
-    assertComponentKeyUpdated(project.key(), "your_project");
-    assertComponentKeyUpdated(module.key(), "your_project:root:module");
-    assertComponentKeyUpdated(file.key(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyNotUpdated(inactiveModule.key());
-    assertComponentKeyNotUpdated(inactiveFile.key());
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(project.uuid()), eq(FROM), eq(TO));
   }
 
   @Test
   public void bulk_update_provisioned_project_key() {
-    String oldKey = "provisionedProject";
     String newKey = "provisionedProject2";
-    ComponentDto provisionedProject = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey(oldKey));
+    ComponentDto provisionedProject = componentDb.insertProject();
 
-    callByKey(provisionedProject.key(), oldKey, newKey);
+    callByKey(provisionedProject.key(), provisionedProject.getKey(), newKey);
 
-    assertComponentKeyUpdated(oldKey, newKey);
+    verify(componentService).bulkUpdateKey(any(DbSession.class), eq(provisionedProject.uuid()), eq(provisionedProject.getKey()), eq(newKey));
   }
 
   @Test
@@ -269,15 +261,6 @@ public class BulkUpdateKeyActionTest {
       .hasSize(5)
       .extracting(WebService.Param::key)
       .containsOnlyOnce("id", "key", "from", "to", "dryRun");
-  }
-
-  private void assertComponentKeyUpdated(String oldKey, String newKey) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isAbsent();
-    assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
-  }
-
-  private void assertComponentKeyNotUpdated(String key) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
   private ComponentDto insertMyProject() {

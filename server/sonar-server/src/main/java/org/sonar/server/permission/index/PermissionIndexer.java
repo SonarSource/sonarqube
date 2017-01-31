@@ -21,13 +21,13 @@ package org.sonar.server.permission.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Uninterruptibles;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -37,19 +37,17 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.picocontainer.Startable;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
+import org.sonar.server.es.ProjectIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
 
 /**
  * Manages the synchronization of indexes with authorization settings defined in database:
@@ -58,153 +56,137 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
  *   <li>delete project orphans from index</li>
  * </ul>
  */
-public class PermissionIndexer implements Startable {
+public class PermissionIndexer implements ProjectIndexer, Startable {
 
-  private static final int MAX_BATCH_SIZE = 1000;
+  @VisibleForTesting
+  static final int MAX_BATCH_SIZE = 1000;
 
   private static final String BULK_ERROR_MESSAGE = "Fail to index authorization";
 
   private final ThreadPoolExecutor executor;
   private final DbClient dbClient;
   private final EsClient esClient;
+  private final Collection<AuthorizationScope> authorizationScopes;
 
-  public PermissionIndexer(DbClient dbClient, EsClient esClient) {
+  public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer[] needAuthorizationIndexers) {
+    this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
+      .map(NeedAuthorizationIndexer::getAuthorizationScope)
+      .collect(Collectors.toList(needAuthorizationIndexers.length)));
+  }
+
+  @VisibleForTesting
+  public PermissionIndexer(DbClient dbClient, EsClient esClient, Collection<AuthorizationScope> authorizationScopes) {
     this.executor = new ThreadPoolExecutor(0, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     this.dbClient = dbClient;
     this.esClient = esClient;
+    this.authorizationScopes = authorizationScopes;
   }
 
-  /**
-   * Index issues authorization and project measures authorization indexes only when they are empty
-   */
   public void indexAllIfEmpty() {
-    Future submit = executor.submit(() -> {
-      if (isIndexEmpty(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION) ||
-        isIndexEmpty(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION) ||
-        isIndexEmpty(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION)) {
-        truncate(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
-        truncate(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION);
-        truncate(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION);
+    boolean isEmpty = false;
+    for (AuthorizationScope scope : authorizationScopes) {
+      isEmpty |= isAuthorizationTypeEmpty(scope.getIndexName());
+    }
+
+    if (isEmpty) {
+      Future submit = executor.submit(() -> {
+        authorizationScopes.stream()
+          .map(AuthorizationScope::getIndexName)
+          .forEach(this::truncateAuthorizationType);
+
         try (DbSession dbSession = dbClient.openSession(false)) {
           index(new PermissionIndexerDao().selectAll(dbClient, dbSession));
         }
+      });
+      try {
+        Uninterruptibles.getUninterruptibly(submit);
+      } catch (ExecutionException e) {
+        Throwables.propagate(e);
       }
-    });
-    try {
-      Uninterruptibles.getUninterruptibly(submit);
-    } catch (ExecutionException e) {
-      Throwables.propagate(e);
     }
   }
 
-  private boolean isIndexEmpty(String index, String type) {
-    SearchResponse issuesAuthorizationResponse = esClient.prepareSearch(index).setTypes(type).setSize(0).get();
-    return issuesAuthorizationResponse.getHits().getTotalHits() == 0;
-  }
-
-  private void truncate(String index, String type) {
-    BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(type).setQuery(matchAllQuery()));
-  }
-
-  public void index(DbSession dbSession, List<String> viewOrProjectUuids) {
+  public void indexProjectsByUuids(DbSession dbSession, List<String> viewOrProjectUuids) {
     checkArgument(!viewOrProjectUuids.isEmpty(), "viewOrProjectUuids cannot be empty");
     PermissionIndexerDao dao = new PermissionIndexerDao();
     index(dao.selectByUuids(dbClient, dbSession, viewOrProjectUuids));
   }
 
-  private void index(Collection<PermissionIndexerDao.Dto> authorizations) {
+  @Override
+  public void indexProject(String projectUuid, Cause cause) {
+    switch (cause) {
+      case PROJECT_CREATION:
+        // nothing to do, permissions are indexed explicitly
+        // when permission template is applied after project creation
+      case NEW_ANALYSIS:
+        // nothing to do, permissions don't change during an analysis
+      case PROJECT_KEY_UPDATE:
+        // nothing to do, key is not used in this index
+        break;
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
+  }
+
+  @Override
+  public void deleteProject(String projectUuid) {
+    authorizationScopes.forEach(scope -> esClient
+      .prepareDelete(scope.getIndexName(), TYPE_AUTHORIZATION, projectUuid)
+      .setRouting(projectUuid)
+      .setRefresh(true)
+      .get());
+  }
+
+  private boolean isAuthorizationTypeEmpty(String index) {
+    SearchResponse response = esClient.prepareSearch(index).setTypes(TYPE_AUTHORIZATION).setSize(0).get();
+    return response.getHits().getTotalHits() == 0;
+  }
+
+  private void truncateAuthorizationType(String index) {
+    BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setTypes(TYPE_AUTHORIZATION).setQuery(matchAllQuery()));
+  }
+
+  @VisibleForTesting
+  void index(Collection<PermissionIndexerDao.Dto> authorizations) {
     if (authorizations.isEmpty()) {
       return;
     }
     int count = 0;
     BulkRequestBuilder bulkRequest = esClient.prepareBulk().setRefresh(false);
     for (PermissionIndexerDao.Dto dto : authorizations) {
-      newIssuesAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
-      newProjectMeasuresAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
-      newComponentsAuthorizationIndexRequest(dto).ifPresent(bulkRequest::add);
-      count++;
+      for (AuthorizationScope scope : authorizationScopes) {
+        if (scope.getProjectPredicate().test(dto)) {
+          bulkRequest.add(newIndexRequest(dto, scope.getIndexName()));
+          count++;
+        }
+      }
       if (count >= MAX_BATCH_SIZE) {
         EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
         bulkRequest = esClient.prepareBulk().setRefresh(false);
         count = 0;
       }
     }
-    EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
-    esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
-    esClient.prepareRefresh(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES).get();
-    esClient.prepareRefresh(ComponentIndexDefinition.INDEX_COMPONENTS).get();
-  }
-
-  public void index(DbSession dbSession, String viewOrProjectUuid) {
-    PermissionIndexerDao dao = new PermissionIndexerDao();
-    List<PermissionIndexerDao.Dto> dtos = dao.selectByUuids(dbClient, dbSession, singletonList(viewOrProjectUuid));
-    if (dtos.size() == 1) {
-      index(dtos.get(0));
+    if (count > 0) {
+      EsUtils.executeBulkRequest(bulkRequest, BULK_ERROR_MESSAGE);
     }
+    authorizationScopes.forEach(type -> esClient.prepareRefresh(type.getIndexName()).get());
   }
 
-  @VisibleForTesting
-  void index(PermissionIndexerDao.Dto dto) {
-    newIssuesAuthorizationIndexRequest(dto)
-      .ifPresent(rqst -> index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, rqst));
-    newProjectMeasuresAuthorizationIndexRequest(dto)
-      .ifPresent(rqst -> index(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, rqst));
-    newComponentsAuthorizationIndexRequest(dto)
-      .ifPresent(rqst -> index(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, rqst));
-  }
-
-  private void index(String index, String type, IndexRequest indexRequest) {
-    esClient.prepareIndex(index, type)
-      .setId(indexRequest.id())
-      .setRouting(indexRequest.routing())
-      .setSource(indexRequest.source())
-      .setRefresh(true)
-      .get();
-  }
-
-  private static Optional<IndexRequest> newIssuesAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
-    if (!isProject(dto)) {
-      return Optional.empty();
+  private static IndexRequest newIndexRequest(PermissionIndexerDao.Dto dto, String indexName) {
+    Map<String, Object> doc = new HashMap<>();
+    doc.put(AuthorizationTypeSupport.FIELD_UPDATED_AT, new Date(dto.getUpdatedAt()));
+    if (dto.isAllowAnyone()) {
+      doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, true);
+      // no need to feed users and groups
+    } else {
+      doc.put(AuthorizationTypeSupport.FIELD_ALLOW_ANYONE, false);
+      doc.put(AuthorizationTypeSupport.FIELD_GROUP_IDS, dto.getGroupIds());
+      doc.put(AuthorizationTypeSupport.FIELD_USER_IDS, dto.getUsers());
     }
-    Map<String, Object> doc = ImmutableMap.of(
-      IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-      IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return Optional.of(
-      new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-        .routing(dto.getProjectUuid())
-        .source(doc));
-  }
-
-  private static Optional<IndexRequest> newProjectMeasuresAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
-    if (!isProject(dto)) {
-      return Optional.empty();
-    }
-    Map<String, Object> doc = ImmutableMap.of(
-      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
-      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-      ProjectMeasuresIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return Optional.of(
-      new IndexRequest(ProjectMeasuresIndexDefinition.INDEX_PROJECT_MEASURES, ProjectMeasuresIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-        .routing(dto.getProjectUuid())
-        .source(doc));
-  }
-
-  private static Optional<IndexRequest> newComponentsAuthorizationIndexRequest(PermissionIndexerDao.Dto dto) {
-    Map<String, Object> doc = ImmutableMap.of(
-      ComponentIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
-      ComponentIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-      ComponentIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    return Optional.of(
-      new IndexRequest(ComponentIndexDefinition.INDEX_COMPONENTS, ComponentIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
-        .routing(dto.getProjectUuid())
-        .source(doc));
-  }
-
-  private static boolean isProject(PermissionIndexerDao.Dto dto) {
-    return dto.getQualifier().equals(Qualifiers.PROJECT);
+    return new IndexRequest(indexName, TYPE_AUTHORIZATION, dto.getProjectUuid())
+      .routing(dto.getProjectUuid())
+      .source(doc);
   }
 
   @Override
