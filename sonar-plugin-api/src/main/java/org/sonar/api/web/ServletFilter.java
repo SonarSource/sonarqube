@@ -121,7 +121,8 @@ public abstract class ServletFilter implements Filter {
      */
     public static class Builder {
       private static final String WILDCARD_CHAR = "*";
-      private static final Collection<String> STATIC_RESOURCES = ImmutableList.of("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*");
+      private static final Collection<String> STATIC_RESOURCES = ImmutableList.of("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*",
+        "/robots.txt", "/favicon.ico", "/apple-touch-icon*");
 
       private final Set<String> inclusions = new LinkedHashSet<>();
       private final Set<String> exclusions = new LinkedHashSet<>();

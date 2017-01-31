@@ -339,7 +339,7 @@ public class RulesDefinitionXmlLoader {
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionGapMultiplier, debtRemediationFunctionBaseEffort);
       fillParams(rule, params);
     } catch (Exception e) {
-      throw new IllegalArgumentException(format("Fail to load the rule with key [%s:%s]", repo.key(), key), e);
+      throw new IllegalStateException(format("Fail to load the rule with key [%s:%s]", repo.key(), key), e);
     }
   }
 

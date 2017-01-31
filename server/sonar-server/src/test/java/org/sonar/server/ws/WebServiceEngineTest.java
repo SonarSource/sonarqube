@@ -122,7 +122,18 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown controller: api/xxx\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/xxx/health\"}]}");
+    assertThat(response.stream().status()).isEqualTo(404);
+  }
+
+  @Test
+  public void bad_controller_with_no_action() {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/bad");
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/bad\"}]}");
+    assertThat(response.stream().status()).isEqualTo(404);
   }
 
   @Test
@@ -131,7 +142,8 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown action: api/system/xxx\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/system/xxx\"}]}");
+    assertThat(response.stream().status()).isEqualTo(404);
   }
 
   @Test
@@ -236,7 +248,7 @@ public class WebServiceEngineTest {
     DumbResponse response = new DumbResponse();
     underTest.execute(request, response);
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"error_occurred\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"An error has occurred. Please contact your administrator\"}]}");
     assertThat(response.stream().status()).isEqualTo(500);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request")).isNotEmpty();

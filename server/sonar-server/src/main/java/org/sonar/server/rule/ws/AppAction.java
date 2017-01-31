@@ -32,7 +32,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -43,15 +42,12 @@ public class AppAction implements RulesWsAction {
   private final Languages languages;
   private final DbClient dbClient;
   private final I18n i18n;
-  private final QProfileLoader profileLoader;
   private final UserSession userSession;
 
-  public AppAction(Languages languages, DbClient dbClient, I18n i18n,
-    QProfileLoader profileLoader, UserSession userSession) {
+  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.i18n = i18n;
-    this.profileLoader = profileLoader;
     this.userSession = userSession;
   }
 
@@ -67,23 +63,25 @@ public class AppAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-    addPermissions(json);
-    addProfiles(json);
-    addLanguages(json);
-    addRuleRepositories(json);
-    addStatuses(json);
-    json.endObject().close();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      JsonWriter json = response.newJsonWriter();
+      json.beginObject();
+      addPermissions(json);
+      addProfiles(json, dbSession);
+      addLanguages(json);
+      addRuleRepositories(json, dbSession);
+      addStatuses(json);
+      json.endObject().close();
+    }
   }
 
   private void addPermissions(JsonWriter json) {
     json.prop("canWrite", userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
   }
 
-  private void addProfiles(JsonWriter json) {
+  private void addProfiles(JsonWriter json, DbSession dbSession) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : profileLoader.findAll()) {
+    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession)) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
@@ -109,17 +107,15 @@ public class AppAction implements RulesWsAction {
     json.endObject();
   }
 
-  private void addRuleRepositories(JsonWriter json) {
+  private void addRuleRepositories(JsonWriter json, DbSession dbSession) {
     json.name("repositories").beginArray();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.ruleRepositoryDao()
-        .selectAll(dbSession)
-        .forEach(r -> json.beginObject()
-          .prop("key", r.getKey())
-          .prop("name", r.getName())
-          .prop("language", r.getLanguage())
-          .endObject());
-    }
+    dbClient.ruleRepositoryDao()
+      .selectAll(dbSession)
+      .forEach(r -> json.beginObject()
+        .prop("key", r.getKey())
+        .prop("name", r.getName())
+        .prop("language", r.getLanguage())
+        .endObject());
     json.endArray();
   }
 

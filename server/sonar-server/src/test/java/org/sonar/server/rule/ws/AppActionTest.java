@@ -19,14 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
@@ -36,7 +32,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -47,7 +42,6 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AppActionTest {
 
   @Rule
@@ -56,25 +50,22 @@ public class AppActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  @Mock
-  Languages languages;
+  private Languages languages = mock(Languages.class);
 
-  @Mock
-  I18n i18n;
-
-  @Mock
-  QProfileLoader profileLoader;
+  private I18n i18n = mock(I18n.class);
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, dbTester.getDbClient(), i18n, profileLoader, userSessionRule);
+    AppAction app = new AppAction(languages, dbTester.getDbClient(), i18n, userSessionRule);
     WsTester tester = new WsTester(new RulesWs(app));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
-    when(profileLoader.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
+    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile1);
+    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile2);
+    dbTester.commit();
 
     Language xoo = mock(Language.class);
     when(xoo.getKey()).thenReturn("xoo");
