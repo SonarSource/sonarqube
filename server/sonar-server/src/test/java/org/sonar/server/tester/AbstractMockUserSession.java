@@ -20,15 +20,10 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.AbstractUserSession;
 
@@ -37,7 +32,6 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
   private final Class<T> clazz;
-  private Set<String> userGroups = Sets.newHashSet(DefaultGroups.ANYONE);
   private List<String> globalPermissions = Collections.emptyList();
   private HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
@@ -52,18 +46,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   public T setGlobalPermissions(String... globalPermissions) {
     this.globalPermissions = Arrays.asList(globalPermissions);
-    return clazz.cast(this);
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    return ImmutableSet.copyOf(this.userGroups);
-  }
-
-  T setUserGroups(@Nullable String... userGroups) {
-    if (userGroups != null) {
-      this.userGroups.addAll(Arrays.asList(userGroups));
-    }
     return clazz.cast(this);
   }
 

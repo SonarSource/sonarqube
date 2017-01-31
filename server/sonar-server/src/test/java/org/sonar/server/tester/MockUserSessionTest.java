@@ -33,7 +33,6 @@ public class MockUserSessionTest {
 
     assertThat(mock.getLogin()).isEqualTo("foo");
     assertThat(mock.getGroups()).extracting(GroupDto::getId).containsOnly(group.getId());
-    assertThat(mock.getUserGroups()).containsOnly(group.getName(), "Anyone");
     assertThat(mock.globalPermissions()).isEmpty();
     assertThat(mock.isLoggedIn()).isTrue();
   }

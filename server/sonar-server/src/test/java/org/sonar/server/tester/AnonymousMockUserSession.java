@@ -19,11 +19,8 @@
  */
 package org.sonar.server.tester;
 
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.user.GroupDto;
 
 public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousMockUserSession> {
@@ -60,10 +57,5 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   @Override
   public Collection<GroupDto> getGroups() {
     return Collections.emptyList();
-  }
-
-  @Override
-  public Set<String> getUserGroups() {
-    return Sets.newHashSet(DefaultGroups.ANYONE);
   }
 }

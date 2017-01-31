@@ -22,8 +22,6 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
@@ -87,11 +85,6 @@ public final class DoPrivileged {
       @Override
       public Collection<GroupDto> getGroups() {
         return Collections.emptyList();
-      }
-
-      @Override
-      public Set<String> getUserGroups() {
-        return Collections.singleton(DefaultGroups.ANYONE);
       }
 
       @Override
