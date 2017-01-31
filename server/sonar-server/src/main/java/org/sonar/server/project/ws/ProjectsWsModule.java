@@ -25,6 +25,7 @@ public class ProjectsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ProjectsWsSupport.class,
       ProjectsWs.class,
       CreateAction.class,
       IndexAction.class,

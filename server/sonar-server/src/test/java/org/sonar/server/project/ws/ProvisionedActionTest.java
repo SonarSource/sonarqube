@@ -59,7 +59,7 @@ public class ProvisionedActionTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
-  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(dbClient, userSessionRule, defaultOrganizationProvider));
+  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(new ProjectsWsSupport(dbClient), dbClient, userSessionRule, defaultOrganizationProvider));
 
   @Test
   public void verify_definition() {

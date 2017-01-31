@@ -41,19 +41,20 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 
 public class ProvisionedAction implements ProjectsWsAction {
 
-  private static final String PARAM_ORGANIZATION = "organization";
   private static final Set<String> QUALIFIERS_FILTER = newHashSet(Qualifiers.PROJECT);
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
 
+  private final ProjectsWsSupport support;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public ProvisionedAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public ProvisionedAction(ProjectsWsSupport support, DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.support = support;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
@@ -73,11 +74,7 @@ public class ProvisionedAction implements ProjectsWsAction {
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
 
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("The key of the organization")
-      .setRequired(false)
-      .setInternal(true)
-      .setSince("6.3");
+    support.addOrganizationParam(action);
   }
 
   @Override
@@ -91,7 +88,8 @@ public class ProvisionedAction implements ProjectsWsAction {
     String query = request.param(Param.TEXT_QUERY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = getOrganization(dbSession, request);
+      OrganizationDto organization = support.getOrganization(dbSession,
+        request.getParam(PARAM_ORGANIZATION).or(defaultOrganizationProvider.get()::getKey));
       userSession.checkOrganizationPermission(organization.getUuid(), GlobalPermissions.PROVISIONING);
 
       RowBounds rowBounds = new RowBounds(options.getOffset(), options.getLimit());
@@ -102,14 +100,6 @@ public class ProvisionedAction implements ProjectsWsAction {
       options.writeJson(json, nbOfProjects);
       json.endObject().close();
     }
-  }
-
-  private OrganizationDto getOrganization(DbSession dbSession, Request request) {
-    String organizationKey = request.getParam(PARAM_ORGANIZATION)
-      .or(defaultOrganizationProvider.get()::getKey);
-    return checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-      "No organization for key '%s'", organizationKey);
   }
 
   private static void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {

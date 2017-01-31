@@ -34,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -254,14 +253,4 @@ public class GhostsActionTest {
     return project;
   }
 
-  private void insertNewActiveProject(String id) {
-    ComponentDto project = ComponentTesting
-      .newProjectDto(db.organizations().insert(), "analyzed-uuid-" + id)
-      .setName("analyzed-name-" + id)
-      .setKey("analyzed-key-" + id);
-    dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.newAnalysis(project);
-    dbClient.snapshotDao().insert(db.getSession(), snapshot);
-    db.getSession().commit();
-  }
 }
