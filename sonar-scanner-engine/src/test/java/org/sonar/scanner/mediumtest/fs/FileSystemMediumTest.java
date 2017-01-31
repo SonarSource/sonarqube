@@ -293,7 +293,7 @@ public class FileSystemMediumTest {
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
       .put("sonar.projectDescription", "Description of Foo Project");
 
-    Path unknownRelative = Paths.get("src/unknown/file.unknown");
+    Path unknownRelative = Paths.get("src/unknown/file.notanalyzed");
     Path unknown = baseDir.toPath().resolve(unknownRelative);
     Files.createDirectories(unknown.getParent());
     Files.write(unknown, "dummy content".getBytes());
