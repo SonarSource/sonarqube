@@ -52,6 +52,14 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_NAME;
+import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS;
+import static org.sonar.server.user.index.UserIndexDefinition.INDEX;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 @ServerSide
 @ComputeEngineSide
@@ -76,7 +84,7 @@ public class UserIndex {
 
   @CheckForNull
   public UserDoc getNullableByLogin(String login) {
-    GetRequestBuilder request = esClient.prepareGet(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, login)
+    GetRequestBuilder request = esClient.prepareGet(INDEX, TYPE_USER, login)
       .setFetchSource(true)
       .setRouting(login);
     GetResponse response = request.get();
@@ -93,14 +101,14 @@ public class UserIndex {
   public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
-      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
-        .setTypes(UserIndexDefinition.TYPE_USER)
+      SearchRequestBuilder request = esClient.prepareSearch(INDEX)
+        .setTypes(TYPE_USER)
         .setQuery(boolQuery().must(matchAllQuery()).filter(
           boolQuery()
-            .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true))
-            .should(termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
-            .should(termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
-            .should(termQuery(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
+            .must(termQuery(FIELD_ACTIVE, true))
+            .should(termQuery(FIELD_LOGIN, scmAccount))
+            .should(termQuery(FIELD_EMAIL, scmAccount))
+            .should(termQuery(FIELD_SCM_ACCOUNTS, scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
         result.add(DOC_CONVERTER.apply(hit.sourceAsMap()));
@@ -111,50 +119,49 @@ public class UserIndex {
 
   public Iterator<UserDoc> selectUsersForBatch(List<String> logins) {
     BoolQueryBuilder filter = boolQuery()
-      .must(termsQuery(UserIndexDefinition.FIELD_LOGIN, logins));
+      .filter(termsQuery(FIELD_LOGIN, logins));
 
     SearchRequestBuilder requestBuilder = esClient
-      .prepareSearch(UserIndexDefinition.INDEX)
-      .setTypes(UserIndexDefinition.TYPE_USER)
+      .prepareSearch(INDEX)
+      .setTypes(TYPE_USER)
       .setSearchType(SearchType.SCAN)
-      .addSort(SortBuilders.fieldSort(UserIndexDefinition.FIELD_LOGIN).order(SortOrder.ASC))
+      .addSort(SortBuilders.fieldSort(FIELD_LOGIN).order(SortOrder.ASC))
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
       .setSize(10_000)
       .setFetchSource(
-        new String[] {UserIndexDefinition.FIELD_LOGIN, UserIndexDefinition.FIELD_NAME},
+        new String[] {FIELD_LOGIN, FIELD_NAME},
         null)
-      .setQuery(QueryBuilders.filteredQuery(matchAllQuery(), filter));
+      .setQuery(filter);
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
   }
 
   public SearchResult<UserDoc> search(@Nullable String searchText, SearchOptions options) {
-    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
-      .setTypes(UserIndexDefinition.TYPE_USER)
+    SearchRequestBuilder request = esClient.prepareSearch(INDEX)
+      .setTypes(TYPE_USER)
       .setSize(options.getLimit())
       .setFrom(options.getOffset())
-      .addSort(UserIndexDefinition.FIELD_NAME, SortOrder.ASC);
+      .addSort(FIELD_NAME, SortOrder.ASC);
 
-    BoolQueryBuilder userQuery = boolQuery()
-      .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true));
+    BoolQueryBuilder filter = boolQuery()
+      .must(termQuery(FIELD_ACTIVE, true));
 
     QueryBuilder query;
     if (StringUtils.isEmpty(searchText)) {
       query = matchAllQuery();
     } else {
       query = QueryBuilders.multiMatchQuery(searchText,
-        UserIndexDefinition.FIELD_LOGIN,
-        UserIndexDefinition.FIELD_LOGIN + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX,
-        UserIndexDefinition.FIELD_NAME,
-        UserIndexDefinition.FIELD_NAME + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX,
-        UserIndexDefinition.FIELD_EMAIL,
-        UserIndexDefinition.FIELD_EMAIL + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX)
+        FIELD_LOGIN,
+        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_LOGIN),
+        FIELD_NAME,
+        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME),
+        FIELD_EMAIL,
+        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_EMAIL))
         .operator(MatchQueryBuilder.Operator.AND);
     }
 
-    request.setQuery(QueryBuilders.filteredQuery(query,
-      userQuery));
+    request.setQuery(boolQuery().must(query).filter(filter));
 
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }

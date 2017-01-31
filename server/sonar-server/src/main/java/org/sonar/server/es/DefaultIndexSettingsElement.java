@@ -78,6 +78,16 @@ public enum DefaultIndexSettingsElement {
       set(MAX_GRAM, 15);
     }
   },
+  NGRAM_FILTER(FILTER) {
+
+    @Override
+    protected void setup() {
+      set(TYPE, "nGram");
+      set(MIN_GRAM, 2);
+      set(MAX_GRAM, 15);
+      setArray("token_chars", "letter", "digit", "punctuation", "symbol");
+    }
+  },
 
   // Tokenizers
 
@@ -140,6 +150,31 @@ public enum DefaultIndexSettingsElement {
         TYPE, STRING,
         INDEX, ANALYZED,
         ANALYZER, INDEX_GRAMS_ANALYZER.getName(),
+        SEARCH_ANALYZER, getName());
+    }
+  },
+  USER_INDEX_GRAMS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, WHITESPACE);
+      setArray(FILTER, TRIM, LOWERCASE, NGRAM_FILTER.getName());
+    }
+  },
+  USER_SEARCH_GRAMS_ANALYZER(ANALYZER) {
+
+    @Override
+    protected void setup() {
+      set(TOKENIZER, WHITESPACE);
+      setArray(FILTER, TRIM, LOWERCASE);
+    }
+
+    @Override
+    public SortedMap<String, String> fieldMapping() {
+      return ImmutableSortedMap.of(
+        TYPE, STRING,
+        INDEX, ANALYZED,
+        ANALYZER, USER_INDEX_GRAMS_ANALYZER.getName(),
         SEARCH_ANALYZER, getName());
     }
   },
