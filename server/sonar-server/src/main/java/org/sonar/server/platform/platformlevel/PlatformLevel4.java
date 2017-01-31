@@ -77,8 +77,6 @@ import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.license.ws.LicensesWsModule;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
-import org.sonar.server.measure.template.MyFavouritesFilter;
-import org.sonar.server.measure.template.ProjectFilter;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
@@ -312,8 +310,6 @@ public class PlatformLevel4 extends PlatformLevel {
       MetricsWsModule.class,
       MeasuresWsModule.class,
       CustomMeasuresWsModule.class,
-      ProjectFilter.class,
-      MyFavouritesFilter.class,
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
       TimeMachineWs.class,
