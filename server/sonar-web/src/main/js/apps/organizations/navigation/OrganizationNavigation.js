@@ -25,7 +25,8 @@ import { translate } from '../../../helpers/l10n';
 const ADMIN_PATHS = [
   'edit',
   'groups',
-  'delete'
+  'delete',
+  'permission_templates'
 ];
 
 export default class OrganizationNavigation extends React.Component {
@@ -54,6 +55,11 @@ export default class OrganizationNavigation extends React.Component {
             <li>
               <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
                 {translate('user_groups.page')}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/organizations/${organization.key}/permission_templates`} activeClassName="active">
+                {translate('permission_templates')}
               </Link>
             </li>
             <li>

@@ -30,6 +30,8 @@ import '../../permissions/styles.css';
 
 export default class App extends React.Component {
   static propTypes = {
+    location: React.PropTypes.object.isRequired,
+    organization: React.PropTypes.object,
     topQualifiers: React.PropTypes.array.isRequired
   };
 
@@ -53,7 +55,9 @@ export default class App extends React.Component {
   }
 
   requestPermissions () {
-    return getPermissionTemplates().then(r => {
+    const { organization } = this.props;
+    const request = organization ? getPermissionTemplates(organization.key) : getPermissionTemplates();
+    return request.then(r => {
       if (this.mounted) {
         const permissions = sortPermissions(r.permissions);
         const permissionTemplates = mergeDefaultsToTemplates(
@@ -77,6 +81,7 @@ export default class App extends React.Component {
     const template = this.state.permissionTemplates.find(t => t.id === id);
     return (
         <Template
+            organization={this.props.organization}
             template={template}
             refresh={this.requestPermissions}
             topQualifiers={this.props.topQualifiers}/>
@@ -92,6 +97,7 @@ export default class App extends React.Component {
 
     return (
         <Home
+            organization={this.props.organization}
             topQualifiers={this.props.topQualifiers}
             permissions={this.state.permissions}
             permissionTemplates={this.state.permissionTemplates}

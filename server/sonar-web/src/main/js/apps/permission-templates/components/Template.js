@@ -31,6 +31,7 @@ import withStore from '../../../store/utils/withStore';
 
 class Template extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired,
     refresh: React.PropTypes.func.isRequired,
     topQualifiers: React.PropTypes.array.isRequired
@@ -95,9 +96,9 @@ class Template extends React.Component {
     const hasPermission = user.permissions.includes(permission);
     const request = hasPermission ?
         api.revokeTemplatePermissionFromUser(
-            template.name, user.login, permission) :
+            template.id, user.login, permission) :
         api.grantTemplatePermissionToUser(
-            template.name, user.login, permission);
+            template.id, user.login, permission);
     request.then(() => this.requestHolders()).then(this.props.refresh);
   }
 
@@ -105,19 +106,25 @@ class Template extends React.Component {
     const { template } = this.props;
     const hasPermission = user.permissions.includes(permission);
     const request = hasPermission ?
-        api.removeProjectCreatorFromTemplate(template.name, permission) :
-        api.addProjectCreatorToTemplate(template.name, permission);
+        api.removeProjectCreatorFromTemplate(template.id, permission) :
+        api.addProjectCreatorToTemplate(template.id, permission);
     request.then(() => this.requestHolders()).then(this.props.refresh);
   }
 
   handleToggleGroup (group, permission) {
-    const { template } = this.props;
+    const { template, organization } = this.props;
     const hasPermission = group.permissions.includes(permission);
+    const data = {
+      templateId: template.id,
+      groupName: group.name,
+      permission
+    };
+    if (organization) {
+      Object.assign(data, { organization: organization.key });
+    }
     const request = hasPermission ?
-        api.revokeTemplatePermissionFromGroup(
-            template.name, group.name, permission) :
-        api.grantTemplatePermissionToGroup(
-            template.name, group.name, permission);
+        api.revokeTemplatePermissionFromGroup(data) :
+        api.grantTemplatePermissionToGroup(data);
     request.then(() => this.requestHolders()).then(this.props.refresh);
   }
 
@@ -194,6 +201,7 @@ class Template extends React.Component {
               titleTemplate="SonarQube - %s"/>
 
           <TemplateHeader
+              organization={this.props.organization}
               template={this.props.template}
               loading={store.loading}
               refresh={this.props.refresh}

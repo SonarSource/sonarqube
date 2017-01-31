@@ -30,6 +30,7 @@ import { setDefaultPermissionTemplate } from '../../../api/permissions';
 
 export default class ActionsCell extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
     refresh: CallbackType,
@@ -57,7 +58,10 @@ export default class ActionsCell extends React.Component {
     new DeleteView({
       model: new Backbone.Model(this.props.permissionTemplate)
     }).on('done', () => {
-      this.context.router.replace('/permission_templates');
+      const pathname = this.props.organization ?
+          `/organizations/${this.props.organization.key}/permission_templates` :
+          '/permission_templates';
+      this.context.router.replace(pathname);
       this.props.refresh();
     }).render();
   }
@@ -65,7 +69,7 @@ export default class ActionsCell extends React.Component {
   setDefault (qualifier, e) {
     e.preventDefault();
     setDefaultPermissionTemplate(
-        this.props.permissionTemplate.name,
+        this.props.permissionTemplate.id,
         qualifier
     ).then(this.props.refresh);
   }
@@ -137,7 +141,11 @@ export default class ActionsCell extends React.Component {
   }
 
   render () {
-    const { permissionTemplate: t } = this.props;
+    const { permissionTemplate: t, organization } = this.props;
+
+    const pathname = organization ?
+        `/organizations/${organization.key}/permission_templates` :
+        '/permission_templates';
 
     return (
         <div className="dropdown">
@@ -151,12 +159,12 @@ export default class ActionsCell extends React.Component {
             {this.renderSetDefaultsControl()}
 
             {!this.props.fromDetails && (
-              <li>
-                <Link to={{ pathname: '/permission_templates', query: { id: t.id } }}>
-                  {this.renderDropdownIcon(<i className="icon-edit"/>)}
-                  Edit Permissions
-                </Link>
-              </li>
+                <li>
+                  <Link to={{ pathname, query: { id: t.id } }}>
+                    {this.renderDropdownIcon(<i className="icon-edit"/>)}
+                    Edit Permissions
+                  </Link>
+                </li>
             )}
 
             <li>

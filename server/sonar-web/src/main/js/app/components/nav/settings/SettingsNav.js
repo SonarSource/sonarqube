@@ -75,9 +75,9 @@ class SettingsNav extends React.Component {
             <div className="container">
               <ul className="nav navbar-nav nav-crumbs">
                 <li>
-                <IndexLink to="/settings">
-                  {translate('layout.settings')}
-                </IndexLink>
+                  <IndexLink to="/settings">
+                    {translate('layout.settings')}
+                  </IndexLink>
                 </li>
               </ul>
 
@@ -138,11 +138,13 @@ class SettingsNav extends React.Component {
                         {translate('global_permissions.page')}
                       </IndexLink>
                     </li>
-                    <li>
-                      <IndexLink to="/permission_templates" activeClassName="active">
-                        {translate('permission_templates')}
-                      </IndexLink>
-                    </li>
+                    {!this.props.customOrganizations && (
+                        <li>
+                          <IndexLink to="/permission_templates" activeClassName="active">
+                            {translate('permission_templates')}
+                          </IndexLink>
+                        </li>
+                    )}
                   </ul>
                 </li>
 

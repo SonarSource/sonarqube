@@ -26,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class Home extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     topQualifiers: React.PropTypes.array.isRequired,
     permissions: React.PropTypes.array.isRequired,
     permissionTemplates: React.PropTypes.array.isRequired,
@@ -41,11 +42,13 @@ export default class Home extends React.Component {
               titleTemplate="SonarQube - %s"/>
 
           <Header
+              organization={this.props.organization}
               ready={this.props.ready}
               refresh={this.props.refresh}/>
 
           <TooltipsContainer>
             <List
+                organization={this.props.organization}
                 permissionTemplates={this.props.permissionTemplates}
                 permissions={this.props.permissions}
                 topQualifiers={this.props.topQualifiers}

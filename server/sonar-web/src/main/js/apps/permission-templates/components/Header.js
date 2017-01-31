@@ -24,6 +24,7 @@ import { CallbackType } from '../propTypes';
 
 export default class Header extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     ready: React.PropTypes.bool.isRequired,
     refresh: CallbackType
   };
@@ -38,11 +39,15 @@ export default class Header extends React.Component {
 
   handleCreateClick (e) {
     e.preventDefault();
+    const { organization } = this.props;
 
-    new CreateView().on('done', r => {
+    new CreateView({ organization }).on('done', r => {
       this.props.refresh().then(() => {
+        const pathname = organization ?
+            `/organizations/${organization.key}/permission_templates` :
+            '/permission_templates';
         this.context.router.push({
-          pathname: '/permission_templates',
+          pathname,
           query: { id: r.permissionTemplate.id }
         });
       });
