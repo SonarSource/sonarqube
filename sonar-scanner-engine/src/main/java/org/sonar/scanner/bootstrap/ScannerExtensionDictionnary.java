@@ -105,8 +105,8 @@ public class ScannerExtensionDictionnary {
     }
     if (org.sonar.api.batch.Sensor.class.equals(type)) {
       // Retrieve new Sensors and wrap then in SensorWrapper
-      for (Object extension : getExtensions(Sensor.class)) {
-        extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
+      for (Sensor sensor : getExtensions(Sensor.class)) {
+        org.sonar.api.batch.Sensor extension = new SensorWrapper(sensor, sensorContext, sensorOptimizer);
         if (shouldKeep(type, extension, module, matcher)) {
           result.add((T) extension);
         }
@@ -114,8 +114,8 @@ public class ScannerExtensionDictionnary {
     }
     if (org.sonar.api.batch.PostJob.class.equals(type)) {
       // Retrieve new PostJob and wrap then in PostJobWrapper
-      for (Object extension : getExtensions(PostJob.class)) {
-        extension = new PostJobWrapper((PostJob) extension, postJobContext, postJobOptimizer);
+      for (PostJob postJob : getExtensions(PostJob.class)) {
+        org.sonar.api.batch.PostJob extension = new PostJobWrapper(postJob, postJobContext, postJobOptimizer);
         if (shouldKeep(type, extension, module, matcher)) {
           result.add((T) extension);
         }
@@ -124,13 +124,13 @@ public class ScannerExtensionDictionnary {
     return result;
   }
 
-  protected List<Object> getExtensions(Class type) {
-    List<Object> extensions = Lists.newArrayList();
+  protected <T> List<T> getExtensions(Class<T> type) {
+    List<T> extensions = Lists.newArrayList();
     completeBatchExtensions(componentContainer, extensions, type);
     return extensions;
   }
 
-  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, Class type) {
+  private static <T> void completeBatchExtensions(ComponentContainer container, List<T> extensions, Class<T> type) {
     extensions.addAll(container.getComponentsByType(type));
     ComponentContainer parentContainer = container.getParent();
     if (parentContainer != null) {
@@ -151,9 +151,9 @@ public class ScannerExtensionDictionnary {
       }
       completePhaseDependencies(dag, extension);
     }
-    List sortedList = dag.sort();
+    List<?> sortedList = dag.sort();
 
-    return Collections2.filter(sortedList, Predicates.in(extensions));
+    return (Collection<T>) Collections2.filter(sortedList, Predicates.in(extensions));
   }
 
   /**
@@ -188,7 +188,7 @@ public class ScannerExtensionDictionnary {
 
   protected List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = Lists.newArrayList();
-    Class aClass = extension.getClass();
+    Class<? extends Object> aClass = extension.getClass();
     while (aClass != null) {
       evaluateClass(aClass, annotation, results);
 
@@ -204,7 +204,7 @@ public class ScannerExtensionDictionnary {
     return results;
   }
 
-  private static void evaluateClass(Class extensionClass, Class annotationClass, List<Object> results) {
+  private static void evaluateClass(Class<?> extensionClass, Class<? extends Annotation> annotationClass, List<Object> results) {
     Annotation annotation = extensionClass.getAnnotation(annotationClass);
     if (annotation != null) {
       if (annotation.annotationType().isAssignableFrom(DependsUpon.class)) {
@@ -215,8 +215,8 @@ public class ScannerExtensionDictionnary {
       }
     }
 
-    Class[] interfaces = extensionClass.getInterfaces();
-    for (Class anInterface : interfaces) {
+    Class<?>[] interfaces = extensionClass.getInterfaces();
+    for (Class<?> anInterface : interfaces) {
       evaluateClass(anInterface, annotationClass, results);
     }
   }
@@ -254,7 +254,7 @@ public class ScannerExtensionDictionnary {
     }
   }
 
-  private static boolean shouldKeep(Class type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
+  private static boolean shouldKeep(Class<?> type, Object extension, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
       || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));

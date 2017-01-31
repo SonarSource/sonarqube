@@ -74,7 +74,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
 
-    Map lines = map.get(metricKey);
+    Map<Integer, Object> lines = map.get(metricKey);
     if (lines == null) {
       // not in memory, so load
       lines = loadData(metricKey, KeyValueFormat.newIntegerConverter());
@@ -97,7 +97,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
 
-    Map lines = map.get(metricKey);
+    Map<Integer, Object> lines = map.get(metricKey);
     if (lines == null) {
       // not in memory, so load
       lines = loadData(metricKey, KeyValueFormat.newStringConverter());
@@ -136,7 +136,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     }
   }
 
-  private static Map optimizeStorage(String metricKey, Map<Integer, Object> lines) {
+  private static Map<Integer, Object> optimizeStorage(String metricKey, Map<Integer, Object> lines) {
     // SONAR-7464 Don't store 0 because this is default value anyway
     if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.COMMENT_LINES_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
       return lines.entrySet().stream()
@@ -146,7 +146,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     return lines;
   }
 
-  private Map loadData(String metricKey, Converter converter) {
+  private Map<Integer, Object> loadData(String metricKey, Converter<? extends Object> converter) {
     DefaultMeasure<?> measure = measureCache.byMetric(inputFile.key(), metricKey);
     String data = measure != null ? (String) measure.value() : null;
     if (data != null) {
