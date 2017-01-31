@@ -58,6 +58,7 @@ public class ComponentsService extends BaseService {
 
   public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))
       .setParam(Param.PAGE, request.getPage())
       .setParam(Param.PAGE_SIZE, request.getPageSize())

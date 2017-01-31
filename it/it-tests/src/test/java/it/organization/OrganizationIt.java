@@ -265,23 +265,26 @@ public class OrganizationIt {
       .contains("grp1", "grp2");
 
     ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-        "sonar.organization", orgKeyAndName);
+      "sonar.organization", orgKeyAndName);
     ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsList()).hasSize(1);
 
     adminOrganizationService.delete(orgKeyAndName);
 
-    assertThat(searchSampleProject(componentsService).getComponentsList()).hasSize(0);
+    expect404HttpError(() -> searchSampleProject(orgKeyAndName, componentsService));
     assertThat(groupManagement.getUserGroups("bob").getGroups())
-        .extracting(Groups.Group::getName)
-        .doesNotContain("grp1", "grp2");
+      .extracting(Groups.Group::getName)
+      .doesNotContain("grp1", "grp2");
 
     verifyNoExtraOrganization();
   }
 
-  private WsComponents.SearchWsResponse searchSampleProject(ComponentsService componentsService) {
+  private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
     return componentsService
-      .search(new org.sonarqube.ws.client.component.SearchWsRequest().setQualifiers(singletonList("TRK")).setQuery("sample"));
+      .search(new org.sonarqube.ws.client.component.SearchWsRequest()
+        .setOrganization(organizationKey)
+        .setQualifiers(singletonList("TRK"))
+        .setQuery("sample"));
   }
 
   private void expect403HttpError(Runnable runnable) {
@@ -290,6 +293,15 @@ public class OrganizationIt {
       fail("Ws call should have failed");
     } catch (HttpException e) {
       assertThat(e.code()).isEqualTo(403);
+    }
+  }
+
+  private void expect404HttpError(Runnable runnable) {
+    try {
+      runnable.run();
+      fail("Ws call should have failed");
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(404);
     }
   }
 
@@ -302,7 +314,8 @@ public class OrganizationIt {
 
   private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
     String avatarUrl) {
-    List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder().build()).getOrganizationsList();
+    List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder()
+        .build()).getOrganizationsList();
     assertThat(organizations).hasSize(2);
     Organizations.Organization searchedOrganization = organizations.stream()
       .filter(organization -> !DEFAULT_ORGANIZATION_KEY.equals(organization.getKey()))
