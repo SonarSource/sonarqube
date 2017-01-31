@@ -22,7 +22,6 @@ package org.sonar.server.issue.notification;
 import com.google.common.collect.Multiset;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -140,7 +139,7 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(Metric.DEBT + COUNT, durations.format(Locale.ENGLISH, debt));
+    setFieldValue(Metric.DEBT + COUNT, durations.format(debt));
     return this;
   }
 

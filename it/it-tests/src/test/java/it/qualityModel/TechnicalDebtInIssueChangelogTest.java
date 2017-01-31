@@ -52,9 +52,6 @@ public class TechnicalDebtInIssueChangelogTest {
   @Before
   public void deleteAnalysisData() {
     orchestrator.resetData();
-
-    // Set hours in day property to 8
-    debtConfiguration.updateHoursInDay(8);
   }
 
   @Test

@@ -34,14 +34,6 @@ class DebtProperties {
 
   static List<PropertyDefinition> all() {
     return ImmutableList.of(
-      PropertyDefinition.builder(CoreProperties.HOURS_IN_DAY)
-        .name("Number of working hours in a day")
-        .type(PropertyType.INTEGER)
-        .defaultValue("8")
-        .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
-        .deprecatedKey("sqale.hoursInDay")
-        .build(),
-
       PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
         .defaultValue("" + CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
         .name("Development cost")
@@ -78,9 +70,7 @@ class DebtProperties {
             .name("Development cost")
             .description("If left blank, the generic value defined in this section will be used.")
             .type(PropertyType.FLOAT)
-            .build()
-        )
-        .build()
-      );
+            .build())
+        .build());
   }
 }

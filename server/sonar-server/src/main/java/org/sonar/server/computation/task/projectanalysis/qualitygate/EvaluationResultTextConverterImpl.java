@@ -100,6 +100,6 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
   }
 
   private String formatDuration(String value) {
-    return durations.format(Locale.ENGLISH, Duration.create(Long.parseLong(value)), Durations.DurationFormat.SHORT);
+    return durations.format(Duration.create(Long.parseLong(value)));
   }
 }

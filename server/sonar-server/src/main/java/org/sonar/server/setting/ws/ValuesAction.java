@@ -100,7 +100,7 @@ public class ValuesAction implements SettingsWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_KEYS)
       .setDescription("List of setting keys")
-      .setExampleValue("sonar.technicalDebt.hoursInDay,sonar.dbcleaner.cleanDirectory");
+      .setExampleValue("sonar.test.inclusions,sonar.dbcleaner.cleanDirectory");
   }
 
   @Override

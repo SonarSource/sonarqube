@@ -84,7 +84,7 @@ public class IndexAction implements WsAction {
       .setHandler(this);
     action.createParam(PARAM_ID)
       .setDescription("Setting key")
-      .setExampleValue("sonar.technicalDebt.hoursInDay");
+      .setExampleValue("sonar.test.inclusions");
     action.createParam(PARAM_COMPONENT)
       .setDescription("Component key or database id")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);

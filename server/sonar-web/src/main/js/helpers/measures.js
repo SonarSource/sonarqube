@@ -286,13 +286,7 @@ function formatDurationShort (isNegative, days, hours, minutes) {
 }
 
 function getHoursInDay () {
-  // workaround cyclic dependencies
-  const getStore = require('../app/utils/getStore').default;
-  const { getSettingValue } = require('../store/rootReducer');
-
-  const store = getStore();
-  const settingValue = getSettingValue(store.getState(), 'sonar.technicalDebt.hoursInDay');
-  return settingValue ? settingValue.value : 8;
+  return 8;
 }
 
 function durationFormatter (value) {

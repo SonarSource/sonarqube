@@ -33,7 +33,6 @@ import static util.ItUtils.setServerProperty;
  */
 public class DebtConfigurationRule extends ExternalResource {
 
-  private static final String HOURS_IN_DAY_PROPERTY = "sonar.technicalDebt.hoursInDay";
   private static final String DEV_COST_PROPERTY = "sonar.technicalDebt.developmentCost";
   private static final String RATING_GRID_PROPERTY = "sonar.technicalDebt.ratingGrid";
 
@@ -71,19 +70,8 @@ public class DebtConfigurationRule extends ExternalResource {
   }
 
   public void reset() {
-    resetHoursInDay();
     resetDevelopmentCost();
     resetRatingGrid();
-  }
-
-  public DebtConfigurationRule updateHoursInDay(int hoursInDay) {
-    setProperty(HOURS_IN_DAY_PROPERTY, Integer.toString(hoursInDay));
-    return this;
-  }
-
-  public DebtConfigurationRule resetHoursInDay() {
-    resetProperty(HOURS_IN_DAY_PROPERTY);
-    return this;
   }
 
   public DebtConfigurationRule updateDevelopmentCost(int developmentCost) {

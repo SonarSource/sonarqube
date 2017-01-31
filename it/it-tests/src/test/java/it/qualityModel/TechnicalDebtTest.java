@@ -29,7 +29,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,9 +45,6 @@ public class TechnicalDebtTest {
   @Before
   public void deleteAnalysisData() {
     orchestrator.resetData();
-
-    // Set hours in day property to 8
-    debtConfiguration.updateHoursInDay(8);
   }
 
   /**
@@ -69,46 +65,6 @@ public class TechnicalDebtTest {
     for (Issue issue : issues) {
       assertThat(issue.debt()).isEqualTo("1min");
     }
-  }
-
-  @Test
-  public void use_hours_in_day_property_to_display_debt() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml"));
-    orchestrator.getServer().provisionProject("sample", "sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
-
-    // One day -> 10 hours
-    debtConfiguration.updateHoursInDay(10);
-
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
-      // As OneIssuePerFile has a debt of 10 minutes, we multiply it by 72 to have 1 day and 2 hours of technical debt
-      .setProperties("sonar.oneIssuePerFile.effortToFix", "72")
-      );
-
-    IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
-    Issue issue = issueClient.find(IssueQuery.create()).list().get(0);
-
-    assertThat(issue.debt()).isEqualTo("1d2h");
-  }
-
-  @Test
-  public void use_hours_in_day_property_during_analysis_to_convert_debt() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-day-debt-per-file.xml"));
-    orchestrator.getServer().provisionProject("sample", "sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-day-debt-per-file");
-
-    // One day -> 10 hours : debt will be stored as 360.000 seconds (1 day * 10 hours per day * 60 * 60)
-    debtConfiguration.updateHoursInDay(10);
-
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-
-    // Issue debt was 1 day during analysis but will be displayed as 1 day and 2 hours (hours in day property was set
-    // to 10 during analysis but is now 8)
-    debtConfiguration.updateHoursInDay(8);
-
-    IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
-    Issue issue = issueClient.find(IssueQuery.create()).list().get(0);
-    assertThat(issue.debt()).isEqualTo("1d2h");
   }
 
 }

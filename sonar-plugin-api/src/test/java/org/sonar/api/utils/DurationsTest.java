@@ -19,101 +19,59 @@
  */
 package org.sonar.api.utils;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.i18n.I18n;
-
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DurationsTest {
 
-  static final int HOURS_IN_DAY = 8;
+  private static final int HOURS_IN_DAY = 8;
 
-  static final long ONE_MINUTE = 1L;
-  static final long ONE_HOUR = ONE_MINUTE * 60;
-  static final long ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+  private static final long ONE_MINUTE = 1L;
+  private static final long ONE_HOUR = ONE_MINUTE * 60;
+  private static final long ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
-  @Mock
-  I18n i18n;
-
-  Locale locale = Locale.ENGLISH;
-
-  Settings settings;
-
-  Durations durations;
-
-  @Before
-  public void setUp() {
-    settings = new MapSettings();
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
-    durations = new Durations(settings, i18n);
-  }
+  private Durations underTest = new Durations();
 
   @Test
   public void create_from_minutes() {
-    assertThat(durations.create(10L).toMinutes()).isEqualTo(10L);
+    assertThat(underTest.create(10L).toMinutes()).isEqualTo(10L);
   }
 
   @Test
   public void decode() {
     // 1 working day -> 8 hours
-    assertThat(durations.decode("1d").toMinutes()).isEqualTo(8L * ONE_HOUR);
+    assertThat(underTest.decode("1d").toMinutes()).isEqualTo(8L * ONE_HOUR);
     // 8 hours
-    assertThat(durations.decode("8h").toMinutes()).isEqualTo(8L * ONE_HOUR);
+    assertThat(underTest.decode("8h").toMinutes()).isEqualTo(8L * ONE_HOUR);
   }
 
   @Test
   public void format() {
-    when(i18n.message(eq(locale), eq("work_duration.x_days"), eq((String) null), eq(5))).thenReturn("5d");
-    when(i18n.message(eq(locale), eq("work_duration.x_hours"), eq((String) null), eq(2))).thenReturn("2h");
-    when(i18n.message(eq(locale), eq("work_duration.x_minutes"), eq((String) null), eq(1))).thenReturn("1min");
+    assertThat(underTest.format(Duration.create(5 * ONE_DAY))).isEqualTo("5d");
+    assertThat(underTest.format(Duration.create(2 * ONE_HOUR))).isEqualTo("2h");
+    assertThat(underTest.format(Duration.create(ONE_MINUTE))).isEqualTo("1min");
 
-    assertThat(durations.format(locale, Duration.create(5 * ONE_DAY), Durations.DurationFormat.SHORT)).isEqualTo("5d");
-    assertThat(durations.format(locale, Duration.create(2 * ONE_HOUR), Durations.DurationFormat.SHORT)).isEqualTo("2h");
-    assertThat(durations.format(locale, Duration.create(ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("1min");
-
-    assertThat(durations.format(locale, Duration.create(5 * ONE_DAY + 2 * ONE_HOUR), Durations.DurationFormat.SHORT)).isEqualTo("5d 2h");
-    assertThat(durations.format(locale, Duration.create(2 * ONE_HOUR + ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("2h 1min");
-    assertThat(durations.format(locale, Duration.create(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("5d 2h");
+    assertThat(underTest.format(Duration.create(5 * ONE_DAY + 2 * ONE_HOUR))).isEqualTo("5d 2h");
+    assertThat(underTest.format(Duration.create(2 * ONE_HOUR + ONE_MINUTE))).isEqualTo("2h 1min");
+    assertThat(underTest.format(Duration.create(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE))).isEqualTo("5d 2h");
   }
 
   @Test
   public void not_display_following_element_when_bigger_than_ten() {
-    int hoursInDay = 15;
-    settings.setProperty(CoreProperties.HOURS_IN_DAY, Integer.toString(hoursInDay));
-
-    when(i18n.message(eq(locale), eq("work_duration.x_days"), eq((String) null), eq(15))).thenReturn("15d");
-    when(i18n.message(eq(locale), eq("work_duration.x_hours"), eq((String) null), eq(12))).thenReturn("12h");
-
-    assertThat(durations.format(locale, Duration.create(15 * hoursInDay * ONE_HOUR + 2 * ONE_HOUR + ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("15d");
-    assertThat(durations.format(locale, Duration.create(12 * ONE_HOUR + ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("12h");
+    assertThat(underTest.format(Duration.create(15 * ONE_DAY + 7 * ONE_HOUR + ONE_MINUTE))).isEqualTo("15d");
   }
 
   @Test
   public void display_zero_without_unit() {
-    assertThat(durations.format(locale, Duration.create(0), Durations.DurationFormat.SHORT)).isEqualTo("0");
+    assertThat(underTest.format(Duration.create(0))).isEqualTo("0");
   }
 
   @Test
   public void display_negative_duration() {
-    when(i18n.message(eq(locale), eq("work_duration.x_days"), eq((String) null), eq(-5))).thenReturn("-5d");
-    when(i18n.message(eq(locale), eq("work_duration.x_hours"), eq((String) null), eq(-2))).thenReturn("-2h");
-    when(i18n.message(eq(locale), eq("work_duration.x_minutes"), eq((String) null), eq(-1))).thenReturn("-1min");
-
-    assertThat(durations.format(locale, Duration.create(-5 * ONE_DAY), Durations.DurationFormat.SHORT)).isEqualTo("-5d");
-    assertThat(durations.format(locale, Duration.create(-2 * ONE_HOUR), Durations.DurationFormat.SHORT)).isEqualTo("-2h");
-    assertThat(durations.format(locale, Duration.create(-1 * ONE_MINUTE), Durations.DurationFormat.SHORT)).isEqualTo("-1min");
+    assertThat(underTest.format(Duration.create(-5 * ONE_DAY))).isEqualTo("-5d");
+    assertThat(underTest.format(Duration.create(-2 * ONE_HOUR))).isEqualTo("-2h");
+    assertThat(underTest.format(Duration.create(-1 * ONE_MINUTE))).isEqualTo("-1min");
   }
 
 }

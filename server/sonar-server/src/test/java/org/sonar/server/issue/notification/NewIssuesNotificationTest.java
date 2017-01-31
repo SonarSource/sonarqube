@@ -21,7 +21,6 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Lists;
 import java.util.Date;
-import java.util.Locale;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.rule.RuleKey;
@@ -107,7 +106,7 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_debt() {
-    when(durations.format(any(Locale.class), any(Duration.class))).thenReturn("55 min");
+    when(durations.format(any(Duration.class))).thenReturn("55 min");
 
     underTest.setDebt(Duration.create(55));
 

@@ -428,7 +428,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated no more used since 6.3. See https://jira.sonarsource.com/browse/SONAR-8610
    */
+  @Deprecated
   String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
 
   /**
