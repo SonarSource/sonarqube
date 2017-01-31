@@ -22,8 +22,12 @@ package org.sonar.scanner.mediumtest.scm;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -85,7 +89,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void testScmMeasure() throws IOException {
+  public void testScmMeasure() throws IOException, URISyntaxException {
     File baseDir = prepareProject();
 
     tester.newTask()
@@ -109,7 +113,7 @@ public class ScmMediumTest {
     assertThat(changesetLine1.getAuthor()).isEmpty();
 
     Changeset changesetLine2 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(1));
-    assertThat(changesetLine2.getAuthor()).isEqualTo("julien");
+    assertThat(changesetLine2.getAuthor()).isEqualTo(getNonAsciiAuthor().toLowerCase());
 
     Changeset changesetLine3 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(2));
     assertThat(changesetLine3.getAuthor()).isEqualTo("julien");
@@ -137,7 +141,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void noScmOnEmptyFile() throws IOException {
+  public void noScmOnEmptyFile() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
 
@@ -163,7 +167,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void log_files_with_missing_blame() throws IOException {
+  public void log_files_with_missing_blame() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
     File xooFileWithoutBlame = new File(baseDir, "src/sample_no_blame.xoo");
@@ -194,7 +198,7 @@ public class ScmMediumTest {
 
   // SONAR-6397
   @Test
-  public void optimize_blame() throws IOException {
+  public void optimize_blame() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
     File changedContentScmOnServer = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO);
@@ -252,7 +256,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void forceReload() throws IOException {
+  public void forceReload() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
     File xooFileNoScm = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
@@ -287,7 +291,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void configureUsingScmURL() throws IOException {
+  public void configureUsingScmURL() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
 
@@ -309,7 +313,7 @@ public class ScmMediumTest {
   }
 
   @Test
-  public void testAutoDetection() throws IOException {
+  public void testAutoDetection() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
     new File(baseDir, ".xoo").createNewFile();
@@ -330,7 +334,12 @@ public class ScmMediumTest {
     assertThat(file1Scm).isNotNull();
   }
 
-  private File prepareProject() throws IOException {
+  private String getNonAsciiAuthor() throws URISyntaxException {
+    return Files.contentOf(new File(this.getClass().getResource("/mediumtest/blameAuthor.txt").toURI()), StandardCharsets.UTF_8);
+
+  }
+
+  private File prepareProject() throws IOException, URISyntaxException {
     File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -341,16 +350,17 @@ public class ScmMediumTest {
     FileUtils.write(xooScmFile1,
       // revision,author,dateTime
       "1,,2013-01-04\n" +
-        "2,julien,2013-01-04\n" +
+        "2," + getNonAsciiAuthor() + ",2013-01-04\n" +
         "3,julien,2013-02-03\n" +
         "3,julien,2013-02-03\n" +
-        "4,simon,2013-03-04\n");
+        "4,simon,2013-03-04\n",
+      StandardCharsets.UTF_8);
 
     return baseDir;
   }
 
   @Test
-  public void testDisableScmSensor() throws IOException {
+  public void testDisableScmSensor() throws IOException, URISyntaxException {
 
     File baseDir = prepareProject();
 
