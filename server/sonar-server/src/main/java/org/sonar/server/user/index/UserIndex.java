@@ -147,7 +147,9 @@ public class UserIndex {
         UserIndexDefinition.FIELD_LOGIN,
         UserIndexDefinition.FIELD_LOGIN + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX,
         UserIndexDefinition.FIELD_NAME,
-        UserIndexDefinition.FIELD_NAME + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX)
+        UserIndexDefinition.FIELD_NAME + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX,
+        UserIndexDefinition.FIELD_EMAIL,
+        UserIndexDefinition.FIELD_EMAIL + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX)
         .operator(MatchQueryBuilder.Operator.AND);
     }
 

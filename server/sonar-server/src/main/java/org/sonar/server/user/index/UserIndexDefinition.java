@@ -77,7 +77,7 @@ public class UserIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
     mapping.stringFieldBuilder(FIELD_LOGIN).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
     mapping.stringFieldBuilder(FIELD_NAME).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
-    mapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
+    mapping.stringFieldBuilder(FIELD_EMAIL).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).enableSorting().build();
     mapping.createDateTimeField(FIELD_CREATED_AT);
     mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);

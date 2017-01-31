@@ -45,11 +45,11 @@ public class UserIndexTest {
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
-  private UserIndex index;
+  private UserIndex underTest;
 
   @Before
   public void setUp() {
-    index = new UserIndex(esTester.client());
+    underTest = new UserIndex(esTester.client());
   }
 
   @Test
@@ -58,7 +58,7 @@ public class UserIndexTest {
     esTester.putDocuments(INDEX, TYPE_USER, user1);
     esTester.putDocuments(INDEX, TYPE_USER, newUser(USER2_LOGIN, Collections.<String>emptyList()));
 
-    UserDoc userDoc = index.getNullableByLogin(USER1_LOGIN);
+    UserDoc userDoc = underTest.getNullableByLogin(USER1_LOGIN);
     assertThat(userDoc).isNotNull();
     assertThat(userDoc.login()).isEqualTo(user1.login());
     assertThat(userDoc.name()).isEqualTo(user1.name());
@@ -68,8 +68,8 @@ public class UserIndexTest {
     assertThat(userDoc.createdAt()).isEqualTo(user1.createdAt());
     assertThat(userDoc.updatedAt()).isEqualTo(user1.updatedAt());
 
-    assertThat(index.getNullableByLogin("")).isNull();
-    assertThat(index.getNullableByLogin("unknown")).isNull();
+    assertThat(underTest.getNullableByLogin("")).isNull();
+    assertThat(underTest.getNullableByLogin("unknown")).isNull();
   }
 
   @Test
@@ -77,8 +77,8 @@ public class UserIndexTest {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
     esTester.putDocuments(INDEX, TYPE_USER, user1);
 
-    assertThat(index.getNullableByLogin(USER1_LOGIN)).isNotNull();
-    assertThat(index.getNullableByLogin("UsEr1")).isNull();
+    assertThat(underTest.getNullableByLogin(USER1_LOGIN)).isNotNull();
+    assertThat(underTest.getNullableByLogin("UsEr1")).isNull();
   }
 
   @Test
@@ -90,14 +90,14 @@ public class UserIndexTest {
     esTester.putDocuments(INDEX, TYPE_USER, user2);
     esTester.putDocuments(INDEX, TYPE_USER, user3);
 
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0))).extractingResultOf("login").containsOnly(user1.login());
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0))).extractingResultOf("login").containsOnly(user1.login());
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
 
     // both users share the same email
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.email())).extractingResultOf("login").containsOnly(user1.login(), user2.login());
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.email())).extractingResultOf("login").containsOnly(user1.login(), user2.login());
 
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("")).isEmpty();
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("unknown")).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("")).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("unknown")).isEmpty();
   }
 
   @Test
@@ -106,8 +106,8 @@ public class UserIndexTest {
     UserDoc user = newUser(USER1_LOGIN, asList(scmAccount)).setActive(false);
     esTester.putDocuments(INDEX, TYPE_USER, user);
 
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user.login())).isEmpty();
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(scmAccount)).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user.login())).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(scmAccount)).isEmpty();
   }
 
   @Test
@@ -123,19 +123,21 @@ public class UserIndexTest {
     esTester.putDocuments(INDEX, TYPE_USER, user4);
 
     // restrict results to 3 users
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount(email)).hasSize(3);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(email)).hasSize(3);
   }
 
   @Test
   public void searchUsers() throws Exception {
-    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")));
-    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER2_LOGIN, Collections.<String>emptyList()));
+    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")).setEmail("email1"));
+    esTester.putDocuments(INDEX, TYPE_USER, newUser(USER2_LOGIN, Collections.<String>emptyList()).setEmail("email2"));
 
-    assertThat(index.search(null, new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search("user", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search("ser", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(USER1_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(USER2_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(null, new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search("user", new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search("ser", new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(USER1_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search(USER2_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(underTest.search("mail", new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search("EMAIL1", new SearchOptions()).getDocs()).hasSize(1);
   }
 
   private static UserDoc newUser(String login, List<String> scmAccounts) {
