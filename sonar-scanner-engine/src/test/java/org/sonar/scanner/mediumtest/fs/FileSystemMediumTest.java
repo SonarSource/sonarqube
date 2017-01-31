@@ -20,6 +20,9 @@
 package org.sonar.scanner.mediumtest.fs;
 
 import com.google.common.collect.ImmutableMap;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -220,6 +223,54 @@ public class FileSystemMediumTest {
     assertThat(file.publish()).isTrue();
     assertThat(result.getReportComponent(dir.key())).isNotNull();
     assertThat(result.getReportComponent(file.key())).isNotNull();
+
+    tester2.stop();
+  }
+
+  @Test
+  public void publishDirsWithIssues() throws IOException {
+    ScannerMediumTester tester2 = ScannerMediumTester.builder()
+      .registerPlugin("xoo", new XooPlugin())
+      .addDefaultQProfile("xoo", "Sonar Way")
+      .addRules(new XooRulesDefinition())
+      .addActiveRule("xoo", "OneIssuePerDirectory", null, "OneIssuePerDirectory", "MAJOR", null, "xoo")
+      .build();
+    tester2.start();
+
+    builder = ImmutableMap.<String, String>builder()
+      .put("sonar.task", "scan")
+      .put("sonar.verbose", "true")
+      .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+      .put("sonar.projectKey", "com.foo.project")
+      .put("sonar.projectVersion", "1.0-SNAPSHOT")
+      .put("sonar.projectDescription", "Description of Foo Project");
+
+    Path unknownRelative = Paths.get("src/unknown/file.unknown");
+    Path unknown = baseDir.toPath().resolve(unknownRelative);
+    Files.createDirectories(unknown.getParent());
+    Files.write(unknown, "dummy content".getBytes());
+
+    Path emptyDirRelative = Paths.get("src/emptydir");
+    Files.createDirectories(emptyDirRelative);
+
+    TaskResult result = tester2.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    DefaultInputFile unknownInputFile = (DefaultInputFile) result.inputFile(unknownRelative.toString());
+    InputDir unknownInputDir = result.inputDir(unknownRelative.getParent().toString());
+    assertThat(unknownInputFile.publish()).isFalse();
+    assertThat(result.getReportComponent(unknownInputDir.key())).isNotNull();
+
+    // no issues on empty dir
+    InputDir emptyInputDir = result.inputDir(emptyDirRelative.toString());
+    assertThat(emptyInputDir).isNull();
+
+    // no issues on parent dir
+    InputDir parentInputDir = result.inputDir(unknownRelative.getParent().getParent().toString());
+    assertThat(parentInputDir).isNull();
 
     tester2.stop();
   }

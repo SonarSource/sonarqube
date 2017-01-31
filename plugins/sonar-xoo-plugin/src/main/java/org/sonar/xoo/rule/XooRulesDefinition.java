@@ -91,6 +91,10 @@ public class XooRulesDefinition implements RulesDefinition {
       .setHtmlDescription("Generate an issue on each file");
     oneIssuePerFile.setDebtRemediationFunction(oneIssuePerFile.debtRemediationFunctions().linear("10min"));
 
+    NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY).setName("One Issue Per Directory")
+      .setHtmlDescription("Generate an issue on each non-empty directory");
+    oneIssuePerFile.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear("10min"));
+
     NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
       .setHtmlDescription("Generate an issue on each file with a debt of one day");
     oneDayDebtPerFile.setDebtRemediationFunction(oneDayDebtPerFile.debtRemediationFunctions().linear("1d"));
