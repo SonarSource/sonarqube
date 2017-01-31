@@ -69,7 +69,6 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
@@ -400,7 +399,7 @@ public class IssueQueryService {
 
   private void addDeveloperTechnicalProjects(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
     Collection<ComponentDto> technicalProjects = dbClient.componentDao().selectByUuids(session, componentUuids);
-    Collection<String> developerUuids = Collections2.transform(technicalProjects, toProjectUuid());
+    Collection<String> developerUuids = Collections2.transform(technicalProjects, ComponentDto::projectUuid);
     Collection<String> authorsFromProjects = authorsFromParamsOrFromDeveloper(session, developerUuids, authors);
     builder.authors(authorsFromProjects);
     Collection<String> projectUuids = Collections2.transform(technicalProjects, ComponentDto::getCopyResourceUuid);

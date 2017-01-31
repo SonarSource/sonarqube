@@ -34,7 +34,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
@@ -111,7 +110,7 @@ public class CoveredFilesAction implements TestsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
-    return Maps.uniqueIndex(components, ComponentDtoFunctions.toUuid());
+    return Maps.uniqueIndex(components, ComponentDto::uuid);
   }
 
   private static class CoveredFileToFileUuidFunction implements Function<CoveredFileDoc, String> {

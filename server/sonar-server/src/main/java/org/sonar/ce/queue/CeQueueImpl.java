@@ -44,7 +44,6 @@ import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 
 @ComputeEngineSide
 public class CeQueueImpl implements CeQueue {
@@ -122,7 +121,7 @@ public class CeQueueImpl implements CeQueue {
       .toSet();
     Map<String, ComponentDto> componentDtoByUuid = from(dbClient.componentDao()
       .selectByUuids(dbSession, componentUuids))
-        .uniqueIndex(toUuid());
+        .uniqueIndex(ComponentDto::uuid);
 
     return from(dtos)
       .transform(new CeQueueDtoToCeTask(defaultOrganizationProvider.get().getUuid(), componentDtoByUuid))

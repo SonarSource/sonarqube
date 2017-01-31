@@ -47,7 +47,6 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 
 /**
  * Validate project and modules. It will fail in the following cases :
@@ -81,7 +80,7 @@ public class ValidateProjectStep implements ComputationStep {
     try {
       Component root = treeRootHolder.getRoot();
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, root.getKey());
-      Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(toKey());
+      Map<String, ComponentDto> baseModulesByKey = from(baseModules).uniqueIndex(ComponentDto::key);
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
 
