@@ -45,7 +45,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
   private List<String> projectPermissionsCheckedByKey = newArrayList();
   private List<String> projectPermissionsCheckedByUuid = newArrayList();
-  private Map<String, String> projectKeyByComponentKey = newHashMap();
 
   protected AbstractMockUserSession(Class<T> clazz) {
     this.clazz = clazz;
@@ -75,9 +74,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public T addProjectPermissions(String projectPermission, String... projectKeys) {
     this.projectPermissionsCheckedByKey.add(projectPermission);
     this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
-    for (String projectKey : projectKeys) {
-      this.projectKeyByComponentKey.put(projectKey, projectKey);
-    }
     return clazz.cast(this);
   }
 
@@ -95,7 +91,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
    */
   @Deprecated
   public T addComponentPermission(String projectPermission, String projectKey, String componentKey) {
-    this.projectKeyByComponentKey.put(componentKey, projectKey);
     addProjectPermissions(projectPermission, projectKey);
     return clazz.cast(this);
   }
@@ -116,17 +111,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return hasComponentUuidPermission(permission, component.projectUuid());
   }
 
-  @Override
-  public boolean hasComponentPermission(String permission, String componentKey) {
-    String projectKey = projectKeyByComponentKey.get(componentKey);
-    return hasPermission(permission) || (projectKey != null && hasProjectPermission(permission, projectKey));
-  }
-
-  private boolean hasProjectPermission(String permission, String projectKey) {
-    return projectPermissionsCheckedByKey.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey);
-  }
-
-  @Override
+    @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
     return hasPermission(permission) || (projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid));

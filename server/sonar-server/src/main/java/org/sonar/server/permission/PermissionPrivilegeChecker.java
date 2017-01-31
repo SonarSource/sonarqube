@@ -37,13 +37,9 @@ public class PermissionPrivilegeChecker {
       .checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
   }
 
-  /**
-   * @deprecated does not support organizations. Replaced by {@link #checkProjectAdmin(UserSession, String, Optional)}
-   */
-  @Deprecated
-  public static void checkProjectAdminUserByComponentKey(UserSession userSession, @Nullable String componentKey) {
+  public static void checkProjectAdminUserByComponentUuid(UserSession userSession, @Nullable String componentUuid) {
     userSession.checkLoggedIn();
-    if (componentKey == null || !userSession.hasComponentPermission(UserRole.ADMIN, componentKey)) {
+    if (componentUuid == null || !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
       userSession.checkPermission(SYSTEM_ADMIN);
     }
   }

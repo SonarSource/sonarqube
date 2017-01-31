@@ -49,8 +49,6 @@ import static java.util.Objects.requireNonNull;
  * Implementation of {@link UserSession} used in web server
  */
 public class ServerUserSession extends AbstractUserSession {
-  private Map<String, String> projectKeyByComponentKey = newHashMap();
-
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
@@ -61,7 +59,6 @@ public class ServerUserSession extends AbstractUserSession {
   private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private SetMultimap<String, String> permissionsByOrganizationUuid;
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
-  private List<String> projectPermissionsCheckedByKey = new ArrayList<>();
   private List<String> projectPermissionsCheckedByUuid = new ArrayList<>();
 
   private ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
@@ -162,44 +159,6 @@ public class ServerUserSession extends AbstractUserSession {
       globalPermissions = ImmutableList.copyOf(permissionKeys);
     }
     return globalPermissions;
-  }
-
-  @Override
-  public boolean hasComponentPermission(String permission, String componentKey) {
-    if (isRoot() || hasPermission(permission)) {
-      return true;
-    }
-
-    String projectKey = projectKeyByComponentKey.get(componentKey);
-    if (projectKey == null) {
-      ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
-      if (project == null) {
-        return false;
-      }
-      projectKey = project.getKey();
-    }
-    boolean hasComponentPermission = hasProjectPermission(permission, projectKey);
-    if (hasComponentPermission) {
-      projectKeyByComponentKey.put(componentKey, projectKey);
-      return true;
-    }
-    return false;
-  }
-
-  private boolean hasProjectPermission(String permission, String projectKey) {
-    if (isRoot()) {
-      return true;
-    }
-    if (!projectPermissionsCheckedByKey.contains(permission)) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        Collection<String> projectKeys = dbClient.authorizationDao().selectAuthorizedRootProjectsKeys(dbSession, getUserId(), permission);
-        for (String key : projectKeys) {
-          projectKeyByPermission.put(permission, key);
-        }
-        projectPermissionsCheckedByKey.add(permission);
-      }
-    }
-    return projectKeyByPermission.get(permission).contains(projectKey);
   }
 
   @Override

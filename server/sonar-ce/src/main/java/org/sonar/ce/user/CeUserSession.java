@@ -122,11 +122,6 @@ public class CeUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, String componentKey) {
-    return notImplementedBooleanMethod();
-  }
-
-  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return notImplementedBooleanMethod();
   }

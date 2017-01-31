@@ -31,12 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
@@ -54,8 +52,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
 public class PermissionTemplateService {
@@ -72,26 +68,7 @@ public class PermissionTemplateService {
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
-
-  /**
-   * @deprecated replaced by {@link #applyDefault(DbSession, String, ComponentDto, Long)}, which <b>does not
-   * verify that user is authorized to administrate the component</b>.
-   */
-  @Deprecated
-  public void applyDefaultPermissionTemplate(DbSession session, String organizationUuid, String componentKey) {
-    ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, componentKey), "Component key '%s' not found", componentKey);
-    ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
-    if (provisioned == null) {
-      checkProjectAdminUserByComponentKey(userSession, componentKey);
-    } else {
-      userSession.checkPermission(GlobalPermissions.PROVISIONING);
-    }
-
-    Integer currentUserId = userSession.getUserId();
-    Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
-    applyDefault(session, organizationUuid, component, userId);
-  }
-
+  
   public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession,
     String organizationUuid, @Nullable Long userId, String permission, @Nullable String branch, String projectKey,
     String qualifier) {

@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,14 +48,14 @@ public class DoPrivilegedTest {
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
     assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
-    assertThat(catcher.userSession.hasComponentPermission("any permission", "any project")).isTrue();
+    assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);
   }
 
   @Test
-  public void should_lose_privileges_on_exception() {
+  public void should_loose_privileges_on_exception() {
     UserSessionCatcherTask catcher = new UserSessionCatcherTask() {
       @Override
       protected void doPrivileged() {
@@ -73,7 +74,7 @@ public class DoPrivilegedTest {
       // verify the session used inside Privileged task
       assertThat(catcher.userSession.isLoggedIn()).isFalse();
       assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
-      assertThat(catcher.userSession.hasComponentPermission("any permission", "any project")).isTrue();
+      assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
     }
   }
 

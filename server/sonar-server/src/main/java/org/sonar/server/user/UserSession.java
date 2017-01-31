@@ -136,15 +136,6 @@ public interface UserSession {
   boolean hasComponentPermission(String permission, ComponentDto component);
 
   /**
-   * Does the user have the given permission for a component key ?
-   *
-   * First, check if the user has the global permission (even if the component doesn't exist)
-   * If not, check is the user has the permission on the project of the component
-   * If the component doesn't exist, return false
-   */
-  boolean hasComponentPermission(String permission, String componentKey);
-
-  /**
    * Does the user have the given project permission for a component uuid ?
   
    * First, check if the user has the global permission (even if the component doesn't exist)

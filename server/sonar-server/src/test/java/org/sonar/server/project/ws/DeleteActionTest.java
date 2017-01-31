@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -76,7 +77,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void global_admin_deletes_project_by_uuid() throws Exception {
+  public void global_admin_deletes_project_by_id() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
     userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
@@ -115,7 +116,7 @@ public class DeleteActionTest {
   @Test
   public void project_administrator_deletes_the_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
-    userSessionRule.login().addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call(newRequest().setParam(PARAM_KEY, project.key()));
 
@@ -123,11 +124,23 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
-    userSessionRule.login().setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
+  public void return_403_if_not_project_admin_nor_org_admin() throws Exception {
+    ComponentDto project = componentDbTester.insertProject();
+
+    userSessionRule.login().addProjectUuidPermissions(project.uuid(), UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    call(newRequest().setParam(PARAM_ID, "whatever-the-uuid"));
+    call(newRequest().setParam(PARAM_ID, project.uuid()));
+  }
+
+  @Test
+  public void return_401_if_not_logged_in() throws Exception {
+    ComponentDto project = componentDbTester.insertProject();
+
+    userSessionRule.anonymous();
+    expectedException.expect(UnauthorizedException.class);
+
+    call(newRequest().setParam(PARAM_ID, project.uuid()));
   }
 
   private WsTester.TestRequest newRequest() {
