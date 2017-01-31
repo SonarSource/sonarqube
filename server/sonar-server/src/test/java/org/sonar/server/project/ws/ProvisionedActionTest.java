@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -189,6 +190,18 @@ public class ProvisionedActionTest {
     expectedException.expect(ForbiddenException.class);
 
     underTest.newRequest().execute();
+  }
+
+  @Test
+  public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
+    TestRequest request = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, "foo");
+    userSessionRule.login();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization for key 'foo'");
+
+    request.execute();
   }
 
   private static ComponentDto newProvisionedProject(OrganizationDto organizationDto, String uuid) {
