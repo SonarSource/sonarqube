@@ -131,6 +131,8 @@ public class SearchActionTest {
         .setScmAccounts(user.getScmAccountsAsList()));
 
     ws.newGetRequest("api/users", "search").setParam("q", "user-%_%-").execute().assertJson(getClass(), "user_one.json");
+    ws.newGetRequest("api/users", "search").setParam("q", "user@MAIL.com").execute().assertJson(getClass(), "user_one.json");
+    ws.newGetRequest("api/users", "search").setParam("q", "user-name").execute().assertJson(getClass(), "user_one.json");
   }
 
   @Test
