@@ -48,6 +48,53 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
+  public void should_prefer_prefix_matching_over_partial_matching() {
+    assertResultOrder("corem",
+      "CoreMetrics.java",
+      "ScoreMatrix.java");
+  }
+
+  @Test
+  public void should_prefer_case_sensitive_prefix() {
+    assertResultOrder("caSe",
+      "caSeBla.java",
+      "CaseBla.java");
+  }
+
+  @Test
+  public void scoring_prefix_with_multiple_words() {
+    assertResultOrder("index java",
+      "IndexSomething.java",
+      "MyIndex.java");
+  }
+
+  @Test
+  public void scoring_prefix_with_multiple_words_and_case() {
+    assertResultOrder("Index JAVA",
+      "IndexSomething.java",
+      "index_java.js");
+  }
+
+  @Test
+  public void scoring_long_items() {
+    assertResultOrder("ThisIsAVeryLongNameToSearchForAndItExceeds15Characters.java",
+      "ThisIsAVeryLongNameToSearchForAndItExceeds15Characters.java",
+      "ThisIsAVeryLongNameToSearchForAndItEndsDifferently.java");
+  }
+
+  @Test
+  public void do_not_match_wrong_file_extension() {
+    ComponentDto file1 = indexFile("MyClass.java");
+    ComponentDto file2 = indexFile("ClassExample.java");
+    ComponentDto file3 = indexFile("Class.java");
+    indexFile("Class.cs");
+    indexFile("Class.js");
+    indexFile("Class.rb");
+
+    assertExactResults("Class java", file3, file2, file1);
+  }
+
+  @Test
   public void scoring_test_DbTester() {
     features.set(ComponentIndexSearchFeature.PARTIAL);
 
