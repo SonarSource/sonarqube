@@ -27,7 +27,7 @@ exports[`test new_open_issues 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="new_open_issues" />
         new_open_issues
       </div>
@@ -71,7 +71,7 @@ exports[`test new_reliability_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="new_reliability_rating" />
         new_reliability_rating
       </div>
@@ -115,7 +115,7 @@ exports[`test new_security_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="new_security_rating" />
         new_security_rating
       </div>
@@ -159,7 +159,7 @@ exports[`test new_sqale_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="new_sqale_rating" />
         new_sqale_rating
       </div>
@@ -203,7 +203,7 @@ exports[`test open_issues 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="open_issues" />
         Open open_issues
       </div>
@@ -247,7 +247,7 @@ exports[`test reliability_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="reliability_rating" />
         reliability_rating
       </div>
@@ -291,7 +291,7 @@ exports[`test security_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="security_rating" />
         security_rating
       </div>
@@ -335,7 +335,7 @@ exports[`test sqale_rating 1`] = `
       <div
         className="overview-quality-gate-condition-metric">
         <IssueTypeIcon
-          className="spacer-right"
+          className="little-spacer-right"
           query="sqale_rating" />
         sqale_rating
       </div>
