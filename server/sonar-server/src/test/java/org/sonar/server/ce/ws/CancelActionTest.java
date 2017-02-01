@@ -21,11 +21,10 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbTester;
+import org.junit.rules.ExpectedException;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -37,17 +36,16 @@ public class CancelActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public ExpectedException expectedException = ExpectedException.none();
 
-  CeQueue queue = mock(CeQueue.class);
-  CancelAction underTest = new CancelAction(userSession, queue);
-  WsActionTester tester = new WsActionTester(underTest);
+  private CeQueue queue = mock(CeQueue.class);
+  private CancelAction underTest = new CancelAction(userSession, queue);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void cancel_pending_task() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.login().setRoot();
 
     tester.newRequest()
       .setParam("id", "T1")
@@ -56,20 +54,40 @@ public class CancelActionTest {
     verify(queue).cancel("T1");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void missing_id() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+  @Test
+  public void throw_IllegalArgumentException_if_missing_id() {
+    userSession.login().setRoot();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'id' parameter is missing");
 
     tester.newRequest().execute();
 
     verifyZeroInteractions(queue);
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void not_authorized() {
+  @Test
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.login().setNonRoot();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
     tester.newRequest()
       .setParam("id", "T1")
       .execute();
+
+    verifyZeroInteractions(queue);
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() {
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    tester.newRequest().execute();
 
     verifyZeroInteractions(queue);
   }

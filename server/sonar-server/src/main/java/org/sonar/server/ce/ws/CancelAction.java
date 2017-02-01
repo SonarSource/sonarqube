@@ -22,9 +22,8 @@ package org.sonar.server.ce.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Uuids;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.user.UserSession;
 
 public class CancelAction implements CeWsAction {
@@ -42,7 +41,7 @@ public class CancelAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("cancel")
-      .setDescription("Cancels a pending task. Requires system administration permission. In-progress tasks can not be canceled.")
+      .setDescription("Cancels a pending task. Requires system administration permission. In-progress tasks cannot be canceled.")
       .setInternal(true)
       .setPost(true)
       .setSince("5.2")
@@ -57,7 +56,7 @@ public class CancelAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkPermission(UserRole.ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
     String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
     queue.cancel(taskId);
     wsResponse.noContent();
