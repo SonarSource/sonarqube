@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ListAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.sonar.api.config.MapSettings;
@@ -97,12 +97,12 @@ public abstract class ComponentIndexTest {
     assertExactResults(query, files.toArray(new ComponentDto[0]));
   }
 
-  protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
-    return assertSearch(new ComponentIndexQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)));
+  protected ListAssert<String> assertSearch(String query) {
+    return assertSearch(new ComponentIndexQuery(query));
   }
 
-  protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query, features.get()))
+  protected ListAssert<String> assertSearch(ComponentIndexQuery query) {
+    return (ListAssert<String>) assertThat(index.search(query, features.get()))
       .flatExtracting(ComponentsPerQualifier::getComponentUuids);
   }
 

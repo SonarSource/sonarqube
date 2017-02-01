@@ -29,7 +29,8 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -657,7 +658,7 @@ public class ComponentDaoTest {
       .containsOnly("U1", "U2", "U3", "U4");
   }
 
-  private ListAssert<String> assertSelectForIndexing(@Nullable String projectUuid) {
+  private AbstractListAssert<?, List<? extends String>, String, ObjectAssert<String>> assertSelectForIndexing(@Nullable String projectUuid) {
     db.prepareDbUnit(getClass(), "selectForIndexing.xml");
 
     List<ComponentDto> components = new ArrayList<>();
