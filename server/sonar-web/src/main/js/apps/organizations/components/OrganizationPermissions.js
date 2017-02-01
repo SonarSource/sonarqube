@@ -19,25 +19,25 @@
  */
 // @flow
 import React from 'react';
-import PageHeader from './PageHeader';
-import AllHoldersList from './AllHoldersList';
-import PageError from '../../shared/components/PageError';
-import '../../styles.css';
+import { connect } from 'react-redux';
+import GlobalPermissionsApp from '../../permissions/global/components/App';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
-// TODO helmet
-
-export default class App extends React.Component {
+class OrganizationPermissions extends React.Component {
   props: {
-    organization?: {}
+    organization: Organization
   };
 
   render () {
     return (
-        <div className="page page-limited">
-          <PageHeader/>
-          <PageError/>
-          <AllHoldersList organization={this.props.organization}/>
-        </div>
+        <GlobalPermissionsApp organization={this.props.organization}/>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
+});
+
+export default connect(mapStateToProps)(OrganizationPermissions);

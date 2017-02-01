@@ -37,7 +37,7 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
-export const loadHolders = () => (dispatch, getState) => {
+export const loadHolders = organization => (dispatch, getState) => {
   const query = getPermissionsAppQuery(getState());
   const filter = getPermissionsAppFilter(getState());
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
@@ -47,13 +47,13 @@ export const loadHolders = () => (dispatch, getState) => {
   const requests = [];
 
   if (filter !== 'groups') {
-    requests.push(api.getGlobalPermissionsUsers(query, selectedPermission));
+    requests.push(api.getGlobalPermissionsUsers(query, selectedPermission, organization));
   } else {
     requests.push(Promise.resolve([]));
   }
 
   if (filter !== 'users') {
-    requests.push(api.getGlobalPermissionsGroups(query, selectedPermission));
+    requests.push(api.getGlobalPermissionsGroups(query, selectedPermission, organization));
   } else {
     requests.push(Promise.resolve([]));
   }
@@ -70,46 +70,46 @@ export const loadHolders = () => (dispatch, getState) => {
   });
 };
 
-export const updateQuery = (query = '') => dispatch => {
+export const updateQuery = (query = '', organization) => dispatch => {
   dispatch({ type: UPDATE_QUERY, query });
   if (query.length === 0 || query.length > 2) {
-    dispatch(loadHolders());
+    dispatch(loadHolders(organization));
   }
 };
 
-export const updateFilter = filter => dispatch => {
+export const updateFilter = (filter, organization) => dispatch => {
   dispatch({ type: UPDATE_FILTER, filter });
-  dispatch(loadHolders());
+  dispatch(loadHolders(organization));
 };
 
-export const selectPermission = permission => (dispatch, getState) => {
+export const selectPermission = (permission, organization) => (dispatch, getState) => {
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
   if (selectedPermission !== permission) {
     dispatch({ type: SELECT_PERMISSION, permission });
   } else {
     dispatch({ type: SELECT_PERMISSION, permission: null });
   }
-  dispatch(loadHolders());
+  dispatch(loadHolders(organization));
 };
 
-export const grantToUser = (login, permission) => dispatch => {
-  api.grantPermissionToUser(null, login, permission).then(() => {
+export const grantToUser = (login, permission, organization) => dispatch => {
+  api.grantPermissionToUser(null, login, permission, organization).then(() => {
     dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
 };
 
-export const revokeFromUser = (login, permission) => dispatch => {
-  api.revokePermissionFromUser(null, login, permission).then(() => {
+export const revokeFromUser = (login, permission, organization) => dispatch => {
+  api.revokePermissionFromUser(null, login, permission, organization).then(() => {
     dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
 };
 
-export const grantToGroup = (groupName, permission) => dispatch => {
-  api.grantPermissionToGroup(null, groupName, permission).then(() => {
+export const grantToGroup = (groupName, permission, organization) => dispatch => {
+  api.grantPermissionToGroup(null, groupName, permission, organization).then(() => {
     dispatch({
       type: GRANT_PERMISSION_TO_GROUP,
       groupName,
@@ -120,8 +120,8 @@ export const grantToGroup = (groupName, permission) => dispatch => {
   });
 };
 
-export const revokeFromGroup = (groupName, permission) => dispatch => {
-  api.revokePermissionFromGroup(null, groupName, permission).then(() => {
+export const revokeFromGroup = (groupName, permission, organization) => dispatch => {
+  api.revokePermissionFromGroup(null, groupName, permission, organization).then(() => {
     dispatch({
       type: REVOKE_PERMISSION_FROM_GROUP,
       groupName,

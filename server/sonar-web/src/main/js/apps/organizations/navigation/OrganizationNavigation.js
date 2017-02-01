@@ -26,6 +26,7 @@ const ADMIN_PATHS = [
   'edit',
   'groups',
   'delete',
+  'permissions',
   'permission_templates'
 ];
 
@@ -55,6 +56,11 @@ export default class OrganizationNavigation extends React.Component {
             <li>
               <Link to={`/organizations/${organization.key}/groups`} activeClassName="active">
                 {translate('user_groups.page')}
+              </Link>
+            </li>
+            <li>
+              <Link to={`/organizations/${organization.key}/permissions`} activeClassName="active">
+                {translate('permissions')}
               </Link>
             </li>
             <li>
