@@ -22,6 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { getAppState } from '../../store/rootReducer';
+import GlobalFooterBranding from './GlobalFooterBranding';
 
 class GlobalFooter extends React.Component {
   render () {
@@ -41,16 +42,7 @@ class GlobalFooter extends React.Component {
               </div>
           )}
 
-          <div>
-            This application is based on
-            {' '}
-            <a href="http://www.sonarqube.org/" title="SonarQube&trade;">SonarQube&trade;</a>
-            {' '}
-            but is <strong>not</strong> an official version provided by
-            {' '}
-            <a href="http://www.sonarsource.com" title="SonarSource SA">SonarSource SA</a>.
-          </div>
-
+          <GlobalFooterBranding/>
 
           <div>
             Version {sonarqubeVersion}
