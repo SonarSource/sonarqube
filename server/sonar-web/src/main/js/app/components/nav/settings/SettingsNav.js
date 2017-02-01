@@ -155,11 +155,13 @@ class SettingsNav extends React.Component {
                     {translate('sidebar.projects')} <i className="icon-dropdown"/>
                   </a>
                   <ul className="dropdown-menu">
-                    <li>
-                      <IndexLink to="/projects_admin" activeClassName="active">
-                        Management
-                      </IndexLink>
-                    </li>
+                    {!this.props.customOrganizations && (
+                      <li>
+                        <IndexLink to="/projects_admin" activeClassName="active">
+                          Management
+                        </IndexLink>
+                      </li>
+                    )}
                     <li>
                       <IndexLink to="/background_tasks" activeClassName="active">
                         {translate('background_tasks.page')}

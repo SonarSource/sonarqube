@@ -45,6 +45,9 @@ export default ModalForm.extend({
       branch: this.$('#create-project-branch').val(),
       key: this.$('#create-project-key').val()
     };
+    if (this.options.organization) {
+      data.organization = this.options.organization.key;
+    }
     this.disableForm();
     return createProject(data)
         .then(project => {
@@ -57,9 +60,7 @@ export default ModalForm.extend({
         })
         .catch(error => {
           this.enableForm();
-          if (error.response.status === 400) {
-            error.response.json().then(obj => this.showErrors([{ msg: obj.err_msg }]));
-          }
+          error.response.json().then(r => this.showErrors(r.errors, r.warnings));
         });
   },
 

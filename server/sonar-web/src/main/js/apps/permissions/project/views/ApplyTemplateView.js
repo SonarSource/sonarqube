@@ -33,7 +33,10 @@ export default ModalForm.extend({
   },
 
   loadPermissionTemplates () {
-    return getPermissionTemplates(this.options.project.organization).then(r => {
+    const request = this.options.organization ?
+        getPermissionTemplates(this.options.organization.key) :
+        getPermissionTemplates();
+    return request.then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });
@@ -52,10 +55,14 @@ export default ModalForm.extend({
     const permissionTemplate = this.$('#project-permissions-template').val();
     this.disableForm();
 
-    applyTemplateToProject({
+    const data = {
       projectKey: this.options.project.key,
       templateId: permissionTemplate
-    }).then(() => {
+    };
+    if (this.options.organization) {
+      data.organization = this.options.organization.key;
+    }
+    applyTemplateToProject(data).then(() => {
       this.trigger('done');
       this.done = true;
       this.render();

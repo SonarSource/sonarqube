@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import Main from './main';
-import { getCurrentUser, getAppState } from '../../store/rootReducer';
-import { getRootQualifiers } from '../../store/appState/duck';
+import AppContainer from '../../projects-admin/AppContainer';
+import { getOrganizationByKey } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
 
-class AppContainer extends React.Component {
+class OrganizationProjectsManagement extends React.Component {
+  props: {
+    organization: Organization
+  };
+
   render () {
-    const hasProvisionPermission = this.props.organization ?
-        this.props.organization.canProvisionProjects :
-        this.props.user.permissions.global.indexOf('provisioning') !== -1;
-
     return (
-        <Main
-            hasProvisionPermission={hasProvisionPermission}
-            topLevelQualifiers={this.props.rootQualifiers}
-            organization={this.props.organization}/>
+        <AppContainer organization={this.props.organization}/>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  rootQualifiers: getRootQualifiers(getAppState(state)),
-  user: getCurrentUser(state)
+const mapStateToProps = (state, ownProps) => ({
+  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
-export default connect(
-    mapStateToProps
-)(AppContainer);
+export default connect(mapStateToProps)(OrganizationProjectsManagement);

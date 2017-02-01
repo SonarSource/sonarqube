@@ -34,7 +34,10 @@ export default ModalForm.extend({
   },
 
   loadPermissionTemplates () {
-    return getPermissionTemplates().then(r => {
+    const request = this.options.organization ?
+        getPermissionTemplates(this.options.organization.key) :
+        getPermissionTemplates();
+    return request.then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });
@@ -59,6 +62,10 @@ export default ModalForm.extend({
       data.qualifier = this.options.qualifier;
     }
 
+    if (this.options.organization) {
+      data.organization = this.options.organization.key;
+    }
+
     return bulkApplyTemplate(data);
   },
 
@@ -68,6 +75,9 @@ export default ModalForm.extend({
 
     selection.forEach(projectId => {
       const data = { templateId: permissionTemplate, projectId };
+      if (this.options.organization) {
+        data.organization = this.options.organization.key;
+      }
       lastRequest = lastRequest.then(() => applyTemplateToProject(data));
     });
 
@@ -88,7 +98,7 @@ export default ModalForm.extend({
       this.trigger('done');
       this.done = true;
       this.render();
-    }).catch(function (e) {
+    }).catch(e => {
       e.response.json().then(r => {
         this.showErrors(r.errors, r.warnings);
         this.enableForm();
