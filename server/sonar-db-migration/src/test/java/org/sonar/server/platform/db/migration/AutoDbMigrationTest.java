@@ -58,7 +58,8 @@ public class AutoDbMigrationTest {
 
   private AutoDbMigration noRealH2Creation = spy(new AutoDbMigration(serverUpgradeStatus, dbClient, migrationEngine) {
     @Override
-    protected void createSchema(Connection connection, String dialectId) {
+    protected void createH2Schema(Connection connection, String dialectId) {
+      // do nothing
     }
   });
 

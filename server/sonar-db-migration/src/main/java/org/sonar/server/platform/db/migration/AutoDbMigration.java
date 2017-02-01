@@ -21,6 +21,8 @@ package org.sonar.server.platform.db.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
@@ -66,15 +68,39 @@ public class AutoDbMigration implements Startable {
     Connection connection = null;
     try (SqlSession session = dbClient.openSession(false)) {
       connection = session.getConnection();
-      createSchema(connection, dbClient.getDatabase().getDialect().getId());
+      createH2Schema(connection, dbClient.getDatabase().getDialect().getId());
     } finally {
       DbUtils.closeQuietly(connection);
     }
   }
 
   @VisibleForTesting
-  protected void createSchema(Connection connection, String dialectId) {
+  protected void createH2Schema(Connection connection, String dialectId) {
     DdlUtils.createSchema(connection, dialectId, false);
+    hackFixForProjectMeasureTreeQueries(connection);
+  }
+
+  /**
+   * see SONAR-8586
+   */
+  private static void hackFixForProjectMeasureTreeQueries(Connection connection) {
+    int metricId = 1;
+    try (PreparedStatement preparedStatement = connection.prepareStatement("insert into PROJECT_MEASURES (METRIC_ID,COMPONENT_UUID,ANALYSIS_UUID) values (?,?,?);")) {
+      for (int i = 1; i < 1000; i++) {
+        preparedStatement.setInt(1, metricId);
+        preparedStatement.setString(2, "foo_" + i);
+        preparedStatement.setString(3, "bar_" + i);
+        preparedStatement.addBatch();
+        if (i % 250 == 0) {
+          preparedStatement.executeBatch();
+          connection.commit();
+        }
+      }
+      preparedStatement.executeBatch();
+      connection.commit();
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to insert fake rows into table PROJECT_MEASURES", e);
+    }
   }
 
   @Override
