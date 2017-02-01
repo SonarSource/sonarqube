@@ -8,7 +8,7 @@
       {{#if severity}}
         <li class="coding-rules-detail-property"
             data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
-          {{issueType this.type}}
+          <span class="little-spacer-right">{{issueTypeIcon this.type}}</span>{{issueType this.type}}
         </li>
 
         <li class="coding-rules-detail-property"

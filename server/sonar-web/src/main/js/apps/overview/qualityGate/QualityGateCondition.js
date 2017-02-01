@@ -162,7 +162,7 @@ export default class QualityGateCondition extends React.Component {
 
           <div>
             <div className="overview-quality-gate-condition-metric">
-              <IssueTypeIcon query={metric.key} className="spacer-right"/>
+              <IssueTypeIcon query={metric.key} className="little-spacer-right"/>
               {metric.name}
             </div>
             {!isDiff && period != null && (

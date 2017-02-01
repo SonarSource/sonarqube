@@ -9,7 +9,7 @@
             </div>
             {{#each metrics}}
                 <div class="measure measure-one-line" data-metric="{{key}}">
-                  <span class="measure-name">{{name}}</span>
+                  <span class="measure-name">{{#eq key 'bugs'}}{{issueTypeIcon 'BUG'}} {{/eq}}{{#eq key 'vulnerabilities'}}{{issueTypeIcon 'VULNERABILITY'}} {{/eq}}{{#eq key 'code_smells'}}{{issueTypeIcon 'CODE_SMELL'}} {{/eq}}{{name}}</span>
                   <span class="measure-value">&nbsp;{{value}}</span>
                 </div>
             {{/each}}
@@ -29,7 +29,7 @@
             </div>
             {{#each metrics}}
               <div class="measure measure-one-line" data-metric="{{key}}">
-                <span class="measure-name">{{name}}</span>
+                <span class="measure-name">{{#eq key 'bugs'}}{{issueTypeIcon 'BUG'}} {{/eq}}{{#eq key 'vulnerabilities'}}{{issueTypeIcon 'VULNERABILITY'}} {{/eq}}{{#eq key 'code_smells'}}{{issueTypeIcon 'CODE_SMELL'}} {{/eq}}{{name}}</span>
                 <span class="measure-value">&nbsp;{{value}}</span>
               </div>
             {{/each}}

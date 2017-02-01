@@ -72,6 +72,11 @@
   text-align: left;
 }
 
+.about-page-issue-types svg {
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+
 .about-page-issue-type-number {
   display: inline-block;
   min-width: 60px;

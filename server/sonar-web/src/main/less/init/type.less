@@ -43,7 +43,10 @@ body {
   font-size: ~"@{@{h}-font-size}";
   font-weight: ~"@{@{h}-font-weight}";
 
-  img { vertical-align: middle; }
+  img, svg {
+    vertical-align: middle;
+    transform: translateY(-1px);
+  }
 }
 
 h1, .h1 { .header(h1); }
