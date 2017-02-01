@@ -21,9 +21,7 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbTester;
+import org.junit.rules.ExpectedException;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
@@ -39,25 +37,34 @@ public class CancelAllActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public ExpectedException expectedException = ExpectedException.none();
 
-  CeQueue queue = mock(CeQueue.class);
-  CancelAllAction underTest = new CancelAllAction(userSession, queue);
-  WsActionTester tester = new WsActionTester(underTest);
+  private CeQueue queue = mock(CeQueue.class);
+  private CancelAllAction underTest = new CancelAllAction(userSession, queue);
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void cancel_all_pending_tasks() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.login().setRoot();
 
-    tester.newRequest().execute();
+    call();
 
     verify(queue).cancelAll();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void not_authorized() {
-    tester.newRequest().execute();
+  @Test
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.login().setNonRoot();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    call();
 
     verifyZeroInteractions(queue);
+  }
+
+  private void call() {
+    tester.newRequest().execute();
   }
 }
