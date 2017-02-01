@@ -59,7 +59,7 @@
     left join projects p on sub.componentId = p.id
     <where>
       <if test="query.searchQueryToSql != null">
-        and lower(sub.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+        and lower(sub.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
       </if>
       <!-- filter rows with group permissions -->
       <if test="query.withAtLeastOnePermission()">

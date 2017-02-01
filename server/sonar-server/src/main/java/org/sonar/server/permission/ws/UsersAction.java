@@ -121,9 +121,7 @@ public class UsersAction implements PermissionsWsAction {
       .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setSearchQuery(textQuery);
-    if (project.isPresent()) {
-      permissionQuery.setComponentUuid(project.get().getUuid());
-    }
+    project.ifPresent(projectId -> permissionQuery.setComponentUuid(projectId.getUuid()));
     if (permission != null) {
       if (project.isPresent()) {
         validateProjectPermission(permission);

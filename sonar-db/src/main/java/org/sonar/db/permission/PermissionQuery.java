@@ -47,9 +47,10 @@ public class PermissionQuery {
   private final String componentUuid;
   private final String template;
 
-  // filter on name of users or groups
+  // filter on login, email or name of users or groups
   private final String searchQuery;
   private final String searchQueryToSql;
+  private final String searchQueryToSqlLowercase;
 
   // filter users or groups who have at least one permission. It does make
   // sense when the filter "permission" is set.
@@ -64,7 +65,8 @@ public class PermissionQuery {
     this.componentUuid = builder.componentUuid;
     this.template = builder.template;
     this.searchQuery = builder.searchQuery;
-    this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
+    this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
+    this.searchQueryToSqlLowercase = builder.searchQuery == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
   }
@@ -97,6 +99,11 @@ public class PermissionQuery {
   @CheckForNull
   public String getSearchQueryToSql() {
     return searchQueryToSql;
+  }
+
+  @CheckForNull
+  public String getSearchQueryToSqlLowercase() {
+    return searchQueryToSqlLowercase;
   }
 
   public int getPageSize() {

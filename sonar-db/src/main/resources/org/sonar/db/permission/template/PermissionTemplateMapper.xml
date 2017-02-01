@@ -131,7 +131,7 @@
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
-        AND lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
+        AND lower(u.name) like #{query.searchQueryToSqlLowercase} ESCAPE '/'
       </if>
       <if test="query.withAtLeastOnePermission()">
         and ptu.permission_reference is not null
@@ -182,7 +182,7 @@
     ) groups
     <where>
       <if test="query.searchQueryToSql != null">
-        AND LOWER(groups.name) LIKE #{query.searchQueryToSql} ESCAPE '/'
+        AND LOWER(groups.name) LIKE #{query.searchQueryToSqlLowercase} ESCAPE '/'
       </if>
       <if test="query.withAtLeastOnePermission()">
         AND groups.permission IS NOT NULL

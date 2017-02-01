@@ -30,7 +30,11 @@
         and u.login in <foreach collection="userLogins" open="(" close=")" item="userLogin" separator=",">#{userLogin,jdbcType=VARCHAR}</foreach>
       </if>
       <if test="query.searchQueryToSql != null">
-        and lower(u.name) like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+        and (
+        lower(u.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
+        or u.email like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+        or u.login like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/')
+
       </if>
       <!-- filter rows with user permissions -->
       <if test="query.withAtLeastOnePermission()">

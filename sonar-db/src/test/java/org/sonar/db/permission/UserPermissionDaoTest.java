@@ -49,9 +49,9 @@ public class UserPermissionDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private UserPermissionDao underTest = new UserPermissionDao();
-  private UserDto user1 = newUserDto().setLogin("login1").setName("Marius").setActive(true);
-  private UserDto user2 = newUserDto().setLogin("login2").setName("Marie").setActive(true);
-  private UserDto user3 = newUserDto().setLogin("login3").setName("Bernard").setActive(true);
+  private UserDto user1 = newUserDto().setLogin("login1").setName("Marius").setEmail("email1@email.com").setActive(true);
+  private UserDto user2 = newUserDto().setLogin("login2").setName("Marie").setEmail("email2@email.com").setActive(true);
+  private UserDto user3 = newUserDto().setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com").setActive(true);
   private OrganizationDto organizationDto;
   private ComponentDto project1;
   private ComponentDto project2;
@@ -88,7 +88,7 @@ public class UserPermissionDaoTest {
     // (that's a non-sense, but still this is required for api/permissions/groups
     // when filtering users by name)
     query = PermissionQuery.builder().build();
-    expectPermissions(organizationDto, query, null, project1Perm, global2, global3, org2Global2, global1, org2Global1);
+    expectPermissions(organizationDto, query, null, global2, global3, org2Global2, global1, org2Global1, project1Perm);
 
     // return empty list if non-null but empty logins
     expectPermissions(organizationDto, query, Collections.emptyList());
@@ -126,8 +126,16 @@ public class UserPermissionDaoTest {
     expectPermissions(organizationDto, query, null);
 
     // search by user name (matches 2 users)
-    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("Mari").build();
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("mari").build();
     expectPermissions(organizationDto, query, null, global2, global3, global1);
+
+    // search by user login
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("ogin2").build();
+    expectPermissions(organizationDto, query, null, global2, global3);
+
+    // search by user email
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("mail2").build();
+    expectPermissions(organizationDto, query, null, global2, global3);
 
     // search by user name (matches 2 users) and global permission
     query = PermissionQuery.builder().setSearchQuery("Mari").setPermission(PROVISIONING).build();

@@ -127,24 +127,51 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_also_for_users_without_permission_when_filtering_name() throws Exception {
     // User with permission on project
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
-    UserDto user = db.users().insertUser(newUserDto("with-permission", "with-permission", null));
+    UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User without permission
-    UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission", "without-permission", null));
-    UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", null));
+    UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
 
     loginAsAdminOnDefaultOrganization();
-    String result = newRequest()
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(TEXT_QUERY, "with")
-      .execute()
-      .getInput();
+    String result = newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).setParam(TEXT_QUERY, "name").execute().getInput();
 
-    assertThat(result)
-      .contains(user.getLogin())
-      .contains(withoutPermission.getLogin())
-      .doesNotContain(anotherUser.getLogin());
+    assertThat(result).contains(user.getLogin(), withoutPermission.getLogin()).doesNotContain(anotherUser.getLogin());
+  }
+
+  @Test
+  public void search_also_for_users_without_permission_when_filtering_email() throws Exception {
+    // User with permission on project
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
+    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+
+    // User without permission
+    UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
+
+    loginAsAdminOnDefaultOrganization();
+    String result = newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).setParam(TEXT_QUERY, "email").execute().getInput();
+
+    assertThat(result).contains(user.getLogin(), withoutPermission.getLogin()).doesNotContain(anotherUser.getLogin());
+  }
+
+  @Test
+  public void search_also_for_users_without_permission_when_filtering_login() throws Exception {
+    // User with permission on project
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
+    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+
+    // User without permission
+    UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
+    UserDto anotherUser = db.users().insertUser(newUserDto("another-user", "another-user", "another-user"));
+
+    loginAsAdminOnDefaultOrganization();
+    String result = newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).setParam(TEXT_QUERY, "login").execute().getInput();
+
+    assertThat(result).contains(user.getLogin(), withoutPermission.getLogin()).doesNotContain(anotherUser.getLogin());
   }
 
   @Test
