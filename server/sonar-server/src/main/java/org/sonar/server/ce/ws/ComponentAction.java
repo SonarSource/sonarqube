@@ -35,9 +35,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsCe.ProjectResponse;
 
 public class ComponentAction implements CeWsAction {
@@ -80,8 +80,7 @@ public class ComponentAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, wsRequest.param(PARAM_COMPONENT_ID), wsRequest.param(PARAM_COMPONENT_KEY), COMPONENT_ID_AND_KEY);
       userSession.checkComponentPermission(UserRole.USER, component);
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, component.uuid());
@@ -95,10 +94,7 @@ public class ComponentAction implements CeWsAction {
       if (activityDtos.size() == 1) {
         wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0)));
       }
-      WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
-
-    } finally {
-      dbClient.closeSession(dbSession);
+      writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }
   }
 }

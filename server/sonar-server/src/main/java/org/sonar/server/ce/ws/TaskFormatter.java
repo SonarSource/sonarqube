@@ -20,7 +20,6 @@
 package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -41,6 +40,10 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsCe;
+
+import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 
 /**
  * Converts {@link CeActivityDto} and {@link CeQueueDto} to the protobuf objects
@@ -58,7 +61,7 @@ public class TaskFormatter {
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     ComponentDtoCache cache = ComponentDtoCache.forQueueDtos(dbClient, dbSession, dtos);
-    return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList());
+    return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList(dtos.size()));
   }
 
   public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto) {
@@ -69,29 +72,19 @@ public class TaskFormatter {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeQueueDto rather than from the ComponentDto
-    if (organizationKey != null) {
-      builder.setOrganization(organizationKey);
+    setNullable(organizationKey, builder::setOrganization);
+    if (dto.getComponentUuid() != null) {
+      builder.setComponentId(dto.getComponentUuid());
+      buildComponent(builder, componentDtoCache.getComponent(dto.getComponentUuid()));
     }
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
-    if (dto.getComponentUuid() != null) {
-      builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, componentDtoCache.getComponent(dto.getComponentUuid()));
-    }
-    if (dto.getSubmitterLogin() != null) {
-      builder.setSubmitterLogin(dto.getSubmitterLogin());
-    }
-    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getCreatedAt())));
-    if (dto.getStartedAt() != null) {
-      builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
-    }
-    //
-    Long executionTimeMs = computeExecutionTimeMs(dto);
-    if (executionTimeMs != null) {
-      builder.setExecutionTimeMs(executionTimeMs);
-    }
+    setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
+    builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
+    setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
+    setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
     return builder.build();
   }
 
@@ -105,16 +98,16 @@ public class TaskFormatter {
 
   public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
     ComponentDtoCache cache = ComponentDtoCache.forActivityDtos(dbClient, dbSession, dtos);
-    return dtos.stream().map(input -> formatActivity(input, cache, null)).collect(Collectors.toList());
+    return dtos.stream()
+      .map(input -> formatActivity(input, cache, null))
+      .collect(Collectors.toList(dtos.size()));
   }
 
   private static WsCe.Task formatActivity(CeActivityDto dto, ComponentDtoCache componentDtoCache, @Nullable String scannerContext) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeActivityDto rather than from the ComponentDto
-    if (organizationKey != null) {
-      builder.setOrganization(organizationKey);
-    }
+    setNullable(organizationKey, builder::setOrganization);
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
@@ -123,31 +116,15 @@ public class TaskFormatter {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentDtoCache.getComponent(dto.getComponentUuid()));
     }
-    if (dto.getAnalysisUuid() != null) {
-      builder.setAnalysisId(dto.getAnalysisUuid());
-    }
-    if (dto.getSubmitterLogin() != null) {
-      builder.setSubmitterLogin(dto.getSubmitterLogin());
-    }
-    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getSubmittedAt())));
-    if (dto.getStartedAt() != null) {
-      builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
-    }
-    if (dto.getExecutedAt() != null) {
-      builder.setExecutedAt(DateUtils.formatDateTime(new Date(dto.getExecutedAt())));
-    }
-    if (dto.getExecutionTimeMs() != null) {
-      builder.setExecutionTimeMs(dto.getExecutionTimeMs());
-    }
-    if (dto.getErrorMessage() != null) {
-      builder.setErrorMessage(dto.getErrorMessage());
-    }
-    if (dto.getErrorStacktrace() != null) {
-      builder.setErrorStacktrace(dto.getErrorStacktrace());
-    }
-    if (scannerContext != null) {
-      builder.setScannerContext(scannerContext);
-    }
+    setNullable(dto.getAnalysisUuid(), builder::setAnalysisId);
+    setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
+    builder.setSubmittedAt(formatDateTime(new Date(dto.getSubmittedAt())));
+    setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
+    setNullable(dto.getExecutedAt(), builder::setExecutedAt, DateUtils::formatDateTime);
+    setNullable(dto.getExecutionTimeMs(), builder::setExecutionTimeMs);
+    setNullable(dto.getErrorMessage(), builder::setErrorMessage);
+    setNullable(dto.getErrorStacktrace(), builder::setErrorStacktrace);
+    setNullable(scannerContext, builder::setScannerContext);
     builder.setHasScannerContext(dto.isHasScannerContext());
     return builder.build();
   }
@@ -172,7 +149,7 @@ public class TaskFormatter {
     static ComponentDtoCache forQueueDtos(DbClient dbClient, DbSession dbSession, Collection<CeQueueDto> ceQueueDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(dbSession, uuidOfCeQueueDtos(ceQueueDtos))
         .stream()
-        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(ComponentDto::uuid));
+        .collect(Collectors.uniqueIndex(ComponentDto::uuid));
       return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
     }
 
@@ -181,7 +158,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeQueueDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(org.sonar.core.util.stream.Collectors.toSet(ceQueueDtos.size()));
+        .collect(Collectors.toSet(ceQueueDtos.size()));
     }
 
     static ComponentDtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
@@ -189,7 +166,7 @@ public class TaskFormatter {
         dbSession,
         uuidOfCeActivityDtos(ceActivityDtos))
         .stream()
-        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(ComponentDto::uuid));
+        .collect(Collectors.uniqueIndex(ComponentDto::uuid));
       return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
     }
 
@@ -198,7 +175,7 @@ public class TaskFormatter {
         .filter(Objects::nonNull)
         .map(CeActivityDto::getComponentUuid)
         .filter(Objects::nonNull)
-        .collect(org.sonar.core.util.stream.Collectors.toSet(ceActivityDtos.size()));
+        .collect(Collectors.toSet(ceActivityDtos.size()));
     }
 
     static ComponentDtoCache forUuid(DbClient dbClient, DbSession dbSession, String uuid) {
@@ -212,9 +189,9 @@ public class TaskFormatter {
         dbSession,
         componentsByUuid.values().stream()
           .map(ComponentDto::getOrganizationUuid)
-          .collect(Collectors.toSet()))
+          .collect(Collectors.toSet(componentsByUuid.size())))
         .stream()
-        .collect(org.sonar.core.util.stream.Collectors.uniqueIndex(OrganizationDto::getUuid));
+        .collect(Collectors.uniqueIndex(OrganizationDto::getUuid));
     }
 
     @CheckForNull
@@ -236,7 +213,7 @@ public class TaskFormatter {
       }
       String organizationUuid = componentDto.getOrganizationUuid();
       OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
-      Preconditions.checkState(organizationDto != null, "Organization with uuid '%s' not found", organizationUuid);
+      checkState(organizationDto != null, "Organization with uuid '%s' not found", organizationUuid);
       return organizationDto.getKey();
     }
   }

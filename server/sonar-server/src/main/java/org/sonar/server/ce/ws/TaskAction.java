@@ -87,8 +87,7 @@ public class TaskAction implements CeWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
@@ -108,8 +107,6 @@ public class TaskAction implements CeWsAction {
         }
       }
       writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

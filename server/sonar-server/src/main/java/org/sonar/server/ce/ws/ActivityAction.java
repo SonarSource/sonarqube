@@ -160,8 +160,7 @@ public class ActivityAction implements CeWsAction {
   }
 
   private ActivityResponse doHandle(ActivityWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       // if a task searched by uuid is found all other parameters are ignored
       Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
@@ -181,8 +180,6 @@ public class ActivityAction implements CeWsAction {
         queuedTasks,
         pastTasks,
         request.getPageSize());
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

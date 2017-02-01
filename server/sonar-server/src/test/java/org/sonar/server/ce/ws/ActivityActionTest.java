@@ -76,19 +76,18 @@ public class ActivityActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
-
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
-  WsActionTester ws = new WsActionTester(underTest);
+  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
+  private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
+  private ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void get_all_past_activity() {
     globalAdmin();
-    OrganizationDto organization1Dto = dbTester.organizations().insert();
-    dbTester.components().insertProject(organization1Dto, "PROJECT_1");
-    OrganizationDto organization2Dto = dbTester.organizations().insert();
-    dbTester.components().insertProject(organization2Dto, "PROJECT_2");
+    OrganizationDto org1 = dbTester.organizations().insert();
+    dbTester.components().insertProject(org1, "PROJECT_1");
+    OrganizationDto org2 = dbTester.organizations().insert();
+    dbTester.components().insertProject(org2, "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -98,19 +97,19 @@ public class ActivityActionTest {
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     // chronological order, from newest to oldest
     WsCe.Task task = activityResponse.getTasks(0);
-    assertThat(task.getOrganization()).isEqualTo(organization2Dto.getKey());
+    assertThat(task.getOrganization()).isEqualTo(org2.getKey());
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(task.getComponentId()).isEqualTo("PROJECT_2");
     assertThat(task.getAnalysisId()).isEqualTo("U1");
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
-    assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T1");
-    assertThat(activityResponse.getTasks(1).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
-    assertThat(activityResponse.getTasks(1).getComponentId()).isEqualTo("PROJECT_1");
-    assertThat(activityResponse.getTasks(1).getLogs()).isFalse();
-
-    assertThat(activityResponse.getTasks(1).getOrganization()).isEqualTo(organization1Dto.getKey());
+    task = activityResponse.getTasks(1);
+    assertThat(task.getId()).isEqualTo("T1");
+    assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
+    assertThat(task.getComponentId()).isEqualTo("PROJECT_1");
+    assertThat(task.getLogs()).isFalse();
+    assertThat(task.getOrganization()).isEqualTo(org1.getKey());
   }
 
   @Test
@@ -229,7 +228,6 @@ public class ActivityActionTest {
     componentDb.insertProjectAndSnapshot(struts);
     componentDb.insertProjectAndSnapshot(zookeeper);
     componentDb.insertProjectAndSnapshot(eclipse);
-    dbTester.commit();
     globalAdmin();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
