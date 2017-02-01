@@ -126,7 +126,7 @@ public class GroupMembershipDaoTest {
     List<UserMembershipDto> result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("admin").build(), 0, 10);
     assertThat(result).hasSize(2);
 
-    assertThat(result.get(0).getName()).isEqualTo("Admin");
+    assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
 
     result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("not").build(), 0, 10);
@@ -134,15 +134,18 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void search_by_login_or_name_with_capitalization() {
+  public void search_by_login_name_or_email() {
     dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
 
-    List<UserMembershipDto> result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("admin").build(), 0, 10);
-    assertThat(result).hasSize(2);
+    // search is case insensitive only on name
+    List<UserMembershipDto> result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("NaMe").build(), 0, 10);
+    assertThat(result).hasSize(1);
 
-    result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("AdMiN").build(), 0, 10);
-    assertThat(result).hasSize(2);
+    result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("login").build(), 0, 10);
+    assertThat(result).hasSize(1);
 
+    result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).memberSearch("email").build(), 0, 10);
+    assertThat(result).hasSize(1);
   }
 
   @Test
@@ -151,7 +154,7 @@ public class GroupMembershipDaoTest {
 
     List<UserMembershipDto> result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).build(), 0, 10);
     assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("Admin");
+    assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
   }
 
@@ -161,7 +164,7 @@ public class GroupMembershipDaoTest {
 
     List<UserMembershipDto> result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).build(), 0, 2);
     assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("Admin");
+    assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
 
     result = underTest.selectMembers(dbTester.getSession(), UserMembershipQuery.builder().groupId(100L).build(), 1, 2);

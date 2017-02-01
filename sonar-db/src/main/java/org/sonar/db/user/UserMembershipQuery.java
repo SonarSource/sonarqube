@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -28,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 public class UserMembershipQuery {
 
@@ -46,6 +49,7 @@ public class UserMembershipQuery {
 
   // for internal use in MyBatis
   final String memberSearchSql;
+  final String memberSearchSqlLowercase;
 
   // max results per page
   private final int pageSize;
@@ -57,20 +61,10 @@ public class UserMembershipQuery {
     this.groupId = builder.groupId;
     this.membership = builder.membership;
     this.memberSearch = builder.memberSearch;
-    this.memberSearchSql = memberSearchToSql(memberSearch);
-
+    this.memberSearchSql = memberSearch == null ? null : buildLikeValue(memberSearch, BEFORE_AND_AFTER);
+    this.memberSearchSqlLowercase = memberSearchSql == null ? null : memberSearchSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
-  }
-
-  private String memberSearchToSql(@Nullable String s) {
-    String sql = null;
-    if (s != null) {
-      sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = "%" + sql + "%";
-    }
-    return sql;
   }
 
   public long groupId() {
@@ -83,7 +77,7 @@ public class UserMembershipQuery {
   }
 
   /**
-   * Search for users names/logins containing a given string
+   * Search for users email, login and name containing a given string
    */
   @CheckForNull
   public String memberSearch() {

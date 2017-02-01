@@ -2,6 +2,10 @@
   "p": 1,
   "total": 1,
   "users": [
-    {"login": "ada", "name": "Ada Lovelace", "selected": true}
+    {
+      "login": "ada.login",
+      "name": "Ada Lovelace",
+      "selected": true
+    }
   ]
 }

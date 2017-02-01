@@ -72,8 +72,10 @@
         </when>
       </choose>
       <if test="query.memberSearch() != null">
-        AND ((UPPER(u.login) LIKE #{query.memberSearchSql} ESCAPE '/') OR (UPPER(u.name) LIKE #{query.memberSearchSql}
-        ESCAPE '/'))
+        AND (
+          lower(u.name) like #{query.memberSearchSqlLowercase} ESCAPE '/'
+          or u.login like #{query.memberSearchSql} ESCAPE '/'
+          or u.email like #{query.memberSearchSql} ESCAPE '/' )
       </if>
       AND u.active=${_true}
     </where>
