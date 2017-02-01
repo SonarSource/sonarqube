@@ -28,20 +28,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +51,9 @@ public class WebServiceEngineTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private I18n i18n = mock(I18n.class);
   private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n);
@@ -303,6 +308,16 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  public void render_real_exception_when_failing_to_write_json_errors() {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_to_write_errors");
+    DumbResponse response = new DumbResponse();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Error!");
+    underTest.execute(request, response);
+  }
+
+  @Test
   public void should_handle_headers() {
     DumbResponse response = new DumbResponse();
     String name = "Content-Disposition";
@@ -331,97 +346,73 @@ public class WebServiceEngineTest {
     public void define(Context context) {
       NewController newController = context.createController("api/system");
       createNewDefaultAction(newController, "health")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            try {
-              response.stream().output().write("good".getBytes());
-            } catch (IOException e) {
-              throw new IllegalStateException(e);
-            }
+        .setHandler((request, response) -> {
+          try {
+            response.stream().output().write("good".getBytes());
+          } catch (IOException e) {
+            throw new IllegalStateException(e);
           }
         });
       createNewDefaultAction(newController, "ping")
         .setPost(true)
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            try {
-              response.stream().output().write("pong".getBytes());
-            } catch (IOException e) {
-              throw new IllegalStateException(e);
-            }
+        .setHandler((request, response) -> {
+          try {
+            response.stream().output().write("pong".getBytes());
+          } catch (IOException e) {
+            throw new IllegalStateException(e);
           }
         });
       createNewDefaultAction(newController, "fail")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            throw new IllegalStateException("Unexpected");
-          }
+        .setHandler((request, response) -> {
+          throw new IllegalStateException("Unexpected");
         });
       createNewDefaultAction(newController, "fail_with_i18n_message")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            throw new BadRequestException("bad.request.reason", 0);
-          }
+        .setHandler((request, response) -> {
+          throw new BadRequestException("bad.request.reason", 0);
         });
       createNewDefaultAction(newController, "fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            Errors errors = new Errors();
-            for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-              errors.add(Message.of("Bad request reason #" + count));
-            }
-            throw new BadRequestException(errors);
+        .setHandler((request, response) -> {
+          Errors errors = new Errors();
+          for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
+            errors.add(Message.of("Bad request reason #" + count));
           }
+          throw new BadRequestException(errors);
         });
       createNewDefaultAction(newController, "fail_with_multiple_i18n_messages")
         .createParam("count", "Number of error messages to generate")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            Errors errors = new Errors();
-            for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-              errors.add(Message.of("bad.request.reason", count));
-            }
-            throw new BadRequestException(errors);
+        .setHandler((request, response) -> {
+          Errors errors = new Errors();
+          for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
+            errors.add(Message.of("bad.request.reason", count));
           }
+          throw new BadRequestException(errors);
+        });
+      createNewDefaultAction(newController, "fail_to_write_errors")
+        .setHandler((request, response) -> {
+          Errors errors = mock(Errors.class);
+          // Try to simulate an error when generating JSON errors
+          doThrow(new IllegalArgumentException("Error!")).when(errors).writeJson(any(JsonWriter.class), any(I18n.class));
+          throw new BadRequestException(errors);
         });
       createNewDefaultAction(newController, "alive")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            response.noContent();
-          }
-        });
+        .setHandler((request, response) -> response.noContent());
 
       createNewDefaultAction(newController, "fail_with_undeclared_parameter")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            response.newJsonWriter().prop("unknown", request.param("unknown"));
-          }
-        });
+        .setHandler((request, response) -> response.newJsonWriter().prop("unknown", request.param("unknown")));
 
       // parameter "message" is required but not "author"
       NewAction print = createNewDefaultAction(newController, "print");
       print.createParam("message").setDescription("required message").setRequired(true);
       print.createParam("author").setDescription("optional author").setDefaultValue("-");
       print.createParam("format").setDescription("optional format").setPossibleValues("json", "xml");
-      print.setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          try {
-            request.param("format");
-            IOUtils.write(
-              request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
+      print.setHandler((request, response) -> {
+        try {
+          request.param("format");
+          IOUtils.write(
+            request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
         }
       });
 
