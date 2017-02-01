@@ -29,7 +29,8 @@ import { translate } from '../../helpers/l10n';
 export default class Projects extends React.Component {
   static propTypes = {
     projects: React.PropTypes.array.isRequired,
-    selection: React.PropTypes.array.isRequired
+    selection: React.PropTypes.array.isRequired,
+    organization: React.PropTypes.object
   };
 
   componentWillMount () {
@@ -47,7 +48,10 @@ export default class Projects extends React.Component {
   onApplyTemplateClick (project, e) {
     e.preventDefault();
     e.target.blur();
-    new ApplyTemplateView({ project }).render();
+    new ApplyTemplateView({
+      project,
+      organization: this.props.organization
+    }).render();
   }
 
   isProjectSelected (project) {

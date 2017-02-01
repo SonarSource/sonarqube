@@ -28,7 +28,8 @@ export default class Header extends React.Component {
 
   createProject () {
     new CreateView({
-      refresh: this.props.refresh
+      refresh: this.props.refresh,
+      organization: this.props.organization
     }).render();
   }
 
@@ -37,7 +38,8 @@ export default class Header extends React.Component {
       total: this.props.total,
       selection: this.props.selection,
       query: this.props.query,
-      qualifier: this.props.qualifier
+      qualifier: this.props.qualifier,
+      organization: this.props.organization
     }).render();
   }
 

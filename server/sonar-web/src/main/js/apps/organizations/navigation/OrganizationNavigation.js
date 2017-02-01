@@ -28,7 +28,8 @@ const ADMIN_PATHS = [
   'groups',
   'delete',
   'permissions',
-  'permission_templates'
+  'permission_templates',
+  'projects_management'
 ];
 
 export default class OrganizationNavigation extends React.Component {
@@ -73,6 +74,11 @@ export default class OrganizationNavigation extends React.Component {
               </Link>
             </li>
             <li>
+              <Link to={`/organizations/${organization.key}/projects_management`} activeClassName="active">
+                {translate('projects_management')}
+              </Link>
+            </li>
+            <li>
               <Link to={`/organizations/${organization.key}/edit`} activeClassName="active">
                 {translate('edit')}
               </Link>
@@ -90,7 +96,9 @@ export default class OrganizationNavigation extends React.Component {
   render () {
     const { organization, location } = this.props;
 
-    const isHomeActive = location.pathname.startsWith(`organizations/${organization.key}/projects`);
+    const isHomeActive =
+        location.pathname === `organizations/${organization.key}/projects` ||
+        location.pathname === `organizations/${organization.key}/projects/favorite`;
 
     return (
         <nav className="navbar navbar-context page-container" id="context-navigation">

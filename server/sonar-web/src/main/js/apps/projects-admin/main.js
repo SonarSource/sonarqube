@@ -30,7 +30,8 @@ import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
   propTypes: {
-    hasProvisionPermission: React.PropTypes.bool.isRequired
+    hasProvisionPermission: React.PropTypes.bool.isRequired,
+    organization: React.PropTypes.object
   },
 
   getInitialState () {
@@ -61,6 +62,9 @@ export default React.createClass({
     }
     if (this.state.query) {
       filters.q = this.state.query;
+    }
+    if (this.props.organization) {
+      filters.organization = this.props.organization.key;
     }
     return filters;
   },
@@ -182,7 +186,11 @@ export default React.createClass({
   deleteProjects () {
     this.setState({ ready: false });
     const ids = this.state.selection.join(',');
-    deleteComponents({ ids }).then(() => {
+    const data = { ids };
+    if (this.props.organization) {
+      Object.assign(data, { organization: this.props.organization.key });
+    }
+    deleteComponents(data).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
     });
   },
@@ -196,7 +204,8 @@ export default React.createClass({
               total={this.state.total}
               query={this.state.query}
               qualifier={this.state.qualifiers}
-              refresh={this.requestProjects}/>
+              refresh={this.requestProjects}
+              organization={this.props.organization}/>
 
           <Search {...this.props} {...this.state}
               onSearch={this.onSearch}
@@ -212,7 +221,8 @@ export default React.createClass({
               refresh={this.requestProjects}
               selection={this.state.selection}
               onProjectSelected={this.onProjectSelected}
-              onProjectDeselected={this.onProjectDeselected}/>
+              onProjectDeselected={this.onProjectDeselected}
+              organization={this.props.organization}/>
 
           <ListFooter
               ready={this.state.ready}
