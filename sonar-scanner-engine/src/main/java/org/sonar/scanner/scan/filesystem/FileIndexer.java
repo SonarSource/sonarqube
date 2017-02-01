@@ -82,10 +82,6 @@ public class FileIndexer {
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
-    if (isAggregator) {
-      // No indexing for an aggregator module
-      return;
-    }
     progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Index files");
     exclusionFilters.prepare();
@@ -97,7 +93,9 @@ public class FileIndexer {
     executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
     tasks = new ArrayList<>();
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
-    indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
+    if (!isAggregator) {
+      indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
+    }
 
     waitForTasksToComplete();
 
