@@ -19,12 +19,15 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.es.ProjectIndexer;
 
 public class IndexAnalysisStep implements ComputationStep {
+
+  private static final Logger LOGGER = Loggers.get(IndexAnalysisStep.class);
 
   private final TreeRootHolder treeRootHolder;
   private final ProjectIndexer[] indexers;
@@ -38,7 +41,7 @@ public class IndexAnalysisStep implements ComputationStep {
   public void execute() {
     String projectUuid = treeRootHolder.getRoot().getUuid();
     for (ProjectIndexer indexer : indexers) {
-      Loggers.get(IndexAnalysisStep.class).info("Index " + indexer);
+      LOGGER.debug("Call {}", indexer);
       indexer.indexProject(projectUuid, ProjectIndexer.Cause.NEW_ANALYSIS);
     }
   }
