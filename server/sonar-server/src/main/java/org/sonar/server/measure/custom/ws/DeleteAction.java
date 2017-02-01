@@ -23,10 +23,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.user.UserSession;
@@ -62,25 +60,20 @@ public class DeleteAction implements CustomMeasuresWsAction {
   public void handle(Request request, Response response) throws Exception {
     long id = request.mandatoryParamAsLong(PARAM_ID);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, id);
-      checkPermissions(dbSession, customMeasure);
+      checkPermission(dbSession, customMeasure);
       dbClient.customMeasureDao().delete(dbSession, id);
       dbSession.commit();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
 
     response.noContent();
   }
 
-  private void checkPermissions(DbSession dbSession, CustomMeasureDto customMeasure) {
-    if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      return;
-    }
+  private void checkPermission(DbSession dbSession, CustomMeasureDto customMeasure) {
+    userSession.checkLoggedIn();
 
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
-    userSession.checkLoggedIn().checkComponentPermission(UserRole.ADMIN, component);
+    userSession.checkComponentPermission(UserRole.ADMIN, component);
   }
 }

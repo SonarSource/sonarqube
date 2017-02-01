@@ -25,50 +25,51 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
-
 
 public class DeleteActionTest {
 
   public static final String ACTION = "delete";
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
 
-  WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private WsTester ws;
 
   @Before
   public void setUp() {
-    ws = new WsTester(new CustomMeasuresWs(new DeleteAction(dbClient, userSessionRule)));
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    ws = new WsTester(new CustomMeasuresWs(new DeleteAction(dbClient, userSession)));
   }
 
   @Test
-  public void delete_in_db() throws Exception {
-    long id = insertCustomMeasure(newCustomMeasureDto());
-    long anotherId = insertCustomMeasure(newCustomMeasureDto());
+  public void root_users_can_delete_custom_measures() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto project = db.components().insertProject();
 
-    WsTester.Result response = newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    long id = insertCustomMeasure(project);
+    long anotherId = insertCustomMeasure(project);
+
+    WsTester.Result response = newRequest().setParam(PARAM_ID, valueOf(id)).execute();
 
     assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
     assertThat(dbClient.customMeasureDao().selectById(dbSession, anotherId)).isNotNull();
@@ -76,39 +77,48 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_in_db_when_admin_on_project() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
-    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("project-uuid"));
+  public void project_administrator_can_delete_custom_measures() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    long id = insertCustomMeasure(project);
 
-    newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
 
     assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
   }
 
   @Test
-  public void fail_when_not_found_in_db() throws Exception {
+  public void throw_RowNotFoundException_if_id_does_not_exist() throws Exception {
     expectedException.expect(RowNotFoundException.class);
 
     newRequest().setParam(PARAM_ID, "42").execute();
   }
 
   @Test
-  public void fail_when_insufficient_permissions() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-    userSessionRule.logIn("login");
-    ComponentDto project = ComponentTesting.newProjectDto(db.organizations().insert(), "any-uuid");
-    dbClient.componentDao().insert(dbSession, project);
-    long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("any-uuid"));
+  public void throw_ForbiddenException_if_not_administrator() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    long id = insertCustomMeasure(project);
+    userSession.logIn().setNonRoot();
 
-    newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    expectedException.expect(ForbiddenException.class);
+    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
   }
 
-  private long insertCustomMeasure(CustomMeasureDto customMeasure) {
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
+  @Test
+  public void throw_UnauthorizedException_if_not_administrator() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    long id = insertCustomMeasure(project);
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+  }
+
+  private long insertCustomMeasure(ComponentDto component) {
+    CustomMeasureDto dto = newCustomMeasureDto().setComponentUuid(component.uuid());
+    dbClient.customMeasureDao().insert(dbSession, dto);
     dbSession.commit();
-    return customMeasure.getId();
+    return dto.getId();
   }
 
   private WsTester.TestRequest newRequest() {

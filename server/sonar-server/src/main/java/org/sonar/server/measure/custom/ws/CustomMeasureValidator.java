@@ -23,7 +23,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -95,10 +94,6 @@ public class CustomMeasureValidator {
   }
 
   public static void checkPermissions(UserSession userSession, ComponentDto component) {
-    if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      return;
-    }
-
     userSession.checkLoggedIn().checkComponentPermission(UserRole.ADMIN, component);
   }
 }
