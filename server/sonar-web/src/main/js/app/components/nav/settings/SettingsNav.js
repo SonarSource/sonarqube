@@ -133,11 +133,13 @@ class SettingsNav extends React.Component {
                           </IndexLink>
                         </li>
                     )}
-                    <li>
-                      <IndexLink to="/roles/global" activeClassName="active">
-                        {translate('global_permissions.page')}
-                      </IndexLink>
-                    </li>
+                    {!this.props.customOrganizations && (
+                        <li>
+                          <IndexLink to="/roles/global" activeClassName="active">
+                            {translate('global_permissions.page')}
+                          </IndexLink>
+                        </li>
+                    )}
                     {!this.props.customOrganizations && (
                         <li>
                           <IndexLink to="/permission_templates" activeClassName="active">

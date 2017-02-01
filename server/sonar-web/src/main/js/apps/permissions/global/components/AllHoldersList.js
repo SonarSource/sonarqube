@@ -48,6 +48,12 @@ const PERMISSIONS_ORDER = [
   'provisioning'
 ];
 
+const PERMISSIONS_FOR_CUSTOM_ORG = [
+  'admin',
+  'scan',
+  'provisioning'
+];
+
 class AllHoldersList extends React.Component {
   componentDidMount () {
     this.props.loadHolders();
@@ -74,10 +80,16 @@ class AllHoldersList extends React.Component {
   }
 
   render () {
-    const permissions = PERMISSIONS_ORDER.map(p => ({
+    const order = (this.props.organization && !this.props.organization.isDefault) ?
+        PERMISSIONS_FOR_CUSTOM_ORG :
+        PERMISSIONS_ORDER;
+
+    const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
+
+    const permissions = order.map(p => ({
       key: p,
-      name: translate('global_permissions', p),
-      description: translate('global_permissions', p, 'desc')
+      name: translate(l10nPrefix, p),
+      description: translate(l10nPrefix, p, 'desc')
     }));
 
     return (
@@ -109,19 +121,19 @@ const mapStateToProps = state => ({
   selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-  loadHolders: () => dispatch(loadHolders()),
-  onSearch: query => dispatch(updateQuery(query)),
-  onFilter: filter => dispatch(updateFilter(filter)),
-  onSelectPermission: permission => dispatch(selectPermission(permission)),
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  loadHolders: () => dispatch(loadHolders(ownProps.organization)),
+  onSearch: query => dispatch(updateQuery(query, ownProps.organization)),
+  onFilter: filter => dispatch(updateFilter(filter, ownProps.organization)),
+  onSelectPermission: permission => dispatch(selectPermission(permission, ownProps.organization)),
   grantPermissionToUser: (login, permission) =>
-      dispatch(grantToUser(login, permission)),
+      dispatch(grantToUser(login, permission, ownProps.organization)),
   revokePermissionFromUser: (login, permission) =>
-      dispatch(revokeFromUser(login, permission)),
+      dispatch(revokeFromUser(login, permission, ownProps.organization)),
   grantPermissionToGroup: (groupName, permission) =>
-      dispatch(grantToGroup(groupName, permission)),
+      dispatch(grantToGroup(groupName, permission, ownProps.organization)),
   revokePermissionFromGroup: (groupName, permission) =>
-      dispatch(revokeFromGroup(groupName, permission))
+      dispatch(revokeFromGroup(groupName, permission, ownProps.organization))
 });
 
 export default connect(

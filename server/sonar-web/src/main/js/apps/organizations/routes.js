@@ -25,6 +25,7 @@ import OrganizationFavoriteProjects from './components/OrganizationFavoriteProje
 import OrganizationAdmin from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
+import OrganizationPermissions from './components/OrganizationPermissions';
 import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
 import OrganizationDelete from './components/OrganizationDelete';
 
@@ -37,6 +38,7 @@ export default (
         <Route path="delete" component={OrganizationDelete}/>
         <Route path="edit" component={OrganizationEdit}/>
         <Route path="groups" component={OrganizationGroups}/>
+        <Route path="permissions" component={OrganizationPermissions}/>
         <Route path="permission_templates" component={OrganizationPermissionTemplates}/>
       </Route>
     </Route>
