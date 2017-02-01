@@ -298,7 +298,7 @@ public class UserUpdater {
         messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
         return false;
       } else if (!login.matches("\\A\\w[\\w\\.\\-_@]+\\z")) {
-        messages.add(Message.of("user.bad_login"));
+        messages.add(Message.of("Use only letters, numbers, and .-_@ please."));
         return false;
       }
     }
@@ -324,7 +324,7 @@ public class UserUpdater {
 
   private static boolean checkPasswordChangeAllowed(UserDto userDto, List<Message> messages) {
     if (!userDto.isLocal()) {
-      messages.add(Message.of("user.password_cant_be_changed_on_external_auth"));
+      messages.add(Message.of("Password cannot be changed when external authentication is used"));
       return false;
     }
     return true;
@@ -343,7 +343,7 @@ public class UserUpdater {
     boolean isValid = true;
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
-        messages.add(Message.of("user.login_or_email_used_as_scm_account"));
+        messages.add(Message.of("Login and email are automatically considered as SCM accounts"));
         isValid = false;
       } else {
         List<UserDto> matchingUsers = dbClient.userDao().selectByScmAccountOrLoginOrEmail(dbSession, scmAccount);
@@ -355,7 +355,7 @@ public class UserUpdater {
           matchingUsersWithoutExistingUser.add(matchingUser.getName() + " (" + matchingUser.getLogin() + ")");
         }
         if (!matchingUsersWithoutExistingUser.isEmpty()) {
-          messages.add(Message.of("user.scm_account_already_used", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
+          messages.add(Message.of("The scm account '%s' is already used by user(s) : '%s'", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
           isValid = false;
         }
       }

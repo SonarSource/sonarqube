@@ -27,25 +27,23 @@ public class MessageTest {
 
   @Test
   public void create_message() {
-    Message message = Message.of("key1", "param1");
-    assertThat(message.getKey()).isEqualTo("key1");
-    assertThat(message.getParams()).containsOnly("param1");
+    Message message = Message.of("key1 %s", "param1");
+    assertThat(message.getMessage()).isEqualTo("key1 param1");
   }
 
   @Test
   public void create_message_without_params() {
     Message message = Message.of("key1");
-    assertThat(message.getKey()).isEqualTo("key1");
-    assertThat(message.getParams()).isEmpty();
+    assertThat(message.getMessage()).isEqualTo("key1");
   }
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    Message message1 = Message.of("key1", "param1");
-    Message message2 = Message.of("key2", "param2");
+    Message message1 = Message.of("key1%s", "param1");
+    Message message2 = Message.of("key2%s", "param2");
     Message message3 = Message.of("key1");
-    Message message4 = Message.of("key1", "param2");
-    Message sameAsMessage1 = Message.of("key1", "param1");
+    Message message4 = Message.of("key1%s", "param2");
+    Message sameAsMessage1 = Message.of("key1%s", "param1");
 
     assertThat(message1).isEqualTo(message1);
     assertThat(message1).isNotEqualTo(message2);
@@ -64,8 +62,8 @@ public class MessageTest {
 
   @Test
   public void to_string() {
-    assertThat(Message.of("key1", "param1").toString()).isEqualTo("Message{key=key1, params=[param1]}");
-    assertThat(Message.of("key1").toString()).isEqualTo("Message{key=key1, params=[]}");
-    assertThat(Message.of("key1", null).toString()).isEqualTo("Message{key=key1, params=null}");
+    assertThat(Message.of("key1 %s", "param1").toString()).isEqualTo("key1 param1");
+    assertThat(Message.of("key1").toString()).isEqualTo("key1");
+    assertThat(Message.of("key1", null).toString()).isEqualTo("key1");
   }
 }

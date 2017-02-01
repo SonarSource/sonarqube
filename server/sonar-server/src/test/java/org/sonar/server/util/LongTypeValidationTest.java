@@ -47,6 +47,7 @@ public class LongTypeValidationTest {
   @Test
   public void fail_when_float() {
     expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value '3.14' must be a long.");
 
     underTest.validate("3.14", null);
   }
@@ -54,6 +55,7 @@ public class LongTypeValidationTest {
   @Test
   public void fail_when_string() {
     expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'original string' must be a long.");
 
     underTest.validate("original string", null);
   }

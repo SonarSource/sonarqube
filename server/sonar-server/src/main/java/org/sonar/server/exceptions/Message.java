@@ -19,37 +19,22 @@
  */
 package org.sonar.server.exceptions;
 
-import com.google.common.base.MoreObjects;
-import java.util.Arrays;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import static java.lang.String.format;
 
-/**
- * @deprecated Bundle key should be replaced by real message as only english is returned on server side messages
- */
-@Deprecated
 public class Message {
 
-  private final String key;
-  private final Object[] params;
+  private final String msg;
 
-  private Message(String key, @Nullable Object[] params) {
-    this.key = key;
-    this.params = params;
+  private Message(String format, Object... params) {
+    this.msg = format(format, params);
   }
 
-  public String getKey() {
-    return key;
+  public String getMessage() {
+    return msg;
   }
 
-  @CheckForNull
-  public Object[] getParams() {
-    return params;
-  }
-
-  public static Message of(String l10nKey, Object... l10nParams) {
-    return new Message(StringUtils.defaultString(l10nKey), l10nParams);
+  public static Message of(String msg, Object... arguments) {
+    return new Message(msg, arguments);
   }
 
   @Override
@@ -61,31 +46,17 @@ public class Message {
       return false;
     }
 
-    Message message = (Message) o;
-
-    if (!key.equals(message.key)) {
-      return false;
-    }
-    // Probably incorrect - comparing Object[] arrays with Arrays.equals
-    if (!Arrays.equals(params, message.params)) {
-      return false;
-    }
-
-    return true;
+    Message other = (Message) o;
+    return this.msg.equals(other.msg);
   }
 
   @Override
   public int hashCode() {
-    int result = key.hashCode();
-    result = 31 * result + (params != null ? Arrays.hashCode(params) : 0);
-    return result;
+    return msg.hashCode();
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("key", key)
-      .add("params", params != null ? Arrays.toString(params) : null)
-      .toString();
+    return msg;
   }
 }

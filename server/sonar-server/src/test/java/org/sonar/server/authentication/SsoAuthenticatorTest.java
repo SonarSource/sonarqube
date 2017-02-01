@@ -344,7 +344,7 @@ public class SsoAuthenticatorTest {
     setNotUserInToken();
 
     expectedException.expect(authenticationException().from(Source.sso()).withoutLogin().andNoPublicMessage());
-    expectedException.expectMessage("user.bad_login");
+    expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
     try {
       underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
     } finally {

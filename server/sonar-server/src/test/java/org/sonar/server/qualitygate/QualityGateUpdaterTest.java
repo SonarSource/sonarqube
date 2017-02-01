@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class QualityGateUpdaterTest {
@@ -44,7 +43,7 @@ public class QualityGateUpdaterTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession= db.getSession();
+  DbSession dbSession = db.getSession();
 
   QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
 
@@ -62,7 +61,7 @@ public class QualityGateUpdaterTest {
   @Test
   public void fail_to_create_when_name_is_empty() throws Exception {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("errors.cant_be_empty", "Name"));
+    expectedException.expectMessage("Name can't be empty");
     underTest.create(dbSession, "");
   }
 
@@ -71,7 +70,7 @@ public class QualityGateUpdaterTest {
     dbClient.qualityGateDao().insert(new QualityGateDto().setName(QGATE_NAME));
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("errors.is_already_used");
+    expectedException.expectMessage("Name has already been taken");
     underTest.create(dbSession, QGATE_NAME);
   }
 }

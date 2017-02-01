@@ -19,21 +19,19 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class IntegerTypeValidationTest {
 
-  IntegerTypeValidation validation;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    validation = new IntegerTypeValidation();
-  }
+  private IntegerTypeValidation validation = new IntegerTypeValidation();
 
   @Test
   public void key() {
@@ -48,26 +46,18 @@ public class IntegerTypeValidationTest {
 
   @Test
   public void fail_on_string() {
-    try {
-      validation.validate("abc", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
-    }
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'abc' must be an integer.");
+
+    validation.validate("abc", null);
   }
 
   @Test
   public void fail_on_float() {
-    try {
-      validation.validate("10.1", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("10.1");
-    }
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value '10.1' must be an integer.");
+
+    validation.validate("10.1", null);
   }
 
 }

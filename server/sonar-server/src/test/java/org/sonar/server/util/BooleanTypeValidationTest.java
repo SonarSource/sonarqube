@@ -19,45 +19,39 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class BooleanTypeValidationTest {
 
-  BooleanTypeValidation validation;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    validation = new BooleanTypeValidation();
-  }
+  private BooleanTypeValidation underTest = new BooleanTypeValidation();
 
   @Test
   public void key() {
-    assertThat(validation.key()).isEqualTo("BOOLEAN");
+    assertThat(underTest.key()).isEqualTo("BOOLEAN");
   }
 
   @Test
   public void not_fail_on_valid_boolean() {
-    validation.validate("true", null);
-    validation.validate("True", null);
-    validation.validate("false", null);
-    validation.validate("FALSE", null);
+    underTest.validate("true", null);
+    underTest.validate("True", null);
+    underTest.validate("false", null);
+    underTest.validate("FALSE", null);
   }
 
   @Test
   public void fail_on_invalid_boolean() {
-    try {
-      validation.validate("abc", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
-    }
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'abc' must be one of \"true\" or \"false\".");
+
+    underTest.validate("abc", null);
   }
 
 }

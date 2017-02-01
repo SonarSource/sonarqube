@@ -215,7 +215,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       Fail.failBecauseExceptionWasNotThrown(BadRequestException.class);
     } catch (BadRequestException iae) {
-      assertThat(iae).hasMessage("errors.type.notInteger");
+      assertThat(iae).hasMessage("Value 'polop' must be an integer.");
     }
 
     dbSession.clearCache();

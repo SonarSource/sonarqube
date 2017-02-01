@@ -131,7 +131,7 @@ public class SsoAuthenticationTest {
     assertThat(response.request().url().toString()).contains("sessions/unauthorized");
 
     List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), Charsets.UTF_8);
-    assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: user.bad_login");
+    assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: Use only letters, numbers, and .-_@ please.");
     USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
   }
 

@@ -25,9 +25,9 @@ public class Verifications {
     // only static stuff
   }
 
-  public static void check(boolean expression, String l10nKey, Object... l10nParams) {
+  public static void check(boolean expression, String format, Object... arguments) {
     if (!expression) {
-      throw new BadRequestException(l10nKey, l10nParams);
+      throw new BadRequestException(format, arguments);
     }
   }
 }

@@ -19,24 +19,26 @@
  */
 package org.sonar.server.exceptions;
 
+import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import org.junit.rules.ExpectedException;
 
 public class VerificationsTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void check() {
     // no exception
-    Verifications.check(true, "my.l10n.key", "foo", "bar");
+    Verifications.check(true, "Error on %s and %s", "foo", "bar");
+  }
 
-    try {
-      Verifications.check(false, "my.l10n.key", "foo", "bar");
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e.firstError().getKey()).isEqualTo("my.l10n.key");
-      assertThat(e.firstError().getParams()).containsOnly("foo", "bar");
-    }
+  @Test
+  public void fail() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Error on foo and bar");
+
+    Verifications.check(false, "Error on %s and %s", "foo", "bar");
   }
 }

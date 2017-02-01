@@ -32,19 +32,11 @@ public class BadRequestException extends ServerException {
 
   private final transient Errors errors;
 
-  /**
-   * @deprecated Bundle key should be replaced by real message as only english is returned on server side errors
-   */
-  @Deprecated
-  public BadRequestException(String l10nKey, Object... l10nParams) {
+  public BadRequestException(String format, Object... arguments) {
     super(HTTP_BAD_REQUEST);
-    this.errors = new Errors().add(Message.of(l10nKey, l10nParams));
+    this.errors = new Errors().add(Message.of(format, arguments));
   }
 
-  /**
-   * @deprecated Bundle key should be replaced by real message as only english is returned on server side errors
-   */
-  @Deprecated
   public BadRequestException(List<Message> messages) {
     super(HTTP_BAD_REQUEST);
     this.errors = new Errors().add(messages);
@@ -73,7 +65,7 @@ public class BadRequestException extends ServerException {
 
   @Override
   public String getMessage() {
-    return firstError().getKey();
+    return firstError().getMessage();
   }
 
   @Override

@@ -110,7 +110,7 @@ public class SendActionTest {
       executeRequest("john@doo.com", "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).extracting(Message::getKey).containsExactly(
+      assertThat(e.errors().messages()).extracting(Message::getMessage).containsExactly(
         "root cause", "parent cause", "child cause", "last message");
     }
   }

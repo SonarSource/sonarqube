@@ -25,7 +25,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TypeValidationsTest {
 
@@ -63,7 +65,7 @@ public class TypeValidationsTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
       BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getKey()).isEqualTo("Type 'Unknown' is not valid.");
+      assertThat(badRequestException.firstError().getMessage()).isEqualTo("Type 'Unknown' is not valid.");
     }
   }
 

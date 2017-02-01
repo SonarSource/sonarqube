@@ -19,12 +19,10 @@
  */
 package org.sonar.server.util;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 public class IntegerTypeValidation implements TypeValidation {
 
@@ -38,7 +36,7 @@ public class IntegerTypeValidation implements TypeValidation {
     try {
       Integer.parseInt(value);
     } catch (NumberFormatException e) {
-      throw new BadRequestException("errors.type.notInteger", value);
+      throw new BadRequestException("Value '%s' must be an integer.", value);
     }
   }
 

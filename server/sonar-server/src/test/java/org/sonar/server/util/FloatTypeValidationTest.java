@@ -19,21 +19,19 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class FloatTypeValidationTest {
 
-  FloatTypeValidation validation;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    validation = new FloatTypeValidation();
-  }
+  private FloatTypeValidation validation = new FloatTypeValidation();
 
   @Test
   public void key() {
@@ -49,14 +47,10 @@ public class FloatTypeValidationTest {
 
   @Test
   public void fail_on_invalid_float() {
-    try {
-      validation.validate("abc", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
-    }
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'abc' must be an floating point number.");
+
+    validation.validate("abc", null);
   }
 
 }

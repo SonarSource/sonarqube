@@ -19,22 +19,20 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class StringListTypeValidationTest {
 
-  StringListTypeValidation validation;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    validation = new StringListTypeValidation();
-  }
+  private StringListTypeValidation validation = new StringListTypeValidation();
 
   @Test
   public void key() {
@@ -49,15 +47,10 @@ public class StringListTypeValidationTest {
 
   @Test
   public void fail_on_invalid_option() {
-    try {
-      validation.validate("abc", newArrayList("a", "b", "c"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
-      assertThat(badRequestException.firstError().getParams()[1]).isEqualTo("a, b, c");
-    }
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Value 'abc' must be one of : a, b, c.");
+
+    validation.validate("abc", newArrayList("a", "b", "c"));
   }
 
 }

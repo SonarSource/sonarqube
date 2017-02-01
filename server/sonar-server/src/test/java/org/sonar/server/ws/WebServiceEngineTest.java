@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
-import java.util.Locale;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
@@ -29,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -55,8 +53,7 @@ public class WebServiceEngineTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private I18n i18n = mock(I18n.class);
-  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n);
+  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()});
 
   @Before
   public void start() {
@@ -260,15 +257,14 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_request_with_i18n_message() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_i18n_message").setParam("count", "3");
+  public void bad_request() {
+    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_bad_request").setParam("count", "3");
     DumbResponse response = new DumbResponse();
-    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
 
     underTest.execute(request, response);
 
     assertThat(response.stream().outputAsString()).isEqualTo(
-      "{\"errors\":[{\"msg\":\"reason #0\"}]}");
+      "{\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
@@ -285,24 +281,6 @@ public class WebServiceEngineTest {
       + "{\"msg\":\"Bad request reason #1\"},"
       + "{\"msg\":\"Bad request reason #2\"}"
       + "]}");
-    assertThat(response.stream().status()).isEqualTo(400);
-    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
-  }
-
-  @Test
-  public void bad_request_with_multiple_i18n_messages() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_multiple_i18n_messages").setParam("count", "3");
-    DumbResponse response = new DumbResponse();
-    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
-    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 1)).thenReturn("reason #1");
-    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 2)).thenReturn("reason #2");
-
-    underTest.execute(request, response);
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[" +
-      "{\"msg\":\"reason #0\"}," +
-      "{\"msg\":\"reason #1\"}," +
-      "{\"msg\":\"reason #2\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
@@ -366,9 +344,9 @@ public class WebServiceEngineTest {
         .setHandler((request, response) -> {
           throw new IllegalStateException("Unexpected");
         });
-      createNewDefaultAction(newController, "fail_with_i18n_message")
+      createNewDefaultAction(newController, "fail_bad_request")
         .setHandler((request, response) -> {
-          throw new BadRequestException("bad.request.reason", 0);
+          throw new BadRequestException("Bad request !");
         });
       createNewDefaultAction(newController, "fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")
@@ -379,20 +357,11 @@ public class WebServiceEngineTest {
           }
           throw new BadRequestException(errors);
         });
-      createNewDefaultAction(newController, "fail_with_multiple_i18n_messages")
-        .createParam("count", "Number of error messages to generate")
-        .setHandler((request, response) -> {
-          Errors errors = new Errors();
-          for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-            errors.add(Message.of("bad.request.reason", count));
-          }
-          throw new BadRequestException(errors);
-        });
       createNewDefaultAction(newController, "fail_to_write_errors")
         .setHandler((request, response) -> {
           Errors errors = mock(Errors.class);
           // Try to simulate an error when generating JSON errors
-          doThrow(new IllegalArgumentException("Error!")).when(errors).writeJson(any(JsonWriter.class), any(I18n.class));
+          doThrow(new IllegalArgumentException("Error!")).when(errors).writeJson(any(JsonWriter.class));
           throw new BadRequestException(errors);
         });
       createNewDefaultAction(newController, "alive")

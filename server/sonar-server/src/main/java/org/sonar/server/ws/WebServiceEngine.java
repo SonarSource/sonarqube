@@ -27,7 +27,6 @@ import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.picocontainer.Startable;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
@@ -61,14 +60,12 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private static final Logger LOGGER = Loggers.get(WebServiceEngine.class);
 
   private final WebService.Context context;
-  private final I18n i18n;
 
-  public WebServiceEngine(WebService[] webServices, I18n i18n) {
+  public WebServiceEngine(WebService[] webServices) {
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
     }
-    this.i18n = i18n;
   }
 
   @Override
@@ -143,7 +140,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
     try (JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8))) {
       json.beginObject();
-      errors.writeJson(json, i18n);
+      errors.writeJson(json);
       json.endObject();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.

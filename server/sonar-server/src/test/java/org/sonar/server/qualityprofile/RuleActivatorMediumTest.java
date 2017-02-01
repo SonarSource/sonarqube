@@ -497,7 +497,7 @@ public class RuleActivatorMediumTest {
       fail();
     } catch (BadRequestException e) {
       Message msg = e.errors().messages().get(0);
-      assertThat(msg.getKey()).isEqualTo("errors.type.notInteger");
+      assertThat(msg.getMessage()).isEqualTo("Value 'foo' must be an integer.");
       verifyZeroActiveRules(XOO_P1_KEY);
     }
   }

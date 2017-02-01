@@ -19,11 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -44,12 +42,10 @@ public class BulkRuleActivationActions {
 
   private final QProfileService profileService;
   private final RuleQueryFactory ruleQueryFactory;
-  private final I18n i18n;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleQueryFactory ruleQueryFactory, I18n i18n) {
+  public BulkRuleActivationActions(QProfileService profileService, RuleQueryFactory ruleQueryFactory) {
     this.profileService = profileService;
     this.ruleQueryFactory = ruleQueryFactory;
-    this.i18n = i18n;
   }
 
   void define(WebService.NewController controller) {
@@ -63,12 +59,7 @@ public class BulkRuleActivationActions {
       .setDescription("Bulk-activate rules on one or several Quality profiles")
       .setPost(true)
       .setSince("4.4")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          bulkActivate(request, response);
-        }
-      });
+      .setHandler(this::bulkActivate);
 
     defineRuleSearchParameters(activate);
     defineProfileKeyParameter(activate);
@@ -84,12 +75,7 @@ public class BulkRuleActivationActions {
       .setDescription("Bulk deactivate rules on Quality profiles")
       .setPost(true)
       .setSince("4.4")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          bulkDeactivate(request, response);
-        }
-      });
+      .setHandler(this::bulkDeactivate);
 
     defineRuleSearchParameters(deactivate);
     defineProfileKeyParameter(deactivate);
@@ -117,11 +103,11 @@ public class BulkRuleActivationActions {
     writeResponse(result, response);
   }
 
-  private void writeResponse(BulkChangeResult result, Response response) {
+  private static void writeResponse(BulkChangeResult result, Response response) {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    result.getErrors().writeJson(json, i18n);
+    result.getErrors().writeJson(json);
     json.endObject().close();
   }
 }
