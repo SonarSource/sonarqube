@@ -52,7 +52,6 @@ class ProjectContainer extends React.Component {
   }
 
   fetchProject () {
-    this.setState({ errorCode: null });
     this.props.fetchProject(this.props.location.query.id).catch(e => {
       if (e.response.status === 403) {
         handleRequiredAuthorization();
