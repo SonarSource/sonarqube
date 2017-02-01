@@ -19,20 +19,17 @@
  */
 package org.sonar.server.batch;
 
-import java.io.IOException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.WebService;
+
+import static java.util.Arrays.stream;
 
 public class BatchWs implements WebService {
 
   public static final String API_ENDPOINT = "batch";
 
-  private final BatchIndex batchIndex;
   private final BatchWsAction[] actions;
 
-  public BatchWs(BatchIndex batchIndex, BatchWsAction... actions) {
-    this.batchIndex = batchIndex;
+  public BatchWs(BatchWsAction... actions) {
     this.actions = actions;
   }
 
@@ -41,50 +38,8 @@ public class BatchWs implements WebService {
     NewController controller = context.createController(API_ENDPOINT)
       .setSince("4.4")
       .setDescription("Get JAR files and referentials for batch");
-
-    defineIndexAction(controller);
-    defineFileAction(controller);
-    for (BatchWsAction action : actions) {
-      action.define(controller);
-    }
-
+    stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }
 
-  private void defineIndexAction(NewController controller) {
-    controller.createAction("index")
-      .setInternal(true)
-      .setSince("4.4")
-      .setDescription("List the JAR files to be downloaded by scanners")
-      .setHandler((request, response) -> {
-        try {
-          response.stream().setMediaType("text/plain");
-          IOUtils.write(batchIndex.getIndex(), response.stream().output());
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
-      })
-      .setResponseExample(getClass().getResource("batch-index-example.txt"));
-  }
-
-  private void defineFileAction(NewController controller) {
-    NewAction action = controller.createAction("file")
-      .setInternal(true)
-      .setSince("4.4")
-      .setDescription("Download a JAR file listed in the index (see batch/index)")
-      .setResponseExample(getClass().getResource("batch-file-example.txt"))
-      .setHandler((request, response) -> {
-        String filename = request.mandatoryParam("name");
-        try {
-          response.stream().setMediaType("application/java-archive");
-          FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
-      });
-    action
-      .createParam("name")
-      .setDescription("File name")
-      .setExampleValue("batch-library-2.3.jar");
-  }
 }

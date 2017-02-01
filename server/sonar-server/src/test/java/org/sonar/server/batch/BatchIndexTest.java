@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +84,7 @@ public class BatchIndexTest {
    */
   @Test
   public void check_location_of_file() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NotFoundException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
     BatchIndex batchIndex = new BatchIndex(fs);
@@ -94,7 +95,7 @@ public class BatchIndexTest {
 
   @Test
   public void file_does_not_exist() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NotFoundException.class);
     thrown.expectMessage("Bad filename: other.jar");
 
     BatchIndex batchIndex = new BatchIndex(fs);

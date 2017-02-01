@@ -31,6 +31,7 @@ import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
 /**
@@ -81,10 +82,9 @@ public class BatchIndex implements Startable {
     try {
       File input = new File(batchDir, filename);
       if (!input.exists() || !FileUtils.directoryContains(batchDir, input)) {
-        throw new IllegalArgumentException("Bad filename: " + filename);
+        throw new NotFoundException("Bad filename: " + filename);
       }
       return input;
-
     } catch (IOException e) {
       throw new IllegalStateException("Can get file " + filename, e);
     }

@@ -85,7 +85,7 @@ public class IssuesActionTest {
   public void before() {
     IssueIndex issueIndex = new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
     IssuesAction issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
-    tester = new WsTester(new BatchWs(new BatchIndex(fs), issuesAction));
+    tester = new WsTester(new BatchWs(issuesAction));
   }
 
   @Test
