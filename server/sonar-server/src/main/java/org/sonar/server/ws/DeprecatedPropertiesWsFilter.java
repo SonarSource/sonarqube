@@ -40,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.property.ws.IndexAction;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
@@ -147,11 +146,9 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
       switch (method) {
         case "POST":
         case "PUT":
-          failIfIdIsNull(id);
           handlePutAndPost(id, getValues(), getComponent());
           break;
         case "DELETE":
-          failIfIdIsNull(id);
           handleDelete(id, getComponent());
           break;
         default:
@@ -248,9 +245,6 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
       value.ifPresent(s -> additionalParams.put(parameterKey, s));
     }
 
-    private static void failIfIdIsNull(Optional<String> id) {
-      checkArgument(id.isPresent(), "The 'id' parameter is missing");
-    }
   }
 
 }

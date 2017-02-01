@@ -274,6 +274,12 @@ public class DeprecatedPropertiesWsTest {
   }
 
   @Test
+  public void fail_with_error_400_when_put_property_without_id() throws Exception {
+    Response response = putProperty("", "some-value", null, false);
+    assertThat(response.code()).isEqualTo(400);
+  }
+
+  @Test
   public void delete_property() throws Exception {
     setProperty("custom-property", "value", null);
 
@@ -335,20 +341,20 @@ public class DeprecatedPropertiesWsTest {
     return Arrays.stream(properties).findFirst().orElseGet(() -> null);
   }
 
-  private static void putProperty(String key, String value, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
+  private static Response putProperty(String key, String value, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
     String url = useIdParameter ? orchestrator.getServer().getUrl() + "/api/properties?id=" + encode(key, "UTF-8") + "&value=" + value
       : orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8") + "?value=" + value;
     url += componentKey != null ? "&resource=" + componentKey : "";
-    call(new Request.Builder()
+    return call(new Request.Builder()
       .put(new FormBody.Builder().build())
       .url(url));
   }
 
-  private static void deleteProperty(String key, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
+  private static Response deleteProperty(String key, @Nullable String componentKey, boolean useIdParameter) throws UnsupportedEncodingException {
     String url = useIdParameter ? orchestrator.getServer().getUrl() + "/api/properties?id=" + encode(key, "UTF-8")
       : orchestrator.getServer().getUrl() + "/api/properties/" + encode(key, "UTF-8");
     url += componentKey != null ? "?resource=" + componentKey : "";
-    call(new Request.Builder()
+    return call(new Request.Builder()
       .delete(new FormBody.Builder().build())
       .url(url));
   }
@@ -356,14 +362,12 @@ public class DeprecatedPropertiesWsTest {
   private static Response call(Request.Builder requestBuilder) {
     try {
       requestBuilder.header("Authorization", Credentials.basic("admin", "admin"));
-      Response response = new OkHttpClient.Builder()
+      return new OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
         .newCall(requestBuilder.build())
         .execute();
-      assertThat(response.isSuccessful()).as("Error code is '%s', error message is '%s'", Integer.toString(response.code()), response.body().string()).isTrue();
-      return response;
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }

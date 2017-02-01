@@ -264,36 +264,6 @@ public class DeprecatedPropertiesWsFilterTest {
     assertNoParam("value", "values");
   }
 
-  @Test
-  public void fail_to_redirect_put_api_properties_when_no_id() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/properties/");
-    when(request.getMethod()).thenReturn("PUT");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter is missing");
-    underTest.doFilter(request, response, chain);
-  }
-
-  @Test
-  public void fail_to_redirect_post_api_properties_when_no_id() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/properties/");
-    when(request.getMethod()).thenReturn("POST");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter is missing");
-    underTest.doFilter(request, response, chain);
-  }
-
-  @Test
-  public void fail_to_redirect_delete_api_properties_when_no_id() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/properties");
-    when(request.getMethod()).thenReturn("DELETE");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter is missing");
-    underTest.doFilter(request, response, chain);
-  }
-
   private void assertRedirection(String path, String method) {
     verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
     assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo(path);
