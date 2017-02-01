@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.notification.NotificationCenter;
@@ -56,12 +57,14 @@ public class ListActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "MyNewIssues";
   private static final String NOTIF_NEW_ISSUES = "NewIssues";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "NewQualityGateStatus";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(123);
   @Rule
   public DbTester db = DbTester.create();
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
@@ -156,12 +159,15 @@ public class ListActionTest {
 
     ListResponse result = call();
 
-    assertThat(result.getNotificationsList()).extracting(Notification::getType).containsOnly(NOTIF_MY_NEW_ISSUES);
+    assertThat(result.getNotificationsList())
+      .extracting(Notification::getType)
+      .containsOnly(NOTIF_MY_NEW_ISSUES);
   }
 
   @Test
   public void order_with_global_then_by_channel_and_dispatcher() {
-    ComponentDto project = addComponent(newProjectDto(db.organizations().insert()).setKey("K1"));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = addComponent(newProjectDto(organization).setKey("K1"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, null);
@@ -172,19 +178,21 @@ public class ListActionTest {
 
     ListResponse result = call();
 
-    assertThat(result.getNotificationsList()).extracting(Notification::getChannel, Notification::getType, Notification::getProject)
+    assertThat(result.getNotificationsList())
+      .extracting(Notification::getChannel, Notification::getOrganization, Notification::getType, Notification::getProject)
       .containsExactly(
-        tuple(emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, ""),
-        tuple(emailChannel.getKey(), NOTIF_NEW_ISSUES, ""),
-        tuple(twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, ""),
-        tuple(emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, "K1"),
-        tuple(emailChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, "K1"),
-        tuple(twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, "K1"));
+        tuple(emailChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
+        tuple(emailChannel.getKey(), "", NOTIF_NEW_ISSUES, ""),
+        tuple(twitterChannel.getKey(), "", NOTIF_MY_NEW_ISSUES, ""),
+        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, "K1"),
+        tuple(emailChannel.getKey(), organization.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, "K1"),
+        tuple(twitterChannel.getKey(), organization.getKey(), NOTIF_MY_NEW_ISSUES, "K1"));
   }
 
   @Test
   public void json_example() {
-    ComponentDto project = addComponent(newProjectDto(db.organizations().insert()).setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    OrganizationDto organization = db.organizations().insertForKey("my-org-1");
+    ComponentDto project = addComponent(newProjectDto(organization).setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, null);
@@ -195,7 +203,9 @@ public class ListActionTest {
 
     String result = ws.newRequest().execute().getInput();
 
-    assertJson(ws.getDef().responseExampleAsString()).withStrictArrayOrder().isSimilarTo(result);
+    assertJson(ws.getDef().responseExampleAsString())
+      .withStrictArrayOrder()
+      .isSimilarTo(result);
   }
 
   @Test

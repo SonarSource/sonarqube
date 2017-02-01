@@ -15,18 +15,21 @@
     {
       "channel": "EmailChannel",
       "type": "MyNewIssues",
+      "organization": "my-org-1",
       "project": "my_project",
       "projectName": "My Project"
     },
     {
       "channel": "EmailChannel",
       "type": "NewQualityGateStatus",
+      "organization": "my-org-1",
       "project": "my_project",
       "projectName": "My Project"
     },
     {
       "channel": "TwitterChannel",
       "type": "MyNewIssues",
+      "organization": "my-org-1",
       "project": "my_project",
       "projectName": "My Project"
     }
