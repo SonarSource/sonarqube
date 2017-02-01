@@ -38,7 +38,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,7 +47,6 @@ import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
@@ -160,11 +158,12 @@ public class ActivityAction implements CeWsAction {
   }
 
   private ActivityResponse doHandle(ActivityWsRequest request) {
+    checkPermission(request);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       // if a task searched by uuid is found all other parameters are ignored
       Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
-        userSession.checkComponentUuidPermission(UserRole.ADMIN, taskSearchedById.get().getComponentId());
         return buildResponse(
           singletonList(taskSearchedById.get()),
           Collections.emptyList(),
@@ -172,7 +171,6 @@ public class ActivityAction implements CeWsAction {
       }
 
       CeTaskQuery query = buildQuery(dbSession, request);
-      checkPermissions(query);
       Iterable<WsCe.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
       Iterable<WsCe.Task> pastTasks = loadPastTasks(dbSession, request, query);
 
@@ -180,6 +178,17 @@ public class ActivityAction implements CeWsAction {
         queuedTasks,
         pastTasks,
         request.getPageSize());
+    }
+  }
+
+  private void checkPermission(ActivityWsRequest request) {
+    // fail fast if not logged in
+    userSession.checkLoggedIn();
+
+    if (request.getComponentId() == null) {
+      userSession.checkIsRoot();
+    } else {
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, request.getComponentId());
     }
   }
 
@@ -248,21 +257,6 @@ public class ActivityAction implements CeWsAction {
   private List<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, OFFSET, request.getPageSize());
     return formatter.formatActivity(dbSession, dtos);
-  }
-
-  private void checkPermissions(CeTaskQuery query) {
-    List<String> componentUuids = query.getComponentUuids();
-    if (componentUuids != null && componentUuids.size() == 1) {
-      if (!isAllowedOnComponentUuid(userSession, componentUuids.get(0))) {
-        throw new ForbiddenException("Requires administration permission");
-      }
-    } else {
-      userSession.checkPermission(UserRole.ADMIN);
-    }
-  }
-
-  public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {
-    return userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
   }
 
   private static ActivityResponse buildResponse(Iterable<WsCe.Task> queuedTasks, Iterable<WsCe.Task> pastTasks, int pageSize) {

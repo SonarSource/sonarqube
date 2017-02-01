@@ -32,7 +32,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -41,6 +40,8 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -83,7 +84,7 @@ public class ActivityActionTest {
 
   @Test
   public void get_all_past_activity() {
-    globalAdmin();
+    logInAsRoot();
     OrganizationDto org1 = dbTester.organizations().insert();
     dbTester.components().insertProject(org1, "PROJECT_1");
     OrganizationDto org2 = dbTester.organizations().insert();
@@ -114,7 +115,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_status() {
-    globalAdmin();
+    logInAsRoot();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -131,7 +132,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_max_executed_at_exclude() {
-    globalAdmin();
+    logInAsRoot();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -145,7 +146,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
-    globalAdmin();
+    logInAsRoot();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     dbTester.components().insertProject(organizationDto, "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -161,7 +162,7 @@ public class ActivityActionTest {
   @Test
   public void filter_on_current_activities() {
     dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
-    globalAdmin();
+    logInAsRoot();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
@@ -177,7 +178,7 @@ public class ActivityActionTest {
 
   @Test
   public void limit_results() {
-    globalAdmin();
+    logInAsRoot();
     OrganizationDto organizationDto = dbTester.organizations().insert();
     dbTester.components().insertProject(organizationDto, "PROJECT_1");
     dbTester.components().insertProject(organizationDto, "PROJECT_2");
@@ -207,7 +208,7 @@ public class ActivityActionTest {
   public void project_administrator_can_access_his_project_activity() {
     dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
     // no need to be a system admin
-    userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
+    userSession.logIn().addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -220,6 +221,17 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void return_401_if_user_is_not_logged_in() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    call(ws.newRequest().setParam("componentId", project.uuid()));
+  }
+
+  @Test
   public void search_activity_by_component_name() throws IOException {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto struts = newProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
@@ -228,7 +240,7 @@ public class ActivityActionTest {
     componentDb.insertProjectAndSnapshot(struts);
     componentDb.insertProjectAndSnapshot(zookeeper);
     componentDb.insertProjectAndSnapshot(eclipse);
-    globalAdmin();
+    logInAsRoot();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
@@ -245,7 +257,7 @@ public class ActivityActionTest {
     ComponentDto developer = newDeveloper(organizationDto, "Apache Developer").setUuid("D1").setProjectUuid("D1");
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertViewAndSnapshot(apacheView);
-    globalAdmin();
+    logInAsRoot();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);
 
@@ -256,7 +268,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
-    globalAdmin();
+    logInAsRoot();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
@@ -271,7 +283,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_activity() {
-    globalAdmin();
+    logInAsRoot();
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
@@ -282,24 +294,26 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void search_task_id_as_project_admin() {
-    String view_uuid = "VIEW_1";
-    dbTester.components().insertView(dbTester.getDefaultOrganization(), view_uuid);
-    insertActivity("T1", view_uuid, CeActivityDto.Status.SUCCESS);
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, view_uuid);
+  public void search_by_task_id_returns_403_if_project_admin_but_not_root() {
+    // WS api/ce/task must be used in order to search by task id.
+    // Here it's a convenient feature of search by text query, which
+    // is reserved to roots
+    ComponentDto view = dbTester.components().insertView();
+    insertActivity("T1", view.uuid(), CeActivityDto.Status.SUCCESS);
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, view.uuid());
 
-    ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
-    assertThat(result.getTasks(0).getId()).isEqualTo("T1");
+    call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
   }
 
   @Test
-  public void search_task_by_component_uuid() {
+  public void search_task_by_component_id() {
     dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    globalAdmin();
+    logInAsRoot();
 
     ActivityResponse result = call(ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, "PROJECT_1")
@@ -333,6 +347,8 @@ public class ActivityActionTest {
 
   @Test
   public void fail_if_date_is_not_well_formatted() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
 
@@ -343,7 +359,7 @@ public class ActivityActionTest {
 
   @Test
   public void support_json_response() {
-    globalAdmin();
+    logInAsRoot();
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .execute();
@@ -351,8 +367,8 @@ public class ActivityActionTest {
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
   }
 
-  private void globalAdmin() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {
