@@ -1,6 +1,7 @@
 {
   "organization": {
     "isDefault": true,
-    "canAdmin": true
+    "canAdmin": true,
+    "canProvisionProjects": true
   }
 }
