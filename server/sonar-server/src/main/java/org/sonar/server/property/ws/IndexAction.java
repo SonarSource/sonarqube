@@ -39,7 +39,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -148,7 +147,7 @@ public class IndexAction implements WsAction {
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {
-    return component.isPresent() ? userSession.hasComponentPermission(ADMIN, component.get()) : userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
+    return component.isPresent() ? userSession.hasComponentPermission(ADMIN, component.get()) : userSession.isRoot();
   }
 
   private List<PropertyDto> loadGlobalSettings(DbSession dbSession, Optional<String> key) {

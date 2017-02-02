@@ -50,7 +50,6 @@ import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -83,7 +82,7 @@ public class IndexActionTest {
 
   @Test
   public void return_simple_value() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -92,7 +91,7 @@ public class IndexActionTest {
 
   @Test
   public void return_multi_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     // Property never defined, default value is returned
     definitions.addComponent(PropertyDefinition.builder("default")
       .multiValues(true)
@@ -109,7 +108,7 @@ public class IndexActionTest {
 
   @Test
   public void return_multi_value_with_coma() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
 
@@ -118,7 +117,7 @@ public class IndexActionTest {
 
   @Test
   public void return_property_set() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -133,7 +132,7 @@ public class IndexActionTest {
 
   @Test
   public void return_default_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 
     executeAndVerify(null, null, "return_default_values.json");
@@ -141,7 +140,7 @@ public class IndexActionTest {
 
   @Test
   public void return_global_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       // The property is overriding default value
@@ -152,7 +151,7 @@ public class IndexActionTest {
 
   @Test
   public void return_project_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"),
@@ -164,7 +163,7 @@ public class IndexActionTest {
 
   @Test
   public void return_global_values_when_project_does_not_exist() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("property").setValue("one"));
@@ -174,7 +173,7 @@ public class IndexActionTest {
 
   @Test
   public void return_values_even_if_no_property_definition() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
     executeAndVerify(null, null, "return_values_even_if_no_property_definition.json");
@@ -182,7 +181,7 @@ public class IndexActionTest {
 
   @Test
   public void return_empty_when_property_def_exists_but_no_value() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     executeAndVerify(null, null, "empty.json");
@@ -190,7 +189,7 @@ public class IndexActionTest {
 
   @Test
   public void return_nothing_when_unknown_key() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("bar").setValue(""));
 
@@ -199,7 +198,7 @@ public class IndexActionTest {
 
   @Test
   public void return_module_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
@@ -212,7 +211,7 @@ public class IndexActionTest {
 
   @Test
   public void return_inherited_values_on_module() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
@@ -229,7 +228,7 @@ public class IndexActionTest {
 
   @Test
   public void return_inherited_values_on_global_setting() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build()));
@@ -241,7 +240,7 @@ public class IndexActionTest {
 
   @Test
   public void does_not_return_value_of_deprecated_key() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").deprecatedKey("deprecated").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("one"));
 
@@ -280,7 +279,7 @@ public class IndexActionTest {
 
   @Test
   public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -298,7 +297,7 @@ public class IndexActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_system_admin() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -314,7 +313,7 @@ public class IndexActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_project_admin() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -330,7 +329,7 @@ public class IndexActionTest {
 
   @Test
   public void return_secured_and_license_settings_in_property_set_when_system_admin() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -347,7 +346,7 @@ public class IndexActionTest {
 
   @Test
   public void return_all_settings_when_no_component_and_no_key() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -363,7 +362,7 @@ public class IndexActionTest {
 
   @Test
   public void return_all_project_settings_when_component_and_no_key() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -402,7 +401,7 @@ public class IndexActionTest {
 
   @Test
   public void does_not_fail_when_format_is_set_to_json() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 
     ws.newRequest().setParam("format", "json").execute();
@@ -410,7 +409,7 @@ public class IndexActionTest {
 
   @Test
   public void fail_when_format_is_set_to_xml() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("foo").defaultValue("default").build());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -420,7 +419,7 @@ public class IndexActionTest {
 
   @Test
   public void test_example_json_response() {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("sonar.test.jira")
       .defaultValue("abc")
@@ -465,20 +464,20 @@ public class IndexActionTest {
     assertJson(result).isSimilarTo(resource(expectedFile));
   }
 
-  private void setAuthenticatedUser() {
-    userSession.logIn("user");
+  private void logIn() {
+    userSession.logIn();
   }
 
-  private void setUserWithBrowsePermissionOnProject() {
-    userSession.logIn("user").addProjectUuidPermissions(USER, project.uuid());
+  private void logInAsProjectUser() {
+    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 
-  private void setUserAsProjectAdmin() {
-    userSession.logIn("project-admin")
+  private void logInAsProjectAdmin() {
+    userSession.logIn()
       .addProjectUuidPermissions(ADMIN, project.uuid())
       .addProjectUuidPermissions(USER, project.uuid());
   }
