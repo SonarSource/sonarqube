@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -35,6 +34,7 @@ import org.sonar.db.measure.custom.CustomMeasureTesting;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -49,15 +49,15 @@ public class DeleteActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
-  MetricDao metricDao;
 
-  WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private MetricDao metricDao;
+  private WsTester ws;
 
   @Before
   public void setUp() {
-    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
     ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule)));
     metricDao = dbClient.metricDao();
   }
@@ -124,11 +124,23 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_privileges() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSessionRule.logIn().setNonRoot();
     insertCustomEnabledMetrics(1);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    newRequest().setParam("keys", "key-1").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    userSessionRule.anonymous();
+    insertCustomEnabledMetrics(1);
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
 
     newRequest().setParam("keys", "key-1").execute();
   }

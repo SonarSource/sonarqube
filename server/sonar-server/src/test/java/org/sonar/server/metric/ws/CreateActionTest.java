@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -34,6 +33,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -58,15 +58,15 @@ public class CreateActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
 
-  WsTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private WsTester ws;
 
   @Before
   public void setUp() {
     ws = new WsTester(new MetricsWs(new CreateAction(dbClient, userSessionRule)));
-    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
   }
 
   @Test
@@ -228,9 +228,25 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_privileges() throws Exception {
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSessionRule.logIn().setNonRoot();
+
     expectedException.expect(ForbiddenException.class);
-    userSessionRule.logIn("login");
+    expectedException.expectMessage("Insufficient privileges");
+
+    newRequest()
+      .setParam(PARAM_KEY, "any-key")
+      .setParam(PARAM_NAME, "any-name")
+      .setParam(PARAM_TYPE, DEFAULT_TYPE)
+      .execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    userSessionRule.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
 
     newRequest()
       .setParam(PARAM_KEY, "any-key")

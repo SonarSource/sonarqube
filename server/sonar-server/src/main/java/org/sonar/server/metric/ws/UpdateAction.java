@@ -26,10 +26,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -97,11 +95,10 @@ public class UpdateAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
     int id = request.mandatoryParamAsInt(PARAM_ID);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       MetricDto metricTemplate = newMetricTemplate(request);
       MetricDto metricInDb = dbClient.metricDao().selectById(dbSession, id);
       checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
@@ -110,8 +107,6 @@ public class UpdateAction implements MetricsWsAction {
       JsonWriter json = response.newJsonWriter();
       writeMetric(json, metricInDb);
       json.close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
     }
   }
 
