@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
+import MetaOrganizationKey from './MetaOrganizationKey';
 import MetaLinks from './MetaLinks';
 import MetaQualityGate from './MetaQualityGate';
 import MetaQualityProfiles from './MetaQualityProfiles';
 import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
+import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
-const Meta = ({ component, measures }) => {
+const Meta = ({ component, measures, areThereCustomOrganizations }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
@@ -38,6 +41,8 @@ const Meta = ({ component, measures }) => {
 
   const shouldShowQualityProfiles = !isView && !isDeveloper && hasQualityProfiles;
   const shouldShowQualityGate = !isView && !isDeveloper && hasQualityGate;
+
+  const shouldShowOrganizationKey = component.organization != null && areThereCustomOrganizations;
 
   return (
       <div className="overview-meta">
@@ -61,6 +66,10 @@ const Meta = ({ component, measures }) => {
 
         <MetaKey component={component}/>
 
+        {shouldShowOrganizationKey && (
+            <MetaOrganizationKey component={component}/>
+        )}
+
         {isProject && (
             <AnalysesList project={component.key}/>
         )}
@@ -68,4 +77,8 @@ const Meta = ({ component, measures }) => {
   );
 };
 
-export default Meta;
+const mapStateToProps = state => ({
+  areThereCustomOrganizations: areThereCustomOrganizations(state)
+});
+
+export default connect(mapStateToProps)(Meta);
