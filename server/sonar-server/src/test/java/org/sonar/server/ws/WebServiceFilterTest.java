@@ -47,14 +47,14 @@ public class WebServiceFilterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
+  private WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
 
-  HttpServletRequest request = mock(HttpServletRequest.class);
-  HttpServletResponse response = mock(HttpServletResponse.class);
-  FilterChain chain = mock(FilterChain.class);
-  ServletOutputStream responseOutput = mock(ServletOutputStream.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
+  private ServletOutputStream responseOutput = mock(ServletOutputStream.class);
 
-  WebServiceFilter underTest;
+  private WebServiceFilter underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -63,20 +63,39 @@ public class WebServiceFilterTest {
   }
 
   @Test
-  public void do_get_pattern() throws Exception {
+  public void match_declared_web_services() throws Exception {
     initWebServiceEngine(
       newWsUrl("api/issues", "search"),
-      newWsUrl("batch", "index"),
-      newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE));
+      newWsUrl("batch", "index"));
 
     assertThat(underTest.doGetPattern().matches("/api/issues/search")).isTrue();
     assertThat(underTest.doGetPattern().matches("/api/issues/search.protobuf")).isTrue();
     assertThat(underTest.doGetPattern().matches("/batch/index")).isTrue();
 
-    assertThat(underTest.doGetPattern().matches("/api/resources/index")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
     assertThat(underTest.doGetPattern().matches("/foo")).isFalse();
+  }
+
+  @Test
+  public void match_undeclared_web_services_starting_with_api() throws Exception {
+    initWebServiceEngine(newWsUrl("api/issues", "search"));
+
+    assertThat(underTest.doGetPattern().matches("/api/resources/index")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/api/user_properties")).isTrue();
+  }
+
+  @Test
+  public void does_not_match_web_services_using_servlet_filter() throws Exception {
+    initWebServiceEngine(newWsUrl("api/authentication", "login").setHandler(ServletFilterHandler.INSTANCE));
+
+    assertThat(underTest.doGetPattern().matches("/api/authentication/login")).isFalse();
+  }
+
+  @Test
+  public void does_not_match_api_properties_ws() throws Exception {
+    initWebServiceEngine(newWsUrl("api/properties", "index"));
+
+    assertThat(underTest.doGetPattern().matches("/api/properties")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/api/properties/index")).isFalse();
   }
 
   @Test

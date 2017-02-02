@@ -21,8 +21,9 @@
 package org.sonar.server.ws;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -30,33 +31,42 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.core.util.stream.Collectors;
 
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
 
 /**
- * This filter is used to execute Java WS.
+ * This filter is used to execute Web Services.
  *
- * If the url match a Java WS, the output of the WS is returned and no other filers are executed.
- * If the url doesn't match a Java WS, then it's calling remaining filters (for instance to execute Rails WS).
+ * Every urls beginning with '/api' and every web service urls are taken into account, except :
+ * <ul>
+ *   <li>web services that directly implemented with servlet filter, see {@link ServletFilterHandler})</li>
+ *   <li>deprecated '/api/properties' web service, see {@link DeprecatedPropertiesWsFilter}</li>
+ * </ul>
  */
 public class WebServiceFilter extends ServletFilter {
 
   private final WebServiceEngine webServiceEngine;
-  private final List<String> includeUrls = new ArrayList<>();
-  private final List<String> excludeUrls = new ArrayList<>();
+  private final Set<String> includeUrls;
+  private final Set<String> excludeUrls;
 
   public WebServiceFilter(WebServiceEngine webServiceEngine) {
     this.webServiceEngine = webServiceEngine;
-    webServiceEngine.controllers()
-      .forEach(controller -> controller.actions()
-        .forEach(action -> {
-          // Rest and servlet filter WS should not be executed by the web service engine
-          if (shouldBeExecutedByWebServiceEngine(controller, action)) {
-            includeUrls.add("/" + controller.path() + "/*");
-          } else {
-            excludeUrls.add("/" + action.path() + "*");
-          }
-        }));
+    this.includeUrls = Stream.concat(
+      Stream.of("/api/*"),
+      webServiceEngine.controllers()
+        .stream()
+        .flatMap(controller -> controller.actions().stream()
+          .map(toPath())))
+      .collect(Collectors.toSet());
+    this.excludeUrls = Stream.concat(
+      Stream.of("/" + CONTROLLER_PROPERTIES + "*"),
+      webServiceEngine.controllers()
+        .stream()
+        .flatMap(controller -> controller.actions().stream()
+          .filter(action -> action.handler() instanceof ServletFilterHandler)
+          .map(toPath())))
+      .collect(Collectors.toSet());
   }
 
   @Override
@@ -86,9 +96,8 @@ public class WebServiceFilter extends ServletFilter {
     // Nothing to do
   }
 
-  private static boolean shouldBeExecutedByWebServiceEngine(WebService.Controller controller, WebService.Action action) {
-    return !(action.handler() instanceof ServletFilterHandler)
-      && !controller.path().equals(CONTROLLER_PROPERTIES);
+  private static Function<WebService.Action, String> toPath() {
+    return action -> "/" + action.path() + "/*";
   }
 
 }
