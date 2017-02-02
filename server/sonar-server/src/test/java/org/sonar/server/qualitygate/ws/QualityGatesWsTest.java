@@ -76,7 +76,7 @@ public class QualityGatesWsTest {
       new CopyAction(qGates),
       new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
-      new CreateConditionAction(null, null, null),
+      new CreateConditionAction(null, null, null, null),
       new UpdateConditionAction(null, null, null),
       new DeleteConditionAction(qGates),
       selectAction,

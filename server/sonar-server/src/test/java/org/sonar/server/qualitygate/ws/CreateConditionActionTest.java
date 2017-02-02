@@ -30,14 +30,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -47,7 +51,6 @@ import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
@@ -68,21 +71,19 @@ public class CreateConditionActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
-
-  CreateConditionAction underTest = new CreateConditionAction(userSession, dbClient, new QualityGateConditionsUpdater(dbClient));
-
-  QualityGateDto qualityGateDto;
-
-  MetricDto coverageMetricDto = newMetricDto()
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
+  private CreateConditionAction underTest = new CreateConditionAction(userSession, dbClient, new QualityGateConditionsUpdater(dbClient), defaultOrganizationProvider);
+  private QualityGateDto qualityGateDto;
+  private MetricDto coverageMetricDto = newMetricDto()
     .setKey("coverage")
     .setShortName("Coverage")
     .setValueType(PERCENT.name())
     .setHidden(false);
 
-  WsActionTester ws = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() throws Exception {
@@ -93,7 +94,7 @@ public class CreateConditionActionTest {
 
   @Test
   public void create_warning_condition() throws Exception {
-    setUserAsQualityGateAdmin();
+    logInAsQualityGateAdmin();
 
     CreateConditionWsResponse response = executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
 
@@ -102,7 +103,7 @@ public class CreateConditionActionTest {
 
   @Test
   public void create_error_condition() throws Exception {
-    setUserAsQualityGateAdmin();
+    logInAsQualityGateAdmin();
 
     CreateConditionWsResponse response = executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", null);
 
@@ -111,7 +112,7 @@ public class CreateConditionActionTest {
 
   @Test
   public void create_condition_over_leak_period() throws Exception {
-    setUserAsQualityGateAdmin();
+    logInAsQualityGateAdmin();
 
     CreateConditionWsResponse response = executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", 1);
 
@@ -119,10 +120,35 @@ public class CreateConditionActionTest {
   }
 
   @Test
-  public void fail_when_not_quality_gate_admin() throws Exception {
-    setUserAsNotQualityGateAdmin();
+  public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_gate_administrator_of_default_organization() throws Exception {
+    // as long as organizations don't support Quality gates, the global permission
+    // is defined on the default organization
+    OrganizationDto org = db.organizations().insert();
+    userSession.logIn().addOrganizationPermission(org, GlobalPermissions.QUALITY_GATE_ADMIN);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
     executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
   }
 
@@ -190,11 +216,7 @@ public class CreateConditionActionTest {
     }
   }
 
-  private void setUserAsQualityGateAdmin() {
-    userSession.logIn("project-admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
-  }
-
-  private void setUserAsNotQualityGateAdmin() {
-    userSession.logIn("not-admin").setGlobalPermissions(SCAN_EXECUTION);
+  private void logInAsQualityGateAdmin() {
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization(), QUALITY_GATE_ADMIN);
   }
 }
