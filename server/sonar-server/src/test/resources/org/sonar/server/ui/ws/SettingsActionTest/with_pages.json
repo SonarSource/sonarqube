@@ -1,6 +1,5 @@
 {
   "showUpdateCenter": false,
-  "showProvisioning": false,
   "extensions": [
     {
       "key": "my_plugin/first_page",

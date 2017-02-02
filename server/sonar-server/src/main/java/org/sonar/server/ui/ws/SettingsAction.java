@@ -63,7 +63,6 @@ public class SettingsAction implements NavigationWsAction {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("showUpdateCenter", isAdmin && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
-    json.prop("showProvisioning", userSession.hasPermission(GlobalPermissions.PROVISIONING));
 
     json.name("extensions").beginArray();
     if (isAdmin) {

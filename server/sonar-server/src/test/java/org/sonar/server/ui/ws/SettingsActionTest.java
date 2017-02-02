@@ -56,14 +56,6 @@ public class SettingsActionTest {
   }
 
   @Test
-  public void with_provisioning() throws Exception {
-    init();
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-
-    executeAndVerify("with_provisioning.json");
-  }
-
-  @Test
   public void with_pages() throws Exception {
     init(createPages());
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
