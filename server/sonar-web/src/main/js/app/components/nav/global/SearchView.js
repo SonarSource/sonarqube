@@ -39,6 +39,8 @@ type Finding = {
   extra?: string
 };
 
+const SHOW_ORGANIZATION_FOR_QUALIFIERS = ['TRK', 'VW', 'SVW'];
+
 const SearchItemView = Marionette.ItemView.extend({
   tagName: 'li',
   template: SearchItemTemplate,
@@ -214,7 +216,8 @@ export default Marionette.LayoutView.extend({
       const collection = [];
       r.results.forEach(({ items, q }) => {
         items.forEach((item, index) => {
-          const showOrganization = customOrganizations && item.organization != null && q === 'TRK';
+          const showOrganization = customOrganizations && item.organization != null &&
+              SHOW_ORGANIZATION_FOR_QUALIFIERS.includes(q);
           const organization = showOrganization ? getOrganization(item.organization) : null;
           collection.push({
             ...item,
