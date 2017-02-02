@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
@@ -60,7 +59,7 @@ public class EncryptAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
 
     String value = request.mandatoryParam(PARAM_VALUE);
     checkRequest(!value.isEmpty(), "Parameter '%s' must not be empty", PARAM_VALUE);

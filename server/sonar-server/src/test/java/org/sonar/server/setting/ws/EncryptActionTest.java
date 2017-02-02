@@ -36,6 +36,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -43,8 +44,6 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
 
@@ -52,31 +51,29 @@ public class EncryptActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  Settings settings = new MapSettings();
-  Encryption encryption = settings.getEncryption();
-
-  EncryptAction underTest = new EncryptAction(userSession, settings);
-
-  WsActionTester ws = new WsActionTester(underTest);
+  private Settings settings = new MapSettings();
+  private Encryption encryption = settings.getEncryption();
+  private EncryptAction underTest = new EncryptAction(userSession, settings);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
-  public void setUp_secret_key() {
-    try {
-      File secretKeyFile = folder.newFile();
-      FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==");
+  public void setUpSecretKey() throws Exception {
+    logInAsRoot();
 
-      encryption.setPathToSecretKey(secretKeyFile.getAbsolutePath());
-    } catch (IOException e) {
-      Throwables.propagate(e);
-    }
+    File secretKeyFile = folder.newFile();
+    FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==");
+
+    encryption.setPathToSecretKey(secretKeyFile.getAbsolutePath());
   }
 
   @Test
   public void json_example() {
+    logInAsRoot();
+
     String result = ws.newRequest().setParam("value", "my value").execute().getInput();
 
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
@@ -84,6 +81,8 @@ public class EncryptActionTest {
 
   @Test
   public void encrypt() {
+    logInAsRoot();
+
     EncryptWsResponse result = call("my value!");
 
     assertThat(result.getEncryptedValue()).isEqualTo("{aes}NoofntibpMBdhkMfXQxYcA==");
@@ -101,16 +100,29 @@ public class EncryptActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_permissions() {
-    expectedException.expect(ForbiddenException.class);
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSession.login().setNonRoot();
 
-    userSession.anonymous().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    call("my value");
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
 
     call("my value");
   }
 
   @Test
   public void fail_if_value_is_not_provided() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call(null);
@@ -118,6 +130,8 @@ public class EncryptActionTest {
 
   @Test
   public void fail_if_value_is_empty() {
+    logInAsRoot();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Parameter 'value' must not be empty");
 
@@ -126,6 +140,8 @@ public class EncryptActionTest {
 
   @Test
   public void fail_if_no_secret_key_available() {
+    logInAsRoot();
+
     encryption.setPathToSecretKey("unknown/path/to/secret/key");
 
     expectedException.expect(BadRequestException.class);
@@ -148,5 +164,9 @@ public class EncryptActionTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private void logInAsRoot() {
+    userSession.login().setRoot();
   }
 }
