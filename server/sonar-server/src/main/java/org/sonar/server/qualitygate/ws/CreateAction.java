@@ -26,6 +26,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
@@ -39,11 +40,14 @@ public class CreateAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater) {
+  public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.qualityGateUpdater = qualityGateUpdater;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -62,17 +66,15 @@ public class CreateAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkPermission(GlobalPermissions.QUALITY_GATE_ADMIN);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    userSession.checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_GATE_ADMIN);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, request.mandatoryParam(PARAM_NAME));
       CreateWsResponse.Builder createWsResponse = CreateWsResponse.newBuilder()
         .setId(newQualityGate.getId())
         .setName(newQualityGate.getName());
       writeProtobuf(createWsResponse.build(), request, response);
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -72,7 +72,7 @@ public class QualityGatesWsTest {
       new ListAction(qGates),
       new ShowAction(qGates),
       new SearchAction(projectFinder),
-      new CreateAction(null, null, null),
+      new CreateAction(null, null, null, null),
       new CopyAction(qGates),
       new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),

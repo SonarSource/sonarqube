@@ -26,11 +26,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -40,7 +43,6 @@ import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class CreateActionTest {
 
@@ -53,16 +55,15 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-
-  CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient));
-
-  WsActionTester ws = new WsActionTester(underTest);
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient), defaultOrganizationProvider);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void create_quality_gate() throws Exception {
-    setUserAsQualityGateAdmin();
+    logInAsQualityGateAdmin();
 
     CreateWsResponse response = executeRequest("Default");
 
@@ -74,10 +75,25 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_not_quality_gate_admin() throws Exception {
-    setUserAsNotQualityGateAdmin();
+  public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest("Default");
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_gate_administrator_of_default_organization() throws Exception {
+    // as long as organizations don't support Quality gates, the global permission
+    // is defined on the default organization
+    OrganizationDto org = db.organizations().insert();
+    userSession.logIn().addOrganizationPermission(org, GlobalPermissions.QUALITY_GATE_ADMIN);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
     executeRequest("Default");
   }
 
@@ -102,12 +118,8 @@ public class CreateActionTest {
     }
   }
 
-  private void setUserAsQualityGateAdmin() {
-    userSession.logIn("project-admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
-  }
-
-  private void setUserAsNotQualityGateAdmin() {
-    userSession.logIn("not-admin").setGlobalPermissions(SCAN_EXECUTION);
+  private void logInAsQualityGateAdmin() {
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization().getUuid(), QUALITY_GATE_ADMIN);
   }
 
 }
