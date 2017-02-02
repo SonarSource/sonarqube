@@ -86,13 +86,11 @@ export default class OrganizationNavigation extends React.Component {
         <nav className="navbar navbar-context page-container" id="context-navigation">
           <div className="navbar-context-inner">
             <div className="container">
-              <ul className="nav navbar-nav nav-crumbs">
-                <li>
-                  <Link to={`/organizations/${organization.key}`}>
-                    {organization.name}
-                  </Link>
-                </li>
-              </ul>
+              <h2 className="navbar-context-title">
+                <Link to={`/organizations/${organization.key}`} className="link-base-color">
+                  <strong>{organization.name}</strong>
+                </Link>
+              </h2>
 
               <ul className="nav navbar-nav nav-tabs">
                 <li>

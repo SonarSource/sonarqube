@@ -206,10 +206,11 @@
 
 
 .navbar-context {
+  position: static;
   top: @navbarGlobalHeight;
   z-index: @navbar-context-z-index;
   height: @navbarContextHeight;
-  padding-top: 5px;
+  padding: 0;
   background-color: @navbarContextBackground;
 
   .nav-tabs {
@@ -239,6 +240,34 @@
   color: @secondFontColor;
   font-size: @smallFontSize;
 }
+.navbar-context-inner {
+  position: fixed;
+  z-index: 420;
+  left: 0;
+  right: 0;
+  height: 65px;
+  padding-top: 5px;
+  box-sizing: border-box;
+  background-color: #f3f3f3;
+}
+
+.navbar-context-title {
+  float: left;
+  padding: 2px 10px 0;
+}
+
+.navbar-context-title-qualifier {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 16px;
+  padding-top: 5px;
+  box-sizing: border-box;
+}
+
+.navbar-context-title-qualifier i {
+  vertical-align: top;
+}
+
 
 .navbar-side {
   padding: 10px;

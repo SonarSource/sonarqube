@@ -7,18 +7,18 @@
   {{/notNull}}
 
   <a class="link-no-underline" href="{{dashboardUrl project}}">
-    <span class="little-spacer-right">{{qualifierIcon "TRK"}}</span>{{projectLongName}}
+    {{projectLongName}}
   </a>
 
   {{#if subProject}}
     <span class="slash-separator"></span>
     <a class="link-no-underline" href="{{dashboardUrl subProject}}">
-      <span class="little-spacer-right">{{qualifierIcon "TRK"}}</span>{{subProjectLongName}}
+      {{subProjectLongName}}
     </a>
   {{/if}}
 
   <span class="slash-separator"></span>
   <a class="link-no-underline" href="{{dashboardUrl component}}">
-    <span class="little-spacer-right">{{qualifierIcon componentQualifier}}</span>{{collapsePath componentLongName}}
+    {{collapsePath componentLongName}}
   </a>
 </div>
