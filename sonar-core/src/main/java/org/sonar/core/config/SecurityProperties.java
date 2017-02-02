@@ -33,15 +33,6 @@ class SecurityProperties {
 
   static List<PropertyDefinition> all() {
     return ImmutableList.of(
-
-      PropertyDefinition.builder(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)
-        .defaultValue(Boolean.toString(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE))
-        .name("Activate sign up for local account")
-        .description("Allow users to sign up online for a local account. For that purpose, a \"Sign Up\" link will be available in the \"Login\" page.")
-        .type(PropertyType.BOOLEAN)
-        .category(CoreProperties.CATEGORY_SECURITY)
-        .build(),
-
       PropertyDefinition.builder(CoreProperties.CORE_DEFAULT_GROUP)
         .defaultValue(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE)
         .name("Default user group")
@@ -55,8 +46,7 @@ class SecurityProperties {
         .description("Forcing user authentication stops un-logged users to access SonarQube.")
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
-        .build()
-      );
+        .build());
 
   }
 }

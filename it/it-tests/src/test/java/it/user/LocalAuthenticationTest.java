@@ -22,7 +22,6 @@ package it.user;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
-import java.io.IOException;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -177,18 +176,6 @@ public class LocalAuthenticationTest {
     userRule.createUser("jo", "password");
 
     assertThat(checkAuthenticationWithAuthenticateWebService("jo", "password")).isTrue();
-  }
-
-  @Test
-  @Ignore("signing up will be dropped: SONAR-7762")
-  public void allow_users_to_sign_up() throws IOException {
-    setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", "true");
-
-    runSelenese(ORCHESTRATOR, "/user/LocalAuthenticationTest/allow_users_to_sign_up.html");
-
-    // This check is failing because signup doesn't refresh the users ES index !
-    // Will be fixed by SONAR-7308
-    // userRule.verifyUserExists("signuplogin", "SignUpName", null);
   }
 
   @Test
