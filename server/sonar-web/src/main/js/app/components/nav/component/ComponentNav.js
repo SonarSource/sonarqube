@@ -26,7 +26,6 @@ import RecentHistory from './RecentHistory';
 import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
-import './ComponentNav.css';
 
 export default React.createClass({
   componentDidMount () {

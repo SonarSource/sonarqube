@@ -36,27 +36,40 @@ class ComponentNavBreadcrumbs extends React.Component {
       return null;
     }
 
-    const items = breadcrumbs.map(item => {
+    const lastItem = breadcrumbs[breadcrumbs.length - 1];
+
+    const items = breadcrumbs.map((item, index) => {
       return (
-          <li key={item.key}>
-            <Link to={{ pathname: '/dashboard', query: { id: item.key } }}>
-              <QualifierIcon qualifier={item.qualifier}/>
-              {' '}
-              <strong>{item.name}</strong>
+          <span key={item.key}>
+            <Link to={{ pathname: '/dashboard', query: { id: item.key } }} className="link-base-color">
+              {index === breadcrumbs.length - 1 ? (
+                  <strong>{item.name}</strong>
+              ) : (
+                  <span>{item.name}</span>
+              )}
             </Link>
-          </li>
+            {index < breadcrumbs.length - 1 && (
+                <span className="slash-separator"/>
+            )}
+          </span>
       );
     });
 
     return (
-        <ul className="nav navbar-nav nav-crumbs">
+        <h2 className="navbar-context-title">
           {organization != null && shouldOrganizationBeDisplayed && (
-              <li>
-                <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
-              </li>
+              <span>
+                <span className="navbar-context-title-qualifier little-spacer-right">
+                  <QualifierIcon qualifier={lastItem.qualifier}/>
+                </span>
+                <OrganizationLink organization={organization} className="link-base-color">
+                  {organization.name}
+                </OrganizationLink>
+                <span className="slash-separator"/>
+              </span>
           )}
           {items}
-        </ul>
+        </h2>
     );
   }
 }

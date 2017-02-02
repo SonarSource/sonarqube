@@ -6,17 +6,18 @@ exports[`test admin 1`] = `
     className="navbar-context-inner">
     <div
       className="container">
-      <ul
-        className="nav navbar-nav nav-crumbs">
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo">
+      <h2
+        className="navbar-context-title">
+        <Link
+          className="link-base-color"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/organizations/foo">
+          <strong>
             Foo
-          </Link>
-        </li>
-      </ul>
+          </strong>
+        </Link>
+      </h2>
       <ul
         className="nav navbar-nav nav-tabs">
         <li>
@@ -93,17 +94,18 @@ exports[`test regular user 1`] = `
     className="navbar-context-inner">
     <div
       className="container">
-      <ul
-        className="nav navbar-nav nav-crumbs">
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to="/organizations/foo">
+      <h2
+        className="navbar-context-title">
+        <Link
+          className="link-base-color"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/organizations/foo">
+          <strong>
             Foo
-          </Link>
-        </li>
-      </ul>
+          </strong>
+        </Link>
+      </h2>
       <ul
         className="nav navbar-nav nav-tabs">
         <li>

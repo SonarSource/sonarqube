@@ -8,6 +8,12 @@
 {{/notNull}}
 
 <a href="{{this.url}}" data-title="{{name}}<br>{{key}}" data-toggle="tooltip">
+  {{#if organization}}
+    <div class="pull-right nowrap note">
+      {{organization.name}}
+    </div>
+  {{/if}}
+
   {{#if icon}}<i class="icon-{{icon}} text-text-bottom"></i>{{/if}}
   {{#if q}}{{qualifierIcon q}}{{/if}}
   {{#eq q 'FIL'}}
@@ -19,10 +25,4 @@
       {{name}}
     {{/eq}}
   {{/eq}}
-
-  {{#if organization}}
-    <div class="pull-right nowrap note">
-      {{organization.name}}
-    </div>
-  {{/if}}
 </a>
