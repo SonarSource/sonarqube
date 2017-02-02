@@ -34,7 +34,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -260,7 +259,7 @@ public class DebtModelBackup {
   }
 
   private void checkPermission() {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.isRoot();
   }
 
   private static class RuleDtoMatchLanguage implements Predicate<RuleDto> {

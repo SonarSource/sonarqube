@@ -39,7 +39,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -70,41 +69,38 @@ public class DebtModelBackupTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
-  DbClient dbClient;
+  private DbClient dbClient;
   @Mock
-  DbSession session;
+  private DbSession session;
   @Mock
-  RuleDao ruleDao;
+  private RuleDao ruleDao;
   @Mock
-  RuleOperations ruleOperations;
+  private RuleOperations ruleOperations;
   @Mock
-  DebtRulesXMLImporter rulesXMLImporter;
+  private DebtRulesXMLImporter rulesXMLImporter;
   @Mock
-  DebtModelXMLExporter debtModelXMLExporter;
+  private DebtModelXMLExporter debtModelXMLExporter;
   @Mock
-  RuleDefinitionsLoader defLoader;
+  private RuleDefinitionsLoader defLoader;
   @Mock
-  System2 system2;
+  private System2 system2;
   @Mock
-  RuleIndexer ruleIndexer;
+  private RuleIndexer ruleIndexer;
   @Captor
-  ArgumentCaptor<RuleDto> ruleCaptor;
+  private ArgumentCaptor<RuleDto> ruleCaptor;
   @Captor
-  ArgumentCaptor<ArrayList<RuleDebt>> ruleDebtListCaptor;
+  private ArgumentCaptor<ArrayList<RuleDebt>> ruleDebtListCaptor;
 
-  Date now = DateUtils.parseDate("2014-03-19");
+  private Date now = DateUtils.parseDate("2014-03-19");
 
-  int currentId;
-
-  DebtModelBackup underTest;
+  private DebtModelBackup underTest;
 
   @Before
   public void setUp() {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login().setRoot();
 
     when(system2.now()).thenReturn(now.getTime());
 
-    currentId = 10;
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
 
