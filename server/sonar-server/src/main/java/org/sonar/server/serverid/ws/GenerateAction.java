@@ -36,7 +36,6 @@ import org.sonarqube.ws.client.serverid.GenerateRequest;
 import static org.sonar.api.CoreProperties.ORGANISATION;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_ID_IP_ADDRESS;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GenerateAction implements ServerIdWsAction {
@@ -81,11 +80,8 @@ public class GenerateAction implements ServerIdWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsRoot();
 
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       writeProtobuf(doHandle(dbSession, toGenerateRequest(request)), request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

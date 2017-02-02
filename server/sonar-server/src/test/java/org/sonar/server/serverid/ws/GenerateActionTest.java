@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -57,21 +56,21 @@ public class GenerateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public LogTester log = new LogTester();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
 
-  ServerIdGenerator generator = mock(ServerIdGenerator.class);
-
-  GenerateAction underTest = new GenerateAction(userSession, generator, dbClient);
-
-  WsActionTester ws = new WsActionTester(underTest);
+  private DbClient dbClient = db.getDbClient();
+  private ServerIdGenerator generator = mock(ServerIdGenerator.class);
+  private GenerateAction underTest = new GenerateAction(userSession, generator, dbClient);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void persist_settings() {
+    logInAsRoot();
+
     when(generator.generate("SonarSource", "10.51.42.255")).thenReturn("server_id");
 
     GenerateWsResponse result = call("SonarSource", "10.51.42.255");
@@ -84,6 +83,8 @@ public class GenerateActionTest {
 
   @Test
   public void json_example() {
+    logInAsRoot();
+
     when(generator.generate("SonarSource", "127.0.0.1")).thenReturn("1818a1eefb26f9g");
 
     String result = ws.newRequest()
@@ -96,6 +97,7 @@ public class GenerateActionTest {
 
   @Test
   public void log_message_when_id_generated() {
+    logInAsRoot();
     when(generator.generate("SonarSource", "127.0.0.1")).thenReturn("server_id");
 
     call("SonarSource", "127.0.0.1");
@@ -116,8 +118,8 @@ public class GenerateActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_permission() {
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.logIn().setNonRoot();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -126,6 +128,8 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_no_organization() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call(null, "127.0.0.1");
@@ -133,6 +137,8 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_empty_organization() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call("", "127.0.0.1");
@@ -140,6 +146,8 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_no_ip() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call("SonarSource", null);
@@ -147,6 +155,8 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_empty_ip() {
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     call("SonarSource", "");
@@ -178,5 +188,9 @@ public class GenerateActionTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 }
