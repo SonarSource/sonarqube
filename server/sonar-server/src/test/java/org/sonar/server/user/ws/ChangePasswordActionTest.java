@@ -178,12 +178,13 @@ public class ChangePasswordActionTest {
 
   @Test(expected = BadRequestException.class)
   public void fail_to_update_password_on_external_auth() throws Exception {
-    userUpdater.create(NewUser.create()
+    userUpdater.create(NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setExternalIdentity(new ExternalIdentity("gihhub", "john")));
+      .setExternalIdentity(new ExternalIdentity("gihhub", "john"))
+      .build());
     session.clearCache();
     when(realmFactory.hasExternalAuthentication()).thenReturn(true);
 
@@ -194,11 +195,12 @@ public class ChangePasswordActionTest {
   }
 
   private void createUser() {
-    userUpdater.create(NewUser.create()
+    userUpdater.create(NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setPassword("Valar Dohaeris"));
+      .setPassword("Valar Dohaeris")
+      .build());
   }
 }

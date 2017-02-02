@@ -19,41 +19,37 @@
  */
 package org.sonar.server.user;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class NewUser {
 
   private String login;
+  private String password;
   private String name;
   private String email;
   private List<String> scmAccounts;
-  private String password;
   private ExternalIdentity externalIdentity;
 
-  private NewUser() {
-    // No direct call to this constructor
+  private NewUser(Builder builder) {
+    this.login = builder.login;
+    this.password = builder.password;
+    this.name = builder.name;
+    this.email = builder.email;
+    this.scmAccounts = builder.scmAccounts;
+    this.externalIdentity = builder.externalIdentity;
   }
 
-  public NewUser setLogin(@Nullable String login) {
-    this.login = login;
-    return this;
-  }
-
-  @Nullable
   public String login() {
     return login;
   }
 
-  @Nullable
   public String name() {
     return name;
-  }
-
-  public NewUser setName(@Nullable String name) {
-    this.name = name;
-    return this;
   }
 
   @CheckForNull
@@ -66,12 +62,11 @@ public class NewUser {
     return this;
   }
 
-  @Nullable
   public List<String> scmAccounts() {
     return scmAccounts;
   }
 
-  public NewUser setScmAccounts(@Nullable List<String> scmAccounts) {
+  public NewUser setScmAccounts(List<String> scmAccounts) {
     this.scmAccounts = scmAccounts;
     return this;
   }
@@ -96,8 +91,51 @@ public class NewUser {
     return this;
   }
 
-  public static NewUser create() {
-    return new NewUser();
+  public static Builder builder() {
+    return new Builder();
   }
 
+  public static class Builder {
+    private String login;
+    private String name;
+    private String email;
+    private List<String> scmAccounts = new ArrayList<>();
+    private String password;
+    private ExternalIdentity externalIdentity;
+
+    public Builder setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setEmail(@Nullable String email) {
+      this.email = email;
+      return this;
+    }
+
+    public Builder setScmAccounts(List<String> scmAccounts) {
+      this.scmAccounts = scmAccounts;
+      return this;
+    }
+
+    public Builder setPassword(@Nullable String password) {
+      this.password = password;
+      return this;
+    }
+
+    public Builder setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
+      this.externalIdentity = externalIdentity;
+      return this;
+    }
+
+    public NewUser build() {
+      checkState(externalIdentity == null || password == null, "Password should not be set with an external identity");
+      return new NewUser(this);
+    }
+  }
 }

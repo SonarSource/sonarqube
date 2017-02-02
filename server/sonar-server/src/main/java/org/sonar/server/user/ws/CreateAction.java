@@ -102,13 +102,13 @@ public class CreateAction implements UsersWsAction {
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
-    NewUser newUser = NewUser.create()
+    NewUser.Builder newUser = NewUser.builder()
       .setLogin(request.getLogin())
       .setName(request.getName())
       .setEmail(request.getEmail())
       .setScmAccounts(request.getScmAccounts())
       .setPassword(request.getPassword());
-    UserDto userDto = userUpdater.create(newUser);
+    UserDto userDto = userUpdater.create(newUser.build());
     return buildResponse(userDto);
   }
 

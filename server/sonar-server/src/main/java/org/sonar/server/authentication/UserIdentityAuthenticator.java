@@ -106,11 +106,12 @@ public class UserIdentityAuthenticator {
     }
 
     String userLogin = user.getLogin();
-    userUpdater.create(dbSession, NewUser.create()
+    userUpdater.create(dbSession, NewUser.builder()
       .setLogin(userLogin)
       .setEmail(user.getEmail())
       .setName(user.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin())));
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
+      .build());
     UserDto newUser = dbClient.userDao().selectOrFailByLogin(dbSession, userLogin);
     syncGroups(dbSession, user, newUser);
     updateRootFlag(dbSession, newUser);
