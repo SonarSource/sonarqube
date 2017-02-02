@@ -20,7 +20,6 @@
 package org.sonar.server.permission;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.user.UserSession;
 
@@ -35,13 +34,6 @@ public class PermissionPrivilegeChecker {
     userSession
       .checkLoggedIn()
       .checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
-  }
-
-  public static void checkProjectAdminUserByComponentUuid(UserSession userSession, @Nullable String componentUuid) {
-    userSession.checkLoggedIn();
-    if (componentUuid == null || !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
-      userSession.checkPermission(SYSTEM_ADMIN);
-    }
   }
 
   /**
