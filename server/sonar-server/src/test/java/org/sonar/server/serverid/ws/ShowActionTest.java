@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDbTester;
@@ -46,7 +45,6 @@ import org.sonarqube.ws.ServerId.ShowWsResponse;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
 
@@ -61,15 +59,15 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  ServerIdGenerator generator = mock(ServerIdGenerator.class);
-
-  WsActionTester ws = new WsActionTester(new ShowAction(userSession, generator, dbClient));
+  private DbClient dbClient = db.getDbClient();
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private ServerIdGenerator generator = mock(ServerIdGenerator.class);
+  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, generator, dbClient));
 
   @Test
   public void return_server_id_info() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
+
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
     insertConfiguration("1818a1eefb26f9g", "home", "127.0.0.1");
@@ -85,7 +83,7 @@ public class ShowActionTest {
 
   @Test
   public void return_invalid_server_id() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     insertConfiguration("invalid", null, null);
 
@@ -100,7 +98,7 @@ public class ShowActionTest {
 
   @Test
   public void return_no_server_id_info_when_no_settings_and_no_available_ips() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
 
     ShowWsResponse response = executeRequest();
 
@@ -113,7 +111,7 @@ public class ShowActionTest {
 
   @Test
   public void return_no_server_id_info_when_no_server_id_but_other_settings() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     insertConfiguration(null, "home", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
@@ -127,7 +125,7 @@ public class ShowActionTest {
 
   @Test
   public void return_available_ips_even_if_no_settings() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
 
     ShowWsResponse response = executeRequest();
@@ -140,10 +138,11 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_when_not_system_admin() throws Exception {
-    userSession.logIn("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSession.logIn().setNonRoot();
 
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     executeRequest();
   }
@@ -160,7 +159,7 @@ public class ShowActionTest {
 
   @Test
   public void test_example_json_response() {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     when(generator.validate("home", "127.0.0.1", "1818a1eefb26f9g")).thenReturn(true);
     setAvailableIpAdresses("192.168.1.1", "127.0.0.1");
     insertConfiguration("1818a1eefb26f9g", "home", "127.0.0.1");
@@ -205,7 +204,7 @@ public class ShowActionTest {
     }
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 }

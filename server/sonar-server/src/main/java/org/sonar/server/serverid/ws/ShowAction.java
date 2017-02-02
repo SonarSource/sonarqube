@@ -42,7 +42,6 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.api.CoreProperties.ORGANISATION;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_ID_IP_ADDRESS;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.ServerId.ShowWsResponse;
 
@@ -73,14 +72,11 @@ public class ShowAction implements ServerIdWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    userSession.checkIsRoot();
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Map<String, PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, SETTINGS_KEYS).stream()
         .collect(Collectors.uniqueIndex(PropertyDto::getKey, Function.identity()));
       writeProtobuf(doHandle(properties), request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -95,13 +91,9 @@ public class ShowAction implements ServerIdWsAction {
     if (serverId.isPresent()) {
       responseBuilder.setServerId(serverId.get());
       Optional<String> organization = getSettingValue(properties.get(ORGANISATION));
-      if (organization.isPresent()) {
-        responseBuilder.setOrganization(organization.get());
-      }
+      organization.ifPresent(responseBuilder::setOrganization);
       Optional<String> ip = getSettingValue(properties.get(SERVER_ID_IP_ADDRESS));
-      if (ip.isPresent()) {
-        responseBuilder.setIp(ip.get());
-      }
+      ip.ifPresent(responseBuilder::setIp);
       boolean isValidServId = isValidServerId(serverId.get(), organization, ip);
       if (!isValidServId) {
         responseBuilder.setInvalidServerId(true);
