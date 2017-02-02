@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import CustomValuesFacet from './custom-values-facet';
+import Template from '../templates/facets/issues-projects-facet.hbs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { areThereCustomOrganizations, getOrganization } from '../../../store/organizations/utils';
 
 export default CustomValuesFacet.extend({
+  template: Template,
 
   getUrl () {
     return window.baseUrl + '/api/components/search';
@@ -80,16 +83,21 @@ export default CustomValuesFacet.extend({
   getValuesWithLabels () {
     const values = this.model.getValues();
     const projects = this.options.app.facets.components;
+    const displayOrganizations = areThereCustomOrganizations();
     values.forEach(v => {
       const uuid = v.val;
       let label = '';
+      let organization = null;
       if (uuid) {
         const project = projects.find(p => p.uuid === uuid);
         if (project != null) {
           label = project.longName;
+          organization = displayOrganizations && project.organization ?
+              getOrganization(project.organization) : null;
         }
       }
       v.label = label;
+      v.organization = organization;
     });
     return values;
   },
