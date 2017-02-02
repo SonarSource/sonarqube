@@ -56,6 +56,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.IntegrateIssuesVi
 import org.sonar.server.computation.task.projectanalysis.issue.IssueAssigner;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
+import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.server.computation.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
@@ -136,7 +137,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
    * List of all objects to be injected in the picocontainer dedicated to computation stack.
    * Does not contain the steps declared in {@link ReportComputationSteps#orderedStepClasses()}.
    */
-  private static List componentClasses() {
+  private static List<Object> componentClasses() {
     return Arrays.asList(
       PostProjectAnalysisTasksExecutor.class,
       ComputationStepExecutor.class,
@@ -200,6 +201,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // debt)
       RuleTypeCopier.class,
       RuleTagsCopier.class,
+      IssueCreationDateCalculator.class,
       DebtCalculator.class,
       EffortAggregator.class,
       NewEffortCalculator.class,
