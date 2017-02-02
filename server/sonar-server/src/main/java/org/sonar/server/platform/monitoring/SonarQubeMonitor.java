@@ -106,10 +106,6 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     return settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS);
   }
 
-  private boolean getAllowUsersToSignUp() {
-    return settings.getBoolean(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY);
-  }
-
   private boolean getForceAuthentication() {
     return settings.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY);
   }
@@ -136,7 +132,6 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     addIfNotEmpty("Accepted external identity providers", getEnabledIdentityProviders(), attributes);
     addIfNotEmpty("External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders(), attributes);
     attributes.put("Automatic User Creation", getAutomaticUserCreation());
-    attributes.put("Allow Users to Sign Up", getAllowUsersToSignUp());
     attributes.put("Force authentication", getForceAuthentication());
     attributes.put("Official Distribution", isOfficialDistribution());
     attributes.put("Home Dir", settings.getString(ProcessProperties.PATH_HOME));

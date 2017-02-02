@@ -164,7 +164,6 @@ public class GlobalActionTest {
     settings.setProperty("sonar.lf.enableGravatar", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
-    settings.setProperty("sonar.allowUsersToSignUp", true);
     when(server.getVersion()).thenReturn("6.2");
     when(database.getDialect()).thenReturn(new MySql());
 
