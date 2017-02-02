@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.Message;
@@ -41,7 +40,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class SendActionTest {
 
@@ -51,13 +49,13 @@ public class SendActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
+  private EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
 
-  WsActionTester ws = new WsActionTester(new SendAction(userSession, emailNotificationChannel));
+  private WsActionTester ws = new WsActionTester(new SendAction(userSession, emailNotificationChannel));
 
   @Test
   public void send_test_email() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
 
     executeRequest("john@doo.com", "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
 
@@ -66,7 +64,7 @@ public class SendActionTest {
 
   @Test
   public void does_not_fail_when_subject_param_is_missing() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
 
     executeRequest("john@doo.com", null, "This is a test message from SonarQube at http://localhost:9000");
 
@@ -75,7 +73,8 @@ public class SendActionTest {
 
   @Test
   public void fail_when_to_param_is_missing() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     executeRequest(null, "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
@@ -83,23 +82,26 @@ public class SendActionTest {
 
   @Test
   public void fail_when_message_param_is_missing() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
+
     expectedException.expect(IllegalArgumentException.class);
 
     executeRequest("john@doo.com", "Test Message from SonarQube", null);
   }
 
   @Test
-  public void fail_when_insufficient_privileges() {
-    userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.logIn();
+
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest().execute();
   }
 
   @Test
   public void fail_with_BadRequestException_when_EmailException_is_generated() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     IllegalArgumentException exception1 = new IllegalArgumentException("root cause");
     IllegalArgumentException exception2 = new IllegalArgumentException("parent cause", exception1);
     IllegalArgumentException exception3 = new IllegalArgumentException("child cause", exception2);
@@ -139,8 +141,8 @@ public class SendActionTest {
     request.execute();
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 
 }

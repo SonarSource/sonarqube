@@ -28,7 +28,6 @@ import org.apache.commons.mail.EmailException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -74,7 +73,7 @@ public class SendAction implements EmailsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
     try {
       emailNotificationChannel.sendTestEmail(request.mandatoryParam(PARAM_TO), request.param(PARAM_SUBJECT), request.mandatoryParam(PARAM_MESSAGE));
     } catch (EmailException emailException) {
