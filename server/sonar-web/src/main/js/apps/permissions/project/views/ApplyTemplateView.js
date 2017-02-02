@@ -33,7 +33,7 @@ export default ModalForm.extend({
   },
 
   loadPermissionTemplates () {
-    return getPermissionTemplates().then(r => {
+    return getPermissionTemplates(this.options.project.organization).then(r => {
       this.permissionTemplates = r.permissionTemplates;
       this.render();
     });

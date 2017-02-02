@@ -80,8 +80,8 @@ const mapStateToProps = state => ({
   loading: isPermissionsAppLoading(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-  loadHolders: projectKey => dispatch(loadHolders(projectKey))
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization))
 });
 
 export default connect(

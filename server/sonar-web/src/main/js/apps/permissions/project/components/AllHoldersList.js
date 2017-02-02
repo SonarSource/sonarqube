@@ -135,20 +135,20 @@ const mapStateToProps = state => ({
   selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-  loadHolders: projectKey => dispatch(loadHolders(projectKey)),
-  onSearch: (projectKey, query) => dispatch(updateQuery(projectKey, query)),
-  onFilter: (projectKey, filter) => dispatch(updateFilter(projectKey, filter)),
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization)),
+  onSearch: (projectKey, query) => dispatch(updateQuery(projectKey, query, ownProps.project.organization)),
+  onFilter: (projectKey, filter) => dispatch(updateFilter(projectKey, filter, ownProps.project.organization)),
   onSelectPermission: (projectKey, permission) =>
-      dispatch(selectPermission(projectKey, permission)),
+      dispatch(selectPermission(projectKey, permission, ownProps.project.organization)),
   grantPermissionToUser: (projectKey, login, permission) =>
-      dispatch(grantToUser(projectKey, login, permission)),
+      dispatch(grantToUser(projectKey, login, permission, ownProps.project.organization)),
   revokePermissionFromUser: (projectKey, login, permission) =>
-      dispatch(revokeFromUser(projectKey, login, permission)),
+      dispatch(revokeFromUser(projectKey, login, permission, ownProps.project.organization)),
   grantPermissionToGroup: (projectKey, groupName, permission) =>
-      dispatch(grantToGroup(projectKey, groupName, permission)),
+      dispatch(grantToGroup(projectKey, groupName, permission, ownProps.project.organization)),
   revokePermissionFromGroup: (projectKey, groupName, permission) =>
-      dispatch(revokeFromGroup(projectKey, groupName, permission))
+      dispatch(revokeFromGroup(projectKey, groupName, permission, ownProps.project.organization))
 });
 
 export default connect(

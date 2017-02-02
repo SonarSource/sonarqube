@@ -37,7 +37,7 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
-export const loadHolders = projectKey => (dispatch, getState) => {
+export const loadHolders = (projectKey, organization) => (dispatch, getState) => {
   const query = getPermissionsAppQuery(getState());
   const filter = getPermissionsAppFilter(getState());
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
@@ -47,15 +47,13 @@ export const loadHolders = projectKey => (dispatch, getState) => {
   const requests = [];
 
   if (filter !== 'groups') {
-    requests.push(api.getPermissionsUsersForComponent(projectKey, query,
-        selectedPermission));
+    requests.push(api.getPermissionsUsersForComponent(projectKey, query, selectedPermission, organization));
   } else {
     requests.push(Promise.resolve([]));
   }
 
   if (filter !== 'users') {
-    requests.push(api.getPermissionsGroupsForComponent(projectKey, query,
-        selectedPermission));
+    requests.push(api.getPermissionsGroupsForComponent(projectKey, query, selectedPermission, organization));
   } else {
     requests.push(Promise.resolve([]));
   }
@@ -72,46 +70,46 @@ export const loadHolders = projectKey => (dispatch, getState) => {
   });
 };
 
-export const updateQuery = (projectKey, query = '') => dispatch => {
+export const updateQuery = (projectKey, query = '', organization = null) => dispatch => {
   dispatch({ type: UPDATE_QUERY, query });
   if (query.length === 0 || query.length > 2) {
-    dispatch(loadHolders(projectKey));
+    dispatch(loadHolders(projectKey, organization));
   }
 };
 
-export const updateFilter = (projectKey, filter) => dispatch => {
+export const updateFilter = (projectKey, filter, organization) => dispatch => {
   dispatch({ type: UPDATE_FILTER, filter });
-  dispatch(loadHolders(projectKey));
+  dispatch(loadHolders(projectKey, organization));
 };
 
-export const selectPermission = (projectKey, permission) => (dispatch, getState) => {
+export const selectPermission = (projectKey, permission, organization) => (dispatch, getState) => {
   const selectedPermission = getPermissionsAppSelectedPermission(getState());
   if (selectedPermission !== permission) {
     dispatch({ type: SELECT_PERMISSION, permission });
   } else {
     dispatch({ type: SELECT_PERMISSION, permission: null });
   }
-  dispatch(loadHolders(projectKey));
+  dispatch(loadHolders(projectKey, organization));
 };
 
-export const grantToUser = (projectKey, login, permission) => dispatch => {
-  api.grantPermissionToUser(projectKey, login, permission).then(() => {
+export const grantToUser = (projectKey, login, permission, organization) => dispatch => {
+  api.grantPermissionToUser(projectKey, login, permission, organization).then(() => {
     dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
 };
 
-export const revokeFromUser = (projectKey, login, permission) => dispatch => {
-  api.revokePermissionFromUser(projectKey, login, permission).then(() => {
+export const revokeFromUser = (projectKey, login, permission, organization) => dispatch => {
+  api.revokePermissionFromUser(projectKey, login, permission, organization).then(() => {
     dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
   }).catch(e => {
     return parseError(e).then(message => dispatch(raiseError(message)));
   });
 };
 
-export const grantToGroup = (projectKey, groupName, permission) => dispatch => {
-  api.grantPermissionToGroup(projectKey, groupName, permission).then(() => {
+export const grantToGroup = (projectKey, groupName, permission, organization) => dispatch => {
+  api.grantPermissionToGroup(projectKey, groupName, permission, organization).then(() => {
     dispatch({
       type: GRANT_PERMISSION_TO_GROUP,
       groupName,
@@ -122,8 +120,8 @@ export const grantToGroup = (projectKey, groupName, permission) => dispatch => {
   });
 };
 
-export const revokeFromGroup = (projectKey, groupName, permission) => dispatch => {
-  api.revokePermissionFromGroup(projectKey, groupName, permission).then(() => {
+export const revokeFromGroup = (projectKey, groupName, permission, organization) => dispatch => {
+  api.revokePermissionFromGroup(projectKey, groupName, permission, organization).then(() => {
     dispatch({
       type: REVOKE_PERMISSION_FROM_GROUP,
       groupName,
