@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
@@ -47,8 +46,8 @@ import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 
 public class AddProjectActionTest {
 
-  static final String LANGUAGE_1 = "xoo";
-  static final String LANGUAGE_2 = "foo";
+  private static final String LANGUAGE_1 = "xoo";
+  private static final String LANGUAGE_2 = "foo";
 
   private System2 system2 = System2.INSTANCE;
 
@@ -60,8 +59,6 @@ public class AddProjectActionTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
-
-  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   private QualityProfileDbTester qualityProfileDbTester = new QualityProfileDbTester(dbTester);
   private QProfileProjectOperations qProfileProjectOperations = new QProfileProjectOperations(dbClient, userSession);
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
@@ -75,7 +72,7 @@ public class AddProjectActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(ComponentTesting.newProjectDto(dbTester.organizations().insert()));
+    project = dbTester.components().insertComponent(ComponentTesting.newProjectDto(dbTester.organizations().insert()));
   }
 
   @Test
@@ -124,7 +121,7 @@ public class AddProjectActionTest {
   }
 
   private void setUserAsQualityProfileAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
   }
 
   private void executeRequest(ComponentDto project, QualityProfileDto qualityProfile) {

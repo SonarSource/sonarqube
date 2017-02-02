@@ -78,7 +78,7 @@ public class QProfileProjectOperations {
   }
 
   private void checkAdminOnProject(ComponentDto project) {
-    if (!userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) &&
+    if (!userSession.hasOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN) &&
       !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw new ForbiddenException("Insufficient privileges");
     }

@@ -30,7 +30,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -69,21 +68,18 @@ public class QProfilesWsMediumTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester)
-    .logIn("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    .logIn().setRoot();
 
-  QProfilesWs ws;
-  DbClient db;
-  DbSession session;
-  WsTester wsTester;
-
-  RuleIndexer ruIndexer = tester.get(RuleIndexer.class);
-  ActiveRuleIndexer activeRuIndexer = tester.get(ActiveRuleIndexer.class);
+  private DbClient db;
+  private DbSession session;
+  private WsTester wsTester;
+  private RuleIndexer ruIndexer = tester.get(RuleIndexer.class);
+  private ActiveRuleIndexer activeRuIndexer = tester.get(ActiveRuleIndexer.class);
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    ws = tester.get(QProfilesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
 
