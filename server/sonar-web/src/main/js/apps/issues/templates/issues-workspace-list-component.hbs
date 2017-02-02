@@ -1,23 +1,25 @@
 <div class="component-name issues-workspace-list-component">
-  {{#notNull organization}}
+  {{#if organization}}
     <a class="link-no-underline" href="{{link '/organizations/' organization.key}}">
       {{organization.name}}
     </a>
     <span class="slash-separator"></span>
-  {{/notNull}}
+  {{/if}}
 
-  <a class="link-no-underline" href="{{dashboardUrl project}}">
-    {{projectLongName}}
-  </a>
+  {{#if project}}
+    <a class="link-no-underline" href="{{dashboardUrl project}}">
+      {{projectLongName}}
+    </a>
+    <span class="slash-separator"></span>
+  {{/if}}
 
   {{#if subProject}}
-    <span class="slash-separator"></span>
     <a class="link-no-underline" href="{{dashboardUrl subProject}}">
       {{subProjectLongName}}
     </a>
+    <span class="slash-separator"></span>
   {{/if}}
 
-  <span class="slash-separator"></span>
   <a class="link-no-underline" href="{{dashboardUrl component}}">
     {{collapsePath componentLongName}}
   </a>
