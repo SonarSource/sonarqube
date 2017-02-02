@@ -59,7 +59,7 @@ import org.sonar.api.utils.DateUtils;
  *
  * @since 4.2
  */
-public class JsonWriter {
+public class JsonWriter implements AutoCloseable {
 
   private final com.google.gson.stream.JsonWriter stream;
   private boolean serializeEmptyStrings;
@@ -379,6 +379,7 @@ public class JsonWriter {
   /**
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
+  @Override
   public void close() {
     try {
       stream.close();

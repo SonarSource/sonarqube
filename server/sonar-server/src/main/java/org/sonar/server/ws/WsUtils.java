@@ -51,8 +51,8 @@ public class WsUtils {
         msg.writeTo(output);
       } else {
         response.stream().setMediaType(MediaTypes.JSON);
-        try (OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
-          ProtobufJsonFormat.write(msg, JsonWriter.of(writer));
+        try (JsonWriter writer = JsonWriter.of(new OutputStreamWriter(output, StandardCharsets.UTF_8))) {
+          ProtobufJsonFormat.write(msg, writer);
         }
       }
     } catch (Exception e) {

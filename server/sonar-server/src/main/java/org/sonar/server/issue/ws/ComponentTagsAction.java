@@ -83,16 +83,16 @@ public class ComponentTagsAction implements IssuesWsAction {
     }
     IssueQuery query = queryService.createFromMap(paramBuilder.build());
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
-    JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
-    for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
-      json.beginObject()
-        .prop("key", tag.getKey())
-        .prop("value", tag.getValue())
-        .endObject();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("tags").beginArray();
+      for (Map.Entry<String, Long> tag : service.listTagsForComponent(query, pageSize).entrySet()) {
+        json.beginObject()
+          .prop("key", tag.getKey())
+          .prop("value", tag.getValue())
+          .endObject();
+      }
+      json.endArray().endObject();
     }
-    json.endArray()
-      .endObject()
-      .close();
   }
 
 }
