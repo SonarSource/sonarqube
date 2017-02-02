@@ -177,6 +177,10 @@ public class UserSessionRule implements TestRule, UserSession {
     setCurrentUserSession(userSession);
   }
 
+  /**
+   * This method does not support organizations
+   */
+  @Deprecated
   public UserSessionRule setGlobalPermissions(String... globalPermissions) {
     ensureAbstractMockUserSession().setGlobalPermissions(globalPermissions);
     return this;
