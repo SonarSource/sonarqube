@@ -23,7 +23,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -82,7 +82,8 @@ public class OrganizationAction implements NavigationWsAction {
     json.name("organization")
       .beginObject()
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
-      .prop("canAdmin", userSession.hasOrganizationPermission(organization.getUuid(), UserRole.ADMIN))
+      .prop("canAdmin", userSession.hasOrganizationPermission(organization.getUuid(), GlobalPermissions.SYSTEM_ADMIN))
+      .prop("canProvisionProjects", userSession.hasOrganizationPermission(organization.getUuid(), GlobalPermissions.PROVISIONING))
       .endObject();
   }
 }

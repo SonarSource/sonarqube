@@ -76,9 +76,10 @@ public class OrganizationActionTest {
 
   @Test
   public void verify_example() {
-
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    userSession.logIn().addOrganizationPermission(defaultOrganization.getUuid(), "admin");
+    userSession.logIn()
+      .addOrganizationPermission(defaultOrganization, "admin")
+      .addOrganizationPermission(defaultOrganization, "provisioning");
 
     TestResponse response = executeRequest(defaultOrganization);
 
@@ -90,7 +91,7 @@ public class OrganizationActionTest {
   public void returns_non_admin_and_default_true_when_user_not_logged_in_and_key_is_the_default_organization() {
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
-    verifyResponse(response, true, false);
+    verifyResponse(response, true, false, false);
   }
 
   @Test
@@ -99,7 +100,7 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
-    verifyResponse(response, true, false);
+    verifyResponse(response, true, false, false);
   }
 
   @Test
@@ -109,7 +110,7 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(defaultOrganization);
 
-    verifyResponse(response, true, true);
+    verifyResponse(response, true, true, false);
   }
 
   @Test
@@ -117,7 +118,7 @@ public class OrganizationActionTest {
     OrganizationDto organization = dbTester.organizations().insert();
     TestResponse response = executeRequest(organization);
 
-    verifyResponse(response, false, false);
+    verifyResponse(response, false, false, false);
   }
 
   @Test
@@ -126,7 +127,7 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(organization);
 
-    verifyResponse(response, false, false);
+    verifyResponse(response, false, false, false);
   }
 
   @Test
@@ -136,7 +137,7 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(organization);
 
-    verifyResponse(response, false, false);
+    verifyResponse(response, false, false, false);
   }
 
   @Test
@@ -146,7 +147,18 @@ public class OrganizationActionTest {
 
     TestResponse response = executeRequest(organization);
 
-    verifyResponse(response, false, true);
+    verifyResponse(response, false, true, false);
+  }
+
+  @Test
+  public void returns_provisioning_true_when_user_can_provision_projects_in_organization() {
+    // user can provision projects in org2 but not in org1
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    userSession.logIn().addOrganizationPermission(org2, "provisioning");
+
+    verifyResponse(executeRequest(org1), false, false, false);
+    verifyResponse(executeRequest(org2), false, false, true);
   }
 
   private TestResponse executeRequest(@Nullable OrganizationDto organization) {
@@ -157,12 +169,13 @@ public class OrganizationActionTest {
     return request.execute();
   }
 
-  private static void verifyResponse(TestResponse response, boolean isDefault, boolean canAdmin) {
+  private static void verifyResponse(TestResponse response, boolean isDefault, boolean canAdmin, boolean canProvisionProjects) {
     assertJson(response.getInput())
       .isSimilarTo("{" +
         "  \"organization\": {" +
         "    \"isDefault\": " + isDefault + "," +
-        "    \"canAdmin\": " + canAdmin +
+        "    \"canAdmin\": " + canAdmin + "," +
+        "    \"canProvisionProjects\": " + canProvisionProjects +
         "  }" +
         "}");
   }
