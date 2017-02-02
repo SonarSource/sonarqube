@@ -6,25 +6,27 @@
         <a class="js-back">{{t "issues.return_to_list"}}</a>&nbsp;&nbsp;&nbsp;
       </div>
 
-      {{#with state.component}}
-        <div class="component-name-parent">
-          {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
-        </div>
-        {{#if subProject}}
-          <div class="component-name-parent">
-            {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl subProject}}"
-                                            title="{{subProjectName}}">{{subProjectName}}</a>
-          </div>
+      <div class="component-name-parent">
+        {{#if organization}}
+          <a href="{{link '/organizations/' organization.key}}">{{organization.name}}</a>
+          <span class="slash-separator"></span>
         {{/if}}
-        <div class="component-name-file">
-          {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{fileFromPath name}}</a>
-        </div>
-      {{/with}}
+        {{#with state.component}}
+          {{#if project}}
+            <a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
+            <span class="slash-separator"></span>
+          {{/if}}
+          {{#if subProject}}
+            <a href="{{dashboardUrl subProject}}" title="{{subProjectName}}">{{subProjectName}}</a>
+            <span class="slash-separator"></span>
+          {{/if}}
+          <a href="{{dashboardUrl key}}" title="{{name}}">{{collapsePath name}}</a>
+        {{/with}}
+      </div>
 
     {{else}}
       {{#if state.canBulkChange}}
-        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if
-            someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"
+        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"
            data-toggle="tooltip" title="{{t 'issues.toggle_selection_tooltip'}}"></a>
       {{else}}
         &nbsp;

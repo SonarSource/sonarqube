@@ -171,7 +171,8 @@ export default Controller.extend({
       subProject: issue.get('subProject'),
       subProjectName: issue.get('subProjectLongName'),
       project: issue.get('project'),
-      projectName: issue.get('projectLongName')
+      projectName: issue.get('projectLongName'),
+      projectOrganization: issue.get('projectOrganization')
     };
   },
 

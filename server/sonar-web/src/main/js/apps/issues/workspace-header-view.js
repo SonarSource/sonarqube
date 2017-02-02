@@ -20,6 +20,7 @@
 import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
 import BulkChangeForm from './BulkChangeForm';
 import Template from './templates/issues-workspace-header.hbs';
+import { getOrganization, areThereCustomOrganizations } from '../../store/organizations/utils';
 
 export default WorkspaceHeaderView.extend({
   template: Template,
@@ -113,12 +114,28 @@ export default WorkspaceHeaderView.extend({
     const selectedCount = this.options.app.list.where({ selected: true }).length;
     const allSelected = issuesCount > 0 && issuesCount === selectedCount;
     const someSelected = !allSelected && selectedCount > 0;
-    return {
+    const data = {
       ...WorkspaceHeaderView.prototype.serializeData.apply(this, arguments),
       selectedCount,
       allSelected,
       someSelected
     };
+    const component = this.options.app.state.get('component');
+    if (component) {
+      const qualifier = this.options.app.state.get('contextComponentQualifier');
+      if (qualifier === 'VW' || qualifier === 'SVW') {
+        // do nothing
+      } else if (qualifier === 'TRK') {
+        data.state.component.project = null;
+      } else if (qualifier === 'BRC') {
+        data.state.component.project = null;
+        data.state.component.subProject = null;
+      } else {
+        const organization = areThereCustomOrganizations() ? getOrganization(component.projectOrganization) : null;
+        Object.assign(data, { organization });
+      }
+    }
+    return data;
   }
 });
 

@@ -101,7 +101,7 @@ export default WorkspaceListView.extend({
   },
 
   attachHtml (compositeView, childView, index) {
-    const $container = this.getChildViewContainer(compositeView);
+    const container = this.getChildViewContainer(compositeView);
     const model = this.collection.at(index);
     if (model != null) {
       const prev = index > 0 && this.collection.at(index - 1);
@@ -114,15 +114,27 @@ export default WorkspaceListView.extend({
         }
       }
       if (putComponent) {
-        const organization = areThereCustomOrganizations() ?
-            getOrganization(model.get('projectOrganization')) : null;
-        $container.append(this.componentTemplate({
-          ...model.toJSON(),
-          organization
-        }));
+        this.displayComponent(container, model);
       }
     }
-    $container.append(childView.el);
+    container.append(childView.el);
+  },
+
+  displayComponent (container, model) {
+    const data = { ...model.toJSON() };
+    /* eslint-disable no-console */
+    const qualifier = this.options.app.state.get('contextComponentQualifier');
+    if (qualifier === 'VW' || qualifier === 'SVW') {
+      Object.assign(data, { organization: undefined });
+    } else if (qualifier === 'TRK') {
+      Object.assign(data, { organization: undefined, project: undefined });
+    } else if (qualifier === 'BRC') {
+      Object.assign(data, { organization: undefined, project: undefined, subProject: undefined });
+    } else {
+      const organization = areThereCustomOrganizations() ? getOrganization(model.get('projectOrganization')) : null;
+      Object.assign(data, { organization });
+    }
+    container.append(this.componentTemplate(data));
   },
 
   destroyChildren () {
