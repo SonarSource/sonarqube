@@ -49,7 +49,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.ce.ws.ActivityAction;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -132,15 +131,15 @@ public class ComponentAction implements NavigationWsAction {
       if (!(userSession.hasComponentPermission(USER, component) || userSession.hasComponentPermission(ADMIN, component))) {
         throw new ForbiddenException("Insufficient privileges");
       }
-      OrganizationDto organizationDto = componentFinder.getOrganization(session, component);
+      OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponent(json, session, component, organizationDto, analysis.orElse(null));
+      writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
       writeQualityGate(json, session, component);
-      if (userSession.hasComponentPermission(ADMIN, component) || userSession.hasPermission(QUALITY_PROFILE_ADMIN)) {
+      if (userSession.hasComponentPermission(ADMIN, component) || userSession.hasOrganizationPermission(org.getUuid(), QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component);
       }
       writeBreadCrumbs(json, session, component);
@@ -235,7 +234,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
-    json.prop("showBackgroundTasks", ActivityAction.isAllowedOnComponentUuid(userSession, component.uuid()));
+    json.prop("showBackgroundTasks", isAdmin);
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
