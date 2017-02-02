@@ -248,9 +248,16 @@ public class IssueFieldsSetter {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    Date dateWithoutMilliseconds = d == null ? null : Date.from(d.toInstant().truncatedTo(ChronoUnit.SECONDS));
-    if (!Objects.equals(dateWithoutMilliseconds, issue.closeDate())) {
+    if (relevantDateDifference(d, issue.closeDate())) {
       issue.setCloseDate(d);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
+  }
+
+  public void setCreationDate(DefaultIssue issue, Date d, IssueChangeContext context) {
+    if (relevantDateDifference(d, issue.creationDate())) {
+      issue.setCreationDate(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
     }
@@ -336,4 +343,14 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  private static boolean relevantDateDifference(@Nullable Date left, @Nullable Date right) {
+    return !Objects.equals(truncateMillis(left), truncateMillis(right));
+  }
+
+  private static Date truncateMillis(@Nullable Date d) {
+    if (d == null) {
+      return null;
+    }
+    return Date.from(d.toInstant().truncatedTo(ChronoUnit.SECONDS));
+  }
 }
