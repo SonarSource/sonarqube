@@ -33,7 +33,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -93,18 +92,8 @@ public class CheckSecretKeyActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() {
-    userSession.anonymous();
-
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    call();
-  }
-
-  @Test
   public void throw_ForbiddenException_if_not_root() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -125,6 +114,6 @@ public class CheckSecretKeyActionTest {
   }
 
   private void logInAsRoot() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
   }
 }

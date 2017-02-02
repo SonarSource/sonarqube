@@ -30,7 +30,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -88,7 +87,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     CreateWsResponse response = call(CreateRequest.builder()
       .setLogin("john")
@@ -118,7 +117,7 @@ public class CreateActionTest {
 
   @Test
   public void create_local_user() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     call(CreateRequest.builder()
       .setLogin("john")
@@ -134,7 +133,7 @@ public class CreateActionTest {
 
   @Test
   public void create_none_local_user() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     call(CreateRequest.builder()
       .setLogin("john")
@@ -149,7 +148,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_comma_in_scm_account() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     CreateWsResponse response = call(CreateRequest.builder()
       .setLogin("john")
@@ -164,7 +163,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_deprecated_scmAccounts_parameter() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     tester.newRequest()
       .setParam("login", "john")
@@ -178,7 +177,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user_with_deprecated_scm_accounts_parameter() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     tester.newRequest()
       .setParam("login", "john")
@@ -192,7 +191,7 @@ public class CreateActionTest {
 
   @Test
   public void reactivate_user() throws Exception {
-    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    logInAsRoot();
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com"));
     db.getDbClient().userDao().deactivateUserByLogin(db.getSession(), "john");
@@ -213,7 +212,7 @@ public class CreateActionTest {
   @Test
   public void create_user_with_root_flag_to_false_if_default_group_is_unset() throws Exception {
     unsetDefaultGroupProperty();
-    authenticateAsAdmin();
+    logInAsRoot();
 
     executeRequest("john");
 
@@ -224,7 +223,7 @@ public class CreateActionTest {
   public void create_user_with_root_flag_to_false_if_default_group_is_non_admin_on_default_organization() throws Exception {
     GroupDto adminGroup = db.users().insertGroup(db.getDefaultOrganization());
     setDefaultGroupProperty(adminGroup);
-    authenticateAsAdmin();
+    logInAsRoot();
 
     executeRequest("foo");
 
@@ -236,7 +235,7 @@ public class CreateActionTest {
     OrganizationDto otherOrganization = db.organizations().insert();
     GroupDto group = db.users().insertGroup(otherOrganization);
     setDefaultGroupProperty(group);
-    authenticateAsAdmin();
+    logInAsRoot();
 
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("The default group '" + group.getName() + "' for new users does not exist. " +
@@ -249,24 +248,16 @@ public class CreateActionTest {
   public void create_user_with_root_flag_to_true_if_default_group_is_admin_on_default_organization() throws Exception {
     GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
     setDefaultGroupProperty(adminGroup);
-    authenticateAsAdmin();
+    logInAsRoot();
 
     executeRequest("doh");
 
     db.rootFlag().verify("doh", true);
   }
 
-  private void unsetDefaultGroupProperty() {
-    settings.setProperty("sonar.defaultGroup", (String) null);
-  }
-
-  private void setDefaultGroupProperty(GroupDto adminGroup) {
-    settings.setProperty("sonar.defaultGroup", adminGroup.getName());
-  }
-
   @Test
   public void fail_when_missing_login() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Login is mandatory and must not be empty");
@@ -279,7 +270,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_name() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name is mandatory and must not be empty");
@@ -292,7 +283,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_password() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Password is mandatory and must not be empty");
@@ -305,7 +296,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_password_is_set_on_none_local_user() throws Exception {
-    authenticateAsAdmin();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Password should only be set on local user");
@@ -318,11 +309,22 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logIn("not_admin");
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSessionRule.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("");
 
     expectedException.expect(ForbiddenException.class);
     executeRequest("john");
+  }
+
+  private void unsetDefaultGroupProperty() {
+    settings.setProperty("sonar.defaultGroup", (String) null);
+  }
+
+  private void setDefaultGroupProperty(GroupDto adminGroup) {
+    settings.setProperty("sonar.defaultGroup", adminGroup.getName());
   }
 
   private CreateWsResponse executeRequest(String login) throws Exception {
@@ -335,8 +337,8 @@ public class CreateActionTest {
       .build());
   }
 
-  private void authenticateAsAdmin() {
-    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSessionRule.logIn().setRoot();
   }
 
   private CreateWsResponse call(CreateRequest createRequest) {

@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupMembershipDto;
@@ -59,7 +58,7 @@ public class GroupsAction implements UsersWsAction {
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("groups")
-      .setDescription("List the groups a user belongs to.")
+      .setDescription("Lists the groups a user belongs to. Requires Administer System permission.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-groups.json"))
       .setSince("5.2");
@@ -78,7 +77,7 @@ public class GroupsAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);

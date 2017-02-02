@@ -45,7 +45,7 @@ public class GenerateSecretKeyActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -80,7 +80,7 @@ public class GenerateSecretKeyActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_root() {
-    userSession.login();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

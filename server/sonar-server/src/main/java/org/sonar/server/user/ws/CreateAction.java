@@ -24,7 +24,6 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -107,7 +106,7 @@ public class CreateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
     writeProtobuf(doHandle(toWsRequest(request)), request, response);
   }
 

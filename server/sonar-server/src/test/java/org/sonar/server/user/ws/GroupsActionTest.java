@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,9 +51,9 @@ public class GroupsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  WsTester tester;
-  DbClient dbClient;
-  DbSession session;
+  private WsTester tester;
+  private DbClient dbClient;
+  private DbSession session;
 
   @Before
   public void setUp() {
@@ -69,7 +68,7 @@ public class GroupsActionTest {
     session.commit();
 
     tester = new WsTester(new UsersWs(new GroupsAction(dbClient, userSession)));
-    userSession.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
   }
 
   @After

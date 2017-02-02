@@ -51,7 +51,7 @@ public class CheckSecretKeyAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkIsRoot();
+    userSession.checkIsRoot();
 
     writeProtobuf(CheckSecretKeyWsResponse.newBuilder().setSecretKeyAvailable(settings.getEncryption().hasSecretKey()).build(), request, response);
   }

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -59,8 +58,7 @@ public class UpdateActionTest {
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("admin")
-    .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn().setRoot();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
