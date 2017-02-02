@@ -57,6 +57,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ReportSubmitterTest {
 
@@ -97,7 +98,7 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_fails_with_organizationKey_does_not_match_organization_of_specified_component() {
-    userSession.setGlobalPermissions(SCAN_EXECUTION);
+    userSession.login().setRoot();
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertProject(organization);
     mockSuccessfulPrepareSubmitCall();
@@ -107,8 +108,8 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_a_report_on_existing_project() {
-    userSession.setGlobalPermissions(SCAN_EXECUTION);
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    userSession.login().addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     mockSuccessfulPrepareSubmitCall();
 
@@ -134,10 +135,12 @@ public class ReportSubmitterTest {
   @Test
   public void provision_project_if_does_not_exist() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
+    userSession
+      .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
+      .addOrganizationPermission(organization, PROVISIONING);
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto createdProject = newProjectDto(organization, PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
@@ -163,10 +166,13 @@ public class ReportSubmitterTest {
 
   @Test
   public void no_favorite_when_no_project_creator_permission_on_permission_template() {
-    userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
+    userSession
+      .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
+      .addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
+
 
     mockSuccessfulPrepareSubmitCall();
-    ComponentDto createdProject = new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto createdProject = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
@@ -179,11 +185,14 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void submit_a_report_on_new_project_with_global_scan_permission() {
-    userSession.setGlobalPermissions(SCAN_EXECUTION, PROVISIONING);
+  public void submit_a_report_on_new_project_with_scan_permission_on_organization() {
+    userSession
+      .addProjectUuidPermissions(SCAN_EXECUTION, PROJECT_UUID)
+      .addOrganizationPermission(db.getDefaultOrganization(), PROVISIONING);
 
     mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setId(23L).setUuid(PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
     when(permissionTemplateService.wouldUserHavePermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyLong(), eq(SCAN_EXECUTION), anyString(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
         .thenReturn(true);
@@ -194,7 +203,7 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void submit_a_report_on_existing_project_with_global_scan_permission() {
+  public void submit_a_report_on_existing_project_with_scan_permission_on_organization() {
     userSession.setGlobalPermissions(SCAN_EXECUTION);
 
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());

@@ -95,7 +95,7 @@ public class ReportSubmitter {
   }
 
   private ComponentDto createProject(DbSession dbSession, String organizationUuid, String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
-    userSession.checkPermission(PROVISIONING);
+    userSession.checkOrganizationPermission(organizationUuid, PROVISIONING);
     Integer userId = userSession.getUserId();
     Long projectCreatorUserId = userId == null ? null : userId.longValue();
 
