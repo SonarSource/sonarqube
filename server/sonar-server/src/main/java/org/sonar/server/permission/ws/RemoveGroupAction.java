@@ -83,7 +83,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupIdOrAnyone group = support.findGroup(dbSession, request);
-      Optional<ProjectId> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
 
       checkProjectAdmin(userSession, group.getOrganizationUuid(), projectId);
 

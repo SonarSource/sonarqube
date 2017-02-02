@@ -126,7 +126,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     Optional<ProjectId> projectId;
     if (projectRef.isPresent()) {
-      projectId = Optional.of(wsSupport.findProject(dbSession, projectRef.get()));
+      projectId = Optional.of(wsSupport.findProjectId(dbSession, projectRef.get()));
     } else {
       projectId = Optional.empty();
     }

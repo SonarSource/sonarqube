@@ -83,7 +83,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
-      Optional<ProjectId> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
 
       checkProjectAdmin(userSession, org.getUuid(), projectId);

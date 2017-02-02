@@ -25,7 +25,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ProjectId;
@@ -84,11 +86,15 @@ public class AddUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
-      Optional<ProjectId> projectId = support.findProject(dbSession, request);
+      Optional<ComponentDto> project = support.findProject(dbSession, request);
       String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
-      checkArgument(!projectId.isPresent() || organizationKey == null, "Organization must not be set when project is set.");
-      OrganizationDto org = support.findOrganization(dbSession, organizationKey);
+      checkArgument(!project.isPresent() || organizationKey == null, "Organization must not be set when project is set.");
+      OrganizationDto org = project
+        .map(dto -> dbClient.organizationDao().selectByUuid(dbSession, dto.getOrganizationUuid()))
+        .orElseGet(() -> Optional.ofNullable(support.findOrganization(dbSession, organizationKey)))
+        .orElseThrow(() -> new NotFoundException(String.format("Organization with key '%s' not found", organizationKey)));
 
+      Optional<ProjectId> projectId = project.map(ProjectId::new);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionChange change = new UserPermissionChange(

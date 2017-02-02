@@ -64,17 +64,22 @@ public class PermissionWsSupport {
   /**
    * @throws org.sonar.server.exceptions.NotFoundException if a project does not exist
    */
-  public ProjectId findProject(DbSession dbSession, ProjectWsRef ref) {
+  public ProjectId findProjectId(DbSession dbSession, ProjectWsRef ref) {
     ComponentDto project = componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes);
     return new ProjectId(project.getId(), project.uuid());
   }
 
-  public Optional<ProjectId> findProject(DbSession dbSession, Request request) {
+  public Optional<ProjectId> findProjectId(DbSession dbSession, Request request) {
+    return findProject(dbSession, request)
+      .map(ProjectId::new);
+  }
+
+  public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {
     String uuid = request.param(PermissionsWsParameters.PARAM_PROJECT_ID);
     String key = request.param(PermissionsWsParameters.PARAM_PROJECT_KEY);
     if (uuid != null || key != null) {
       ProjectWsRef ref = ProjectWsRef.newWsProjectRef(uuid, key);
-      return Optional.of(findProject(dbSession, ref));
+      return Optional.of(componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes));
     }
     return Optional.empty();
   }

@@ -95,7 +95,7 @@ public class GroupsAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
-      Optional<ProjectId> projectId = support.findProject(dbSession, request);
+      Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 
       PermissionQuery query = buildPermissionQuery(request, projectId);

@@ -59,7 +59,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_user() throws Exception {
+  public void add_permission_to_user_on_default_organization_if_organization_is_not_specified() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -70,17 +70,31 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void add_permission_to_project_referenced_by_its_id() throws Exception {
-    ComponentDto project = db.components().insertProject();
+  public void add_permission_to_user_on_specified_organization() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    loginAsAdmin(organization);
+    newRequest()
+      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
 
-    loginAsAdmin(db.getDefaultOrganization());
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, organization)).containsOnly(SYSTEM_ADMIN);
+  }
+
+  @Test
+  public void add_permission_to_project_referenced_by_its_id() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertProject(organization);
+
+    loginAsAdmin(organization);
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    assertThat(db.users().selectGlobalPermissionsOfUser(user, db.getDefaultOrganization())).isEmpty();
+    assertThat(db.users().selectGlobalPermissionsOfUser(user, organization)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(SYSTEM_ADMIN);
   }
 
