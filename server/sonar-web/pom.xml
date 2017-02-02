@@ -19,7 +19,7 @@
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js,src/main/js/**/__tests__/**</sonar.exclusions>
     <yarn.script>build</yarn.script>
   </properties>
-  
+
   <build>
     <resources>
       <resource>
@@ -175,21 +175,27 @@
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-branding</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+              </execution>
+            </executions>
             <configuration>
-              <overlays>
-                <overlay>
+              <artifactItems>
+                <artifactItem>
                   <groupId>com.sonarsource</groupId>
                   <artifactId>sonarsource-branding</artifactId>
-                  <!-- branding resources are added first -->
-                  <excludes>
-                    <exclude>META-INF/**/*</exclude>
-                  </excludes>
-                </overlay>
-                <overlay>
-                  <!-- empty groupId/artifactId represents the current build => branding not overwritten -->
-                </overlay>
-              </overlays>
+                  <type>war</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.basedir}</outputDirectory>
+                  <includes>**/*.js,**/*.svg</includes>
+                </artifactItem>
+              </artifactItems>
             </configuration>
           </plugin>
           <plugin>
@@ -224,7 +230,7 @@
         <dependency>
           <groupId>com.sonarsource</groupId>
           <artifactId>sonarsource-branding</artifactId>
-          <version>1.2</version>
+          <version>1.3.0.304</version>
           <type>war</type>
           <scope>runtime</scope>
         </dependency>
