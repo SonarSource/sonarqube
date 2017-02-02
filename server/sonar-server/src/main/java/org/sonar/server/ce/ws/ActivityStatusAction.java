@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -80,8 +79,7 @@ public class ActivityStatusAction implements CeWsAction {
   }
 
   private ActivityStatusWsResponse doHandle(ActivityStatusWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
       checkPermissions(component);
@@ -92,8 +90,6 @@ public class ActivityStatusAction implements CeWsAction {
         .setPending(pendingCount)
         .setFailing(failingCount)
         .build();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -109,7 +105,7 @@ public class ActivityStatusAction implements CeWsAction {
     if (component.isPresent()) {
       userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkIsRoot();
     }
   }
 

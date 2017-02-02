@@ -23,13 +23,11 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +38,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -59,19 +58,14 @@ public class ActivityStatusActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
 
-  WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, new ComponentFinder(dbClient)));
-
-  @Before
-  public void setUp() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, new ComponentFinder(dbClient)));
 
   @Test
   public void json_example() {
@@ -145,6 +139,27 @@ public class ActivityStatusActionTest {
     expectedException.expect(NotFoundException.class);
 
     callByComponentKey("unknown-key");
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.login();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    call();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_administrator_of_requested_project() {
+    userSession.login();
+    ComponentDto project = db.components().insertProject();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    callByComponentKey(project.key());
   }
 
   private void insertInQueue(CeQueueDto.Status status, @Nullable String componentUuid) {
