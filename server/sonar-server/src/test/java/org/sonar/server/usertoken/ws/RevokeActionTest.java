@@ -25,12 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -42,33 +42,30 @@ import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAM
 
 
 public class RevokeActionTest {
-  static final String GRACE_HOPPER = "grace.hopper";
-  static final String ADA_LOVELACE = "ada.lovelace";
-  static final String TOKEN_NAME = "token-name";
+  private static final String GRACE_HOPPER = "grace.hopper";
+  private static final String ADA_LOVELACE = "ada.lovelace";
+  private static final String TOKEN_NAME = "token-name";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  WsActionTester ws;
+  private DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
-    userSession
-      .logIn()
-      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-
     ws = new WsActionTester(
       new RevokeAction(dbClient, userSession));
   }
 
   @Test
   public void delete_token_in_db() {
+    userSession.logIn().setRoot();
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-1"));
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-2"));
@@ -83,7 +80,7 @@ public class RevokeActionTest {
 
   @Test
   public void user_can_delete_its_own_tokens() {
-    userSession.logIn(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(GRACE_HOPPER);
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
 
     String response = newRequest(null, "token-to-delete");
@@ -94,16 +91,28 @@ public class RevokeActionTest {
 
   @Test
   public void does_not_fail_when_incorrect_login_or_name() {
+    userSession.logIn().setRoot();
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
 
     newRequest(ADA_LOVELACE, "another-token-name");
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+  public void throw_ForbiddenException_if_non_administrator_revokes_token_of_someone_else() {
+    userSession.logIn();
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
+
     expectedException.expect(ForbiddenException.class);
+
+    newRequest(GRACE_HOPPER, TOKEN_NAME);
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() {
+    userSession.anonymous();
+    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
+
+    expectedException.expect(UnauthorizedException.class);
 
     newRequest(GRACE_HOPPER, TOKEN_NAME);
   }

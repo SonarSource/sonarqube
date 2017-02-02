@@ -68,12 +68,9 @@ public class RevokeAction implements UserTokensWsAction {
   private void doHandle(RevokeWsRequest request) {
     TokenPermissionsValidator.validate(userSession, request.getLogin());
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.userTokenDao().deleteByLoginAndName(dbSession, request.getLogin(), request.getName());
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

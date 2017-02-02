@@ -70,14 +70,11 @@ public class SearchAction implements UserTokensWsAction {
   private SearchWsResponse doHandle(SearchWsRequest request) {
     TokenPermissionsValidator.validate(userSession, request.getLogin());
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       String login = request.getLogin();
       checkLoginExists(dbSession, login);
       List<UserTokenDto> userTokens = dbClient.userTokenDao().selectByLogin(dbSession, login);
       return buildResponse(login, userTokens);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

@@ -27,12 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -62,13 +62,14 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     db.users().insertUser(newUserDto().setLogin(GRACE_HOPPER));
     db.users().insertUser(newUserDto().setLogin(ADA_LOVELACE));
   }
 
   @Test
   public void search_json_example() {
+    userSession.logIn().setRoot();
+
     dbClient.userTokenDao().insert(dbSession, newUserToken()
       .setCreatedAt(1448523067221L)
       .setName("Project scan on Travis")
@@ -96,7 +97,7 @@ public class SearchActionTest {
 
   @Test
   public void a_user_can_search_its_own_token() {
-    userSession.logIn(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn(GRACE_HOPPER);
     dbClient.userTokenDao().insert(dbSession, newUserToken()
       .setCreatedAt(1448523067221L)
       .setName("Project scan on Travis")
@@ -110,6 +111,8 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_login_does_not_exist() {
+    userSession.logIn().setRoot();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' not found");
 
@@ -117,9 +120,19 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_privileges() {
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+  public void throw_ForbiddenException_if_a_non_root_administrator_searches_for_tokens_of_someone_else() {
+    userSession.logIn();
+
     expectedException.expect(ForbiddenException.class);
+
+    newRequest(GRACE_HOPPER);
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() {
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
 
     newRequest(GRACE_HOPPER);
   }
