@@ -35,8 +35,6 @@ export default class PageSidebar extends React.Component {
     organization: React.PropTypes.object
   };
 
-  get
-
   render () {
     const isFiltered = Object.keys(this.props.query).some(key => this.props.query[key] != null);
 

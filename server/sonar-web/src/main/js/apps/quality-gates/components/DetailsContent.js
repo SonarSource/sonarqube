@@ -28,6 +28,10 @@ export default class DetailsContent extends Component {
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
     const conditions = gate.conditions || [];
 
+    const defaultMessage = canEdit ?
+        translate('quality_gates.projects_for_default.edit') :
+        translate('quality_gates.projects_for_default');
+
     return (
         <div
             ref="container"
@@ -46,8 +50,7 @@ export default class DetailsContent extends Component {
               {translate('quality_gates.projects')}
             </h3>
             {gate.isDefault ? (
-                canEdit ? translate('quality_gates.projects_for_default.edit') :
-                    translate('quality_gates.projects_for_default')
+                defaultMessage
             ) : (
                 <Projects
                     qualityGate={gate}
