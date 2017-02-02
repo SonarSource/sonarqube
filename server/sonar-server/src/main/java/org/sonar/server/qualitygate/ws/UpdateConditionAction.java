@@ -25,12 +25,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.UpdateConditionWsResponse;
 import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
 
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
@@ -46,11 +48,14 @@ public class UpdateConditionAction implements QualityGatesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UpdateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater) {
+  public UpdateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -72,14 +77,11 @@ public class UpdateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkPermission(QUALITY_GATE_ADMIN);
+    userSession.checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), QUALITY_GATE_ADMIN);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       writeProtobuf(doHandle(toWsRequest(request), dbSession), request, response);
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -90,18 +92,9 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       .setId(condition.getId())
       .setMetric(condition.getMetricKey())
       .setOp(condition.getOperator());
-    String warning = condition.getWarningThreshold();
-    if (warning != null) {
-      response.setWarning(warning);
-    }
-    String error = condition.getErrorThreshold();
-    if (error != null) {
-      response.setError(error);
-    }
-    Integer period = condition.getPeriod();
-    if (period != null) {
-      response.setPeriod(period);
-    }
+    setNullable(condition.getWarningThreshold(), response::setWarning);
+    setNullable(condition.getErrorThreshold(), response::setError);
+    setNullable(condition.getPeriod(), response::setPeriod);
     return response.build();
   }
 

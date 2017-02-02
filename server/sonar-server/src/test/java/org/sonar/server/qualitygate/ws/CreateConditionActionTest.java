@@ -40,7 +40,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.tester.UserSessionRule;
@@ -138,16 +137,6 @@ public class CreateConditionActionTest {
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
-
-    executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
-  }
-
-  @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
-    userSession.anonymous();
-
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
 
     executeRequest(qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
   }
