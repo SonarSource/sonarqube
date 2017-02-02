@@ -37,7 +37,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureQuery;
@@ -92,13 +91,10 @@ public class AppAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String componentUuid = request.mandatoryParam(PARAM_UUID);
-
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false);
+      JsonWriter json = response.newJsonWriter()) {
+      json.beginObject();
+      String componentUuid = request.mandatoryParam(PARAM_UUID);
       ComponentDto component = componentFinder.getByUuid(session, componentUuid);
       userSession.checkComponentPermission(UserRole.USER, component);
 
@@ -106,13 +102,8 @@ public class AppAction implements RequestHandler {
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
       appendMeasures(json, measuresByMetricKey);
-
-    } finally {
-      MyBatis.closeQuietly(session);
+      json.endObject();
     }
-
-    json.endObject();
-    json.close();
   }
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {

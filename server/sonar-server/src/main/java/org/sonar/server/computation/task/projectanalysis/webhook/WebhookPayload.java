@@ -56,18 +56,19 @@ public class WebhookPayload {
 
   public static WebhookPayload from(PostProjectAnalysisTask.ProjectAnalysis analysis) {
     Writer string = new StringWriter();
-    JsonWriter writer = JsonWriter.of(string);
-    writer.beginObject();
-    writeTask(writer, analysis.getCeTask());
-    Optional<Date> analysisDate = analysis.getAnalysisDate();
-    if (analysisDate.isPresent()) {
-      writer.propDateTime("analysedAt", analysisDate.get());
+    try (JsonWriter writer = JsonWriter.of(string)) {
+      writer.beginObject();
+      writeTask(writer, analysis.getCeTask());
+      Optional<Date> analysisDate = analysis.getAnalysisDate();
+      if (analysisDate.isPresent()) {
+        writer.propDateTime("analysedAt", analysisDate.get());
+      }
+      writeProject(analysis, writer, analysis.getProject());
+      writeQualityGate(writer, analysis.getQualityGate());
+      writeAnalysisProperties(writer, analysis.getScannerContext());
+      writer.endObject().close();
+      return new WebhookPayload(analysis.getProject().getKey(), string.toString());
     }
-    writeProject(analysis, writer, analysis.getProject());
-    writeQualityGate(writer, analysis.getQualityGate());
-    writeAnalysisProperties(writer, analysis.getScannerContext());
-    writer.endObject().close();
-    return new WebhookPayload(analysis.getProject().getKey(), string.toString());
   }
 
   private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {

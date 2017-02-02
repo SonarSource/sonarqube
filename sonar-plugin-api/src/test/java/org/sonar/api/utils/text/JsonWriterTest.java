@@ -43,8 +43,8 @@ public class JsonWriterTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  StringWriter json = new StringWriter();
-  JsonWriter writer = JsonWriter.of(json);
+  private StringWriter json = new StringWriter();
+  private JsonWriter writer = JsonWriter.of(json);
 
   private void expect(String s) {
     assertThat(json.toString()).isEqualTo(s);
@@ -170,7 +170,8 @@ public class JsonWriterTest {
       .name("anEnum").valueObject(ColorEnum.GREEN)
       .name("aMap").valueObject(ImmutableMap.of("hello", "world", "good", "bye"))
       .endObject().close();
-    expect("{\"aString\":\"stringValue\",\"aBoolean\":true,\"aInt\":42,\"aFloat\":3.14,\"aLong\":42,\"aList\":[\"one\",2,\"three\"],\"anEnum\":\"GREEN\",\"aMap\":{\"hello\":\"world\",\"good\":\"bye\"}}");
+    expect(
+      "{\"aString\":\"stringValue\",\"aBoolean\":true,\"aInt\":42,\"aFloat\":3.14,\"aLong\":42,\"aList\":[\"one\",2,\"three\"],\"anEnum\":\"GREEN\",\"aMap\":{\"hello\":\"world\",\"good\":\"bye\"}}");
   }
 
   @Test
@@ -212,7 +213,7 @@ public class JsonWriterTest {
     new JsonWriter(gson).beginArray();
   }
 
-  private static enum ColorEnum {
+  private enum ColorEnum {
     RED, GREEN
   }
 }

@@ -109,8 +109,7 @@ public class JSONReport implements Reporter {
 
   @VisibleForTesting
   void writeJson(Writer writer) {
-    try {
-      JsonWriter json = JsonWriter.of(writer);
+    try (JsonWriter json = JsonWriter.of(writer)) {
       json.beginObject();
       json.prop("version", server.getVersion());
 
@@ -120,7 +119,7 @@ public class JSONReport implements Reporter {
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
       writeUsers(json, userLogins);
-      json.endObject().close();
+      json.endObject();
 
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write JSON report", e);

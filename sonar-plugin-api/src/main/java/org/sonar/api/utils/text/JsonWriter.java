@@ -32,30 +32,34 @@ import org.sonar.api.utils.DateUtils;
  * <p>
  * <h3>How to use</h3>
  * <pre>
- *   StringWriter json = new StringWriter();
- *   JsonWriter writer = JsonWriter.of(json);
- *   writer
- *     .beginObject()
- *     .prop("aBoolean", true)
- *     .prop("aInt", 123)
- *     .prop("aString", "foo")
- *     .beginObject().name("aList")
- *       .beginArray()
- *         .beginObject().prop("key", "ABC").endObject()
- *         .beginObject().prop("key", "DEF").endObject()
- *       .endArray()
- *     .endObject()
- *     .close();
+ *   try (JsonWriter jsonWriter = JsonWriter.of(writer)) {
+ *     jsonWriter
+ *       .beginObject()
+ *       .prop("aBoolean", true)
+ *       .prop("aInt", 123)
+ *       .prop("aString", "foo")
+ *       .beginObject().name("aList")
+ *         .beginArray()
+ *           .beginObject().prop("key", "ABC").endObject()
+ *           .beginObject().prop("key", "DEF").endObject()
+ *         .endArray()
+ *       .endObject()
+ *   }
  * </pre>
  * 
  * <p>
  * By default, null objects are not serialized. To enable {@code null} serialization,
  * use {@link #setSerializeNulls(boolean)}.
- * 
+ * </p>
  * <p>
- * By default, emptry strings are serialized. To disable empty string serialization,
+ * By default, empty strings are serialized. To disable empty string serialization,
  * use {@link #setSerializeEmptys(boolean)}.
- * 
+ * </p>
+ * <p>
+ * {@link JsonWriter} implements {@link AutoCloseable} since version 6.3. The
+ * method {@link #close()} closes the underlying writer.
+ * </p>
+ *
  *
  * @since 4.2
  */
