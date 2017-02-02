@@ -37,6 +37,7 @@ public class CreateRequest {
   private final String name;
   private final String email;
   private final List<String> scmAccounts;
+  private final boolean local;
 
   private CreateRequest(Builder builder) {
     this.login = builder.login;
@@ -44,12 +45,14 @@ public class CreateRequest {
     this.name = builder.name;
     this.email = builder.email;
     this.scmAccounts = builder.scmAccounts;
+    this.local = builder.local;
   }
 
   public String getLogin() {
     return login;
   }
 
+  @CheckForNull
   public String getPassword() {
     return password;
   }
@@ -67,6 +70,10 @@ public class CreateRequest {
     return scmAccounts;
   }
 
+  public boolean isLocal() {
+    return local;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -77,6 +84,7 @@ public class CreateRequest {
     private String name;
     private String email;
     private List<String> scmAccounts = emptyList();
+    private boolean local = true;
 
     private Builder() {
       // enforce factory method use
@@ -87,7 +95,7 @@ public class CreateRequest {
       return this;
     }
 
-    public Builder setPassword(String password) {
+    public Builder setPassword(@Nullable String password) {
       this.password = password;
       return this;
     }
@@ -107,10 +115,16 @@ public class CreateRequest {
       return this;
     }
 
+    public Builder setLocal(boolean local) {
+      this.local = local;
+      return this;
+    }
+
     public CreateRequest build() {
       checkArgument(!isNullOrEmpty(login), "Login is mandatory and must not be empty");
-      checkArgument(!isNullOrEmpty(password), "Password is mandatory and must not be empty");
       checkArgument(!isNullOrEmpty(name), "Name is mandatory and must not be empty");
+      checkArgument(!local || !isNullOrEmpty(password), "Password is mandatory and must not be empty");
+      checkArgument(local || isNullOrEmpty(password), "Password should only be set on local user");
       return new CreateRequest(this);
     }
   }

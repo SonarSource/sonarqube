@@ -30,6 +30,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
@@ -50,6 +51,7 @@ public class UsersServiceTest {
       .setName("John")
       .setEmail("john@doo.com")
       .setScmAccounts(asList("jo", "hn"))
+      .setLocal(true)
       .build());
 
     assertThat(serviceTester.getPostParser()).isSameAs(CreateWsResponse.parser());
@@ -59,6 +61,7 @@ public class UsersServiceTest {
       .hasParam(PARAM_NAME, "John")
       .hasParam(PARAM_EMAIL, "john@doo.com")
       .hasParam(PARAM_SCM_ACCOUNT, asList("jo", "hn"))
+      .hasParam(PARAM_LOCAL, "true")
       .andNoOtherParam();
   }
 

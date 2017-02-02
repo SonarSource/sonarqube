@@ -57,6 +57,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserUpdaterTest {
 
@@ -137,6 +138,42 @@ public class UserUpdaterTest {
     assertThat(dto.getExternalIdentity()).isEqualTo("user");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
     assertThat(dto.isLocal()).isTrue();
+  }
+
+  @Test
+  public void create_user_with_identity_provider() throws Exception {
+    createDefaultGroup();
+
+    underTest.create(NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setExternalIdentity(new ExternalIdentity("github", "github-user"))
+      .build());
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, "user");
+    assertThat(dto.isLocal()).isFalse();
+    assertThat(dto.getExternalIdentity()).isEqualTo("github-user");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(dto.getCryptedPassword()).isNull();
+    assertThat(dto.getSalt()).isNull();
+  }
+
+  @Test
+  public void create_user_with_sonarqube_external_identity() throws Exception {
+    createDefaultGroup();
+
+    underTest.create(NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user"))
+      .build());
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, "user");
+    assertThat(dto.isLocal()).isFalse();
+    assertThat(dto.getExternalIdentity()).isEqualTo("user");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
+    assertThat(dto.getCryptedPassword()).isNull();
+    assertThat(dto.getSalt()).isNull();
   }
 
   @Test

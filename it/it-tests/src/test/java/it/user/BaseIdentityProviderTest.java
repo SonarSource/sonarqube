@@ -31,6 +31,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.user.CreateRequest;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -124,10 +125,11 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
     userRule.createUser("another", "Another", USER_EMAIL, "another");
 
-    runSelenese(ORCHESTRATOR,"/user/BaseIdentityProviderTest/fail_when_email_already_exists.html");
+    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/fail_when_email_already_exists.html");
 
     File logFile = ORCHESTRATOR.getServer().getWebLogs();
-    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account");
+    assertThat(FileUtils.readFileToString(logFile))
+      .doesNotContain("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account");
   }
 
   @Test
@@ -198,7 +200,7 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
 
     runSelenese(ORCHESTRATOR,
-        "/user/BaseIdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
+      "/user/BaseIdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
 
     File logFile = ORCHESTRATOR.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
@@ -267,6 +269,30 @@ public class BaseIdentityProviderTest {
     userRule.verifyUserExists(login, USER_NAME, USER_EMAIL, false);
   }
 
+  @Test
+  public void provision_user_before_authentication() {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+
+    // Provision none local user in database
+    newAdminWsClient(ORCHESTRATOR).users().create(CreateRequest.builder()
+      .setLogin(USER_LOGIN)
+      .setName(USER_NAME)
+      .setEmail(USER_EMAIL)
+      .setLocal(false)
+      .build());
+    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
+      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
+      .containsOnly(false, USER_LOGIN, "sonarqube");
+
+    // Authenticate with external system -> It will update external provider info
+    authenticateWithFakeAuthProvider();
+
+    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
+      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
+      .containsOnly(false, USER_PROVIDER_ID, FAKE_PROVIDER_KEY);
+  }
+
   private static void enablePlugin() {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
@@ -284,7 +310,7 @@ public class BaseIdentityProviderTest {
 
   private static void authenticateWithFakeAuthProvider() {
     adminWsClient.wsConnector().call(
-      new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)))
+      new GetRequest("/sessions/init/" + FAKE_PROVIDER_KEY))
       .failIfNotSuccessful();
   }
 

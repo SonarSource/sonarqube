@@ -29,6 +29,7 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.CONTROLLER_USERS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
@@ -46,7 +47,8 @@ public class UsersService extends BaseService {
       .setParam(PARAM_PASSWORD, request.getPassword())
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_EMAIL, request.getEmail())
-      .setParam(PARAM_SCM_ACCOUNT, request.getScmAccounts()),
+      .setParam(PARAM_SCM_ACCOUNT, request.getScmAccounts())
+      .setParam(PARAM_LOCAL, request.isLocal()),
       CreateWsResponse.parser());
   }
 

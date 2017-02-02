@@ -117,6 +117,37 @@ public class CreateActionTest {
   }
 
   @Test
+  public void create_local_user() throws Exception {
+    authenticateAsAdmin();
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .setLocal(true)
+      .build());
+
+    assertThat(db.users().selectUserByLogin("john").get())
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalIdentity)
+      .containsOnly(true, "sonarqube", "john");
+  }
+
+  @Test
+  public void create_none_local_user() throws Exception {
+    authenticateAsAdmin();
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setLocal(false)
+      .build());
+
+    assertThat(db.users().selectUserByLogin("john").get())
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalIdentity)
+      .containsOnly(false, "sonarqube", "john");
+  }
+
+  @Test
   public void create_user_with_comma_in_scm_account() throws Exception {
     authenticateAsAdmin();
 
@@ -234,6 +265,59 @@ public class CreateActionTest {
   }
 
   @Test
+  public void fail_when_missing_login() throws Exception {
+    authenticateAsAdmin();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Login is mandatory and must not be empty");
+    call(CreateRequest.builder()
+      .setLogin(null)
+      .setName("John")
+      .setPassword("1234")
+      .build());
+  }
+
+  @Test
+  public void fail_when_missing_name() throws Exception {
+    authenticateAsAdmin();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Name is mandatory and must not be empty");
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName(null)
+      .setPassword("1234")
+      .build());
+  }
+
+  @Test
+  public void fail_when_missing_password() throws Exception {
+    authenticateAsAdmin();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Password is mandatory and must not be empty");
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword(null)
+      .build());
+  }
+
+  @Test
+  public void fail_when_password_is_set_on_none_local_user() throws Exception {
+    authenticateAsAdmin();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Password should only be set on local user");
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .setLocal(false)
+      .build());
+  }
+
+  @Test
   public void fail_on_missing_permission() throws Exception {
     userSessionRule.logIn("not_admin");
 
@@ -263,6 +347,7 @@ public class CreateActionTest {
     setNullable(createRequest.getEmail(), e -> request.setParam("email", e));
     setNullable(createRequest.getPassword(), e -> request.setParam("password", e));
     setNullable(createRequest.getScmAccounts(), e -> request.setMultiParam("scmAccount", e));
+    request.setParam("local", createRequest.isLocal() ? "true" : "false");
     try {
       return CreateWsResponse.parseFrom(request.execute().getInputStream());
     } catch (IOException e) {

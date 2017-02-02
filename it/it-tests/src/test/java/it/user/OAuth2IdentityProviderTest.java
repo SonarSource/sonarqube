@@ -35,7 +35,9 @@ import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.user.CreateRequest;
 import util.user.UserRule;
+import util.user.Users;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -164,6 +166,30 @@ public class OAuth2IdentityProviderTest {
 
     File logFile = ORCHESTRATOR.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account");
+  }
+
+  @Test
+  public void provision_user_before_authentication() {
+    simulateRedirectionToCallback();
+    enablePlugin();
+
+    // Provision none local user in database
+    newAdminWsClient(ORCHESTRATOR).users().create(CreateRequest.builder()
+      .setLogin(USER_LOGIN)
+      .setName(USER_NAME)
+      .setEmail(USER_EMAIL)
+      .setLocal(false)
+      .build());
+    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
+      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
+      .containsOnly(false, USER_LOGIN, "sonarqube");
+
+    // Authenticate with external system -> It will update external provider info
+    authenticateWithFakeAuthProvider();
+
+    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
+      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
+      .containsOnly(false, USER_PROVIDER_ID, FAKE_PROVIDER_KEY);
   }
 
   private void authenticateWithFakeAuthProvider() {
