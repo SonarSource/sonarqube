@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.user.UserSession;
 
@@ -63,7 +62,7 @@ public class UploadAction implements UpdateCenterWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkIsRoot();
 
     Part part = request.mandatoryParamAsPart(PARAM_FILE);
     String fileName = part.getFileName();
