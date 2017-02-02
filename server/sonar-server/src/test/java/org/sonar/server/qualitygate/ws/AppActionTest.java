@@ -25,11 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -55,11 +56,11 @@ public class AppActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-
-  AppAction underTest = new AppAction(userSession, dbClient);
-  WsActionTester ws = new WsActionTester(underTest);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private AppAction underTest = new AppAction(userSession, dbClient, defaultOrganizationProvider);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void return_metrics() throws Exception {
@@ -163,7 +164,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_false_when_not_quality_gate_permission() throws Exception {
-    userSession.logIn("not-admin").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn();
 
     AppWsResponse response = executeRequest();
 
@@ -172,7 +173,7 @@ public class AppActionTest {
 
   @Test
   public void return_edit_to_true_when_quality_gate_permission() throws Exception {
-    userSession.logIn("admin").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization(), QUALITY_GATE_ADMIN);
 
     AppWsResponse response = executeRequest();
 

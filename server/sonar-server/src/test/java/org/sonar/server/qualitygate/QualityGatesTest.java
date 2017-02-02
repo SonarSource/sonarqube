@@ -24,8 +24,6 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,8 +36,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -53,10 +49,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.tester.AnonymousMockUserSession;
-import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,31 +64,23 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
 
-  static final long QUALITY_GATE_ID = 42L;
-  static final int METRIC_ID = 10;
+  private static final long QUALITY_GATE_ID = 42L;
+  private static final String PROJECT_KEY = "SonarQube";
+  private static final String PROJECT_UUID = Uuids.UUID_EXAMPLE_01;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  DbSession dbSession = mock(DbSession.class);
-  DbClient dbClient = mock(DbClient.class);
-  QualityGateDao dao = mock(QualityGateDao.class);
-  QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
-  PropertiesDao propertiesDao = mock(PropertiesDao.class);
-  ComponentDao componentDao = mock(ComponentDao.class);
-  MetricFinder metricFinder = mock(MetricFinder.class);
-
-  QualityGates underTest;
-
-  static final String PROJECT_KEY = "SonarQube";
-  static final String PROJECT_UUID = Uuids.UUID_EXAMPLE_01;
-
-  UserSession authorizedProfileAdminUserSession = new MockUserSession("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-  UserSession authorizedProjectAdminUserSession = new MockUserSession("gaudol").setName("Olivier").addProjectUuidPermissions(UserRole.ADMIN, PROJECT_UUID);
-  UserSession unauthorizedUserSession = new MockUserSession("polop").setName("Polop");
-  UserSession unauthenticatedUserSession = new AnonymousMockUserSession();
+  private DbSession dbSession = mock(DbSession.class);
+  private DbClient dbClient = mock(DbClient.class);
+  private QualityGateDao dao = mock(QualityGateDao.class);
+  private QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
+  private PropertiesDao propertiesDao = mock(PropertiesDao.class);
+  private ComponentDao componentDao = mock(ComponentDao.class);
+  private MetricFinder metricFinder = mock(MetricFinder.class);
+  private QualityGates underTest;
 
   @Before
   public void initialize() {
@@ -108,9 +93,9 @@ public class QualityGatesTest {
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
       newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
 
-    underTest = new QualityGates(dbClient, metricFinder, userSessionRule);
+    underTest = new QualityGates(dbClient, metricFinder, userSession);
 
-    userSessionRule.set(authorizedProfileAdminUserSession);
+    userSession.login().setRoot();
   }
 
   @Test
@@ -315,60 +300,6 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_associate_project() {
-    Long qGateId = QUALITY_GATE_ID;
-    Long projectId = 24L;
-    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.associateProject(qGateId, projectId);
-    verify(dao).selectById(dbSession, qGateId);
-    ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).saveProperty(propertyCaptor.capture());
-    PropertyDto property = propertyCaptor.getValue();
-    assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
-    assertThat(property.getResourceId()).isEqualTo(projectId);
-    assertThat(property.getValue()).isEqualTo("42");
-  }
-
-  @Test
-  public void associate_project_with_project_admin_permission() {
-    userSessionRule.set(authorizedProjectAdminUserSession);
-
-    Long qGateId = QUALITY_GATE_ID;
-    Long projectId = 24L;
-    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.associateProject(qGateId, projectId);
-    verify(dao).selectById(dbSession, qGateId);
-    ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).saveProperty(propertyCaptor.capture());
-    PropertyDto property = propertyCaptor.getValue();
-    assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
-    assertThat(property.getResourceId()).isEqualTo(projectId);
-    assertThat(property.getValue()).isEqualTo("42");
-  }
-
-  @Test
-  public void should_dissociate_project() {
-    Long qGateId = QUALITY_GATE_ID;
-    Long projectId = 24L;
-    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.dissociateProject(qGateId, projectId);
-    verify(dao).selectById(dbSession, qGateId);
-    verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
-  }
-
-  @Test
-  public void dissociate_project_with_project_admin_permission() {
-    userSessionRule.set(authorizedProjectAdminUserSession);
-
-    Long qGateId = QUALITY_GATE_ID;
-    Long projectId = 24L;
-    when(dao.selectById(dbSession, qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    underTest.dissociateProject(qGateId, projectId);
-    verify(dao).selectById(dbSession, qGateId);
-    verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
-  }
-
-  @Test
   public void should_copy_qgate() {
     String name = "Atlantis";
     long sourceId = QUALITY_GATE_ID;
@@ -408,31 +339,6 @@ public class QualityGatesTest {
     when(classicMetric.getType()).thenReturn(ValueType.BOOL);
     when(metricFinder.findAll()).thenReturn(ImmutableList.of(
       dataMetric, hiddenMetric, nullHiddenMetric, alertMetric, ratingMetric, classicMetric));
-  }
-
-  private Metric addMetric(String metricKey, String metricName) {
-    Metric metric = Mockito.spy(CoreMetrics.COVERAGE);
-    when(metric.getId()).thenReturn(METRIC_ID);
-    when(metric.getName()).thenReturn(metricName);
-    when(metricFinder.findByKey(metricKey)).thenReturn(metric);
-    return metric;
-  }
-
-  private QualityGateConditionDto newCondition(String metricKey, int metricId) {
-    return new QualityGateConditionDto()
-      .setId(RandomUtils.nextLong())
-      .setMetricKey(metricKey)
-      .setMetricId(metricId)
-      .setQualityGateId(QUALITY_GATE_ID)
-      .setOperator("GT")
-      .setWarningThreshold(RandomStringUtils.randomAlphanumeric(15))
-      .setErrorThreshold(RandomStringUtils.randomAlphanumeric(15))
-      .setPeriod(RandomUtils.nextBoolean() ? 1 : null);
-  }
-
-  private QualityGateConditionDto insertQualityGateConditionDto(QualityGateConditionDto conditionDto) {
-    when(conditionDao.selectById(conditionDto.getId())).thenReturn(conditionDto);
-    return conditionDto;
   }
 
 }

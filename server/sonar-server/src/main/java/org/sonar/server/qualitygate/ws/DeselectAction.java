@@ -73,19 +73,16 @@ public class DeselectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    ComponentDto project = getProject(request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
-    qualityGates.dissociateProject(QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_GATE_ID), project.getId());
-    response.noContent();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+      qualityGates.dissociateProject(dbSession, QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_GATE_ID), project);
+      response.noContent();
+    }
   }
 
-  private ComponentDto getProject(@Nullable String projectId, @Nullable String projectKey) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return selectProjectById(dbSession, projectId)
+  private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {
+    return selectProjectById(dbSession, projectId)
         .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
   }
 
   private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {

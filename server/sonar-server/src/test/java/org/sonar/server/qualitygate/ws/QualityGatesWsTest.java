@@ -69,11 +69,19 @@ public class QualityGatesWsTest {
     SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
 
     tester = new WsTester(new QualityGatesWs(
-      new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
-      new CreateAction(null, null, null), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
+      new ListAction(qGates),
+      new ShowAction(qGates),
+      new SearchAction(projectFinder),
+      new CreateAction(null, null, null),
+      new CopyAction(qGates),
+      new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
-      new CreateConditionAction(null, null, null), new UpdateConditionAction(null, null, null), new DeleteConditionAction(qGates),
-      selectAction, new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)), new AppAction(null, null)));
+      new CreateConditionAction(null, null, null),
+      new UpdateConditionAction(null, null, null),
+      new DeleteConditionAction(qGates),
+      selectAction,
+      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)),
+      new AppAction(null, null, null)));
   }
 
   @Test

@@ -30,7 +30,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -43,10 +42,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class DeselectActionTest {
@@ -59,15 +56,14 @@ public class DeselectActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession);
-
-  WsActionTester ws;
-
-  DeselectAction underTest;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession);
+  private WsActionTester ws;
+  private ComponentDto project;
+  private QualityGateDto gate;
+  private DeselectAction underTest;
 
   @Before
   public void setUp() {
@@ -75,14 +71,15 @@ public class DeselectActionTest {
     underTest = new DeselectAction(qualityGates, dbClient, componentFinder);
     ws = new WsActionTester(underTest);
 
-    userSession.logIn("login").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    project = db.components().insertProject();
+    gate = insertQualityGate();
   }
 
   @Test
   public void deselect_by_id() throws Exception {
-    ComponentDto project = insertProject();
-    ComponentDto anotherProject = componentDb.insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
+
+    ComponentDto anotherProject = db.components().insertProject();
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
     associateProjectToQualityGate(anotherProject.getId(), gateId);
@@ -95,8 +92,8 @@ public class DeselectActionTest {
 
   @Test
   public void deselect_by_uuid() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
+
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
@@ -107,8 +104,8 @@ public class DeselectActionTest {
 
   @Test
   public void deselect_by_key() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
+
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
@@ -119,12 +116,10 @@ public class DeselectActionTest {
 
   @Test
   public void project_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     callByKey(gateId, project.getKey());
 
@@ -133,12 +128,10 @@ public class DeselectActionTest {
 
   @Test
   public void system_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setGlobalPermissions(SYSTEM_ADMIN);
 
     callByKey(gateId, project.getKey());
 
@@ -147,16 +140,13 @@ public class DeselectActionTest {
 
   @Test
   public void fail_when_no_quality_gate() throws Exception {
-    ComponentDto project = insertProject();
-
     expectedException.expect(NotFoundException.class);
 
-    callByKey("1", project.getKey());
+    callByKey("-1", project.getKey());
   }
 
   @Test
   public void fail_when_no_project_id() throws Exception {
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
     expectedException.expect(NotFoundException.class);
@@ -166,7 +156,6 @@ public class DeselectActionTest {
 
   @Test
   public void fail_when_no_project_key() throws Exception {
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
     expectedException.expect(NotFoundException.class);
@@ -176,8 +165,6 @@ public class DeselectActionTest {
 
   @Test
   public void fail_when_anonymous() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
     userSession.anonymous();
 
@@ -187,11 +174,9 @@ public class DeselectActionTest {
 
   @Test
   public void fail_when_not_project_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
 
@@ -200,19 +185,13 @@ public class DeselectActionTest {
 
   @Test
   public void fail_when_not_quality_gates_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
 
     callByKey(gateId, project.getKey());
-  }
-
-  private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto(db.organizations().insert()));
   }
 
   private QualityGateDto insertQualityGate() {

@@ -91,8 +91,7 @@ public class SelectAction implements QualityGatesWsAction {
   }
 
   private void doHandle(SelectWsRequest request) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       checkQualityGate(dbClient, request.getGateId());
       ComponentDto project = getProject(dbSession, request.getProjectId(), request.getProjectKey());
 
@@ -102,8 +101,6 @@ public class SelectAction implements QualityGatesWsAction {
         .setValue(String.valueOf(request.getGateId())));
 
       dbSession.commit();
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -118,7 +115,7 @@ public class SelectAction implements QualityGatesWsAction {
     ComponentDto project = selectProjectById(dbSession, projectId)
       .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
 
-    if (!userSession.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN) &&
+    if (!userSession.hasOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.QUALITY_GATE_ADMIN) &&
       !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
       throw insufficientPrivilegesException();
     }

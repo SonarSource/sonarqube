@@ -94,7 +94,7 @@ public final class DoPrivileged {
 
       @Override
       public boolean isRoot() {
-        return false;
+        return true;
       }
 
       @Override

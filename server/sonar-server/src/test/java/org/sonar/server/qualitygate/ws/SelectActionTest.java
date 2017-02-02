@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
@@ -40,7 +39,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
@@ -53,27 +51,26 @@ public class SelectActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  WsActionTester ws;
-
-  SelectAction underTest;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private WsActionTester ws;
+  private ComponentDto project;
+  private QualityGateDto gate;
+  private SelectAction underTest;
 
   @Before
   public void setUp() {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     underTest = new SelectAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-
-    userSession.logIn("login").setGlobalPermissions(QUALITY_GATE_ADMIN);
+    project = db.components().insertProject();
+    gate = insertQualityGate();
   }
 
   @Test
   public void select_by_id() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
     String gateId = String.valueOf(gate.getId());
 
     callById(gateId, project.getId());
@@ -83,8 +80,7 @@ public class SelectActionTest {
 
   @Test
   public void select_by_uuid() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
     String gateId = String.valueOf(gate.getId());
 
     callByUuid(gateId, project.uuid());
@@ -94,50 +90,42 @@ public class SelectActionTest {
 
   @Test
   public void select_by_key() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().setRoot();
     String gateId = String.valueOf(gate.getId());
 
     callByKey(gateId, project.getKey());
+
     assertSelected(gateId, project.getId());
   }
 
   @Test
   public void project_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-
     callByKey(gateId, project.getKey());
+
     assertSelected(gateId, project.getId());
   }
 
   @Test
-  public void system_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
+  public void gate_administrator_can_associate_a_gate_to_a_project() throws Exception {
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), QUALITY_GATE_ADMIN);
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
-
     callByKey(gateId, project.getKey());
+
     assertSelected(gateId, project.getId());
-    ;
   }
 
   @Test
   public void fail_when_no_quality_gate() throws Exception {
-    ComponentDto project = insertProject();
-
     expectedException.expect(NotFoundException.class);
     callByKey("1", project.getKey());
   }
 
   @Test
   public void fail_when_no_project_id() throws Exception {
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
     expectedException.expect(NotFoundException.class);
@@ -146,7 +134,6 @@ public class SelectActionTest {
 
   @Test
   public void fail_when_no_project_key() throws Exception {
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
     expectedException.expect(NotFoundException.class);
@@ -155,8 +142,6 @@ public class SelectActionTest {
 
   @Test
   public void fail_when_anonymous() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
     userSession.anonymous();
@@ -167,11 +152,9 @@ public class SelectActionTest {
 
   @Test
   public void fail_when_not_project_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     callByKey(gateId, project.getKey());
@@ -179,18 +162,12 @@ public class SelectActionTest {
 
   @Test
   public void fail_when_not_quality_gates_admin() throws Exception {
-    ComponentDto project = insertProject();
-    QualityGateDto gate = insertQualityGate();
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn("login").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     callByKey(gateId, project.getKey());
-  }
-
-  private ComponentDto insertProject() {
-    return componentDb.insertProject(db.organizations().insert());
   }
 
   private QualityGateDto insertQualityGate() {

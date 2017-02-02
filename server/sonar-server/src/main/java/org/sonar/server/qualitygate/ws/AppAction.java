@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
 
@@ -41,10 +42,12 @@ public class AppAction implements QualityGatesWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AppAction(UserSession userSession, DbClient dbClient) {
+  public AppAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -60,7 +63,7 @@ public class AppAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     writeProtobuf(AppWsResponse.newBuilder()
-      .setEdit(userSession.hasPermission(QUALITY_GATE_ADMIN))
+      .setEdit(userSession.hasOrganizationPermission(defaultOrganizationProvider.get().getUuid(), QUALITY_GATE_ADMIN))
       .addAllMetrics(loadMetrics()
         .stream()
         .map(AppAction::toMetric)
