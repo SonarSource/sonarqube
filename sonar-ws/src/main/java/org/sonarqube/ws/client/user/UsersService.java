@@ -20,6 +20,7 @@
 
 package org.sonarqube.ws.client.user;
 
+import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
@@ -33,19 +34,20 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
 
-public class UserService extends BaseService {
+public class UsersService extends BaseService {
 
-  public UserService(WsConnector wsConnector) {
+  public UsersService(WsConnector wsConnector) {
     super(wsConnector, CONTROLLER_USERS);
   }
 
-  public void create(CreateRequest request) {
-    call(new PostRequest(path(ACTION_CREATE))
+  public CreateWsResponse create(CreateRequest request) {
+    return call(new PostRequest(path(ACTION_CREATE))
       .setParam(PARAM_LOGIN, request.getLogin())
       .setParam(PARAM_PASSWORD, request.getPassword())
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_EMAIL, request.getEmail())
-      .setParam(PARAM_SCM_ACCOUNT, request.getScmAccounts()));
+      .setParam(PARAM_SCM_ACCOUNT, request.getScmAccounts()),
+      CreateWsResponse.parser());
   }
 
   public void update(UpdateRequest request) {

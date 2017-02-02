@@ -19,23 +19,23 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
+import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
 
-import static java.lang.String.format;
+import static com.google.common.base.Strings.emptyToNull;
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
@@ -46,23 +46,21 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNTS_
 
 public class CreateAction implements UsersWsAction {
 
-  private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
 
-  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter) {
-    this.dbClient = dbClient;
+  public CreateAction(UserUpdater userUpdater, UserSession userSession) {
     this.userUpdater = userUpdater;
     this.userSession = userSession;
-    this.userWriter = userWriter;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("create")
-      .setDescription("Create a user. If a deactivated user account exists with the given login, it will be reactivated. " +
-        "Requires Administer System permission")
+    WebService.NewAction action = controller.createAction(ACTION_CREATE)
+      .setDescription("Create a user.<br/>" +
+        "If a deactivated user account exists with the given login, it will be reactivated.<br/>" +
+        "Requires Administer System permission<br/>" +
+        "Since 6.3, the 'infos' message is no more returned when a user is reactivated")
       .setSince("3.7")
       .setPost(true)
       .setHandler(this);
@@ -100,51 +98,29 @@ public class CreateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-    doHandle(toWsRequest(request), response);
+    writeProtobuf(doHandle(toWsRequest(request)), request, response);
   }
 
-  private void doHandle(CreateRequest request, Response response) {
+  private CreateWsResponse doHandle(CreateRequest request) {
     NewUser newUser = NewUser.create()
       .setLogin(request.getLogin())
       .setName(request.getName())
       .setEmail(request.getEmail())
       .setScmAccounts(request.getScmAccounts())
       .setPassword(request.getPassword());
-    boolean isUserReactivated = userUpdater.create(newUser);
-    writeResponse(response, request.getLogin(), isUserReactivated);
+    UserDto userDto = userUpdater.create(newUser);
+    return buildResponse(userDto);
   }
 
-  private void writeResponse(Response response, String login, boolean isUserReactivated) {
-    UserDto user = loadUser(login);
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeUser(json, user);
-    if (isUserReactivated) {
-      writeReactivationMessage(json, login);
-    }
-    json.endObject().close();
-  }
-
-  private void writeUser(JsonWriter json, UserDto user) {
-    json.name("user");
-    userWriter.write(json, user, ImmutableSet.of(), UserJsonWriter.FIELDS);
-  }
-
-  private static void writeReactivationMessage(JsonWriter json, String login) {
-    json.name("infos").beginArray();
-    json.beginObject();
-    String text = format("The user '%s' has been reactivated", login);
-    json.prop("msg", text);
-    json.endObject();
-    json.endArray();
-  }
-
-  private UserDto loadUser(String login) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return dbClient.userDao().selectOrFailByLogin(dbSession, login);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+  private static CreateWsResponse buildResponse(UserDto userDto) {
+    CreateWsResponse.User.Builder userBuilder = CreateWsResponse.User.newBuilder()
+      .setLogin(userDto.getLogin())
+      .setName(userDto.getName())
+      .setActive(userDto.isActive())
+      .setLocal(userDto.isLocal())
+      .addAllScmAccounts(userDto.getScmAccountsAsList());
+    setNullable(emptyToNull(userDto.getEmail()), userBuilder::setEmail);
+    return CreateWsResponse.newBuilder().setUser(userBuilder).build();
   }
 
   private static CreateRequest toWsRequest(Request request) {

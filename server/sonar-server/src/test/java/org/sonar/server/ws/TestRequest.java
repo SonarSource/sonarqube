@@ -79,7 +79,7 @@ public class TestRequest extends ValidatingRequest {
 
   @Override
   public boolean hasParam(String key) {
-    return params.containsKey(key);
+    return params.containsKey(key) || multiParams.containsKey(key);
   }
 
   @Override

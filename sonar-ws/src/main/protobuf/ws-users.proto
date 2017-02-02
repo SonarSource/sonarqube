@@ -35,3 +35,16 @@ message IdentityProvider {
   optional string iconPath = 3;
   optional string backgroundColor = 4;
 }
+
+message CreateWsResponse {
+  optional User user = 1;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string email = 3;
+    repeated string scmAccounts = 4;
+    optional bool active = 5;
+    optional bool local = 6;
+  }
+}

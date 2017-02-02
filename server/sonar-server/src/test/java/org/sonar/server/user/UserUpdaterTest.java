@@ -92,14 +92,13 @@ public class UserUpdaterTest {
   public void create_user() {
     createDefaultGroup();
 
-    boolean result = underTest.create(NewUser.create()
+    UserDto dto = underTest.create(NewUser.create()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1")));
 
-    UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
@@ -112,8 +111,8 @@ public class UserUpdaterTest {
     assertThat(dto.getCryptedPassword()).isNotNull();
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735482L);
-    assertThat(result).isFalse();
 
+    assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSource())
@@ -136,22 +135,6 @@ public class UserUpdaterTest {
     assertThat(dto.getExternalIdentity()).isEqualTo("user");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
     assertThat(dto.isLocal()).isTrue();
-  }
-
-  @Test
-  public void create_user_with_authority() {
-    createDefaultGroup();
-
-    underTest.create(NewUser.create()
-      .setLogin("ABCD")
-      .setName("User")
-      .setPassword("password")
-      .setExternalIdentity(new ExternalIdentity("github", "user")));
-
-    UserDto dto = dbClient.userDao().selectByLogin(session, "ABCD");
-    assertThat(dto.getExternalIdentity()).isEqualTo("user");
-    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(dto.isLocal()).isFalse();
   }
 
   @Test
@@ -446,14 +429,13 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    boolean result = underTest.create(NewUser.create()
+    UserDto dto = underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2"));
     session.commit();
 
-    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo("Marius2");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -465,7 +447,7 @@ public class UserUpdaterTest {
     assertThat(dto.getCreatedAt()).isEqualTo(PAST);
     assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
 
-    assertThat(result).isTrue();
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).isActive()).isTrue();
   }
 
   @Test
@@ -474,13 +456,12 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    boolean result = underTest.create(NewUser.create()
+    UserDto dto = underTest.create(NewUser.create()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com"));
     session.commit();
 
-    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo("Marius2");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -490,8 +471,6 @@ public class UserUpdaterTest {
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
-
-    assertThat(result).isTrue();
   }
 
   @Test
