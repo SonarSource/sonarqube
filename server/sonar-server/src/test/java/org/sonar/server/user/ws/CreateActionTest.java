@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -37,7 +38,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
@@ -46,10 +46,17 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.client.user.CreateRequest;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class CreateActionTest {
@@ -67,35 +74,33 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsTester tester;
-  private UserIndex index;
-  private UserIndexer userIndexer;
-  private I18n i18n = mock(I18n.class);
+  private UserIndex index = new UserIndex(esTester.client());
+  private UserIndexer userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
+
+  private WsActionTester tester = new WsActionTester(
+    new CreateAction(new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db)), userSessionRule));
 
   @Before
   public void setUp() {
     defaultGroupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME);
-    userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
-    index = new UserIndex(esTester.client());
-    DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-    tester = new WsTester(new UsersWs(
-      new CreateAction(db.getDbClient(),
-        new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, defaultOrganizationProvider),
-        userSessionRule, new UserJsonWriter(userSessionRule))));
   }
 
   @Test
   public void create_user() throws Exception {
     authenticateAsAdmin();
 
-    tester.newPostRequest("api/users", "create")
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("email", "john@email.com")
-      .setParam("scmAccount", "jn")
-      .setParam("password", "1234").execute()
-      .assertJson(getClass(), "create_user.json");
+    CreateWsResponse response = call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("jn"))
+      .setPassword("1234")
+      .build());
+
+    assertThat(response.getUser())
+      .extracting(User::getLogin, User::getName, User::getEmail, User::getScmAccountsList, User::getLocal)
+      .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
 
     UserDoc user = index.getNullableByLogin("john");
     assertThat(user.login()).isEqualTo("john");
@@ -115,47 +120,43 @@ public class CreateActionTest {
   public void create_user_with_comma_in_scm_account() throws Exception {
     authenticateAsAdmin();
 
-    tester.newPostRequest("api/users", "create")
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("email", "john@email.com")
-      .setParam("scmAccount", "j,n")
-      .setParam("password", "1234").execute();
+    CreateWsResponse response = call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("j,n"))
+      .setPassword("1234")
+      .build());
 
-    UserDoc user = index.getNullableByLogin("john");
-    assertThat(user.scmAccounts()).containsOnly("j,n");
+    assertThat(response.getUser().getScmAccountsList()).containsOnly("j,n");
   }
 
   @Test
   public void create_user_with_deprecated_scmAccounts_parameter() throws Exception {
     authenticateAsAdmin();
 
-    tester.newPostRequest("api/users", "create")
+    tester.newRequest()
       .setParam("login", "john")
       .setParam("name", "John")
-      .setParam("email", "john@email.com")
+      .setParam("password", "1234")
       .setParam("scmAccounts", "jn")
-      .setParam("password", "1234").execute()
-      .assertJson(getClass(), "create_user.json");
+      .execute();
 
-    UserDoc user = index.getNullableByLogin("john");
-    assertThat(user.scmAccounts()).containsOnly("jn");
+    assertThat(db.users().selectUserByLogin("john").get().getScmAccountsAsList()).containsOnly("jn");
   }
 
   @Test
   public void create_user_with_deprecated_scm_accounts_parameter() throws Exception {
     authenticateAsAdmin();
 
-    tester.newPostRequest("api/users", "create")
+    tester.newRequest()
       .setParam("login", "john")
       .setParam("name", "John")
-      .setParam("email", "john@email.com")
+      .setParam("password", "1234")
       .setParam("scm_accounts", "jn")
-      .setParam("password", "1234").execute()
-      .assertJson(getClass(), "create_user.json");
+      .execute();
 
-    UserDoc user = index.getNullableByLogin("john");
-    assertThat(user.scmAccounts()).containsOnly("jn");
+    assertThat(db.users().selectUserByLogin("john").get().getScmAccountsAsList()).containsOnly("jn");
   }
 
   @Test
@@ -167,15 +168,15 @@ public class CreateActionTest {
     db.commit();
     userIndexer.index();
 
-    tester.newPostRequest("api/users", "create")
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("email", "john@email.com")
-      .setParam("scm_accounts", "jn")
-      .setParam("password", "1234").execute()
-      .assertJson(getClass(), "reactivate_user.json");
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("jn"))
+      .setPassword("1234")
+      .build());
 
-    assertThat(index.getNullableByLogin("john").active()).isTrue();
+    assertThat(db.users().selectUserByLogin("john").get().isActive()).isTrue();
   }
 
   @Test
@@ -232,29 +233,40 @@ public class CreateActionTest {
     settings.setProperty("sonar.defaultGroup", adminGroup.getName());
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_on_missing_permission() throws Exception {
     userSessionRule.logIn("not_admin");
 
-    tester.newPostRequest("api/users", "create")
-      .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("email", "john@email.com")
-      .setParam("scm_accounts", "jn")
-      .setParam("password", "1234").execute();
+    expectedException.expect(ForbiddenException.class);
+    executeRequest("john");
+  }
+
+  private CreateWsResponse executeRequest(String login) throws Exception {
+    return call(CreateRequest.builder()
+      .setLogin(login)
+      .setName("name of " + login)
+      .setEmail(login + "@email.com")
+      .setScmAccounts(singletonList(login.substring(0, 2)))
+      .setPassword("pwd_" + login)
+      .build());
   }
 
   private void authenticateAsAdmin() {
     userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private void executeRequest(String login) throws Exception {
-    tester.newPostRequest("api/users", "create")
-      .setParam("login", login)
-      .setParam("name", "name of " + login)
-      .setParam("email", login + "@email.com")
-      .setParam("scm_accounts", login.substring(0, 2))
-      .setParam("password", "pwd_" + login)
-      .execute();
+  private CreateWsResponse call(CreateRequest createRequest) {
+    TestRequest request = tester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF);
+    setNullable(createRequest.getLogin(), e -> request.setParam("login", e));
+    setNullable(createRequest.getName(), e -> request.setParam("name", e));
+    setNullable(createRequest.getEmail(), e -> request.setParam("email", e));
+    setNullable(createRequest.getPassword(), e -> request.setParam("password", e));
+    setNullable(createRequest.getScmAccounts(), e -> request.setMultiParam("scmAccount", e));
+    try {
+      return CreateWsResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 }

@@ -22,10 +22,12 @@ package org.sonarqube.ws.client.user;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
@@ -33,12 +35,12 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SCM_ACCOUNT;
 
-public class UserServiceTest {
+public class UsersServiceTest {
 
   @Rule
-  public ServiceTester<UserService> serviceTester = new ServiceTester<>(new UserService(mock(WsConnector.class)));
+  public ServiceTester<UsersService> serviceTester = new ServiceTester<>(new UsersService(mock(WsConnector.class)));
 
-  private UserService underTest = serviceTester.getInstanceUnderTest();
+  private UsersService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
   public void create() {
@@ -50,6 +52,7 @@ public class UserServiceTest {
       .setScmAccounts(asList("jo", "hn"))
       .build());
 
+    assertThat(serviceTester.getPostParser()).isSameAs(CreateWsResponse.parser());
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasParam(PARAM_LOGIN, "john")
       .hasParam(PARAM_PASSWORD, "123456")

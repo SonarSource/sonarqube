@@ -48,6 +48,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.user.UserDto.encryptPassword;
@@ -84,59 +85,32 @@ public class UserUpdater {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  /**
-   * Return true if the user has been reactivated
-   */
-  public boolean create(NewUser newUser) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      CreatedUser createdUser = create(dbSession, newUser);
+  public UserDto create(NewUser newUser) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto createdUser = create(dbSession, newUser);
       dbClient.userDao().updateRootFlagFromPermissions(dbSession, createdUser.getId(), defaultOrganizationProvider.get().getUuid());
       dbSession.commit();
-      return createdUser.isReactivated();
-    } finally {
-      dbClient.closeSession(dbSession);
+      return createdUser;
     }
   }
 
-  public CreatedUser create(DbSession dbSession, NewUser newUser) {
-    boolean isUserReactivated = false;
+  public UserDto create(DbSession dbSession, NewUser newUser) {
     String login = newUser.login();
     UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
     if (userDto == null) {
       userDto = saveUser(dbSession, createNewUserDto(dbSession, newUser));
-      addDefaultGroup(dbSession, userDto);
     } else {
-      isUserReactivated = reactivateUser(dbSession, userDto, login, newUser);
+      reactivateUser(dbSession, userDto, login, newUser);
     }
+    addDefaultGroup(dbSession, userDto);
     dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
     userIndexer.index();
-    return new CreatedUser(userDto.getId(), isUserReactivated);
+    return userDto;
   }
 
-  private static final class CreatedUser {
-    private final long id;
-    private final boolean reactivated;
-
-    private CreatedUser(long id, boolean reactivated) {
-      this.id = id;
-      this.reactivated = reactivated;
-    }
-
-    public long getId() {
-      return id;
-    }
-
-    public boolean isReactivated() {
-      return reactivated;
-    }
-  }
-
-  private boolean reactivateUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
-    if (existingUser.isActive()) {
-      throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
-    }
+  private void reactivateUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
+    checkArgument(!existingUser.isActive(), "An active user with login '%s' already exists", login);
     UpdateUser updateUser = UpdateUser.create(login)
       .setName(newUser.name())
       .setEmail(newUser.email())
@@ -151,8 +125,6 @@ public class UserUpdater {
     existingUser.setLocal(true);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
-    addDefaultGroup(dbSession, existingUser);
-    return true;
   }
 
   public void update(UpdateUser updateUser) {
