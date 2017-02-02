@@ -34,7 +34,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDbTester;
@@ -51,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.entry;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.PropertyType.LICENSE;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
 public class ListActionTest {
@@ -72,16 +70,16 @@ public class ListActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  PropertyDbTester propertyDb = new PropertyDbTester(db);
-  PropertyDefinitions definitions = new PropertyDefinitions();
-  SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
+  private DbClient dbClient = db.getDbClient();
+  private PropertyDbTester propertyDb = new PropertyDbTester(db);
+  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
 
-  WsActionTester ws = new WsActionTester(new ListAction(userSession, definitions, dbClient, settingsFinder));
+  private WsActionTester ws = new WsActionTester(new ListAction(userSession, definitions, dbClient, settingsFinder));
 
   @Test
   public void return_licenses() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings("12345");
     String data = createBase64License("SonarSource", "governance", "12345", "2099-01-01", "PRODUCTION", ImmutableMap.of("other", "value"));
     addLicenseSetting("sonar.governance.license.secured", "Governance", data);
@@ -107,7 +105,7 @@ public class ListActionTest {
 
   @Test
   public void return_licenses_even_if_no_value_set_in_database() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings("12345");
     definitions.addComponent(PropertyDefinition.builder("sonar.governance.license.secured").type(LICENSE).build());
 
@@ -131,7 +129,7 @@ public class ListActionTest {
 
   @Test
   public void return_information_when_no_licence_set() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, null, toBase64(""));
 
@@ -156,7 +154,7 @@ public class ListActionTest {
 
   @Test
   public void return_license_with_bad_product() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, "Other", SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
@@ -173,7 +171,7 @@ public class ListActionTest {
 
   @Test
   public void return_license_with_bad_server_id() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "Other", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
@@ -190,7 +188,7 @@ public class ListActionTest {
 
   @Test
   public void return_bad_server_id_when_server_has_no_server_id() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
@@ -203,7 +201,7 @@ public class ListActionTest {
 
   @Test
   public void does_not_return_invalid_server_id_when_all_servers_accepted_and_no_server_id_setting() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
 
@@ -217,7 +215,7 @@ public class ListActionTest {
 
   @Test
   public void return_license_when_all_servers_are_accepted() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, "*", EXPIRATION_SAMPLE, TYPE_SAMPLE, Collections.emptyMap()));
@@ -232,7 +230,7 @@ public class ListActionTest {
 
   @Test
   public void return_license_when_expired() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     addServerIdSettings(SERVER_ID_SAMPLE);
     addLicenseSetting(LICENSE_KEY_SAMPLE, LICENSE_NAME_SAMPLE,
       createBase64License(ORGANIZATION_SAMPLE, PRODUCT_SAMPLE, SERVER_ID_SAMPLE, "2010-01-01", TYPE_SAMPLE, Collections.emptyMap()));
@@ -249,7 +247,7 @@ public class ListActionTest {
 
   @Test
   public void none_license_type_settings_are_not_returned() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsRoot();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("foo").setValue("value"));
 
@@ -259,9 +257,8 @@ public class ListActionTest {
   }
 
   @Test
-  public void fail_when_not_system_admin() throws Exception {
-    userSession.logIn("not-admin").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-    definitions.addComponent(PropertyDefinition.builder("foo").build());
+  public void throw_ForbiddenException_if_not_root() throws Exception {
+    userSession.logIn().setNonRoot();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -288,8 +285,8 @@ public class ListActionTest {
     }
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 
   private void addLicenseSetting(String key, @Nullable String name, String value) {

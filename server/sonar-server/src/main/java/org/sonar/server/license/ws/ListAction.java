@@ -48,7 +48,6 @@ import org.sonarqube.ws.Licenses.ListWsResponse;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.PropertyType.LICENSE;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.stream.Collectors.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.license.LicensesWsParameters.ACTION_LIST;
@@ -82,13 +81,10 @@ public class ListAction implements WsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
 
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       writeProtobuf(doHandle(dbSession), request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 

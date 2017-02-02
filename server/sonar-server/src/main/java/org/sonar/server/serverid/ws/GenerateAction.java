@@ -79,7 +79,7 @@ public class GenerateAction implements ServerIdWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
 
     DbSession dbSession = dbClient.openSession(true);
     try {
