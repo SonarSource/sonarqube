@@ -38,16 +38,17 @@ import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.user.CreateRequest;
 import util.user.UserRule;
+import util.user.Users;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
@@ -164,7 +165,6 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(users);
     // Then
     verifyAuthenticationIsOk(login, password);
-
 
     // When external system does not work
     users.remove(login + ".password");
@@ -319,10 +319,31 @@ public class RealmAuthenticationTest {
     updateUsersInExtAuth(ImmutableMap.of(username + ".password", password));
 
     verifyAuthenticationIsOk(username, password);
-    ;
   }
 
-  protected void verifyHttpException(Exception e, int expectedCode) {
+  @Test
+  public void provision_user_before_authentication() {
+    newAdminWsClient(orchestrator).users().create(CreateRequest.builder()
+      .setLogin(USER_LOGIN)
+      .setName("Tester Testerovich")
+      .setEmail("tester@example.org")
+      .setLocal(false)
+      .build());
+    // The user is created in SonarQube but doesn't exist yet in external authentication system
+    verifyAuthenticationIsNotOk(USER_LOGIN, "123");
+
+    updateUsersInExtAuth(ImmutableMap.of(
+      USER_LOGIN + ".password", "123",
+      USER_LOGIN + ".name", "Tester Testerovich",
+      USER_LOGIN + ".email", "tester@example.org"));
+
+    verifyAuthenticationIsOk(USER_LOGIN, "123");
+    assertThat(USER_RULE.getUserByLogin(USER_LOGIN).get())
+      .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
+      .containsOnly(false, USER_LOGIN, "sonarqube");
+  }
+
+  private void verifyHttpException(Exception e, int expectedCode) {
     assertThat(e).isInstanceOf(HttpException.class);
     HttpException exception = (HttpException) e;
     assertThat(exception.status()).isEqualTo(expectedCode);
@@ -377,9 +398,8 @@ public class RealmAuthenticationTest {
   }
 
   private WsResponse checkAuthenticationWithWebService(String login, String password) {
-    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).credentials(login, password).build());
     // Call any WS
-    return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
+    return newUserWsClient(orchestrator, login, password).wsConnector().call(new GetRequest("api/rules/search"));
   }
 
 }

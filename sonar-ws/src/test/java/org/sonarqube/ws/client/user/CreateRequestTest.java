@@ -49,6 +49,30 @@ public class CreateRequestTest {
     assertThat(result.getName()).isEqualTo("John");
     assertThat(result.getEmail()).isEqualTo("john@doo.com");
     assertThat(result.getScmAccounts()).containsOnly("jo", "hn");
+    assertThat(result.isLocal()).isTrue();
+  }
+
+  @Test
+  public void create_request_for_local_user() {
+    CreateRequest result = underTest
+      .setLogin("john")
+      .setPassword("123456")
+      .setName("John")
+      .setLocal(true)
+      .build();
+
+    assertThat(result.isLocal()).isTrue();
+  }
+
+  @Test
+  public void create_request_for_none_local_user() {
+    CreateRequest result = underTest
+      .setLogin("john")
+      .setName("John")
+      .setLocal(false)
+      .build();
+
+    assertThat(result.isLocal()).isFalse();
   }
 
   @Test
@@ -74,7 +98,7 @@ public class CreateRequestTest {
   }
 
   @Test
-  public void fail_when_empty_password() {
+  public void fail_when_empty_password_on_local_user() {
     expectedException.expect(IllegalArgumentException.class);
     underTest
       .setLogin("john")
@@ -90,6 +114,17 @@ public class CreateRequestTest {
       .setLogin("john")
       .setPassword("12345")
       .setName("")
+      .build();
+  }
+
+  @Test
+  public void fail_when_password_is_set_on_none_local_user() {
+    expectedException.expect(IllegalArgumentException.class);
+    underTest
+      .setLogin("john")
+      .setPassword("12345")
+      .setName("12345")
+      .setLocal(false)
       .build();
   }
 

@@ -22,6 +22,9 @@ package org.sonar.server.user;
 import static java.util.Objects.requireNonNull;
 
 public class ExternalIdentity {
+
+  public static final String SQ_AUTHORITY = "sonarqube";
+
   private String provider;
   private String id;
 

@@ -34,6 +34,7 @@ public class UsersWsParameters {
   public static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
   public static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
   public static final String PARAM_SCM_ACCOUNT = "scmAccount";
+  public static final String PARAM_LOCAL = "local";
 
   private UsersWsParameters() {
     // Only static stuff

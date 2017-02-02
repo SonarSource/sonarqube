@@ -47,7 +47,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
+import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
 

@@ -43,15 +43,20 @@ public class Users {
     private final String login;
     private final String name;
     private final String email;
+    private final String externalIdentity;
+    private final String externalProvider;
     private final List<String> groups;
     private final List<String> scmAccounts;
     private final boolean active;
     private final boolean local;
     private int tokensCount;
 
-    private User(String login, String name, String email, List<String> groups, List<String> scmAccounts, boolean active, boolean local, int tokensCount) {
+    private User(String login, String name, String email, String externalIdentity, String externalProvider, List<String> groups, List<String> scmAccounts,
+                 boolean active, boolean local, int tokensCount) {
       this.login = login;
       this.name = name;
+      this.externalIdentity = externalIdentity;
+      this.externalProvider = externalProvider;
       this.email = email;
       this.groups = groups;
       this.scmAccounts = scmAccounts;
@@ -91,7 +96,13 @@ public class Users {
     public int getTokensCount() {
       return tokensCount;
     }
+
+    public String getExternalIdentity() {
+      return externalIdentity;
+    }
+
+    public String getExternalProvider() {
+      return externalProvider;
+    }
   }
 }
-
-

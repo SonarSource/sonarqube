@@ -48,7 +48,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.user.UserUpdater.SQ_AUTHORITY;
+import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class SsoAuthenticator implements Startable {
 

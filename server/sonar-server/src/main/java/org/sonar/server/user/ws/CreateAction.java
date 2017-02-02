@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -34,9 +35,11 @@ import org.sonarqube.ws.client.user.CreateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
+import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOCAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_PASSWORD;
@@ -60,6 +63,7 @@ public class CreateAction implements UsersWsAction {
       .setDescription("Create a user.<br/>" +
         "If a deactivated user account exists with the given login, it will be reactivated.<br/>" +
         "Requires Administer System permission<br/>" +
+        "Since 6.3, the password is only mandatory when creating local users, and should not be set on non local users<br/>" +
         "Since 6.3, the 'infos' message is no more returned when a user is reactivated")
       .setSince("3.7")
       .setPost(true)
@@ -71,8 +75,7 @@ public class CreateAction implements UsersWsAction {
       .setExampleValue("myuser");
 
     action.createParam(PARAM_PASSWORD)
-      .setDescription("User password")
-      .setRequired(true)
+      .setDescription("User password. Only mandatory when creating local user, otherwise it should not be set")
       .setExampleValue("mypassword");
 
     action.createParam(PARAM_NAME)
@@ -93,6 +96,13 @@ public class CreateAction implements UsersWsAction {
     action.createParam(PARAM_SCM_ACCOUNT)
       .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
       .setExampleValue("scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue");
+
+    action.createParam(PARAM_LOCAL)
+      .setDescription("Specify if the user should be authenticated from SonarQube server or from an external authentication system. " +
+        "Password should not be set when local is set to false.")
+      .setSince("6.3")
+      .setDefaultValue("true")
+      .setBooleanPossibleValues();
   }
 
   @Override
@@ -108,6 +118,9 @@ public class CreateAction implements UsersWsAction {
       .setEmail(request.getEmail())
       .setScmAccounts(request.getScmAccounts())
       .setPassword(request.getPassword());
+    if (!request.isLocal()) {
+      newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, request.getLogin()));
+    }
     UserDto userDto = userUpdater.create(newUser.build());
     return buildResponse(userDto);
   }
@@ -126,10 +139,11 @@ public class CreateAction implements UsersWsAction {
   private static CreateRequest toWsRequest(Request request) {
     return CreateRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
-      .setPassword(request.mandatoryParam(PARAM_PASSWORD))
+      .setPassword(request.param(PARAM_PASSWORD))
       .setName(request.param(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
       .setScmAccounts(getScmAccounts(request))
+      .setLocal(request.mandatoryParamAsBoolean(PARAM_LOCAL))
       .build();
   }
 
