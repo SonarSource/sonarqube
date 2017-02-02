@@ -40,23 +40,19 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class GenerateSecretKeyActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot();
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  Settings settings = new MapSettings();
-  Encryption encryption = settings.getEncryption();
-
-  GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
-
-  WsActionTester ws = new WsActionTester(underTest);
+  private Settings settings = new MapSettings();
+  private Encryption encryption = settings.getEncryption();
+  private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void generate_valid_secret_key() throws IOException {
@@ -83,13 +79,15 @@ public class GenerateSecretKeyActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_permissions() {
-    expectedException.expect(ForbiddenException.class);
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.login();
 
-    userSession.anonymous().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     call();
   }
+
 
   private GenerateSecretKeyWsResponse call() {
     TestRequest request = ws.newRequest()

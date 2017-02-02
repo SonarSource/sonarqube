@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -73,8 +72,8 @@ public class SetActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone()
-    .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone().login().setRoot();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private PropertyDbTester propertyDb = new PropertyDbTester(db);
@@ -136,7 +135,7 @@ public class SetActionTest {
   @Test
   public void persist_project_property_with_project_admin_permission() {
     ComponentDto project = db.components().insertProject();
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     callForProjectSettingByKey("my.key", "my value", project.key());
 
@@ -423,9 +422,11 @@ public class SetActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_privileges() {
-    userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public void throw_ForbiddenException_if_not_root() {
+    userSession.login();
+
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     callForGlobalSetting("my.key", "my value");
   }

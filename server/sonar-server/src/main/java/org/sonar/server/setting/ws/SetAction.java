@@ -45,7 +45,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -130,13 +129,9 @@ public class SetAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       doHandle(dbSession, toWsRequest(request));
-    } finally {
-      dbClient.closeSession(dbSession);
     }
-
     response.noContent();
   }
 
@@ -273,7 +268,7 @@ public class SetAction implements SettingsWsAction {
     if (component.isPresent()) {
       userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkIsRoot();
     }
   }
 

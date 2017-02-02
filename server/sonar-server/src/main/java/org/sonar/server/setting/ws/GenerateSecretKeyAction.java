@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GenerateSecretKeyAction implements SettingsWsAction {
@@ -52,7 +51,7 @@ public class GenerateSecretKeyAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkIsRoot();
 
     writeProtobuf(GenerateSecretKeyWsResponse.newBuilder().setSecretKey(settings.getEncryption().generateRandomSecretKey()).build(), request, response);
   }
