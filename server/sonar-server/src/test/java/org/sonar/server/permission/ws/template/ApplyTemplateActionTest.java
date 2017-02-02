@@ -76,13 +76,13 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     group2 = db.users().insertGroup();
 
     // template 1
-    template1 = insertTemplate();
+    template1 = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
     addUserToTemplate(user1, template1, UserRole.CODEVIEWER);
     addUserToTemplate(user2, template1, UserRole.ISSUE_ADMIN);
     addGroupToTemplate(group1, template1, UserRole.ADMIN);
     addGroupToTemplate(group2, template1, UserRole.USER);
     // template 2
-    template2 = insertTemplate();
+    template2 = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
     addUserToTemplate(user1, template2, UserRole.USER);
     addUserToTemplate(user2, template2, UserRole.USER);
     addGroupToTemplate(group1, template2, UserRole.USER);
@@ -97,7 +97,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(template1.getUuid(), project.uuid(), null);
 
@@ -106,7 +106,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid_by_template_name() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
@@ -118,7 +118,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_key() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(template1.getUuid(), null, project.key());
 
@@ -127,7 +127,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_template() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
@@ -137,7 +137,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_uuid() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project id 'unknown-project-uuid' not found");
@@ -147,7 +147,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_key() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project key 'unknown-project-key' not found");
@@ -157,7 +157,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_template_is_not_provided() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -166,7 +166,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_project_uuid_and_key_not_provided() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");

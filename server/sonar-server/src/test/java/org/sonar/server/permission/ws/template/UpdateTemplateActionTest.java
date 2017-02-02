@@ -68,7 +68,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void update_all_permission_template_fields() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     String result = call(template.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
@@ -86,7 +86,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void update_with_the_same_values() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     call(template.getUuid(), template.getName(), template.getDescription(), template.getKeyPattern());
 
@@ -98,7 +98,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void update_name_only() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     call(template.getUuid(), "Finance", null, null);
 
@@ -110,7 +110,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_key_is_not_found() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
@@ -120,7 +120,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_another_template() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
     expectedException.expect(BadRequestException.class);
@@ -131,7 +131,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_key_is_not_provided() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -140,7 +140,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_empty() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
@@ -150,7 +150,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_has_just_whitespaces() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
@@ -160,7 +160,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_regexp_if_not_valid() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
@@ -170,7 +170,7 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
 
     String nameCaseInsensitive = anotherTemplate.getName().toUpperCase();

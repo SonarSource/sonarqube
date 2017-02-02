@@ -51,9 +51,9 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   @Before
   public void setUp() {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     when(system.now()).thenReturn(2_000_000_000L);
-    template = insertTemplate();
+    template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
   }
 
   @Test

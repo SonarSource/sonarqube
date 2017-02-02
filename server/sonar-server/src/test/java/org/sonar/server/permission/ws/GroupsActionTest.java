@@ -73,7 +73,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_for_groups_with_one_permission() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     String json = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
@@ -112,7 +112,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_with_selection() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .execute()
@@ -123,7 +123,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_with_pagination() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(PAGE_SIZE, "1")
@@ -138,7 +138,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_with_query() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(TEXT_QUERY, "group-")
@@ -185,7 +185,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     GroupDto groupWithoutPermission = db.users().insertGroup(organizationDto, "group-without-permission");
     GroupDto anotherGroup = db.users().insertGroup(organizationDto, "another-group");
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
@@ -206,7 +206,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
     GroupDto groupWithoutPermission = db.users().insertGroup(db.getDefaultOrganization(), "group-without-permission");
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -224,7 +224,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "nyo")
@@ -240,7 +240,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "view-uuid")
@@ -279,7 +279,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
     expectedException.expect(BadRequestException.class);
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .setParam(PARAM_PROJECT_ID, "project-uuid")

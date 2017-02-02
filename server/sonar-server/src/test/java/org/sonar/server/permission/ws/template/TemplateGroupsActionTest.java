@@ -69,7 +69,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), null));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     String response = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -95,7 +95,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     OrganizationDto otherOrganization = db.organizations().insert();
     db.users().insertGroup(otherOrganization, groupName);
 
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
         .setMediaType(PROTOBUF)
@@ -127,7 +127,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -161,7 +161,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -191,7 +191,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, anotherTemplate.getId(), group1.getId()));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -212,7 +212,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group2.getId()));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -236,7 +236,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3");
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -257,7 +257,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     db.users().insertGroup(defaultOrg, "group-2-name");
     db.users().insertGroup(defaultOrg, "group-3-name");
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -279,7 +279,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group.getId()));
     commit();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     InputStream output = newRequest()
       .setMediaType(PROTOBUF)
@@ -322,7 +322,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void fail_if_template_uuid_and_name_provided() throws Exception {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -335,7 +335,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_uuid_nor_name_provided() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -346,7 +346,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_is_not_found() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
 
@@ -358,7 +358,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);

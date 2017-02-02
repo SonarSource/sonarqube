@@ -68,7 +68,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void remove_permission_from_user() throws Exception {
     db.users().insertPermissionOnUser(user, PROVISIONING);
     db.users().insertPermissionOnUser(user, QUALITY_GATE_ADMIN);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -82,7 +82,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void fail_to_remove_admin_permission_if_last_admin() throws Exception {
     db.users().insertPermissionOnUser(user, CODEVIEWER);
     db.users().insertPermissionOnUser(user, ADMIN);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
@@ -98,7 +98,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -114,7 +114,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -130,7 +130,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setKey("view-key"));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, view);
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, view);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -143,7 +143,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_project_does_not_exist() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
 
@@ -156,7 +156,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_project_permission_without_permission() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -169,7 +169,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   @Test
   public void fail_when_component_is_not_a_project() throws Exception {
     db.components().insertComponent(newFileDto(newProjectDto(db.organizations().insert()), null, "file-uuid"));
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -182,7 +182,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_get_request() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(ServerException.class);
 
@@ -195,7 +195,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_user_login_is_missing() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -206,7 +206,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_permission_is_missing() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -218,7 +218,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert(), A_PROJECT_UUID).setKey(A_PROJECT_KEY));
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
@@ -235,7 +235,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void sets_root_flag_to_false_when_removing_user_admin_permission_of_default_organization_without_org_parameter() throws Exception {
     UserDto lastAdminUser = db.users().insertRootByUserPermission();
     UserDto adminUser = db.users().insertRootByUserPermission();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     executeRequest(adminUser, SYSTEM_ADMIN);
 
@@ -246,7 +246,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void sets_root_flag_to_false_when_removing_user_admin_permission_of_default_organization_with_org_parameter() throws Exception {
     UserDto lastAdminUser = db.users().insertRootByUserPermission();
     UserDto adminUser = db.users().insertRootByUserPermission();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     executeRequest(adminUser, db.getDefaultOrganization(), SYSTEM_ADMIN);
 

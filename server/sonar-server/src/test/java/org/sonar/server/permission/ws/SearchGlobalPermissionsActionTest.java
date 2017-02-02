@@ -114,7 +114,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
 
   @Test
   public void supports_protobuf_response() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
       newRequest()
@@ -138,7 +138,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
   @Test
   public void fail_if_not_admin_of_specified_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
 

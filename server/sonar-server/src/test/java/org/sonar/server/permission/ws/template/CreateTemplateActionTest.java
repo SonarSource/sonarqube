@@ -49,7 +49,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void create_full_permission_template() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     TestResponse result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
@@ -67,7 +67,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void create_minimalist_permission_template() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest("Finance", null, null);
 
@@ -82,7 +82,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_not_provided() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -91,7 +91,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_empty() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
@@ -101,7 +101,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_regexp_if_not_valid() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
@@ -111,8 +111,8 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Test
   public void fail_if_name_already_exists_in_database_case_insensitive() throws Exception {
-    loginAsAdminOnDefaultOrganization();
-    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin(db.getDefaultOrganization());
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("A template with the name '" + template.getName() + "' already exists (case insensitive).");

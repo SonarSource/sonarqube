@@ -132,7 +132,7 @@ public class DeleteTemplateActionTest {
         newRequestByName(underTest, null, template);
         fail("NotFoundException should have been raised");
       } catch (NotFoundException e) {
-        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive)");
+        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + db.getDefaultOrganization().getKey() + "'");
       }
     });
   }
@@ -152,7 +152,7 @@ public class DeleteTemplateActionTest {
         newRequestByName(underTest, otherOrganization, template);
         fail("NotFoundException should have been raised");
       } catch (NotFoundException e) {
-        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive)");
+        assertThat(e).hasMessage("Permission template with name '" + template.getName() + "' is not found (case insensitive) in organization with key '" + otherOrganization.getKey() + "'");
       }
     });
   }

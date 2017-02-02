@@ -54,12 +54,12 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   @Before
   public void setUp() {
     user = db.users().insertUser("user-login");
-    permissionTemplate = insertTemplate();
+    permissionTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
   }
 
   @Test
   public void add_user_to_template() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), CODEVIEWER);
 
@@ -68,7 +68,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void add_user_to_template_by_name() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
@@ -81,7 +81,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void does_not_add_a_user_twice() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
@@ -91,7 +91,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -109,7 +109,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_user_missing() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -118,7 +118,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_permission_missing() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -127,7 +127,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_uuid_and_name_are_missing() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
 
@@ -136,7 +136,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_user_does_not_exist() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
@@ -146,7 +146,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
 
   @Test
   public void fail_if_template_key_does_not_exist() throws Exception {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");

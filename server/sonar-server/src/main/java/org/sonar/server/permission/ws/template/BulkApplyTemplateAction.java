@@ -109,13 +109,14 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+
       ComponentQuery componentQuery = ComponentQuery.builder()
         .setNameOrKeyQuery(request.getQuery())
         .setQualifiers(qualifiers(request.getQualifier()))
         .build();
-      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, 0, Integer.MAX_VALUE);
 
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
       permissionTemplateService.apply(dbSession, template, projects);
     }
   }

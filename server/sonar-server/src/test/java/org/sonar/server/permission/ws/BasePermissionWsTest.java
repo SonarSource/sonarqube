@@ -29,7 +29,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -85,18 +84,6 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected TestRequest newRequest() {
     return wsTester.newRequest().setMethod("POST");
-  }
-
-  protected PermissionTemplateDto insertTemplate() {
-    PermissionTemplateDto dto = PermissionTemplateTesting.newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid());
-    dto = db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
-    db.commit();
-    return dto;
-  }
-
-  protected void loginAsAdminOnDefaultOrganization() {
-    loginAsAdmin(db.getDefaultOrganization());
   }
 
   protected void loginAsAdmin(OrganizationDto org, OrganizationDto... otherOrgs) {
