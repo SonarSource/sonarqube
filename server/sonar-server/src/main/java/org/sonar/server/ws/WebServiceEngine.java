@@ -130,7 +130,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
     return controller == null ? null : controller.action(actionKey);
   }
 
-  private void sendErrors(Response response, int status, Errors errors) {
+  private static void sendErrors(Response response, int status, Errors errors) {
     Response.Stream stream = response.stream();
     if (stream instanceof ServletResponse.ServletStream) {
       ((ServletResponse.ServletStream) stream).reset();
@@ -144,7 +144,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
       json.endObject();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.
-      Throwables.propagate(e);
+      throw Throwables.propagate(e);
     }
   }
 
