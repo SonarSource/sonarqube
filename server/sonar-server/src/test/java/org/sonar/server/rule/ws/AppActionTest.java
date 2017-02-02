@@ -22,8 +22,6 @@ package org.sonar.server.rule.ws;
 import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -32,6 +30,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -45,27 +45,27 @@ import static org.mockito.Mockito.when;
 public class AppActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private Languages languages = mock(Languages.class);
-
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private I18n i18n = mock(I18n.class);
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, dbTester.getDbClient(), i18n, userSessionRule);
+    AppAction app = new AppAction(languages, db.getDbClient(), i18n, userSessionRule, defaultOrganizationProvider);
     WsTester tester = new WsTester(new RulesWs(app));
 
-    userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
-    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile1);
-    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile2);
-    dbTester.commit();
+    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
+    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
+    db.commit();
 
     Language xoo = mock(Language.class);
     when(xoo.getKey()).thenReturn("xoo");
@@ -78,15 +78,11 @@ public class AppActionTest {
 
     RuleRepositoryDto repo1 = new RuleRepositoryDto("xoo", "xoo", "SonarQube");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("squid", "ws", "SonarQube");
-    dbTester.getDbClient().ruleRepositoryDao().insert(dbTester.getSession(), asList(repo1, repo2));
-    dbTester.getSession().commit();
+    db.getDbClient().ruleRepositoryDao().insert(db.getSession(), asList(repo1, repo2));
+    db.getSession().commit();
 
-    when(i18n.message(isA(Locale.class), anyString(), anyString())).thenAnswer(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return (String) invocation.getArguments()[1];
-      }
-    });
+    when(i18n.message(isA(Locale.class), anyString(), anyString())).thenAnswer(
+      invocation -> invocation.getArguments()[1]);
 
     tester.newGetRequest("api/rules", "app").execute().assertJson(this.getClass(), "app.json");
   }

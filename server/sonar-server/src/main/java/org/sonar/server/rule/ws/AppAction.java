@@ -28,27 +28,29 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
-/**
- * @since 4.4
- */
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+
 public class AppAction implements RulesWsAction {
 
   private final Languages languages;
   private final DbClient dbClient;
   private final I18n i18n;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession) {
+  public AppAction(Languages languages, DbClient dbClient, I18n i18n, UserSession userSession,
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -76,7 +78,8 @@ public class AppAction implements RulesWsAction {
   }
 
   private void addPermissions(JsonWriter json) {
-    json.prop("canWrite", userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    boolean canWrite = userSession.hasOrganizationPermission(defaultOrganizationProvider.get().getUuid(), QUALITY_PROFILE_ADMIN);
+    json.prop("canWrite", canWrite);
   }
 
   private void addProfiles(JsonWriter json, DbSession dbSession) {
