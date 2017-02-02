@@ -120,7 +120,7 @@ public class BackendCleanup {
     clearIndex(ComponentIndexDefinition.INDEX_COMPONENTS);
   }
 
-  private void truncateAnalysisTables(Connection connection) throws SQLException {
+  private static void truncateAnalysisTables(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement()) {
       // Clear inspection tables
       for (String table : ANALYSIS_TABLES) {

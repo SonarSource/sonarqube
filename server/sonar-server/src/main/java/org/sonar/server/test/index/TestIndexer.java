@@ -55,7 +55,6 @@ public class TestIndexer extends BaseIndexer implements ProjectIndexer {
     switch (cause) {
       case PROJECT_CREATION:
         // no need to index, not tests at that time
-        break;
       case PROJECT_KEY_UPDATE:
         // no need to index, project key is not used
         break;

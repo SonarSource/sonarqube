@@ -76,7 +76,6 @@ public class IssueIndexer extends BaseIndexer implements ProjectIndexer, NeedAut
     switch (cause) {
       case PROJECT_CREATION:
         // nothing to do, issues do not exist at project creation
-        break;
       case PROJECT_KEY_UPDATE:
         // nothing to do, project key is not used in this index
         break;
