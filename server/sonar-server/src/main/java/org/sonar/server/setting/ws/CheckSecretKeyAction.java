@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CheckSecretKeyAction implements SettingsWsAction {
@@ -52,7 +51,7 @@ public class CheckSecretKeyAction implements SettingsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
 
     writeProtobuf(CheckSecretKeyWsResponse.newBuilder().setSecretKeyAvailable(settings.getEncryption().hasSecretKey()).build(), request, response);
   }
