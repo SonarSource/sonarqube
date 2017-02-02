@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.server.es.EsTester;
@@ -58,7 +57,7 @@ public class ChangePasswordActionTest {
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), new MapSettings(), db.getDbClient(),
     new UserIndexer(System2.INSTANCE, db.getDbClient(), esTester.client()), System2.INSTANCE, TestDefaultOrganizationProvider.from(db));
@@ -83,7 +82,10 @@ public class ChangePasswordActionTest {
 
   @Test
   public void fail_on_unknown_user() throws Exception {
+    userSessionRule.logIn().setRoot();
+
     expectedException.expect(NotFoundException.class);
+
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "polop")
       .setParam("password", "polop")
@@ -91,7 +93,8 @@ public class ChangePasswordActionTest {
   }
 
   @Test
-  public void update_password() throws Exception {
+  public void root_can_update_password_of_user() throws Exception {
+    userSessionRule.logIn().setRoot();
     createUser();
     String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
 
@@ -106,7 +109,7 @@ public class ChangePasswordActionTest {
   }
 
   @Test
-  public void update_password_on_self() throws Exception {
+  public void a_user_can_update_his_password() throws Exception {
     createUser();
     String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
 
@@ -149,6 +152,8 @@ public class ChangePasswordActionTest {
 
   @Test
   public void fail_to_update_password_on_external_auth() throws Exception {
+    userSessionRule.logIn().setRoot();
+
     userUpdater.create(NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")

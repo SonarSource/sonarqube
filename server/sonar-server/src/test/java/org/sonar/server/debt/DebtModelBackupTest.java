@@ -97,7 +97,7 @@ public class DebtModelBackupTest {
 
   @Before
   public void setUp() {
-    userSessionRule.login().setRoot();
+    userSessionRule.logIn().setRoot();
 
     when(system2.now()).thenReturn(now.getTime());
 

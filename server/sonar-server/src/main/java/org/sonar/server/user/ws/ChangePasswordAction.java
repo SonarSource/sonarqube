@@ -85,7 +85,7 @@ public class ChangePasswordAction implements UsersWsAction {
         String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
         checkCurrentPassword(dbSession, login, previousPassword);
       } else {
-        userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+        userSession.checkIsRoot();
       }
 
       String password = request.mandatoryParam(PARAM_PASSWORD);

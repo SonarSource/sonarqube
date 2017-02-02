@@ -98,7 +98,7 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_fails_with_organizationKey_does_not_match_organization_of_specified_component() {
-    userSession.login().setRoot();
+    userSession.logIn().setRoot();
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertProject(organization);
     mockSuccessfulPrepareSubmitCall();
@@ -109,7 +109,7 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_existing_project() {
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
-    userSession.login().addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     mockSuccessfulPrepareSubmitCall();
 

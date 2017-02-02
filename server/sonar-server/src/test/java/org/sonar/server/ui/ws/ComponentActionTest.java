@@ -309,7 +309,7 @@ public class ComponentActionTest {
   public void return_configuration_for_quality_profile_admin() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSessionRule.login()
+    userSessionRule.logIn()
       .addProjectUuidPermissions(UserRole.USER, project.uuid())
       .addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
 
