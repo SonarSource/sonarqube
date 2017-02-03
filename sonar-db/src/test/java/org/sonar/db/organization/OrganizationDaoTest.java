@@ -39,6 +39,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singleton;
@@ -68,6 +70,8 @@ public class OrganizationDaoTest {
     .setDescription("the description 2")
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2");
+  public static final String PERMISSION_1 = "foo";
+  public static final String PERMISSION_2 = "bar";
 
   private System2 system2 = mock(System2.class);
 
@@ -375,7 +379,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
     insertOrganization(ORGANIZATION_DTO_2);
 
-    OrganizationQuery organizationQuery = newQueryWithKeys("foo", "bar", "dog");
+    OrganizationQuery organizationQuery = newQueryWithKeys(PERMISSION_1, PERMISSION_2, "dog");
     assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
       .isEmpty();
   }
@@ -385,7 +389,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
     insertOrganization(ORGANIZATION_DTO_2);
 
-    OrganizationQuery organizationQuery = newQueryWithKeys(ORGANIZATION_DTO_1.getKey(), "foo", ORGANIZATION_DTO_2.getKey(), "bar", "dog");
+    OrganizationQuery organizationQuery = newQueryWithKeys(ORGANIZATION_DTO_1.getKey(), PERMISSION_1, ORGANIZATION_DTO_2.getKey(), PERMISSION_2, "dog");
     assertThat(underTest.selectByQuery(dbSession, organizationQuery, 0, 10))
       .hasSize(2)
       .extracting(OrganizationDto::getUuid)
@@ -460,22 +464,22 @@ public class OrganizationDaoTest {
   @Test
   public void getDefaultTemplates_returns_data_when_project_default_templates_column_is_not_null() {
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid("foo"));
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid(PERMISSION_1));
 
-    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, "foo", null);
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, null);
   }
 
   @Test
   public void getDefaultTemplates_returns_data_when_project_and_view_default_template_column_are_not_null() {
     insertOrganization(ORGANIZATION_DTO_1);
-    setDefaultTemplate(ORGANIZATION_DTO_1, "foo", "bar");
+    setDefaultTemplate(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2);
 
-    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, "foo", "bar");
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2);
   }
 
   @Test
   public void getDefaultTemplates_returns_empty_when_only_view_default_template_column_is_not_null() {
-    dirtyInsertWithDefaultTemplate("uuid1", null, "bar");
+    dirtyInsertWithDefaultTemplate("uuid1", null, PERMISSION_2);
 
     assertThat(underTest.getDefaultTemplates(dbSession, "uuid1"))
       .isEmpty();
@@ -492,7 +496,7 @@ public class OrganizationDaoTest {
   @Test
   public void getDefaultTemplates_is_case_sensitive() {
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar"));
+    underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid(PERMISSION_1).setViewUuid(PERMISSION_2));
 
     assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid().toUpperCase(Locale.ENGLISH)))
       .isEmpty();
@@ -527,7 +531,7 @@ public class OrganizationDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("defaultTemplates.project can't be null");
 
-    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setViewUuid("foo"));
+    underTest.setDefaultTemplates(dbSession, "uuid", new DefaultTemplates().setViewUuid(PERMISSION_1));
   }
 
   @Test
@@ -682,6 +686,134 @@ public class OrganizationDaoTest {
 
     assertThat(underTest.selectByKey(dbSession, ORGANIZATION_DTO_1.getKey())).isEmpty();
     assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(0);
+  }
+
+  @Test
+  public void selectByPermission_returns_organization_when_user_has_ADMIN_user_permission_on_some_organization() {
+    UserDto user = dbTester.users().insertUser();
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization1, user, PERMISSION_2);
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization2, user, PERMISSION_2);
+    UserDto otherUser = dbTester.users().insertUser();
+    OrganizationDto organization3 = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization3, otherUser, PERMISSION_2);
+
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization1.getUuid(), organization2.getUuid());
+
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization3.getUuid());
+
+    assertThat(underTest.selectByPermission(dbSession, 1234, PERMISSION_2))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByPermission_returns_organization_when_user_has_ADMIN_group_permission_on_some_organization() {
+    UserDto user = dbTester.users().insertUser();
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    GroupDto defaultGroup = dbTester.users().insertGroup(organization1);
+    dbTester.users().insertPermissionOnGroup(defaultGroup, PERMISSION_1);
+    dbTester.users().insertMember(defaultGroup, user);
+    OrganizationDto organization2 = dbTester.organizations().insert();
+    GroupDto group1 = dbTester.users().insertGroup(organization2);
+    dbTester.users().insertPermissionOnGroup(group1, PERMISSION_1);
+    dbTester.users().insertMember(group1, user);
+    UserDto otherUser = dbTester.users().insertUser();
+    OrganizationDto organization3 = dbTester.organizations().insert();
+    GroupDto group2 = dbTester.users().insertGroup(organization3);
+    dbTester.users().insertPermissionOnGroup(group2, PERMISSION_1);
+    dbTester.users().insertMember(group2, otherUser);
+
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization1.getUuid(), organization2.getUuid());
+
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnly(organization3.getUuid());
+
+    assertThat(underTest.selectByPermission(dbSession, 1234, PERMISSION_1))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectByPermission_return_organization_only_once_even_if_user_has_ADMIN_permission_twice_or_more() {
+    String permission = "destroy";
+    UserDto user = dbTester.users().insertUser();
+    OrganizationDto organization = dbTester.organizations().insert();
+    GroupDto group1 = dbTester.users().insertGroup(organization);
+    dbTester.users().insertPermissionOnGroup(group1, permission);
+    dbTester.users().insertMember(group1, user);
+    GroupDto group2 = dbTester.users().insertGroup(organization);
+    dbTester.users().insertPermissionOnGroup(group2, permission);
+    dbTester.users().insertMember(group2, user);
+    dbTester.users().insertPermissionOnUser(organization, user, permission);
+
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), permission))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(organization.getUuid());
+  }
+
+  @Test
+  public void selectByPermission_returns_organization_only_if_user_has_specific_permission_by_user_permission() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto otherOrganization = dbTester.organizations().insert();
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertPermissionOnUser(organization, user, PERMISSION_1);
+    dbTester.users().insertPermissionOnUser(otherOrganization, user, PERMISSION_2);
+    UserDto otherUser = dbTester.users().insertUser();
+    dbTester.users().insertPermissionOnUser(organization, otherUser, PERMISSION_2);
+    dbTester.users().insertPermissionOnUser(otherOrganization, otherUser, PERMISSION_1);
+
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(organization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(otherOrganization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(otherOrganization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(organization.getUuid());
+  }
+
+  @Test
+  public void selectByPermission_returns_organization_only_if_user_has_specific_permission_by_group_permission() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto otherOrganization = dbTester.organizations().insert();
+    GroupDto group1 = dbTester.users().insertGroup(organization);
+    GroupDto group2 = dbTester.users().insertGroup(organization);
+    GroupDto otherGroup1 = dbTester.users().insertGroup(otherOrganization);
+    GroupDto otherGroup2 = dbTester.users().insertGroup(otherOrganization);
+    dbTester.users().insertPermissionOnGroup(group1, PERMISSION_1);
+    dbTester.users().insertPermissionOnGroup(otherGroup2, PERMISSION_2);
+    dbTester.users().insertPermissionOnGroup(group2, PERMISSION_2);
+    dbTester.users().insertPermissionOnGroup(otherGroup1, PERMISSION_1);
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertMember(group1, user);
+    dbTester.users().insertMember(otherGroup2, user);
+    UserDto otherUser = dbTester.users().insertUser();
+    dbTester.users().insertMember(group2, otherUser);
+    dbTester.users().insertMember(otherGroup1, otherUser);
+
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(organization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, user.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(otherOrganization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_1))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(otherOrganization.getUuid());
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getId().intValue(), PERMISSION_2))
+      .extracting(OrganizationDto::getUuid)
+      .containsOnlyOnce(organization.getUuid());
   }
 
   private void expectDtoCanNotBeNull() {

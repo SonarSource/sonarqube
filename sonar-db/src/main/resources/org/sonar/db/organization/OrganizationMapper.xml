@@ -99,6 +99,28 @@
     </where>
   </sql>
 
+  <select id="selectByPermission" parameterType="map" resultType="Organization">
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    inner join user_roles u on
+      u.organization_uuid = org.uuid
+      and u.user_id = #{userId,jdbcType=INTEGER}
+      and u.resource_id is null
+      and u.role = #{permission,jdbcType=VARCHAR}
+    union
+    select
+      <include refid="selectColumns"/>
+    from organizations org
+    inner join group_roles g on
+      g.organization_uuid = org.uuid
+      and g.resource_id is null
+      and g.role = #{permission,jdbcType=VARCHAR}
+    inner join groups_users gu on
+      gu.group_id = g.group_id
+      and gu.user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
   <insert id="insert" parameterType="Organization" useGeneratedKeys="false">
     insert into organizations
     (

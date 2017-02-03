@@ -68,6 +68,10 @@ public class OrganizationDao implements Dao {
     return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
   }
 
+  public List<OrganizationDto> selectByPermission(DbSession dbSession, Integer userId, String permission) {
+    return getMapper(dbSession).selectByPermission(userId, permission);
+  }
+
   /**
    * Retrieve the default template of the specified organization if:
    * <ol>
