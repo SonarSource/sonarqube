@@ -20,6 +20,9 @@
 import numeral from 'numeral';
 import { translate, translateWithParameters } from './l10n';
 
+
+const HOURS_IN_DAY = 8;
+
 /**
  * Format a measure value for a given type
  * @param {string|number} value
@@ -285,15 +288,11 @@ function formatDurationShort (isNegative, days, hours, minutes) {
   return translateWithParameters('work_duration.x_minutes', formattedMinutes);
 }
 
-function getHoursInDay () {
-  return 8;
-}
-
 function durationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = getHoursInDay();
+  const hoursInDay = HOURS_IN_DAY;
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = Math.floor(absValue / hoursInDay / 60);
@@ -308,7 +307,7 @@ function shortDurationFormatter (value) {
   if (value === 0 || value === '0') {
     return '0';
   }
-  const hoursInDay = getHoursInDay();
+  const hoursInDay = HOURS_IN_DAY;
   const isNegative = value < 0;
   const absValue = Math.abs(value);
   const days = absValue / hoursInDay / 60;
