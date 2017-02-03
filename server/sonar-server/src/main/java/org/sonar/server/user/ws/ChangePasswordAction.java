@@ -23,9 +23,15 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.user.UserDto.encryptPassword;
 
 public class ChangePasswordAction implements UsersWsAction {
 
@@ -33,10 +39,12 @@ public class ChangePasswordAction implements UsersWsAction {
   private static final String PARAM_PASSWORD = "password";
   private static final String PARAM_PREVIOUS_PASSWORD = "previousPassword";
 
+  private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
 
-  public ChangePasswordAction(UserUpdater userUpdater, UserSession userSession) {
+  public ChangePasswordAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession) {
+    this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
   }
@@ -71,18 +79,26 @@ public class ChangePasswordAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String login = request.mandatoryParam(PARAM_LOGIN);
-    if (login.equals(userSession.getLogin())) {
-      String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
-      userUpdater.checkCurrentPassword(login, previousPassword);
-    } else {
-      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String login = request.mandatoryParam(PARAM_LOGIN);
+      if (login.equals(userSession.getLogin())) {
+        String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
+        checkCurrentPassword(dbSession, login, previousPassword);
+      } else {
+        userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+      }
+
+      String password = request.mandatoryParam(PARAM_PASSWORD);
+      UpdateUser updateUser = UpdateUser.create(login).setPassword(password);
+
+      userUpdater.update(dbSession, updateUser);
     }
-
-    String password = request.mandatoryParam(PARAM_PASSWORD);
-    UpdateUser updateUser = UpdateUser.create(login).setPassword(password);
-
-    userUpdater.update(updateUser);
     response.noContent();
+  }
+
+  private void checkCurrentPassword(DbSession dbSession, String login, String password) {
+    UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, login);
+    String cryptedPassword = encryptPassword(password, user.getSalt());
+    checkArgument(cryptedPassword.equals(user.getCryptedPassword()), "Incorrect password");
   }
 }

@@ -19,32 +19,24 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupTesting;
-import org.sonar.db.user.UserDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -53,62 +45,45 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ChangePasswordActionTest {
 
-  private System2 system2 = System2.INSTANCE;
-  private Settings settings = new MapSettings();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create();
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-  private WsTester tester;
-  private DbClient dbClient;
-  private UserUpdater userUpdater;
-  private DbSession session;
-  private SecurityRealmFactory realmFactory = mock(SecurityRealmFactory.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), new MapSettings(), db.getDbClient(),
+    new UserIndexer(System2.INSTANCE, db.getDbClient(), esTester.client()), System2.INSTANCE, TestDefaultOrganizationProvider.from(db));
+
+  private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
 
   @Before
   public void setUp() {
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    UserGroupDao userGroupDao = new UserGroupDao();
-    GroupDao groupDao = new GroupDao(system2);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
-    session = dbClient.openSession(false);
-    groupDao.insert(session, GroupTesting.newGroupDto().setName("sonar-users"));
-    session.commit();
-
-    UserIndexer userIndexer = new UserIndexer(system2, dbClient, esTester.client());
-    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider);
-    tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));
+    db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-users"));
   }
 
-  @After
-  public void tearDown() {
-    session.close();
-  }
-
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_on_missing_permission() throws Exception {
     createUser();
-
     userSessionRule.logIn("polop");
+
+    expectedException.expect(ForbiddenException.class);
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .execute();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void fail_on_unknown_user() throws Exception {
+    expectedException.expect(NotFoundException.class);
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "polop")
       .setParam("password", "polop")
@@ -118,8 +93,7 @@ public class ChangePasswordActionTest {
   @Test
   public void update_password() throws Exception {
     createUser();
-    session.clearCache();
-    String originalPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
+    String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
 
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
@@ -127,16 +101,14 @@ public class ChangePasswordActionTest {
       .execute()
       .assertNoContent();
 
-    session.clearCache();
-    String newPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
+    String newPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 
   @Test
   public void update_password_on_self() throws Exception {
     createUser();
-    session.clearCache();
-    String originalPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
+    String originalPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
 
     userSessionRule.logIn("john");
     tester.newPostRequest("api/users", "change_password")
@@ -146,29 +118,28 @@ public class ChangePasswordActionTest {
       .execute()
       .assertNoContent();
 
-    session.clearCache();
-    String newPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
+    String newPassword = db.getDbClient().userDao().selectOrFailByLogin(db.getSession(), "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_to_update_password_on_self_without_old_password() throws Exception {
     createUser();
-    session.clearCache();
-
     userSessionRule.logIn("john");
+
+    expectedException.expect(IllegalArgumentException.class);
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_to_update_password_on_self_with_bad_old_password() throws Exception {
     createUser();
-    session.clearCache();
-
     userSessionRule.logIn("john");
+
+    expectedException.expect(IllegalArgumentException.class);
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("previousPassword", "I dunno")
@@ -176,7 +147,7 @@ public class ChangePasswordActionTest {
       .execute();
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void fail_to_update_password_on_external_auth() throws Exception {
     userUpdater.create(NewUser.builder()
       .setEmail("john@email.com")
@@ -185,9 +156,8 @@ public class ChangePasswordActionTest {
       .setScmAccounts(newArrayList("jn"))
       .setExternalIdentity(new ExternalIdentity("gihhub", "john"))
       .build());
-    session.clearCache();
-    when(realmFactory.hasExternalAuthentication()).thenReturn(true);
 
+    expectedException.expect(BadRequestException.class);
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")

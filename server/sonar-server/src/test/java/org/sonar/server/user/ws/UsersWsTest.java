@@ -44,7 +44,7 @@ public class UsersWsTest {
       new CreateAction(mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(org.sonar.db.DbClient.class)),
-      new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
+      new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));
     controller = tester.controller("api/users");
   }

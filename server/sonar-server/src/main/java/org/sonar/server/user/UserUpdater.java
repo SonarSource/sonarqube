@@ -42,7 +42,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexer;
@@ -52,6 +51,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.user.UserDto.encryptPassword;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 @ServerSide
 public class UserUpdater {
@@ -127,38 +127,14 @@ public class UserUpdater {
     updateUser(dbSession, existingUser);
   }
 
-  public void update(UpdateUser updateUser) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      update(dbSession, updateUser);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-  }
-
   public void update(DbSession dbSession, UpdateUser updateUser) {
     UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
-    if (user == null) {
-      throw new NotFoundException(String.format("User with login '%s' has not been found", updateUser.login()));
-    }
+    checkFound(user, "User with login '%s' has not been found", updateUser.login());
     updateUserDto(dbSession, updateUser, user);
     updateUser(dbSession, user);
     dbSession.commit();
     notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
     userIndexer.index();
-  }
-
-  public void checkCurrentPassword(String login, String password) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, login);
-      String cryptedPassword = encryptPassword(password, user.getSalt());
-      if (!cryptedPassword.equals(user.getCryptedPassword())) {
-        throw new IllegalArgumentException("Incorrect password");
-      }
-    } finally {
-      dbSession.close();
-    }
   }
 
   private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {

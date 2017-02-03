@@ -31,15 +31,14 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.client.user.UpdateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
@@ -100,11 +99,13 @@ public class UpdateAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     UpdateRequest updateRequest = toWsRequest(request);
-    doHandle(toWsRequest(request));
-    writeResponse(response, updateRequest.getLogin());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      doHandle(dbSession, toWsRequest(request));
+      writeUser(dbSession, response, updateRequest.getLogin());
+    }
   }
 
-  private void doHandle(UpdateRequest request) {
+  private void doHandle(DbSession dbSession, UpdateRequest request) {
     String login = request.getLogin();
     UpdateUser updateUser = UpdateUser.create(login);
     if (request.getName() != null) {
@@ -116,29 +117,17 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.update(updateUser);
+    userUpdater.update(dbSession, updateUser);
   }
 
-  private void writeResponse(Response response, String login) {
+  private void writeUser(DbSession dbSession, Response response, String login) {
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeUser(json, login);
-    json.endObject().close();
-  }
-
-  private void writeUser(JsonWriter json, String login) {
     json.name("user");
     Set<String> groups = Sets.newHashSet();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      if (user == null) {
-        throw new NotFoundException(format("User '%s' doesn't exist", login));
-      }
-      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-      userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
+    groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+    userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+    json.endObject().close();
   }
 
   private static UpdateRequest toWsRequest(Request request) {

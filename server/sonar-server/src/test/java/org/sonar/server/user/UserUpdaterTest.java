@@ -594,7 +594,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -629,7 +629,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
@@ -650,7 +650,7 @@ public class UserUpdaterTest {
       .setUpdatedAt(PAST));
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
@@ -673,7 +673,7 @@ public class UserUpdaterTest {
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -706,7 +706,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -723,7 +723,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2"));
     session.commit();
     session.clearCache();
@@ -743,7 +743,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius2@mail.com"));
     session.commit();
     session.clearCache();
@@ -763,7 +763,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
     session.clearCache();
@@ -783,7 +783,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(newArrayList("ma", "marius33")));
     session.commit();
     session.clearCache();
@@ -797,7 +797,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setScmAccounts(null));
     session.commit();
     session.clearCache();
@@ -811,7 +811,7 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setPassword("password2"));
     session.commit();
     session.clearCache();
@@ -833,7 +833,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Password can't be empty");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN).setPassword(null));
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setPassword(null));
   }
 
   @Test
@@ -847,7 +847,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Password cannot be changed when external authentication is used");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN).setPassword("password2"));
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setPassword("password2"));
   }
 
   @Test
@@ -856,7 +856,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     // Existing user, he has no group, and should not be associated to the default one
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -877,7 +877,7 @@ public class UserUpdaterTest {
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals("sonar-users"))).isTrue();
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -896,7 +896,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
@@ -910,7 +910,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList(DEFAULT_LOGIN)));
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList(DEFAULT_LOGIN)));
   }
 
   @Test
@@ -920,7 +920,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList("marius@lesbronzes.fr")));
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList("marius@lesbronzes.fr")));
   }
 
   @Test
@@ -930,7 +930,7 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(UpdateUser.create(DEFAULT_LOGIN)
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius@newmail.com")
       .setScmAccounts(newArrayList("marius@newmail.com")));
   }
