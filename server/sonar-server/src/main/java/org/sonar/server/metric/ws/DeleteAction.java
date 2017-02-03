@@ -82,10 +82,10 @@ public class DeleteAction implements MetricsWsAction {
     List<String> idsAsStrings = request.paramAsStrings(PARAM_IDS);
     List<String> keys = request.paramAsStrings(PARAM_KEYS);
     checkArgument(idsAsStrings != null || keys != null, "Ids or keys must be provided.");
-    List<Integer> ids = null;
+    List<Integer> ids;
     if (idsAsStrings != null) {
       ids = Lists.transform(idsAsStrings, Integer::valueOf);
-    } else if (keys != null) {
+    } else {
       ids = Lists.transform(dbClient.metricDao().selectByKeys(dbSession, keys), MetricDto::getId);
     }
 
