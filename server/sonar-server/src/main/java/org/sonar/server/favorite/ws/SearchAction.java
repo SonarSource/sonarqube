@@ -91,12 +91,10 @@ public class SearchAction implements FavoritesWsAction {
   private SearchResults search(SearchRequest request) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return Stream.of(request)
-        .map(SearchResults.builder(dbSession))
-        .peek(this::addAuthorizedProjectUuids)
-        .peek(this::addFavorites)
-        .map(SearchResults.Builder::build)
-        .collect(Collectors.toOneElement());
+      SearchResults.Builder builder = SearchResults.newBuilder(request);
+      addAuthorizedProjectUuids(dbSession, builder);
+      addFavorites(builder);
+      return builder.build();
     }
   }
 
@@ -104,9 +102,9 @@ public class SearchAction implements FavoritesWsAction {
     builder.allFavorites = favoriteFinder.list();
   }
 
-  private void addAuthorizedProjectUuids(SearchResults.Builder results) {
+  private void addAuthorizedProjectUuids(DbSession dbSession, SearchResults.Builder results) {
     results.authorizedProjectUuids = ImmutableSet
-      .copyOf(dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(results.dbSession, userSession.getUserId(), UserRole.USER));
+      .copyOf(dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, userSession.getUserId(), UserRole.USER));
   }
 
   private static class SearchResults {
@@ -124,19 +122,17 @@ public class SearchAction implements FavoritesWsAction {
         .collect(Collectors.toList());
     }
 
-    static Function<SearchRequest, Builder> builder(DbSession dbSession) {
-      return request -> new Builder(dbSession, request);
+    static Builder newBuilder(SearchRequest request) {
+      return new Builder(request);
     }
 
     private static class Builder {
-      private final DbSession dbSession;
       private final int page;
       private final int pageSize;
       private Set<String> authorizedProjectUuids;
       private List<ComponentDto> allFavorites;
 
-      private Builder(DbSession dbSession, SearchRequest request) {
-        this.dbSession = dbSession;
+      private Builder(SearchRequest request) {
         this.page = request.getPage();
         this.pageSize = request.getPageSize();
       }
