@@ -87,7 +87,7 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   private String urlOfPage(int page) {
-    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=" + page
+    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=" + page
       + "&ps=500";
   }
 
@@ -95,7 +95,7 @@ public class DefaultActiveRulesLoaderTest {
    * Generates an imaginary protobuf result.
    *
    * @param numberOfRules the number of rules, that the response should contain
-   * @param total TODO
+   * @param total the number of results on all pages
    * @return the binary stream
    */
   private InputStream responseOfSize(int numberOfRules, int total) {
@@ -111,6 +111,7 @@ public class DefaultActiveRulesLoaderTest {
         rules.addRules(ruleBuilder);
 
         Active.Builder activeBuilder = Active.newBuilder();
+        activeBuilder.setCreatedAt("2014-05-27T15:50:45+0100");
         if (EXAMPLE_KEY.equals(key)) {
           activeBuilder.addParams(Rules.Active.Param.newBuilder().setKey(FORMAT_KEY).setValue(FORMAT_VALUE));
           activeBuilder.setSeverity(SEVERITY_VALUE);

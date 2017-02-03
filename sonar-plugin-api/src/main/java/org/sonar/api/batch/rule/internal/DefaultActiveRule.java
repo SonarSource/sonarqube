@@ -20,12 +20,10 @@
 package org.sonar.api.batch.rule.internal;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
 
 @Immutable
 public class DefaultActiveRule implements ActiveRule {
@@ -35,6 +33,7 @@ public class DefaultActiveRule implements ActiveRule {
   private final String language;
   private final String templateRuleKey;
   private final Map<String, String> params;
+  private final long createdAt;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
@@ -43,6 +42,7 @@ public class DefaultActiveRule implements ActiveRule {
     this.ruleKey = newActiveRule.ruleKey;
     this.params = ImmutableMap.copyOf(newActiveRule.params);
     this.language = newActiveRule.language;
+    this.createdAt = newActiveRule.createdAt;
   }
 
   @Override
@@ -79,5 +79,10 @@ public class DefaultActiveRule implements ActiveRule {
   @Override
   public String templateRuleKey() {
     return templateRuleKey;
+  }
+
+  @Override
+  public long createdAt() {
+    return createdAt;
   }
 }

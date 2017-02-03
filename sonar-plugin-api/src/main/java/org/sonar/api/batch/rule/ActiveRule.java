@@ -19,11 +19,9 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleKey;
 
 /**
  * Configuration of a rule activated on a Quality profile
@@ -55,6 +53,8 @@ public interface ActiveRule {
    * Immutable parameter values. Returns an empty map if no parameters are defined.
    */
   Map<String, String> params();
+
+  long createdAt();
 
   /**
    * Optional key declared and used by the underlying rule engine. As an example

@@ -37,8 +37,11 @@ import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
 
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
+
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
+  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt&activation=true";
 
   private final ScannerWsClient wsClient;
 
@@ -103,6 +106,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
       loadedRule.setName(r.getName());
       loadedRule.setSeverity(active.getSeverity());
+      loadedRule.setCreatedAt(dateToLong(parseDateTime(active.getCreatedAt())));
       loadedRule.setLanguage(r.getLang());
       loadedRule.setInternalKey(r.getInternalKey());
       if (r.hasTemplateKey()) {
