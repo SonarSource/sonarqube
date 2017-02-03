@@ -108,7 +108,7 @@ export default class WebApiApp extends React.Component {
     const showInternal = !this.state.showInternal;
 
     if (domain && domain.internal && !showInternal) {
-      router.push('/');
+      router.push('/web_api');
     }
 
     this.setState({ showInternal });
