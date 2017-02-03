@@ -69,7 +69,7 @@ export default React.createClass({
     }
 
     return (
-        <div className="navbar-right navbar-context-meta">
+        <div className="navbar-context-meta">
           <ul className="list-inline">{metaList}</ul>
         </div>
     );

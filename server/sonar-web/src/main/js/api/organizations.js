@@ -29,11 +29,11 @@ export const getOrganizations = (organizations?: Array<string>) => {
 };
 
 type GetOrganizationType = null | {
-  avatar: null | string,
-  description: null | string,
+  avatar?: string,
+  description?: string,
   key: string,
   name: string,
-  url: null | string
+  url?: string
 };
 
 type GetOrganizationNavigation = {

@@ -22,13 +22,13 @@ import { combineReducers } from 'redux';
 import omit from 'lodash/omit';
 
 export type Organization = {
-  avatar: null | string,
+  avatar?: string,
   canAdmin?: boolean,
-  description: null | string,
+  description?: string,
   isDefault?: boolean,
   key: string,
   name: string,
-  url: null | string
+  url?: string
 };
 
 type ReceiveOrganizationsAction = {

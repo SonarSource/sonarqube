@@ -21,6 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import OrganizationIcon from '../../../components/ui/OrganizationIcon';
 
 const ADMIN_PATHS = [
   'edit',
@@ -34,9 +35,12 @@ export default class OrganizationNavigation extends React.Component {
   props: {
     location: { pathname: string },
     organization: {
+      avatar?: string,
+      description?: string,
       key: string,
       name: string,
-      canAdmin?: boolean
+      canAdmin?: boolean,
+      url?: string
     }
   };
 
@@ -93,10 +97,35 @@ export default class OrganizationNavigation extends React.Component {
           <div className="navbar-context-inner">
             <div className="container">
               <h2 className="navbar-context-title">
+                <span className="navbar-context-title-qualifier little-spacer-right">
+                  <OrganizationIcon/>
+                </span>
                 <Link to={`/organizations/${organization.key}`} className="link-base-color">
                   <strong>{organization.name}</strong>
                 </Link>
               </h2>
+
+              {organization.description != null && (
+                  <div className="navbar-context-description">
+                    <p className="text-limited text-top" title={organization.description}>{organization.description}</p>
+                  </div>
+              )}
+
+
+              <div className="navbar-context-meta">
+                {!!organization.avatar && (
+                    <img src={organization.avatar} height={30} alt={organization.name}/>
+                )}
+                {organization.url != null && (
+                    <div>
+                      <p className="text-limited text-top">
+                        <a className="link-underline" href={organization.url} title={organization.url} rel="nofollow">
+                          {organization.url}
+                        </a>
+                      </p>
+                    </div>
+                )}
+              </div>
 
               <ul className="nav navbar-nav nav-tabs">
                 <li>

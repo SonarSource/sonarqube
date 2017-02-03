@@ -235,11 +235,25 @@
 }
 
 .navbar-context-meta {
+  position: absolute;
+  top: 0;
+  right: 0;
   line-height: @navbarGlobalHeight;
-  padding: 0 10px;
+  padding: 5px 10px 0;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  text-align: right;
+}
+
+.navbar-context-description {
+  float: left;
+  line-height: @formControlHeight;
+  padding-top: 4px;
+  padding-left: 4px;
   color: @secondFontColor;
   font-size: @smallFontSize;
 }
+
 .navbar-context-inner {
   position: fixed;
   z-index: 420;

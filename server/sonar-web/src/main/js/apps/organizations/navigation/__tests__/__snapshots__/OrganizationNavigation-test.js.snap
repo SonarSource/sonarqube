@@ -8,6 +8,10 @@ exports[`test admin 1`] = `
       className="container">
       <h2
         className="navbar-context-title">
+        <span
+          className="navbar-context-title-qualifier little-spacer-right">
+          <OrganizationIcon />
+        </span>
         <Link
           className="link-base-color"
           onlyActiveOnIndex={false}
@@ -18,6 +22,8 @@ exports[`test admin 1`] = `
           </strong>
         </Link>
       </h2>
+      <div
+        className="navbar-context-meta" />
       <ul
         className="nav navbar-nav nav-tabs">
         <li>
@@ -105,6 +111,10 @@ exports[`test regular user 1`] = `
       className="container">
       <h2
         className="navbar-context-title">
+        <span
+          className="navbar-context-title-qualifier little-spacer-right">
+          <OrganizationIcon />
+        </span>
         <Link
           className="link-base-color"
           onlyActiveOnIndex={false}
@@ -115,6 +125,8 @@ exports[`test regular user 1`] = `
           </strong>
         </Link>
       </h2>
+      <div
+        className="navbar-context-meta" />
       <ul
         className="nav navbar-nav nav-tabs">
         <li>
