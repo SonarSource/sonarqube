@@ -827,6 +827,82 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void update_only_external_identity_id() {
+    addUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setExternalIdentity("john")
+      .setExternalIdentityProvider("github")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST));
+    createDefaultGroup();
+
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("github", "john.smith")));
+    session.commit();
+
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
+      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider, UserDto::getUpdatedAt)
+      .containsOnly("john.smith", "github", NOW);
+  }
+
+  @Test
+  public void update_only_external_identity_provider() {
+    addUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setExternalIdentity("john")
+      .setExternalIdentityProvider("github")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST));
+    createDefaultGroup();
+
+    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("bitbucket", "john")));
+    session.commit();
+
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
+      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider, UserDto::getUpdatedAt)
+      .containsOnly("john", "bitbucket", NOW);
+  }
+
+  @Test
+  public void does_not_update_user_when_no_change() {
+    UserDto user = UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setExternalIdentity("john")
+      .setExternalIdentityProvider("github")
+      .setScmAccounts(asList("ma1", "ma2"))
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
+    addUser(user);
+    createDefaultGroup();
+
+    underTest.update(session, UpdateUser.create(user.getLogin())
+      .setName(user.getName())
+      .setEmail(user.getEmail())
+      .setScmAccounts(user.getScmAccountsAsList())
+      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())));
+    session.commit();
+
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(PAST);
+  }
+
+  @Test
+  public void does_not_update_user_when_no_change_and_scm_account_reordered() {
+    UserDto user = UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
+      .setExternalIdentity("john")
+      .setExternalIdentityProvider("github")
+      .setScmAccounts(asList("ma1", "ma2"))
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
+    addUser(user);
+    createDefaultGroup();
+
+    underTest.update(session, UpdateUser.create(user.getLogin())
+      .setName(user.getName())
+      .setEmail(user.getEmail())
+      .setScmAccounts(asList("ma2", "ma1"))
+      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())));
+    session.commit();
+
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(PAST);
+  }
+
+  @Test
   public void fail_to_set_null_password_when_local_user() {
     addUser(UserTesting.newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();

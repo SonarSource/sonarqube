@@ -23,10 +23,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import java.net.HttpURLConnection;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.CoreProperties;
@@ -102,10 +103,7 @@ public class UserUpdater {
     } else {
       reactivateUser(dbSession, userDto, login, newUser);
     }
-    addDefaultGroup(dbSession, userDto);
-    dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
-    userIndexer.index();
     return userDto;
   }
 
@@ -125,16 +123,19 @@ public class UserUpdater {
     existingUser.setLocal(true);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
+    addDefaultGroup(dbSession, existingUser);
+    dbSession.commit();
   }
 
   public void update(DbSession dbSession, UpdateUser updateUser) {
     UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
     checkFound(user, "User with login '%s' has not been found", updateUser.login());
-    updateUserDto(dbSession, updateUser, user);
+    boolean isUserUpdated = updateUserDto(dbSession, updateUser, user);
+    if (!isUserUpdated) {
+      return;
+    }
     updateUser(dbSession, user);
-    dbSession.commit();
     notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
-    userIndexer.index();
   }
 
   private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {
@@ -162,8 +163,7 @@ public class UserUpdater {
     }
 
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
-    if (scmAccounts != null && !scmAccounts.isEmpty()) {
-      validateScmAccounts(dbSession, scmAccounts, login, email, null, messages);
+    if (scmAccounts != null && !scmAccounts.isEmpty() && validateScmAccounts(dbSession, scmAccounts, login, email, null, messages)) {
       userDto.setScmAccounts(scmAccounts);
     }
 
@@ -175,33 +175,63 @@ public class UserUpdater {
     return userDto;
   }
 
-  private void updateUserDto(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
+  private boolean updateUserDto(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
     List<Message> messages = newArrayList();
+    boolean changed = updateName(updateUser, userDto, messages);
+    changed |= updateEmail(updateUser, userDto, messages);
+    changed |= updateExternalIdentity(updateUser, userDto);
+    changed |= updatePassword(updateUser, userDto, messages);
+    changed |= updateScmAccounts(dbSession, updateUser, userDto, messages);
+    if (!messages.isEmpty()) {
+      throw new BadRequestException(messages);
+    }
+    return changed;
+  }
 
+  private static boolean updateName(UpdateUser updateUser, UserDto userDto, List<Message> messages) {
     String name = updateUser.name();
-    if (updateUser.isNameChanged() && validateNameFormat(name, messages)) {
+    if (updateUser.isNameChanged() && validateNameFormat(name, messages) && !Objects.equals(userDto.getName(), name)) {
       userDto.setName(name);
+      return true;
     }
+    return false;
+  }
 
+  private static boolean updateEmail(UpdateUser updateUser, UserDto userDto, List<Message> messages) {
     String email = updateUser.email();
-    if (updateUser.isEmailChanged() && validateEmailFormat(email, messages)) {
+    if (updateUser.isEmailChanged() && validateEmailFormat(email, messages) && !Objects.equals(userDto.getEmail(), email)) {
       userDto.setEmail(email);
+      return true;
     }
+    return false;
+  }
 
-    if (updateUser.isExternalIdentityChanged()) {
-      setExternalIdentity(userDto, updateUser.externalIdentity());
+  private static boolean updateExternalIdentity(UpdateUser updateUser, UserDto userDto) {
+    ExternalIdentity externalIdentity = updateUser.externalIdentity();
+    if (updateUser.isExternalIdentityChanged() && !isSameExternalIdentity(userDto, externalIdentity)) {
+      setExternalIdentity(userDto, externalIdentity);
       userDto.setSalt(null);
       userDto.setCryptedPassword(null);
-    } else {
-      String password = updateUser.password();
-      if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
-        setEncryptedPassWord(password, userDto);
-      }
+      return true;
     }
+    return false;
+  }
 
-    if (updateUser.isScmAccountsChanged()) {
-      List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
-      if (scmAccounts != null && !scmAccounts.isEmpty()) {
+  private static boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<Message> messages) {
+    String password = updateUser.password();
+    if (!updateUser.isExternalIdentityChanged() && updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
+      setEncryptedPassWord(password, userDto);
+      return true;
+    }
+    return false;
+  }
+
+  private boolean updateScmAccounts(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<Message> messages) {
+    String email = updateUser.email();
+    List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
+    List<String> existingScmAccounts = userDto.getScmAccountsAsList();
+    if (updateUser.isScmAccountsChanged() && !(existingScmAccounts.containsAll(scmAccounts) && scmAccounts.containsAll(existingScmAccounts))) {
+      if (!scmAccounts.isEmpty()) {
         String newOrOldEmail = email != null ? email : userDto.getEmail();
         if (validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), newOrOldEmail, userDto, messages)) {
           userDto.setScmAccounts(scmAccounts);
@@ -209,11 +239,16 @@ public class UserUpdater {
       } else {
         userDto.setScmAccounts((String) null);
       }
+      return true;
     }
+    return false;
+  }
 
-    if (!messages.isEmpty()) {
-      throw new BadRequestException(messages);
-    }
+  private static boolean isSameExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
+    return (externalIdentity == null && dto.getExternalIdentity() == null) ||
+      (externalIdentity != null
+        && Objects.equals(dto.getExternalIdentity(), externalIdentity.getId())
+        && Objects.equals(dto.getExternalIdentityProvider(), externalIdentity.getProvider()));
   }
 
   private static void setExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
@@ -311,12 +346,11 @@ public class UserUpdater {
     return isValid;
   }
 
-  @CheckForNull
   private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
       return scmAccounts.stream().filter(s -> !Strings.isNullOrEmpty(s)).collect(Collectors.toList());
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
@@ -324,6 +358,8 @@ public class UserUpdater {
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addDefaultGroup(dbSession, userDto);
+    dbSession.commit();
+    userIndexer.index();
     return res;
   }
 
@@ -331,6 +367,8 @@ public class UserUpdater {
     long now = system2.now();
     userDto.setActive(true).setUpdatedAt(now);
     dbClient.userDao().update(dbSession, userDto);
+    dbSession.commit();
+    userIndexer.index();
   }
 
   private static void setEncryptedPassWord(String password, UserDto userDto) {
@@ -366,9 +404,5 @@ public class UserUpdater {
       }
       dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.get().getId()));
     }
-  }
-
-  public void index() {
-    userIndexer.index();
   }
 }
