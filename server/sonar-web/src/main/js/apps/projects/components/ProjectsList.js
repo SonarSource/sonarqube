@@ -27,7 +27,8 @@ export default class ProjectsList extends React.Component {
   static propTypes = {
     projects: React.PropTypes.arrayOf(React.PropTypes.string),
     isFavorite: React.PropTypes.bool.isRequired,
-    isFiltered: React.PropTypes.bool.isRequired
+    isFiltered: React.PropTypes.bool.isRequired,
+    organization: React.PropTypes.object
   };
 
   renderNoProjects () {
@@ -51,7 +52,10 @@ export default class ProjectsList extends React.Component {
         <div className="projects-list">
           {projects.length > 0 ? (
               projects.map(projectKey => (
-                  <ProjectCardContainer key={projectKey} projectKey={projectKey}/>
+                  <ProjectCardContainer
+                      key={projectKey}
+                      projectKey={projectKey}
+                      organization={this.props.organization}/>
               ))
           ) : (
               this.renderNoProjects()

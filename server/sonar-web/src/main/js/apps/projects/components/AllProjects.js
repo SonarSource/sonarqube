@@ -62,7 +62,10 @@ export default class AllProjects extends React.Component {
                 organization={this.props.organization}/>
           </aside>
           <div className="page-main">
-            <ProjectsListContainer isFavorite={this.props.isFavorite} isFiltered={isFiltered}/>
+            <ProjectsListContainer
+                isFavorite={this.props.isFavorite}
+                isFiltered={isFiltered}
+                organization={this.props.organization}/>
             <ProjectsListFooterContainer
                 query={this.state.query}
                 isFavorite={this.props.isFavorite}

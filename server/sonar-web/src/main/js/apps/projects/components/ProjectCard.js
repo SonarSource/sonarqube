@@ -28,7 +28,8 @@ import Organization from '../../../components/shared/Organization';
 
 export default class ProjectCard extends React.Component {
   static propTypes = {
-    project: React.PropTypes.object
+    project: React.PropTypes.object,
+    organization: React.PropTypes.object
   };
 
   render () {
@@ -57,7 +58,7 @@ export default class ProjectCard extends React.Component {
                 <FavoriteContainer className="spacer-right" componentKey={project.key}/>
             )}
             <h2 className="project-card-name">
-              {project.organization != null && (
+              {this.props.organization == null && project.organization != null && (
                 <span className="text-normal">
                   <Organization organizationKey={project.organization}/>
                 </span>
