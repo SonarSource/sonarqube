@@ -48,7 +48,7 @@ public class ActiveRulesHolderImplTest {
 
   @Test
   public void get_active_rule() throws Exception {
-    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap())));
+    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), 1_000L)));
 
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
     assertThat(activeRule.isPresent()).isTrue();
@@ -61,7 +61,7 @@ public class ActiveRulesHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Active rules have already been initialized");
 
-    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap())));
+    underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), 1_000L)));
     underTest.set(Collections.<ActiveRule>emptyList());
 
   }
@@ -80,8 +80,7 @@ public class ActiveRulesHolderImplTest {
     thrown.expectMessage("Active rule must not be declared multiple times: java:S001");
 
     underTest.set(asList(
-      new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap()),
-      new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.<String, String>emptyMap())
-      ));
+      new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.<String, String>emptyMap(), 1_000L),
+      new ActiveRule(RULE_KEY, Severity.MAJOR, Collections.<String, String>emptyMap(), 1_000L)));
   }
 }

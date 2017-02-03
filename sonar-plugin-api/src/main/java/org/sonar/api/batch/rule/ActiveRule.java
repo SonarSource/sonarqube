@@ -19,11 +19,9 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleKey;
 
 /**
  * Configuration of a rule activated on a Quality profile

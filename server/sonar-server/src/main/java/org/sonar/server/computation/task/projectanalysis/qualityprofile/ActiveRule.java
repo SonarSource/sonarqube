@@ -29,11 +29,13 @@ public class ActiveRule {
   private final RuleKey ruleKey;
   private final String severity;
   private final Map<String, String> params;
+  private final long createdAt;
 
-  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params) {
+  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params, long createdAt) {
     this.ruleKey = ruleKey;
     this.severity = severity;
     this.params = ImmutableMap.copyOf(params);
+    this.createdAt = createdAt;
   }
 
   public RuleKey getRuleKey() {
@@ -46,5 +48,9 @@ public class ActiveRule {
 
   public Map<String, String> getParams() {
     return params;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
   }
 }
