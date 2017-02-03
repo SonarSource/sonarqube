@@ -61,7 +61,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
         throw e;
       }
 
-      LOG.debug("Project repository not available - continuing without it", e);
+      LOG.debug("Project repository not available - continuing without it");
       return new ProjectRepositories();
     }
   }
