@@ -135,13 +135,6 @@ public class CorePropertyDefinitions {
         .defaultValue(String.valueOf(false))
         .hidden()
         .build(),
-      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS)
-        .name("Create user accounts")
-        .description("Create accounts when authenticating users via an external system")
-        .type(PropertyType.BOOLEAN)
-        .defaultValue(String.valueOf(true))
-        .hidden()
-        .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
         .name("Ignore failures during authenticator startup")
         .type(PropertyType.BOOLEAN)

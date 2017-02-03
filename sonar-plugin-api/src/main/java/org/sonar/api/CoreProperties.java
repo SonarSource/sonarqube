@@ -207,6 +207,12 @@ public interface CoreProperties {
   String CORE_AUTHENTICATOR_REALM = "sonar.security.realm";
 
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
+
+  /**
+   * @deprecated since 6.3. This feature is not supported anymore
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-8208">SONAR-8208/a>
+   */
+  @Deprecated
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
 
   /**

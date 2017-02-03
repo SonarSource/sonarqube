@@ -45,7 +45,6 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
@@ -150,7 +149,7 @@ public class RealmAuthenticator implements Startable {
     return userLogin;
   }
 
-  private class ExternalIdentityProvider implements IdentityProvider {
+  private static class ExternalIdentityProvider implements IdentityProvider {
     @Override
     public String getKey() {
       return SQ_AUTHORITY;
@@ -173,7 +172,7 @@ public class RealmAuthenticator implements Startable {
 
     @Override
     public boolean allowsUsersToSignUp() {
-      return settings.getBoolean(CORE_AUTHENTICATOR_CREATE_USERS);
+      return true;
     }
   }
 

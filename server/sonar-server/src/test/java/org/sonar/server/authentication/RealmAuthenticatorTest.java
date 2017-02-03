@@ -181,30 +181,6 @@ public class RealmAuthenticatorTest {
   }
 
   @Test
-  public void allow_to_sign_up_property() throws Exception {
-    settings.setProperty("sonar.authenticator.createUsers", true);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
-    executeStartWithoutGroupSync();
-    executeAuthenticate();
-
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
-    assertThat(identityProviderArgumentCaptor.getValue().allowsUsersToSignUp()).isTrue();
-    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, REALM_NAME));
-  }
-
-  @Test
-  public void does_not_allow_to_sign_up_property() throws Exception {
-    settings.setProperty("sonar.authenticator.createUsers", false);
-    when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);
-    executeStartWithoutGroupSync();
-    executeAuthenticate();
-
-    verify(userIdentityAuthenticator).authenticate(userIdentityArgumentCaptor.capture(), identityProviderArgumentCaptor.capture(), sourceCaptor.capture());
-    assertThat(identityProviderArgumentCaptor.getValue().allowsUsersToSignUp()).isFalse();
-    verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, REALM_NAME));
-  }
-
-  @Test
   public void use_downcase_login() throws Exception {
     settings.setProperty("sonar.authenticator.downcase", true);
     when(userIdentityAuthenticator.authenticate(any(UserIdentity.class), any(IdentityProvider.class), any(Source.class))).thenReturn(USER);

@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -85,7 +84,6 @@ public class RealmAuthenticationTest {
   public void resetData() throws Exception {
     setServerProperty(orchestrator, USERS_PROPERTY, null);
     setServerProperty(orchestrator, "sonar.security.updateUserAttributes", null);
-    setServerProperty(orchestrator, "sonar.authenticator.createUsers", null);
     USER_RULE.resetUsers();
   }
 
@@ -213,30 +211,6 @@ public class RealmAuthenticationTest {
     // Then
     verifyAuthenticationIsOk(username, password);
     verifyAuthenticationIsNotOk(username, "wrong");
-  }
-
-  /**
-   * SONAR-1334 (createUsers=false)
-   */
-  @Test
-  public void shouldNotCreateNewUsers() {
-    // Given clean Sonar installation and no users in external system
-    setServerProperty(orchestrator, "sonar.authenticator.createUsers", "false");
-    // Use a random user name because if we use existing disabled user then it doesn't work because rails doesn't handle this case
-    // (it's using User.find_by_login to know if user exists or not
-    String username = RandomStringUtils.randomAlphanumeric(20);
-    String password = "1234567";
-    Map<String, String> users = Maps.newHashMap();
-
-    // When user not exists in external system
-    // Then
-    verifyAuthenticationIsNotOk(username, password);
-
-    // When user created in external system
-    users.put(username + ".password", password);
-    updateUsersInExtAuth(users);
-    // Then
-    verifyAuthenticationIsNotOk(username, password);
   }
 
   // SONAR-3258
