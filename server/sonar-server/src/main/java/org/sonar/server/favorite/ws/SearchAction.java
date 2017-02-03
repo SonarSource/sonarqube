@@ -23,7 +23,6 @@ package org.sonar.server.favorite.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -76,44 +75,38 @@ public class SearchAction implements FavoritesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     SearchResponse wsResponse = Stream.of(request)
-      .map(toWsRequest())
-      .map(search())
+      .map(SearchAction::toWsRequest)
+      .map(this::search)
       .map(new ResponseBuilder())
       .collect(Collectors.toOneElement());
     writeProtobuf(wsResponse, request, response);
   }
 
-  private static Function<Request, SearchRequest> toWsRequest() {
-    return request -> new SearchRequest()
+  private static SearchRequest toWsRequest(Request request) {
+    return new SearchRequest()
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private Function<SearchRequest, SearchResults> search() {
-    return request -> {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        return Stream.of(request)
-          .peek(checkAuthentication(userSession))
-          .map(SearchResults.builder(dbSession))
-          .peek(addAuthorizedProjectUuids())
-          .peek(addFavorites())
-          .map(SearchResults.Builder::build)
-          .collect(Collectors.toOneElement());
-      }
-    };
+  private SearchResults search(SearchRequest request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return Stream.of(request)
+        .peek(r -> userSession.checkLoggedIn())
+        .map(SearchResults.builder(dbSession))
+        .peek(this::addAuthorizedProjectUuids)
+        .peek(this::addFavorites)
+        .map(SearchResults.Builder::build)
+        .collect(Collectors.toOneElement());
+    }
   }
 
-  private Consumer<SearchResults.Builder> addFavorites() {
-    return results -> results.allFavorites = favoriteFinder.list();
+  private void addFavorites(SearchResults.Builder builder) {
+    builder.allFavorites = favoriteFinder.list();
   }
 
-  private Consumer<SearchResults.Builder> addAuthorizedProjectUuids() {
-    return results -> results.authorizedProjectUuids = ImmutableSet
+  private void addAuthorizedProjectUuids(SearchResults.Builder results) {
+    results.authorizedProjectUuids = ImmutableSet
       .copyOf(dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(results.dbSession, userSession.getUserId(), UserRole.USER));
-  }
-
-  private static Consumer<SearchRequest> checkAuthentication(UserSession userSession) {
-    return r -> userSession.checkLoggedIn();
   }
 
   private static class SearchResults {
@@ -166,34 +159,32 @@ public class SearchAction implements FavoritesWsAction {
     @Override
     public SearchResponse apply(SearchResults searchResults) {
       return Stream.of(searchResults)
-        .peek(addPaging())
-        .peek(addFavorites())
+        .peek(this::addPaging)
+        .peek(this::addFavorites)
         .map(results -> response.build())
         .collect(toOneElement());
     }
 
-    private Consumer<SearchResults> addPaging() {
-      return results -> response.setPaging(Common.Paging.newBuilder()
+    private void addPaging(SearchResults results) {
+      response.setPaging(Common.Paging.newBuilder()
         .setPageIndex(results.paging.pageIndex())
         .setPageSize(results.paging.pageSize())
         .setTotal(results.paging.total()));
     }
 
-    private Consumer<SearchResults> addFavorites() {
-      return results -> results.favorites.stream()
-        .map(toWsFavorite())
+    private void addFavorites(SearchResults results) {
+      results.favorites.stream()
+        .map(this::toWsFavorite)
         .forEach(response::addFavorites);
     }
 
-    private Function<ComponentDto, Favorite> toWsFavorite() {
-      return componentDto -> {
-        favorite
-          .clear()
-          .setKey(componentDto.key());
-        setNullable(componentDto.name(), favorite::setName);
-        setNullable(componentDto.qualifier(), favorite::setQualifier);
-        return favorite.build();
-      };
+    private Favorite toWsFavorite(ComponentDto componentDto) {
+      favorite
+        .clear()
+        .setKey(componentDto.key());
+      setNullable(componentDto.name(), favorite::setName);
+      setNullable(componentDto.qualifier(), favorite::setQualifier);
+      return favorite.build();
     }
 
   }
