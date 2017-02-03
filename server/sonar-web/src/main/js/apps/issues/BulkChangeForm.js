@@ -29,6 +29,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 const LIMIT = 500;
 const INPUT_WIDTH = '250px';
 const MINIMUM_QUERY_LENGTH = 2;
+const UNASSIGNED = '<UNASSIGNED>';
 
 type Issue = {
   actions?: Array<string>,
@@ -82,7 +83,7 @@ export default ModalForm.extend({
         defaultOptions.push({ id: currentUser.login, text: `${currentUser.name} (${currentUser.login})` });
       }
       if (canBeUnassigned) {
-        defaultOptions.push({ id: '', text: translate('unassigned') });
+        defaultOptions.push({ id: UNASSIGNED, text: translate('unassigned') });
       }
 
       input.select2({
@@ -159,7 +160,7 @@ export default ModalForm.extend({
 
     const assignee = this.$('#assignee').val();
     if (this.$('#assign-action').is(':checked') && assignee != null) {
-      query['assign'] = assignee;
+      query['assign'] = assignee === UNASSIGNED ? '' : assignee;
     }
 
     const type = this.$('#type').val();
