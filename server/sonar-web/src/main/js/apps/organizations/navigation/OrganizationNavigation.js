@@ -60,7 +60,7 @@ export default class OrganizationNavigation extends React.Component {
             </li>
             <li>
               <Link to={`/organizations/${organization.key}/permissions`} activeClassName="active">
-                {translate('permissions')}
+                {translate('permissions.page')}
               </Link>
             </li>
             <li>

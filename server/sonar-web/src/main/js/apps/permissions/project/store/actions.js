@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import * as api from '../../../../api/permissions';
 import { parseError } from '../../../code/utils';
 import {
@@ -37,79 +38,93 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
-export const loadHolders = (projectKey, organization) => (dispatch, getState) => {
-  const query = getPermissionsAppQuery(getState());
-  const filter = getPermissionsAppFilter(getState());
-  const selectedPermission = getPermissionsAppSelectedPermission(getState());
+type Dispatch = (Object) => void;
+type GetState = () => Object;
 
-  dispatch({ type: REQUEST_HOLDERS, query });
+export const loadHolders = (project: string, organization?: string) =>
+    (dispatch: Dispatch, getState: GetState) => {
+      const query = getPermissionsAppQuery(getState());
+      const filter = getPermissionsAppFilter(getState());
+      const selectedPermission = getPermissionsAppSelectedPermission(getState());
 
-  const requests = [];
+      dispatch({ type: REQUEST_HOLDERS, query });
 
-  if (filter !== 'groups') {
-    requests.push(api.getPermissionsUsersForComponent(projectKey, query, selectedPermission, organization));
-  } else {
-    requests.push(Promise.resolve([]));
-  }
+      const requests = [];
 
-  if (filter !== 'users') {
-    requests.push(api.getPermissionsGroupsForComponent(projectKey, query, selectedPermission, organization));
-  } else {
-    requests.push(Promise.resolve([]));
-  }
+      if (filter !== 'groups') {
+        requests.push(api.getPermissionsUsersForComponent(project, query, selectedPermission, organization));
+      } else {
+        requests.push(Promise.resolve([]));
+      }
 
-  return Promise.all(requests).then(responses => (
-      dispatch({
-        type: RECEIVE_HOLDERS_SUCCESS,
-        users: responses[0],
-        groups: responses[1],
-        query
-      })
-  )).catch(e => {
-    return parseError(e).then(message => dispatch(raiseError(message)));
-  });
-};
+      if (filter !== 'users') {
+        requests.push(api.getPermissionsGroupsForComponent(project, query, selectedPermission, organization));
+      } else {
+        requests.push(Promise.resolve([]));
+      }
 
-export const updateQuery = (projectKey, query = '', organization = null) => dispatch => {
-  dispatch({ type: UPDATE_QUERY, query });
-  if (query.length === 0 || query.length > 2) {
-    dispatch(loadHolders(projectKey, organization));
-  }
-};
+      return Promise.all(requests).then(responses => (
+          dispatch({
+            type: RECEIVE_HOLDERS_SUCCESS,
+            users: responses[0],
+            groups: responses[1],
+            query
+          })
+      )).catch(e => {
+        return parseError(e).then(message => dispatch(raiseError(message)));
+      });
+    };
 
-export const updateFilter = (projectKey, filter, organization) => dispatch => {
-  dispatch({ type: UPDATE_FILTER, filter });
-  dispatch(loadHolders(projectKey, organization));
-};
+export const updateQuery = (project: string, query: string, organization?: string) =>
+    (dispatch: Dispatch) => {
+      dispatch({ type: UPDATE_QUERY, query });
+      if (query.length === 0 || query.length > 2) {
+        dispatch(loadHolders(project, organization));
+      }
+    };
 
-export const selectPermission = (projectKey, permission, organization) => (dispatch, getState) => {
-  const selectedPermission = getPermissionsAppSelectedPermission(getState());
-  if (selectedPermission !== permission) {
-    dispatch({ type: SELECT_PERMISSION, permission });
-  } else {
-    dispatch({ type: SELECT_PERMISSION, permission: null });
-  }
-  dispatch(loadHolders(projectKey, organization));
-};
+export const updateFilter = (project: string, filter: string, organization?: string) =>
+    (dispatch: Dispatch) => {
+      dispatch({ type: UPDATE_FILTER, filter });
+      dispatch(loadHolders(project, organization));
+    };
 
-export const grantToUser = (projectKey, login, permission, organization) => dispatch => {
-  api.grantPermissionToUser(projectKey, login, permission, organization).then(() => {
-    dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
-  }).catch(e => {
-    return parseError(e).then(message => dispatch(raiseError(message)));
-  });
-};
+export const selectPermission = (project: string, permission: string, organization?: string) =>
+    (dispatch: Dispatch, getState: GetState) => {
+      const selectedPermission = getPermissionsAppSelectedPermission(getState());
+      if (selectedPermission !== permission) {
+        dispatch({ type: SELECT_PERMISSION, permission });
+      } else {
+        dispatch({ type: SELECT_PERMISSION, permission: null });
+      }
+      dispatch(loadHolders(project, organization));
+    };
 
-export const revokeFromUser = (projectKey, login, permission, organization) => dispatch => {
-  api.revokePermissionFromUser(projectKey, login, permission, organization).then(() => {
-    dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
-  }).catch(e => {
-    return parseError(e).then(message => dispatch(raiseError(message)));
-  });
-};
+export const grantToUser = (project: string, login: string, permission: string, organization?: string) =>
+    (dispatch: Dispatch) => {
+      api.grantPermissionToUser(project, login, permission, organization).then(() => {
+        dispatch({ type: GRANT_PERMISSION_TO_USER, login, permission });
+      }).catch(e => {
+        return parseError(e).then(message => dispatch(raiseError(message)));
+      });
+    };
 
-export const grantToGroup = (projectKey, groupName, permission, organization) => dispatch => {
-  api.grantPermissionToGroup(projectKey, groupName, permission, organization).then(() => {
+export const revokeFromUser = (project: string, login: string, permission: string, organization?: string) =>
+    (dispatch: Dispatch) => {
+      api.revokePermissionFromUser(project, login, permission, organization).then(() => {
+        dispatch({ type: REVOKE_PERMISSION_TO_USER, login, permission });
+      }).catch(e => {
+        return parseError(e).then(message => dispatch(raiseError(message)));
+      });
+    };
+
+export const grantToGroup = (
+    project: string,
+    groupName: string,
+    permission: string,
+    organization?: string
+) => (dispatch: Dispatch) => {
+  api.grantPermissionToGroup(project, groupName, permission, organization).then(() => {
     dispatch({
       type: GRANT_PERMISSION_TO_GROUP,
       groupName,
@@ -120,8 +135,13 @@ export const grantToGroup = (projectKey, groupName, permission, organization) =>
   });
 };
 
-export const revokeFromGroup = (projectKey, groupName, permission, organization) => dispatch => {
-  api.revokePermissionFromGroup(projectKey, groupName, permission, organization).then(() => {
+export const revokeFromGroup = (
+    project: string,
+    groupName: string,
+    permission: string,
+    organization?: string
+) => (dispatch: Dispatch) => {
+  api.revokePermissionFromGroup(project, groupName, permission, organization).then(() => {
     dispatch({
       type: REVOKE_PERMISSION_FROM_GROUP,
       groupName,

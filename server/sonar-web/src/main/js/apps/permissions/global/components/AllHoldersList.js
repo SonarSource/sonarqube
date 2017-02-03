@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import SearchForm from '../../shared/components/SearchForm';
@@ -121,20 +122,27 @@ const mapStateToProps = state => ({
   selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadHolders: () => dispatch(loadHolders(ownProps.organization)),
-  onSearch: query => dispatch(updateQuery(query, ownProps.organization)),
-  onFilter: filter => dispatch(updateFilter(filter, ownProps.organization)),
-  onSelectPermission: permission => dispatch(selectPermission(permission, ownProps.organization)),
-  grantPermissionToUser: (login, permission) =>
-      dispatch(grantToUser(login, permission, ownProps.organization)),
-  revokePermissionFromUser: (login, permission) =>
-      dispatch(revokeFromUser(login, permission, ownProps.organization)),
-  grantPermissionToGroup: (groupName, permission) =>
-      dispatch(grantToGroup(groupName, permission, ownProps.organization)),
-  revokePermissionFromGroup: (groupName, permission) =>
-      dispatch(revokeFromGroup(groupName, permission, ownProps.organization))
-});
+type OwnProps = {
+  organization?: { key: string }
+};
+
+const mapDispatchToProps = (dispatch, ownProps: OwnProps) => {
+  const organizationKey = ownProps.organization ? ownProps.organization.key : undefined;
+  return {
+    loadHolders: () => dispatch(loadHolders(organizationKey)),
+    onSearch: query => dispatch(updateQuery(query, organizationKey)),
+    onFilter: filter => dispatch(updateFilter(filter, organizationKey)),
+    onSelectPermission: permission => dispatch(selectPermission(permission, organizationKey)),
+    grantPermissionToUser: (login, permission) =>
+        dispatch(grantToUser(login, permission, organizationKey)),
+    revokePermissionFromUser: (login, permission) =>
+        dispatch(revokeFromUser(login, permission, organizationKey)),
+    grantPermissionToGroup: (groupName, permission) =>
+        dispatch(grantToGroup(groupName, permission, organizationKey)),
+    revokePermissionFromGroup: (groupName, permission) =>
+        dispatch(revokeFromGroup(groupName, permission, organizationKey))
+  };
+};
 
 export default connect(
     mapStateToProps,

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import SearchForm from '../../shared/components/SearchForm';
@@ -135,7 +136,13 @@ const mapStateToProps = state => ({
   selectedPermission: getPermissionsAppSelectedPermission(state)
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+type OwnProps = {
+  project: {
+    organization?: string
+  }
+};
+
+const mapDispatchToProps = (dispatch, ownProps: OwnProps) => ({
   loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization)),
   onSearch: (projectKey, query) => dispatch(updateQuery(projectKey, query, ownProps.project.organization)),
   onFilter: (projectKey, filter) => dispatch(updateFilter(projectKey, filter, ownProps.project.organization)),
