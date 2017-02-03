@@ -262,6 +262,7 @@ public final class Collectors {
 
   /**
    * For stream of one expected element, return the element
+   *
    * @throws IllegalArgumentException if stream has no element or more than 1 element
    */
   public static <T> Collector<T, ?, T> toOneElement() {

@@ -21,14 +21,14 @@ package org.sonar.server.util;
 
 public class MetricKeyValidator {
 
-  private MetricKeyValidator() {
-    // static stuff only
-  }
-
   /*
    * Allowed characters are alphanumeric, '-', '_', with at least one non-digit
    */
   private static final String VALID_METRIC_KEY_REGEXP = "[\\p{Alnum}\\-_]*[\\p{Alpha}\\-_]+[\\p{Alnum}\\-_]*";
+
+  private MetricKeyValidator() {
+    // static stuff only
+  }
 
   /**
    * <p>Test if given parameter is valid for a project/module. Valid format is:</p>

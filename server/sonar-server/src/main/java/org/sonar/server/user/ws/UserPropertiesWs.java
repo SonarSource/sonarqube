@@ -33,7 +33,7 @@ public class UserPropertiesWs implements WebService {
     controller.done();
   }
 
-  private void defineIndexAction(NewController controller) {
+  private static void defineIndexAction(NewController controller) {
     controller.createAction("index")
       .setDescription("This web service is removed")
       .setSince("2.6")

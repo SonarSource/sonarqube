@@ -33,6 +33,11 @@ public class CoveredFileDoc extends BaseDoc {
     super(fields);
   }
 
+  @VisibleForTesting
+  public CoveredFileDoc() {
+    super(Maps.newHashMapWithExpectedSize(2));
+  }
+
   @Override
   public String getId() {
     throw new UnsupportedOperationException();
@@ -46,11 +51,6 @@ public class CoveredFileDoc extends BaseDoc {
   @Override
   public String getParent() {
     throw new UnsupportedOperationException();
-  }
-
-  @VisibleForTesting
-  public CoveredFileDoc() {
-    super(Maps.<String, Object>newHashMapWithExpectedSize(2));
   }
 
   public String fileUuid() {
