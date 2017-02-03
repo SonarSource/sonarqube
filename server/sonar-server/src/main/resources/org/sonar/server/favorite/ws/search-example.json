@@ -6,16 +6,19 @@
   },
   "favorites": [
     {
+      "organization": "my-org",
       "key": "K2",
       "name": "Apache HBase",
       "qualifier": "TRK"
     },
     {
+      "organization": "openjdk",
       "key": "K3",
       "name": "JDK9",
       "qualifier": "TRK"
     },
     {
+      "organization": "my-org",
       "key": "K1",
       "name": "Samba",
       "qualifier": "TRK"

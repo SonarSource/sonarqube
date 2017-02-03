@@ -159,13 +159,15 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
-    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K1").setName("Samba"));
-    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K2").setName("Apache HBase"));
-    addComponent(newProjectDto(db.getDefaultOrganization()).setKey("K3").setName("JDK9"));
+    OrganizationDto organization1 = db.organizations().insertForKey("my-org");
+    OrganizationDto organization2 = db.organizations().insertForKey("openjdk");
+    addComponent(newProjectDto(organization1).setKey("K1").setName("Samba"));
+    addComponent(newProjectDto(organization1).setKey("K2").setName("Apache HBase"));
+    addComponent(newProjectDto(organization2).setKey("K3").setName("JDK9"));
 
     String result = ws.newRequest().execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("search-example.json"));
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
