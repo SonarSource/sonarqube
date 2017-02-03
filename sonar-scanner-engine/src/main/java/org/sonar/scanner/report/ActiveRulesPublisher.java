@@ -20,6 +20,7 @@
 package org.sonar.scanner.report;
 
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -38,11 +39,13 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
   public void publish(ScannerReportWriter writer) {
     final ScannerReport.ActiveRule.Builder builder = ScannerReport.ActiveRule.newBuilder();
     writer.writeActiveRules(activeRules.findAll().stream()
+      .map(DefaultActiveRule.class::cast)
       .map(input -> {
         builder.clear();
         builder.setRuleRepository(input.ruleKey().repository());
         builder.setRuleKey(input.ruleKey().rule());
         builder.setSeverity(Constants.Severity.valueOf(input.severity()));
+        builder.setCreatedAt(input.createdAt());
         builder.getMutableParamsByKey().putAll(input.params());
         return builder.build();
       }).collect(toList()));

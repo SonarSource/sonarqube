@@ -19,14 +19,12 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-
-import javax.annotation.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @since 4.2
@@ -36,6 +34,7 @@ public class NewActiveRule {
   String name;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<>();
+  long createdAt;
   String internalKey;
   String language;
   String templateRuleKey;
@@ -83,6 +82,14 @@ public class NewActiveRule {
 
   public Map<String, String> params() {
     return params;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
   }
 
   public ActiveRulesBuilder activate() {

@@ -35,6 +35,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
@@ -162,6 +163,7 @@ public class ActiveRuleCompleter {
     String inheritance = activeRule.getInheritance();
     activeRuleResponse.setInherit(inheritance != null ? inheritance : ActiveRule.Inheritance.NONE.name());
     activeRuleResponse.setSeverity(activeRule.getSeverityString());
+    activeRuleResponse.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (ActiveRuleParamDto parameter : parameters) {
       activeRuleResponse.addParams(paramBuilder.clear()

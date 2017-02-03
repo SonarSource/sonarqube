@@ -81,6 +81,6 @@ public class LoadQualityProfilesStep implements ComputationStep {
   private static ActiveRule convert(ScannerReport.ActiveRule input) {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>(input.getParamsByKey());
-    return new ActiveRule(key, input.getSeverity().name(), params);
+    return new ActiveRule(key, input.getSeverity().name(), params, input.getCreatedAt());
   }
 }
