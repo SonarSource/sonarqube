@@ -177,7 +177,7 @@
 }
 
 .overview-domain-nutshell {
-  flex: 2;
+  flex: 3;
 }
 
 .overview-domain-nutshell .line-chart-backdrop {
@@ -185,7 +185,7 @@
 }
 
 .overview-domain-leak {
-  flex: 1;
+  flex: 2;
   background-color: #fbf3d5;
 }
 
@@ -231,6 +231,7 @@
   line-height: 1;
   font-size: 36px;
   font-weight: 300;
+  white-space: nowrap;
 }
 
 .overview-domain-secondary-measure-value {
