@@ -67,12 +67,6 @@ public class RoutesFilterTest {
   }
 
   @Test
-  public void send_redirect_when_url_contains_api_sources() throws Exception {
-    verifyRedirection("/api/sources", "resource=my.project", "/sonarqube/api/sources/index?resource=my.project");
-    verifyRedirection("/api/sources/", "resource=my.project", "/sonarqube/api/sources/index?resource=my.project");
-  }
-
-  @Test
   public void send_redirect_when_url_contains_profiles_export() throws Exception {
     verifyRedirection("/profiles/export", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");
     verifyRedirection("/profiles/export/", "format=pmd", "/sonarqube/api/qualityprofiles/export?format=pmd");

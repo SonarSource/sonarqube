@@ -45,7 +45,6 @@ public class RoutesFilter implements Filter {
     new WebServiceListRoute(),
     new BatchRoute(),
     new BatchBootstrapRoute(),
-    new ApiSourcesRoute(),
     new ProfilesExportRoute());
 
   @Override
@@ -127,24 +126,6 @@ public class RoutesFilter implements Filter {
     @Override
     public String apply(HttpServletRequest request) {
       return format("%s%s/index", request.getContextPath(), "/batch");
-    }
-  }
-
-  /**
-   * SONAR-7852 /api/sources?resource url is still used
-   */
-  private static class ApiSourcesRoute implements Route {
-
-    private static final String API_SOURCES_WS = "/api/sources";
-
-    @Override
-    public boolean test(String path) {
-      return API_SOURCES_WS.equals(path);
-    }
-
-    @Override
-    public String apply(HttpServletRequest request) {
-      return format("%s%s/index?%s", request.getContextPath(), API_SOURCES_WS, request.getQueryString());
     }
   }
 
