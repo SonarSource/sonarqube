@@ -57,7 +57,7 @@ exports[`test admin 1`] = `
                 onlyActiveOnIndex={false}
                 style={Object {}}
                 to="/organizations/foo/permissions">
-                permissions
+                permissions.page
               </Link>
             </li>
             <li>

@@ -34,7 +34,7 @@ export default class App extends React.Component {
   render () {
     return (
         <div className="page page-limited">
-          <PageHeader/>
+          <PageHeader organization={this.props.organization}/>
           <PageError/>
           <AllHoldersList organization={this.props.organization}/>
         </div>

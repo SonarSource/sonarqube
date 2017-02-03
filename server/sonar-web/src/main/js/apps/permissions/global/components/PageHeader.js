@@ -23,8 +23,9 @@ import { translate } from '../../../../helpers/l10n';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
 class PageHeader extends React.Component {
-  static propTypes = {
-    loading: React.PropTypes.bool
+  props: {
+    loading?: boolean,
+    organization?: {}
   };
 
   static defaultProps = {
@@ -32,19 +33,23 @@ class PageHeader extends React.Component {
   };
 
   render () {
+    const title = this.props.organization ?
+        translate('permissions.page') :
+        translate('global_permissions.page');
+
+    const description = this.props.organization ?
+        translate('organization_permissions.page.description') :
+        translate('global_permissions.page.description');
+
     return (
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('global_permissions.page')}
-          </h1>
+          <h1 className="page-title">{title}</h1>
 
           {this.props.loading && (
               <i className="spinner"/>
           )}
 
-          <div className="page-description">
-            {translate('global_permissions.page.description')}
-          </div>
+          <div className="page-description">{description}</div>
         </header>
     );
   }
