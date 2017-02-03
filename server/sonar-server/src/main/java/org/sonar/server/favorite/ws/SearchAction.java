@@ -23,7 +23,6 @@ package org.sonar.server.favorite.ws;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
@@ -44,7 +43,6 @@ import org.sonarqube.ws.Favorites.SearchResponse;
 import org.sonarqube.ws.client.favorite.SearchRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.Collectors.toOneElement;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.favorite.SearchRequest.MAX_PAGE_SIZE;
@@ -76,8 +74,8 @@ public class SearchAction implements FavoritesWsAction {
   public void handle(Request request, Response response) throws Exception {
     SearchResponse wsResponse = Stream.of(request)
       .map(SearchAction::toWsRequest)
-      .map(this::search)
-      .map(new ResponseBuilder())
+      .map(this::toSearchResults)
+      .map(this::toSearchResponse)
       .collect(Collectors.toOneElement());
     writeProtobuf(wsResponse, request, response);
   }
@@ -88,7 +86,7 @@ public class SearchAction implements FavoritesWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private SearchResults search(SearchRequest request) {
+  private SearchResults toSearchResults(SearchRequest request) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchResults.Builder builder = SearchResults.newBuilder(request);
@@ -143,45 +141,35 @@ public class SearchAction implements FavoritesWsAction {
     }
   }
 
-  private static class ResponseBuilder implements Function<SearchResults, SearchResponse> {
-    private final SearchResponse.Builder response;
-    private final Favorite.Builder favorite;
+  private SearchResponse toSearchResponse(SearchResults searchResults) {
+    SearchResponse.Builder builder = SearchResponse.newBuilder();
+    addPaging(builder, searchResults);
+    addFavorites(builder, searchResults);
+    return builder.build();
+  }
 
-    private ResponseBuilder() {
-      this.response = SearchResponse.newBuilder();
-      this.favorite = Favorite.newBuilder();
-    }
-
-    @Override
-    public SearchResponse apply(SearchResults searchResults) {
-      return Stream.of(searchResults)
-        .peek(this::addPaging)
-        .peek(this::addFavorites)
-        .map(results -> response.build())
-        .collect(toOneElement());
-    }
-
-    private void addPaging(SearchResults results) {
-      response.setPaging(Common.Paging.newBuilder()
+  private void addPaging(SearchResponse.Builder builder, SearchResults results) {
+    builder
+      .setPaging(Common.Paging.newBuilder()
         .setPageIndex(results.paging.pageIndex())
         .setPageSize(results.paging.pageSize())
         .setTotal(results.paging.total()));
-    }
-
-    private void addFavorites(SearchResults results) {
-      results.favorites.stream()
-        .map(this::toWsFavorite)
-        .forEach(response::addFavorites);
-    }
-
-    private Favorite toWsFavorite(ComponentDto componentDto) {
-      favorite
-        .clear()
-        .setKey(componentDto.key());
-      setNullable(componentDto.name(), favorite::setName);
-      setNullable(componentDto.qualifier(), favorite::setQualifier);
-      return favorite.build();
-    }
-
   }
+
+  private void addFavorites(SearchResponse.Builder builder, SearchResults results) {
+    Favorite.Builder favoriteBuilder = Favorite.newBuilder();
+    results.favorites.stream()
+      .map(componentDto -> toWsFavorite(favoriteBuilder, componentDto))
+      .forEach(builder::addFavorites);
+  }
+
+  private Favorite toWsFavorite(Favorite.Builder builder, ComponentDto componentDto) {
+    builder
+      .clear()
+      .setKey(componentDto.key());
+    setNullable(componentDto.name(), builder::setName);
+    setNullable(componentDto.qualifier(), builder::setQualifier);
+    return builder.build();
+  }
+
 }
