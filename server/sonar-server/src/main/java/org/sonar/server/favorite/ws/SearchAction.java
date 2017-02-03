@@ -89,9 +89,9 @@ public class SearchAction implements FavoritesWsAction {
   }
 
   private SearchResults search(SearchRequest request) {
+    userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       return Stream.of(request)
-        .peek(r -> userSession.checkLoggedIn())
         .map(SearchResults.builder(dbSession))
         .peek(this::addAuthorizedProjectUuids)
         .peek(this::addFavorites)
