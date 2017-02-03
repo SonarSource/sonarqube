@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -72,11 +71,9 @@ public class SearchAction implements FavoritesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchResponse wsResponse = Stream.of(request)
-      .map(SearchAction::toWsRequest)
-      .map(this::toSearchResults)
-      .map(this::toSearchResponse)
-      .collect(Collectors.toOneElement());
+    SearchRequest searchRequest = toWsRequest(request);
+    SearchResults searchResults = toSearchResults(searchRequest);
+    SearchResponse wsResponse = toSearchResponse(searchResults);
     writeProtobuf(wsResponse, request, response);
   }
 
