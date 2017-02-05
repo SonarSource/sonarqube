@@ -26,14 +26,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.user.UserSession;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -50,8 +48,7 @@ public class RuleOperations {
     this.dbClient = dbClient;
   }
 
-  public void updateRule(RuleChange ruleChange, UserSession userSession) {
-    checkPermission(userSession);
+  public void updateRule(RuleChange ruleChange) {
     DbSession session = dbClient.openSession(false);
     try {
       RuleDto ruleDto = dbClient.ruleDao().selectOrFailByKey(session, ruleChange.ruleKey());
@@ -125,11 +122,6 @@ public class RuleOperations {
       .append(oldCoefficient, newCoefficient)
       .append(oldOffset, newOffset)
       .isEquals();
-  }
-
-  private static void checkPermission(UserSession userSession) {
-    userSession.checkLoggedIn();
-    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   public static class RuleChange {

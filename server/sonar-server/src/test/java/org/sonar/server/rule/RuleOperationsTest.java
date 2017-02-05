@@ -27,7 +27,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -35,8 +34,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleOperations.RuleChange;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.tester.MockUserSession;
-import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -62,8 +59,6 @@ public class RuleOperationsTest {
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
 
-  UserSession authorizedUserSession = new MockUserSession("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
   RuleOperations operations;
 
   @Before
@@ -83,9 +78,7 @@ public class RuleOperationsTest {
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey)
-        .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
-      authorizedUserSession
-    );
+        .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"));
 
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
@@ -112,9 +105,7 @@ public class RuleOperationsTest {
     operations.updateRule(
       // Same value as default values -> overridden values will be set to null
       new RuleChange().setRuleKey(ruleKey)
-        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"),
-      authorizedUserSession
-    );
+        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"));
 
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
@@ -137,9 +128,7 @@ public class RuleOperationsTest {
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey)
-        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"),
-      authorizedUserSession
-    );
+        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"));
 
     verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
@@ -157,9 +146,7 @@ public class RuleOperationsTest {
     operations.updateRule(
       // Characteristic is the not same as the default one -> Overridden values should be set
       new RuleChange().setRuleKey(ruleKey)
-        .setDebtRemediationFunction("LINEAR").setDebtRemediationCoefficient("10min"),
-      authorizedUserSession
-    );
+        .setDebtRemediationFunction("LINEAR").setDebtRemediationCoefficient("10min"));
 
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
@@ -180,7 +167,7 @@ public class RuleOperationsTest {
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
-    operations.updateRule(new RuleChange().setRuleKey(ruleKey), authorizedUserSession);
+    operations.updateRule(new RuleChange().setRuleKey(ruleKey));
 
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
@@ -204,11 +191,10 @@ public class RuleOperationsTest {
     try {
       operations.updateRule(
         new RuleChange().setRuleKey(ruleKey)
-          .setDebtRemediationFunction("LINEAR").setDebtRemediationCoefficient("foo"),
-        authorizedUserSession
-      );
+          .setDebtRemediationFunction("LINEAR").setDebtRemediationCoefficient("foo"));
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid gap multiplier: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
+      assertThat(e).isInstanceOf(BadRequestException.class)
+        .hasMessage("Invalid gap multiplier: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
     verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
