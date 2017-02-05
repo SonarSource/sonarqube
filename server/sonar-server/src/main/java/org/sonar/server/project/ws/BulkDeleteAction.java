@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -72,7 +71,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(UserRole.ADMIN);
+    userSession.checkLoggedIn().checkIsRoot();
     List<String> uuids = request.paramAsStrings(PARAM_IDS);
     List<String> keys = request.paramAsStrings(PARAM_KEYS);
 

@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -35,6 +33,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -72,11 +71,11 @@ public class BulkDeleteActionTest {
         componentCleanerService,
         dbClient,
         userSessionRule)));
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
   public void delete_projects_by_uuids() throws Exception {
+    userSessionRule.logIn().setRoot();
     ComponentDto p1 = componentDbTester.insertProject();
     ComponentDto p2 = componentDbTester.insertProject();
 
@@ -88,6 +87,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_projects_by_keys() throws Exception {
+    userSessionRule.logIn().setRoot();
     ComponentDto p1 = componentDbTester.insertProject();
     ComponentDto p2 = componentDbTester.insertProject();
 
@@ -99,9 +99,19 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_privileges() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "whatever-the-uuid").execute();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_root_administrator() throws Exception {
+    userSessionRule.logIn().setNonRoot();
+
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "whatever-the-uuid").execute();
   }
