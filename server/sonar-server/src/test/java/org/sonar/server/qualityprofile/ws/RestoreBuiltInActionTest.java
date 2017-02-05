@@ -23,8 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileReset;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -33,7 +37,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 
 public class RestoreBuiltInActionTest {
 
@@ -45,12 +48,14 @@ public class RestoreBuiltInActionTest {
 
   private QProfileReset reset = mock(QProfileReset.class);
   private Languages languages = LanguageTesting.newLanguages("xoo");
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSession, defaultOrganizationProvider);
 
-  private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(reset, languages, userSession));
+  private WsActionTester tester = new WsActionTester(new RestoreBuiltInAction(reset, languages, wsSupport));
 
   @Test
   public void return_empty_result_when_no_info_or_warning() {
-    userSession.logIn("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
     TestResponse response = tester.newRequest().setParam("language", "xoo").execute();
 
     verify(reset).resetLanguage("xoo");
@@ -59,14 +64,32 @@ public class RestoreBuiltInActionTest {
 
   @Test
   public void fail_on_unknown_language() throws Exception {
-    userSession.logIn("himself").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
     expectedException.expect(IllegalArgumentException.class);
     tester.newRequest().setParam("language", "unknown").execute();
   }
 
   @Test
-  public void fail_if_not_profile_administrator() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
     tester.newRequest().setParam("language", "xoo").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    tester.newRequest().setParam("language", "xoo").execute();
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSession
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

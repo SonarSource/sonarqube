@@ -19,20 +19,18 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class SetDefaultAction implements QProfileWsAction {
@@ -42,17 +40,16 @@ public class SetDefaultAction implements QProfileWsAction {
   private static final String PARAM_PROFILE_KEY = "profileKey";
 
   private final Languages languages;
-
   private final QProfileLookup profileLookup;
-
   private final QProfileFactory profileFactory;
-  private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public SetDefaultAction(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory, UserSession userSession) {
+  public SetDefaultAction(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory,
+    QProfileWsSupport qProfileWsSupport) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileFactory = profileFactory;
-    this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -79,16 +76,16 @@ public class SetDefaultAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    qProfileWsSupport.checkQProfileAdminPermission();
 
     String language = request.param(PARAM_LANGUAGE);
     String profileName = request.param(PARAM_PROFILE_NAME);
     String profileKey = request.param(PARAM_PROFILE_KEY);
 
-    Preconditions.checkArgument(
-        (!isEmpty(language) && !isEmpty(profileName)) ^ !isEmpty(profileKey), "Either profileKey or profileName + language must be set");
+    checkArgument(
+      (!isEmpty(language) && !isEmpty(profileName)) ^ !isEmpty(profileKey), "Either profileKey or profileName + language must be set");
 
-    if(profileKey == null) {
+    if (profileKey == null) {
       profileKey = getProfileKeyFromLanguageAndName(language, profileName);
     }
 

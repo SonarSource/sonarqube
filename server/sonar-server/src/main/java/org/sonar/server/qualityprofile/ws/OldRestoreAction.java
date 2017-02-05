@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Preconditions;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -30,12 +29,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsAction;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @deprecated will be deleted once Orchestrator do not rely on this WS
@@ -47,12 +46,12 @@ public class OldRestoreAction implements WsAction {
   private static final String PARAM_BACKUP = "backup";
   private final QProfileBackuper backuper;
   private final Languages languages;
-  private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public OldRestoreAction(QProfileBackuper backuper, Languages languages, UserSession userSession) {
+  public OldRestoreAction(QProfileBackuper backuper, Languages languages, QProfileWsSupport qProfileWsSupport) {
     this.backuper = backuper;
     this.languages = languages;
-    this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -73,12 +72,13 @@ public class OldRestoreAction implements WsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    qProfileWsSupport.checkQProfileAdminPermission();
+
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
     InputStreamReader reader = null;
 
     try {
-      Preconditions.checkArgument(backup != null, "A backup file must be provided");
+      checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       BulkChangeResult result = backuper.restore(reader, null);
       writeResponse(response.newJsonWriter(), result);

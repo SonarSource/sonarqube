@@ -41,6 +41,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -102,7 +103,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_all_profiles() {
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -117,7 +118,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_all_deprecated_profiles() {
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     RuleDto xooRule2 = newXooX2().setStatus(RuleStatus.DEPRECATED);
     RuleDto xooRule3 = newXooX3().setStatus(RuleStatus.DEPRECATED);
@@ -143,7 +144,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void stat_for_all_profiles() {
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("MINOR"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -161,7 +162,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_deprecated() {
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
@@ -224,4 +225,7 @@ public class QProfileServiceMediumTest {
     }
   }
 
+  private void logInAsQProfileAdministrator() {
+    userSessionRule.logIn().addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
 }

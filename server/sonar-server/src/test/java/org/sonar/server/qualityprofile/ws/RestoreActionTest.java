@@ -23,13 +23,17 @@ import java.io.Reader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -51,6 +55,11 @@ public class RestoreActionTest {
   @Mock
   private QProfileBackuper backuper;
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
   private WsTester tester;
 
   @Before
@@ -58,12 +67,12 @@ public class RestoreActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new RestoreAction(backuper, LanguageTesting.newLanguages("xoo"), userSessionRule)));
+      new RestoreAction(backuper, LanguageTesting.newLanguages("xoo"), wsSupport)));
   }
 
   @Test
   public void restore_profile() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     QualityProfileDto profile = QualityProfileDto.createFor("xoo-sonar-way-12345")
       .setDefault(false).setLanguage("xoo").setName("Sonar way");
@@ -75,17 +84,37 @@ public class RestoreActionTest {
     verify(backuper).restore(any(Reader.class), (QProfileName) eq(null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_missing_backup() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A backup file must be provided");
 
     tester.newPostRequest("api/qualityprofiles", "restore").execute();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_on_misssing_permission() throws Exception {
-    userSessionRule.logIn("obiwan");
+  @Test
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSessionRule.logIn();
 
-    tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute();
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    tester.newPostRequest("api/qualityprofiles", "restore").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    tester.newPostRequest("api/qualityprofiles", "restore").execute();
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSessionRule
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

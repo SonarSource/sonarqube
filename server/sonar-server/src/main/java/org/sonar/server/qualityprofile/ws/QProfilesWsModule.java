@@ -25,6 +25,7 @@ public class QProfilesWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      QProfileWsSupport.class,
       AddProjectAction.class,
       BackupAction.class,
       BulkRuleActivationActions.class,

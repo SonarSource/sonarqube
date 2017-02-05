@@ -19,16 +19,25 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.user.UserSession;
 
-import static org.assertj.core.api.Assertions.assertThat;
+@ServerSide
+public class QProfileWsSupport {
 
-public class QProfilesWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new QProfilesWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(26 + 2);
+  private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
+
+  public QProfileWsSupport(UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
+  }
+
+  public void checkQProfileAdminPermission() {
+    userSession
+      .checkLoggedIn()
+      .checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

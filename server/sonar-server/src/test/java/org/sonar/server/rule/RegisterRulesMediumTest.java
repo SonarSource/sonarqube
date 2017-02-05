@@ -47,6 +47,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -117,7 +118,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create a profile and activate rule
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -149,7 +150,7 @@ public class RegisterRulesMediumTest {
     register(rules);
 
     // create a profile and activate rule
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -184,7 +185,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create profile and activate rule
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -457,4 +458,7 @@ public class RegisterRulesMediumTest {
     }
   }
 
+  private void logInAsQProfileAdministrator() {
+    userSessionRule.logIn().addOrganizationPermission(TESTER.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
 }

@@ -27,6 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.user.UserSession;
@@ -39,13 +40,16 @@ public class QProfileService {
   private final RuleActivator ruleActivator;
   private final QProfileBackuper backuper;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileBackuper backuper, UserSession userSession) {
+  public QProfileService(DbClient db, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileBackuper backuper,
+    UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.db = db;
     this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
     this.backuper = backuper;
     this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   /**
@@ -90,7 +94,8 @@ public class QProfileService {
   }
 
   private void verifyAdminPermission() {
-    userSession.checkLoggedIn();
-    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession
+      .checkLoggedIn()
+      .checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

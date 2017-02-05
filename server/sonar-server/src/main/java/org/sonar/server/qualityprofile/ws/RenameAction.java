@@ -23,9 +23,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.user.UserSession;
 
 public class RenameAction implements QProfileWsAction {
 
@@ -33,11 +31,11 @@ public class RenameAction implements QProfileWsAction {
   private static final String PARAM_PROFILE_KEY = "key";
 
   private final QProfileFactory profileFactory;
-  private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public RenameAction(QProfileFactory profileFactory, UserSession userSession) {
+  public RenameAction(QProfileFactory profileFactory, QProfileWsSupport qProfileWsSupport) {
     this.profileFactory = profileFactory;
-    this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -61,7 +59,7 @@ public class RenameAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    qProfileWsSupport.checkQProfileAdminPermission();
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);

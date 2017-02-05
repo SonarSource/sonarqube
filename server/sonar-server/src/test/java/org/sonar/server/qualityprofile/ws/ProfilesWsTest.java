@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
@@ -33,12 +32,12 @@ import static org.mockito.Mockito.mock;
 
 public class ProfilesWsTest {
 
-  WsTester ws;
+  private WsTester ws;
 
   @Before
   public void setUp() {
     ws = new WsTester(new ProfilesWs(
-      new OldRestoreAction(mock(QProfileBackuper.class), mock(Languages.class), mock(UserSession.class))));
+      new OldRestoreAction(mock(QProfileBackuper.class), mock(Languages.class), mock(QProfileWsSupport.class))));
   }
 
   @Test

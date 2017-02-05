@@ -37,6 +37,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -59,25 +60,23 @@ public class ChangeParentActionMediumTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  QProfilesWs ws;
-  DbClient db;
-  DbSession session;
-  WsTester wsTester;
-  RuleIndexer ruleIndexer;
-  ActiveRuleIndexer activeRuleIndexer;
-  RuleIndex ruleIndex;
+  private DbClient db;
+  private DbSession session;
+  private WsTester wsTester;
+  private RuleIndexer ruleIndexer;
+  private ActiveRuleIndexer activeRuleIndexer;
+  private RuleIndex ruleIndex;
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    ws = tester.get(QProfilesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     ruleIndex = tester.get(RuleIndex.class);
-    userSessionRule.logIn("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logIn().addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @After

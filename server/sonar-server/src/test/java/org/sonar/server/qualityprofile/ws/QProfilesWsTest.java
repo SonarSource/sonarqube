@@ -32,6 +32,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileService;
@@ -45,10 +47,11 @@ public class QProfilesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WebService.Controller controller;
-
-  String xoo1Key = "xoo1";
-  String xoo2Key = "xoo2";
+  private WebService.Controller controller;
+  private String xoo1Key = "xoo1";
+  private String xoo2Key = "xoo2";
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
@@ -66,23 +69,23 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, null),
       new AddProjectAction(projectAssociationParameters, null, null, dbClient),
       new RemoveProjectAction(projectAssociationParameters, null, null, dbClient),
-      new CreateAction(null, null, null, languages, importers, userSessionRule, null),
+      new CreateAction(null, null, null, languages, wsSupport, null, importers),
       new ImportersAction(importers),
-      new RestoreBuiltInAction(null, languages, userSessionRule),
+      new RestoreBuiltInAction(null, languages, wsSupport),
       new SearchAction(null, languages),
-      new SetDefaultAction(languages, null, null, userSessionRule),
+      new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule),
       new BackupAction(dbClient, null, null, languages),
-      new RestoreAction(null, languages, userSessionRule),
+      new RestoreAction(null, languages, wsSupport),
       new ChangelogAction(null, mock(QProfileFactory.class), languages, dbClient),
-      new ChangeParentAction(dbClient, null, null, languages, userSessionRule),
+      new ChangeParentAction(dbClient, null, null, languages, wsSupport),
       new CompareAction(null, null, languages),
-      new CopyAction(null, languages, userSessionRule),
-      new DeleteAction(languages, null, null, userSessionRule),
+      new CopyAction(null, languages, wsSupport),
+      new DeleteAction(languages, null, null, wsSupport),
       new ExportAction(null, null, mock(QProfileExporters.class), languages),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
-      new RenameAction(null, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
+      new RenameAction(null, wsSupport))).controller(QProfilesWs.API_ENDPOINT);
   }
 
   private ProfileImporter[] createImporters(Languages languages) {

@@ -20,20 +20,21 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.assertj.core.api.Fail;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,43 +46,32 @@ import static org.mockito.Mockito.mock;
 public class SetDefaultActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient;
-
-  private QualityProfileDao qualityProfileDao;
-
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
-
   private WsTester tester;
-
-  private DbSession session;
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(userSessionRule, defaultOrganizationProvider);
+  private DbClient dbClient = db.getDbClient();
 
   @Before
   public void setUp() {
-    qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao);
-    session = dbClient.openSession(false);
-
     createProfiles();
 
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new SetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient), userSessionRule)));
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+      new SetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient), wsSupport)));
   }
 
   @Test
   public void set_default_profile_using_key() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
     checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
@@ -90,8 +80,8 @@ public class SetDefaultActionTest {
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
     checkDefaultProfile(xoo2Key, "sonar-way-xoo2-23456");
-    assertThat(dbClient.qualityProfileDao().selectByKey(session, "sonar-way-xoo2-23456").isDefault()).isTrue();
-    assertThat(dbClient.qualityProfileDao().selectByKey(session, "my-sonar-way-xoo2-34567").isDefault()).isFalse();
+    assertThat(dbClient.qualityProfileDao().selectByKey(db.getSession(), "sonar-way-xoo2-23456").isDefault()).isTrue();
+    assertThat(dbClient.qualityProfileDao().selectByKey(db.getSession(), "my-sonar-way-xoo2-34567").isDefault()).isFalse();
 
     // One more time!
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
@@ -101,7 +91,7 @@ public class SetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Sonar way").execute().assertNoContent();
 
@@ -111,21 +101,20 @@ public class SetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_key() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
-    try {
-      tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
-      Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (NotFoundException nfe) {
-      assertThat(nfe).hasMessage("Quality profile not found: unknown-profile-666");
-      checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
-      checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
-    }
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Quality profile not found: unknown-profile-666");
+
+    tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
+
+    checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
+    checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
   }
 
   @Test
   public void fail_to_set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Unknown").execute();
@@ -138,24 +127,35 @@ public class SetDefaultActionTest {
   }
 
   @Test
-  public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logIn("obiwan");
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSessionRule.logIn();
 
-    try {
-      tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
-      Fail.failBecauseExceptionWasNotThrown(ForbiddenException.class);
-    } catch (ForbiddenException forbidden) {
-      checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
-      checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
-    }
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSessionRule
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   private void createProfiles() {
-    qualityProfileDao.insert(session,
+    dbClient.qualityProfileDao().insert(db.getSession(),
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"),
       QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456").setDefault(true));
-    session.commit();
+    db.commit();
   }
 
   private void checkDefaultProfile(String language, String key) {

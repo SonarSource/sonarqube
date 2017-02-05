@@ -25,10 +25,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
-import org.sonar.server.user.UserSession;
 
 public class CopyAction implements QProfileWsAction {
 
@@ -37,12 +35,12 @@ public class CopyAction implements QProfileWsAction {
 
   private final QProfileCopier profileCopier;
   private final Languages languages;
-  private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
-  public CopyAction(QProfileCopier profileCopier, Languages languages, UserSession userSession) {
+  public CopyAction(QProfileCopier profileCopier, Languages languages, QProfileWsSupport qProfileWsSupport) {
     this.profileCopier = profileCopier;
     this.languages = languages;
-    this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -66,7 +64,7 @@ public class CopyAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    qProfileWsSupport.checkQProfileAdminPermission();
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);

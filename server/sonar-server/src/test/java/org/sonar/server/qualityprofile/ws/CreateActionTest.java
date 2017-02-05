@@ -33,6 +33,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -41,6 +42,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -59,7 +62,6 @@ import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
@@ -83,27 +85,25 @@ public class CreateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession dbSession = dbTester.getSession();
-
-  RuleIndex ruleIndex = new RuleIndex(esTester.client());
-  RuleIndexer ruleIndexer = new RuleIndexer(system2, dbClient, esTester.client());
-
-  ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
-
-  ProfileImporter[] profileImporters = createImporters();
-
-  QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
+  private RuleIndex ruleIndex = new RuleIndex(esTester.client());
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private RuleIndexer ruleIndexer = new RuleIndexer(system2, dbClient, esTester.client());
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
+  private ProfileImporter[] profileImporters = createImporters();
+  private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
     profileImporters);
 
-  CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters, newLanguages(XOO_LANGUAGE), profileImporters, userSession,
-    activeRuleIndexer);
-  WsActionTester wsTester = new WsActionTester(underTest);
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient), qProfileExporters,
+    newLanguages(XOO_LANGUAGE), new QProfileWsSupport(userSession, defaultOrganizationProvider),
+    activeRuleIndexer, profileImporters);
+  private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
   public void create_profile() {
-    setUserAsQualityProfileAdmin();
+    logInAsQProfileAdministrator();
 
     CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
 
@@ -124,7 +124,7 @@ public class CreateActionTest {
 
   @Test
   public void create_profile_from_backup_xml() {
-    setUserAsQualityProfileAdmin();
+    logInAsQProfileAdministrator();
     insertRule(RULE);
 
     executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
@@ -137,7 +137,7 @@ public class CreateActionTest {
 
   @Test
   public void create_profile_with_messages() {
-    setUserAsQualityProfileAdmin();
+    logInAsQProfileAdministrator();
 
     CreateWsResponse response = executeRequest("Profile with messages", XOO_LANGUAGE, ImmutableMap.of("with_messages", "<xml/>"));
 
@@ -148,7 +148,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_import_generate_error() {
-    setUserAsQualityProfileAdmin();
+    logInAsQProfileAdministrator();
 
     expectedException.expect(BadRequestException.class);
     executeRequest("Profile with errors", XOO_LANGUAGE, ImmutableMap.of("with_errors", "<xml/>"));
@@ -156,7 +156,7 @@ public class CreateActionTest {
 
   @Test
   public void test_json() throws Exception {
-    setUserAsQualityProfileAdmin();
+    logInAsQProfileAdministrator();
 
     TestResponse response = wsTester.newRequest()
       .setMethod("POST")
@@ -192,10 +192,6 @@ public class CreateActionTest {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-  }
-
-  private void setUserAsQualityProfileAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(QUALITY_PROFILE_ADMIN);
   }
 
   private ProfileImporter[] createImporters() {
@@ -245,5 +241,11 @@ public class CreateActionTest {
     return new ProfileImporter[] {
       new DefaultProfileImporter(), new ProfileImporterGeneratingMessages(), new ProfileImporterGeneratingErrors()
     };
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSession
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

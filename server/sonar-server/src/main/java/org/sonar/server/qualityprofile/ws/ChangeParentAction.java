@@ -24,14 +24,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileRef;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -44,15 +42,15 @@ public class ChangeParentAction implements QProfileWsAction {
   private final RuleActivator ruleActivator;
   private final QProfileFactory profileFactory;
   private final Languages languages;
-  private final UserSession userSession;
+  private final QProfileWsSupport qProfileWsSupport;
 
   public ChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory,
-    Languages languages, UserSession userSession) {
+    Languages languages, QProfileWsSupport qProfileWsSupport) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.profileFactory = profileFactory;
     this.languages = languages;
-    this.userSession = userSession;
+    this.qProfileWsSupport = qProfileWsSupport;
   }
 
   @Override
@@ -78,7 +76,7 @@ public class ChangeParentAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    qProfileWsSupport.checkQProfileAdminPermission();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityProfileDto profile = profileFactory.find(dbSession, QProfileRef.from(request));

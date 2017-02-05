@@ -22,13 +22,17 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -40,9 +44,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CopyActionTest {
 
+  private static final String DEFAULT_ORG_UUID = "U1";
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid(DEFAULT_ORG_UUID);
   private WsTester tester;
 
   // TODO Replace with proper DbTester + EsTester medium test during removal of DaoV2
@@ -54,12 +64,12 @@ public class CopyActionTest {
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
-      new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), userSessionRule)));
+      new CopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), new QProfileWsSupport(userSessionRule, defaultOrganizationProvider))));
   }
 
   @Test
   public void copy_nominal() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -79,7 +89,7 @@ public class CopyActionTest {
 
   @Test
   public void copy_with_parent() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    logInAsQProfileAdministrator();
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -98,31 +108,51 @@ public class CopyActionTest {
     verify(qProfileCopier).copyToName(fromProfileKey, toName);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_on_missing_key() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  @Test
+  public void fail_if_parameter_fromKey_is_missing() throws Exception {
+    logInAsQProfileAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'fromKey' parameter is missing");
 
     tester.newPostRequest("api/qualityprofiles", "copy")
-      .setParam("name", "Other Sonar Way")
+      .setParam("toName", "Other Sonar Way")
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_on_missing_name() throws Exception {
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  @Test
+  public void fail_if_parameter_toName_is_missing() throws Exception {
+    logInAsQProfileAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'toName' parameter is missing");
 
     tester.newPostRequest("api/qualityprofiles", "copy")
-      .setParam("key", "sonar-way-xoo1-13245")
+      .setParam("fromKey", "sonar-way-xoo1-13245")
       .execute();
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logIn("obiwan");
+  @Test
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSessionRule.logIn();
 
-    tester.newPostRequest("api/qualityprofiles", "copy")
-      .setParam("key", "sonar-way-xoo1-13245")
-      .setParam("name", "Hey look I am not quality profile admin!")
-      .execute();
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    tester.newPostRequest("api/qualityprofiles", "copy").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    tester.newPostRequest("api/qualityprofiles", "copy").execute();
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSessionRule
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }
