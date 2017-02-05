@@ -110,6 +110,7 @@ import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.L10nWs;
 import org.sonar.server.platform.ws.LogsAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
+import org.sonar.server.platform.ws.PingAction;
 import org.sonar.server.platform.ws.RestartAction;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.StatusAction;
@@ -459,6 +460,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ServerLogging.class,
       RestartAction.class,
       InfoAction.class,
+      PingAction.class,
       UpgradesAction.class,
       StatusAction.class,
       SystemWs.class,
