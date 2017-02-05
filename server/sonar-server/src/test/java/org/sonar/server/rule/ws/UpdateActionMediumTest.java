@@ -35,6 +35,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleService;
@@ -56,7 +57,7 @@ public class UpdateActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   WsTester wsTester;
 
@@ -71,6 +72,7 @@ public class UpdateActionMediumTest {
     ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
     session = tester.get(DbClient.class).openSession(false);
+    logInAsQProfileAdministrator();
   }
 
   @After
@@ -173,4 +175,9 @@ public class UpdateActionMediumTest {
     }
   }
 
+  private void logInAsQProfileAdministrator() {
+    userSessionRule
+      .logIn()
+      .addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
 }

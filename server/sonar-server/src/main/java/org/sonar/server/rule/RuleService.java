@@ -23,13 +23,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.user.UserSession;
 
 /**
  * @since 4.4
@@ -38,13 +36,9 @@ import org.sonar.server.user.UserSession;
 public class RuleService {
 
   private final RuleIndex index;
-  private final RuleDeleter ruleDeleter;
-  private final UserSession userSession;
 
-  public RuleService(RuleIndex index, RuleDeleter ruleDeleter, UserSession userSession) {
+  public RuleService(RuleIndex index) {
     this.index = index;
-    this.ruleDeleter = ruleDeleter;
-    this.userSession = userSession;
   }
 
   public RuleQuery newRuleQuery() {
@@ -69,16 +63,5 @@ public class RuleService {
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
     return index.search(query, options);
-  }
-
-  public void delete(RuleKey ruleKey) {
-    checkPermission();
-    ruleDeleter.delete(ruleKey);
-  }
-
-  private void checkPermission() {
-    userSession
-      .checkLoggedIn()
-      .checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

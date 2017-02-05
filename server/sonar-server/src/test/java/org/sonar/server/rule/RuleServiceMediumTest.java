@@ -27,13 +27,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -109,24 +106,6 @@ public class RuleServiceMediumTest {
     assertThat(service.listTags("mis\\d", 10)).isEmpty();
     assertThat(service.listTags(".*", 10)).isEmpty();
     assertThat(service.listTags("<foo>", 10)).isEmpty();
-  }
-
-  @Test
-  public void delete_throws_UnauthorizedException_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    service.delete(RuleKey.of("java", "S001"));
-  }
-
-  @Test
-  public void delete_throws_ForbiddenException_if_not_administrator() {
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    service.delete(RuleKey.of("java", "S001"));
   }
 
   private void insertRule(RuleKey key, Set<String> tags, Set<String> systemTags) {

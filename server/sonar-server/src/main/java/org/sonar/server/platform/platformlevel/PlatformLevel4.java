@@ -170,6 +170,7 @@ import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapper;
 import org.sonar.server.rule.ws.RuleQueryFactory;
+import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.serverid.ws.ServerIdWsModule;
@@ -290,6 +291,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleDeleter.class,
       org.sonar.server.rule.ws.UpdateAction.class,
       RulesWs.class,
+      RuleWsSupport.class,
       org.sonar.server.rule.ws.SearchAction.class,
       org.sonar.server.rule.ws.ShowAction.class,
       org.sonar.server.rule.ws.CreateAction.class,

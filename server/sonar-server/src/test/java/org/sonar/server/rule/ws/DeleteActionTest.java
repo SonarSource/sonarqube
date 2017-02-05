@@ -19,35 +19,64 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.rule.RuleService;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.rule.RuleDeleter;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DeleteActionTest {
 
-  WsTester tester;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  RuleService ruleService;
+  private RuleDeleter ruleDeleter = mock(RuleDeleter.class);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
+  private RuleWsSupport ruleWsSupport = new RuleWsSupport(userSession, defaultOrganizationProvider);
+  private WsTester tester = new WsTester(new RulesWs(new DeleteAction(ruleDeleter, ruleWsSupport)));
 
-  @Before
-  public void setUp() {
-    tester = new WsTester(new RulesWs(new DeleteAction(ruleService)));
-  }
 
   @Test
   public void delete_custom_rule() throws Exception {
+    logInAsQProfileAdministrator();
+
     WsTester.TestRequest request = tester.newPostRequest("api/rules", "delete").setParam("key", "squid:XPath_1402065390816");
     request.execute();
 
-    verify(ruleService).delete(RuleKey.of("squid", "XPath_1402065390816"));
+    verify(ruleDeleter).delete(RuleKey.of("squid", "XPath_1402065390816"));
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+
+    tester.newPostRequest("api/rules", "delete").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+
+    tester.newPostRequest("api/rules", "delete").execute();
+  }
+
+  private void logInAsQProfileAdministrator() {
+    userSession
+      .logIn()
+      .addOrganizationPermission(defaultOrganizationProvider.get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

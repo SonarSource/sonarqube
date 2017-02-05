@@ -23,19 +23,18 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.RuleDeleter;
 
-/**
- * @since 4.4
- */
 public class DeleteAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
 
-  private final RuleService service;
+  private final RuleDeleter ruleDeleter;
+  private final RuleWsSupport ruleWsSupport;
 
-  public DeleteAction(RuleService service) {
-    this.service = service;
+  public DeleteAction(RuleDeleter ruleDeleter, RuleWsSupport ruleWsSupport) {
+    this.ruleDeleter = ruleDeleter;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -56,7 +55,8 @@ public class DeleteAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
+    ruleWsSupport.checkQProfileAdminPermission();
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    service.delete(key);
+    ruleDeleter.delete(key);
   }
 }

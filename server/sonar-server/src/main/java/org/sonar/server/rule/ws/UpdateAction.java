@@ -35,7 +35,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -71,12 +70,15 @@ public class UpdateAction implements RulesWsAction {
   private final RuleUpdater ruleUpdater;
   private final RuleMapper mapper;
   private final UserSession userSession;
+  private final RuleWsSupport ruleWsSupport;
 
-  public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession) {
+  public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession,
+    RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.ruleUpdater = ruleUpdater;
     this.mapper = mapper;
     this.userSession = userSession;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
@@ -158,16 +160,14 @@ public class UpdateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    checkPermission();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    ruleWsSupport.checkQProfileAdminPermission();
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
       RuleUpdate update = readRequest(dbSession, request);
       ruleUpdater.update(dbSession, update, userSession);
       UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
 
       writeProtobuf(updateResponse, request, response);
-    } finally {
-      dbClient.closeSession(dbSession);
     }
   }
 
@@ -268,10 +268,5 @@ public class UpdateAction implements RulesWsAction {
     responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.<String>emptySet()));
 
     return responseBuilder.build();
-  }
-
-  private void checkPermission() {
-    userSession.checkLoggedIn();
-    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }
