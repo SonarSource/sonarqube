@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.core.config.WebConstants;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
@@ -59,13 +58,13 @@ public class SettingsAction implements NavigationWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean isAdmin = userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
+    boolean isRoot = userSession.isRoot();
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("showUpdateCenter", isAdmin && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
+    json.prop("showUpdateCenter", isRoot && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
 
     json.name("extensions").beginArray();
-    if (isAdmin) {
+    if (isRoot) {
       for (Page page : pageRepository.getGlobalPages(true)) {
         json.beginObject()
           .prop("key", page.getKey())

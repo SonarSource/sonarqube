@@ -27,7 +27,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.config.WebConstants;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
@@ -50,7 +49,7 @@ public class SettingsActionTest {
   @Test
   public void empty() throws Exception {
     init();
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
 
     executeAndVerify("empty.json");
   }
@@ -58,7 +57,7 @@ public class SettingsActionTest {
   @Test
   public void with_pages() throws Exception {
     init(createPages());
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
 
     executeAndVerify("with_pages.json");
   }
@@ -67,15 +66,16 @@ public class SettingsActionTest {
   public void with_update_center() throws Exception {
     init();
     settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
 
     executeAndVerify("with_update_center.json");
   }
 
   @Test
-  public void with_views_and_update_center_but_not_admin() throws Exception {
+  public void with_views_and_update_center_but_not_root_administrator() throws Exception {
     init(createPages());
     settings.setProperty(WebConstants.SONAR_UPDATECENTER_ACTIVATE, true);
+    userSessionRule.logIn().setNonRoot();
 
     executeAndVerify("empty.json");
   }
