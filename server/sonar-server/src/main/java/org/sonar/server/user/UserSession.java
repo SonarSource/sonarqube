@@ -59,17 +59,6 @@ public interface UserSession {
   UserSession checkLoggedIn();
 
   /**
-   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-  
-   * @deprecated in 6.3 because it doesn't support organizations
-   * @see org.sonar.core.permission.GlobalPermissions
-   * @see #checkIsRoot() for system administrators
-   * @see #checkOrganizationPermission(String, String) for organization members
-   */
-  @Deprecated
-  UserSession checkPermission(String globalPermission);
-
-  /**
    * Does the user have the given permission ?
   
    * @deprecated in 6.3 because if doesn't support organizations

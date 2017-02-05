@@ -153,33 +153,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkPermission_succeeds_if_user_has_global_permission_in_db() {
-    addGlobalPermissions("admin", "profileadmin");
-    UserSession session = newUserSession(userDto);
-
-    session.checkPermission(QUALITY_PROFILE_ADMIN);
-  }
-
-  @Test
-  public void checkPermission_fails_with_FE_if_user_has_not_global_permission_in_db() {
-    addGlobalPermissions("admin", "profileadmin");
-    UserSession session = newUserSession(userDto);
-
-    expectInsufficientPrivilegesForbiddenException();
-
-    session.checkPermission(QUALITY_GATE_ADMIN);
-  }
-
-  @Test
-  public void checkPermission_succeeds_when_flag_is_true_on_UserDto_no_matter_actual_global_permissions() {
-    UserSession underTest = newUserSession(ROOT_USER_DTO);
-
-    assertThat(underTest.checkPermission(QUALITY_PROFILE_ADMIN)).isSameAs(underTest);
-    assertThat(underTest.checkPermission(SYSTEM_ADMIN)).isSameAs(underTest);
-    assertThat(underTest.checkPermission("whatever!")).isSameAs(underTest);
-  }
-
-  @Test
   public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);

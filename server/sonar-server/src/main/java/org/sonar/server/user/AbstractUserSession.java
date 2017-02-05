@@ -46,17 +46,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkPermission(String globalPermission) {
-    if (isRoot()) {
-      return this;
-    }
-    if (!hasPermission(globalPermission)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
-  }
-
-  @Override
   public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
     if (isRoot()) {
       return this;
