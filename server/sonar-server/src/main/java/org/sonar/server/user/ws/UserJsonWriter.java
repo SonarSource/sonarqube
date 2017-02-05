@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
@@ -94,7 +93,7 @@ public class UserJsonWriter {
   }
 
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable Collection<String> fields) {
-    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.isRoot()) {
       json.name(FIELD_GROUPS).beginArray();
       for (String groupName : groups) {
         json.value(groupName);

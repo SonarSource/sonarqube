@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -94,7 +93,7 @@ public class SearchActionTest {
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
     db.commit();
     userIndexer.index();
-    loginAsAdmin();
+    loginAsRoot();
 
     String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
 
@@ -177,7 +176,7 @@ public class SearchActionTest {
       .doesNotContain("scmAccounts")
       .doesNotContain("groups");
 
-    loginAsAdmin();
+    loginAsRoot();
 
     assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
@@ -196,7 +195,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_groups() throws Exception {
-    loginAsAdmin();
+    loginAsRoot();
     List<UserDto> users = injectUsers(1);
 
     GroupDto group1 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-users"));
@@ -260,12 +259,12 @@ public class SearchActionTest {
     return userDtos;
   }
 
-  private void loginAsAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void loginAsRoot() {
+    userSession.logIn().setRoot();
   }
 
   private void loginAsSimpleUser() {
-    userSession.logIn("user");
+    userSession.logIn();
   }
 
 }
