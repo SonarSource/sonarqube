@@ -19,18 +19,18 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -40,62 +40,109 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_IDS;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class BulkDeleteActionTest {
 
   private static final String ACTION = "bulk_delete";
 
-  private System2 system2 = System2.INSTANCE;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
-
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ComponentDbTester componentDbTester = new ComponentDbTester(db);
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private WsTester ws;
   private DbClient dbClient = db.getDbClient();
+  private BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, new ProjectsWsSupport(dbClient));
+  private OrganizationDto org1;
+  private OrganizationDto org2;
 
   @Before
   public void setUp() {
-    ws = new WsTester(new ProjectsWs(
-      new BulkDeleteAction(
-        componentCleanerService,
-        dbClient,
-        userSessionRule)));
+    ws = new WsTester(new ProjectsWs(underTest));
+    org1 = db.organizations().insert();
+    org2 = db.organizations().insert();
   }
 
   @Test
-  public void delete_projects_by_uuids() throws Exception {
-    userSessionRule.logIn().setRoot();
-    ComponentDto p1 = componentDbTester.insertProject();
-    ComponentDto p2 = componentDbTester.insertProject();
-
-    WsTester.Result result = ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, p1.uuid() + "," + p2.uuid()).execute();
-    result.assertNoContent();
-
-    verifyDeleted(p1, p2);
-  }
-
-  @Test
-  public void delete_projects_by_keys() throws Exception {
-    userSessionRule.logIn().setRoot();
-    ComponentDto p1 = componentDbTester.insertProject();
-    ComponentDto p2 = componentDbTester.insertProject();
+  public void root_deletes_projects_by_uuids_in_all_organizations() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
+    ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
+    ComponentDto toKeep = db.components().insertProject(org2);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
-      .setParam(PARAM_KEYS, p1.key() + "," + p2.key()).execute();
+      .setParam("ids", toDeleteInOrg1.uuid() + "," + toDeleteInOrg2.uuid())
+      .execute();
     result.assertNoContent();
 
-    verifyDeleted(p1, p2);
+    verifyDeleted(toDeleteInOrg1, toDeleteInOrg2);
+  }
+
+  @Test
+  public void root_deletes_projects_by_keys_in_all_organizations() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
+    ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
+    ComponentDto toKeep = db.components().insertProject(org2);
+
+    WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
+      .setParam("keys", toDeleteInOrg1.key() + "," + toDeleteInOrg2.key())
+      .execute();
+    result.assertNoContent();
+
+    verifyDeleted(toDeleteInOrg1, toDeleteInOrg2);
+  }
+
+  @Test
+  public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto toDelete1 = db.components().insertProject(org1);
+    ComponentDto toDelete2 = db.components().insertProject(org1);
+
+    WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
+      .setParam("keys", toDelete1.key() + ",missing," + toDelete2.key() + ",doesNotExist")
+      .execute();
+    result.assertNoContent();
+
+    verifyDeleted(toDelete1, toDelete2);
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() throws Exception {
+    userSession.logIn().addOrganizationPermission(org1.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    ComponentDto project = db.components().insertProject(org1);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    ws.newPostRequest("api/projects", ACTION)
+      .setParam("keys", project.key())
+      .execute();
+
+    verifyNoDeletions();
+  }
+
+  @Test
+  public void organization_administrator_deletes_projects_by_keys_in_his_organization() throws Exception {
+    userSession.logIn().addOrganizationPermission(org1.getUuid(), GlobalPermissions.SYSTEM_ADMIN);
+    ComponentDto toDelete = db.components().insertProject(org1);
+    ComponentDto cantBeDeleted = db.components().insertProject(org2);
+
+    WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
+      .setParam("organization", org1.getKey())
+      .setParam("keys", toDelete.key() + "," + cantBeDeleted.key())
+      .execute();
+    result.assertNoContent();
+
+    verifyDeleted(toDelete);
   }
 
   @Test
@@ -103,23 +150,50 @@ public class BulkDeleteActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "whatever-the-uuid").execute();
+    ws.newPostRequest("api/projects", ACTION)
+      .setParam("ids", "whatever-the-uuid").execute();
+
+    verifyNoDeletions();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_root_administrator() throws Exception {
-    userSessionRule.logIn().setNonRoot();
+  public void throw_ForbiddenException_if_param_organization_is_not_set_and_not_root() throws Exception {
+    userSession.logIn().setNonRoot();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "whatever-the-uuid").execute();
+    ws.newPostRequest("api/projects", ACTION)
+      .setParam("ids", "whatever-the-uuid").execute();
+
+    verifyNoDeletions();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_param_organization_is_set_but_not_organization_administrator() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    ws.newPostRequest("api/projects", ACTION)
+      .setParam("organization", org1.getKey())
+      .setParam("ids", "whatever-the-uuid")
+      .execute();
+
+    verifyNoDeletions();
   }
 
   private void verifyDeleted(ComponentDto... projects) {
-    ArgumentCaptor<List<ComponentDto>> argument = (ArgumentCaptor<List<ComponentDto>>) ((ArgumentCaptor) ArgumentCaptor.forClass(List.class));
-    verify(componentCleanerService).delete(any(DbSession.class), argument.capture());
+    ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
+    verify(componentCleanerService, times(projects.length)).delete(any(DbSession.class), argument.capture());
 
-    assertThat(argument.getValue()).containsOnly(projects);
+    for (ComponentDto project : projects) {
+      assertThat(argument.getAllValues()).extracting(ComponentDto::uuid).contains(project.uuid());
+    }
+  }
+
+  private void verifyNoDeletions() {
+    verifyZeroInteractions(componentCleanerService);
   }
 }

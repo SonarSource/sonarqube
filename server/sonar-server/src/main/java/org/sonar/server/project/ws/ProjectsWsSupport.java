@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -26,6 +27,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
+@ServerSide
 public class ProjectsWsSupport {
   public static final String PARAM_ORGANIZATION = "organization";
 
