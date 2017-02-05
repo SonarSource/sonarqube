@@ -35,6 +35,7 @@ import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.QualityProfilesPageTest;
 import it.serverSystem.HttpHeadersTest;
 import it.serverSystem.LogsTest;
+import it.serverSystem.PingTest;
 import it.serverSystem.ServerSystemTest;
 import it.ui.SourceViewerTest;
 import it.ui.UiTest;
@@ -58,6 +59,7 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   // server system
   ServerSystemTest.class,
+  PingTest.class,
   // user
   MyAccountPageTest.class,
   FavoritesWsTest.class,
