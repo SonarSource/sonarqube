@@ -27,7 +27,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -76,8 +75,8 @@ public class MetricsActionTest {
       .setEmail("login@login.com")
       .setActive(true));
     ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, new ComponentFinder(dbClient))));
-    userSession.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     defaultProject = insertDefaultProject();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, defaultProject.uuid());
   }
 
   @Test

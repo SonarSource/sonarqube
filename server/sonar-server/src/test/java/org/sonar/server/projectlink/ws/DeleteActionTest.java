@@ -19,7 +19,6 @@
  */
 package org.sonar.server.projectlink.ws;
 
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +39,6 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_ID;
@@ -69,14 +67,13 @@ public class DeleteActionTest {
   public void setUp() {
     underTest = new DeleteAction(dbClient, userSession);
     ws = new WsActionTester(underTest);
-
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void no_response() {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     TestResponse response = deleteLink(link.getId());
 
@@ -89,20 +86,7 @@ public class DeleteActionTest {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());
     long id = link.getId();
-
-    deleteLink(id);
-    assertLinkIsDeleted(id);
-  }
-
-  @Test
-  public void project_admin() throws IOException {
-    userSession.logIn("login");
-
-    ComponentDto project = insertProject();
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-
-    ComponentLinkDto link = insertCustomLink(project.uuid());
-    long id = link.getId();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     deleteLink(id);
     assertLinkIsDeleted(id);
@@ -116,6 +100,7 @@ public class DeleteActionTest {
     ComponentLinkDto customLink2 = insertCustomLink(project2.uuid());
     Long id1 = customLink1.getId();
     Long id2 = customLink2.getId();
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project1.uuid(), project2.uuid());
 
     deleteLink(id1);
     assertLinkIsDeleted(id1);
@@ -126,14 +111,17 @@ public class DeleteActionTest {
   public void fail_when_delete_provided_link() {
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertHomepageLink(project.uuid());
+    userSession.logIn().setRoot();
 
     expectedException.expect(BadRequestException.class);
+
     deleteLink(link.getId());
   }
 
   @Test
   public void fail_when_no_link() {
     expectedException.expect(NotFoundException.class);
+
     deleteLink("175");
   }
 
@@ -145,12 +133,13 @@ public class DeleteActionTest {
     ComponentLinkDto link = insertCustomLink(project.uuid());
 
     expectedException.expect(ForbiddenException.class);
+
     deleteLink(link.getId());
   }
 
   @Test
   public void fail_if_not_project_admin() {
-    userSession.logIn("login");
+    userSession.logIn();
 
     ComponentDto project = insertProject();
     ComponentLinkDto link = insertCustomLink(project.uuid());

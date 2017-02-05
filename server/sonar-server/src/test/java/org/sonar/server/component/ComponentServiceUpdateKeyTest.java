@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -132,7 +131,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
-    setGlobalAdminPermission();
+    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
     ComponentDto anotherProject = componentDb.insertProject();
 
@@ -144,7 +143,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_new_key_is_empty() {
-    setGlobalAdminPermission();
+    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
 
     expectedException.expect(BadRequestException.class);
@@ -155,7 +154,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_new_key_is_not_formatted_correctly() {
-    setGlobalAdminPermission();
+    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
 
     expectedException.expect(BadRequestException.class);
@@ -166,7 +165,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void fail_if_update_is_not_on_module_or_project() {
-    setGlobalAdminPermission();
+    logInAsRoot();
     ComponentDto project = insertSampleRootProject();
     ComponentDto file = componentDb.insertComponent(newFileDto(project, null));
 
@@ -202,8 +201,8 @@ public class ComponentServiceUpdateKeyTest {
     assertThat(dbClient.componentDao().selectByKey(dbSession, key)).isPresent();
   }
 
-  private void setGlobalAdminPermission() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
   }
 
   private ComponentDto insertSampleRootProject() {

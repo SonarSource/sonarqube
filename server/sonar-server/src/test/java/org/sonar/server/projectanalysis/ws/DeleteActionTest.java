@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -48,7 +47,7 @@ public class DeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
@@ -57,10 +56,11 @@ public class DeleteActionTest {
   private WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession));
 
   @Test
-  public void delete_as_global_admin() {
+  public void root_administrator_deletes_analysis() {
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
+    userSession.logIn().setRoot();
 
     call("A1");
 
@@ -71,11 +71,11 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void delete_as_project_admin() {
+  public void project_administrator_deletes_analysis() {
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call("A1");
 
@@ -95,9 +95,10 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void fail_when_last_analysis() {
+  public void last_analysis_cannot_be_deleted() {
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(true));
+    userSession.logIn().setRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The last analysis 'A1' cannot be deleted");
@@ -107,6 +108,8 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_analysis_not_found() {
+    userSession.logIn().setRoot();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis 'A42' not found");
 
@@ -115,6 +118,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_analysis_is_unprocessed() {
+    userSession.logIn().setRoot();
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
 
@@ -126,7 +130,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    userSession.anonymous();
+    userSession.logIn();
     ComponentDto project = db.components().insertProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false));
 

@@ -77,10 +77,10 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void global_admin_deletes_project_by_id() throws Exception {
+  public void root_administrator_deletes_project_by_id() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
-    userSessionRule.logIn().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.logIn().setRoot();
     WsTester.TestRequest request = newRequest().setParam(PARAM_ID, project.uuid());
     call(request);
 
@@ -88,10 +88,10 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void global_admin_deletes_project_by_key() throws Exception {
+  public void root_administrator_deletes_project_by_key() throws Exception {
     ComponentDto project = componentDbTester.insertProject();
 
-    userSessionRule.logIn().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.logIn().setRoot();
     call(newRequest().setParam(PARAM_KEY, project.key()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.key());

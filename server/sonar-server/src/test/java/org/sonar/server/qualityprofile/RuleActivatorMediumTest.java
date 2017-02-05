@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -188,7 +187,7 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(BLOCKER);
     activation.setParameter("max", "7");
     activation.setParameter("min", "3");
-    userSessionRule.logIn().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().setRoot();
     List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();

@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -110,7 +109,7 @@ public class ComponentActionTest {
   @Test
   public void search_tasks_by_component_key() {
     ComponentDto project = componentDbTester.insertProject();
-    setUserWithBrowsePermission(project);
+    logInWithBrowsePermission(project);
     insertActivity("T1", project.uuid(), CeActivityDto.Status.SUCCESS);
 
     TestResponse wsResponse = ws.newRequest()
@@ -156,11 +155,12 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_when_insufficient_permissions() {
+  public void throw_ForbiddenException_if_user_cant_access_project() {
     ComponentDto project = componentDbTester.insertProject();
-    userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, project.uuid())
@@ -170,13 +170,13 @@ public class ComponentActionTest {
   @Test
   public void fail_when_no_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
-    setUserWithBrowsePermission(componentDbTester.insertProject());
+    logInWithBrowsePermission(componentDbTester.insertProject());
 
     ws.newRequest().execute();
   }
 
-  private void setUserWithBrowsePermission(ComponentDto project) {
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+  private void logInWithBrowsePermission(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {

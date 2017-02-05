@@ -111,8 +111,9 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   @Test
   public void fail_if_not_authenticated() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
 
     newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
@@ -122,8 +123,9 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
+    userSession.logIn();
+
     expectedException.expect(ForbiddenException.class);
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
 
     newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)

@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -179,7 +178,6 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     userSession.logIn().addOrganizationPermission("otherOrg", SYSTEM_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     newRequest(template1.getUuid(), project.uuid(), null);
   }

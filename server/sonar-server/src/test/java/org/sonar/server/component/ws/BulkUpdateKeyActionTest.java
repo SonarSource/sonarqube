@@ -30,7 +30,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -95,7 +94,7 @@ public class BulkUpdateKeyActionTest {
 
   @Before
   public void setUp() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
   }
 
   @Test
@@ -241,11 +240,12 @@ public class BulkUpdateKeyActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_privileges() {
-    expectedException.expect(ForbiddenException.class);
+  public void throw_ForbiddenException_if_not_root_administrator() {
     userSession.anonymous();
-
     ComponentDto project = insertMyProject();
+
+    expectedException.expect(ForbiddenException.class);
+
 
     callDryRunByUuid(project.uuid(), FROM, TO);
   }

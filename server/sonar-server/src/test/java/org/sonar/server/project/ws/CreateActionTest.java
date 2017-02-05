@@ -53,7 +53,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -148,7 +147,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_project_parameter() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
 
@@ -157,7 +155,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_name_parameter() throws Exception {
-    userSession.setGlobalPermissions(PROVISIONING);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
@@ -166,7 +163,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_create_project_permission() throws Exception {
-    userSession.setGlobalPermissions(QUALITY_GATE_ADMIN);
     expectedException.expect(ForbiddenException.class);
 
     call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());

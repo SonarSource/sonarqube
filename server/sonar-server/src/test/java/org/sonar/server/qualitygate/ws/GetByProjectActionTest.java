@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -57,7 +56,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 
 public class GetByProjectActionTest {
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -75,6 +74,7 @@ public class GetByProjectActionTest {
     ComponentDto project = componentDb.insertComponent(newProjectDto(organizationDto));
     QualityGateDto qualityGate = insertQualityGate("My team QG");
     associateProjectToQualityGate(project.getId(), qualityGate.getId());
+    logInAsProjectUser(project);
 
     String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
 
@@ -87,6 +87,7 @@ public class GetByProjectActionTest {
   public void empty_response() {
     ComponentDto project = componentDb.insertProject();
     insertQualityGate("Another QG");
+    logInAsProjectUser(project);
 
     String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
 
@@ -98,6 +99,7 @@ public class GetByProjectActionTest {
     ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
+    logInAsProjectUser(project);
 
     GetByProjectWsResponse result = callByUuid(project.uuid());
 
@@ -114,6 +116,7 @@ public class GetByProjectActionTest {
     QualityGateDto dbQualityGate = insertQualityGate("My team QG");
     setDefaultQualityGate(defaultDbQualityGate.getId());
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
+    logInAsProjectUser(project);
 
     GetByProjectWsResponse result = callByUuid(project.uuid());
 
@@ -127,6 +130,7 @@ public class GetByProjectActionTest {
     ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
     QualityGateDto dbQualityGate = insertQualityGate("My team QG");
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
+    logInAsProjectUser(project);
 
     GetByProjectWsResponse result = callByKey(project.key());
 
@@ -159,12 +163,12 @@ public class GetByProjectActionTest {
 
   @Test
   public void fail_when_insufficient_permission() {
-    expectedException.expect(ForbiddenException.class);
-
     ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
-    userSession.anonymous().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn();
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
+
+    expectedException.expect(ForbiddenException.class);
 
     callByUuid(project.uuid());
   }
@@ -238,5 +242,9 @@ public class GetByProjectActionTest {
       .setKey("sonar.qualitygate")
       .setValue(String.valueOf(qualityGateId)));
     db.commit();
+  }
+
+  private void logInAsProjectUser(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
   }
 }

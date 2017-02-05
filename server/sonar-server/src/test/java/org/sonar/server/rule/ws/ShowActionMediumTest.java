@@ -41,6 +41,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
@@ -60,7 +61,7 @@ public class ShowActionMediumTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
-    .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    .addOrganizationPermission(tester.get(DefaultOrganizationProvider.class).get().getUuid(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 

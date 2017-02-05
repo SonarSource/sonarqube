@@ -43,7 +43,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class DeselectActionTest {
@@ -120,18 +119,6 @@ public class DeselectActionTest {
     associateProjectToQualityGate(project.getId(), gateId);
 
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
-
-    callByKey(gateId, project.getKey());
-
-    assertDeselected(project.getId());
-  }
-
-  @Test
-  public void system_admin() throws Exception {
-    String gateId = String.valueOf(gate.getId());
-    associateProjectToQualityGate(project.getId(), gateId);
-
-    userSession.logIn().setGlobalPermissions(SYSTEM_ADMIN);
 
     callByKey(gateId, project.getKey());
 

@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -59,14 +58,14 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 
 public class UpdateEventActionTest {
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-
   private WsActionTester ws = new WsActionTester(new UpdateEventAction(dbClient, userSession));
 
   @Test
@@ -78,6 +77,7 @@ public class UpdateEventActionTest {
       .setCategory(OTHER.getLabel())
       .setName("Original Name")
       .setDescription("Original Description"));
+    logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
       .setParam(PARAM_EVENT, "E1")
@@ -86,10 +86,9 @@ public class UpdateEventActionTest {
 
     assertJson(result).isSimilarTo(getClass().getResource("update_event-example.json"));
   }
-
   @Test
   public void update_name_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
     call("E1", "name");
@@ -104,7 +103,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void ws_response_with_updated_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
 
     ProjectAnalyses.Event result = call("E1", "name").getEvent();
@@ -118,8 +117,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_VERSION_event_update_analysis_version() {
-    ComponentDto project = db.components().insertProject();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
 
     call("E1", "6.3");
@@ -130,8 +128,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_OTHER_event_does_not_update_analysis_version() {
-    ComponentDto project = db.components().insertProject();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6"));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()));
 
     call("E1", "6.3");
@@ -142,7 +139,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void update_name_only_in_db() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     EventDto originalEvent = db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name").setDescription("Original Description"));
 
     call("E1", "name");
@@ -153,20 +150,7 @@ public class UpdateEventActionTest {
   }
 
   @Test
-  public void update_as_project_admin() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
-    db.events().insertEvent(newEvent(analysis).setUuid("E1").setName("Original Name"));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
-
-    call("E1", "name");
-
-    EventDto newEvent = dbClient.eventDao().selectByUuid(dbSession, "E1").get();
-    assertThat(newEvent.getName()).isEqualTo("name");
-    assertThat(newEvent.getDescription()).isNull();
-  }
-
-  @Test
-  public void ws_definition() {
+  public void test_ws_definition() {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("update_event");
@@ -177,10 +161,11 @@ public class UpdateEventActionTest {
   }
 
   @Test
-  public void fail_if_insufficient_permissions() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+  public void throw_ForbiddenException_if_not_project_administrator() {
+    ComponentDto project = newProjectDto(db.organizations().insert());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.anonymous();
+    userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.USER);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -189,6 +174,8 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_event_is_not_found() {
+    userSession.logIn().setRoot();
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Event 'E42' not found");
 
@@ -197,7 +184,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_no_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     expectedException.expect(NullPointerException.class);
@@ -207,7 +194,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_blank_name() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -218,7 +205,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_category_other_than_other_or_version() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -229,7 +216,7 @@ public class UpdateEventActionTest {
 
   @Test
   public void fail_if_other_event_with_same_name_on_same_analysis() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()).setName("E1 name"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2").setCategory(OTHER.getLabel()).setName("E2 name"));
 
@@ -251,5 +238,16 @@ public class UpdateEventActionTest {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+  }
+
+  private SnapshotDto createAnalysisAndLogInAsProjectAdministrator(String version) {
+    ComponentDto project = db.components().insertProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion(version));
+    logInAsProjectAdministrator(project);
+    return analysis;
   }
 }

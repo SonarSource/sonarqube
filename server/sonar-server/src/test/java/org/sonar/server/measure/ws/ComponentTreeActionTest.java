@@ -32,7 +32,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -106,7 +105,7 @@ public class ComponentTreeActionTest {
 
   @Before
   public void setUp() {
-    userSession.logIn().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
     resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }
@@ -574,7 +573,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_insufficient_privileges() {
-    userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn();
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(ForbiddenException.class);
 

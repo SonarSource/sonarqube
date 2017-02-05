@@ -113,67 +113,75 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_not_a_project_permission() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), template.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
+    userSession.logIn();
+
     expectedException.expect(ForbiddenException.class);
-    userSession.logIn("john").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_not_logged_in() throws Exception {
-    expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
 
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_user_missing() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest(null, template.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_permission_missing() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), template.getUuid(), null);
   }
 
   @Test
   public void fail_if_template_missing() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(BadRequestException.class);
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), null, DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_user_does_not_exist() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest("unknown-login", template.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_template_key_does_not_exist() throws Exception {
+    loginAsAdmin(db.getDefaultOrganization());
+
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
-    loginAsAdmin(db.getDefaultOrganization());
     newRequest(user.getLogin(), "unknown-key", DEFAULT_PERMISSION);
   }
 

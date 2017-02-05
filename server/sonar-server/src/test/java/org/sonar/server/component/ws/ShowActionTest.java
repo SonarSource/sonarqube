@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -51,12 +50,11 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
 
-
 public class ShowActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -78,7 +76,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_browse_permission() {
-    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, "project-uuid");
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ShowWsResponse response = newRequest("project-uuid", null);
@@ -97,7 +95,8 @@ public class ShowActionTest {
 
   @Test
   public void fail_if_not_enough_privilege() {
-    userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.anonymous();
+
     expectedException.expect(ForbiddenException.class);
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
 

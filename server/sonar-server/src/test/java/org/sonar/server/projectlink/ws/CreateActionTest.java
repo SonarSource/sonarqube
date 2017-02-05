@@ -43,7 +43,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsProjectLinks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -79,7 +78,7 @@ public class CreateActionTest {
     underTest = new CreateAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
 
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
   }
 
   @Test
@@ -111,17 +110,9 @@ public class CreateActionTest {
   }
 
   @Test
-  public void global_admin() throws IOException {
-    userSession.logIn().setGlobalPermissions(SYSTEM_ADMIN);
-    ComponentDto project = insertProject();
-    createAndTest(project);
-  }
-
-  @Test
   public void require_project_admin() throws IOException {
-    userSession.logIn();
     ComponentDto project = insertProject();
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     createAndTest(project);
   }
 

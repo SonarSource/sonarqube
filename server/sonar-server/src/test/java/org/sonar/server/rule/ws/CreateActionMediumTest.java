@@ -29,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -47,8 +46,7 @@ public class CreateActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn()
-    .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logIn().setRoot();
 
   WsTester wsTester;
   RuleDao ruleDao;

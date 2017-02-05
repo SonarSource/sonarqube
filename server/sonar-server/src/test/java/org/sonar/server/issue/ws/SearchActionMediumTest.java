@@ -31,7 +31,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -700,7 +699,7 @@ public class SearchActionMediumTest {
 
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
-    userSessionRule.logIn("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));

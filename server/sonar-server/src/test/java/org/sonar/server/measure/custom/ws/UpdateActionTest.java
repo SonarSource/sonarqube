@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -76,7 +75,7 @@ public class UpdateActionTest {
     CustomMeasureValidator validator = new CustomMeasureValidator(newFullTypeValidations());
 
     ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)))));
-    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn("login").setRoot();
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
@@ -239,7 +238,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() throws Exception {
-    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logIn();
     expectedException.expect(ForbiddenException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);

@@ -28,7 +28,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,7 +51,7 @@ public class DeleteEventActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private DbClient dbClient = db.getDbClient();
@@ -62,9 +61,11 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_event() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    ComponentDto project = newProjectDto(db.organizations().insert());
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2"));
+    logInAsProjectAdministrator(project);
 
     call("E2");
 
@@ -77,6 +78,7 @@ public class DeleteEventActionTest {
     ComponentDto project = db.components().insertProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6.3").setLast(false));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
+    logInAsProjectAdministrator(project);
 
     call("E1");
 
@@ -85,21 +87,11 @@ public class DeleteEventActionTest {
   }
 
   @Test
-  public void delete_event_as_project_admin() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
-    db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.anonymous().addProjectUuidPermissions(UserRole.ADMIN, "P1");
-
-    call("E1");
-
-    assertThat(db.countRowsOfTable("events")).isEqualTo(0);
-  }
-
-  @Test
   public void fail_if_version_for_last_analysis() {
     ComponentDto project = db.components().insertProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6.3").setLast(true));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Cannot delete the version event of last analysis");
@@ -109,8 +101,10 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_category_different_than_other_and_version() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
+    ComponentDto project = newProjectDto(db.organizations().insert(), "P1");
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
+    logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Event of category 'QUALITY_PROFILE' cannot be modified. Authorized categories: VERSION, OTHER");
@@ -130,7 +124,7 @@ public class DeleteEventActionTest {
   public void fail_if_not_enough_permission() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.anonymous();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -160,5 +154,9 @@ public class DeleteEventActionTest {
     }
 
     request.execute();
+  }
+
+  private void logInAsProjectAdministrator(ComponentDto project) {
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
   }
 }

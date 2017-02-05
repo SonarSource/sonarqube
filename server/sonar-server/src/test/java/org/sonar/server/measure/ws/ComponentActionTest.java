@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,7 +50,6 @@ import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -84,7 +82,7 @@ public class ComponentActionTest {
 
   @Before
   public void setUp() {
-    userSession.logIn().setRoot().setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
   }
 
   @Test
@@ -232,7 +230,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn();
     componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
 

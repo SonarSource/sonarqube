@@ -31,7 +31,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -91,7 +90,7 @@ public class CreateActionTest {
   public void setUp() {
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new ComponentFinder(dbClient))));
-    userSession.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.logIn("login").setRoot();
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")

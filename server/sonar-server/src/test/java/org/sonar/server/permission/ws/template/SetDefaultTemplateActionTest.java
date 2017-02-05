@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws.template;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
@@ -127,7 +126,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   public void fail_if_not_admin() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplate(organization);
-    userSession.logIn().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
 

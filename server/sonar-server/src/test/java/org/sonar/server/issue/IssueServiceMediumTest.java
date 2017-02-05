@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -273,7 +272,7 @@ public class IssueServiceMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
 
-    userSessionRule.logIn("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
     session.commit();
 
     // project can be seen by group "anyone"

@@ -31,7 +31,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -82,7 +81,7 @@ public class SearchActionTest {
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
     ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
     defaultProject = insertDefaultProject();
-    userSessionRule.logIn("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logIn().addProjectUuidPermissions(UserRole.ADMIN, defaultProject.uuid());
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()
       .setLogin("login")
