@@ -77,15 +77,6 @@ public class ComponentService {
     }
   }
 
-  public Collection<String> componentUuids(@Nullable Collection<String> componentKeys) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return componentUuids(session, componentKeys, false);
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
   public Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys, boolean ignoreMissingComponents) {
     Collection<String> componentUuids = newArrayList();
     if (componentKeys != null && !componentKeys.isEmpty()) {
