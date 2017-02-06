@@ -43,7 +43,6 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.component.ws.ComponentsWsModule;
-import org.sonar.server.debt.DebtModelBackup;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
@@ -161,7 +160,6 @@ import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDeleter;
-import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -280,7 +278,6 @@ public class PlatformLevel4 extends PlatformLevel {
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
-      RuleOperations.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,
       CommonRuleDefinitionsImpl.class,
@@ -404,7 +401,6 @@ public class PlatformLevel4 extends PlatformLevel {
       RemoveTagsAction.class,
 
       // technical debt
-      DebtModelBackup.class,
       DebtModelPluginRepository.class,
       DebtModelXMLExporter.class,
       DebtRulesXMLImporter.class,
