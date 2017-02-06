@@ -20,12 +20,50 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import OrganizationsList from './OrganizationsList';
 import { translate } from '../../../helpers/l10n';
+import { fetchIfAnyoneCanCreateOrganizations, fetchMyOrganizations } from './actions';
+import { getMyOrganizations, getSettingValue, getCurrentUser } from '../../../store/rootReducer';
+import type { Organization } from '../../../store/organizations/duck';
+import { isUserAdmin } from '../../../helpers/users';
 
-export default class UserOrganizations extends React.Component {
+class UserOrganizations extends React.Component {
+  mounted: boolean;
+
+  props: {
+    anyoneCanCreate: boolean,
+    currentUser: Object,
+    children: Object,
+    organizations: Array<Organization>,
+    fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
+    fetchMyOrganizations: () => Promise<*>
+  };
+
+  state: { loading: boolean } = {
+    loading: true
+  };
+
+  componentDidMount () {
+    this.mounted = true;
+    Promise.all([this.props.fetchMyOrganizations(), this.props.fetchIfAnyoneCanCreateOrganizations()]).then(() => {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    });
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
   render () {
     const title = translate('my_account.organizations') + ' - ' + translate('my_account.page');
+
+    const canCreateOrganizations = !this.state.loading &&
+        this.props.anyoneCanCreate ||
+        isUserAdmin(this.props.currentUser);
 
     return (
         <div className="account-body account-container">
@@ -33,16 +71,43 @@ export default class UserOrganizations extends React.Component {
 
           <header className="page-header">
             <h2 className="page-title">{translate('my_account.organizations')}</h2>
-            <div className="page-actions">
-              <Link to="/account/organizations/create" className="button">{translate('create')}</Link>
-            </div>
-            <div className="page-description">
-              {translate('my_account.organizations.description')}
-            </div>
+            {canCreateOrganizations && (
+                <div className="page-actions">
+                  <Link to="/account/organizations/create" className="button">{translate('create')}</Link>
+                </div>
+            )}
+            {this.props.organizations.length > 0 ? (
+                <div className="page-description">
+                  {translate('my_account.organizations.description')}
+                </div>
+            ) : (
+                <div className="page-description">
+                  {translate('my_account.organizations.no_results')}
+                </div>
+            )}
           </header>
+
+          {this.state.loading ? (
+              <i className="spinner"/>
+          ) : (
+              <OrganizationsList organizations={this.props.organizations}/>
+          )}
 
           {this.props.children}
         </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  anyoneCanCreate: getSettingValue(state, 'sonar.organizations.anyoneCanCreate') === 'true',
+  currentUser: getCurrentUser(state),
+  organizations: getMyOrganizations(state)
+});
+
+const mapDispatchToProps = {
+  fetchMyOrganizations,
+  fetchIfAnyoneCanCreateOrganizations
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserOrganizations);

@@ -29,6 +29,10 @@ export const getOrganizations = (organizations?: Array<string>) => {
   return getJSON('/api/organizations/search', data);
 };
 
+export const getMyOrganizations = () => (
+    getJSON('/api/organizations/search_my_organizations').then(r => r.organizations)
+);
+
 type GetOrganizationType = null | Organization;
 
 type GetOrganizationNavigation = {

@@ -1,6 +1,7 @@
 exports[`Reducer should have initial state 1`] = `
 Object {
   "byKey": Object {},
+  "my": Array [],
 }
 `;
 
@@ -16,6 +17,7 @@ Object {
       "name": "Foo",
     },
   },
+  "my": Array [],
 }
 `;
 
@@ -31,5 +33,6 @@ Object {
       "name": "Qwe",
     },
   },
+  "my": Array [],
 }
 `;

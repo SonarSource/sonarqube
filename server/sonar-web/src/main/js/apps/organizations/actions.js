@@ -46,7 +46,7 @@ export const fetchOrganization = (key: string): Function => (dispatch: Function)
 
 export const createOrganization = (fields: {}): Function => (dispatch: Function): Promise<*> => {
   const onFulfilled = (organization: Organization) => {
-    dispatch(actions.receiveOrganizations([organization]));
+    dispatch(actions.createOrganization(organization));
     dispatch(addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name)));
   };
 
