@@ -170,8 +170,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     }
 
     private static boolean isOnPeriod(DefaultIssue issue, Period period) {
-      // Add one second to not take into account issues created during current analysis
-      return issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L;
+      return issue.creationDate().getTime() >= period.getSnapshotDate();
     }
   }
 

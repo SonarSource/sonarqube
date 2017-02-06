@@ -294,7 +294,7 @@ public class IssueCounterTest {
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
     underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
-    // created during the first analysis starting the period -> existing issues (so ignored)
+    // created during the first analysis starting the period -> existing issues (so taken into accout)
     underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
     // created after -> 3 new issues but 1 is closed
     underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
@@ -308,20 +308,20 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 2);
+    assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 3);
     assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 1);
     assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
     assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
-    assertVariation(FILE1, NEW_BUGS_METRIC, period.getIndex(), 1);
+    assertVariation(FILE1, NEW_BUGS_METRIC, period.getIndex(), 2);
     assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
 
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 2);
+    assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 3);
     assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 1);
     assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
     assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
-    assertVariation(PROJECT, NEW_BUGS_METRIC, period.getIndex(), 1);
+    assertVariation(PROJECT, NEW_BUGS_METRIC, period.getIndex(), 2);
     assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
   }
 

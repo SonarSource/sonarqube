@@ -19,9 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import java.util.Calendar;
@@ -30,8 +28,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
@@ -39,8 +37,6 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.issue.IssueFieldsSetter;
-
-import static com.google.common.collect.FluentIterable.from;
 
 /**
  * Gets the issue debt that was introduced on a period. The algorithm
@@ -52,24 +48,23 @@ public class NewEffortCalculator {
    * Changelog have to be sorted from newest to oldest.
    * Null date should be the first as this happen when technical debt has changed since previous analysis.
    */
-  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
-    @Override
-    public Date apply(@Nonnull FieldDiffs dto) {
-      return dto.creationDate();
-    }
-  });
+  private static final Comparator<FieldDiffs> CHANGE_ORDERING = Ordering.natural().reverse().nullsFirst().onResultOf(FieldDiffs::creationDate);
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
-    if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
+    if (issue.creationDate().getTime() > period.getSnapshotDate()) {
       return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
     }
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
   }
 
   private static long calculateFromChangelog(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, long periodDate) {
-    List<FieldDiffs> debtDiffs = from(debtChangelog).transform(ToFieldDiffs.INSTANCE).filter(HasDebtChange.INSTANCE).toSortedList(CHANGE_ORDERING);
+    List<FieldDiffs> debtDiffs = debtChangelog.stream()
+      .map(IssueChangeDto::toFieldDiffs)
+      .filter(NewEffortCalculator::hasDebtChange)
+      .sorted(CHANGE_ORDERING)
+      .collect(Collectors.toList());
     FieldDiffs currentChange = issue.currentChange();
-    if (currentChange != null && HasDebtChange.INSTANCE.apply(currentChange)) {
+    if (currentChange != null && hasDebtChange(currentChange)) {
       debtDiffs = Lists.newArrayList(debtDiffs);
       debtDiffs.add(currentChange);
     }
@@ -111,19 +106,7 @@ public class NewEffortCalculator {
     return diffs.diffs().get(IssueFieldsSetter.TECHNICAL_DEBT);
   }
 
-  private enum ToFieldDiffs implements Function<IssueChangeDto, FieldDiffs> {
-    INSTANCE;
-    @Override
-    public FieldDiffs apply(@Nonnull IssueChangeDto dto) {
-      return dto.toFieldDiffs();
-    }
-  }
-
-  private enum HasDebtChange implements Predicate<FieldDiffs> {
-    INSTANCE;
-    @Override
-    public boolean apply(@Nonnull FieldDiffs diffs) {
-      return diffs.diffs().containsKey(IssueFieldsSetter.TECHNICAL_DEBT);
-    }
+  private static boolean hasDebtChange(FieldDiffs diffs) {
+    return diffs.diffs().containsKey(IssueFieldsSetter.TECHNICAL_DEBT);
   }
 }
