@@ -28,12 +28,10 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Configures Tomcat contexts:
@@ -114,16 +112,8 @@ public class TomcatContexts {
     }
   }
 
-  static File webappDir(Props props) {
-    String devDir = props.value("sonar.web.dev.sources");
-    File dir;
-    if (isEmpty(devDir)) {
-      dir = new File(props.value(ProcessProperties.PATH_HOME), "web");
-    } else {
-      dir = new File(devDir);
-    }
-    Loggers.get(TomcatContexts.class).info("Webapp directory: {}", dir);
-    return dir;
+  private static File webappDir(Props props) {
+    return new File(props.value(ProcessProperties.PATH_HOME), "web");
   }
 
   static class Fs {
