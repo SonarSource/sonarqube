@@ -24,6 +24,7 @@ import DeactivateView from './deactivate-view';
 import GroupsView from './groups-view';
 import TokensView from './tokens-view';
 import Template from './templates/users-list-item.hbs';
+import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
@@ -142,7 +143,8 @@ export default Marionette.ItemView.extend({
       firstScmAccounts: scmAccounts.slice(0, scmAccountsLimit),
       moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,
       firstGroups: groups.slice(0, groupsLimit),
-      moreGroupsCount: groups.length - groupsLimit
+      moreGroupsCount: groups.length - groupsLimit,
+      customOrganizations: areThereCustomOrganizations()
     };
   }
 });

@@ -20,6 +20,7 @@
 import Marionette from 'backbone.marionette';
 import ListItemView from './list-item-view';
 import Template from './templates/users-list.hbs';
+import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 export default Marionette.CompositeView.extend({
   template: Template,
@@ -44,6 +45,13 @@ export default Marionette.CompositeView.extend({
 
   hideLoading () {
     this.$el.removeClass('new-loading');
+  },
+
+  serializeData () {
+    return {
+      ...Marionette.CompositeView.prototype.serializeData.apply(this, arguments),
+      customOrganizations: areThereCustomOrganizations()
+    };
   }
 });
 
