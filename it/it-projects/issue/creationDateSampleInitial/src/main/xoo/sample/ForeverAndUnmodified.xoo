@@ -1,0 +1,7 @@
+package sample;
+
+public class ForeverAndUnmodified {
+	
+	private String myMethod() {
+	}
+}

@@ -27,6 +27,7 @@ import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
+import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
@@ -65,6 +66,7 @@ class DefaultWsClient implements WsClient {
   private final SettingsService settingsService;
   private final RootsService rootsService;
   private final WebhooksService webhooksService;
+  private final ProjectAnalysisService projectAnalysisService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -86,6 +88,7 @@ class DefaultWsClient implements WsClient {
     this.settingsService = new SettingsService(wsConnector);
     this.rootsService = new RootsService(wsConnector);
     this.webhooksService = new WebhooksService(wsConnector);
+    this.projectAnalysisService = new ProjectAnalysisService(wsConnector);
   }
 
   @Override
@@ -181,5 +184,10 @@ class DefaultWsClient implements WsClient {
   @Override
   public WebhooksService webhooks() {
     return webhooksService;
+  }
+
+  @Override
+  public ProjectAnalysisService projectAnanlysis() {
+    return projectAnalysisService;
   }
 }
