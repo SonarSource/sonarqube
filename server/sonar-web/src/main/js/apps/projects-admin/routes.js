@@ -20,7 +20,8 @@
 import React from 'react';
 import { IndexRoute } from 'react-router';
 import AppContainer from './AppContainer';
+import forSingleOrganization from '../organizations/forSingleOrganization';
 
-export default(
-    <IndexRoute component={AppContainer}/>
+export default (
+    <IndexRoute component={forSingleOrganization(AppContainer)}/>
 );

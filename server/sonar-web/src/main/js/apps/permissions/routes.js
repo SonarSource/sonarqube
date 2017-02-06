@@ -21,9 +21,10 @@ import React from 'react';
 import { IndexRoute } from 'react-router';
 import GlobalPermissionsApp from './global/components/App';
 import ProjectPermissionsApp from './project/components/App';
+import forSingleOrganization from '../organizations/forSingleOrganization';
 
 export const globalPermissionsRoutes = (
-    <IndexRoute component={GlobalPermissionsApp}/>
+    <IndexRoute component={forSingleOrganization(GlobalPermissionsApp)}/>
 );
 
 export const projectPermissionsRoutes = (
