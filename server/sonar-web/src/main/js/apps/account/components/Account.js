@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Nav from './Nav';
 import UserCard from './UserCard';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import '../account.css';
 
@@ -44,7 +44,7 @@ class Account extends React.Component {
           <header className="account-header">
             <div className="account-container clearfix">
               <UserCard user={currentUser}/>
-              <Nav user={currentUser}/>
+              <Nav user={currentUser} customOrganizations={this.props.customOrganizations}/>
             </div>
           </header>
 
@@ -54,8 +54,9 @@ class Account extends React.Component {
   }
 }
 
-export default connect(
-    state => ({
-      currentUser: getCurrentUser(state)
-    })
-)(Account);
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state),
+  customOrganizations: areThereCustomOrganizations(state)
+});
+
+export default connect(mapStateToProps)(Account);

@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-const Nav = () => (
+type Props = {
+  customOrganizations: boolean
+};
+
+const Nav = ({ customOrganizations }: Props) => (
     <nav className="account-nav clearfix">
       <ul className="nav navbar-nav nav-tabs">
         <li>
@@ -39,11 +44,20 @@ const Nav = () => (
             {translate('my_account.notifications')}
           </Link>
         </li>
-        <li>
-          <Link to="/account/projects/" activeClassName="active">
-            {translate('my_account.projects')}
-          </Link>
-        </li>
+        {!customOrganizations && (
+            <li>
+              <Link to="/account/projects/" activeClassName="active">
+                {translate('my_account.projects')}
+              </Link>
+            </li>
+        )}
+        {customOrganizations && (
+            <li>
+              <Link to="/account/organizations" activeClassName="active">
+                {translate('my_account.organizations')}
+              </Link>
+            </li>
+        )}
       </ul>
     </nav>
 );

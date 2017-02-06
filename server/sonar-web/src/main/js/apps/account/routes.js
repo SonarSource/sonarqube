@@ -24,6 +24,8 @@ import ProjectsContainer from './projects/ProjectsContainer';
 import Security from './components/Security';
 import Profile from './profile/Profile';
 import Notifications from './notifications/Notifications';
+import UserOrganizations from './organizations/UserOrganizations';
+import CreateOrganizationForm from './organizations/CreateOrganizationForm';
 
 export default (
     <Route component={Account}>
@@ -31,6 +33,9 @@ export default (
       <Route path="security" component={Security}/>
       <Route path="projects" component={ProjectsContainer}/>
       <Route path="notifications" component={Notifications}/>
+      <Route path="organizations" component={UserOrganizations}>
+        <Route path="create" component={CreateOrganizationForm}/>
+      </Route>
 
       <Route path="issues" onEnter={() => {
         window.location = window.baseUrl + '/issues' + window.location.hash + '|assigned_to_me=true';
