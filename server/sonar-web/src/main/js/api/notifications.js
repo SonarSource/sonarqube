@@ -24,8 +24,9 @@ export type GetNotificationsResponse = {
   notifications: Array<{
     channel: string,
     type: string,
-    project: string | null,
-    projectName: string | null
+    organization?: string,
+    project?: string,
+    projectName?: string
   }>,
   channels: Array<string>,
   globalTypes: Array<string>,
@@ -36,7 +37,7 @@ export const getNotifications = (): Promise<GetNotificationsResponse> => (
     getJSON('/api/notifications/list')
 );
 
-export const addNotification = (channel: string, type: string, project: string | null): Promise<*> => {
+export const addNotification = (channel: string, type: string, project?: string): Promise<*> => {
   const data: Object = { channel, type };
   if (project) {
     Object.assign(data, { project });
@@ -44,7 +45,7 @@ export const addNotification = (channel: string, type: string, project: string |
   return post('/api/notifications/add', data);
 };
 
-export const removeNotification = (channel: string, type: string, project: string | null): Promise<*> => {
+export const removeNotification = (channel: string, type: string, project?: string): Promise<*> => {
   const data: Object = { channel, type };
   if (project) {
     Object.assign(data, { project });

@@ -4,9 +4,25 @@ exports[`test should match snapshot 1`] = `
   <thead>
     <tr>
       <th>
+        <span
+          className="text-normal">
+          <Connect(Organization) />
+        </span>
         <h4
           className="display-inline-block">
-          Foo
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/dashboard",
+                "query": Object {
+                  "id": "foo",
+                },
+              }
+            }>
+            Foo
+          </Link>
         </h4>
       </th>
       <th

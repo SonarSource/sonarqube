@@ -22,8 +22,9 @@ import Select from 'react-select';
 import { connect } from 'react-redux';
 import differenceBy from 'lodash/differenceBy';
 import ProjectNotifications from './ProjectNotifications';
+import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
-import { getComponents } from '../../../api/components';
+import { getSuggestions } from '../../../api/components';
 import { getProjectsWithNotifications } from '../../../store/rootReducer';
 
 type Props = {
@@ -60,19 +61,38 @@ class Projects extends React.Component {
     }
   }
 
-  loadOptions = query => {
-    // TODO filter existing out
-    return getComponents({ qualifiers: 'TRK', q: query })
-        .then(r => r.components)
+  renderOption = option => {
+    return (
+        <span>
+          <Organization organizationKey={option.organization} link={false}/>
+          <strong>{option.label}</strong>
+        </span>
+    );
+  }
+
+  loadOptions = (query, cb) => {
+    if (query.length < 2) {
+      cb(null, { options: [] });
+      return;
+    }
+
+    getSuggestions(query)
+        .then(r => {
+          const projects = r.results.find(domain => domain.q === 'TRK');
+          return projects ? projects.items : [];
+        })
         .then(projects => projects.map(project => ({
           value: project.key,
-          label: project.name
+          label: project.name,
+          organization: project.organization
         })))
-        .then(options => ({ options }));
+        .then(options => {
+          cb(null, { options });
+        });
   };
 
   handleAddProject = selected => {
-    const project = { key: selected.value, name: selected.label };
+    const project = { key: selected.value, name: selected.label, organization: selected.organization };
     this.setState({
       addedProjects: [...this.state.addedProjects, project]
     });
@@ -102,13 +122,15 @@ class Projects extends React.Component {
               Set notifications for:
             </span>
             <Select.Async
+                autoload={false}
+                cache={false}
                 name="new_project"
                 style={{ width: '300px' }}
                 loadOptions={this.loadOptions}
                 minimumInput={2}
+                optionRenderer={this.renderOption}
                 onChange={this.handleAddProject}
-                placeholder="Search Project"
-                searchPromptText="Type at least 2 characters to search"/>
+                placeholder="Search Project"/>
           </div>
         </section>
     );

@@ -25,8 +25,9 @@ import uniqWith from 'lodash/uniqWith';
 export type Notification = {
   channel: string,
   type: string,
-  project: string | null,
-  projectName: string | null
+  project?: string,
+  projectName?: string,
+  organization?: string
 };
 
 export type NotificationsState = Array<Notification>;
@@ -147,7 +148,11 @@ export const getGlobal = (state: State): NotificationsState => (
 
 export const getProjects = (state: State): Array<string> => (
     uniqBy(
-        state.notifications.filter(n => n.project).map(n => ({ key: n.project, name: n.projectName })),
+        state.notifications.filter(n => n.project).map(n => ({
+          key: n.project,
+          name: n.projectName,
+          organization: n.organization
+        })),
         project => project.key
     )
 );
