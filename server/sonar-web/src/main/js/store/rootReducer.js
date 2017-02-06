@@ -116,6 +116,10 @@ export const getOrganizationByKey = (state, key) => (
     fromOrganizations.getOrganizationByKey(state.organizations, key)
 );
 
+export const getMyOrganizations = state => (
+    fromOrganizations.getMyOrganizations(state.organizations)
+);
+
 export const areThereCustomOrganizations = state => (
     fromOrganizations.areThereCustomOrganizations(state.organizations)
 );
