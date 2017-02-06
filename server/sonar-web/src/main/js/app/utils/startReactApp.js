@@ -160,6 +160,7 @@ const startReactApp = () => {
                   </Route>
                 </Route>
 
+                <Route path="not_found" component={NotFound}/>
                 <Route path="*" component={NotFound}/>
               </Route>
             </Route>

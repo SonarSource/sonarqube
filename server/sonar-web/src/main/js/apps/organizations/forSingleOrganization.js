@@ -17,11 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { IndexRoute } from 'react-router';
-import AppContainer from './components/AppContainer';
-import forSingleOrganization from '../organizations/forSingleOrganization';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { areThereCustomOrganizations } from '../../store/rootReducer';
 
-export default (
-    <IndexRoute component={forSingleOrganization(AppContainer)}/>
-);
+const forSingleOrganization = (ComposedComponent: Object) => {
+  class X extends React.Component {
+    static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
+
+    render () {
+      const { customOrganizations, router, ...other } = this.props;
+
+      if (customOrganizations) {
+        router.replace('/not_found');
+        return null;
+      }
+
+      return <ComposedComponent {...other}/>;
+    }
+  }
+
+  const mapStateToProps = state => ({
+    customOrganizations: areThereCustomOrganizations(state)
+  });
+
+  return connect(mapStateToProps)(withRouter(X));
+};
+
+export default forSingleOrganization;
