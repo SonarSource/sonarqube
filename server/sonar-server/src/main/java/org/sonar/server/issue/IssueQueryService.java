@@ -250,7 +250,7 @@ public class IssueQueryService {
     ComponentDto component = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component with id '%s' not found", uuid);
     Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
     if (snapshot.isPresent()) {
-      return longToDate(snapshot.get().getPeriodDate(1));
+      return longToDate(snapshot.get().getPeriodDate());
     }
     return null;
   }

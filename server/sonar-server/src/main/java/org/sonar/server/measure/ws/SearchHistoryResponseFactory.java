@@ -109,7 +109,7 @@ class SearchHistoryResponseFactory {
   private UnaryOperator<SnapshotDto> addValue(MetricDto dbMetric, MeasureDto dbMeasure) {
     return analysis -> {
       String measureValue = dbMetric.getKey().startsWith("new_")
-        ? formatNumericalValue(dbMeasure.getVariation(1), dbMetric)
+        ? formatNumericalValue(dbMeasure.getVariation(), dbMetric)
         : formatMeasureValue(dbMeasure, dbMetric);
       value.setValue(measureValue);
       return analysis;

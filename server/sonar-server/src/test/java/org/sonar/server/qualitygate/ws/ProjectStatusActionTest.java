@@ -83,14 +83,9 @@ public class ProjectStatusActionTest {
     userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
-      .setPeriodMode(1, "last_period")
-      .setPeriodDate(1, 956789123456L)
-      .setPeriodMode(2, "last_version")
-      .setPeriodParam(2, "2015-12-07")
-      .setPeriodDate(2, 956789123987L)
-      .setPeriodMode(3, "last_analysis")
-      .setPeriodMode(5, "last_30_days")
-      .setPeriodParam(5, "2015-11-07"));
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
     MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
@@ -110,14 +105,9 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_id() throws IOException {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
-      .setPeriodMode(1, "last_period")
-      .setPeriodDate(1, 956789123456L)
-      .setPeriodMode(2, "last_version")
-      .setPeriodParam(2, "2015-12-07")
-      .setPeriodDate(2, 956789123987L)
-      .setPeriodMode(3, "last_analysis")
-      .setPeriodMode(5, "last_30_days")
-      .setPeriodParam(5, "2015-11-07"));
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
     MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
@@ -138,14 +128,9 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_key() throws IOException {
     ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()).setKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
-      .setPeriodMode(1, "last_period")
-      .setPeriodDate(1, 956789123456L)
-      .setPeriodMode(2, "last_version")
-      .setPeriodParam(2, "2015-12-07")
-      .setPeriodDate(2, 956789123987L)
-      .setPeriodMode(3, "last_analysis")
-      .setPeriodMode(5, "last_30_days")
-      .setPeriodParam(5, "2015-11-07"));
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(956789123987L));
     MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setEnabled(true)
       .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));

@@ -20,18 +20,15 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.ImmutableSortedSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
 
 class MetricDtoWithBestValue {
   private static final String LOWER_CASE_NEW_METRIC_PREFIX = "new_";
@@ -40,14 +37,12 @@ class MetricDtoWithBestValue {
   private final MetricDto metric;
   private final MeasureDto bestValue;
 
-  MetricDtoWithBestValue(MetricDto metric, List<Integer> periodIndexes) {
+  MetricDtoWithBestValue(MetricDto metric) {
     this.metric = metric;
     MeasureDto measure = new MeasureDto().setMetricId(metric.getId());
     boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
     if (isNewTypeMetric) {
-      for (Integer periodIndex : periodIndexes) {
-        measure.setVariation(periodIndex, metric.getBestValue());
-      }
+      measure.setVariation(metric.getBestValue());
     } else {
       measure.setValue(metric.getBestValue());
     }
@@ -68,15 +63,10 @@ class MetricDtoWithBestValue {
   }
 
   static class MetricDtoToMetricDtoWithBestValueFunction implements Function<MetricDto, MetricDtoWithBestValue> {
-    private final List<Integer> periodIndexes;
-
-    MetricDtoToMetricDtoWithBestValueFunction(List<WsMeasures.Period> periods) {
-      this.periodIndexes = periods.stream().map(WsMeasures.Period::getIndex).collect(Collectors.toList());
-    }
 
     @Override
     public MetricDtoWithBestValue apply(@Nonnull MetricDto input) {
-      return new MetricDtoWithBestValue(input, periodIndexes);
+      return new MetricDtoWithBestValue(input);
     }
   }
 }

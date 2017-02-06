@@ -58,13 +58,12 @@ class MeasureDtoToWsMeasure {
       }
 
       WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
-      for (int i = 1; i <= 5; i++) {
-        if (dbMeasure.getVariation(i) != null) {
-          measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
-            .clear()
-            .setIndex(i)
-            .setValue(formatNumericalValue(dbMeasure.getVariation(i), dbMetric)));
-        }
+      Double variation = dbMeasure.getVariation();
+      if (variation != null) {
+        measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
+          .clear()
+          .setIndex(1)
+          .setValue(formatNumericalValue(variation, dbMetric)));
       }
 
       return measure;

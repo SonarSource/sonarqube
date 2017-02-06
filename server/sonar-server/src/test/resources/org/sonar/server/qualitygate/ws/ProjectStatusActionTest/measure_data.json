@@ -30,7 +30,7 @@
     {
       "metric": "new_sqale_debt_ratio",
       "op": "GT",
-      "period": 2,
+      "period": 1,
       "warning": "",
       "error": "5",
       "actual": "0.6562109862671661",
@@ -39,7 +39,7 @@
     {
       "metric": "reopened_issues",
       "op": "GT",
-      "period": 3,
+      "period": 1,
       "warning": "0",
       "actual": "0",
       "level": "OK"
@@ -47,7 +47,7 @@
     {
       "metric": "open_issues",
       "op": "GT",
-      "period": 3,
+      "period": 1,
       "warning": "0",
       "error": "",
       "actual": "17",
@@ -56,7 +56,7 @@
     {
       "metric": "skipped_tests",
       "op": "GT",
-      "period": 5,
+      "period": 1,
       "warning": "0",
       "error": "",
       "actual": "0",

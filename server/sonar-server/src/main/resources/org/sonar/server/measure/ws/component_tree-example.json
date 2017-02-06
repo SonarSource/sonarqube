@@ -16,14 +16,6 @@
           {
             "index": 1,
             "value": "255"
-          },
-          {
-            "index": 2,
-            "value": "0"
-          },
-          {
-            "index": 3,
-            "value": "255"
           }
         ]
       },
@@ -52,14 +44,6 @@
             {
               "index": 1,
               "value": "25"
-            },
-            {
-              "index": 2,
-              "value": "0"
-            },
-            {
-              "index": 3,
-              "value": "25"
             }
           ]
         },
@@ -87,14 +71,6 @@
             {
               "index": 1,
               "value": "0"
-            },
-            {
-              "index": 2,
-              "value": "0"
-            },
-            {
-              "index": 3,
-              "value": "0"
             }
           ]
         }
@@ -113,14 +89,6 @@
             {
               "index": 1,
               "value": "25"
-            },
-            {
-              "index": 2,
-              "value": "0"
-            },
-            {
-              "index": 3,
-              "value": "25"
             }
           ]
         },
@@ -129,7 +97,7 @@
           "value": "35",
           "periods": [
             {
-              "index": 2,
+              "index": 1,
               "value": "0"
             }
           ]
@@ -139,7 +107,7 @@
           "value": "217",
           "periods": [
             {
-              "index": 2,
+              "index": 1,
               "value": "0"
             }
           ]
@@ -189,18 +157,6 @@
       "mode": "previous_version",
       "date": "2016-01-11T10:49:50+0100",
       "parameter": "1.0-SNAPSHOT"
-    },
-    {
-      "index": 2,
-      "mode": "previous_analysis",
-      "date": "2016-01-11T10:50:06+0100",
-      "parameter": "2016-01-11"
-    },
-    {
-      "index": 3,
-      "mode": "days",
-      "date": "2016-01-11T10:38:45+0100",
-      "parameter": "30"
     }
   ]
 }

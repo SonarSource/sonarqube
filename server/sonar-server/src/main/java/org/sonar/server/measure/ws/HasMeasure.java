@@ -35,7 +35,7 @@ class HasMeasure implements Predicate<ComponentDto> {
     Integer periodIndex = request.getMetricPeriodSort();
     this.predicate = periodIndex == null
       ? new HasAbsoluteValue(table, metric)
-      : new HasValueOnPeriod(periodIndex, table, metric);
+      : new HasValueOnPeriod(table, metric);
   }
 
   @Override
@@ -60,12 +60,10 @@ class HasMeasure implements Predicate<ComponentDto> {
   }
 
   private static class HasValueOnPeriod implements Predicate<ComponentDto> {
-    private final int periodIndex;
     private final Table<String, MetricDto, MeasureDto> table;
     private final MetricDto metric;
 
-    private HasValueOnPeriod(int periodIndex, Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
-      this.periodIndex = periodIndex;
+    private HasValueOnPeriod(Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
       this.table = table;
       this.metric = metric;
     }
@@ -73,7 +71,7 @@ class HasMeasure implements Predicate<ComponentDto> {
     @Override
     public boolean test(@Nonnull ComponentDto input) {
       MeasureDto measure = table.get(input.uuid(), metric);
-      return measure != null && measure.getVariation(periodIndex) != null;
+      return measure != null && measure.getVariation() != null;
     }
   }
 

@@ -144,10 +144,9 @@ public class ComponentTreeActionTest {
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession,
       newAnalysis(projectDto)
-        .setPeriodDate(1, System.currentTimeMillis())
-        .setPeriodMode(1, "last_version")
-        .setPeriodDate(3, System.currentTimeMillis())
-        .setPeriodMode(3, "last_analysis"));
+        .setPeriodDate(System.currentTimeMillis())
+        .setPeriodMode("last_version")
+        .setPeriodDate(System.currentTimeMillis()));
     userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
     componentDb.insertComponent(directoryDto);
@@ -156,8 +155,8 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = insertNclocMetric();
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file, projectSnapshot).setValue(5.0d).setVariation(1, 4.0d),
-      newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d).setVariation(3, 2.0d),
+      newMeasureDto(ncloc, file, projectSnapshot).setValue(5.0d).setVariation(4.0d),
+      newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d),
       newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(15.0d));
     db.commit();
 
@@ -171,7 +170,7 @@ public class ComponentTreeActionTest {
     List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage");
     assertThat(fileMeasures).extracting("value").containsOnly("5", "15.5");
-    assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version", "last_analysis");
+    assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version");
   }
 
   @Test
@@ -223,9 +222,9 @@ public class ComponentTreeActionTest {
     ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(projectDto)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT"));
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
     componentDb.insertComponent(directoryDto);
     ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
@@ -235,7 +234,7 @@ public class ComponentTreeActionTest {
       .setOptimizedBestValue(true)
       .setBestValue(1d)
       .setValueType(ValueType.RATING.name()));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(metric, directoryDto, projectSnapshot).setVariation(1, 2d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(metric, directoryDto, projectSnapshot).setVariation(2d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -336,7 +335,7 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file2, projectSnapshot).setValue(2.0d),
       newMeasureDto(ncloc, file3, projectSnapshot).setValue(3.0d),
       // measure on period 1
-      newMeasureDto(ncloc, file4, projectSnapshot).setVariation(1, 4.0d));
+      newMeasureDto(ncloc, file4, projectSnapshot).setVariation(4.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -362,9 +361,9 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1, 1.0d),
-      newMeasureDto(ncloc, file2, projectSnapshot).setVariation(1, 2.0d),
-      newMeasureDto(ncloc, file3, projectSnapshot).setVariation(1, 3.0d));
+      newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
+      newMeasureDto(ncloc, file2, projectSnapshot).setVariation(2.0d),
+      newMeasureDto(ncloc, file3, projectSnapshot).setVariation(3.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -388,13 +387,11 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1, 1.0d),
-      newMeasureDto(ncloc, file2, projectSnapshot).setVariation(1, 2.0d),
-      newMeasureDto(ncloc, file3, projectSnapshot).setVariation(1, 3.0d),
-      // file 4 measure is on absolute value and period 2
-      newMeasureDto(ncloc, file4, projectSnapshot)
-        .setValue(4.0d)
-        .setVariation(2, 4.0d));
+      newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
+      newMeasureDto(ncloc, file2, projectSnapshot).setVariation(2.0d),
+      newMeasureDto(ncloc, file3, projectSnapshot).setVariation(3.0d),
+      // file 4 measure is on absolute value
+      newMeasureDto(ncloc, file4, projectSnapshot).setValue(4.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -677,15 +674,9 @@ public class ComponentTreeActionTest {
       .setQualifier(Qualifiers.PROJECT);
     componentDb.insertComponent(project);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT")
-      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
-      .setPeriodMode(2, "previous_analysis")
-      .setPeriodParam(2, "2016-01-11")
-      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
-      .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30"));
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
 
     ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
@@ -712,7 +703,7 @@ public class ComponentTreeActionTest {
         .setValue(12.0d),
       newMeasureDto(complexity, dir, projectSnapshot)
         .setValue(35.0d)
-        .setVariation(2, 0.0d),
+        .setVariation(0.0d),
       newMeasureDto(complexity, project, projectSnapshot)
         .setValue(42.0d));
 
@@ -722,24 +713,18 @@ public class ComponentTreeActionTest {
         .setValue(114.0d),
       newMeasureDto(ncloc, dir, projectSnapshot)
         .setValue(217.0d)
-        .setVariation(2, 0.0d),
+        .setVariation(0.0d),
       newMeasureDto(ncloc, project, projectSnapshot)
         .setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(newViolations, file1, projectSnapshot)
-        .setVariation(1, 25.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d),
+        .setVariation(25.0d),
       newMeasureDto(newViolations, dir, projectSnapshot)
-        .setVariation(1, 25.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d),
+        .setVariation(25.0d),
       newMeasureDto(newViolations, project, projectSnapshot)
-        .setVariation(1, 255.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 255.0d));
+        .setVariation(255.0d));
 
     db.commit();
   }

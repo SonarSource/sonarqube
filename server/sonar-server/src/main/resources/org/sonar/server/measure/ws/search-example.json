@@ -10,7 +10,7 @@
       "value": "35",
       "periods": [
         {
-          "index": 2,
+          "index": 1,
           "value": "0"
         }
       ],
@@ -26,7 +26,7 @@
       "value": "217",
       "periods": [
         {
-          "index": 2,
+          "index": 1,
           "value": "0"
         }
       ],
@@ -43,14 +43,6 @@
         {
           "index": 1,
           "value": "25"
-        },
-        {
-          "index": 2,
-          "value": "0"
-        },
-        {
-          "index": 3,
-          "value": "25"
         }
       ],
       "component": "MY_PROJECT_1"
@@ -61,14 +53,6 @@
         {
           "index": 1,
           "value": "25"
-        },
-        {
-          "index": 2,
-          "value": "0"
-        },
-        {
-          "index": 3,
-          "value": "25"
         }
       ],
       "component": "MY_PROJECT_2"
@@ -78,14 +62,6 @@
       "periods": [
         {
           "index": 1,
-          "value": "255"
-        },
-        {
-          "index": 2,
-          "value": "0"
-        },
-        {
-          "index": 3,
           "value": "255"
         }
       ],

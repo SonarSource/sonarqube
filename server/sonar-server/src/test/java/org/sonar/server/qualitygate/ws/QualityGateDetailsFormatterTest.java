@@ -32,60 +32,75 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.ProjectStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class QualityGateDetailsFormatterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  QualityGateDetailsFormatter underTest;
+  private QualityGateDetailsFormatter underTest;
 
   @Test
   public void map_level_conditions_and_periods() throws IOException {
     String measureData = IOUtils.toString(getClass().getResource("QualityGateDetailsFormatterTest/quality_gate_details.json"));
     SnapshotDto snapshot = new SnapshotDto()
-      .setPeriodMode(1, "last_period")
-      .setPeriodDate(1, 1449490731764L)
-      .setPeriodMode(2, "last_version")
-      .setPeriodParam(2, "2015-12-07")
-      .setPeriodDate(2, 1449404331764L)
-      .setPeriodMode(3, "last_analysis")
-      .setPeriodMode(5, "last_30_days")
-      .setPeriodParam(5, "2015-11-07");
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(1449404331764L);
     underTest = newQualityGateDetailsFormatter(measureData, snapshot);
 
     ProjectStatus result = underTest.format();
 
     assertThat(result.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
     // check conditions
-    assertThat(result.getConditionsCount()).isEqualTo(5);
+    assertThat(result.getConditionsCount()).isEqualTo(4);
     List<ProjectStatusWsResponse.Condition> conditions = result.getConditionsList();
     assertThat(conditions).extracting("status").containsExactly(
       ProjectStatusWsResponse.Status.ERROR,
-      ProjectStatusWsResponse.Status.ERROR,
+      ProjectStatusWsResponse.Status.WARN,
       ProjectStatusWsResponse.Status.OK,
-      ProjectStatusWsResponse.Status.OK,
-      ProjectStatusWsResponse.Status.WARN);
-    assertThat(conditions).extracting("metricKey").containsExactly("new_coverage", "new_blocker_violations", "new_critical_violations", "new_sqale_debt_ratio",
-      "new_sqale_debt_ratio");
+      ProjectStatusWsResponse.Status.OK);
+    assertThat(conditions).extracting("metricKey").containsExactly("new_coverage", "new_blocker_violations", "new_critical_violations", "new_sqale_debt_ratio");
     assertThat(conditions).extracting("comparator").containsExactly(
       ProjectStatusWsResponse.Comparator.LT,
       ProjectStatusWsResponse.Comparator.GT,
       ProjectStatusWsResponse.Comparator.NE,
-      ProjectStatusWsResponse.Comparator.EQ,
-      ProjectStatusWsResponse.Comparator.LT);
-    assertThat(conditions).extracting("periodIndex").containsExactly(1, 2, 3, 4, 5);
+      ProjectStatusWsResponse.Comparator.EQ);
+    assertThat(conditions).extracting("periodIndex").containsExactly(1, 1, 1, 1);
     assertThat(conditions).extracting("warningThreshold").containsOnly("80", "");
     assertThat(conditions).extracting("errorThreshold").containsOnly("85", "0", "5");
-    assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452", "1", "0", "0.5670339761248853", "0.5670339761248853");
+    assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452", "1", "0", "0.5670339761248853");
 
     // check periods
-    assertThat(result.getPeriodsCount()).isEqualTo(4);
+    assertThat(result.getPeriodsCount()).isEqualTo(1);
     List<ProjectStatusWsResponse.Period> periods = result.getPeriodsList();
-    assertThat(periods).extracting("index").containsExactly(1, 2, 3, 5);
-    assertThat(periods).extracting("mode").containsExactly("last_period", "last_version", "last_analysis", "last_30_days");
-    assertThat(periods).extracting("parameter").containsExactly("", "2015-12-07", "", "2015-11-07");
-    assertThat(periods.get(0).getDate()).startsWith("2015-12-07T");
-    assertThat(periods.get(1).getDate()).startsWith("2015-12-06T");
+    assertThat(periods).extracting("index").containsExactly(1);
+    assertThat(periods).extracting("mode").containsExactly("last_version");
+    assertThat(periods).extracting("parameter").containsExactly("2015-12-07");
+    assertThat(periods.get(0).getDate()).isEqualTo(formatDateTime(snapshot.getPeriodDate()));
+  }
+
+  @Test
+  public void ignore_period_not_set_on_leak_period() throws IOException {
+    String measureData = IOUtils.toString(getClass().getResource("QualityGateDetailsFormatterTest/non_leak_period.json"));
+    SnapshotDto snapshot = new SnapshotDto()
+      .setPeriodMode("last_version")
+      .setPeriodParam("2015-12-07")
+      .setPeriodDate(1449404331764L);
+    underTest = newQualityGateDetailsFormatter(measureData, snapshot);
+
+    ProjectStatus result = underTest.format();
+
+    // check conditions
+    assertThat(result.getConditionsCount()).isEqualTo(1);
+    List<ProjectStatusWsResponse.Condition> conditions = result.getConditionsList();
+    assertThat(conditions).extracting("status").containsExactly(ProjectStatusWsResponse.Status.ERROR);
+    assertThat(conditions).extracting("metricKey").containsExactly("new_coverage");
+    assertThat(conditions).extracting("comparator").containsExactly(ProjectStatusWsResponse.Comparator.LT);
+    assertThat(conditions).extracting("periodIndex").containsExactly(1);
+    assertThat(conditions).extracting("warningThreshold").containsOnly("80");
+    assertThat(conditions).extracting("errorThreshold").containsOnly("85");
+    assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452");
   }
 
   @Test

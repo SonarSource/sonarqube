@@ -126,7 +126,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_measures_on_periods() throws Exception {
+  public void return_measures_on_leak_period() throws Exception {
     ComponentDto project = newProjectDto(db.organizations().insert());
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     setBrowsePermissionOnUser(project);
@@ -134,9 +134,7 @@ public class SearchActionTest {
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(coverage, project, projectSnapshot)
         .setValue(15.5d)
-        .setVariation(1, 10d)
-        .setVariation(2, 15.5d)
-        .setVariation(3, 20d));
+        .setVariation(10d));
     db.commit();
 
     SearchWsResponse result = call(singletonList(project.key()), singletonList("coverage"));
@@ -146,8 +144,9 @@ public class SearchActionTest {
     Measure measure = measures.get(0);
     assertThat(measure.getMetric()).isEqualTo("coverage");
     assertThat(measure.getValue()).isEqualTo("15.5");
-    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getIndex, WsMeasures.PeriodValue::getValue)
-      .containsOnly(tuple(1, "10.0"), tuple(2, "15.5"), tuple(3, "20.0"));
+    assertThat(measure.getPeriods().getPeriodsValueList())
+      .extracting(WsMeasures.PeriodValue::getIndex, WsMeasures.PeriodValue::getValue)
+      .containsOnly(tuple(1, "10.0"));
   }
 
   @Test
@@ -373,35 +372,17 @@ public class SearchActionTest {
     projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
     componentDb.insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT")
-      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
-      .setPeriodMode(2, "previous_analysis")
-      .setPeriodParam(2, "2016-01-11")
-      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
-      .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30"));
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
     SnapshotDto projectSnapshot2 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project2)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT")
-      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
-      .setPeriodMode(2, "previous_analysis")
-      .setPeriodParam(2, "2016-01-11")
-      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
-      .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30"));
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
     SnapshotDto projectSnapshot3 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project3)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT")
-      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
-      .setPeriodMode(2, "previous_analysis")
-      .setPeriodParam(2, "2016-01-11")
-      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
-      .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30"));
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
 
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
@@ -409,7 +390,7 @@ public class SearchActionTest {
         .setValue(12.0d),
       newMeasureDto(complexity, project2, projectSnapshot2)
         .setValue(35.0d)
-        .setVariation(2, 0.0d),
+        .setVariation(0.0d),
       newMeasureDto(complexity, project1, projectSnapshot3)
         .setValue(42.0d));
 
@@ -419,24 +400,18 @@ public class SearchActionTest {
         .setValue(114.0d),
       newMeasureDto(ncloc, project2, projectSnapshot2)
         .setValue(217.0d)
-        .setVariation(2, 0.0d),
+        .setVariation(0.0d),
       newMeasureDto(ncloc, project3, projectSnapshot3)
         .setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(newViolations, project1, projectSnapshot1)
-        .setVariation(1, 25.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d),
+        .setVariation(25.0d),
       newMeasureDto(newViolations, project2, projectSnapshot2)
-        .setVariation(1, 25.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d),
+        .setVariation(25.0d),
       newMeasureDto(newViolations, project3, projectSnapshot3)
-        .setVariation(1, 255.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 255.0d));
+        .setVariation(255.0d));
     db.commit();
     setBrowsePermissionOnUser(project1, project2, project3);
     return projectKeys;

@@ -24,6 +24,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
@@ -65,27 +67,24 @@ public class QualityGateDetailsFormatter {
     }
 
     ProjectStatusWsResponse.Period.Builder periodBuilder = ProjectStatusWsResponse.Period.newBuilder();
-    for (int i = 1; i <= 5; i++) {
-      periodBuilder.clear();
-      boolean doesPeriodExist = false;
+    periodBuilder.clear();
 
-      SnapshotDto snapshot = this.optionalSnapshot.get();
-      if (!isNullOrEmpty(snapshot.getPeriodMode(i))) {
-        doesPeriodExist = true;
-        periodBuilder.setIndex(i);
-        periodBuilder.setMode(snapshot.getPeriodMode(i));
-        if (snapshot.getPeriodDate(i) != null) {
-          periodBuilder.setDate(formatDateTime(snapshot.getPeriodDate(i)));
-        }
-        if (!isNullOrEmpty(snapshot.getPeriodModeParameter(i))) {
-          periodBuilder.setParameter(snapshot.getPeriodModeParameter(i));
-        }
-      }
-
-      if (doesPeriodExist) {
-        projectStatusBuilder.addPeriods(periodBuilder);
-      }
+    SnapshotDto snapshot = this.optionalSnapshot.get();
+    String periodMode = snapshot.getPeriodMode();
+    if (isNullOrEmpty(periodMode)) {
+      return;
     }
+    periodBuilder.setIndex(1);
+    periodBuilder.setMode(snapshot.getPeriodMode());
+    Long periodDate = snapshot.getPeriodDate();
+    if (periodDate != null) {
+      periodBuilder.setDate(formatDateTime(periodDate));
+    }
+    String periodModeParameter = snapshot.getPeriodModeParameter();
+    if (!isNullOrEmpty(periodModeParameter)) {
+      periodBuilder.setParameter(periodModeParameter);
+    }
+    projectStatusBuilder.addPeriods(periodBuilder);
   }
 
   private void formatConditions(@Nullable JsonArray jsonConditions) {
@@ -93,9 +92,10 @@ public class QualityGateDetailsFormatter {
       return;
     }
 
-    for (JsonElement jsonCondition : jsonConditions) {
-      formatCondition(jsonCondition.getAsJsonObject());
-    }
+    StreamSupport.stream(jsonConditions.spliterator(), false)
+      .map(JsonElement::getAsJsonObject)
+      .filter(isConditionOnValidPeriod())
+      .forEach(this::formatCondition);
   }
 
   private void formatCondition(JsonObject jsonCondition) {
@@ -135,9 +135,10 @@ public class QualityGateDetailsFormatter {
 
   private static void formatConditionPeriod(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement periodIndex = jsonCondition.get("period");
-    if (periodIndex != null && !isNullOrEmpty(periodIndex.getAsString())) {
-      conditionBuilder.setPeriodIndex(periodIndex.getAsInt());
+    if (periodIndex == null) {
+      return;
     }
+    conditionBuilder.setPeriodIndex(periodIndex.getAsInt());
   }
 
   private static void formatConditionOperation(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
@@ -185,5 +186,17 @@ public class QualityGateDetailsFormatter {
 
   private static ProjectStatusWsResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
     return ProjectStatusWsResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusWsResponse.Status.NONE).build();
+  }
+
+  private static Predicate<JsonObject> isConditionOnValidPeriod() {
+    return jsonCondition -> {
+      JsonElement periodIndex = jsonCondition.get("period");
+      if (periodIndex == null) {
+        return true;
+      }
+      int period = periodIndex.getAsInt();
+      // Ignore period that was set on non leak period (for retro compatibility with project that hasn't been analyzed since a while)
+      return period == 1;
+    };
   }
 }

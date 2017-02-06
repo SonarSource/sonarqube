@@ -85,8 +85,8 @@ public class AppAction implements RequestHandler {
 
     action
       .createParam(PARAM_PERIOD)
-      .setDescription("Period index in order to get differential measures")
-      .setPossibleValues(1, 2, 3, 4, 5);
+      .setDescription("User leak Period in order to get differential measures")
+      .setPossibleValues(1);
   }
 
   @Override

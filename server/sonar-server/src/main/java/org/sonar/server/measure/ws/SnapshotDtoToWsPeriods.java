@@ -39,28 +39,28 @@ class SnapshotDtoToWsPeriods {
     }
 
     List<WsMeasures.Period> periods = new ArrayList<>();
-    for (int periodIndex = 1; periodIndex <= 3; periodIndex++) {
-      if (snapshot.getPeriodDate(periodIndex) != null) {
-        periods.add(snapshotDtoToWsPeriod(snapshot, periodIndex));
-      }
+    if (snapshot.getPeriodDate() != null) {
+      periods.add(snapshotDtoToWsPeriod(snapshot));
     }
 
     return periods;
   }
 
-  private static WsMeasures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot, int periodIndex) {
+  private static WsMeasures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot) {
     WsMeasures.Period.Builder period = WsMeasures.Period.newBuilder();
-    period.setIndex(periodIndex);
-    if (snapshot.getPeriodMode(periodIndex) != null) {
-      period.setMode(snapshot.getPeriodMode(periodIndex));
+    period.setIndex(1);
+    String periodMode = snapshot.getPeriodMode();
+    if (periodMode != null) {
+      period.setMode(periodMode);
     }
-    if (snapshot.getPeriodModeParameter(periodIndex) != null) {
-      period.setParameter(snapshot.getPeriodModeParameter(periodIndex));
+    String periodModeParameter = snapshot.getPeriodModeParameter();
+    if (periodModeParameter != null) {
+      period.setParameter(periodModeParameter);
     }
-    if (snapshot.getPeriodDate(periodIndex) != null) {
-      period.setDate(formatDateTime(snapshot.getPeriodDate(periodIndex)));
+    Long periodDate = snapshot.getPeriodDate();
+    if (periodDate != null) {
+      period.setDate(formatDateTime(periodDate));
     }
-
     return period.build();
   }
 }

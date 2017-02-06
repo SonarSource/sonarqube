@@ -14,14 +14,6 @@
           {
             "index": 1,
             "value": "2"
-          },
-          {
-            "index": 2,
-            "value": "0"
-          },
-          {
-            "index": 3,
-            "value": "0"
           }
         ]
       },
@@ -30,14 +22,6 @@
         "periods": [
           {
             "index": 1,
-            "value": "25"
-          },
-          {
-            "index": 2,
-            "value": "0"
-          },
-          {
-            "index": 3,
             "value": "25"
           }
         ]
@@ -49,14 +33,6 @@
           {
             "index": 1,
             "value": "3"
-          },
-          {
-            "index": 2,
-            "value": "-5"
-          },
-          {
-            "index": 3,
-            "value": "5"
           }
         ]
       }
@@ -103,18 +79,6 @@
       "mode": "previous_version",
       "date": "2016-01-11T10:49:50+0100",
       "parameter": "1.0-SNAPSHOT"
-    },
-    {
-      "index": 2,
-      "mode": "previous_analysis",
-      "date": "2016-01-11T10:50:06+0100",
-      "parameter": "2016-01-11"
-    },
-    {
-      "index": 3,
-      "mode": "days",
-      "date": "2016-01-11T10:38:45+0100",
-      "parameter": "30"
     }
   ]
 }

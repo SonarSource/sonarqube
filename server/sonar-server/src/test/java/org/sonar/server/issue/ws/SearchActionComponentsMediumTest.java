@@ -211,7 +211,7 @@ public class SearchActionComponentsMediumTest {
     ComponentDto file = insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
     db.snapshotDao().insert(session,
       newAnalysis(project)
-        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+        .setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)
@@ -239,7 +239,7 @@ public class SearchActionComponentsMediumTest {
     ComponentDto module = insertComponent(newModuleDto(project));
     ComponentDto file = insertComponent(newFileDto(module, null, "F1").setKey("FK1"));
     db.snapshotDao().insert(session,
-      newAnalysis(project).setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+      newAnalysis(project).setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)

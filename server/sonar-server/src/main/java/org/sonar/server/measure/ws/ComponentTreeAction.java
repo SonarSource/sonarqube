@@ -154,9 +154,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setExampleValue("ncloc");
 
     action.createParam(PARAM_METRIC_PERIOD_SORT)
-      .setDescription(format("Measure period to sort by. The '%s' parameter must contain the '%s' value.", Param.SORT, METRIC_PERIOD_SORT))
+      .setDescription(format("Sort measures by leak period or not ?. The '%s' parameter must contain the '%s' value.", Param.SORT, METRIC_PERIOD_SORT))
       .setSince("5.5")
-      .setPossibleValues(1, 2, 3, 4, 5);
+      .setPossibleValues(1);
 
     action.createParam(PARAM_METRIC_SORT_FILTER)
       .setDescription(format("Filter components. Sort must be on a metric. Possible values are: " +

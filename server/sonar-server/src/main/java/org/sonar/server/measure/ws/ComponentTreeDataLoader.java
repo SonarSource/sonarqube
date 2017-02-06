@@ -58,7 +58,6 @@ import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -105,9 +104,8 @@ public class ComponentTreeDataLoader {
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
-      List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot.get());
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery, components,
-        metrics, periods, developerId);
+        metrics, developerId);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
@@ -121,7 +119,7 @@ public class ComponentTreeDataLoader {
         .setComponentCount(componentCount)
         .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
         .setMetrics(metrics)
-        .setPeriods(periods)
+        .setPeriods(snapshotToWsPeriods(baseSnapshot.get()))
         .setReferenceComponentsByUuid(searchReferenceComponentsById(dbSession, components))
         .build();
     } finally {
@@ -175,7 +173,7 @@ public class ComponentTreeDataLoader {
   }
 
   private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent, ComponentTreeQuery componentTreeQuery,
-    List<ComponentDto> components, List<MetricDto> metrics, List<WsMeasures.Period> periods, @Nullable Long developerId) {
+    List<ComponentDto> components, List<MetricDto> metrics, @Nullable Long developerId) {
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
@@ -195,7 +193,7 @@ public class ComponentTreeDataLoader {
         measureDto);
     }
 
-    addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics, periods);
+    addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics);
 
     return measuresByComponentUuidAndMetric;
   }
@@ -208,10 +206,10 @@ public class ComponentTreeDataLoader {
    * </ul>
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDto> components,
-    List<MetricDto> metrics, List<WsMeasures.Period> periods) {
+    List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .map(new MetricDtoToMetricDtoWithBestValue(periods))
+      .map(new MetricDtoToMetricDtoWithBestValue())
       .collect(Collectors.toList(metrics.size()));
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
@@ -310,15 +308,9 @@ public class ComponentTreeDataLoader {
   }
 
   private static class MetricDtoToMetricDtoWithBestValue implements Function<MetricDto, MetricDtoWithBestValue> {
-    private final List<Integer> periodIndexes;
-
-    MetricDtoToMetricDtoWithBestValue(List<WsMeasures.Period> periods) {
-      this.periodIndexes = Lists.transform(periods, WsMeasures.Period::getIndex);
-    }
-
     @Override
     public MetricDtoWithBestValue apply(@Nonnull MetricDto input) {
-      return new MetricDtoWithBestValue(input, periodIndexes);
+      return new MetricDtoWithBestValue(input);
     }
   }
 }

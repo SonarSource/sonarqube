@@ -145,8 +145,8 @@ public class SearchHistoryActionTest {
       newMeasureDto(complexityMetric, project, laterAnalysis).setValue(100d),
       newMeasureDto(complexityMetric, file, analysis).setValue(42d),
       newMeasureDto(nclocMetric, project, analysis).setValue(201d),
-      newMeasureDto(newViolationMetric, project, analysis).setVariation(1, 5d),
-      newMeasureDto(newViolationMetric, project, laterAnalysis).setVariation(1, 10d));
+      newMeasureDto(newViolationMetric, project, analysis).setVariation(5d),
+      newMeasureDto(newViolationMetric, project, laterAnalysis).setVariation(10d));
     db.commit();
 
     SearchHistoryResponse result = call();
@@ -303,7 +303,7 @@ public class SearchHistoryActionTest {
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))
       .forEach(analysis -> dbClient.measureDao().insert(dbSession,
         newMeasureDto(complexityMetric, project, analysis).setValue(45d),
-        newMeasureDto(newViolationMetric, project, analysis).setVariation(1, 46d),
+        newMeasureDto(newViolationMetric, project, analysis).setVariation(46d),
         newMeasureDto(nclocMetric, project, analysis).setValue(47d)));
     db.commit();
 

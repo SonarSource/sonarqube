@@ -202,8 +202,7 @@ public class ComponentActionTest {
     call(ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, PROJECT_UUID)
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id")
-    );
+      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id"));
   }
 
   @Test
@@ -314,15 +313,9 @@ public class ComponentActionTest {
   private void insertJsonExampleData() {
     ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project)
-      .setPeriodDate(1, parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode(1, "previous_version")
-      .setPeriodParam(1, "1.0-SNAPSHOT")
-      .setPeriodDate(2, parseDateTime("2016-01-11T10:50:06+0100").getTime())
-      .setPeriodMode(2, "previous_analysis")
-      .setPeriodParam(2, "2016-01-11")
-      .setPeriodDate(3, parseDateTime("2016-01-11T10:38:45+0100").getTime())
-      .setPeriodMode(3, "days")
-      .setPeriodParam(3, "30");
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT");
     ComponentDto file = newFileDto(project, null)
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
       .setKey("MY_PROJECT:ElementImpl.java")
@@ -337,24 +330,18 @@ public class ComponentActionTest {
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(complexity, file, projectSnapshot)
         .setValue(12.0d)
-        .setVariation(1, 2.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 0.0d));
+        .setVariation(2.0d));
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file, projectSnapshot)
         .setValue(114.0d)
-        .setVariation(1, 3.0d)
-        .setVariation(2, -5.0d)
-        .setVariation(3, 5.0d));
+        .setVariation(3.0d));
 
     MetricDto newViolations = insertNewViolationMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(newViolations, file, projectSnapshot)
-        .setVariation(1, 25.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d));
+        .setVariation(25.0d));
     db.commit();
   }
 

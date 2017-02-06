@@ -132,7 +132,7 @@ public class ComponentAction implements MeasuresWsAction {
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
       List<MetricDto> metrics = searchMetrics(dbSession, request);
       List<WsMeasures.Period> periods = snapshotToWsPeriods(analysis);
-      List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, periods, developerId);
+      List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, developerId);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
     } finally {
@@ -201,8 +201,7 @@ public class ComponentAction implements MeasuresWsAction {
     return metrics;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto analysis, List<MetricDto> metrics, List<WsMeasures.Period> periods,
-    @Nullable Long developerId) {
+  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto analysis, List<MetricDto> metrics, @Nullable Long developerId) {
     if (analysis == null) {
       return emptyList();
     }
@@ -214,7 +213,7 @@ public class ComponentAction implements MeasuresWsAction {
       .setComponentUuid(component.uuid())
       .build();
     List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, query);
-    addBestValuesToMeasures(measures, component, metrics, periods);
+    addBestValuesToMeasures(measures, component, metrics);
 
     return measures;
   }
@@ -226,14 +225,14 @@ public class ComponentAction implements MeasuresWsAction {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private static void addBestValuesToMeasures(List<MeasureDto> measures, ComponentDto component, List<MetricDto> metrics, List<WsMeasures.Period> periods) {
+  private static void addBestValuesToMeasures(List<MeasureDto> measures, ComponentDto component, List<MetricDto> metrics) {
     if (!QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
       return;
     }
 
     List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .map(new MetricDtoToMetricDtoWithBestValueFunction(periods))
+      .map(new MetricDtoToMetricDtoWithBestValueFunction())
       .collect(Collectors.toList(metrics.size()));
     Map<Integer, MeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, MeasureDto::getMetricId);
 

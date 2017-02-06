@@ -79,8 +79,7 @@ public class ComponentTreeSortTest {
     double currentValue = 9;
     for (ComponentDto component : components) {
       measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, new MeasureDto().setValue(currentValue)
-        .setVariation(1, -currentValue)
-        .setVariation(5, currentValue));
+        .setVariation(-currentValue));
       measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, new MeasureDto().setData(String.valueOf(currentValue)));
       currentValue--;
     }
@@ -240,7 +239,7 @@ public class ComponentTreeSortTest {
   }
 
   private static ComponentDto newComponentWithoutSnapshotId(String name, String qualifier, String path) {
-    return (ComponentDto) new ComponentDto()
+    return new ComponentDto()
       .setUuid(Uuids.createFast())
       .setName(name)
       .setQualifier(qualifier)

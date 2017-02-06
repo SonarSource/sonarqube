@@ -170,7 +170,7 @@ public class ComponentTreeSort {
       ordering = ordering.reverse();
     }
 
-    return ordering.nullsLast().onResultOf(new ComponentDtoToMeasureVariationValue(metric, measuresByComponentUuidAndMetric, request.getMetricPeriodSort()));
+    return ordering.nullsLast().onResultOf(new ComponentDtoToMeasureVariationValue(metric, measuresByComponentUuidAndMetric));
   }
 
   private static Ordering<ComponentDto> levelMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
@@ -230,23 +230,21 @@ public class ComponentTreeSort {
   private static class ComponentDtoToMeasureVariationValue implements Function<ComponentDto, Double> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
-    private final int variationIndex;
 
     private ComponentDtoToMeasureVariationValue(@Nullable MetricDto metric,
-      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, int variationIndex) {
+      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
       this.metric = metric;
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
-      this.variationIndex = variationIndex;
     }
 
     @Override
     public Double apply(@Nonnull ComponentDto input) {
       MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
-      if (measure == null || measure.getVariation(variationIndex) == null) {
+      if (measure == null) {
         return null;
       }
-
-      return measure.getVariation(variationIndex);
+      Double variation = measure.getVariation();
+      return (variation == null) ? null : variation;
     }
   }
 

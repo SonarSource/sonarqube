@@ -134,7 +134,7 @@ class SearchHistoryResult {
       .setAnalysisUuid(analysis.getUuid());
 
     if (metric.getKey().startsWith("new_")) {
-      measure.setVariation(1, metric.getBestValue());
+      measure.setVariation(metric.getBestValue());
     } else {
       measure.setValue(metric.getBestValue());
     }
