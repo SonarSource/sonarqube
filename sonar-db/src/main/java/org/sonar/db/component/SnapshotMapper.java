@@ -27,9 +27,6 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface SnapshotMapper {
 
-  @CheckForNull
-  SnapshotDto selectByKey(long id);
-
   List<SnapshotDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   void insert(SnapshotDto snapshot);

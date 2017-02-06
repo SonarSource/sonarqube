@@ -34,42 +34,18 @@ public class SnapshotDtoTest {
       .setComponentUuid("uuid_21")
       .setLast(true)
       .setVersion("1.0")
-      .setPeriodMode(1, "mode1")
-      .setPeriodMode(2, "mode2")
-      .setPeriodMode(3, "mode3")
-      .setPeriodMode(4, "mode4")
-      .setPeriodMode(5, "mode5")
-      .setPeriodParam(1, "param1")
-      .setPeriodParam(2, "param2")
-      .setPeriodParam(3, "param3")
-      .setPeriodParam(4, "param4")
-      .setPeriodParam(5, "param5")
-      .setPeriodDate(1, parseDate("2014-06-01").getTime())
-      .setPeriodDate(2, parseDate("2014-06-02").getTime())
-      .setPeriodDate(3, parseDate("2014-06-03").getTime())
-      .setPeriodDate(4, parseDate("2014-06-04").getTime())
-      .setPeriodDate(5, parseDate("2014-06-05").getTime());
+      .setPeriodMode("mode1")
+      .setPeriodParam("param1")
+      .setPeriodDate(parseDate("2014-06-01").getTime());
 
     assertThat(snapshotDto.getId()).isEqualTo(10L);
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
     assertThat(snapshotDto.getVersion()).isEqualTo("1.0");
-    assertThat(snapshotDto.getPeriodMode(1)).isEqualTo("mode1");
-    assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("mode2");
-    assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("mode3");
-    assertThat(snapshotDto.getPeriodMode(4)).isEqualTo("mode4");
-    assertThat(snapshotDto.getPeriodMode(5)).isEqualTo("mode5");
-    assertThat(snapshotDto.getPeriodModeParameter(1)).isEqualTo("param1");
-    assertThat(snapshotDto.getPeriodModeParameter(2)).isEqualTo("param2");
-    assertThat(snapshotDto.getPeriodModeParameter(3)).isEqualTo("param3");
-    assertThat(snapshotDto.getPeriodModeParameter(4)).isEqualTo("param4");
-    assertThat(snapshotDto.getPeriodModeParameter(5)).isEqualTo("param5");
-    assertThat(snapshotDto.getPeriodDate(1)).isEqualTo(parseDate("2014-06-01").getTime());
-    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(parseDate("2014-06-02").getTime());
-    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(parseDate("2014-06-03").getTime());
-    assertThat(snapshotDto.getPeriodDate(4)).isEqualTo(parseDate("2014-06-04").getTime());
-    assertThat(snapshotDto.getPeriodDate(5)).isEqualTo(parseDate("2014-06-05").getTime());
+    assertThat(snapshotDto.getPeriodMode()).isEqualTo("mode1");
+    assertThat(snapshotDto.getPeriodModeParameter()).isEqualTo("param1");
+    assertThat(snapshotDto.getPeriodDate()).isEqualTo(parseDate("2014-06-01").getTime());
   }
 
 }

@@ -25,17 +25,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class MeasureDto {
-  private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
   private Double value;
   private String textValue;
   private byte[] dataValue;
-  private Double variation1;
-  private Double variation2;
-  private Double variation3;
-  private Double variation4;
-  private Double variation5;
+  private Double variation;
   private String alertStatus;
   private String alertText;
   private String description;
@@ -86,47 +81,32 @@ public class MeasureDto {
     return this;
   }
 
-  /**
-   * @param index starts at 1
-   */
   @CheckForNull
-  public Double getVariation(int index) {
-    switch (index) {
-      case 1:
-        return variation1;
-      case 2:
-        return variation2;
-      case 3:
-        return variation3;
-      case 4:
-        return variation4;
-      case 5:
-        return variation5;
-      default:
-        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
-    }
+  public Double getVariation() {
+    return variation;
   }
 
+  /**
+   * @param index starts at 1
+   * @deprecated use {@link #getVariation()} instead
+   */
+  @CheckForNull
+  @Deprecated
+  public Double getVariation(int index) {
+    return getVariation();
+  }
+
+  public MeasureDto setVariation(@Nullable Double d) {
+    variation = d;
+    return this;
+  }
+
+  /**
+   * @deprecated use {@link #setVariation(Double)} instead
+   */
+  @Deprecated
   public MeasureDto setVariation(int index, @Nullable Double d) {
-    switch (index) {
-      case 1:
-        variation1 = d;
-        break;
-      case 2:
-        variation2 = d;
-        break;
-      case 3:
-        variation3 = d;
-        break;
-      case 4:
-        variation4 = d;
-        break;
-      case 5:
-        variation5 = d;
-        break;
-      default:
-        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
-    }
+    setVariation(d);
     return this;
   }
 
@@ -194,11 +174,7 @@ public class MeasureDto {
       .add("value", value)
       .add("textValue", textValue)
       .add("dataValue", dataValue)
-      .add("variation1", variation1)
-      .add("variation2", variation2)
-      .add("variation3", variation3)
-      .add("variation4", variation4)
-      .add("variation5", variation5)
+      .add("variation", variation)
       .add("alertStatus", alertStatus)
       .add("alertText", alertText)
       .add("description", description)

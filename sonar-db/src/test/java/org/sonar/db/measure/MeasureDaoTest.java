@@ -87,11 +87,7 @@ public class MeasureDaoTest {
       .setComponentUuid("C4")
       .setValue(5.0d)
       .setData("data")
-      .setVariation(1, 1.0d)
-      .setVariation(2, 2.0d)
-      .setVariation(3, 3.0d)
-      .setVariation(4, 4.0d)
-      .setVariation(5, 5.0d)
+      .setVariation(1d)
       .setAlertStatus("alert")
       .setAlertText("alert-text")
       .setDescription("measure-description");
@@ -108,11 +104,7 @@ public class MeasureDaoTest {
     assertThat(selected.getComponentUuid()).isEqualTo(inserted.getComponentUuid());
     assertThat(selected.getValue()).isEqualTo(inserted.getValue());
     assertThat(selected.getData()).isEqualTo(inserted.getData());
-    assertThat(selected.getVariation(1)).isEqualTo(inserted.getVariation(1));
-    assertThat(selected.getVariation(2)).isEqualTo(inserted.getVariation(2));
-    assertThat(selected.getVariation(3)).isEqualTo(inserted.getVariation(3));
-    assertThat(selected.getVariation(4)).isEqualTo(inserted.getVariation(4));
-    assertThat(selected.getVariation(5)).isEqualTo(inserted.getVariation(5));
+    assertThat(selected.getVariation()).isEqualTo(inserted.getVariation());
     assertThat(selected.getAlertStatus()).isEqualTo(inserted.getAlertStatus());
     assertThat(selected.getAlertText()).isEqualTo(inserted.getAlertText());
   }

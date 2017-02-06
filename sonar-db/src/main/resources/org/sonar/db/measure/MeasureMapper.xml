@@ -13,11 +13,7 @@
     pm.alert_status as alertStatus,
     pm.alert_text as alertText,
     pm.measure_data as dataValue,
-    pm.variation_value_1 as variation1,
-    pm.variation_value_2 as variation2,
-    pm.variation_value_3 as variation3,
-    pm.variation_value_4 as variation4,
-    pm.variation_value_5 as variation5
+    pm.variation_value_1 as variation
   </sql>
 
   <sql id="extendedMeasureColumns">
@@ -186,10 +182,6 @@
     description,
     person_id,
     variation_value_1,
-    variation_value_2,
-    variation_value_3,
-    variation_value_4,
-    variation_value_5,
     measure_data)
     VALUES (
     #{value, jdbcType=DOUBLE},
@@ -201,11 +193,7 @@
     #{alertText, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR},
     #{developerId, jdbcType=INTEGER},
-    #{variation1, jdbcType=DOUBLE},
-    #{variation2, jdbcType=DOUBLE},
-    #{variation3, jdbcType=DOUBLE},
-    #{variation4, jdbcType=DOUBLE},
-    #{variation5, jdbcType=DOUBLE},
+    #{variation, jdbcType=DOUBLE},
     #{dataValue, jdbcType=BINARY}
     )
   </insert>

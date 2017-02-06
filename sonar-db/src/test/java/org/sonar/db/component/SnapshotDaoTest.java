@@ -57,48 +57,35 @@ public class SnapshotDaoTest {
 
   @Test
   public void test_selectByUuid() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    ComponentDto project = db.components().insertProject();
+    db.components().insertSnapshot(newAnalysis(project)
+      .setUuid("ABCD")
+      .setStatus("P")
+      .setLast(true)
+      .setPurgeStatus(1)
+      .setPeriodMode("days")
+      .setPeriodParam("30")
+      .setPeriodDate(1500000000001L)
+      .setVersion("2.1-SNAPSHOT")
+      .setBuildDate(1500000000006L)
+      .setCreatedAt(1403042400000L));
 
-    Optional<SnapshotDto> result = underTest.selectByUuid(db.getSession(), "u3");
-    assertThat(result.isPresent()).isTrue();
-
-    assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
-  }
-
-  @Test
-  public void test_selectById() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-
-    SnapshotDto result = underTest.selectById(db.getSession(), 3L);
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(3L);
-    assertThat(result.getUuid()).isEqualTo("u3");
-    assertThat(result.getComponentUuid()).isEqualTo("uuid_3");
+    SnapshotDto result = underTest.selectByUuid(db.getSession(), "ABCD").get();
+    assertThat(result.getId()).isNotNull();
+    assertThat(result.getUuid()).isEqualTo("ABCD");
+    assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.getStatus()).isEqualTo("P");
     assertThat(result.getLast()).isTrue();
     assertThat(result.getPurgeStatus()).isEqualTo(1);
     assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
+    assertThat(result.getPeriodMode()).isEqualTo("days");
+    assertThat(result.getPeriodModeParameter()).isEqualTo("30");
+    assertThat(result.getPeriodDate()).isEqualTo(1500000000001L);
+    assertThat(result.getBuildDate()).isEqualTo(1500000000006L);
+    assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
+    assertThat(result.getVersion()).isEqualTo("2.1-SNAPSHOT");
 
-    assertThat(result.getPeriodMode(1)).isEqualTo("days1");
-    assertThat(result.getPeriodModeParameter(1)).isEqualTo("30");
-    assertThat(result.getPeriodDate(1)).isEqualTo(1316815200000L);
-    assertThat(result.getPeriodMode(2)).isEqualTo("days2");
-    assertThat(result.getPeriodModeParameter(2)).isEqualTo("31");
-    assertThat(result.getPeriodDate(2)).isEqualTo(1316901600000L);
-    assertThat(result.getPeriodMode(3)).isEqualTo("days3");
-    assertThat(result.getPeriodModeParameter(3)).isEqualTo("32");
-    assertThat(result.getPeriodDate(3)).isEqualTo(1316988000000L);
-    assertThat(result.getPeriodMode(4)).isEqualTo("days4");
-    assertThat(result.getPeriodModeParameter(4)).isEqualTo("33");
-    assertThat(result.getPeriodDate(4)).isEqualTo(1317074400000L);
-    assertThat(result.getPeriodMode(5)).isEqualTo("days5");
-    assertThat(result.getPeriodModeParameter(5)).isEqualTo("34");
-    assertThat(result.getPeriodDate(5)).isEqualTo(1317160800000L);
-
-    assertThat(result.getCreatedAt()).isEqualTo(1228172400000L);
-    assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
-
-    assertThat(underTest.selectById(db.getSession(), 999L)).isNull();
+    assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
   }
 
   @Test
@@ -213,24 +200,40 @@ public class SnapshotDaoTest {
 
   @Test
   public void insert() {
-    db.prepareDbUnit(getClass(), "empty.xml");
+    ComponentDto project = db.components().insertProject();
 
-    SnapshotDto dto = defaultSnapshot().setCreatedAt(1403042400000L);
-
-    underTest.insert(db.getSession(), dto);
-    db.getSession().commit();
+    SnapshotDto dto = underTest.insert(db.getSession(), newAnalysis(project)
+      .setStatus("P")
+      .setLast(true)
+      .setPurgeStatus(1)
+      .setPeriodMode("days")
+      .setPeriodParam("30")
+      .setPeriodDate(1500000000001L)
+      .setVersion("2.1-SNAPSHOT")
+      .setBuildDate(1500000000006L)
+      .setCreatedAt(1403042400000L));
 
     assertThat(dto.getId()).isNotNull();
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "snapshots");
+    assertThat(dto.getUuid()).isNotNull();
+    assertThat(dto.getComponentUuid()).isEqualTo(project.uuid());
+    assertThat(dto.getStatus()).isEqualTo("P");
+    assertThat(dto.getLast()).isTrue();
+    assertThat(dto.getPurgeStatus()).isEqualTo(1);
+    assertThat(dto.getPeriodMode()).isEqualTo("days");
+    assertThat(dto.getPeriodModeParameter()).isEqualTo("30");
+    assertThat(dto.getPeriodDate()).isEqualTo(1500000000001L);
+    assertThat(dto.getBuildDate()).isEqualTo(1500000000006L);
+    assertThat(dto.getCreatedAt()).isEqualTo(1403042400000L);
+    assertThat(dto.getVersion()).isEqualTo("2.1-SNAPSHOT");
   }
 
   @Test
   public void insert_snapshots() {
-    db.prepareDbUnit(getClass(), "empty.xml");
+    ComponentDto project = db.components().insertProject();
 
     underTest.insert(db.getSession(),
-      new SnapshotDto().setComponentUuid("uuid_1").setLast(false).setUuid("u5"),
-      new SnapshotDto().setComponentUuid("uuid_2").setLast(false).setUuid("u6"));
+      newAnalysis(project).setLast(false).setUuid("u5"),
+      newAnalysis(project).setLast(false).setUuid("u6"));
     db.getSession().commit();
 
     assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
@@ -304,7 +307,7 @@ public class SnapshotDaoTest {
   }
 
   private SnapshotDto insertAnalysis(String projectUuid, String uuid, String status, boolean isLastFlag) {
-    SnapshotDto snapshot = SnapshotTesting.newAnalysis(ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid))
+    SnapshotDto snapshot = newAnalysis(ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid))
       .setLast(isLastFlag)
       .setStatus(status)
       .setUuid(uuid);
@@ -326,21 +329,9 @@ public class SnapshotDaoTest {
       .setLast(true)
       .setPurgeStatus(1)
       .setVersion("2.1-SNAPSHOT")
-      .setPeriodMode(1, "days1")
-      .setPeriodMode(2, "days2")
-      .setPeriodMode(3, "days3")
-      .setPeriodMode(4, "days4")
-      .setPeriodMode(5, "days5")
-      .setPeriodParam(1, "30")
-      .setPeriodParam(2, "31")
-      .setPeriodParam(3, "32")
-      .setPeriodParam(4, "33")
-      .setPeriodParam(5, "34")
-      .setPeriodDate(1, 1_500_000_000_001L)
-      .setPeriodDate(2, 1_500_000_000_002L)
-      .setPeriodDate(3, 1_500_000_000_003L)
-      .setPeriodDate(4, 1_500_000_000_004L)
-      .setPeriodDate(5, 1_500_000_000_005L)
+      .setPeriodMode("days1")
+      .setPeriodParam("30")
+      .setPeriodDate(1_500_000_000_001L)
       .setBuildDate(1_500_000_000_006L);
   }
 }

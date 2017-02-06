@@ -12,34 +12,15 @@
     s.purge_status as purgeStatus,
     s.islast as last,
     s.version as version,
-    s.period1_mode as period1Mode,
-    s.period2_mode as period2Mode,
-    s.period3_mode as period3Mode,
-    s.period4_mode as period4Mode,
-    s.period5_mode as period5Mode,
-    s.period1_param as period1Param,
-    s.period2_param as period2Param,
-    s.period3_param as period3Param,
-    s.period4_param as period4Param,
-    s.period5_param as period5Param,
-    s.period1_date as period1Date,
-    s.period2_date as period2Date,
-    s.period3_date as period3Date,
-    s.period4_date as period4Date,
-    s.period5_date as period5Date
+    s.period1_mode as periodMode,
+    s.period1_param as periodParam,
+    s.period1_date as periodDate
   </sql>
 
   <sql id="viewsSnapshotColumns">
     s.uuid,
     s.created_at as createdAt
   </sql>
-
-  <select id="selectByKey" parameterType="Long" resultType="Snapshot">
-    SELECT
-    <include refid="snapshotColumns" />
-    FROM snapshots s
-    where s.id=#{key,jdbcType=BIGINT}
-  </select>
 
   <select id="selectByUuids" parameterType="List" resultType="Snapshot">
     SELECT
@@ -181,20 +162,8 @@
     islast,
     version,
     period1_mode,
-    period2_mode,
-    period3_mode,
-    period4_mode,
-    period5_mode,
     period1_param,
-    period2_param,
-    period3_param,
-    period4_param,
-    period5_param,
-    period1_date,
-    period2_date,
-    period3_date,
-    period4_date,
-    period5_date)
+    period1_date)
     values (
     #{uuid, jdbcType=VARCHAR},
     #{componentUuid, jdbcType=VARCHAR},
@@ -204,21 +173,9 @@
     #{purgeStatus, jdbcType=INTEGER},
     #{last, jdbcType=BOOLEAN},
     #{version, jdbcType=VARCHAR},
-    #{period1Mode, jdbcType=VARCHAR},
-    #{period2Mode, jdbcType=VARCHAR},
-    #{period3Mode, jdbcType=VARCHAR},
-    #{period4Mode, jdbcType=VARCHAR},
-    #{period5Mode, jdbcType=VARCHAR},
-    #{period1Param, jdbcType=VARCHAR},
-    #{period2Param, jdbcType=VARCHAR},
-    #{period3Param, jdbcType=VARCHAR},
-    #{period4Param, jdbcType=VARCHAR},
-    #{period5Param, jdbcType=VARCHAR},
-    #{period1Date, jdbcType=BIGINT},
-    #{period2Date, jdbcType=BIGINT},
-    #{period3Date, jdbcType=BIGINT},
-    #{period4Date, jdbcType=BIGINT},
-    #{period5Date, jdbcType=BIGINT})
+    #{periodMode, jdbcType=VARCHAR},
+    #{periodParam, jdbcType=VARCHAR},
+    #{periodDate, jdbcType=BIGINT})
   </insert>
 </mapper>
 

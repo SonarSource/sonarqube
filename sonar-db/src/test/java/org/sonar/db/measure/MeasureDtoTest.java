@@ -33,19 +33,11 @@ public class MeasureDtoTest {
     underTest
       .setValue(2d)
       .setData("text value")
-      .setVariation(1, 1d)
-      .setVariation(2, 2d)
-      .setVariation(3, 3d)
-      .setVariation(4, 4d)
-      .setVariation(5, 5d);
+      .setVariation(1d);
 
     assertThat(underTest.getValue()).isEqualTo(2d);
     assertThat(underTest.getData()).isNotNull();
-    assertThat(underTest.getVariation(1)).isEqualTo(1d);
-    assertThat(underTest.getVariation(2)).isEqualTo(2d);
-    assertThat(underTest.getVariation(3)).isEqualTo(3d);
-    assertThat(underTest.getVariation(4)).isEqualTo(4d);
-    assertThat(underTest.getVariation(5)).isEqualTo(5d);
+    assertThat(underTest.getVariation()).isEqualTo(1d);
   }
 
   @Test
@@ -56,15 +48,5 @@ public class MeasureDtoTest {
   @Test
   public void text_value_under_4000_characters() {
     assertThat(underTest.setData("text value").getData()).isEqualTo("text value");
-  }
-
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void fail_to_set_out_of_bounds_variation() {
-    underTest.setVariation(6, 1d);
-  }
-
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void fail_to_get_out_of_bounds_variation() {
-    underTest.getVariation(6);
   }
 }

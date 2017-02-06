@@ -40,15 +40,6 @@ public class SnapshotDao implements Dao {
     return previousLastSnapshot == null || previousLastSnapshot.getCreatedAt() < snapshotTested.getCreatedAt();
   }
 
-  /**
-   * @deprecated use {@link #selectByUuid(DbSession, String)}
-   */
-  @Deprecated
-  @CheckForNull
-  public SnapshotDto selectById(DbSession session, long id) {
-    return mapper(session).selectByKey(id);
-  }
-
   public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {
     List<SnapshotDto> dtos = mapper(dbSession).selectByUuids(Collections.singletonList(analysisUuid));
     if (dtos.isEmpty()) {
@@ -134,7 +125,6 @@ public class SnapshotDao implements Dao {
       .first()
       .orNull();
   }
-
 
   private static SnapshotMapper mapper(DbSession session) {
     return session.getMapper(SnapshotMapper.class);

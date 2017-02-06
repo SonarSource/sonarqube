@@ -290,7 +290,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, @Nullable Double value, @Nullable Double leakValue) {
-    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setValue(value).setVariation(1, leakValue));
+    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setValue(value).setVariation(leakValue));
   }
 
   private MeasureDto insertMeasure(MeasureDto measure) {
