@@ -86,27 +86,8 @@ public class MeasureDto {
     return variation;
   }
 
-  /**
-   * @param index starts at 1
-   * @deprecated use {@link #getVariation()} instead
-   */
-  @CheckForNull
-  @Deprecated
-  public Double getVariation(int index) {
-    return getVariation();
-  }
-
   public MeasureDto setVariation(@Nullable Double d) {
     variation = d;
-    return this;
-  }
-
-  /**
-   * @deprecated use {@link #setVariation(Double)} instead
-   */
-  @Deprecated
-  public MeasureDto setVariation(int index, @Nullable Double d) {
-    setVariation(d);
     return this;
   }
 

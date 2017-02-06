@@ -125,40 +125,13 @@ public final class SnapshotDto {
     return this;
   }
 
-  /**
-   * @deprecated use {@link #setPeriodMode(String)} instead
-   */
-  @Deprecated
-  public SnapshotDto setPeriodMode(int index, @Nullable String p) {
-    setPeriodMode(p);
-    return this;
-  }
-
   @CheckForNull
   public String getPeriodMode() {
     return periodMode;
   }
 
-  /**
-   * @deprecated use {@link #getPeriodMode()} instead
-   */
-  @Deprecated
-  @CheckForNull
-  public String getPeriodMode(int index) {
-    return getPeriodMode();
-  }
-
   public SnapshotDto setPeriodParam(@Nullable String p) {
     periodParam = p;
-    return this;
-  }
-
-  /**
-   * @deprecated use {@link #setPeriodParam(String)}} instead
-   */
-  @Deprecated
-  public SnapshotDto setPeriodParam(int index, @Nullable String p) {
-    setPeriodParam(p);
     return this;
   }
 
@@ -167,41 +140,14 @@ public final class SnapshotDto {
     return periodParam;
   }
 
-  /**
-   * @deprecated use {@link #getPeriodModeParameter()}} instead
-   */
-  @Deprecated
-  @CheckForNull
-  public String getPeriodModeParameter(int periodIndex) {
-    return getPeriodModeParameter();
-  }
-
   public SnapshotDto setPeriodDate(@Nullable Long date) {
     periodDate = date;
-    return this;
-  }
-
-  /**
-   * @deprecated use {@link #setPeriodDate(Long)}} instead
-   */
-  @Deprecated
-  public SnapshotDto setPeriodDate(int index, @Nullable Long date) {
-    setPeriodDate(date);
     return this;
   }
 
   @CheckForNull
   public Long getPeriodDate() {
     return periodDate;
-  }
-
-  /**
-   * @deprecated use {@link #getPeriodDate()}} instead
-   */
-  @Deprecated
-  @CheckForNull
-  public Long getPeriodDate(int periodIndex) {
-    return getPeriodDate();
   }
 
   public SnapshotDto setCreatedAt(Long createdAt) {
