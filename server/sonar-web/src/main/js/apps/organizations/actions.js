@@ -22,7 +22,13 @@ import * as api from '../../api/organizations';
 import { onFail } from '../../store/rootActions';
 import * as actions from '../../store/organizations/duck';
 import { addGlobalSuccessMessage } from '../../store/globalMessages/duck';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import type { Organization } from '../../store/organizations/duck';
+
+const onRejected = (dispatch: Function) => (error: Object) => {
+  onFail(dispatch)(error);
+  return Promise.reject();
+};
 
 export const fetchOrganization = (key: string): Function => (dispatch: Function): Promise<*> => {
   const onFulfilled = ([organization, navigation]) => {
@@ -36,6 +42,15 @@ export const fetchOrganization = (key: string): Function => (dispatch: Function)
     api.getOrganization(key),
     api.getOrganizationNavigation(key)
   ]).then(onFulfilled, onFail(dispatch));
+};
+
+export const createOrganization = (fields: {}): Function => (dispatch: Function): Promise<*> => {
+  const onFulfilled = (organization: Organization) => {
+    dispatch(actions.receiveOrganizations([organization]));
+    dispatch(addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name)));
+  };
+
+  return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
 };
 
 export const updateOrganization = (key: string, changes: {}): Function => (dispatch: Function): Promise<*> => {
