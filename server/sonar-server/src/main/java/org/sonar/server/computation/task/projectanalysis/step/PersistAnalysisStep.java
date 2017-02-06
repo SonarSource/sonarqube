@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -47,7 +48,7 @@ public class PersistAnalysisStep implements ComputationStep {
   private final PeriodsHolder periodsHolder;
 
   public PersistAnalysisStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder,
-                             AnalysisMetadataHolder analysisMetadataHolder, PeriodsHolder periodsHolder) {
+    AnalysisMetadataHolder analysisMetadataHolder, PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
@@ -60,7 +61,7 @@ public class PersistAnalysisStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       new PathAwareCrawler<>(
-          new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate()))
+        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate()))
           .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
@@ -94,24 +95,26 @@ public class PersistAnalysisStep implements ComputationStep {
     }
 
     private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
-      for (Period period : periodsHolder.getPeriods()) {
-        int index = period.getIndex();
-        snapshotDto.setPeriodMode(index, period.getMode());
-        snapshotDto.setPeriodParam(index, period.getModeParameter());
-        snapshotDto.setPeriodDate(index, period.getSnapshotDate());
+      List<Period> periods = periodsHolder.getPeriods();
+      if (periods.isEmpty()) {
+        return;
       }
+      Period period = periods.get(0);
+      snapshotDto.setPeriodMode(period.getMode());
+      snapshotDto.setPeriodParam(period.getModeParameter());
+      snapshotDto.setPeriodDate(period.getSnapshotDate());
     }
 
     private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion) {
       String componentUuid = component.getUuid();
       return new SnapshotDto()
-          .setUuid(snapshotUuid)
-          .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
-          .setComponentUuid(componentUuid)
-          .setLast(false)
-          .setStatus(SnapshotDto.STATUS_UNPROCESSED)
-          .setCreatedAt(analysisDate)
-          .setBuildDate(system2.now());
+        .setUuid(snapshotUuid)
+        .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
+        .setComponentUuid(componentUuid)
+        .setLast(false)
+        .setStatus(SnapshotDto.STATUS_UNPROCESSED)
+        .setCreatedAt(analysisDate)
+        .setBuildDate(system2.now());
     }
 
     private void persist(SnapshotDto snapshotDto, DbSession dbSession) {

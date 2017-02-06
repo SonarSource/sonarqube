@@ -45,7 +45,7 @@ public class MeasureToMeasureDto {
     out.setComponentUuid(component.getUuid());
     out.setAnalysisUuid(analysisMetadataHolder.getUuid());
     if (measure.hasVariations()) {
-      setVariations(out, measure.getVariations());
+      setVariation(out, measure.getVariations());
     }
     if (measure.hasQualityGateStatus()) {
       setAlert(out, measure.getQualityGateStatus());
@@ -60,12 +60,8 @@ public class MeasureToMeasureDto {
     return out;
   }
 
-  private static void setVariations(MeasureDto measureDto, MeasureVariations variations) {
-    measureDto.setVariation(1, variations.hasVariation1() ? variations.getVariation1() : null);
-    measureDto.setVariation(2, variations.hasVariation2() ? variations.getVariation2() : null);
-    measureDto.setVariation(3, variations.hasVariation3() ? variations.getVariation3() : null);
-    measureDto.setVariation(4, variations.hasVariation4() ? variations.getVariation4() : null);
-    measureDto.setVariation(5, variations.hasVariation5() ? variations.getVariation5() : null);
+  private static void setVariation(MeasureDto measureDto, MeasureVariations variations) {
+    measureDto.setVariation(variations.hasVariation1() ? variations.getVariation1() : null);
   }
 
   private static void setAlert(MeasureDto measureDto, QualityGateStatus qualityGateStatus) {

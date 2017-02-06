@@ -123,21 +123,11 @@ public class MeasureDtoToMeasure {
   }
 
   private static boolean hasAnyVariation(MeasureDto measureDto) {
-    for (int i = 1; i < 6; i++) {
-      if (measureDto.getVariation(i) != null) {
-        return true;
-      }
-    }
-    return false;
+    return measureDto.getVariation() != null;
   }
 
   private static MeasureVariations createVariations(MeasureDto measureDto) {
-    return new MeasureVariations(
-      measureDto.getVariation(1),
-      measureDto.getVariation(2),
-      measureDto.getVariation(3),
-      measureDto.getVariation(4),
-      measureDto.getVariation(5));
+    return new MeasureVariations(measureDto.getVariation());
   }
 
 }

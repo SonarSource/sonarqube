@@ -34,10 +34,10 @@ import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -140,7 +140,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshots_with_periods() {
+  public void persist_snapshots_with_leak_period() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
@@ -156,13 +156,13 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     underTest.execute();
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
-    assertThat(projectSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
-    assertThat(projectSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
-    assertThat(projectSnapshot.getPeriodModeParameter(1)).isNotNull();
+    assertThat(projectSnapshot.getPeriodMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(projectSnapshot.getPeriodDate()).isEqualTo(analysisDate);
+    assertThat(projectSnapshot.getPeriodModeParameter()).isNotNull();
   }
 
   @Test
-  public void only_persist_snapshots_with_periods_on_project_and_module() {
+  public void only_persist_snapshots_with_leak_period_on_project_and_module() {
     periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
@@ -196,7 +196,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     underTest.execute();
 
     SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
-    assertThat(newProjectSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(newProjectSnapshot.getPeriodMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
   }
 
   @Test
@@ -214,9 +214,9 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     underTest.execute();
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
-    assertThat(projectSnapshot.getPeriodMode(1)).isNull();
-    assertThat(projectSnapshot.getPeriodDate(1)).isNull();
-    assertThat(projectSnapshot.getPeriodModeParameter(1)).isNull();
+    assertThat(projectSnapshot.getPeriodMode()).isNull();
+    assertThat(projectSnapshot.getPeriodDate()).isNull();
+    assertThat(projectSnapshot.getPeriodModeParameter()).isNull();
   }
 
   private SnapshotDto getUnprocessedSnapshot(String componentUuid) {

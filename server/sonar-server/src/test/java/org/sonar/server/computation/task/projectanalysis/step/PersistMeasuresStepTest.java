@@ -261,11 +261,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       newMeasureBuilder()
         .setVariations(
           newMeasureVariationsBuilder()
-            .setVariation(createPeriod(1), 1.1d)
-            .setVariation(createPeriod(2), 2.2d)
-            .setVariation(createPeriod(3), 3.3d)
-            .setVariation(createPeriod(4), 4.4d)
-            .setVariation(createPeriod(5), 5.5d)
+            .setVariation(createPeriod(), 1.1d)
             .build())
         .create(10d, 1));
 
@@ -274,11 +270,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
     List<Map<String, Object>> dtos = selectSnapshots();
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("variation_value_1")).isEqualTo(1.1d);
-    assertThat(dto.get("variation_value_2")).isEqualTo(2.2d);
-    assertThat(dto.get("variation_value_3")).isEqualTo(3.3d);
-    assertThat(dto.get("variation_value_4")).isEqualTo(4.4d);
-    assertThat(dto.get("variation_value_5")).isEqualTo(5.5d);
+    assertThat(dto.get("variation_value")).isEqualTo(1.1d);
   }
 
   @Test
@@ -403,8 +395,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     return componentDto;
   }
 
-  private static Period createPeriod(Integer index) {
-    return new Period(index, "mode" + index, null, index, String.valueOf(index));
+  private static Period createPeriod() {
+    return new Period(1, "mode" + 1, null, 1, "1");
   }
 
   private List<Map<String, Object>> selectSnapshots() {
@@ -413,11 +405,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         "SELECT analysis_uuid as \"analysisUuid\", component_uuid as \"componentUuid\", metric_id as \"metricId\", person_id as \"developerId\", "
           +
           "value as \"value\", text_value as \"textValue\", " +
-          "variation_value_1 as \"variation_value_1\", " +
-          "variation_value_2 as \"variation_value_2\", " +
-          "variation_value_3 as \"variation_value_3\", " +
-          "variation_value_4 as \"variation_value_4\", " +
-          "variation_value_5 as \"variation_value_5\"" +
+          "variation_value_1 as \"variation_value\"" +
           "FROM project_measures " +
           "ORDER by id asc");
   }

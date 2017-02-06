@@ -32,8 +32,8 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
@@ -122,7 +122,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_snapshots_with_periods() {
+  public void persist_snapshots_with_leak_period() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
     ComponentDto subViewDto = save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
@@ -137,9 +137,9 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     underTest.execute();
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
-    assertThat(viewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
-    assertThat(viewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
-    assertThat(viewSnapshot.getPeriodModeParameter(1)).isNotNull();
+    assertThat(viewSnapshot.getPeriodMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(viewSnapshot.getPeriodDate()).isEqualTo(analysisDate);
+    assertThat(viewSnapshot.getPeriodModeParameter()).isNotNull();
   }
 
   private ComponentDto save(ComponentDto componentDto) {
