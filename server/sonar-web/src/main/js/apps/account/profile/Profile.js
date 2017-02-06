@@ -17,16 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 
 class Profile extends React.Component {
+  props: {
+    customOrganizations: boolean,
+    user: {
+      email?: string,
+      externalProvider?: string,
+      groups: Array<*>,
+      local: boolean,
+      login: string,
+      scmAccounts: Array<*>
+    }
+  };
+
   render () {
-    const { user } = this.props;
+    const { customOrganizations, user } = this.props;
 
     return (
         <div className="account-body account-container">
@@ -46,9 +59,12 @@ class Profile extends React.Component {
               </div>
           )}
 
-          <hr className="account-separator"/>
-
-          <UserGroups groups={user.groups}/>
+          {!customOrganizations && (
+              <hr className="account-separator"/>
+          )}
+          {!customOrganizations && (
+              <UserGroups groups={user.groups}/>
+          )}
 
           <hr className="account-separator"/>
 
@@ -58,6 +74,9 @@ class Profile extends React.Component {
   }
 }
 
-export default connect(
-    state => ({ user: getCurrentUser(state) })
-)(Profile);
+const mapStateToProps = state => ({
+  customOrganizations: areThereCustomOrganizations(state),
+  user: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(Profile);
