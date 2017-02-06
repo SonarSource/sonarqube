@@ -31,7 +31,7 @@ public class PingAction implements SystemWsAction {
     controller.createAction("ping")
       .setDescription("Answers \"pong\" as plain-text")
       .setSince("6.3")
-      .setResponseExample(getClass().getResource("example-ping.txt"))
+      .setResponseExample(getClass().getResource("ping-example.txt"))
       .setHandler(this);
   }
 
