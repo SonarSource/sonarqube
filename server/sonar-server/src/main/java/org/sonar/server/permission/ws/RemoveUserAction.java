@@ -39,7 +39,7 @@ import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.crea
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
@@ -84,7 +84,7 @@ public class RemoveUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = support.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ProjectId> projectId = support.findProjectId(dbSession, request);
-      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION_KEY));
+      OrganizationDto org = support.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
 
       checkProjectAdmin(userSession, org.getUuid(), projectId);
 

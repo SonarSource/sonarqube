@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -116,7 +116,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
       + "' is not found (case insensitive) in organization with key '" + otherOrganization.getKey() + "'");
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, otherOrganization.getKey())
+      .setParam(PARAM_ORGANIZATION, otherOrganization.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .execute();
   }
@@ -127,7 +127,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     loginAsAdmin(organization);
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .execute();
 

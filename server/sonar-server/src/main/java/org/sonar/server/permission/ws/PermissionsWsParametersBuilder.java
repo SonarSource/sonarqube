@@ -31,7 +31,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_D
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -79,7 +79,7 @@ public class PermissionsWsParametersBuilder {
   }
 
   public static void createOrganizationParameter(NewAction action) {
-    action.createParam(PARAM_ORGANIZATION_KEY)
+    action.createParam(PARAM_ORGANIZATION)
       .setDescription("Key of organization, used when group name is set")
       .setExampleValue("my-org")
       .setSince("6.2")

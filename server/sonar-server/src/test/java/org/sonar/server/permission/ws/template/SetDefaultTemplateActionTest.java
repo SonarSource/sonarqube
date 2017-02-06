@@ -40,7 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -91,7 +91,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     loginAsAdmin(organization);
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
     db.getSession().commit();

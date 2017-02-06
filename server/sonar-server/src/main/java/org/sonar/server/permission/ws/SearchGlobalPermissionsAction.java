@@ -37,7 +37,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsPermissions.Permission.newBuilder;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
@@ -72,7 +72,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
       checkGlobalAdmin(userSession, org.getUuid());
 
       WsSearchGlobalPermissionsResponse response = buildResponse(dbSession, org);

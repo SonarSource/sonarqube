@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
@@ -48,7 +48,7 @@ public class WsTemplateRef {
 
   public static WsTemplateRef fromRequest(Request wsRequest) {
     String uuid = wsRequest.param(PARAM_TEMPLATE_ID);
-    String organization = wsRequest.param(PARAM_ORGANIZATION_KEY);
+    String organization = wsRequest.param(PARAM_ORGANIZATION);
     String name = wsRequest.param(PARAM_TEMPLATE_NAME);
 
     return new WsTemplateRef(uuid, organization, name);

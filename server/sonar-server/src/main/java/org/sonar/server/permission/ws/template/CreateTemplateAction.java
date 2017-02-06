@@ -50,7 +50,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class CreateTemplateAction implements PermissionsWsAction {
@@ -71,7 +71,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setName(request.mandatoryParam(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
       .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
-      .setOrganizationKey(request.param(PARAM_ORGANIZATION_KEY));
+      .setOrganizationKey(request.param(PARAM_ORGANIZATION));
   }
 
   private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {

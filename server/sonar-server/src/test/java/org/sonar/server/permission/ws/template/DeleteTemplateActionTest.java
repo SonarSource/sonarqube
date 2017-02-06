@@ -54,7 +54,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
@@ -425,7 +425,7 @@ public class DeleteTemplateActionTest {
   private TestResponse newRequestByName(WsActionTester actionTester, @Nullable String organizationKey, @Nullable String name) throws Exception {
     TestRequest request = actionTester.newRequest().setMethod("POST");
     if (organizationKey != null) {
-      request.setParam(PARAM_ORGANIZATION_KEY, organizationKey);
+      request.setParam(PARAM_ORGANIZATION, organizationKey);
     }
     if (name != null) {
       request.setParam(PARAM_TEMPLATE_NAME, name);

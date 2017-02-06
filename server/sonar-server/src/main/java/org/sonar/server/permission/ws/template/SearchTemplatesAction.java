@@ -47,7 +47,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchTemplatesAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
@@ -125,7 +125,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION_KEY));
+      OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
       SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
         .setOrganizationUuid(org.getUuid())
         .setQuery(wsRequest.param(Param.TEXT_QUERY));

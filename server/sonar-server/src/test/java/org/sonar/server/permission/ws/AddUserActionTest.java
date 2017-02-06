@@ -38,7 +38,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -74,7 +74,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     OrganizationDto organization = db.organizations().insert();
     loginAsAdmin(organization);
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -343,7 +343,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_ORGANIZATION_KEY, "an_org")
+      .setParam(PARAM_ORGANIZATION, "an_org")
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
   }
@@ -357,7 +357,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_USER_LOGIN, userDto.getLogin())
       .setParam(PARAM_PERMISSION, permission);
     if (organizationDto != null) {
-      request.setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey());
+      request.setParam(PARAM_ORGANIZATION, organizationDto.getKey());
     }
     request.execute();
   }

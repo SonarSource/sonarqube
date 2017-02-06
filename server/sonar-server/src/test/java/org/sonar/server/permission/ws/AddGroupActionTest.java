@@ -39,7 +39,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -74,7 +74,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     loginAsAdmin(org);
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
+      .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, PROVISIONING)
       .execute();
@@ -372,7 +372,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, groupDto.getName())
       .setParam(PARAM_PERMISSION, permission)
-      .setParam(PARAM_ORGANIZATION_KEY, organizationDto.getKey())
+      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
       .execute();
   }
 

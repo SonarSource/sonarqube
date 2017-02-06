@@ -41,7 +41,7 @@ import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class PermissionWsSupport {
 
@@ -90,7 +90,7 @@ public class PermissionWsSupport {
 
   public GroupIdOrAnyone findGroup(DbSession dbSession, Request request) {
     Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-    String orgKey = request.param(PARAM_ORGANIZATION_KEY);
+    String orgKey = request.param(PARAM_ORGANIZATION);
     String groupName = request.param(PARAM_GROUP_NAME);
     GroupWsRef groupRef = GroupWsRef.create(groupId, orgKey, groupName);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
