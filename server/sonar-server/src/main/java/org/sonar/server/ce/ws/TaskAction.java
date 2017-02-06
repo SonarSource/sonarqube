@@ -37,13 +37,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsCe;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class TaskAction implements CeWsAction {
@@ -91,17 +90,19 @@ public class TaskAction implements CeWsAction {
       WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
-        checkPermission(queueDto.get().getComponentUuid());
-        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
+        Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());
+        checkPermission(component);
+        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get(), component));
       } else {
         Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
         if (activityDto.isPresent()) {
           CeActivityDto ceActivityDto = activityDto.get();
-          checkPermission(ceActivityDto.getComponentUuid());
+          Optional<ComponentDto> component = loadComponent(dbSession, ceActivityDto.getComponentUuid());
+          checkPermission(component);
           Set<AdditionalField> additionalFields = AdditionalField.getFromRequest(wsRequest);
           maskErrorStacktrace(ceActivityDto, additionalFields);
           wsTaskResponse.setTask(
-            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
+            wsTaskFormatter.formatActivity(dbSession, ceActivityDto, component, extractScannerContext(dbSession, ceActivityDto, additionalFields)));
         } else {
           throw new NotFoundException();
         }
@@ -110,11 +111,18 @@ public class TaskAction implements CeWsAction {
     }
   }
 
-  private void checkPermission(@Nullable String projectUuid) {
-    if (!userSession.hasPermission(SYSTEM_ADMIN)
-      && !userSession.hasPermission(SCAN_EXECUTION)
-      && (projectUuid == null || !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid))) {
-      throw insufficientPrivilegesException();
+  private Optional<ComponentDto> loadComponent(DbSession dbSession, @Nullable String projectUuid) {
+    if (projectUuid == null) {
+      return Optional.absent();
+    }
+    return dbClient.componentDao().selectByUuid(dbSession, projectUuid);
+  }
+
+  private void checkPermission(Optional<ComponentDto> component) {
+    if (component.isPresent()) {
+      userSession.checkComponentPermission(SCAN_EXECUTION, component.get());
+    } else {
+      userSession.checkIsRoot();
     }
   }
 

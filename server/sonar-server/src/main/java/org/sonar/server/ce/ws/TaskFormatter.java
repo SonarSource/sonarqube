@@ -22,7 +22,6 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,9 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonarqube.ws.WsCe;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.emptyMap;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 
@@ -68,6 +69,11 @@ public class TaskFormatter {
     return formatQueue(dto, ComponentDtoCache.forUuid(dbClient, dbSession, dto.getComponentUuid()));
   }
 
+  public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto, Optional<ComponentDto> component) {
+    checkArgument(Objects.equals(dto.getComponentUuid(), component.transform(ComponentDto::uuid).orNull()));
+    return formatQueue(dto, ComponentDtoCache.forComponentDto(dbClient, dbSession, component));
+  }
+
   private WsCe.Task formatQueue(CeQueueDto dto, ComponentDtoCache componentDtoCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
@@ -89,11 +95,12 @@ public class TaskFormatter {
   }
 
   public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto) {
-    return formatActivity(dbSession, dto, null);
+    return formatActivity(dto, ComponentDtoCache.forUuid(dbClient, dbSession, dto.getComponentUuid()), null);
   }
 
-  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
-    return formatActivity(dto, ComponentDtoCache.forUuid(dbClient, dbSession, dto.getComponentUuid()), scannerContext);
+  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, Optional<ComponentDto> component,
+    @Nullable String scannerContext) {
+    return formatActivity(dto, ComponentDtoCache.forComponentDto(dbClient, dbSession, component), scannerContext);
   }
 
   public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
@@ -179,8 +186,12 @@ public class TaskFormatter {
     }
 
     static ComponentDtoCache forUuid(DbClient dbClient, DbSession dbSession, String uuid) {
-      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, uuid);
-      Map<String, ComponentDto> componentsByUuid = componentDto.isPresent() ? ImmutableMap.of(uuid, componentDto.get()) : Collections.emptyMap();
+      Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, uuid);
+      return forComponentDto(dbClient, dbSession, component);
+    }
+
+    static ComponentDtoCache forComponentDto(DbClient dbClient, DbSession dbSession, Optional<ComponentDto> component) {
+      Map<String, ComponentDto> componentsByUuid = component.isPresent() ? ImmutableMap.of(component.get().uuid(), component.get()) : emptyMap();
       return new ComponentDtoCache(componentsByUuid, buildOrganizationsByUuid(dbClient, dbSession, componentsByUuid));
     }
 
