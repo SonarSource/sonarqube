@@ -36,7 +36,6 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -50,10 +49,8 @@ public class ServerUserSession extends AbstractUserSession {
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
-  private final ResourceDao resourceDao;
   private final Supplier<List<GroupDto>> groups;
   private List<String> globalPermissions = null;
-  private SetMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private SetMultimap<String, String> permissionsByOrganizationUuid;
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
@@ -62,7 +59,6 @@ public class ServerUserSession extends AbstractUserSession {
   private ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
     this.userDto = userDto;
     this.dbClient = dbClient;
-    this.resourceDao = dbClient.resourceDao();
     this.groups = Suppliers.memoize(this::loadGroups);
   }
 
