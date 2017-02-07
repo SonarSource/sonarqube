@@ -19,11 +19,13 @@
  */
 package org.sonar.server.ce.ws;
 
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
@@ -37,12 +39,10 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
@@ -229,92 +229,117 @@ public class TaskActionTest {
   }
 
   @Test
-  public void task_not_found() throws Exception {
+  public void throw_NotFoundException_if_id_does_not_exist() throws Exception {
     logInAsRoot();
 
     expectedException.expect(NotFoundException.class);
+
     ws.newRequest()
       .setParam("id", "DOES_NOT_EXIST")
       .execute();
   }
 
   @Test
-  public void not_fail_on_queue_task_not_linked_on_project_with_system_admin_permissions() {
-    logInAsRoot();
+  public void get_project_queue_task_with_scan_permission_on_project() {
+    userSession.logIn().addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.uuid());
+    CeQueueDto task = createAndPersistQueueTask(project);
 
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType("fake");
-    queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setStatus(CeQueueDto.Status.PENDING);
-    persist(queueDto);
-
-    ws.newRequest()
-      .setMediaType(MediaTypes.JSON)
-      .setParam("id", SOME_TASK_UUID)
-      .execute();
+    call(task.getUuid());
   }
 
   @Test
-  public void not_fail_on_queue_task_not_linked_on_project_with_global_scan_permissions() {
-    logInAsRoot();
+  public void get_project_queue_task_with_scan_permission_on_organization_but_not_on_project() {
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    CeQueueDto task = createAndPersistQueueTask(project);
 
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType("fake");
-    queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setStatus(CeQueueDto.Status.PENDING);
-    persist(queueDto);
-
-    ws.newRequest()
-      .setMediaType(MediaTypes.JSON)
-      .setParam("id", SOME_TASK_UUID)
-      .execute();
+    call(task.getUuid());
   }
 
   @Test
-  public void fail_on_queue_task_not_linked_on_project_if_not_admin_nor_scan_permission() {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType("fake");
-    queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setStatus(CeQueueDto.Status.PENDING);
-    persist(queueDto);
+  public void getting_project_queue_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
+    userSession.logIn();
+    CeQueueDto task = createAndPersistQueueTask(project);
 
     expectedException.expect(ForbiddenException.class);
 
-    ws.newRequest()
-      .setMediaType(PROTOBUF)
-      .setParam("id", SOME_TASK_UUID)
-      .execute();
+    call(task.getUuid());
   }
 
   @Test
-  public void not_fail_on_queue_task_linked_on_project_with_project_scan_permission() {
-    userSession.logIn().addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
+  public void getting_global_queue_task_requires_root_permission() {
+    userSession.logIn().setRoot();
+    CeQueueDto task = createAndPersistQueueTask(null);
 
+    call(task.getUuid());
+  }
+
+  @Test
+  public void getting_global_queue_throws_ForbiddenException_if_not_root() {
+    userSession.logIn().setNonRoot();
+    CeQueueDto task = createAndPersistQueueTask(null);
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(task.getUuid());
+  }
+
+  @Test
+  public void get_project_archived_task_with_scan_permission_on_project() {
+    userSession.logIn().addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.uuid());
+    CeActivityDto task = createAndPersistArchivedTask(project);
+
+    call(task.getUuid());
+  }
+
+  @Test
+  public void get_project_archived_task_with_scan_permission_on_organization_but_not_on_project() {
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    CeActivityDto task = createAndPersistArchivedTask(project);
+
+    call(task.getUuid());
+  }
+
+  @Test
+  public void getting_project_archived_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
+    userSession.logIn();
+    CeActivityDto task = createAndPersistArchivedTask(project);
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(task.getUuid());
+  }
+
+  @Test
+  public void getting_global_archived_task_requires_root_permission() {
+    userSession.logIn().setRoot();
+    CeActivityDto task = createAndPersistArchivedTask(null);
+
+    call(task.getUuid());
+  }
+
+  @Test
+  public void getting_global_archived_throws_ForbiddenException_if_not_root() {
+    userSession.logIn().setNonRoot();
+    CeActivityDto task = createAndPersistArchivedTask(null);
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(task.getUuid());
+  }
+
+  private CeActivityDto createAndPersistArchivedTask(@Nullable ComponentDto component) {
     CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType("fake");
+    queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setStatus(CeQueueDto.Status.PENDING);
-    queueDto.setComponentUuid(project.uuid());
-    persist(queueDto);
-
-    ws.newRequest()
-      .setMediaType(MediaTypes.JSON)
-      .setParam("id", SOME_TASK_UUID)
-      .execute();
-  }
-
-  @Test
-  public void not_fail_on_archived_task_linked_on_project_with_project_scan_permission() throws Exception {
-    userSession.logIn().addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
-
-    CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID)
-      .setComponentUuid(project.uuid());
+    if (component != null) {
+      queueDto.setComponentUuid(component.uuid());
+    }
+    CeActivityDto activityDto = new CeActivityDto(queueDto);
+    activityDto.setStatus(CeActivityDto.Status.FAILED);
+    activityDto.setExecutionTimeMs(500L);
+    activityDto.setAnalysisUuid(SOME_TASK_UUID + "_u1");
     persist(activityDto);
-
-    ws.newRequest()
-      .setMediaType(PROTOBUF)
-      .setParam("id", SOME_TASK_UUID)
-      .execute();
+    return activityDto;
   }
 
   private CeActivityDto createActivityDto(String uuid) {
@@ -327,6 +352,19 @@ public class TaskActionTest {
     activityDto.setExecutionTimeMs(500L);
     activityDto.setAnalysisUuid(uuid + "u1");
     return activityDto;
+  }
+
+  private CeQueueDto createAndPersistQueueTask(@Nullable ComponentDto component) {
+    CeQueueDto dto = new CeQueueDto();
+    dto.setTaskType(CeTaskTypes.REPORT);
+    dto.setUuid(SOME_TASK_UUID);
+    dto.setStatus(CeQueueDto.Status.PENDING);
+    dto.setSubmitterLogin("john");
+    if (component != null) {
+      dto.setComponentUuid(component.uuid());
+    }
+    persist(dto);
+    return dto;
   }
 
   private void persist(CeQueueDto queueDto) {
@@ -347,6 +385,16 @@ public class TaskActionTest {
 
   private void logInAsRoot() {
     userSession.logIn().setRoot();
+  }
+
+  private void call(String taskUuid) {
+    TestResponse response = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam("id", taskUuid)
+      .execute();
+    WsCe.TaskResponse taskResponse = Protobuf.read(response.getInputStream(), WsCe.TaskResponse.parser());
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo(taskUuid);
   }
 
 }
