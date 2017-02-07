@@ -19,29 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
-
-  @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+public class PopulateColumnGuardedOfOrganizations extends DataChange {
+  public PopulateColumnGuardedOfOrganizations(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select uuid from organizations where guarded is null");
+    massUpdate.update("update organizations set guarded=? where uuid=?");
+    massUpdate.rowPluralName("organizations");
+    massUpdate.execute((row, statement) -> {
+      String organizationUuid = row.getString(1);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+      statement.setBoolean(1, false);
+      statement.setString(2, organizationUuid);
+      return true;
+    });
   }
-
 }
