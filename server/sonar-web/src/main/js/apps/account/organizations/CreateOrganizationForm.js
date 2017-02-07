@@ -127,27 +127,12 @@ class CreateOrganizationForm extends React.Component {
           <form onSubmit={this.handleSubmit}>
             <div className="modal-body">
               <div className="modal-field">
-                <label htmlFor="organization-key">
-                  {translate('organization.key')}
-                </label>
-                <input id="organization-key"
-                       autoFocus={true}
-                       name="key"
-                       type="text"
-                       maxLength="64"
-                       value={this.state.key}
-                       disabled={this.state.loading}
-                       onChange={e => this.setState({ key: e.target.value })}/>
-                <div className="modal-field-description">
-                  {translate('organization.key.description')}
-                </div>
-              </div>
-              <div className="modal-field">
                 <label htmlFor="organization-name">
                   {translate('organization.name')}
                   <em className="mandatory">*</em>
                 </label>
                 <input id="organization-name"
+                       autoFocus={true}
                        name="name"
                        required={true}
                        type="text"
@@ -157,6 +142,21 @@ class CreateOrganizationForm extends React.Component {
                        onChange={e => this.setState({ name: e.target.value })}/>
                 <div className="modal-field-description">
                   {translate('organization.name.description')}
+                </div>
+              </div>
+              <div className="modal-field">
+                <label htmlFor="organization-key">
+                  {translate('organization.key')}
+                </label>
+                <input id="organization-key"
+                       name="key"
+                       type="text"
+                       maxLength="64"
+                       value={this.state.key}
+                       disabled={this.state.loading}
+                       onChange={e => this.setState({ key: e.target.value })}/>
+                <div className="modal-field-description">
+                  {translate('organization.key.description')}
                 </div>
               </div>
               <div className="modal-field">
