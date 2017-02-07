@@ -69,13 +69,16 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return hasComponentUuidPermission(permission, component.projectUuid());
+    return isRoot() || hasComponentUuidPermission(permission, component.projectUuid());
   }
 
-    @Override
+  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    if (isRoot()) {
+      return true;
+    }
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
-    return hasPermission(permission) || (projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid));
+    return projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid);
   }
 
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
@@ -84,7 +87,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
+    return isRoot() || permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
   public T addOrganizationPermission(String organizationUuid, String permission) {
