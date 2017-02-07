@@ -22,6 +22,7 @@ package org.sonar.ce.app;
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +45,7 @@ public class WebServerBarrierTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  private Thread waitingThread;
   private File sharedDir;
   private WebServerBarrier underTest;
 
@@ -51,6 +53,13 @@ public class WebServerBarrierTest {
   public void setUp() throws Exception {
     sharedDir = temporaryFolder.newFolder();
     underTest = new WebServerBarrier(sharedDir);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (this.waitingThread != null) {
+      this.waitingThread.interrupt();
+    }
   }
 
   @Test
@@ -66,14 +75,11 @@ public class WebServerBarrierTest {
   public void waitForOperational_blocks_until_WebServer_is_operational() throws InterruptedException {
     final CountDownLatch startedLatch = new CountDownLatch(1);
     final CountDownLatch doneLatch = new CountDownLatch(1);
-    Thread waitingThread = new Thread() {
-      @Override
-      public void run() {
-        startedLatch.countDown();
-        underTest.waitForOperational();
-        doneLatch.countDown();
-      }
-    };
+    waitingThread = new Thread(() -> {
+      startedLatch.countDown();
+      underTest.waitForOperational();
+      doneLatch.countDown();
+    });
     waitingThread.start();
 
     // wait for waitingThread to be running
@@ -92,13 +98,14 @@ public class WebServerBarrierTest {
 
   @Test
   public void waitForOperational_returns_false_if_thread_is_interrupted() throws InterruptedException {
-    WaitingThread waitingThread = new WaitingThread(new CountDownLatch(1));
-    waitingThread.start();
+    WaitingThread localThread = new WaitingThread(new CountDownLatch(1));
+    waitingThread = localThread;
+    localThread.start();
 
-    assertThat(waitingThread.latch.await(50, MILLISECONDS)).isTrue();
-    waitingThread.interrupt();
+    assertThat(localThread.latch.await(50, MILLISECONDS)).isTrue();
+    localThread.interrupt();
 
-    assertThat(waitingThread.result).isFalse();
+    assertThat(localThread.result).isFalse();
   }
 
   private void setWebServerOperational() {
