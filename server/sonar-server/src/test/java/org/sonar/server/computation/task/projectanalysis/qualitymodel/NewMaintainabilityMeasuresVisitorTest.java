@@ -36,7 +36,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
@@ -70,8 +69,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   private static final String LANGUAGE_1_KEY = "language 1 key";
   private static final long LANGUAGE_1_DEV_COST = 30l;
-  private static final long PERIOD_2_SNAPSHOT_DATE = 12323l;
-  private static final long PERIOD_5_SNAPSHOT_DATE = 99999999l;
+  private static final long PERIOD_SNAPSHOT_DATE = 12323l;
   private static final String SOME_ANALYSIS_UUID = "9993l";
   private static final String SOME_PERIOD_MODE = "some mode";
   private static final int ROOT_REF = 1;
@@ -106,18 +104,18 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void project_has_new_measures_for_each_defined_period() {
-    setTwoPeriods();
+    setPeriod();
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
-    assertNewMaintainability(ROOT_REF, A, A);
+    assertNewDebtRatioValues(ROOT_REF, 0);
+    assertNewMaintainability(ROOT_REF, A);
   }
 
   @Test
   public void project_has_no_measure_if_there_is_no_period() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
     treeRootHolder.setRoot(builder(PROJECT, ROOT_REF).build());
 
     underTest.visit(treeRootHolder.getRoot());
@@ -128,10 +126,10 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void file_has_no_new_debt_ratio_variation_if_there_is_no_period() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
@@ -141,155 +139,155 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void file_has_0_new_debt_ratio_if_all_scm_dates_are_before_snapshot_dates() {
-    setTwoPeriods();
+    setPeriod();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
           builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
         .build());
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
-    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 4));
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_SNAPSHOT_DATE - 100, 4));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void file_has_new_debt_ratio_if_some_scm_dates_are_after_snapshot_dates() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 83.33, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
+    assertNewDebtRatioValues(ROOT_REF, 83.33);
   }
 
   @Test
   public void new_debt_ratio_changes_with_language_cost() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST * 10);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 8.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 8.33, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 8.33);
+    assertNewDebtRatioValues(ROOT_REF, 8.33);
   }
 
   @Test
   public void new_debt_ratio_changes_with_new_technical_debt() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, 120, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(500, 120));
+    setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(500));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 833.33, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(ROOT_REF, 833.33);
   }
 
   @Test
   public void new_debt_ratio_on_non_file_level_is_based_on_new_technical_debt_of_that_level() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, 120, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200, 820));
+    setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 833.33, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(ROOT_REF, 833.33);
   }
 
   @Test
   public void new_debt_ratio_when_file_is_unit_test() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(500, 120, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200, 820));
+    setupOneFileAloneInAProject(500, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 833.33, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 833.33);
+    assertNewDebtRatioValues(ROOT_REF, 833.33);
   }
 
   @Test
   public void new_debt_ratio_is_0_when_file_has_no_changesets() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_no_file_has_changesets() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_one_file_has_zero_new_debt_because_of_no_changeset() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void new_debt_ratio_is_0_when_ncloc_measure_is_missing() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_CHANGESET);
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
+    setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_CHANGESET);
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0);
+    assertNewDebtRatioValues(ROOT_REF, 0);
   }
 
   @Test
   public void leaf_components_always_have_a_measure_when_at_least_one_period_exist_and_ratio_is_computed_from_current_level_new_debt() {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -303,69 +301,27 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .build())
         .build());
 
-    Measure newDebtMeasure = createNewDebtMeasure(50, 12);
+    Measure newDebtMeasure = createNewDebtMeasure(50);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
-    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150, 112));
-    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 112));
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250, 212));
+    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
+    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_SNAPSHOT_DATE - 100, 2, PERIOD_SNAPSHOT_DATE + 100, 2));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33, 0);
-    assertNewDebtRatioValues(111, 83.33, 0);
-    assertNewDebtRatioValues(11, 83.33, 0);
-    assertNewDebtRatioValues(ROOT_REF, 83.33, 0);
-  }
-
-  @Test
-  public void new_debt_ratio_is_computed_for_five_periods() throws Exception {
-    long period1 = 10000L;
-    long period2 = 20000L;
-    long period3 = 30000L;
-    long period4 = 40000L;
-    long period5 = 50000L;
-
-    periodsHolder.setPeriods(
-      new Period(1, SOME_PERIOD_MODE, null, period1, SOME_ANALYSIS_UUID),
-      new Period(2, SOME_PERIOD_MODE, null, period2, SOME_ANALYSIS_UUID),
-      new Period(3, SOME_PERIOD_MODE, null, period3, SOME_ANALYSIS_UUID),
-      new Period(4, SOME_PERIOD_MODE, null, period4, SOME_ANALYSIS_UUID),
-      new Period(5, SOME_PERIOD_MODE, null, period5, SOME_ANALYSIS_UUID));
-
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-
-    treeRootHolder.setRoot(
-      builder(PROJECT, ROOT_REF)
-        .addChildren(builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build())
-        .build());
-
-    Measure newDebtMeasure = newMeasureBuilder().setVariations(new MeasureVariations(500d, 500d, 500d, 120d, 120d)).createNoValue();
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
-    // 4 lines file, only first one is not ncloc
-    measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
-    // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(period2 - 100, 2, period2 + 100, 2));
-
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY,
-      newMeasureBuilder().setVariations(new MeasureVariations(1200d, 1200d, 1200d, 820d, 820d)).createNoValue());
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    assertThat(measureRepository.getAddedRawMeasure(LANGUAGE_1_FILE_REF, NEW_SQALE_DEBT_RATIO_KEY))
-      .hasVariation1(833.333, VARIATION_COMPARISON_OFFSET)
-      .hasVariation2(833.333, VARIATION_COMPARISON_OFFSET)
-      .hasVariation3(0d, VARIATION_COMPARISON_OFFSET)
-      .hasVariation4(0d, VARIATION_COMPARISON_OFFSET)
-      .hasVariation5(0d, VARIATION_COMPARISON_OFFSET);
+    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 83.33);
+    assertNewDebtRatioValues(111, 83.33);
+    assertNewDebtRatioValues(11, 83.33);
+    assertNewDebtRatioValues(ROOT_REF, 83.33);
   }
 
   @Test
   public void compute_new_maintainability_rating() throws Exception {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -379,27 +335,27 @@ public class NewMaintainabilityMeasuresVisitorTest {
             .build())
         .build());
 
-    Measure newDebtMeasure = createNewDebtMeasure(50, 12);
+    Measure newDebtMeasure = createNewDebtMeasure(50);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
-    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150, 112));
-    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 112));
-    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250, 212));
+    measureRepository.addRawMeasure(111, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(150));
+    measureRepository.addRawMeasure(11, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
+    measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(250));
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_SNAPSHOT_DATE - 100, 2, PERIOD_SNAPSHOT_DATE + 100, 2));
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewMaintainability(LANGUAGE_1_FILE_REF, D, A);
-    assertNewMaintainability(111, D, A);
-    assertNewMaintainability(11, D, A);
-    assertNewMaintainability(ROOT_REF, D, A);
+    assertNewMaintainability(LANGUAGE_1_FILE_REF, D);
+    assertNewMaintainability(111, D);
+    assertNewMaintainability(11, D);
+    assertNewMaintainability(ROOT_REF, D);
   }
 
   @Test
   public void compute_new_maintainability_rating_to_A_when_no_debt() throws Exception {
-    setTwoPeriods();
+    setPeriod();
     when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -415,13 +371,13 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewMaintainability(LANGUAGE_1_FILE_REF, A, A);
-    assertNewMaintainability(111, A, A);
-    assertNewMaintainability(11, A, A);
-    assertNewMaintainability(ROOT_REF, A, A);
+    assertNewMaintainability(LANGUAGE_1_FILE_REF, A);
+    assertNewMaintainability(111, A);
+    assertNewMaintainability(11, A);
+    assertNewMaintainability(ROOT_REF, A);
   }
 
-  private void setupOneFileAloneInAProject(int newDebtPeriod2, int newDebtPeriod4, Flag isUnitTest, Flag withNclocLines, Flag withChangeSets) {
+  private void setupOneFileAloneInAProject(int newDebt, Flag isUnitTest, Flag withNclocLines, Flag withChangeSets) {
     checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
     checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
     checkArgument(withChangeSets == Flag.WITH_CHANGESET || withChangeSets == Flag.NO_CHANGESET);
@@ -432,7 +388,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
           builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(isUnitTest == Flag.UT_FILE, LANGUAGE_1_KEY, 1)).build())
         .build());
 
-    Measure newDebtMeasure = createNewDebtMeasure(newDebtPeriod2, newDebtPeriod4);
+    Measure newDebtMeasure = createNewDebtMeasure(newDebt);
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, newDebtMeasure);
     if (withNclocLines == Flag.WITH_NCLOC) {
       // 4 lines file, only first one is not ncloc
@@ -443,7 +399,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
     }
     if (withChangeSets == Flag.WITH_CHANGESET) {
       // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-      scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
+      scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_SNAPSHOT_DATE - 100, 2, PERIOD_SNAPSHOT_DATE + 100, 2));
     }
   }
 
@@ -455,8 +411,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
     return ReportComponent.builder(type, ref).setKey(String.valueOf(ref));
   }
 
-  private Measure createNewDebtMeasure(double period2Value, double period4Value) {
-    return newMeasureBuilder().setVariations(new MeasureVariations(null, period2Value, null, period4Value, null)).createNoValue();
+  private Measure createNewDebtMeasure(double variation) {
+    return newMeasureBuilder().setVariation(variation).createNoValue();
   }
 
   private static Measure createNclocDataMeasure(Integer... nclocLines) {
@@ -511,25 +467,20 @@ public class NewMaintainabilityMeasuresVisitorTest {
       .isAbsent();
   }
 
-  private void assertNewDebtRatioValues(int componentRef, double expectedPeriod2Value, double expectedPeriod4Value) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY))
-      .hasVariation2(expectedPeriod2Value, VARIATION_COMPARISON_OFFSET)
-      .hasVariation4(expectedPeriod4Value, VARIATION_COMPARISON_OFFSET);
+  private void assertNewDebtRatioValues(int componentRef, double expectedVariation) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY)).hasVariation(expectedVariation, VARIATION_COMPARISON_OFFSET);
   }
 
-  private void assertNewMaintainability(int componentRef, Rating expectedPeriod2Value, Rating expectedPeriod4Value) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY))
-      .hasVariation2(expectedPeriod2Value.getIndex())
-      .hasVariation4(expectedPeriod4Value.getIndex());
+  private void assertNewMaintainability(int componentRef, Rating expectedVariation) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY)).hasVariation(expectedVariation.getIndex());
   }
 
   private void assertNoNewMaintainability(int componentRef) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY))
-      .isAbsent();  }
+      .isAbsent();
+  }
 
-  private void setTwoPeriods() {
-    periodsHolder.setPeriods(
-      new Period(2, SOME_PERIOD_MODE, null, PERIOD_2_SNAPSHOT_DATE, SOME_ANALYSIS_UUID),
-      new Period(4, SOME_PERIOD_MODE, null, PERIOD_5_SNAPSHOT_DATE, SOME_ANALYSIS_UUID));
+  private void setPeriod() {
+    periodsHolder.setPeriod(new Period(SOME_PERIOD_MODE, null, PERIOD_SNAPSHOT_DATE, SOME_ANALYSIS_UUID));
   }
 }

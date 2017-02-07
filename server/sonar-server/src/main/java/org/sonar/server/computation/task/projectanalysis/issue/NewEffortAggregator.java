@@ -32,7 +32,6 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -94,11 +93,9 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.resolution() == null && issue.effortInMinutes() != null && !periodsHolder.getPeriods().isEmpty()) {
+    if (issue.resolution() == null && issue.effortInMinutes() != null && periodsHolder.hasPeriod()) {
       List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
-      for (Period period : periodsHolder.getPeriods()) {
-        counter.add(issue, period, changelog);
-      }
+      counter.add(issue, periodsHolder.getPeriod(), changelog);
     }
   }
 
@@ -113,8 +110,7 @@ public class NewEffortAggregator extends IssueVisitor {
 
   private void computeMeasure(Component component, Metric metric, EffortSum effortSum) {
     if (!effortSum.isEmpty) {
-      MeasureVariations variations = new MeasureVariations(effortSum.sums);
-      measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariations(variations).createNoValue());
+      measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariation(effortSum.newEffort).createNoValue());
     }
   }
 
@@ -139,13 +135,13 @@ public class NewEffortAggregator extends IssueVisitor {
       long newEffort = calculator.calculate(issue, changelog, period);
       switch (issue.type()) {
         case CODE_SMELL:
-          maintainabilitySum.add(period.getIndex(), newEffort);
+          maintainabilitySum.add(newEffort);
           break;
         case BUG:
-          reliabilitySum.add(period.getIndex(), newEffort);
+          reliabilitySum.add(newEffort);
           break;
         case VULNERABILITY:
-          securitySum.add(period.getIndex(), newEffort);
+          securitySum.add(newEffort);
           break;
         default:
           throw new IllegalStateException(String.format("Unknown type '%s'", issue.type()));
@@ -154,21 +150,19 @@ public class NewEffortAggregator extends IssueVisitor {
   }
 
   private static class EffortSum {
-    private final Double[] sums = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
+    private Double newEffort;
     private boolean isEmpty = true;
 
-    void add(int periodIndex, long newEffort) {
-      double previous = MoreObjects.firstNonNull(sums[periodIndex - 1], 0d);
-      sums[periodIndex - 1] = previous + newEffort;
+    void add(long newEffort) {
+      double previous = MoreObjects.firstNonNull(this.newEffort, 0d);
+      this.newEffort = previous + newEffort;
       isEmpty = false;
     }
 
     void add(EffortSum other) {
-      for (int i = 0; i < sums.length; i++) {
-        Double otherValue = other.sums[i];
-        if (otherValue != null) {
-          add(i + 1, otherValue.longValue());
-        }
+      Double otherValue = other.newEffort;
+      if (otherValue != null) {
+        add(otherValue.longValue());
       }
     }
   }

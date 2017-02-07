@@ -57,10 +57,10 @@ public class NewEffortAggregatorTest {
 
   private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
 
-  static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
-  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
+  private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
+  private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
 
-  NewEffortCalculator calculator = mock(NewEffortCalculator.class);
+  private NewEffortCalculator calculator = mock(NewEffortCalculator.class);
 
   @org.junit.Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
@@ -74,13 +74,13 @@ public class NewEffortAggregatorTest {
   @org.junit.Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create();
 
-  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
 
-  NewEffortAggregator underTest = new NewEffortAggregator(calculator, periodsHolder, dbClient, metricRepository, measureRepository);
+  private NewEffortAggregator underTest = new NewEffortAggregator(calculator, periodsHolder, dbClient, metricRepository, measureRepository);
 
   @Test
   public void sum_new_maintainability_effort_of_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newCodeSmellIssue(10L);
     DefaultIssue unresolved2 = newCodeSmellIssue(30L);
     DefaultIssue unresolvedWithoutDebt = newCodeSmellIssueWithoutEffort();
@@ -102,7 +102,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void new_maintainability_effort_is_only_computed_using_code_smell_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
     // Issues of type BUG and VULNERABILITY should be ignored
     DefaultIssue bugIssue = newBugIssue(15);
@@ -124,7 +124,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void sum_new_reliability_effort_of_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newBugIssue(10L);
     DefaultIssue unresolved2 = newBugIssue(30L);
     DefaultIssue unresolvedWithoutDebt = newBugIssueWithoutEffort();
@@ -146,7 +146,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void new_reliability_effort_is_only_computed_using_bug_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue bugIssue = newBugIssue(15);
     // Issues of type CODE SMELL and VULNERABILITY should be ignored
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
@@ -168,7 +168,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void sum_new_securtiy_effort_of_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue unresolved1 = newVulnerabilityIssue(10L);
     DefaultIssue unresolved2 = newVulnerabilityIssue(30L);
     DefaultIssue unresolvedWithoutDebt = newVulnerabilityIssueWithoutEffort();
@@ -190,7 +190,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void new_security_effort_is_only_computed_using_vulnerability_issues() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
     DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
     // Issues of type CODE SMELL and BUG should be ignored
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
@@ -212,7 +212,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void aggregate_new_characteristic_measures_of_children() {
-    periodsHolder.setPeriods(PERIOD);
+    periodsHolder.setPeriod(PERIOD);
 
     DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
     when(calculator.calculate(same(codeSmellIssue), anyList(), same(PERIOD))).thenReturn(4L);
@@ -246,7 +246,7 @@ public class NewEffortAggregatorTest {
 
   @Test
   public void no_measures_if_no_periods() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
     DefaultIssue unresolved = new DefaultIssue().setEffort(Duration.create(10));
     verifyZeroInteractions(calculator);
 
@@ -259,8 +259,7 @@ public class NewEffortAggregatorTest {
 
   private void assertVariation(Component component, String metricKey, int variation) {
     Measure newMeasure = measureRepository.getRawMeasure(component, metricRepository.getByKey(metricKey)).get();
-    assertThat(newMeasure.getVariations().getVariation(PERIOD.getIndex())).isEqualTo(variation);
-    assertThat(newMeasure.getVariations().hasVariation(PERIOD.getIndex() + 1)).isFalse();
+    assertThat(newMeasure.getVariation()).isEqualTo(variation);
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {

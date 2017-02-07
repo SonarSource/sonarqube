@@ -32,7 +32,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -83,16 +82,14 @@ public class IssueCounter extends IssueVisitor {
     CRITICAL, CRITICAL_VIOLATIONS_KEY,
     MAJOR, MAJOR_VIOLATIONS_KEY,
     MINOR, MINOR_VIOLATIONS_KEY,
-    INFO, INFO_VIOLATIONS_KEY
-    );
+    INFO, INFO_VIOLATIONS_KEY);
 
   private static final Map<String, String> SEVERITY_TO_NEW_METRIC_KEY = ImmutableMap.of(
     BLOCKER, NEW_BLOCKER_VIOLATIONS_KEY,
     CRITICAL, NEW_CRITICAL_VIOLATIONS_KEY,
     MAJOR, NEW_MAJOR_VIOLATIONS_KEY,
     MINOR, NEW_MINOR_VIOLATIONS_KEY,
-    INFO, NEW_INFO_VIOLATIONS_KEY
-    );
+    INFO, NEW_INFO_VIOLATIONS_KEY);
 
   private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
     .put(RuleType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
@@ -136,11 +133,13 @@ public class IssueCounter extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     currentCounters.add(issue);
-    for (Period period : periodsHolder.getPeriods()) {
-      // Add one second to not take into account issues created during current analysis
-      if (issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L) {
-        currentCounters.addOnPeriod(issue, period.getIndex());
-      }
+    if (!periodsHolder.hasPeriod()) {
+      return;
+    }
+    Period period = periodsHolder.getPeriod();
+    // Add one second to not take into account issues created during current analysis
+    if (issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L) {
+      currentCounters.addOnPeriod(issue);
     }
   }
 
@@ -182,44 +181,34 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addMeasuresByPeriod(Component component) {
-    if (!periodsHolder.getPeriods().isEmpty()) {
-      Double[] unresolvedVariations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
-      for (Period period : periodsHolder.getPeriods()) {
-        unresolvedVariations[period.getIndex() - 1] = (double) currentCounters.counterForPeriod(period.getIndex()).unresolved;
-      }
-      measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
-        .setVariations(new MeasureVariations(unresolvedVariations))
+    if (!periodsHolder.hasPeriod()) {
+      return;
+    }
+    Double unresolvedVariations = (double) currentCounters.counterForPeriod().unresolved;
+    measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
+      .setVariation(unresolvedVariations)
+      .createNoValue());
+
+    for (Map.Entry<String, String> entry : SEVERITY_TO_NEW_METRIC_KEY.entrySet()) {
+      String severity = entry.getKey();
+      String metricKey = entry.getValue();
+      Multiset<String> bag = currentCounters.counterForPeriod().severityBag;
+      Metric metric = metricRepository.getByKey(metricKey);
+      measureRepository.add(component, metric, Measure.newMeasureBuilder()
+        .setVariation((double) bag.count(severity))
         .createNoValue());
+    }
 
-      for (Map.Entry<String, String> entry : SEVERITY_TO_NEW_METRIC_KEY.entrySet()) {
-        String severity = entry.getKey();
-        String metricKey = entry.getValue();
-        Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
-        for (Period period : periodsHolder.getPeriods()) {
-          Multiset<String> bag = currentCounters.counterForPeriod(period.getIndex()).severityBag;
-          variations[period.getIndex() - 1] = (double) bag.count(severity);
-        }
-        Metric metric = metricRepository.getByKey(metricKey);
-        measureRepository.add(component, metric, Measure.newMeasureBuilder()
-          .setVariations(new MeasureVariations(variations))
-          .createNoValue());
-      }
-
-      // waiting for Java 8 lambda in order to factor this loop with the previous one
-      // (see call currentCounters.counterForPeriod(period.getIndex()).xxx with xxx as severityBag or typeBag)
-      for (Map.Entry<RuleType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
-        RuleType type = entry.getKey();
-        String metricKey = entry.getValue();
-        Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
-        for (Period period : periodsHolder.getPeriods()) {
-          Multiset<RuleType> bag = currentCounters.counterForPeriod(period.getIndex()).typeBag;
-          variations[period.getIndex() - 1] = (double) bag.count(type);
-        }
-        Metric metric = metricRepository.getByKey(metricKey);
-        measureRepository.add(component, metric, Measure.newMeasureBuilder()
-          .setVariations(new MeasureVariations(variations))
-          .createNoValue());
-      }
+    // waiting for Java 8 lambda in order to factor this loop with the previous one
+    // (see call currentCounters.counterForPeriod(period.getIndex()).xxx with xxx as severityBag or typeBag)
+    for (Map.Entry<RuleType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
+      RuleType type = entry.getKey();
+      String metricKey = entry.getValue();
+      Multiset<RuleType> bag = currentCounters.counterForPeriod().typeBag;
+      Metric metric = metricRepository.getByKey(metricKey);
+      measureRepository.add(component, metric, Measure.newMeasureBuilder()
+        .setVariation((double) bag.count(type))
+        .createNoValue());
     }
   }
 
@@ -274,40 +263,33 @@ public class IssueCounter extends IssueVisitor {
   }
 
   /**
-   * List of {@link Counter} for regular value and periods.
+   * List of {@link Counter} for regular value and period.
    */
   private static class Counters {
-    private final Counter[] array = new Counter[1 + PeriodsHolder.MAX_NUMBER_OF_PERIODS];
-
-    Counters() {
-      array[0] = new Counter();
-      for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
-        array[i] = new Counter();
-      }
-    }
+    private final Counter counter = new Counter();
+    private final Counter counterForPeriod = new Counter();
 
     void add(@Nullable Counters other) {
       if (other != null) {
-        for (int i = 0; i < array.length; i++) {
-          array[i].add(other.array[i]);
-        }
+        counter.add(other.counter);
+        counterForPeriod.add(other.counterForPeriod);
       }
     }
 
-    void addOnPeriod(DefaultIssue issue, int periodIndex) {
-      array[periodIndex].add(issue);
+    void addOnPeriod(DefaultIssue issue) {
+      counterForPeriod.add(issue);
     }
 
     void add(DefaultIssue issue) {
-      array[0].add(issue);
+      counter.add(issue);
     }
 
     Counter counter() {
-      return array[0];
+      return counter;
     }
 
-    Counter counterForPeriod(int periodIndex) {
-      return array[periodIndex];
+    Counter counterForPeriod() {
+      return counterForPeriod;
     }
   }
 }

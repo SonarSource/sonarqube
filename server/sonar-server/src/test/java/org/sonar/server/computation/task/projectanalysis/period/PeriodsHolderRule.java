@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.period;
 
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -56,7 +57,7 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
     return this;
   }
 
-  public PeriodsHolderRule setPeriod(Period period) {
+  public PeriodsHolderRule setPeriod(@Nullable Period period) {
     delegate = new PeriodsHolderImpl();
     delegate.setPeriod(period);
     return this;

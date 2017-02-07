@@ -259,169 +259,43 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return this;
   }
 
-  public MeasureAssert hasVariation1(double expected) {
+  public MeasureAssert hasVariation(double expected) {
     isNotNull();
-    hasVariations();
+    hasVariation();
 
-    if (!actual.getVariations().hasVariation1()) {
-      failWithMessage("Expected Measure to have a Variation 1 but it did not");
+    if (!actual.hasVariation()) {
+      failWithMessage("Expected Measure to have a variation but it did not");
     }
 
-    if (actual.getVariations().getVariation1() != expected) {
-      failWithMessage("Expected Variation 1 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation1());
+    double variation = actual.getVariation();
+    if (variation != expected) {
+      failWithMessage("Expected variation of Measure to be <%s> but was <%s>", expected, variation);
     }
 
     return this;
   }
 
-  public MeasureAssert hasVariation1(double expected, Offset<Double> offset) {
+  public MeasureAssert hasVariation(double expected, Offset<Double> offset) {
     isNotNull();
-    hasVariations();
+    hasVariation();
 
-    if (!actual.getVariations().hasVariation1()) {
-      failWithMessage("Expected Measure to have a Variation 1 but it did not");
+    if (!actual.hasVariation()) {
+      failWithMessage("Expected Measure to have a variation but it did not");
     }
 
-    if (abs(expected - actual.getVariations().getVariation1()) <= offset.value) {
+    double variation = actual.getVariation();
+    if (abs(expected - variation) > offset.value) {
       failWithMessage(
-        "Expected Variation 1 of Measure to be close to <%s> by less than <%s> but was <%s>",
-        expected, offset.value, actual.getVariations().getVariation1());
+        "Expected variation of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, variation);
     }
 
     return this;
   }
 
-  public MeasureAssert hasVariation2(double expected) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation2()) {
-      failWithMessage("Expected Measure to have a Variation 2 but it did not");
-    }
-
-    if (actual.getVariations().getVariation2() != expected) {
-      failWithMessage("Expected Variation 2 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation2());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation2(double expected, Offset<Double> offset) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation2()) {
-      failWithMessage("Expected Measure to have a Variation 2 but it did not");
-    }
-
-    if (abs(expected - actual.getVariations().getVariation2()) > offset.value) {
-      failWithMessage(
-        "Expected Variation 2 of Measure to be close to <%s> by less than <%s> but was <%s>",
-        expected, offset.value, actual.getVariations().getVariation2());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation3(double expected) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation3()) {
-      failWithMessage("Expected Measure to have a Variation 3 but it did not");
-    }
-
-    if (actual.getVariations().getVariation3() != expected) {
-      failWithMessage("Expected Variation 3 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation3());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation3(double expected, Offset<Double> offset) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation3()) {
-      failWithMessage("Expected Measure to have a Variation 3 but it did not");
-    }
-
-    if (abs(expected - actual.getVariations().getVariation3()) > offset.value) {
-      failWithMessage(
-        "Expected Variation 3 of Measure to be close to <%s> by less than <%s> but was <%s>",
-        expected, offset.value, actual.getVariations().getVariation3());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation4(double expected) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation4()) {
-      failWithMessage("Expected Measure to have a Variation 4 but it did not");
-    }
-
-    if (actual.getVariations().getVariation4() != expected) {
-      failWithMessage("Expected Variation 4 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation4());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation4(double expected, Offset<Double> offset) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation4()) {
-      failWithMessage("Expected Measure to have a Variation 4 but it did not");
-    }
-
-    if (abs(expected - actual.getVariations().getVariation4()) > offset.value) {
-      failWithMessage(
-        "Expected Variation 4 of Measure to be close to <%s> by less than <%s> but was <%s>",
-        expected, offset.value, actual.getVariations().getVariation4());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation5(double expected) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation5()) {
-      failWithMessage("Expected Measure to have a Variation 5 but it did not");
-    }
-
-    if (actual.getVariations().getVariation5() != expected) {
-      failWithMessage("Expected Variation 5 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation5());
-    }
-
-    return this;
-  }
-
-  public MeasureAssert hasVariation5(double expected, Offset<Double> offset) {
-    isNotNull();
-    hasVariations();
-
-    if (!actual.getVariations().hasVariation5()) {
-      failWithMessage("Expected Measure to have a Variation 5 but it did not");
-    }
-
-    if (abs(expected - actual.getVariations().getVariation5()) > offset.value) {
-      failWithMessage(
-        "Expected Variation 5 of Measure to be close to <%s> by less than <%s> but was <%s>",
-        expected, offset.value, actual.getVariations().getVariation5());
-    }
-
-    return this;
-  }
-
-  private void hasVariations() {
-    if (!actual.hasVariations()) {
-      failWithMessage("Expected Measure to have a Variations but it did not");
+  private void hasVariation() {
+    if (!actual.hasVariation()) {
+      failWithMessage("Expected Measure to have a variation but it did not");
     }
   }
 

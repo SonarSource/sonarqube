@@ -106,7 +106,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriods(new Period(1, "mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC, "UUID"));
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriod(new Period("mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC, "UUID"));
 
   @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
@@ -114,7 +114,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   @Rule
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
-  VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
     new NewReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, periodsHolder)));
 
   @Test
@@ -130,7 +130,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   @Test
   public void no_measure_if_there_is_no_period() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
     treeRootHolder.setRoot(builder(PROJECT, 1).build());
 
     underTest.visit(treeRootHolder.getRoot());
@@ -323,7 +323,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   private void verifyAddedRawMeasureOnLeakPeriod(int componentRef, String metricKey, Rating rating) {
     MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey))
-      .hasVariation1(rating.getIndex());
+      .hasVariation(rating.getIndex());
   }
 
   private static DefaultIssue newBugIssue(long effort, String severity) {

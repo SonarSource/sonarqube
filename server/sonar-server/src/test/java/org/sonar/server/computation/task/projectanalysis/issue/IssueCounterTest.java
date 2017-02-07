@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.assertj.core.data.Offset;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,8 +31,8 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
@@ -140,16 +139,11 @@ public class IssueCounterTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  IssueCounter underTest;
-
-  @Before
-  public void setUp() {
-    underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);
-  }
+  private IssueCounter underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);;
 
   @Test
   public void count_issues_by_status() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
 
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
@@ -186,7 +180,7 @@ public class IssueCounterTest {
 
   @Test
   public void count_issues_by_resolution() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
 
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
@@ -224,7 +218,7 @@ public class IssueCounterTest {
 
   @Test
   public void count_unresolved_issues_by_severity() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
 
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
@@ -256,7 +250,7 @@ public class IssueCounterTest {
 
   @Test
   public void count_unresolved_issues_by_type() {
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
 
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
@@ -288,8 +282,8 @@ public class IssueCounterTest {
 
   @Test
   public void count_new_issues() {
-    Period period = newPeriod(3, 1500000000000L);
-    periodsHolder.setPeriods(period);
+    Period period = newPeriod(1500000000000L);
+    periodsHolder.setPeriod(period);
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
@@ -308,26 +302,26 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
-    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
-    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
-    assertVariation(FILE1, NEW_BUGS_METRIC, period.getIndex(), 1);
-    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
+    assertVariation(FILE1, NEW_ISSUES_METRIC, 2);
+    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, 2);
+    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, 1);
+    assertVariation(FILE1, NEW_BUGS_METRIC, 1);
+    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, 0);
 
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
-    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
-    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
-    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
-    assertVariation(PROJECT, NEW_BUGS_METRIC, period.getIndex(), 1);
-    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
+    assertVariation(PROJECT, NEW_ISSUES_METRIC, 2);
+    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, 2);
+    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, 0);
+    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, 1);
+    assertVariation(PROJECT, NEW_BUGS_METRIC, 1);
+    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, 0);
   }
 
-  private void assertVariation(Component component, Metric metric, int periodIndex, int expectedVariation) {
-    MeasureVariations variations = measureRepository.getRawMeasure(component, metric).get().getVariations();
-    assertThat(variations.getVariation(periodIndex)).isEqualTo((double) expectedVariation, Offset.offset(0.01));
+  private void assertVariation(Component component, Metric metric, int expectedVariation) {
+    Measure measure = measureRepository.getRawMeasure(component, metric).get();
+    assertThat(measure.getVariation()).isEqualTo((double) expectedVariation, Offset.offset(0.01));
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {
@@ -346,8 +340,8 @@ public class IssueCounterTest {
       .setCreationDate(new Date(creationDate));
   }
 
-  private static Period newPeriod(int index, long date) {
-    return new Period(index, "mode", null, date, "U1");
+  private static Period newPeriod(long date) {
+    return new Period("mode", null, date, "U1");
   }
 
 }
