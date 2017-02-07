@@ -65,7 +65,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -331,10 +330,10 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void work_with_only_system_admin() throws Exception {
+  public void project_administrator_is_allowed_to_get_information() throws Exception {
     init(createPages());
     componentDbTester.insertProjectAndSnapshot(project);
-    userSessionRule.setGlobalPermissions(SYSTEM_ADMIN);
+    userSessionRule.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     execute(project.key());
   }
