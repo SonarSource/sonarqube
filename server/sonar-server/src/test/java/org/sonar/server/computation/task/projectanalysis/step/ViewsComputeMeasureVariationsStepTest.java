@@ -31,8 +31,8 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -76,19 +76,17 @@ public class ViewsComputeMeasureVariationsStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DbSession session = dbTester.getSession();
+  private DbSession session = dbTester.getSession();
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
   private ComponentDto view;
 
-  ComputeMeasureVariationsStep underTest;
+  private ComputeMeasureVariationsStep underTest = new ComputeMeasureVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
 
   @Before
   public void setUp() {
     view = dbTester.components().insertView(dbTester.organizations().insert(), VIEW_UUID);
-
-    underTest = new ComputeMeasureVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
 
   @Test
@@ -98,7 +96,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 60d));
     session.commit();
 
-    periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));
+    periodsHolder.setPeriod(newPeriod(1, period1ViewSnapshot));
 
     treeRootHolder.setRoot(VIEW);
 
@@ -111,7 +109,7 @@ public class ViewsComputeMeasureVariationsStepTest {
   public void do_nothing_when_no_period() {
     Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).build();
     treeRootHolder.setRoot(view);
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
 
     underTest.execute();
 
@@ -131,7 +129,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), subviewDto.uuid(), period1Snapshot.getUuid(), 10d));
     session.commit();
 
-    periodsHolder.setPeriods(newPeriod(1, period1Snapshot));
+    periodsHolder.setPeriod(newPeriod(1, period1Snapshot));
 
     Component subview = ViewsComponent.builder(Component.Type.SUBVIEW, 2).setUuid(subviewDto.uuid()).build();
     Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).addChildren(subview).build();
@@ -142,48 +140,8 @@ public class ViewsComputeMeasureVariationsStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getRawMeasure(view, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(subview, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(10d);
-  }
-
-  @Test
-  public void set_variations_on_all_periods() {
-    SnapshotDto period1ViewSnapshot = newAnalysis(view).setLast(false);
-    SnapshotDto period2ViewSnapshot = newAnalysis(view).setLast(false);
-    SnapshotDto period3ViewSnapshot = newAnalysis(view).setLast(false);
-    SnapshotDto period4ViewSnapshot = newAnalysis(view).setLast(false);
-    SnapshotDto period5ViewSnapshot = newAnalysis(view).setLast(false);
-    dbClient.snapshotDao().insert(session, period1ViewSnapshot, period2ViewSnapshot, period3ViewSnapshot, period4ViewSnapshot, period5ViewSnapshot);
-
-    dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 0d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period2ViewSnapshot.getUuid(), 20d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period3ViewSnapshot.getUuid(), 40d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period4ViewSnapshot.getUuid(), 80d),
-      newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period5ViewSnapshot.getUuid(), 100d));
-    session.commit();
-
-    periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot),
-      newPeriod(2, period2ViewSnapshot),
-      newPeriod(3, period3ViewSnapshot),
-      newPeriod(4, period4ViewSnapshot),
-      newPeriod(5, period5ViewSnapshot));
-
-    treeRootHolder.setRoot(VIEW);
-
-    addRawMeasure(VIEW, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
-
-    underTest.execute();
-
-    assertThat(measureRepository.getRawMeasures(VIEW).keys()).hasSize(1);
-
-    Measure measure = measureRepository.getRawMeasure(VIEW, ISSUES_METRIC).get();
-    assertThat(measure.hasVariations()).isTrue();
-    assertThat(measure.getVariations().getVariation1()).isEqualTo(80d);
-    assertThat(measure.getVariations().getVariation2()).isEqualTo(60d);
-    assertThat(measure.getVariations().getVariation3()).isEqualTo(40d);
-    assertThat(measure.getVariations().getVariation4()).isEqualTo(0d);
-    assertThat(measure.getVariations().getVariation5()).isEqualTo(-20d);
+    assertThat(measureRepository.getRawMeasure(view, ISSUES_METRIC).get().getVariation()).isEqualTo(20d);
+    assertThat(measureRepository.getRawMeasure(subview, ISSUES_METRIC).get().getVariation()).isEqualTo(10d);
   }
 
   @Test
@@ -194,11 +152,10 @@ public class ViewsComputeMeasureVariationsStepTest {
       newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 60d),
       newMeasureDto(DEBT_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 10d),
       newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 2d),
-      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 1d)
-      );
+      newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 1d));
     session.commit();
 
-    periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));
+    periodsHolder.setPeriod(newPeriod(1, period1ViewSnapshot));
 
     treeRootHolder.setRoot(VIEW);
 
@@ -211,10 +168,10 @@ public class ViewsComputeMeasureVariationsStepTest {
 
     assertThat(measureRepository.getRawMeasures(VIEW).keys()).hasSize(4);
 
-    assertThat(measureRepository.getRawMeasure(VIEW, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(VIEW, DEBT_METRIC).get().getVariations().getVariation1()).isEqualTo(-5d);
-    assertThat(measureRepository.getRawMeasure(VIEW, FILE_COMPLEXITY_METRIC).get().getVariations().getVariation1()).isEqualTo(1d);
-    assertThat(measureRepository.getRawMeasure(VIEW, BUILD_BREAKER_METRIC).get().getVariations().getVariation1()).isEqualTo(-1d);
+    assertThat(measureRepository.getRawMeasure(VIEW, ISSUES_METRIC).get().getVariation()).isEqualTo(20d);
+    assertThat(measureRepository.getRawMeasure(VIEW, DEBT_METRIC).get().getVariation()).isEqualTo(-5d);
+    assertThat(measureRepository.getRawMeasure(VIEW, FILE_COMPLEXITY_METRIC).get().getVariation()).isEqualTo(1d);
+    assertThat(measureRepository.getRawMeasure(VIEW, BUILD_BREAKER_METRIC).get().getVariation()).isEqualTo(-1d);
   }
 
   private static MeasureDto newMeasureDto(int metricId, String componentUuid, String analysisUuid, double value) {

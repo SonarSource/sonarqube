@@ -19,19 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.PastMeasureDto;
@@ -43,7 +41,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisi
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureKey;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -73,7 +70,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
 
   public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
+                                      MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
@@ -85,7 +82,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(NumericMetric.INSTANCE::apply).collect(Collectors.toList());
+      List<Metric> metrics = StreamSupport.stream(metricRepository.getAll().spliterator(), false).filter(isNumeric()).collect(Collectors.toList());
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
     } finally {
@@ -103,7 +100,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       // measures on files are currently purged, so past measures are not available on files
       super(CrawlerDepthLimit.reportMaxDepth(DIRECTORY).withViewsMaxDepth(SUBVIEW), PRE_ORDER);
       this.session = session;
-      this.metricIds = metrics.stream().map(MetricDtoToMetricId.INSTANCE::apply).collect(Collectors.toSet());
+      this.metricIds = metrics.stream().map(Metric::getId).collect(Collectors.toSet());
       this.metrics = metrics;
     }
 
@@ -115,24 +112,25 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
     private MeasuresWithVariationRepository computeMeasuresWithVariations(Component component) {
       MeasuresWithVariationRepository measuresWithVariationRepository = new MeasuresWithVariationRepository();
-      for (Period period : periodsHolder.getPeriods()) {
+      if (periodsHolder.hasPeriod()) {
+        Period period = periodsHolder.getPeriod();
         List<PastMeasureDto> pastMeasures = dbClient.measureDao()
           .selectPastMeasures(session, component.getUuid(), period.getAnalysisUuid(), metricIds);
-        setVariationMeasures(component, pastMeasures, period.getIndex(), measuresWithVariationRepository);
+        setVariationMeasures(component, pastMeasures, measuresWithVariationRepository);
       }
       return measuresWithVariationRepository;
     }
 
-    private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
+    private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, MeasuresWithVariationRepository measuresWithVariationRepository) {
       Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = pastMeasures
         .stream()
         .collect(uniqueIndex(m -> new MeasureKey(metricRepository.getById((long) m.getMetricId()).getKey(), null), identity()));
       for (Metric metric : metrics) {
         Optional<Measure> measure = measureRepository.getRawMeasure(component, metric);
-        if (measure.isPresent() && !measure.get().hasVariations()) {
+        if (measure.isPresent() && !measure.get().hasVariation()) {
           PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metric.getKey(), null));
           double pastValue = (pastMeasure != null && pastMeasure.hasValue()) ? pastMeasure.getValue() : 0d;
-          measuresWithVariationRepository.add(metric, measure.get(), period, computeVariation(measure.get(), pastValue));
+          measuresWithVariationRepository.add(metric, measure.get(), computeVariation(measure.get(), pastValue));
         }
       }
     }
@@ -153,15 +151,10 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     }
 
     private void processMeasuresWithVariation(Component component, MeasuresWithVariationRepository measuresWithVariationRepository) {
-      for (MeasureWithVariations measureWithVariations : measuresWithVariationRepository.measures()) {
-        Metric metric = measureWithVariations.getMetric();
-        Measure measure = Measure.updatedMeasureBuilder(measureWithVariations.getMeasure())
-          .setVariations(new MeasureVariations(
-            measureWithVariations.getVariation(1),
-            measureWithVariations.getVariation(2),
-            measureWithVariations.getVariation(3),
-            measureWithVariations.getVariation(4),
-            measureWithVariations.getVariation(5)))
+      for (MeasureWithVariation measureWithVariation : measuresWithVariationRepository.measures()) {
+        Metric metric = measureWithVariation.getMetric();
+        Measure measure = Measure.updatedMeasureBuilder(measureWithVariation.getMeasure())
+          .setVariation(measureWithVariation.getVariation())
           .create();
         measureRepository.update(component, metric, measure);
       }
@@ -170,30 +163,26 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
   private static final class MeasuresWithVariationRepository {
 
-    private final Map<MeasureKey, MeasureWithVariations> measuresWithVariations = new HashMap<>();
+    private final Map<MeasureKey, MeasureWithVariation> measuresWithVariations = new HashMap<>();
 
-    public void add(Metric metric, final Measure measure, int variationIndex, double variationValue) {
+    public void add(Metric metric, final Measure measure, double variationValue) {
       checkArgument(measure.getDeveloper() == null, "%s does not support computing variations of Measures for Developer", getClass().getSimpleName());
       MeasureKey measureKey = new MeasureKey(metric.getKey(), null);
-      MeasureWithVariations measureWithVariations = measuresWithVariations.get(measureKey);
-      if (measureWithVariations == null) {
-        measureWithVariations = new MeasureWithVariations(metric, measure);
-        measuresWithVariations.put(measureKey, measureWithVariations);
-      }
-      measureWithVariations.setVariation(variationIndex, variationValue);
+      MeasureWithVariation measureWithVariation = measuresWithVariations.computeIfAbsent(measureKey, k -> new MeasureWithVariation(metric, measure));
+      measureWithVariation.setVariation(variationValue);
     }
 
-    public Collection<MeasureWithVariations> measures() {
+    public Collection<MeasureWithVariation> measures() {
       return measuresWithVariations.values();
     }
   }
 
-  private static final class MeasureWithVariations {
+  private static final class MeasureWithVariation {
     private final Metric metric;
     private final Measure measure;
-    private final Double[] variations = new Double[5];
+    private Double variation;
 
-    MeasureWithVariations(Metric metric, Measure measure) {
+    MeasureWithVariation(Metric metric, Measure measure) {
       this.metric = metric;
       this.measure = measure;
     }
@@ -206,37 +195,24 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       return metric;
     }
 
-    public void setVariation(int index, @Nullable Double value) {
-      variations[index - 1] = value;
+    public void setVariation(@Nullable Double value) {
+      this.variation = value;
     }
 
     @CheckForNull
-    public Double getVariation(int index) {
-      return variations[index - 1];
+    public Double getVariation() {
+      return variation;
     }
   }
 
-  private enum MetricDtoToMetricId implements Function<Metric, Integer> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public Integer apply(@Nonnull Metric metric) {
-      return metric.getId();
-    }
-  }
-
-  private enum NumericMetric implements Predicate<Metric> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull Metric metric) {
+  private static Predicate<Metric> isNumeric() {
+    return metric -> {
       Measure.ValueType valueType = metric.getType().getValueType();
       return Measure.ValueType.INT.equals(valueType)
         || Measure.ValueType.LONG.equals(valueType)
         || Measure.ValueType.DOUBLE.equals(valueType)
         || Measure.ValueType.BOOLEAN.equals(valueType);
-    }
+    };
   }
 
   @Override
