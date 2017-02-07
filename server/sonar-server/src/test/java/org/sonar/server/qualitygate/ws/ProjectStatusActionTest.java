@@ -32,7 +32,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -47,8 +46,6 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -67,11 +64,10 @@ public class ProjectStatusActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  WsActionTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
+  private WsActionTester ws;
+  private DbClient dbClient;
+  private DbSession dbSession;
 
   @Before
   public void setUp() {
@@ -83,9 +79,9 @@ public class ProjectStatusActionTest {
 
   @Test
   public void json_example() throws IOException {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -112,9 +108,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_status_by_project_id() throws IOException {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -131,9 +125,10 @@ public class ProjectStatusActionTest {
       newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     String response = ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -141,9 +136,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_status_by_project_key() throws IOException {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()).setKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -160,6 +153,7 @@ public class ProjectStatusActionTest {
       newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "project-key")
@@ -170,11 +164,10 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_measure_is_not_found() {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     ProjectStatusWsResponse result = call(snapshot.getUuid());
 
@@ -184,40 +177,38 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_snapshot_is_not_found() {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
-    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
-    ProjectStatusWsResponse result = callByProjectUuid("project-uuid");
+    ProjectStatusWsResponse result = callByProjectUuid(project.uuid());
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
   }
 
   @Test
-  public void not_fail_with_project_admin_permission() {
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+  public void project_administrator_is_allowed_to_get_project_status() {
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
+    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     call(snapshot.getUuid());
   }
 
   @Test
-  public void not_fail_with_browse_permission() {
-    userSession.addProjectUuidPermissions(UserRole.USER, "project-uuid");
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+  public void project_user_is_allowed_to_get_project_status() {
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
+    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
 
     call(snapshot.getUuid());
   }
 
   @Test
   public void fail_if_no_snapshot_id_found() {
-    userSession.setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.logIn().setRoot();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
@@ -227,18 +218,20 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.setGlobalPermissions(PROVISIONING);
-
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
+
     call(snapshot.getUuid());
   }
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
+    userSession.logIn().setRoot();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
 
@@ -250,6 +243,8 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_no_parameter_provided() {
+    userSession.logIn().setRoot();
+
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
 

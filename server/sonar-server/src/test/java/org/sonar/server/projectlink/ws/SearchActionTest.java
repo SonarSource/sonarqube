@@ -42,7 +42,6 @@ import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -75,12 +74,11 @@ public class SearchActionTest {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     underTest = new SearchAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void example() {
+    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
     insertCustomLink(project.uuid());
@@ -94,6 +92,7 @@ public class SearchActionTest {
 
   @Test
   public void request_by_project_id() throws IOException {
+    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
 
@@ -105,6 +104,7 @@ public class SearchActionTest {
 
   @Test
   public void request_by_project_key() throws IOException {
+    logInAsRoot();
     ComponentDto project = insertProject();
     insertHomepageLink(project.uuid());
 
@@ -116,6 +116,7 @@ public class SearchActionTest {
 
   @Test
   public void response_fields() throws IOException {
+    logInAsRoot();
     ComponentDto project = insertProject();
     ComponentLinkDto homepageLink = insertHomepageLink(project.uuid());
     ComponentLinkDto customLink = insertCustomLink(project.uuid());
@@ -131,6 +132,7 @@ public class SearchActionTest {
 
   @Test
   public void several_projects() throws IOException {
+    logInAsRoot();
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject("another", "abcd");
     ComponentLinkDto customLink1 = insertCustomLink(project1.uuid());
@@ -144,6 +146,7 @@ public class SearchActionTest {
 
   @Test
   public void request_does_not_fail_when_link_has_no_name() throws IOException {
+    logInAsRoot();
     ComponentDto project = db.components().insertProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setType("type");
     insertLink(foo);
@@ -153,6 +156,7 @@ public class SearchActionTest {
 
   @Test
   public void request_does_not_fail_when_link_has_no_type() throws IOException {
+    logInAsRoot();
     ComponentDto project = db.components().insertProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setName("name");
     insertLink(foo);
@@ -161,24 +165,18 @@ public class SearchActionTest {
   }
 
   @Test
-  public void global_admin() throws IOException {
-    userSession.logIn("login").setGlobalPermissions(SYSTEM_ADMIN);
-    checkItWorks();
-  }
-
-  @Test
-  public void project_admin() throws IOException {
-    userSession.logIn("login");
+  public void project_administrator_can_search_for_links() throws IOException {
     ComponentDto project = insertProject();
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+
     checkItWorks(project);
   }
 
   @Test
-  public void project_user() throws IOException {
-    userSession.logIn("login");
+  public void project_user_can_search_for_links() throws IOException {
     ComponentDto project = insertProject();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
     checkItWorks(project);
   }
 
@@ -199,12 +197,13 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_both_id_and_key_are_provided() {
-    insertProject();
+    ComponentDto project = insertProject();
+    logInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
-      .setParam(PARAM_PROJECT_ID, PROJECT_UUID)
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute();
   }
 
@@ -273,7 +272,7 @@ public class SearchActionTest {
     assertThat(response.getLinks(0).getName()).isEqualTo("Homepage");
   }
 
-  private void checkItWorks() throws IOException {
-    checkItWorks(insertProject());
+  private UserSessionRule logInAsRoot() {
+    return userSession.logIn().setRoot();
   }
 }

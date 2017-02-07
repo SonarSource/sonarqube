@@ -30,7 +30,6 @@ import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
@@ -106,26 +105,10 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_global_pages_for_anonymous() throws Exception {
+  public void the_returned_global_pages_do_not_include_administration_pages() throws Exception {
     init(createPages(), new ResourceTypeTree[] {});
 
-    executeAndVerify("global_pages_for_anonymous.json");
-  }
-
-  @Test
-  public void return_global_pages_for_user() throws Exception {
-    init(createPages(), new ResourceTypeTree[] {});
-    userSessionRule.logIn("obiwan");
-
-    executeAndVerify("global_pages_for_user.json");
-  }
-
-  @Test
-  public void return_global_pages_for_admin_user() throws Exception {
-    init(createPages(), new ResourceTypeTree[] {});
-    userSessionRule.logIn("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-
-    executeAndVerify("global_pages_for_admin.json");
+    executeAndVerify("global_pages.json");
   }
 
   @Test

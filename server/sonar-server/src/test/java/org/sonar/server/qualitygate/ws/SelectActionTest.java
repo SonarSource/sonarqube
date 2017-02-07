@@ -38,7 +38,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
 public class SelectActionTest {
@@ -164,7 +163,7 @@ public class SelectActionTest {
   public void fail_when_not_quality_gates_admin() throws Exception {
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
+    userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     callByKey(gateId, project.getKey());
