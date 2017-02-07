@@ -20,11 +20,8 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -52,8 +49,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Crawle
  * - If a snapshot is found, a new period is added to the repository
  */
 public class LoadPeriodsStep implements ComputationStep {
-
-  private static final int NUMBER_OF_PERIODS = 5;
 
   private final DbClient dbClient;
   private final SettingsRepository settingsRepository;
@@ -89,34 +84,31 @@ public class LoadPeriodsStep implements ComputationStep {
   public void execute(Component projectOrView) {
     DbSession session = dbClient.openSession(false);
     try {
-      periodsHolder.setPeriods(buildPeriods(projectOrView, session));
+      periodsHolder.setPeriod(buildPeriod(projectOrView, session));
     } finally {
       dbClient.closeSession(session);
     }
   }
 
-  private List<Period> buildPeriods(Component projectOrView, DbSession session) {
+  @CheckForNull
+  private Period buildPeriod(Component projectOrView, DbSession session) {
     Optional<ComponentDto> projectDto = dbClient.componentDao().selectByKey(session, projectOrView.getKey());
     // No project on first analysis, no period
     if (!projectDto.isPresent()) {
-      return Collections.emptyList();
+      return null;
     }
 
     boolean isReportType = projectOrView.getType().isReportType();
     PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().uuid(), analysisMetadataHolder.getAnalysisDate(),
-      isReportType ? projectOrView.getReportAttributes().getVersion() : null,
-      isReportType ? Qualifiers.PROJECT : Qualifiers.VIEW);
+      isReportType ? projectOrView.getReportAttributes().getVersion() : null);
 
     Settings settings = settingsRepository.getSettings(projectOrView);
-    List<Period> periods = new ArrayList<>(5);
-    for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
-      Period period = periodResolver.resolve(index, settings);
-      // SONAR-4700 Add a past snapshot only if it exists
-      if (period != null) {
-        periods.add(period);
-      }
+    Period period = periodResolver.resolve(settings);
+    // SONAR-4700 Add a past snapshot only if it exists
+    if (period != null) {
+      return period;
     }
-    return periods;
+    return null;
   }
 
   @Override

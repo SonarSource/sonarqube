@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Strings;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -56,60 +55,58 @@ public class PeriodResolver {
   private final long analysisDate;
   @CheckForNull
   private final String currentVersion;
-  private final String qualifier;
 
-  public PeriodResolver(DbClient dbClient, DbSession session, String projectUuid, long analysisDate, @Nullable String currentVersion, String qualifier) {
+  public PeriodResolver(DbClient dbClient, DbSession session, String projectUuid, long analysisDate, @Nullable String currentVersion) {
     this.dbClient = dbClient;
     this.session = session;
     this.projectUuid = projectUuid;
     this.analysisDate = analysisDate;
     this.currentVersion = currentVersion;
-    this.qualifier = qualifier;
   }
 
   @CheckForNull
-  public Period resolve(int index, Settings settings) {
-    String propertyValue = getPropertyValue(qualifier, settings, index);
+  public Period resolve(Settings settings) {
+    String propertyValue = getPropertyValue(settings);
     if (StringUtils.isBlank(propertyValue)) {
       return null;
     }
-    Period period = resolve(index, propertyValue);
+    Period period = resolve(propertyValue);
     if (period == null && StringUtils.isNotBlank(propertyValue)) {
-      LOG.debug("Property " + TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
+      LOG.debug("Property " + TIMEMACHINE_PERIOD_PREFIX + 1 + " is not valid: " + propertyValue);
     }
     return period;
   }
 
   @CheckForNull
-  private Period resolve(int index, String property) {
+  private Period resolve(String property) {
     Integer days = tryToResolveByDays(property);
     if (days != null) {
-      return findByDays(index, days);
+      return findByDays(days);
     }
     Date date = DateUtils.parseDateQuietly(property);
     if (date != null) {
-      return findByDate(index, date);
+      return findByDate(date);
     }
     if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
-      return findByPreviousAnalysis(index);
+      return findByPreviousAnalysis();
     }
     if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
-      return findByPreviousVersion(index);
+      return findByPreviousVersion();
     }
-    return findByVersion(index, property);
+    return findByVersion(property);
   }
 
-  private Period findByDate(int index, Date date) {
+  private Period findByDate(Date date) {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC));
     if (snapshot == null) {
       return null;
     }
     LOG.debug("Compare to date {} (analysis of {})", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
-  private Period findByDays(int index, int days) {
+  private Period findByDays(int days) {
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectAnalysesByQuery(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
     long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
@@ -117,52 +114,52 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
-  private Period findByPreviousAnalysis(int index) {
+  private Period findByPreviousAnalysis() {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
     }
     LOG.debug("Compare to previous analysis ({})", formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
-  private Period findByPreviousVersion(int index) {
+  private Period findByPreviousVersion() {
     if (currentVersion == null) {
       return null;
     }
     List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectUuid, currentVersion);
     if (snapshotDtos.isEmpty()) {
       // If no previous version is found, the first analysis is returned
-      return findByFirstAnalysis(index);
+      return findByFirstAnalysis();
     }
     SnapshotDto snapshotDto = snapshotDtos.get(0);
     LOG.debug("Compare to previous version ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getUuid());
+    return new Period(TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
-  private Period findByFirstAnalysis(int index) {
+  private Period findByFirstAnalysis() {
     SnapshotDto snapshotDto = dbClient.snapshotDao().selectOldestSnapshot(session, projectUuid);
     if (snapshotDto == null) {
       return null;
     }
     LOG.debug("Compare to first analysis ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
+    return new Period(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
-  private Period findByVersion(int index, String version) {
+  private Period findByVersion(String version) {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setVersion(version).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
     }
     LOG.debug("Compare to version ({}) ({})", version, formatDate(snapshot.getCreatedAt()));
-    return new Period(index, TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -206,12 +203,7 @@ public class PeriodResolver {
     return DateUtils.formatDate(Date.from(new Date(date).toInstant().truncatedTo(ChronoUnit.SECONDS)));
   }
 
-  private static String getPropertyValue(@Nullable String qualifier, Settings settings, int index) {
-    String value = settings.getString(TIMEMACHINE_PERIOD_PREFIX + index);
-    // For periods 4 and 5 we're also searching for a property prefixed by the qualifier
-    if (index > 3 && Strings.isNullOrEmpty(value)) {
-      value = settings.getString(TIMEMACHINE_PERIOD_PREFIX + index + "." + qualifier);
-    }
-    return value;
+  private static String getPropertyValue(Settings settings) {
+    return settings.getString(TIMEMACHINE_PERIOD_PREFIX + 1);
   }
 }
