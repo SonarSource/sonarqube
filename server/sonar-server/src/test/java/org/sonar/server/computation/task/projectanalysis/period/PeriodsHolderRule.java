@@ -46,9 +46,19 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
     this.delegate = new PeriodsHolderImpl();
   }
 
+  /**
+   * @deprecated as only one period is now available. Use {@link #setPeriod(Period)} instead
+   */
+  @Deprecated
   public PeriodsHolderRule setPeriods(Period... periods) {
     delegate = new PeriodsHolderImpl();
     delegate.setPeriods(Arrays.asList(periods));
+    return this;
+  }
+
+  public PeriodsHolderRule setPeriod(Period period) {
+    delegate = new PeriodsHolderImpl();
+    delegate.setPeriod(period);
     return this;
   }
 
@@ -65,5 +75,15 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
   @Override
   public Period getPeriod(int i) {
     return delegate.getPeriod(i);
+  }
+
+  @Override
+  public boolean hasPeriod() {
+    return delegate.hasPeriod();
+  }
+
+  @Override
+  public Period getPeriod() {
+    return delegate.getPeriod();
   }
 }

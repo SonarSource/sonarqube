@@ -209,6 +209,16 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     public List<Period> getPeriods() {
       return periodsHolder.getPeriods();
     }
+
+    @Override
+    public Period getPeriod() {
+      return periodsHolder.getPeriod();
+    }
+
+    @Override
+    public boolean hasPeriod() {
+      return periodsHolder.hasPeriod();
+    }
   }
 
   public static class Counters {
@@ -254,6 +264,16 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     @Override
     public List<Period> getPeriods() {
       return periodsHolder.getPeriods();
+    }
+
+    @Override
+    public Period getPeriod() {
+      return periodsHolder.getPeriod();
+    }
+
+    @Override
+    public boolean hasPeriod() {
+      return periodsHolder.hasPeriod();
     }
   }
 }

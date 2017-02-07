@@ -40,6 +40,18 @@ public interface CreateMeasureContext {
 
   /**
    * The periods for which variations of the measure can be created.
+   * @deprecated as only one period is now available. Use {@link #getPeriod()} instead
    */
+  @Deprecated
   List<Period> getPeriods();
+
+  /**
+   * The period for which variation of the measure can be created.
+   */
+  Period getPeriod();
+
+  /**
+   * Finds out whether the a period is definfed or not
+   */
+  boolean hasPeriod();
 }

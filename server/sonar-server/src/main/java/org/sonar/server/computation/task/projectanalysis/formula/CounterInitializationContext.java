@@ -42,7 +42,19 @@ public interface CounterInitializationContext {
 
   /**
    * Lists of Periods defined for the current project. They can be used to retrieve variations Measure.
+   * @deprecated replaced by {@link #getPeriod()}
    */
+  @Deprecated
   List<Period> getPeriods();
+
+  /**
+   * Return Period defined for the current project. It can be used to retrieve variation Measure.
+   */
+  Period getPeriod();
+
+  /**
+   * Finds out whether the a period is definfed or not
+   */
+  boolean hasPeriod();
 
 }

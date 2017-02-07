@@ -29,7 +29,11 @@ import org.sonar.server.computation.task.projectanalysis.period.Period;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * @deprecated as only one period is now available, this class should be simply replaced by a {@link Double}
+ */
 @Immutable
+@Deprecated
 public final class MeasureVariations {
   private static final String NAN_ERROR_MESSAGE = "NaN is not allowed in MeasureVariation";
 

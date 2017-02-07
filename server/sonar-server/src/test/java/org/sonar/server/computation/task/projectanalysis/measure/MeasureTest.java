@@ -52,9 +52,7 @@ public class MeasureTest {
   private static final Measure NO_VALUE_MEASURE = newMeasureBuilder().createNoValue();
 
   private static final List<Measure> MEASURES = ImmutableList.of(
-    INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE
-    );
-  private static final int SOME_RULE_ID = 95236;
+    INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE);
   private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Rule
@@ -295,7 +293,7 @@ public class MeasureTest {
     assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
     assertThat(newMeasure.getDescription()).isEqualTo(measure.getDescription());
     assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
-    assertThat(newMeasure.hasVariations()).isEqualTo(measure.hasVariations());
+    assertThat(newMeasure.hasVariation()).isEqualTo(measure.hasVariation());
   }
 
   @Test

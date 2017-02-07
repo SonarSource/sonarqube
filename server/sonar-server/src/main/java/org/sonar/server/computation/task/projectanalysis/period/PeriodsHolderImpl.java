@@ -47,7 +47,9 @@ public class PeriodsHolderImpl implements PeriodsHolder {
    * @throws IllegalArgumentException if the specified Iterable has more than 5 elements
    * @throws IllegalStateException if the holder has already been initialized
    * @throws IllegalStateException if two Periods have the same index
+   * @deprecated as only one period is now available. Use {@link #setPeriod(Period)} instead
    */
+  @Deprecated
   public void setPeriods(Iterable<Period> periods) {
     requireNonNull(periods, "Periods cannot be null");
     checkArgument(Iterables.size(periods) <= MAX_NUMBER_OF_PERIODS, String.format("There can not be more than %d periods", MAX_NUMBER_OF_PERIODS));
@@ -59,6 +61,18 @@ public class PeriodsHolderImpl implements PeriodsHolder {
       checkArgument(newPeriods[arrayIndex] == null, "More than one period has the index " + period.getIndex());
       newPeriods[arrayIndex] = period;
     }
+    this.periods = newPeriods;
+  }
+
+  /**
+   * Initializes the periods in the holder.
+   *
+   * @throws IllegalStateException if the holder has already been initialized
+   */
+  public void setPeriod(@Nullable Period period) {
+    checkState(this.periods == null, "Period have already been initialized");
+    Period[] newPeriods = new Period[1];
+    newPeriods[0] = period;
     this.periods = newPeriods;
   }
 
@@ -83,8 +97,20 @@ public class PeriodsHolderImpl implements PeriodsHolder {
     return this.periods[i - 1];
   }
 
+  @Override
+  public boolean hasPeriod() {
+    checkHolderIsInitialized();
+    return periods[0] != null;
+  }
+
+  @Override
+  public Period getPeriod() {
+    checkHolderIsInitialized();
+    return this.periods[0];
+  }
+
   private void checkHolderIsInitialized() {
-    checkState(this.periods != null, "Periods have not been initialized yet");
+    checkState(this.periods != null, "Period have not been initialized yet");
   }
 
   private enum CheckNotNull implements Predicate<Period> {

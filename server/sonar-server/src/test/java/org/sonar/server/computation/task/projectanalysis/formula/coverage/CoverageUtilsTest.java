@@ -157,5 +157,15 @@ public class CoverageUtilsTest {
     public List<Period> getPeriods() {
       throw new UnsupportedOperationException("getPeriods is not supported");
     }
+
+    @Override
+    public Period getPeriod() {
+      throw new UnsupportedOperationException("getPeriod is not supported");
+    }
+
+    @Override
+    public boolean hasPeriod() {
+      throw new UnsupportedOperationException("hasPeriod is not supported");
+    }
   }
 }

@@ -37,12 +37,23 @@ public class Period {
   private final long snapshotDate;
   private final String analysisUuid;
 
-  public Period(int index, String mode, @Nullable String modeParameter,
-    long snapshotDate, String analysisUuid) {
+  /**
+   * @deprecated replaced by {@link #Period(String, String, long, String)}
+   */
+  @Deprecated
+  public Period(int index, String mode, @Nullable String modeParameter, long snapshotDate, String analysisUuid) {
     if (!isValidPeriodIndex(index)) {
       throw new IllegalArgumentException(String.format("Period index (%s) must be > 0 and < 6", index));
     }
     this.index = index;
+    this.mode = requireNonNull(mode);
+    this.modeParameter = modeParameter;
+    this.snapshotDate = snapshotDate;
+    this.analysisUuid = analysisUuid;
+  }
+
+  public Period(String mode, @Nullable String modeParameter, long snapshotDate, String analysisUuid) {
+    this.index = 1;
     this.mode = requireNonNull(mode);
     this.modeParameter = modeParameter;
     this.snapshotDate = snapshotDate;
@@ -55,7 +66,9 @@ public class Period {
 
   /**
    * Index of periods is 1-based. It goes from 1 to 5.
+   * @deprecated only leak period can now be defined
    */
+  @Deprecated
   public int getIndex() {
     return index;
   }

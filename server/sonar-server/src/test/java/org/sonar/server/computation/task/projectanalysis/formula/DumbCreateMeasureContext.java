@@ -50,4 +50,14 @@ public class DumbCreateMeasureContext implements CreateMeasureContext {
   public List<Period> getPeriods() {
     return periodsHolder.getPeriods();
   }
+
+  @Override
+  public Period getPeriod() {
+    return periodsHolder.getPeriod();
+  }
+
+  @Override
+  public boolean hasPeriod() {
+    return periodsHolder.hasPeriod();
+  }
 }
