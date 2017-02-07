@@ -20,7 +20,7 @@
 // @flow
 import * as api from '../../../api/notifications';
 import type { GetNotificationsResponse } from '../../../api/notifications';
-import { onFail } from '../../../store/rootActions';
+import { onFail, fetchOrganizations } from '../../../store/rootActions';
 import {
   receiveNotifications,
   addNotification as addNotificationAction,
@@ -30,12 +30,18 @@ import type { Notification } from '../../../store/notifications/duck';
 
 export const fetchNotifications = () => (dispatch: Function) => {
   const onFulfil = (response: GetNotificationsResponse) => {
-    dispatch(receiveNotifications(
-        response.notifications,
-        response.channels,
-        response.globalTypes,
-        response.perProjectTypes
-    ));
+    const organizations = response.notifications
+        .filter(n => n.organization)
+        .map(n => n.organization);
+
+    dispatch(fetchOrganizations(organizations)).then(() => {
+      dispatch(receiveNotifications(
+          response.notifications,
+          response.channels,
+          response.globalTypes,
+          response.perProjectTypes
+      ));
+    });
   };
 
   return api.getNotifications().then(onFulfil, onFail(dispatch));

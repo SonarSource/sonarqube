@@ -25,8 +25,8 @@ exports[`test should render projects 1`] = `
       Set notifications for:
     </span>
     <Async
-      autoload={true}
-      cache={Object {}}
+      autoload={false}
+      cache={false}
       ignoreAccents={true}
       ignoreCase={true}
       loadOptions={[Function]}
@@ -34,9 +34,10 @@ exports[`test should render projects 1`] = `
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
+      optionRenderer={[Function]}
       options={Array []}
       placeholder="Search Project"
-      searchPromptText="Type at least 2 characters to search"
+      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",
@@ -80,8 +81,8 @@ exports[`test should render projects 2`] = `
       Set notifications for:
     </span>
     <Async
-      autoload={true}
-      cache={Object {}}
+      autoload={false}
+      cache={false}
       ignoreAccents={true}
       ignoreCase={true}
       loadOptions={[Function]}
@@ -89,9 +90,10 @@ exports[`test should render projects 2`] = `
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
+      optionRenderer={[Function]}
       options={Array []}
       placeholder="Search Project"
-      searchPromptText="Type at least 2 characters to search"
+      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",
@@ -135,8 +137,8 @@ exports[`test should render projects 3`] = `
       Set notifications for:
     </span>
     <Async
-      autoload={true}
-      cache={Object {}}
+      autoload={false}
+      cache={false}
       ignoreAccents={true}
       ignoreCase={true}
       loadOptions={[Function]}
@@ -144,9 +146,10 @@ exports[`test should render projects 3`] = `
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
+      optionRenderer={[Function]}
       options={Array []}
       placeholder="Search Project"
-      searchPromptText="Type at least 2 characters to search"
+      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",

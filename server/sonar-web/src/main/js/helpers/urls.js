@@ -26,6 +26,13 @@ export function getComponentUrl (componentKey) {
   return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
 }
 
+export function getProjectUrl (key) {
+  return {
+    pathname: '/dashboard',
+    query: { id: key }
+  };
+}
+
 /**
  * Generate URL for a global issues page
  * @param {object} query

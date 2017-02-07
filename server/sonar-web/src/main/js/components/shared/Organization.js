@@ -28,16 +28,21 @@ type OwnProps = {
 };
 
 type Props = {
+  link?: boolean,
   organizationKey: string,
   organization: null | {
     key: string,
     name: string
   },
-  shouldBeDisplayed: boolean
+  shouldBeDisplayed: boolean,
 };
 
 class Organization extends React.Component {
   props: Props;
+
+  static defaultProps = {
+    link: true
+  };
 
   render () {
     const { organization, shouldBeDisplayed } = this.props;
@@ -48,7 +53,11 @@ class Organization extends React.Component {
 
     return (
         <span>
-          <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+          {this.props.link ? (
+              <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+          ) : (
+              organization.name
+          )}
           <span className="slash-separator"/>
         </span>
     );
