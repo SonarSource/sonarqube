@@ -90,7 +90,8 @@ class Template extends React.Component {
 
   handleToggleUser (user, permission) {
     if (user.login === '<creator>') {
-      return this.handleToggleProjectCreator(user, permission);
+      this.handleToggleProjectCreator(user, permission);
+      return;
     }
     const { template } = this.props;
     const hasPermission = user.permissions.includes(permission);

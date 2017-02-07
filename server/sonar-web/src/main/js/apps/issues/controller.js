@@ -80,7 +80,7 @@ export default Controller.extend({
         });
       }
       if (firstPage && that.isIssuePermalink()) {
-        return that.showComponentViewer(that.options.app.list.first());
+        that.showComponentViewer(that.options.app.list.first());
       }
     });
   },
@@ -112,7 +112,7 @@ export default Controller.extend({
       });
       const facetData = r.facets.find(facet => facet.property === id);
       if (facetData != null) {
-        return facet.set(facetData);
+        facet.set(facetData);
       }
     });
   },

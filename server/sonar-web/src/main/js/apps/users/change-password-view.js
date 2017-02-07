@@ -38,7 +38,7 @@ export default ModalForm.extend({
       return;
     }
     this.disableForm();
-    return this.model.changePassword(oldPassword, password, {
+    this.model.changePassword(oldPassword, password, {
       statusCode: {
         // do not show global error
         400: null

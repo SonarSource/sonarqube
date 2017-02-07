@@ -48,7 +48,7 @@ export default CustomValuesFacet.extend({
 
     const value = this.options.app.state.get('query').assigned;
     if ((value != null) && (!value || value === 'false')) {
-      return this.$('.js-facet').filter('[data-unassigned]').addClass('active');
+      this.$('.js-facet').filter('[data-unassigned]').addClass('active');
     }
   },
 

@@ -94,7 +94,7 @@ export default PopupView.extend({
     }
     this.disableForm();
     this.options.detailView.disableControls();
-    return $.post(url, data)
+    $.post(url, data)
         .done(r => this.options.detailView.updateAfterAction(r))
         .fail(() => {
           this.enableForm();

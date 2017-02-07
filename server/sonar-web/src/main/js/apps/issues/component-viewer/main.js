@@ -40,7 +40,7 @@ export default SourceViewer.extend({
     this.bindShortcuts();
     if (this.baseIssue != null) {
       this.baseIssue.trigger('locations', this.baseIssue);
-      return this.scrollToLine(this.baseIssue.get('line'));
+      this.scrollToLine(this.baseIssue.get('line'));
     }
   },
 
@@ -51,7 +51,7 @@ export default SourceViewer.extend({
       if (!selectedIssueView) {
         return;
       }
-      return selectedIssueView.find('.js-issue-' + action).click();
+      selectedIssueView.find('.js-issue-' + action).click();
     };
     key('up', 'componentViewer', () => {
       that.options.app.controller.selectPrev();

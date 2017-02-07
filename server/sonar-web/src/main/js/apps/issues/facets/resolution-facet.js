@@ -29,7 +29,7 @@ export default BaseFacet.extend({
     BaseFacet.prototype.onRender.apply(this, arguments);
     const value = this.options.app.state.get('query').resolved;
     if ((value != null) && (!value || value === 'false')) {
-      return this.$('.js-facet').filter('[data-unresolved]').addClass('active');
+      this.$('.js-facet').filter('[data-unresolved]').addClass('active');
     }
   },
 
