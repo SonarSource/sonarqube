@@ -20,13 +20,9 @@
 package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 
 import org.sonar.server.computation.task.projectanalysis.formula.CounterInitializationContext;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getLongVariation;
 import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getMeasureVariations;
-import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.supportedPeriods;
 
 public final class SingleWithUncoveredVariationCounter extends ElementsAndCoveredElementsVariationCounter {
   private final SingleWithUncoveredMetricKeys metricKeys;
@@ -37,12 +33,9 @@ public final class SingleWithUncoveredVariationCounter extends ElementsAndCovere
 
   @Override
   protected void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
-    MeasureVariations newConditions = getMeasureVariations(counterContext, metricKeys.getCovered());
-    MeasureVariations uncoveredConditions = getMeasureVariations(counterContext, metricKeys.getUncovered());
-    for (Period period : supportedPeriods(counterContext)) {
-      long elements = getLongVariation(newConditions, period);
-      this.elements.increment(period, elements);
-      coveredElements.increment(period, elements - getLongVariation(uncoveredConditions, period));
-    }
+    long newConditions = (long) getMeasureVariations(counterContext, metricKeys.getCovered());
+    long uncoveredConditions = (long) getMeasureVariations(counterContext, metricKeys.getUncovered());
+    this.elements.increment(newConditions);
+    coveredElements.increment(newConditions - uncoveredConditions);
   }
 }

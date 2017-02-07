@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,6 @@ import org.sonar.server.computation.task.projectanalysis.component.ViewsComponen
 import org.sonar.server.computation.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
@@ -44,7 +42,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.ViewsC
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class ViewsNewCoverageMeasuresStepTest {
 
@@ -73,7 +70,6 @@ public class ViewsNewCoverageMeasuresStepTest {
           builder(PROJECT_VIEW, PROJECT_VIEW_4_REF).build())
         .build())
     .build();
-  private static final Double NO_PERIOD_4_OR_5_IN_VIEWS = null;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -99,9 +95,7 @@ public class ViewsNewCoverageMeasuresStepTest {
 
   @Before
   public void setUp() {
-    periodsHolder.setPeriods(
-      new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), "U1"),
-      new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), "U2"));
+    periodsHolder.setPeriod(new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "U1"));
   }
 
   @Test
@@ -115,33 +109,33 @@ public class ViewsNewCoverageMeasuresStepTest {
 
     treeRootHolder.setRoot(VIEWS_TREE);
     // PROJECT_VIEW_1_REF has no measure
-    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newLinesToCover, createMeasure(1d, 2d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newUncoveredLines, createMeasure(10d, 20d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newConditionsToCover, createMeasure(4d, 5d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newUncoveredConditions, createMeasure(40d, 50d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newLinesToCover, createMeasure(11d, 12d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newUncoveredLines, createMeasure(20d, 30d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newConditionsToCover, createMeasure(14d, 15d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newUncoveredConditions, createMeasure(50d, 60d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newLinesToCover, createMeasure(21d, 22d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newUncoveredLines, createMeasure(30d, 40d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newConditionsToCover, createMeasure(24d, 25d));
-    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newUncoveredConditions, createMeasure(60d, 70d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newLinesToCover, createMeasure(1d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newUncoveredLines, createMeasure(10d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newConditionsToCover, createMeasure(4d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, newUncoveredConditions, createMeasure(40d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newLinesToCover, createMeasure(11d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newUncoveredLines, createMeasure(20d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newConditionsToCover, createMeasure(14d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_3_REF, newUncoveredConditions, createMeasure(50d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newLinesToCover, createMeasure(21d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newUncoveredLines, createMeasure(30d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newConditionsToCover, createMeasure(24d));
+    measureRepository.addRawMeasure(PROJECT_VIEW_4_REF, newUncoveredConditions, createMeasure(60d));
 
     underTest.execute();
 
     assertNoAddedRawMeasureOnProjectViews();
     assertNoAddedRawMeasures(SUB_SUBVIEW_1_REF);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_2_REF))).contains(
-      entryOf(metricKeys.newLinesToCover, createMeasure(12d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(30d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(18d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(90d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(metricKeys.newLinesToCover, createMeasure(12d)),
+      entryOf(metricKeys.newUncoveredLines, createMeasure(30d)),
+      entryOf(metricKeys.newConditionsToCover, createMeasure(18d)),
+      entryOf(metricKeys.newUncoveredConditions, createMeasure(90d)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(
-      entryOf(metricKeys.newLinesToCover, createMeasure(33d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(60d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(42d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(150d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(metricKeys.newLinesToCover, createMeasure(33d)),
+      entryOf(metricKeys.newUncoveredLines, createMeasure(60d)),
+      entryOf(metricKeys.newConditionsToCover, createMeasure(42d)),
+      entryOf(metricKeys.newUncoveredConditions, createMeasure(150d)));
   }
 
   @Test
@@ -159,42 +153,42 @@ public class ViewsNewCoverageMeasuresStepTest {
   private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     treeRootHolder.setRoot(VIEWS_TREE);
     measureRepository
-      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getLines(), createMeasure(3000d, 2000d))
-      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getConditions(), createMeasure(300d, 400d))
-      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getUncoveredLines(), createMeasure(30d, 200d))
-      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9d, 16d))
+      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getLines(), createMeasure(3000d))
+      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getConditions(), createMeasure(300d))
+      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getUncoveredLines(), createMeasure(30d))
+      .addRawMeasure(PROJECT_VIEW_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9d))
       // PROJECT_VIEW_2_REF
-      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getLines(), createMeasure(2000d, 3000d))
-      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getConditions(), createMeasure(400d, 300d))
-      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getUncoveredLines(), createMeasure(200d, 30d))
-      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16d, 9d))
+      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getLines(), createMeasure(2000d))
+      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getConditions(), createMeasure(400d))
+      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getUncoveredLines(), createMeasure(200d))
+      .addRawMeasure(PROJECT_VIEW_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16d))
       // PROJECT_VIEW_3_REF has no measure
       // PROJECT_VIEW_4_REF
-      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getLines(), createMeasure(1000d, 2000d))
-      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getConditions(), createMeasure(300d, 200d))
-      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getUncoveredLines(), createMeasure(100d, 20d))
-      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getUncoveredConditions(), createMeasure(6d, 9d));
+      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getLines(), createMeasure(1000d))
+      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getConditions(), createMeasure(300d))
+      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getUncoveredLines(), createMeasure(100d))
+      .addRawMeasure(PROJECT_VIEW_4_REF, metricKeys.getUncoveredConditions(), createMeasure(6d));
 
     underTest.execute();
 
     assertNoAddedRawMeasureOnProjectViews();
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_1_REF))).contains(
-      entryOf(codeCoverageKey, createMeasure(98.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(lineCoverageKey, createMeasure(99d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(branchCoverageKey, createMeasure(97d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(98.8d)),
+      entryOf(lineCoverageKey, createMeasure(99d)),
+      entryOf(branchCoverageKey, createMeasure(97d)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_2_REF))).contains(
-      entryOf(codeCoverageKey, createMeasure(91d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(lineCoverageKey, createMeasure(90d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(branchCoverageKey, createMeasure(96d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(91d)),
+      entryOf(lineCoverageKey, createMeasure(90d)),
+      entryOf(branchCoverageKey, createMeasure(96d)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUBVIEW_REF))).contains(
-      entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(94.8d)),
+      entryOf(lineCoverageKey, createMeasure(94.5d)),
+      entryOf(branchCoverageKey, createMeasure(96.9d)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(
-      entryOf(codeCoverageKey, createMeasure(94.8d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(lineCoverageKey, createMeasure(94.5d, NO_PERIOD_4_OR_5_IN_VIEWS)),
-      entryOf(branchCoverageKey, createMeasure(96.9d, NO_PERIOD_4_OR_5_IN_VIEWS)));
+      entryOf(codeCoverageKey, createMeasure(94.8d)),
+      entryOf(lineCoverageKey, createMeasure(94.5d)),
+      entryOf(branchCoverageKey, createMeasure(96.9d)));
   }
 
   private static final class MetricKeys {
@@ -211,16 +205,9 @@ public class ViewsNewCoverageMeasuresStepTest {
     }
   }
 
-  private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
-    MeasureVariations.Builder variationBuilder = newMeasureVariationsBuilder();
-    if (variationPeriod2 != null) {
-      variationBuilder.setVariation(new Period(2, "", null, 1L, "U2"), variationPeriod2);
-    }
-    if (variationPeriod5 != null) {
-      variationBuilder.setVariation(new Period(5, "", null, 1L, "U2"), variationPeriod5);
-    }
+  private static Measure createMeasure(Double expectedVariation) {
     return newMeasureBuilder()
-      .setVariations(variationBuilder.build())
+      .setVariation(expectedVariation)
       .createNoValue();
   }
 

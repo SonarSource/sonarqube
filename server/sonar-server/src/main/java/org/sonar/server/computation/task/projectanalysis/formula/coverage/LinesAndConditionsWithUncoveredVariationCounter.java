@@ -22,11 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 import com.google.common.base.Optional;
 import org.sonar.server.computation.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
-
-import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getLongVariation;
-import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.supportedPeriods;
 
 public final class LinesAndConditionsWithUncoveredVariationCounter extends ElementsAndCoveredElementsVariationCounter {
   private final LinesAndConditionsWithUncoveredMetricKeys metricKeys;
@@ -38,23 +33,16 @@ public final class LinesAndConditionsWithUncoveredVariationCounter extends Eleme
   @Override
   public void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
     Optional<Measure> newLinesMeasure = counterContext.getMeasure(metricKeys.getLines());
-    if (!newLinesMeasure.isPresent() || !newLinesMeasure.get().hasVariations()) {
+    if (!newLinesMeasure.isPresent() || !newLinesMeasure.get().hasVariation()) {
       return;
     }
+    double newLines = newLinesMeasure.get().getVariation();
+    long newConditions = (long) CoverageUtils.getMeasureVariations(counterContext, metricKeys.getConditions());
+    long uncoveredLines = (long) CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredLines());
+    long uncoveredConditions = (long) CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredConditions());
 
-    MeasureVariations newLines = newLinesMeasure.get().getVariations();
-    MeasureVariations newConditions = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getConditions());
-    MeasureVariations uncoveredLines = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredLines());
-    MeasureVariations uncoveredConditions = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredConditions());
-    for (Period period : supportedPeriods(counterContext)) {
-      if (!newLines.hasVariation(period.getIndex())) {
-        continue;
-      }
-      long elements = (long) newLines.getVariation(period.getIndex()) + getLongVariation(newConditions, period);
-      this.elements.increment(period, elements);
-      coveredElements.increment(
-        period,
-        elements - getLongVariation(uncoveredConditions, period) - getLongVariation(uncoveredLines, period));
-    }
+    long elements = (long) newLines + newConditions;
+    this.elements.increment(elements);
+    coveredElements.increment(elements - uncoveredConditions - uncoveredLines);
   }
 }

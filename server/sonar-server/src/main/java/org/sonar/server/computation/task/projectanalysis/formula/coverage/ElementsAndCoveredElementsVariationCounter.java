@@ -28,13 +28,13 @@ import org.sonar.server.computation.task.projectanalysis.formula.counter.LongVar
  * A counter used to create measure variations which are based on a count of elements and coveredElements.
  */
 public abstract class ElementsAndCoveredElementsVariationCounter implements Counter<ElementsAndCoveredElementsVariationCounter> {
-  protected final LongVariationValue.Array elements = LongVariationValue.newArray();
-  protected final LongVariationValue.Array coveredElements = LongVariationValue.newArray();
+  protected final LongVariationValue elements = new LongVariationValue();
+  protected final LongVariationValue coveredElements = new LongVariationValue();
 
   @Override
   public void aggregate(ElementsAndCoveredElementsVariationCounter counter) {
-    elements.incrementAll(counter.elements);
-    coveredElements.incrementAll(counter.coveredElements);
+    elements.increment(counter.elements);
+    coveredElements.increment(counter.coveredElements);
   }
 
   @Override

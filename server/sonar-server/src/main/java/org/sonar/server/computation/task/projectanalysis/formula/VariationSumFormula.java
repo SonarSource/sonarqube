@@ -20,16 +20,12 @@
 package org.sonar.server.computation.task.projectanalysis.formula;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
@@ -39,46 +35,29 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
  */
 public class VariationSumFormula implements Formula<VariationSumFormula.VariationSumCounter> {
   private final String metricKey;
-  private final Predicate<Period> supportedPeriods;
   @CheckForNull
   private final Double defaultInputValue;
 
-  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods) {
-    this(metricKey, supportedPeriods, null);
+  public VariationSumFormula(String metricKey) {
+    this(metricKey, null);
   }
 
-  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods, @Nullable Double defaultInputValue) {
+  public VariationSumFormula(String metricKey, @Nullable Double defaultInputValue) {
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
-    this.supportedPeriods = requireNonNull(supportedPeriods, "Period predicate cannot be null");
     this.defaultInputValue = defaultInputValue;
   }
 
   @Override
   public VariationSumCounter createNewCounter() {
-    return new VariationSumCounter(metricKey, supportedPeriods, defaultInputValue);
+    return new VariationSumCounter(metricKey, defaultInputValue);
   }
 
   @Override
   public Optional<Measure> createMeasure(VariationSumCounter counter, CreateMeasureContext context) {
-    if (!CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
+    if (!CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType()) || !counter.doubleValue.isSet()) {
       return Optional.absent();
     }
-    MeasureVariations.Builder variations = createAndPopulateBuilder(counter.array, context);
-    if (variations.isEmpty()) {
-      return Optional.absent();
-    }
-    return Optional.of(newMeasureBuilder().setVariations(variations.build()).createNoValue());
-  }
-
-  private MeasureVariations.Builder createAndPopulateBuilder(DoubleVariationValue.Array array, CreateMeasureContext context) {
-    MeasureVariations.Builder builder = MeasureVariations.newMeasureVariationsBuilder();
-    for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
-      DoubleVariationValue elements = array.get(period);
-      if (elements.isSet()) {
-        builder.setVariation(period, elements.getValue());
-      }
-    }
-    return builder;
+    return Optional.of(newMeasureBuilder().setVariation(counter.doubleValue.getValue()).createNoValue());
   }
 
   @Override
@@ -89,48 +68,39 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
   public static final class VariationSumCounter implements Counter<VariationSumCounter> {
     @CheckForNull
     private final Double defaultInputValue;
-    private final DoubleVariationValue.Array array = DoubleVariationValue.newArray();
+    private final DoubleVariationValue doubleValue = new DoubleVariationValue();
     private final String metricKey;
-    private final Predicate<Period> supportedPeriods;
 
-    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods, @Nullable Double defaultInputValue) {
+    private VariationSumCounter(String metricKey, @Nullable Double defaultInputValue) {
       this.metricKey = metricKey;
-      this.supportedPeriods = supportedPeriods;
       this.defaultInputValue = defaultInputValue;
     }
 
     @Override
     public void aggregate(VariationSumCounter counter) {
-      array.incrementAll(counter.array);
+      doubleValue.increment(counter.doubleValue);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
       Optional<Measure> measure = context.getMeasure(metricKey);
-      if (!measure.isPresent() || !measure.get().hasVariations()) {
-        initializeWithDefaultInputValue(context);
+      if (!measure.isPresent() || !measure.get().hasVariation()) {
+        initializeWithDefaultInputValue();
         return;
       }
-      MeasureVariations variations = measure.get().getVariations();
-      for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
-        if (variations.hasVariation(period.getIndex())) {
-          double variation = variations.getVariation(period.getIndex());
-          if (variation > 0) {
-            array.increment(period, variation);
-          } else if (defaultInputValue != null) {
-            array.increment(period, defaultInputValue);
-          }
-        }
+      double variation = measure.get().getVariation();
+      if (variation > 0) {
+        doubleValue.increment(variation);
+      } else if (defaultInputValue != null) {
+        doubleValue.increment(defaultInputValue);
       }
     }
 
-    private void initializeWithDefaultInputValue(CounterInitializationContext context) {
+    private void initializeWithDefaultInputValue() {
       if (defaultInputValue == null) {
         return;
       }
-      for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
-        array.increment(period, defaultInputValue);
-      }
+      doubleValue.increment(defaultInputValue);
     }
   }
 }

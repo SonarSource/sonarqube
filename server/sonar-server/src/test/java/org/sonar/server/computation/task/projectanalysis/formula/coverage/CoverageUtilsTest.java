@@ -30,21 +30,19 @@ import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.formula.CounterInitializationContext;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getLongMeasureValue;
-import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getLongVariation;
 import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.getMeasureVariations;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class CoverageUtilsTest {
 
   private static final String SOME_METRIC_KEY = "some key";
-  public static final MeasureVariations DEFAULT_VARIATIONS = new MeasureVariations(0d, 0d, 0d, 0d, 0d);
+  public static final double DEFAULT_VARIATION = 0d;
 
   @Rule
   public CounterInitializationContextRule fileAggregateContext = new CounterInitializationContextRule();
@@ -94,37 +92,21 @@ public class CoverageUtilsTest {
 
   @Test
   public void getMeasureVariations_returns_0_in_all_MeasureVariations_if_there_is_no_measure() {
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATIONS);
+    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATION);
   }
 
   @Test
   public void getMeasureVariations_returns_0_in_all_MeasureVariations_if_there_is_measure_has_no_variations() {
     fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().createNoValue());
 
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATIONS);
+    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATION);
   }
 
   @Test
   public void getMeasureVariations_returns_MeasureVariations_of_measure_when_it_has_one() {
-    MeasureVariations measureVariations = new MeasureVariations(null, 5d, null, null);
-    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().setVariations(measureVariations).createNoValue());
+    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().setVariation(5d).createNoValue());
 
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isSameAs(measureVariations);
-  }
-
-  @Test
-  public void getLongVariation_returns_0_if_MeasureVariation_has_none_for_the_specified_period() {
-    MeasureVariations variations = new MeasureVariations(null, 2d, null, null, 5d);
-
-    assertThat(getLongVariation(variations, createPeriod(1))).isEqualTo(0L);
-    assertThat(getLongVariation(variations, createPeriod(2))).isEqualTo(2L);
-    assertThat(getLongVariation(variations, createPeriod(3))).isEqualTo(0L);
-    assertThat(getLongVariation(variations, createPeriod(4))).isEqualTo(0L);
-    assertThat(getLongVariation(variations, createPeriod(5))).isEqualTo(5L);
-  }
-
-  private Period createPeriod(int periodIndex) {
-    return new Period(periodIndex, "mode" + periodIndex, null, 963L + periodIndex, String.valueOf(9865L + periodIndex));
+    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(5d);
   }
 
   private static class CounterInitializationContextRule extends ExternalResource implements CounterInitializationContext {

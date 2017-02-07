@@ -20,20 +20,13 @@
 package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.formula.CounterInitializationContext;
-import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.task.projectanalysis.period.PeriodPredicates.viewsRestrictedPeriods;
 
 public final class CoverageUtils {
   private static final Measure DEFAULT_MEASURE = newMeasureBuilder().create(0L);
-  private static final MeasureVariations DEFAULT_VARIATIONS = new MeasureVariations(0d, 0d, 0d, 0d, 0d);
 
   private CoverageUtils() {
     // prevents instantiation
@@ -54,42 +47,12 @@ public final class CoverageUtils {
     return measure.getLongValue();
   }
 
-  static MeasureVariations getMeasureVariations(CounterInitializationContext counterContext, String metricKey) {
+  static double getMeasureVariations(CounterInitializationContext counterContext, String metricKey) {
     Optional<Measure> measure = counterContext.getMeasure(metricKey);
-    if (!measure.isPresent() || !measure.get().hasVariations()) {
-      return DEFAULT_VARIATIONS;
+    if (!measure.isPresent() || !measure.get().hasVariation()) {
+      return 0d;
     }
-    return measure.get().getVariations();
-  }
-
-  static long getLongVariation(MeasureVariations variations, Period period) {
-    if (variations.hasVariation(period.getIndex())) {
-      return (long) variations.getVariation(period.getIndex());
-    }
-    return 0L;
-  }
-
-  /**
-   * Since Periods 4 and 5 can be customized per project and/or per view/subview, aggregating values on this period
-   * will only generate garbage data which will make no sense. These Periods should be ignored when processing views/subviews.
-   */
-  static Iterable<Period> supportedPeriods(CreateMeasureContext context) {
-    return supportedPeriods(context.getComponent().getType(), context.getPeriods());
-  }
-
-  /**
-   * Since Periods 4 and 5 can be customized per project and/or per view/subview, aggregating values on this period
-   * will only generate garbage data which will make no sense. These Periods should be ignored when processing views/subviews.
-   */
-  public static Iterable<Period> supportedPeriods(CounterInitializationContext context) {
-    return supportedPeriods(context.getLeaf().getType(), context.getPeriods());
-  }
-
-  private static Iterable<Period> supportedPeriods(Component.Type type, Iterable<Period> periods) {
-    if (type.isReportType()) {
-      return periods;
-    }
-    return from(periods).filter(viewsRestrictedPeriods());
+    return measure.get().getVariation();
   }
 
 }
