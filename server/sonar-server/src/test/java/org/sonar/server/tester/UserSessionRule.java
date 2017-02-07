@@ -21,7 +21,6 @@ package org.sonar.server.tester;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -177,15 +176,6 @@ public class UserSessionRule implements TestRule, UserSession {
     setCurrentUserSession(userSession);
   }
 
-  /**
-   * This method does not support organizations
-   */
-  @Deprecated
-  public UserSessionRule setGlobalPermissions(String... globalPermissions) {
-    ensureAbstractMockUserSession().setGlobalPermissions(globalPermissions);
-    return this;
-  }
-
   public UserSessionRule addProjectUuidPermissions(String projectPermission, String... projectUuids) {
     ensureAbstractMockUserSession().addProjectUuidPermissions(projectPermission, projectUuids);
     return this;
@@ -240,11 +230,6 @@ public class UserSessionRule implements TestRule, UserSession {
     if (serverTester != null) {
       serverTester.get(ThreadLocalUserSession.class).set(currentUserSession);
     }
-  }
-
-  @Override
-  public List<String> globalPermissions() {
-    return currentUserSession.globalPermissions();
   }
 
   @Override
