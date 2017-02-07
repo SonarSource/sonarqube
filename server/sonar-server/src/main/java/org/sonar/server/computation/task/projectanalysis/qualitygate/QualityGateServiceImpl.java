@@ -40,7 +40,7 @@ public class QualityGateServiceImpl implements QualityGateService {
     this.conditionDao = conditionDao;
     this.conditionDtoToBean = (QualityGateConditionDto input) -> {
       Metric metric = metricRepository.getById(input.getMetricId());
-      return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod());
+      return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod() != null);
     };
   }
 

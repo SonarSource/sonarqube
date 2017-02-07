@@ -23,15 +23,12 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.of;
 
 public final class ConditionEvaluator {
-
-  private static final Optional<Double> NO_PERIOD_VALUE = Optional.empty();
 
   /**
    * Evaluates the condition for the specified measure
@@ -118,7 +115,7 @@ public final class ConditionEvaluator {
 
   @CheckForNull
   private static Comparable parseMeasure(Condition condition, Measure measure) {
-    if (condition.getPeriod() != null) {
+    if (condition.hasPeriod()) {
       return parseMeasureFromVariation(condition, measure);
     }
     switch (measure.getValueType()) {
@@ -144,7 +141,7 @@ public final class ConditionEvaluator {
 
   @CheckForNull
   private static Comparable parseMeasureFromVariation(Condition condition, Measure measure) {
-    Optional<Double> periodValue = getPeriodValue(measure, condition.getPeriod());
+    Optional<Double> periodValue = getPeriodValue(measure);
     if (periodValue.isPresent()) {
       switch (condition.getMetric().getType().getValueType()) {
         case BOOLEAN:
@@ -165,26 +162,8 @@ public final class ConditionEvaluator {
     return null;
   }
 
-  private static Optional<Double> getPeriodValue(Measure measure, int period) {
-    if (!measure.hasVariations()) {
-      return Optional.empty();
-    }
-
-    MeasureVariations variations = measure.getVariations();
-    switch (period) {
-      case 1:
-        return variations.hasVariation1() ? of(variations.getVariation1()) : NO_PERIOD_VALUE;
-      case 2:
-        return variations.hasVariation2() ? of(variations.getVariation2()) : NO_PERIOD_VALUE;
-      case 3:
-        return variations.hasVariation3() ? of(variations.getVariation3()) : NO_PERIOD_VALUE;
-      case 4:
-        return variations.hasVariation4() ? of(variations.getVariation4()) : NO_PERIOD_VALUE;
-      case 5:
-        return variations.hasVariation5() ? of(variations.getVariation5()) : NO_PERIOD_VALUE;
-      default:
-        throw new IllegalArgumentException("Following index period is not allowed : " + period);
-    }
+  private static Optional<Double> getPeriodValue(Measure measure) {
+    return measure.hasVariation() ? Optional.of(measure.getVariation()) : Optional.empty();
   }
 
 }

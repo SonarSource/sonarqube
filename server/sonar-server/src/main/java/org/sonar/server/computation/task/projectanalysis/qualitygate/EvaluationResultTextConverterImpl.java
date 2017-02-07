@@ -68,13 +68,13 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
   }
 
   private String getAlertLabel(Condition condition, Measure.Level level) {
-    Integer alertPeriod = condition.getPeriod();
+    boolean hasPeriod = condition.hasPeriod();
     String metric = i18n.message(Locale.ENGLISH, "metric." + condition.getMetric().getKey() + ".name", condition.getMetric().getName());
 
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(metric);
 
-    if (alertPeriod != null && !condition.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
+    if (hasPeriod && !condition.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
       String variation = i18n.message(Locale.ENGLISH, VARIATION, VARIATION).toLowerCase(Locale.ENGLISH);
       stringBuilder.append(" ").append(variation);
     }
@@ -83,8 +83,8 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
       .append(" ").append(OPERATOR_LABELS.get(condition.getOperator())).append(" ")
       .append(alertValue(condition, level));
 
-    if (alertPeriod != null) {
-      Period period = periodsHolder.getPeriod(alertPeriod);
+    if (hasPeriod) {
+      Period period = periodsHolder.getPeriod();
       stringBuilder.append(" ").append(periods.label(period.getMode(), period.getModeParameter(), DateUtils.longToDate(period.getSnapshotDate())));
     }
 

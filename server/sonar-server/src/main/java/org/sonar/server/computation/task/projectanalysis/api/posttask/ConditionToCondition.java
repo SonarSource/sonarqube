@@ -43,7 +43,7 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
 
   @Override
   @Nonnull
-  public QualityGate.Condition apply(@Nonnull Condition input) {
+  public QualityGate.Condition apply(Condition input) {
     String metricKey = input.getMetric().getKey();
     ConditionStatus conditionStatus = statusPerConditions.get(input);
     checkState(conditionStatus != null, "Missing ConditionStatus for condition on metric key %s", metricKey);
@@ -53,7 +53,7 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
       .setOperator(convert(input.getOperator()))
       .setErrorThreshold(input.getErrorThreshold())
       .setWarningThreshold(input.getWarningThreshold())
-      .setOnLeakPeriod(input.getPeriod() != null)
+      .setOnLeakPeriod(input.hasPeriod())
       .setValue(conditionStatus.getValue())
       .build();
   }

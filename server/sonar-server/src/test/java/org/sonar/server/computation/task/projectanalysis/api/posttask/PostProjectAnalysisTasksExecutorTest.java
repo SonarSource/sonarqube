@@ -271,7 +271,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   private static Condition createCondition(String metricKey) {
     Metric metric = mock(Metric.class);
     when(metric.getKey()).thenReturn(metricKey);
-    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), "error threshold", "warn threshold", null);
+    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), "error threshold", "warn threshold", false);
   }
 
 }

@@ -58,8 +58,8 @@ public class QualityGateDetailsData {
     JsonObject result = new JsonObject();
     result.addProperty("metric", condition.getMetric().getKey());
     result.addProperty("op", condition.getOperator().getDbValue());
-    if (condition.getPeriod() != null) {
-      result.addProperty("period", condition.getPeriod());
+    if (condition.hasPeriod()) {
+      result.addProperty("period", 1);
     }
     if (condition.getWarningThreshold() != null) {
       result.addProperty("warning", condition.getWarningThreshold());

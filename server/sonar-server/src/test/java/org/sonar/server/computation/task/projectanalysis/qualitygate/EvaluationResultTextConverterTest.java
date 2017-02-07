@@ -49,7 +49,7 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
 public class EvaluationResultTextConverterTest {
   private static final Metric INT_METRIC = new MetricImpl(1, "key", "int_metric_name", Metric.MetricType.INT);
   private static final Metric SOME_VARIATION_METRIC = new MetricImpl(2, "new_variation_of_trololo", "variation_of_trololo_name", Metric.MetricType.INT);
-  private static final Condition EQ_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.EQUALS.getDbValue(), "10", null, null);
+  private static final Condition EQ_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.EQUALS.getDbValue(), "10", null, false);
   private static final EvaluationResult OK_EVALUATION_RESULT = new EvaluationResult(Measure.Level.OK, null);
   private static final String ERROR_THRESHOLD = "error_threshold";
   private static final String WARNING_THRESHOLD = "warning_threshold";
@@ -98,7 +98,7 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "metric." + INT_METRIC.getKey() + ".name", INT_METRIC.getName()))
       .thenReturn(metricMsg);
 
-    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, null);
+    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, false);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + toSign(operator) + " " + getThreshold(level));
@@ -116,7 +116,7 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "metric." + SOME_VARIATION_METRIC.getKey() + ".name", SOME_VARIATION_METRIC.getName()))
       .thenReturn(metricMsg);
 
-    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, null);
+    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, false);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + toSign(operator) + " " + getThreshold(level));
@@ -134,10 +134,10 @@ public class EvaluationResultTextConverterTest {
 
     Date date = new Date();
     Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
-    periodsHolder.setPeriods(period);
+    periodsHolder.setPeriod(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 
-    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, periodIndex);
+    Condition condition = new Condition(SOME_VARIATION_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, true);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + toSign(operator) + " " + (getThreshold(level)) + " " + periodLabel);
@@ -157,10 +157,10 @@ public class EvaluationResultTextConverterTest {
 
     Date date = new Date();
     Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
-    periodsHolder.setPeriods(period);
+    periodsHolder.setPeriod(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 
-    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, periodIndex);
+    Condition condition = new Condition(INT_METRIC, operator.getDbValue(), ERROR_THRESHOLD, WARNING_THRESHOLD, true);
 
     assertThat(underTest.asText(condition, new EvaluationResult(level, null)))
       .isEqualTo(metricMsg + " " + variationMsg + " " + toSign(operator) + " " + (getThreshold(level)) + " " + periodLabel);

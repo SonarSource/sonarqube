@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -73,8 +74,8 @@ import static org.sonar.server.computation.task.projectanalysis.qualitygate.Cond
  * It must be executed after the computation of differential measures {@link ComputeMeasureVariationsStep}
  */
 public class QualityGateMeasuresStep implements ComputationStep {
-  private static final Ordering<Condition> PERIOD_ORDERING = Ordering.natural().nullsLast()
-    .onResultOf(ConditionToPeriod.INSTANCE);
+  // Condition on period should come first
+  private static final Ordering<Condition> PERIOD_ORDERING = Ordering.natural().reverse().onResultOf(Condition::hasPeriod);
 
   private final TreeRootHolder treeRootHolder;
   private final QualityGateHolder qualityGateHolder;
@@ -170,7 +171,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
   }
 
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {
-    Multimap<Metric, Condition> conditionsPerMetric = from(conditions).index(ConditionToMetric.INSTANCE);
+    Multimap<Metric, Condition> conditionsPerMetric = conditions.stream().collect(Collectors.index(Condition::getMetric, java.util.function.Function.identity()));
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
       Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
@@ -277,23 +278,4 @@ public class QualityGateMeasuresStep implements ComputationStep {
     }
   }
 
-  private enum ConditionToMetric implements Function<Condition, Metric> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public Metric apply(@Nonnull Condition input) {
-      return input.getMetric();
-    }
-  }
-
-  public enum ConditionToPeriod implements Function<Condition, Integer> {
-    INSTANCE;
-
-    @Override
-    @Nullable
-    public Integer apply(@Nonnull Condition input) {
-      return input.getPeriod();
-    }
-  }
 }

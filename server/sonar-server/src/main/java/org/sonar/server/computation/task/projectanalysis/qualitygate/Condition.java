@@ -51,15 +51,14 @@ public class Condition {
   private final String warningThreshold;
   @CheckForNull
   private final String errorThreshold;
-  @CheckForNull
-  private final Integer period;
+  private final boolean hasPeriod;
 
   public Condition(Metric metric, String operator,
     @Nullable String errorThreshold, @Nullable String warningThreshold,
-    @Nullable Integer period) {
+    boolean hasPeriod) {
     this.metric = requireNonNull(metric);
     this.operator = parseFromDbValue(requireNonNull(operator));
-    this.period = period;
+    this.hasPeriod = hasPeriod;
     this.errorThreshold = errorThreshold;
     this.warningThreshold = warningThreshold;
   }
@@ -77,9 +76,8 @@ public class Condition {
     return metric;
   }
 
-  @CheckForNull
-  public Integer getPeriod() {
-    return period;
+  public boolean hasPeriod() {
+    return hasPeriod;
   }
 
   public Operator getOperator() {
@@ -106,19 +104,19 @@ public class Condition {
     }
     Condition that = (Condition) o;
     return java.util.Objects.equals(metric, that.metric)
-      && java.util.Objects.equals(period, that.period);
+      && java.util.Objects.equals(hasPeriod, that.hasPeriod);
   }
 
   @Override
   public int hashCode() {
-    return hash(metric, period);
+    return hash(metric, hasPeriod);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
       .add("metric", metric)
-      .add("period", period)
+      .add("hasPeriod", hasPeriod)
       .add("operator", operator)
       .add("warningThreshold", warningThreshold)
       .add("errorThreshold", errorThreshold)

@@ -38,12 +38,12 @@ public class ConditionTest {
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_metric_argument() {
-    new Condition(null, SOME_OPERATOR, null, null, null);
+    new Condition(null, SOME_OPERATOR, null, null, false);
   }
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_operator_argument() {
-    new Condition(SOME_METRIC, null, null, null, null);
+    new Condition(SOME_METRIC, null, null, null, false);
   }
 
   @Test
@@ -51,20 +51,19 @@ public class ConditionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Unsupported operator value: 'troloto'");
 
-    new Condition(SOME_METRIC, "troloto", null, null, null);
+    new Condition(SOME_METRIC, "troloto", null, null, false);
   }
 
   @Test
   public void verify_getters() {
-    Integer period = 1;
     String error = "error threshold";
     String warning = "warning threshold";
 
-    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, warning, period);
+    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, warning, true);
 
     assertThat(condition.getMetric()).isSameAs(SOME_METRIC);
     assertThat(condition.getOperator()).isSameAs(Condition.Operator.EQUALS);
-    assertThat(condition.getPeriod()).isEqualTo(period);
+    assertThat(condition.hasPeriod()).isTrue();
     assertThat(condition.getErrorThreshold()).isEqualTo(error);
     assertThat(condition.getWarningThreshold()).isEqualTo(warning);
   }
@@ -73,8 +72,8 @@ public class ConditionTest {
   public void all_fields_are_displayed_in_toString() {
     when(SOME_METRIC.toString()).thenReturn("metric1");
 
-    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", "warn", 1).toString())
-        .isEqualTo("Condition{metric=metric1, period=1, operator=EQUALS, warningThreshold=warn, errorThreshold=error_l}");
+    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", "warn", true).toString())
+      .isEqualTo("Condition{metric=metric1, hasPeriod=true, operator=EQUALS, warningThreshold=warn, errorThreshold=error_l}");
 
   }
 

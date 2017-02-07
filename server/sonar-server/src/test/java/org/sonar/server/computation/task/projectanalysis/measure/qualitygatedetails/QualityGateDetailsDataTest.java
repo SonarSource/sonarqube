@@ -44,53 +44,52 @@ public class QualityGateDetailsDataTest {
     String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList()).toJson();
 
     JsonAssert.assertJson(actualJson).isSimilarTo("{" +
-        "\"level\":\"OK\"," +
-        "\"conditions\":[]" +
-        "}");
+      "\"level\":\"OK\"," +
+      "\"conditions\":[]" +
+      "}");
   }
 
   @Test
   public void verify_json_for_each_type_of_condition() {
     String value = "actualValue";
-    Condition condition = new Condition(new MetricImpl(1, "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh", "warnTh", 10);
+    Condition condition = new Condition(new MetricImpl(1, "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh", "warnTh", true);
     ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
-        new EvaluatedCondition(condition, Measure.Level.OK, value),
-        new EvaluatedCondition(condition, Measure.Level.WARN, value),
-        new EvaluatedCondition(condition, Measure.Level.ERROR, value)
-    );
+      new EvaluatedCondition(condition, Measure.Level.OK, value),
+      new EvaluatedCondition(condition, Measure.Level.WARN, value),
+      new EvaluatedCondition(condition, Measure.Level.ERROR, value));
     String actualJson = new QualityGateDetailsData(Measure.Level.OK, evaluatedConditions).toJson();
 
     JsonAssert.assertJson(actualJson).isSimilarTo("{" +
-        "\"level\":\"OK\"," +
-        "\"conditions\":[" +
-        "  {" +
-        "    \"metric\":\"key1\"," +
-        "    \"op\":\"GT\"," +
-        "    \"period\":10," +
-        "    \"warning\":\"warnTh\"," +
-        "    \"error\":\"errorTh\"," +
-        "    \"actual\":\"actualValue\"," +
-        "    \"level\":\"OK\"" +
-        "  }," +
-        "  {" +
-        "    \"metric\":\"key1\"," +
-        "    \"op\":\"GT\"," +
-        "    \"period\":10," +
-        "    \"warning\":\"warnTh\"," +
-        "    \"error\":\"errorTh\"," +
-        "    \"actual\":\"actualValue\"," +
-        "    \"level\":\"WARN\"" +
-        "  }," +
-        "  {" +
-        "    \"metric\":\"key1\"," +
-        "    \"op\":\"GT\"," +
-        "    \"period\":10," +
-        "    \"warning\":\"warnTh\"," +
-        "    \"error\":\"errorTh\"," +
-        "    \"actual\":\"actualValue\"," +
-        "    \"level\":\"ERROR\"" +
-        "  }" +
-        "]" +
-        "}");
+      "\"level\":\"OK\"," +
+      "\"conditions\":[" +
+      "  {" +
+      "    \"metric\":\"key1\"," +
+      "    \"op\":\"GT\"," +
+      "    \"period\":1," +
+      "    \"warning\":\"warnTh\"," +
+      "    \"error\":\"errorTh\"," +
+      "    \"actual\":\"actualValue\"," +
+      "    \"level\":\"OK\"" +
+      "  }," +
+      "  {" +
+      "    \"metric\":\"key1\"," +
+      "    \"op\":\"GT\"," +
+      "    \"period\":1," +
+      "    \"warning\":\"warnTh\"," +
+      "    \"error\":\"errorTh\"," +
+      "    \"actual\":\"actualValue\"," +
+      "    \"level\":\"WARN\"" +
+      "  }," +
+      "  {" +
+      "    \"metric\":\"key1\"," +
+      "    \"op\":\"GT\"," +
+      "    \"period\":1," +
+      "    \"warning\":\"warnTh\"," +
+      "    \"error\":\"errorTh\"," +
+      "    \"actual\":\"actualValue\"," +
+      "    \"level\":\"ERROR\"" +
+      "  }" +
+      "]" +
+      "}");
   }
 }

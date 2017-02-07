@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 
 public class EvaluatedConditionTest {
 
-  private static final Condition SOME_CONDITION = new Condition(mock(Metric.class), Condition.Operator.EQUALS.getDbValue(), "1", null, null);
+  private static final Condition SOME_CONDITION = new Condition(mock(Metric.class), Condition.Operator.EQUALS.getDbValue(), "1", null, false);
   private static final Measure.Level SOME_LEVEL = Measure.Level.OK;
   private static final String SOME_VALUE = "some value";
 
