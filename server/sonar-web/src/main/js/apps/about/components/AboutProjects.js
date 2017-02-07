@@ -30,7 +30,7 @@ export default class AboutProjects extends React.Component {
   render () {
     return (
         <div className="about-page-projects">
-          <div className="big-spacer-bottom">
+          <div>
             <Link to="/projects" className="about-page-projects-link">
               {formatMeasure(this.props.count, 'INT')}
             </Link>

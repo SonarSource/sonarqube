@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
+
+const link = 'https://redirect.sonarsource.com/doc/issues.html';
 
 export default class AboutCleanCode extends React.Component {
   render () {
@@ -27,6 +30,7 @@ export default class AboutCleanCode extends React.Component {
           <h2>{translate('about_page.clean_code')}</h2>
           <div className="boxed-group-inner">
             <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
+            <ReadMore link={link}/>
           </div>
         </div>
     );
