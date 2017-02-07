@@ -29,7 +29,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
@@ -57,14 +56,13 @@ public class ComponentActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, new ComponentFinder(dbTester.getDbClient()));
-  WsActionTester ws = new WsActionTester(underTest);
+  private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
+  private ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, new ComponentFinder(dbTester.getDbClient()));
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void empty_queue_and_empty_activity() {
-    componentDbTester.insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
+    dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
     TestResponse wsResponse = ws.newRequest()
@@ -80,7 +78,7 @@ public class ComponentActionTest {
   @Test
   public void project_tasks() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    componentDbTester.insertComponent(newProjectDto(organizationDto, "PROJECT_1"));
+    dbTester.components().insertComponent(newProjectDto(organizationDto, "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -108,7 +106,7 @@ public class ComponentActionTest {
 
   @Test
   public void search_tasks_by_component_key() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = dbTester.components().insertProject();
     logInWithBrowsePermission(project);
     insertActivity("T1", project.uuid(), CeActivityDto.Status.SUCCESS);
 
@@ -123,7 +121,7 @@ public class ComponentActionTest {
 
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
-    componentDbTester.insertComponent(newProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
+    dbTester.components().insertComponent(newProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -156,7 +154,7 @@ public class ComponentActionTest {
 
   @Test
   public void throw_ForbiddenException_if_user_cant_access_project() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = dbTester.components().insertProject();
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -170,7 +168,7 @@ public class ComponentActionTest {
   @Test
   public void fail_when_no_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
-    logInWithBrowsePermission(componentDbTester.insertProject());
+    logInWithBrowsePermission(dbTester.components().insertProject());
 
     ws.newRequest().execute();
   }

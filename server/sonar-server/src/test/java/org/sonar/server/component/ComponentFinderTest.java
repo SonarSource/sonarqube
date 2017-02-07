@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -41,10 +40,9 @@ public class ComponentFinderTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  final DbSession dbSession = db.getSession();
 
-  ComponentFinder underTest = new ComponentFinder(db.getDbClient());
+  private final DbSession dbSession = db.getSession();
+  private ComponentFinder underTest = new ComponentFinder(db.getDbClient());
 
   @Test
   public void fail_when_the_uuid_and_key_are_null() {
@@ -97,7 +95,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_uuid() {
-    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY);
 
@@ -106,7 +104,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
+    db.components().insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
