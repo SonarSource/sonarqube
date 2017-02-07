@@ -37,89 +37,85 @@ public class CeUserSession implements UserSession {
 
   @Override
   public String getLogin() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public String getName() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public Integer getUserId() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public Collection<GroupDto> getGroups() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public boolean isLoggedIn() {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
   @Override
   public boolean isRoot() {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
   @Override
   public UserSession checkIsRoot() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public UserSession checkLoggedIn() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public boolean hasPermission(String globalPermission) {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
   @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
   @Override
   public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public List<String> globalPermissions() {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
-    return notImplemented();
+    throw notImplemented();
   }
 
   @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    return notImplementedBooleanMethod();
+    throw notImplemented();
   }
 
-  private static <T> T notImplemented() {
-    throw new UnsupportedOperationException(UOE_MESSAGE);
-  }
-
-  private static boolean notImplementedBooleanMethod() {
+  private static RuntimeException notImplemented() {
     throw new UnsupportedOperationException(UOE_MESSAGE);
   }
 }
