@@ -31,7 +31,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
@@ -60,8 +59,7 @@ public class ProjectDataLoader {
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
-    DbSession session = dbClient.openSession(false);
-    try {
+    try (DbSession session = dbClient.openSession(false)) {
       ProjectRepositories data = new ProjectRepositories();
       ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
         "Project or module with key '%s' is not found", query.getModuleKey());
@@ -69,7 +67,8 @@ public class ProjectDataLoader {
         throw new BadRequestException(format("Key '%s' belongs to a component which is not a Project", query.getModuleKey()));
       }
 
-      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module);
+      boolean hasScanPerm = userSession.hasComponentPermission(SCAN_EXECUTION, module) ||
+        userSession.hasOrganizationPermission(module.getOrganizationUuid(), SCAN_EXECUTION);
       boolean hasBrowsePerm = userSession.hasComponentPermission(USER, module);
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 
@@ -94,8 +93,6 @@ public class ProjectDataLoader {
       data.setLastAnalysisDate(new Date());
 
       return data;
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 

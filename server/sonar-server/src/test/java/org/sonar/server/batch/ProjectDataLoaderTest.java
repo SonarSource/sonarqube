@@ -19,7 +19,6 @@
  */
 package org.sonar.server.batch;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,29 +26,35 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class ProjectDataLoaderTest {
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
 
-  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, mock(UserSession.class));
+  private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession);
 
   @After
   public void tearDown() throws Exception {
@@ -72,7 +77,7 @@ public class ProjectDataLoaderTest {
   }
 
   @Test
-  public void load_fails_with_NFE_if_component_does_not_exist() {
+  public void load_throws_NotFoundException_if_component_does_not_exist() {
     String key = "theKey";
 
     expectedException.expect(NotFoundException.class);
@@ -115,8 +120,62 @@ public class ProjectDataLoaderTest {
         underTest.load(ProjectDataQuery.create().setModuleKey(key));
         fail(format("A NotFoundException should have been raised because scope (%s) or qualifier (%s) is not project", scope, qualifier));
       } catch (BadRequestException e) {
-        Assertions.assertThat(e).hasMessage("Key '" + key + "' belongs to a component which is not a Project");
+        assertThat(e).hasMessage("Key '" + key + "' belongs to a component which is not a Project");
       }
     }
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_no_browse_permission_nor_scan_permission() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("You're not authorized to execute any SonarQube analysis");
+
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()));
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_browse_permission_but_not_scan_permission() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server");
+
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()));
+  }
+
+  @Test
+  public void issues_mode_is_allowed_if_user_has_browse_permission() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+
+    assertThat(repositories).isNotNull();
+  }
+
+  @Test
+  public void issues_mode_is_forbidden_if_user_doesnt_have_browse_permission() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.logIn().addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.uuid());
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("You don't have the required permissions to access this project");
+
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+  }
+
+  @Test
+  public void scan_permission_on_organization_is_enough_even_without_scan_permission_on_project() {
+    ComponentDto project = dbTester.components().insertProject();
+    userSession.logIn().addOrganizationPermission(project.getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION);
+    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+
+    ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
+
+    assertThat(repositories).isNotNull();
   }
 }
