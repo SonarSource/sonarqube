@@ -22,11 +22,11 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
-import BugIcon from '../../../components/ui/BugIcon';
-import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
+import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
+import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 
-export default class EntryIssueTypes extends React.Component {
+export default class EntryIssueTypesForSonarQubeDotCom extends React.Component {
   static propTypes = {
     bugs: React.PropTypes.number.isRequired,
     vulnerabilities: React.PropTypes.number.isRequired,
@@ -48,7 +48,7 @@ export default class EntryIssueTypes extends React.Component {
                   </Link>
                 </td>
                 <td>
-                  <span className="little-spacer-right"><BugIcon/></span>
+                  <span className="little-spacer-right"><BugIconForSonarQubeDotCom/></span>
                   {translate('issue.type.BUG.plural')}
                 </td>
               </tr>
@@ -60,7 +60,7 @@ export default class EntryIssueTypes extends React.Component {
                   </Link>
                 </td>
                 <td>
-                  <span className="little-spacer-right"><VulnerabilityIcon/></span>
+                  <span className="little-spacer-right"><VulnerabilityIconForSonarQubeDotCom/></span>
                   {translate('issue.type.VULNERABILITY.plural')}
                 </td>
               </tr>
@@ -72,7 +72,7 @@ export default class EntryIssueTypes extends React.Component {
                   </Link>
                 </td>
                 <td>
-                  <span className="little-spacer-right"><CodeSmellIcon/></span>
+                  <span className="little-spacer-right"><CodeSmellIconForSonarQubeDotCom/></span>
                   {translate('issue.type.CODE_SMELL.plural')}
                 </td>
               </tr>

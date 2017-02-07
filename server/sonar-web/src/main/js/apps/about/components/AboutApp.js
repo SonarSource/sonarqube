@@ -33,10 +33,11 @@ import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import * as settingsAPI from '../../../api/settings';
-import { getCurrentUser } from '../../../store/rootReducer';
-import '../styles.css';
+import { getCurrentUser, getSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+import { fetchAboutPageSettings } from '../actions';
+import AboutAppForSonarQubeDotCom from './AboutAppForSonarQubeDotCom';
+import '../styles.css';
 
 type State = {
   loading: boolean,
@@ -45,15 +46,17 @@ type State = {
     [key: string]: {
       count: number
     }
-  },
-  customText?: string
+  }
 };
 
 class AboutApp extends React.Component {
   mounted: boolean;
 
   props: {
-    currentUser: { isLoggedIn: boolean }
+    currentUser: { isLoggedIn: boolean },
+    customText?: string,
+    fetchAboutPageSettings: () => Promise<*>,
+    sonarqubeDotCom?: { value: string }
   };
 
   state: State = {
@@ -78,7 +81,7 @@ class AboutApp extends React.Component {
   }
 
   loadCustomText () {
-    return settingsAPI.getSettingValue('sonar.lf.aboutText');
+    return this.props.fetchAboutPageSettings();
   }
 
   loadData () {
@@ -88,12 +91,11 @@ class AboutApp extends React.Component {
       this.loadCustomText()
     ]).then(responses => {
       if (this.mounted) {
-        const [projectsCount, issues, customText] = responses;
+        const [projectsCount, issues] = responses;
         const issueTypes = keyBy(issues.facet, 'val');
         this.setState({
           projectsCount,
           issueTypes,
-          customText,
           loading: false
         });
       }
@@ -105,7 +107,7 @@ class AboutApp extends React.Component {
       return null;
     }
 
-    const { customText } = this.state;
+    const { customText, sonarqubeDotCom } = this.props;
 
     // $FlowFixMe
     const bugs = this.state.issueTypes['BUG'].count;
@@ -113,6 +115,18 @@ class AboutApp extends React.Component {
     const vulnerabilities = this.state.issueTypes['VULNERABILITY'].count;
     // $FlowFixMe
     const codeSmells = this.state.issueTypes['CODE_SMELL'].count;
+
+    if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
+      return (
+          <AboutAppForSonarQubeDotCom
+              bugs={bugs}
+              codeSmells={codeSmells}
+              currentUser={this.props.currentUser}
+              customText={customText}
+              projectsCount={this.state.projectsCount}
+              vulnerabilities={vulnerabilities}/>
+      );
+    }
 
     return (
         <div id="about-page" className="about-page">
@@ -138,8 +152,8 @@ class AboutApp extends React.Component {
               </div>
             </div>
 
-            {customText != null && customText.length > 0 && (
-                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }}/>
+            {customText != null && customText.value && (
+                <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText.value }}/>
             )}
 
             <AboutLanguages/>
@@ -172,7 +186,11 @@ class AboutApp extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
+  customText: getSettingValue(state, 'sonar.lf.aboutText'),
+  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
 });
 
-export default connect(mapStateToProps)(AboutApp);
+const mapDispatchToProps = { fetchAboutPageSettings };
+
+export default connect(mapStateToProps, mapDispatchToProps)(AboutApp);

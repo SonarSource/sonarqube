@@ -31,12 +31,14 @@ export default class AboutProjects extends React.Component {
     return (
         <div className="about-page-projects">
           <div>
-            <Link to="/projects" className="about-page-projects-link">
-              {formatMeasure(this.props.count, 'INT')}
-            </Link>
-          </div>
-          <div>
-            {translate('about_page.projects_analyzed')}
+            <div>
+              <Link to="/projects" className="about-page-projects-link">
+                {formatMeasure(this.props.count, 'INT')}
+              </Link>
+            </div>
+            <div>
+              {translate('about_page.projects_analyzed')}
+            </div>
           </div>
         </div>
     );

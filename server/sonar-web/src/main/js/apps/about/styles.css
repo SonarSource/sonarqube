@@ -7,6 +7,8 @@
 }
 
 .about-page .boxed-group h2 {
+  padding-left: 0;
+  padding-right: 0;
   font-size: 18px;
 }
 
@@ -15,6 +17,8 @@
 }
 
 .about-page .boxed-group-inner {
+  padding-left: 0;
+  padding-right: 0;
   padding-bottom: 25px;
 }
 
@@ -81,8 +85,8 @@
   text-align: left;
 }
 
-.about-page-issue-types > li + li {
-  margin-top: 12px;
+.about-page-issue-types tr + tr td {
+  padding-top: 12px;
 }
 
 .about-page-issue-types svg {
@@ -91,9 +95,7 @@
 }
 
 .about-page-issue-type-number {
-  display: inline-block;
-  min-width: 60px;
-  margin-right: 16px;
+  padding-right: 16px;
   text-align: right;
 }
 
@@ -102,61 +104,9 @@
   font-weight: bold;
 }
 
-.about-login-form-header {
-  margin-bottom: 30px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.about-page-sign-up {
-  margin-top: 20px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.about-page-sign-up a {
-  color: #4b9fd5;
-  border-color: #4b9fd5;
-}
-
-.about-page-auth-providers {
-  width: 200px;
-}
-
-.about-page-auth-providers .oauth-provider {
-  width: 100%;
-}
-
-.about-page-auth-providers .oauth-provider + .oauth-provider {
-  margin-top: 20px;
-}
-
 .about-page-section {
-  padding-bottom: 40px;
-}
-
-.about-page-section-gray {
-  border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
-}
-
-.about-page-section-image {
-  position: absolute;
-  z-index: 5;
-  top: -80px;
-  right: 100%;
-}
-
-.about-page-center-container .about-page-section-image {
-  right: auto;
-  left: -210px;
-}
-
-.about-page-header {
-  line-height: 1;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: bold;
+  padding-top: 20px;
+  padding-bottom: 10px;
 }
 
 .about-page-text {
@@ -169,40 +119,6 @@
 
 .about-page-link-more > span {
   border-bottom: 1px solid #cae3f2;
-}
-
-.about-page-issues {
-  margin-top: 80px;
-}
-
-.about-page-issues-box {
-  float: left;
-  width: 33%;
-  text-align: center;
-}
-
-.about-page-issues-number {
-  display: inline-block;
-  font-size: 32px;
-  font-weight: bold;
-}
-
-.about-page-issues-description {
-  margin-top: 12px;
-  padding: 0 15px;
-  line-height: 1.4;
-}
-
-.about-page-issues-number + .about-page-issues-description {
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.about-page-issues-header {
-  margin-bottom: 20px;
-  font-size: 21px;
-  text-transform: uppercase;
 }
 
 .about-page-languages {

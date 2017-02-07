@@ -96,8 +96,3 @@ export function getServerId () {
 export function generateServerId (organization, ip) {
   return postJSON('/api/server_id/generate', { organization, ip });
 }
-
-// TODO replace with /api/settings
-export const getSettingValue = key => (
-    getJSON(`/api/properties/${key}`).then(r => r[0] ? r[0].value : null)
-);
