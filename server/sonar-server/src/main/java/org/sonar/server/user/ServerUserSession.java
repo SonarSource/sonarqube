@@ -149,10 +149,6 @@ public class ServerUserSession extends AbstractUserSession {
           return false;
         }
         projectUuid = component.get().projectUuid();
-        if (hasOrganizationPermission(component.get().getOrganizationUuid(), permission)) {
-          projectUuidByComponentUuid.put(componentUuid, projectUuid);
-          return true;
-        }
       }
     }
     boolean hasComponentPermission = hasProjectPermissionByUuid(permission, projectUuid);
