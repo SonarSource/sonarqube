@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
@@ -43,6 +44,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsCe;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class TaskAction implements CeWsAction {
@@ -120,7 +122,12 @@ public class TaskAction implements CeWsAction {
 
   private void checkPermission(Optional<ComponentDto> component) {
     if (component.isPresent()) {
-      userSession.checkComponentPermission(SCAN_EXECUTION, component.get());
+      if (!userSession.hasOrganizationPermission(component.get().getOrganizationUuid(), GlobalPermissions.SYSTEM_ADMIN) &&
+        !userSession.hasOrganizationPermission(component.get().getOrganizationUuid(), GlobalPermissions.SCAN_EXECUTION) &&
+        !userSession.hasComponentPermission(SCAN_EXECUTION, component.get())) {
+        throw insufficientPrivilegesException();
+      }
+
     } else {
       userSession.checkIsRoot();
     }
