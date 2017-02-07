@@ -191,18 +191,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  @Deprecated
-  public UserSessionRule addComponentPermission(String projectPermission, String projectKey, String componentKey) {
-    ensureAbstractMockUserSession().addComponentPermission(projectPermission, projectKey, componentKey);
-    return this;
-  }
-
-  @Deprecated
-  public UserSessionRule addProjectPermissions(String projectPermission, String... projectKeys) {
-    ensureAbstractMockUserSession().addProjectPermissions(projectPermission, projectKeys);
-    return this;
-  }
-
   public UserSessionRule addOrganizationPermission(String organizationUuid, String permission) {
     ensureAbstractMockUserSession().addOrganizationPermission(organizationUuid, permission);
     return this;
