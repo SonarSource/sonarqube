@@ -21,7 +21,6 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
@@ -95,9 +93,8 @@ public class NewSizeMeasuresStepTest {
         .build());
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriods(
-    new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"),
-    new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), "u2"));
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriod(
+    new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"));
 
   @Rule
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
@@ -124,16 +121,16 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_LINES_KEY, 11);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_LINES_KEY, 11);
     assertNoRawMeasure(FILE_3_REF, NEW_LINES_KEY);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_LINES_KEY, 11);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_LINES_KEY, 22);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_LINES_KEY, 22);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_LINES_KEY);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_LINES_KEY, 22);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_LINES_KEY, 11);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_LINES_KEY, 33);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, NEW_LINES_KEY, 33);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_LINES_KEY, 22);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_LINES_KEY, 11);
+    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_LINES_KEY, 33);
+    assertRawMeasureValueOnPeriod(ROOT_REF, NEW_LINES_KEY, 33);
   }
 
   @Test
@@ -150,7 +147,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
   }
 
   @Test
@@ -161,7 +158,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
   }
 
   @Test
@@ -172,7 +169,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 1d);
   }
 
   @Test
@@ -183,7 +180,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 6d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 6d);
   }
 
   @Test
@@ -195,20 +192,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 11d);
-  }
-
-  @Test
-  public void compute_new_duplicated_lines_on_different_periods() {
-    TextBlock original = new TextBlock(1, 1);
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2));
-    scmInfoRepository.setScmInfo(FILE_1_REF,
-      Changeset.newChangesetBuilder().setDate(parseDate("2012-01-01").getTime()).setRevision("rev-1").build(),
-      Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-2").build());
-
-    underTest.execute();
-
-    assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d, 1d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 11d);
   }
 
   @Test
@@ -223,16 +207,16 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_DUPLICATED_LINES_KEY, 9d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 11d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_DUPLICATED_LINES_KEY, 0d);
+    assertRawMeasureValueOnPeriod(FILE_3_REF, NEW_DUPLICATED_LINES_KEY, 9d);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_DUPLICATED_LINES_KEY, 11d);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_DUPLICATED_LINES_KEY, 2d);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_KEY);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 20d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 22d);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 22d);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_KEY, 2d);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_KEY, 20d);
+    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_DUPLICATED_LINES_KEY, 22d);
+    assertRawMeasureValueOnPeriod(ROOT_REF, NEW_DUPLICATED_LINES_KEY, 22d);
   }
 
   @Test
@@ -255,7 +239,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
   }
 
   @Test
@@ -266,7 +250,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 4);
   }
 
   @Test
@@ -276,7 +260,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
   }
 
   @Test
@@ -286,7 +270,7 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 1);
   }
 
   @Test
@@ -298,15 +282,15 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 10);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 2);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, NEW_BLOCKS_DUPLICATED_KEY, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 10);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 2);
+    assertRawMeasureValueOnPeriod(FILE_3_REF, NEW_BLOCKS_DUPLICATED_KEY, 0);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, NEW_BLOCKS_DUPLICATED_KEY, 12);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, NEW_BLOCKS_DUPLICATED_KEY, 6);
+    assertRawMeasureValueOnPeriod(MODULE_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
+    assertRawMeasureValueOnPeriod(ROOT_REF, NEW_BLOCKS_DUPLICATED_KEY, 18);
   }
 
   @Test
@@ -327,16 +311,16 @@ public class NewSizeMeasuresStepTest {
 
     underTest.execute();
 
-    assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 18.2d, null);
-    assertRawMeasureValue(FILE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 0d, null);
+    assertRawMeasureValue(FILE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 18.2d);
+    assertRawMeasureValue(FILE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 0d);
     assertNoRawMeasure(FILE_3_REF, NEW_DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(FILE_4_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d, null);
-    assertRawMeasureValue(DIRECTORY_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d, null);
+    assertRawMeasureValue(FILE_4_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d);
     assertNoRawMeasure(DIRECTORY_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY);
-    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d, null);
-    assertRawMeasureValue(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d, null);
-    assertRawMeasureValue(MODULE_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d, null);
-    assertRawMeasureValue(ROOT_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d, null);
+    assertRawMeasureValue(SUB_MODULE_1_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 9.1d);
+    assertRawMeasureValue(SUB_MODULE_2_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 100d);
+    assertRawMeasureValue(MODULE_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d);
+    assertRawMeasureValue(ROOT_REF, NEW_DUPLICATED_LINES_DENSITY_KEY, 39.4d);
   }
 
   @Test
@@ -379,30 +363,25 @@ public class NewSizeMeasuresStepTest {
         Changeset.newChangesetBuilder().setDate(parseDate("2011-01-01").getTime()).setRevision("rev-1").build()));
   }
 
-  private void assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(int componentRef, String metricKey, double period2Value) {
-    assertRawMeasureValue(componentRef, metricKey, period2Value, 0d);
+  private void assertRawMeasureValueOnPeriod(int componentRef, String metricKey, double expectedVariation) {
+    assertRawMeasureValue(componentRef, metricKey, expectedVariation);
   }
 
-  private void assertRawMeasureValue(int componentRef, String metricKey, double period2Value, @Nullable Double period5Value) {
-    MeasureVariations variations = measureRepository.getAddedRawMeasure(componentRef, metricKey).get().getVariations();
-    assertThat(variations.getVariation2()).isEqualTo(period2Value, DEFAULT_OFFSET);
-    if (period5Value != null) {
-      assertThat(variations.getVariation5()).isEqualTo(period5Value, DEFAULT_OFFSET);
-    } else {
-      assertThat(variations.hasVariation5()).isFalse();
-    }
+  private void assertRawMeasureValue(int componentRef, String metricKey, double expectedVariation) {
+    double variation = measureRepository.getAddedRawMeasure(componentRef, metricKey).get().getVariation();
+    assertThat(variation).isEqualTo(expectedVariation, DEFAULT_OFFSET);
   }
 
   private void assertComputedAndAggregatedToZeroInt(String metricKey) {
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_1_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_2_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_3_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(FILE_4_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(DIRECTORY_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_1_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(SUB_MODULE_2_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(MODULE_REF, metricKey, 0);
-    assertRawMeasureValueOnPeriod2AndZeroOnPeriod5(ROOT_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(FILE_1_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(FILE_2_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(FILE_3_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(FILE_4_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(DIRECTORY_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_1_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(SUB_MODULE_2_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(MODULE_REF, metricKey, 0);
+    assertRawMeasureValueOnPeriod(ROOT_REF, metricKey, 0);
   }
 
   private void assertNoRawMeasure(int componentRef, String metricKey) {

@@ -21,20 +21,12 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -47,11 +39,9 @@ import org.sonar.server.computation.task.projectanalysis.formula.CounterInitiali
 import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleVariationValue;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
@@ -60,7 +50,6 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
@@ -103,9 +92,9 @@ public class NewSizeMeasuresStep implements ComputationStep {
   private static class NewSizeCounter implements Counter<NewSizeCounter> {
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
-    private final IntVariationValue.Array newLines = IntVariationValue.newArray();
-    private final IntVariationValue.Array newDuplicatedLines = IntVariationValue.newArray();
-    private final IntVariationValue.Array newDuplicatedBlocks = IntVariationValue.newArray();
+    private final IntVariationValue newLines = new IntVariationValue();
+    private final IntVariationValue newDuplicatedLines = new IntVariationValue();
+    private final IntVariationValue newDuplicatedBlocks = new IntVariationValue();
 
     private NewSizeCounter(DuplicationRepository duplicationRepository,
       ScmInfoRepository scmInfoRepository) {
@@ -115,40 +104,38 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
     @Override
     public void aggregate(NewSizeCounter counter) {
-      this.newDuplicatedLines.incrementAll(counter.newDuplicatedLines);
-      this.newDuplicatedBlocks.incrementAll(counter.newDuplicatedBlocks);
-      this.newLines.incrementAll(counter.newLines);
+      this.newDuplicatedLines.increment(counter.newDuplicatedLines);
+      this.newDuplicatedBlocks.increment(counter.newDuplicatedBlocks);
+      this.newLines.increment(counter.newLines);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
       Component leaf = context.getLeaf();
       Optional<ScmInfo> scmInfo = scmInfoRepository.getScmInfo(leaf);
-      if (!scmInfo.isPresent()) {
+      if (!scmInfo.isPresent() || !context.hasPeriod()) {
         return;
       }
 
-      context.getPeriods().forEach(period -> newLines.increment(period, 0));
+      newLines.increment(0);
       if (leaf.getType() != Component.Type.FILE) {
-        context.getPeriods().forEach(period -> {
-          newDuplicatedLines.increment(period, 0);
-          newDuplicatedBlocks.increment(period, 0);
-        });
+        newDuplicatedLines.increment(0);
+        newDuplicatedBlocks.increment(0);
         return;
       }
 
-      initNewLines(scmInfo.get(), context.getPeriods());
-      initNewDuplicated(leaf, scmInfo.get(), context.getPeriods());
+      initNewLines(scmInfo.get(), context.getPeriod());
+      initNewDuplicated(leaf, scmInfo.get(), context.getPeriod());
     }
 
-    private void initNewLines(ScmInfo scmInfo, List<Period> periods) {
-      scmInfo.getAllChangesets().forEach(changeset -> periods.stream()
-        .filter(period -> isLineInPeriod(changeset, period))
-        .forEach(period -> newLines.increment(period, 1)));
+    private void initNewLines(ScmInfo scmInfo, Period period) {
+      StreamSupport.stream(scmInfo.getAllChangesets().spliterator(), false)
+        .filter(changeset -> isLineInPeriod(changeset, period))
+        .forEach(changeset -> newLines.increment(1));
     }
 
-    private void initNewDuplicated(Component component, ScmInfo scmInfo, List<Period> periods) {
-      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, periods);
+    private void initNewDuplicated(Component component, ScmInfo scmInfo, Period period) {
+      DuplicationCounters duplicationCounters = new DuplicationCounters(scmInfo, period);
       Iterable<Duplication> duplications = duplicationRepository.getDuplications(component);
       for (Duplication duplication : duplications) {
         duplicationCounters.addBlock(duplication.getOriginal());
@@ -158,11 +145,8 @@ public class NewSizeMeasuresStep implements ComputationStep {
           .forEach(duplicate -> duplicationCounters.addBlock(duplicate.getTextBlock()));
       }
 
-      Map<Period, Integer> newLinesDuplicatedByPeriod = duplicationCounters.getNewLinesDuplicated();
-      periods.forEach(period -> {
-        newDuplicatedLines.increment(period, newLinesDuplicatedByPeriod.getOrDefault(period, 0));
-        newDuplicatedBlocks.increment(period, duplicationCounters.getNewBlocksDuplicated().getOrDefault(period, 0));
-      });
+      newDuplicatedLines.increment(duplicationCounters.getNewLinesDuplicated());
+      newDuplicatedBlocks.increment(duplicationCounters.getNewBlocksDuplicated());
     }
 
     private static boolean isLineInPeriod(Changeset changeset, Period period) {
@@ -172,35 +156,35 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
   private static class DuplicationCounters {
     private final ScmInfo scmInfo;
-    private final List<Period> periods;
-    private final SetMultimap<Period, Integer> lineCounts;
-    private final Multiset<Period> blockCounts;
+    private final Period period;
+    private final Set<Integer> lineCounts;
+    private int blockCounts;
 
-    private DuplicationCounters(ScmInfo scmInfo, List<Period> periods) {
+    private DuplicationCounters(ScmInfo scmInfo, Period period) {
       this.scmInfo = scmInfo;
-      this.periods = periods;
-      this.lineCounts = LinkedHashMultimap.create(periods.size(), Iterables.size(scmInfo.getAllChangesets()));
-      this.blockCounts = HashMultiset.create();
+      this.period = period;
+      this.lineCounts = new HashSet<>(Iterables.size(scmInfo.getAllChangesets()));
     }
 
     void addBlock(TextBlock textBlock) {
-      Set<Period> periodWithNewCode = new HashSet<>();
+      Boolean[] newBlock = new Boolean[] {false};
       IntStream.rangeClosed(textBlock.getStart(), textBlock.getEnd())
-        .forEach(line -> periods.stream()
-          .filter(period -> isLineInPeriod(line, period))
-          .forEach(period -> {
-            lineCounts.put(period, line);
-            periodWithNewCode.add(period);
-          }));
-      blockCounts.addAll(periodWithNewCode);
+        .filter(line -> isLineInPeriod(line, period))
+        .forEach(line -> {
+          lineCounts.add(line);
+          newBlock[0] = true;
+        });
+      if (newBlock[0]) {
+        blockCounts++;
+      }
     }
 
-    Map<Period, Integer> getNewLinesDuplicated() {
-      return ImmutableMap.copyOf(lineCounts.keySet().stream().collect(toMap(Function.identity(), period -> lineCounts.get(period).size())));
+    int getNewLinesDuplicated() {
+      return lineCounts.size();
     }
 
-    Map<Period, Integer> getNewBlocksDuplicated() {
-      return blockCounts.entrySet().stream().collect(Collectors.toMap(Multiset.Entry::getElement, Multiset.Entry::getCount));
+    int getNewBlocksDuplicated() {
+      return blockCounts;
     }
 
     private boolean isLineInPeriod(int lineNumber, Period period) {
@@ -228,40 +212,36 @@ public class NewSizeMeasuresStep implements ComputationStep {
       String metricKey = context.getMetric().getKey();
       switch (metricKey) {
         case NEW_LINES_KEY:
-          return createMeasure(counter.newLines.toMeasureVariations());
+          return createMeasure(counter.newLines);
         case NEW_DUPLICATED_LINES_KEY:
-          return createMeasure(counter.newDuplicatedLines.toMeasureVariations());
+          return createMeasure(counter.newDuplicatedLines);
         case NEW_DUPLICATED_LINES_DENSITY_KEY:
-          return createNewDuplicatedLinesDensityMeasure(counter, context);
+          return createNewDuplicatedLinesDensityMeasure(counter);
         case NEW_BLOCKS_DUPLICATED_KEY:
-          return createMeasure(counter.newDuplicatedBlocks.toMeasureVariations());
+          return createMeasure(counter.newDuplicatedBlocks);
         default:
           throw new IllegalArgumentException("Unsupported metric " + context.getMetric());
       }
     }
 
-    private static Optional<Measure> createMeasure(Optional<MeasureVariations> measure) {
-      return measure.isPresent()
-        ? Optional.of(Measure.newMeasureBuilder().setVariations(measure.get()).createNoValue())
+    private static Optional<Measure> createMeasure(IntVariationValue intValue) {
+      return intValue.isSet()
+        ? Optional.of(Measure.newMeasureBuilder().setVariation(intValue.getValue()).createNoValue())
         : Optional.absent();
     }
 
-    private static Optional<Measure> createNewDuplicatedLinesDensityMeasure(NewSizeCounter counter, CreateMeasureContext context) {
-      Optional<MeasureVariations> newLines = counter.newLines.toMeasureVariations();
-      Optional<MeasureVariations> newDuplicatedLines = counter.newDuplicatedLines.toMeasureVariations();
-      DoubleVariationValue.Array newDuplicatedLinesDensity = DoubleVariationValue.newArray();
-      if (newLines.isPresent() && newDuplicatedLines.isPresent()) {
-        MeasureVariations newLinesVariations = newLines.get();
-        MeasureVariations newDuplicatedLinesVariations = newDuplicatedLines.get();
-        for (Period period : context.getPeriods()) {
-          double currentNewLines = newLinesVariations.getVariation(period.getIndex());
-          if (currentNewLines > 0d) {
-            double density = Math.min(100d, 100d * newDuplicatedLinesVariations.getVariation(period.getIndex()) / currentNewLines);
-            newDuplicatedLinesDensity.increment(period, density);
-          }
+    private static Optional<Measure> createNewDuplicatedLinesDensityMeasure(NewSizeCounter counter) {
+      IntVariationValue newLines = counter.newLines;
+      IntVariationValue newDuplicatedLines = counter.newDuplicatedLines;
+      if (newLines.isSet() && newDuplicatedLines.isSet()) {
+        int newLinesVariations = newLines.getValue();
+        int newDuplicatedLinesVariations = newDuplicatedLines.getValue();
+        if (newLinesVariations > 0d) {
+          double density = Math.min(100d, 100d * newDuplicatedLinesVariations / newLinesVariations);
+          return Optional.of(Measure.newMeasureBuilder().setVariation(density).createNoValue());
         }
       }
-      return createMeasure(newDuplicatedLinesDensity.toMeasureVariations());
+      return Optional.absent();
     }
 
     @Override
