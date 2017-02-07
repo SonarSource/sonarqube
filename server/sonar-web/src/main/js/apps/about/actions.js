@@ -17,30 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import './OAuthProvider.css';
+// @flow
+import { getValues } from '../../api/settings';
+import { receiveValues } from '../settings/store/values/actions';
 
-export default class OAuthProvider extends React.Component {
-  static propTypes = {
-    provider: React.PropTypes.shape({
-      key: React.PropTypes.string.isRequired,
-      name: React.PropTypes.string.isRequired,
-      iconPath: React.PropTypes.string.isRequired,
-      backgroundColor: React.PropTypes.string.isRequired
-    }).isRequired
-  };
+export const fetchAboutPageSettings = (): Function => (dispatch: Function): Promise<*> => {
+  const keys = ['sonar.lf.aboutText'];
 
-  render () {
-    const { key, name, iconPath, backgroundColor } = this.props.provider;
-
-    const url = window.baseUrl + '/sessions/init/' + key;
-    const label = 'Log in with ' + name;
-
-    return (
-        <a className="oauth-provider" href={url} style={{ backgroundColor }} title={label}>
-          <img alt={name} width="20" height="20" src={window.baseUrl + iconPath}/>
-          <span>{label}</span>
-        </a>
-    );
-  }
-}
+  return getValues(keys.join()).then(values => {
+    dispatch(receiveValues(values));
+  });
+};

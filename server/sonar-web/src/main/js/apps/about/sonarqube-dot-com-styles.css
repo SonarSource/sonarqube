@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+.sqcom-about-page {
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px !important;
+  font-weight: 300;
+}
+
+.sqcom-about-page-entry {
+  padding-top: 65px;
+  padding-bottom: 65px;
+  background-color: #4b9fd5;
+}
+
+.sqcom-about-page-entry a {
+  color: #4b9fd5;
+}
+
+.sqcom-about-page-entry .about-page-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sqcom-about-page-intro {
+
+}
+
+.sqcom-about-page-intro > h1 {
+  line-height: 56px;
+  color: #fff;
+  font-size: 44px;
+  font-weight: 300;
+}
+
+.sqcom-about-page-intro > .button {
+  height: 44px;
+  line-height: 42px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-color: #fff;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: none;
+}
+
+.sqcom-about-page-intro > .button:hover {
+  background-color: #fff;
+  color: #4b9fd5;
+}
+
+.sqcom-about-page-intro > .button-active {
+  border-color: #b0eb41;
+  background-color: #b0eb41;
+  color: #225463;
+}
+
+.sqcom-about-page-intro > .button-active:hover {
+  border-color: #91d315;
+  background-color: #91d315;
+  color: #225463;
+}
+
+.sqcom-about-page-instance {
+  display: flex;
+  align-items: stretch;
+}
+
+.sqcom-about-page-instance .about-page-projects {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 190px;
+  margin-left: 15px;
+  padding: 25px;
+  background-color: #fff;
+  color: #686868;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.sqcom-about-page-instance .about-page-projects-link {
+  font-weight: 400;
+}
+
+.sqcom-about-page-instance .about-page-issue-types > li + li {
+  margin-top: 20px;
+}
+
+.sqcom-about-rules {
+  margin-bottom: 45px;
+  background-color: #3988bc;
+}
+
+.sqcom-about-rules .about-page-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sqcom-about-rules .button {
+  height: 33px;
+  line-height: 30px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-color: #fff;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.sqcom-about-rules .button:hover {
+  background-color: #fff;
+  color: #4b9fd5;
+}
+
+.sqcom-about-rules-link {
+  line-height: 36px;
+  padding: 24px 40px;
+  border: none;
+  color: #c1d9ea;
+  font-size: 20px;
+}
+
+.sqcom-about-rules-link:first-child {
+  margin-left: -40px;
+}
+
+.sqcom-about-rules-link:hover {
+  background-color: #398cc8;
+  color: #fff;
+}
+
+.sqcom-about-rules-link:hover path {
+  fill: #fff;
+}
+
+.sqcom-about-quality-model svg {
+  transform: translateY(-3px) !important;
+}
+
