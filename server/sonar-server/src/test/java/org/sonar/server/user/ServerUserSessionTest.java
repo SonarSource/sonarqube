@@ -173,16 +173,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_component_uuid_permission_with_only_global_permission() {
-    addGlobalPermissions(UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasComponentUuidPermission(UserRole.USER, FILE_UUID)).isTrue();
-    assertThat(session.hasComponentUuidPermission(UserRole.CODEVIEWER, FILE_UUID)).isFalse();
-    assertThat(session.hasComponentUuidPermission(UserRole.ADMIN, FILE_UUID)).isFalse();
-  }
-
-  @Test
   public void checkComponentUuidPermission_succeeds_if_user_has_permission_for_specified_uuid_in_db() {
     UserSession underTest = newUserSession(ROOT_USER_DTO);
 

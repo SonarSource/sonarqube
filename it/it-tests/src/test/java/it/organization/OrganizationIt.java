@@ -20,6 +20,7 @@
 package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildFailureException;
 import it.Category3Suite;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,6 +38,8 @@ import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.organization.UpdateWsRequest;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.PermissionsService;
 import util.ItUtils;
 import util.user.GroupManagement;
 import util.user.Groups;
@@ -243,6 +246,63 @@ public class OrganizationIt {
   }
 
   @Test
+  public void an_organization_member_can_analyze_project() {
+    verifyNoExtraOrganization();
+
+    String orgKeyAndName = "org-key";
+    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
+      .setName(orgKeyAndName)
+      .setKey(orgKeyAndName)
+      .build())
+      .getOrganization();
+    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+
+    userRule.createUser("bob", "bob");
+    userRule.removeGroups("sonar-users");
+    addPermissionsToUser(orgKeyAndName, "bob", "provisioning", "scan");
+
+    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+      "sonar.organization", orgKeyAndName, "sonar.login", "bob", "sonar.password", "bob");
+    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsList()).hasSize(1);
+
+    adminOrganizationService.delete(orgKeyAndName);
+  }
+
+  @Test
+  public void by_default_anonymous_cannot_analyse_project_on_organization() {
+    verifyNoExtraOrganization();
+
+    String orgKeyAndName = "org-key";
+    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
+      .setName(orgKeyAndName)
+      .setKey(orgKeyAndName)
+      .build())
+      .getOrganization();
+    verifySingleSearchResult(createdOrganization, orgKeyAndName, null, null, null);
+
+    try {
+      ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+        "sonar.organization", orgKeyAndName);
+      fail();
+    } catch (BuildFailureException e) {
+      assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
+    }
+
+    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsCount()).isEqualTo(0);
+    adminOrganizationService.delete(orgKeyAndName);
+  }
+
+  private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
+    PermissionsService permissionsService = ItUtils.newAdminWsClient(orchestrator).permissions();
+    permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
+    for (String otherPermission : otherPermissions) {
+      permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
+    }
+  }
+
+  @Test
   public void deleting_an_organization_also_deletes_group_permissions_and_projects_and_check_security() {
     verifyNoExtraOrganization();
 
@@ -263,9 +323,10 @@ public class OrganizationIt {
     assertThat(groupManagement.getUserGroups("bob").getGroups())
       .extracting(Groups.Group::getName)
       .contains("grp1", "grp2");
+    addPermissionsToUser(orgKeyAndName, "bob", "provisioning", "scan");
 
     ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.organization", orgKeyAndName);
+      "sonar.organization", orgKeyAndName, "sonar.login", "bob", "sonar.password", "bob");
     ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
     assertThat(searchSampleProject(orgKeyAndName, componentsService).getComponentsList()).hasSize(1);
 

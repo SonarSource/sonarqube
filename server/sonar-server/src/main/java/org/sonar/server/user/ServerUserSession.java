@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
@@ -34,8 +35,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -151,17 +152,23 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    if (isRoot() || hasPermission(permission)) {
+    if (isRoot()) {
       return true;
     }
 
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
     if (projectUuid == null) {
-      ResourceDto project = resourceDao.selectResource(componentUuid);
-      if (project == null) {
-        return false;
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+        if (!component.isPresent()) {
+          return false;
+        }
+        projectUuid = component.get().projectUuid();
+        if (hasOrganizationPermission(component.get().getOrganizationUuid(), permission)) {
+          projectUuidByComponentUuid.put(componentUuid, projectUuid);
+          return true;
+        }
       }
-      projectUuid = project.getProjectUuid();
     }
     boolean hasComponentPermission = hasProjectPermissionByUuid(permission, projectUuid);
     if (hasComponentPermission) {

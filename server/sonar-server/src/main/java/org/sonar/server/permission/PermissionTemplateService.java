@@ -77,7 +77,7 @@ public class PermissionTemplateService {
     }
 
     String effectiveKey = ComponentKeys.createKey(projectKey, branch);
-    PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, new ComponentDto().setKey(effectiveKey).setQualifier(qualifier));
+    PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, new ComponentDto().setOrganizationUuid(organizationUuid).setKey(effectiveKey).setQualifier(qualifier));
     if (template == null) {
       return false;
     }
