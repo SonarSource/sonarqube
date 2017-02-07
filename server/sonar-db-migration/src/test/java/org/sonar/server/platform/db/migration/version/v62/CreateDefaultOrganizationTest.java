@@ -19,6 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.version.v62;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,9 +29,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +51,7 @@ public class CreateDefaultOrganizationTest {
   private CreateDefaultOrganization underTest = new CreateDefaultOrganization(dbTester.database(), system2, uuidFactory);
 
   @Test
-  public void execute_insert_data_in_organizations_and_internal_properties_when_it_does_not_exist() throws SQLException {
+  public void execute_insert_data_in_organizations_and_internal_properties_when_it_does_not_exist() throws Exception {
     long now = 1_222_999L;
     String uuid = "a uuid";
     when(system2.now()).thenReturn(now);
@@ -56,21 +59,30 @@ public class CreateDefaultOrganizationTest {
 
     underTest.execute();
 
-    OrganizationDto organizationDto = dbTester.getDbClient().organizationDao().selectByKey(dbTester.getSession(), DEFAULT_ORGANIZATION_KEY).get();
-    assertThat(organizationDto.getUuid()).isEqualTo(uuid);
-    assertThat(organizationDto.getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
-    assertThat(organizationDto.getName()).isEqualTo(DEFAULT_ORGANIZATION_NAME);
-    assertThat(organizationDto.getDescription()).isNull();
-    assertThat(organizationDto.getUrl()).isNull();
-    assertThat(organizationDto.getAvatarUrl()).isNull();
-    assertThat(organizationDto.getCreatedAt()).isEqualTo(now);
-    assertThat(organizationDto.getUpdatedAt()).isEqualTo(now);
+    try (Connection connection = dbTester.openConnection();
+      PreparedStatement preparedStatement = createSelectStatementByKey(connection, DEFAULT_ORGANIZATION_KEY);
+      ResultSet resultSet = preparedStatement.executeQuery()) {
+      if (resultSet.next()) {
+        assertThat(resultSet.getString(1)).isEqualTo(uuid);
+        assertThat(resultSet.getString(2)).isEqualTo(DEFAULT_ORGANIZATION_KEY);
+        assertThat(resultSet.getString(3)).isEqualTo(DEFAULT_ORGANIZATION_NAME);
+        assertThat(resultSet.getString(4)).isNull();
+        assertThat(resultSet.getString(5)).isNull();
+        assertThat(resultSet.getString(6)).isNull();
+        assertThat(resultSet.getLong(7)).isEqualTo(now);
+        assertThat(resultSet.getLong(8)).isEqualTo(now);
+
+        assertThat(resultSet.next()).isFalse();
+      } else {
+        fail("Can't retrieve organization " + uuid);
+      }
+    }
 
     verifyInternalProperty(uuid);
   }
 
   @Test
-  public void execute_inserts_internal_property_if_default_organization_already_exists() throws SQLException {
+  public void execute_inserts_internal_property_if_default_organization_already_exists() throws Exception {
     long past = 2_999_033L;
     String uuid = "uuidAAAA";
     insertExistingOrganization(uuid, past);
@@ -91,7 +103,7 @@ public class CreateDefaultOrganizationTest {
   }
 
   @Test
-  public void execute_has_no_effect_if_organization_and_internal_property_already_exist() throws SQLException {
+  public void execute_has_no_effect_if_organization_and_internal_property_already_exist() throws Exception {
     long past = 2_999_033L;
     String uuid = "uuidAAAA";
     insertExistingOrganization(uuid, past);
@@ -120,25 +132,51 @@ public class CreateDefaultOrganizationTest {
     dbTester.commit();
   }
 
-  private void insertExistingOrganization(String uuid, long past) {
-    when(system2.now()).thenReturn(past);
-    dbTester.getDbClient().organizationDao().insert(dbTester.getSession(),
-      new OrganizationDto()
-        .setUuid(uuid)
-        .setKey(DEFAULT_ORGANIZATION_KEY)
-        .setName("whatever"));
-    dbTester.commit();
+  private void insertExistingOrganization(String uuid, long past) throws Exception {
+    try (Connection connection = dbTester.openConnection();
+      PreparedStatement preparedStatement = connection.prepareStatement("insert into organizations (uuid,kee,name,created_at,updated_at) values (?,?,?,?,?)")) {
+      preparedStatement.setString(1, uuid);
+      preparedStatement.setString(2, DEFAULT_ORGANIZATION_KEY);
+      preparedStatement.setString(3, "whatever");
+      preparedStatement.setLong(4, past);
+      preparedStatement.setLong(5, past);
+      preparedStatement.execute();
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
   }
 
-  private void verifyExistingOrganization(String uuid, long past) {
-    OrganizationDto organizationDto = dbTester.getDbClient().organizationDao().selectByKey(dbTester.getSession(), DEFAULT_ORGANIZATION_KEY).get();
-    assertThat(organizationDto.getUuid()).isEqualTo(uuid);
-    assertThat(organizationDto.getKey()).isEqualTo(DEFAULT_ORGANIZATION_KEY);
-    assertThat(organizationDto.getName()).isEqualTo("whatever");
-    assertThat(organizationDto.getDescription()).isNull();
-    assertThat(organizationDto.getUrl()).isNull();
-    assertThat(organizationDto.getAvatarUrl()).isNull();
-    assertThat(organizationDto.getCreatedAt()).isEqualTo(past);
-    assertThat(organizationDto.getUpdatedAt()).isEqualTo(past);
+  private void verifyExistingOrganization(String uuid, long past) throws Exception {
+    try (Connection connection = dbTester.openConnection();
+      PreparedStatement preparedStatement = createSelectStatementByUuid(connection, uuid);
+      ResultSet resultSet = preparedStatement.executeQuery()) {
+      if (resultSet.next()) {
+        assertThat(resultSet.getString(1)).isEqualTo(uuid);
+        assertThat(resultSet.getString(2)).isEqualTo(DEFAULT_ORGANIZATION_KEY);
+        assertThat(resultSet.getString(3)).isEqualTo("whatever");
+        assertThat(resultSet.getString(4)).isNull();
+        assertThat(resultSet.getString(5)).isNull();
+        assertThat(resultSet.getString(6)).isNull();
+        assertThat(resultSet.getLong(7)).isEqualTo(past);
+        assertThat(resultSet.getLong(8)).isEqualTo(past);
+
+        assertThat(resultSet.next()).isFalse();
+      } else {
+        fail("Can't retrieve organization " + uuid);
+      }
+    }
+  }
+
+  private PreparedStatement createSelectStatementByUuid(Connection connection, String uuid) throws SQLException {
+    PreparedStatement preparedStatement = connection.prepareStatement("select uuid,kee,name,description,url,avatar_url,created_at,updated_at from organizations where uuid=?");
+    preparedStatement.setString(1, uuid);
+    return preparedStatement;
+  }
+
+  private PreparedStatement createSelectStatementByKey(Connection connection, String kee) throws SQLException {
+    PreparedStatement preparedStatement = connection.prepareStatement("select uuid,kee,name,description,url,avatar_url,created_at,updated_at from organizations where kee=?");
+    preparedStatement.setString(1, kee);
+    return preparedStatement;
   }
 }

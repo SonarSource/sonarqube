@@ -39,6 +39,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -62,16 +64,18 @@ public class OrganizationDaoTest {
     .setName("the name 1")
     .setDescription("the description 1")
     .setUrl("the url 1")
-    .setAvatarUrl("the avatar url 1");
+    .setAvatarUrl("the avatar url 1")
+    .setGuarded(false);
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
     .setKey("the_key 2")
     .setName("the name 2")
     .setDescription("the description 2")
     .setUrl("the url 2")
-    .setAvatarUrl("the avatar url 2");
-  public static final String PERMISSION_1 = "foo";
-  public static final String PERMISSION_2 = "bar";
+    .setAvatarUrl("the avatar url 2")
+    .setGuarded(true);
+  private static final String PERMISSION_1 = "foo";
+  private static final String PERMISSION_2 = "bar";
 
   private System2 system2 = mock(System2.class);
 
@@ -117,9 +121,18 @@ public class OrganizationDaoTest {
     assertThat(row.get("avatarUrl")).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
     assertThat(row.get("createdAt")).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(row.get("updatedAt")).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
+    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_1.isGuarded()));
     assertThat(row.get("defaultTemplate")).isNull();
     assertThat(row.get("projectDefaultTemplate")).isNull();
     assertThat(row.get("viewDefaultTemplate")).isNull();
+  }
+
+  @Test
+  public void insert_persists_boolean_property_guarded_of_OrganizationDto() {
+    insertOrganization(ORGANIZATION_DTO_2);
+
+    Map<String, Object> row = selectSingleRow();
+    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_2.isGuarded()));
   }
 
   @Test
@@ -134,11 +147,20 @@ public class OrganizationDaoTest {
     assertThat(row.get("description")).isNull();
     assertThat(row.get("url")).isNull();
     assertThat(row.get("avatarUrl")).isNull();
+    assertThat(row.get("guarded")).isEqualTo(toBool(ORGANIZATION_DTO_1.isGuarded()));
     assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("defaultTemplate")).isNull();
     assertThat(row.get("projectDefaultTemplate")).isNull();
     assertThat(row.get("viewDefaultTemplate")).isNull();
+  }
+
+  private Object toBool(boolean guarded) {
+    Dialect dialect = dbTester.database().getDialect();
+    if (dialect.getId().equals(Oracle.ID)) {
+      return guarded ? 1L : 0L;
+    }
+    return guarded;
   }
 
   @Test
@@ -836,11 +858,13 @@ public class OrganizationDaoTest {
           "      name," +
           "      default_perm_template_project," +
           "      default_perm_template_view," +
+          "      guarded," +
           "      created_at," +
           "      updated_at" +
           "    )" +
           "    values" +
           "    (" +
+          "      ?," +
           "      ?," +
           "      ?," +
           "      ?," +
@@ -854,8 +878,9 @@ public class OrganizationDaoTest {
       preparedStatement.setString(3, organizationUuid);
       preparedStatement.setString(4, project);
       preparedStatement.setString(5, view);
-      preparedStatement.setLong(6, 1000L);
-      preparedStatement.setLong(7, 2000L);
+      preparedStatement.setBoolean(6, false);
+      preparedStatement.setLong(7, 1000L);
+      preparedStatement.setLong(8, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);
@@ -878,6 +903,7 @@ public class OrganizationDaoTest {
     assertThat(dto.getName()).isEqualTo(ORGANIZATION_DTO_1.getName());
     assertThat(dto.getDescription()).isEqualTo(ORGANIZATION_DTO_1.getDescription());
     assertThat(dto.getUrl()).isEqualTo(ORGANIZATION_DTO_1.getUrl());
+    assertThat(dto.isGuarded()).isEqualTo(ORGANIZATION_DTO_1.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(ORGANIZATION_DTO_1.getAvatarUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(ORGANIZATION_DTO_1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(ORGANIZATION_DTO_1.getUpdatedAt());
@@ -889,6 +915,7 @@ public class OrganizationDaoTest {
     assertThat(dto.getName()).isEqualTo(expected.getName());
     assertThat(dto.getDescription()).isEqualTo(expected.getDescription());
     assertThat(dto.getUrl()).isEqualTo(expected.getUrl());
+    assertThat(dto.isGuarded()).isEqualTo(expected.isGuarded());
     assertThat(dto.getAvatarUrl()).isEqualTo(expected.getAvatarUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(expected.getUpdatedAt());
@@ -897,6 +924,7 @@ public class OrganizationDaoTest {
   private Map<String, Object> selectSingleRow() {
     List<Map<String, Object>> rows = dbTester.select("select" +
       " uuid as \"uuid\", kee as \"key\", name as \"name\",  description as \"description\", url as \"url\", avatar_url as \"avatarUrl\"," +
+      " guarded as \"guarded\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
       " default_perm_template_view as \"viewDefaultPermTemplate\"" +

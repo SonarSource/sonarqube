@@ -34,6 +34,10 @@ public class OrganizationDto {
   private String url;
   /** avatar url can be null */
   private String avatarUrl;
+  /**
+   * Flag indicated whether being root is required to be able to delete this organization.
+   */
+  private boolean guarded = false;
   private long createdAt;
   private long updatedAt;
 
@@ -64,24 +68,6 @@ public class OrganizationDto {
     return this;
   }
 
-  public long getCreatedAt() {
-    return createdAt;
-  }
-
-  public OrganizationDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public OrganizationDto setUpdatedAt(long updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
   public String getDescription() {
     return description;
   }
@@ -109,6 +95,33 @@ public class OrganizationDto {
     return this;
   }
 
+  public boolean isGuarded() {
+    return guarded;
+  }
+
+  public OrganizationDto setGuarded(boolean guarded) {
+    this.guarded = guarded;
+    return this;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  public OrganizationDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public long getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public OrganizationDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "OrganizationDto{" +
@@ -118,6 +131,7 @@ public class OrganizationDto {
       ", description='" + description + '\'' +
       ", url='" + url + '\'' +
       ", avatarUrl='" + avatarUrl + '\'' +
+      ", guarded=" + guarded +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';
