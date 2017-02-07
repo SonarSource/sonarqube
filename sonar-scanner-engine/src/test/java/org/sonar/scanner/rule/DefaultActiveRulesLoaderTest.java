@@ -19,24 +19,39 @@
  */
 package org.sonar.scanner.rule;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.rule.DefaultActiveRulesLoader;
-import org.sonar.scanner.rule.LoadedActiveRule;
-import com.google.common.io.Resources;
-import org.junit.Test;
-
+import com.google.common.collect.ImmutableSortedMap;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.stream.IntStream;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.scanner.WsTestUtil;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.Rules.Active;
+import org.sonarqube.ws.Rules.ActiveList;
+import org.sonarqube.ws.Rules.Actives;
+import org.sonarqube.ws.Rules.Rule;
+import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarqube.ws.Rules.SearchResponse.Builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import org.junit.Before;
 
 public class DefaultActiveRulesLoaderTest {
+
+  private static final int PAGE_SIZE_1 = 150;
+  private static final int PAGE_SIZE_2 = 76;
+  private static final RuleKey EXAMPLE_KEY = RuleKey.of("squid", "S108");
+  private static final String FORMAT_KEY = "format";
+  private static final String FORMAT_VALUE = "^[a-z][a-zA-Z0-9]*$";
+  private static final String SEVERITY_VALUE = Severity.MINOR;
+
   private DefaultActiveRulesLoader loader;
   private ScannerWsClient wsClient;
 
@@ -48,39 +63,65 @@ public class DefaultActiveRulesLoaderTest {
 
   @Test
   public void feed_real_response_encode_qp() throws IOException {
-    InputStream response1 = loadResource("active_rule_search1.protobuf");
-    InputStream response2 = loadResource("active_rule_search2.protobuf");
+    int total = PAGE_SIZE_1 + PAGE_SIZE_2;
 
-    String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=1&ps=500";
-    String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=2&ps=500";
-    WsTestUtil.mockStream(wsClient, req1, response1);
-    WsTestUtil.mockStream(wsClient, req2, response2);
+    WsTestUtil.mockStream(wsClient, urlOfPage(1), responseOfSize(PAGE_SIZE_1, total));
+    WsTestUtil.mockStream(wsClient, urlOfPage(2), responseOfSize(PAGE_SIZE_2, total));
 
     Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
-    assertThat(activeRules).hasSize(226);
-    assertActiveRule(activeRules);
+    assertThat(activeRules).hasSize(total);
+    assertThat(activeRules)
+      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
+      .extracting(LoadedActiveRule::getParams)
+      .extracting(p -> p.get(FORMAT_KEY))
+      .containsExactly(FORMAT_VALUE);
+    assertThat(activeRules)
+      .filteredOn(r -> r.getRuleKey().equals(EXAMPLE_KEY))
+      .extracting(LoadedActiveRule::getSeverity)
+      .containsExactly(SEVERITY_VALUE);
 
-    WsTestUtil.verifyCall(wsClient, req1);
-    WsTestUtil.verifyCall(wsClient, req2);
+    WsTestUtil.verifyCall(wsClient, urlOfPage(1));
+    WsTestUtil.verifyCall(wsClient, urlOfPage(2));
 
     verifyNoMoreInteractions(wsClient);
   }
 
-  private static void assertActiveRule(Collection<LoadedActiveRule> activeRules) {
-    RuleKey key = RuleKey.of("squid", "S3008");
-    for (LoadedActiveRule r : activeRules) {
-      if (!r.getRuleKey().equals(key)) {
-        continue;
-      }
-
-      assertThat(r.getParams().get("format")).isEqualTo("^[a-z][a-zA-Z0-9]*$");
-      assertThat(r.getSeverity()).isEqualTo("MINOR");
-    }
+  private String urlOfPage(int page) {
+    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=" + page
+      + "&ps=500";
   }
 
-  private InputStream loadResource(String name) throws IOException {
-    return Resources.asByteSource(this.getClass().getResource("DefaultActiveRulesLoaderTest/" + name))
-      .openBufferedStream();
-  }
+  /**
+   * Generates an imaginary protobuf result.
+   *
+   * @param numberOfRules the number of rules, that the response should contain
+   * @param total TODO
+   * @return the binary stream
+   */
+  private InputStream responseOfSize(int numberOfRules, int total) {
+    Builder rules = SearchResponse.newBuilder();
+    Actives.Builder actives = Actives.newBuilder();
 
+    IntStream.rangeClosed(1, numberOfRules)
+      .mapToObj(i -> RuleKey.of("squid", "S" + i))
+      .forEach(key -> {
+
+        Rule.Builder ruleBuilder = Rule.newBuilder();
+        ruleBuilder.setKey(key.toString());
+        rules.addRules(ruleBuilder);
+
+        Active.Builder activeBuilder = Active.newBuilder();
+        if (EXAMPLE_KEY.equals(key)) {
+          activeBuilder.addParams(Rules.Active.Param.newBuilder().setKey(FORMAT_KEY).setValue(FORMAT_VALUE));
+          activeBuilder.setSeverity(SEVERITY_VALUE);
+        }
+        ActiveList activeList = Rules.ActiveList.newBuilder().addActiveList(activeBuilder).build();
+        actives.putAllActives(ImmutableSortedMap.of(key.toString(), activeList));
+      });
+
+    rules.setActives(actives);
+    rules.setPs(numberOfRules);
+    rules.setTotal(total);
+    return new ByteArrayInputStream(rules.build().toByteArray());
+  }
 }
