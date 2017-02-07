@@ -19,6 +19,7 @@
  */
 package org.sonar.db.organization;
 
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -40,12 +41,18 @@ public class OrganizationDbTester {
     return insert(OrganizationTesting.newOrganizationDto());
   }
 
+  public OrganizationDto insert(Consumer<OrganizationDto> populator) {
+    OrganizationDto dto = OrganizationTesting.newOrganizationDto();
+    populator.accept(dto);
+    return insert(dto);
+  }
+
   public OrganizationDto insertForKey(String key) {
-    return insert(OrganizationTesting.newOrganizationDto().setKey(key));
+    return insert(dto -> dto.setKey(key));
   }
 
   public OrganizationDto insertForUuid(String organizationUuid) {
-    return insert(OrganizationTesting.newOrganizationDto().setUuid(organizationUuid));
+    return insert(dto -> dto.setUuid(organizationUuid));
   }
 
   /**

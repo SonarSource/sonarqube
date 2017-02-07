@@ -82,7 +82,11 @@ public class DeleteAction implements OrganizationsAction {
         "Organization with key '%s' not found",
         key);
 
-      userSession.checkOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
+      if (organizationDto.isGuarded()) {
+        userSession.checkIsRoot();
+      } else {
+        userSession.checkOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
+      }
 
       deleteProjects(dbSession, organizationDto.getUuid());
       deletePermissions(dbSession, organizationDto.getUuid());

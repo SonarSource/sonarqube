@@ -126,7 +126,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_has_no_System_Administer_permission() {
+  public void request_fails_with_ForbiddenException_when_user_has_no_System_Administer_permission_for_non_guarded_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn();
 
@@ -137,7 +137,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_does_not_have_System_Administer_permission_on_specified_organization() {
+  public void request_fails_with_ForbiddenException_when_user_does_not_have_System_Administer_permission_on_specified_non_guarded_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn().addOrganizationPermission(dbTester.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
 
@@ -148,7 +148,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_deletes_specified_organization_if_exists_and_user_has_Admin_permission_on_it() {
+  public void request_deletes_specified_non_guarded_organization_if_exists_and_user_has_Admin_permission_on_it() {
     OrganizationDto organization = dbTester.organizations().insert();
     userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
 
@@ -158,8 +158,29 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void request_deletes_specified_organization_if_exists_and_user_is_root() {
+  public void request_fails_with_ForbiddenException_when_user_has_System_Administer_permission_on_specified_guarded_organization() {
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
+    userSession.logIn().addOrganizationPermission(organization.getUuid(), SYSTEM_ADMIN);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    sendRequest(organization);
+  }
+
+  @Test
+  public void request_deletes_specified_non_guarded_organization_if_exists_and_user_is_root() {
     OrganizationDto organization = dbTester.organizations().insert();
+    userSession.logIn().setRoot();
+
+    sendRequest(organization);
+
+    verifyOrganizationDoesNotExist(organization);
+  }
+
+  @Test
+  public void request_deletes_specified_guarded_organization_if_exists_and_user_is_root() {
+    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setGuarded(true));
     userSession.logIn().setRoot();
 
     sendRequest(organization);
