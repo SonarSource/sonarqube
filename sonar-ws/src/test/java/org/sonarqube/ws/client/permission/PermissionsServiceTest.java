@@ -48,7 +48,6 @@ public class PermissionsServiceTest {
   private static final String PROJECT_ID_VALUE = "project id value";
   private static final String PROJECT_KEY_VALUE = "project key value";
   private static final String QUERY_VALUE = "query value";
-  private static final String SELECTED_VALUE = "selected value";
   private static final int PAGE_VALUE = 66;
   private static final int PAGE_SIZE_VALUE = 99;
   private static final String GROUP_ID_VALUE = "group id value";
@@ -63,7 +62,6 @@ public class PermissionsServiceTest {
   private static final String PARAM_Q = "q";
   private static final String PARAM_PS = "ps";
   private static final String PARAM_P = "p";
-  private static final String PARAM_SELECTED = "selected";
 
   @Rule
   public ServiceTester<PermissionsService> serviceTester = new ServiceTester<>(new PermissionsService(mock(WsConnector.class)));

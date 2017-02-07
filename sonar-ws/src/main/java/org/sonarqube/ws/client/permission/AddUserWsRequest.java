@@ -29,6 +29,7 @@ public class AddUserWsRequest {
   private String permission;
   private String projectId;
   private String projectKey;
+  private String organization;
 
   public String getLogin() {
     return login;
@@ -65,6 +66,16 @@ public class AddUserWsRequest {
 
   public AddUserWsRequest setProjectKey(@Nullable String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getOrganization() {
+    return organization;
+  }
+
+  public AddUserWsRequest setOrganization(@Nullable String s) {
+    this.organization = s;
     return this;
   }
 }

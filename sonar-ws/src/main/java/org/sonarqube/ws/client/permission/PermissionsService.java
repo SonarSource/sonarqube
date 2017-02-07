@@ -36,6 +36,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -85,7 +86,8 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_USER_LOGIN, request.getLogin())
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
-      .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+      .setParam(PARAM_ORGANIZATION, request.getOrganization()));
   }
 
   public void addUserToTemplate(AddUserToTemplateWsRequest request) {
