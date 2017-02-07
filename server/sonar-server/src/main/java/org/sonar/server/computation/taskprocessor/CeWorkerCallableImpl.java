@@ -20,6 +20,7 @@
 package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.base.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.log.CeLogging;
@@ -56,7 +57,7 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     try {
       executeTask(ceTask.get());
     } catch (Exception e) {
-      LOG.error("An error occurred while managing task " + ceTask.get().getUuid(), e);
+      LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
     return true;
   }
@@ -91,7 +92,17 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);
       error = e;
     } finally {
+      finalizeTask(task, ceProfiler, status, taskResult, error);
+    }
+  }
+
+  private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
+    @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+    try {
       queue.remove(task, status, taskResult, error);
+    } catch (Exception e) {
+      LOG.error(format("Failed to finalize task with uuid '%s' and persist its state to db", task.getUuid()), e);
+    } finally {
       stopActivityProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();
     }
