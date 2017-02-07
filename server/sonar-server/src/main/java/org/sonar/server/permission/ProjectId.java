@@ -37,13 +37,9 @@ public class ProjectId {
   private final long id;
   private final String uuid;
 
-  public ProjectId(long projectId, String projectUuid) {
-    this.id = projectId;
-    this.uuid = requireNonNull(projectUuid);
-  }
-
-  public ProjectId(ComponentDto dto) {
-    this(requireNonNull(dto.getId()), dto.uuid());
+  public ProjectId(ComponentDto project) {
+    this.id = requireNonNull(project.getId());
+    this.uuid = requireNonNull(project.uuid());
   }
 
   public long getId() {

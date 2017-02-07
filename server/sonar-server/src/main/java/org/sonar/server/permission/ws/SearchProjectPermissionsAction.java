@@ -124,13 +124,12 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
 
   private void checkAuthorized(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
     com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
-    Optional<ProjectId> projectId;
     if (projectRef.isPresent()) {
-      projectId = Optional.of(wsSupport.findProjectId(dbSession, projectRef.get()));
+      ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());
+      PermissionPrivilegeChecker.checkProjectAdmin(userSession, project.getOrganizationUuid(), Optional.of(new ProjectId(project)));
     } else {
-      projectId = Optional.empty();
+      userSession.checkLoggedIn().checkIsRoot();
     }
-    PermissionPrivilegeChecker.checkProjectAdmin(userSession, projectId);
   }
 
   private SearchProjectPermissionsWsResponse buildResponse(SearchProjectPermissionsData data) {
