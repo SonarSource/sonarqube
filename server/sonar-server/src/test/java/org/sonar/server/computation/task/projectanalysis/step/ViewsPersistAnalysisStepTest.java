@@ -63,15 +63,15 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  long analysisDate;
+  private long analysisDate;
 
-  long now;
+  private long now;
 
-  PersistAnalysisStep underTest;
+  private PersistAnalysisStep underTest;
 
   @Before
   public void setup() {
@@ -86,7 +86,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     underTest = new PersistAnalysisStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
     // initialize PeriodHolder to empty by default
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
   }
 
   @Override
@@ -132,7 +132,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
     underTest.execute();
 

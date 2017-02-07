@@ -48,7 +48,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
 
-
 public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
@@ -63,15 +62,15 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  System2 system2 = mock(System2.class);
+  private System2 system2 = mock(System2.class);
 
-  DbIdsRepositoryImpl dbIdsRepository;
+  private DbIdsRepositoryImpl dbIdsRepository;
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  long analysisDate;
+  private long analysisDate;
 
-  long now;
+  private long now;
 
   PersistAnalysisStep underTest;
 
@@ -89,7 +88,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     underTest = new PersistAnalysisStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
     // initialize PeriodHolder to empty by default
-    periodsHolder.setPeriods();
+    periodsHolder.setPeriod(null);
   }
 
   @Override
@@ -147,7 +146,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     SnapshotDto snapshotDto = SnapshotTesting.newAnalysis(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
-    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
@@ -163,7 +162,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_leak_period_on_project_and_module() {
-    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newProjectDto(organizationDto, "ABCD").setKey(PROJECT_KEY).setName("Project");

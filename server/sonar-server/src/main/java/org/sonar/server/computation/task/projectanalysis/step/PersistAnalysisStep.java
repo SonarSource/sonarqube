@@ -19,9 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -29,9 +26,9 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
-import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
+import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -60,7 +57,7 @@ public class PersistAnalysisStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      new PathAwareCrawler<>(
+      new DepthTraversalTypeAwareCrawler(
         new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate()))
           .visit(treeRootHolder.getRoot());
       session.commit();
@@ -69,37 +66,36 @@ public class PersistAnalysisStep implements ComputationStep {
     }
   }
 
-  private class PersistSnapshotsPathAwareVisitor extends PathAwareVisitorAdapter<SnapshotDtoHolder> {
+  private class PersistSnapshotsPathAwareVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession dbSession;
     private final long analysisDate;
 
     public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate) {
-      super(CrawlerDepthLimit.ROOTS, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
+      super(CrawlerDepthLimit.ROOTS, Order.PRE_ORDER);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
     }
 
     @Override
-    public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
+    public void visitProject(Component project) {
       SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), project, true);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
 
     @Override
-    public void visitView(Component view, Path<SnapshotDtoHolder> path) {
+    public void visitView(Component view) {
       SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), view, false);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
 
     private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
-      List<Period> periods = periodsHolder.getPeriods();
-      if (periods.isEmpty()) {
+      if (!periodsHolder.hasPeriod()) {
         return;
       }
-      Period period = periods.get(0);
+      Period period = periodsHolder.getPeriod();
       snapshotDto.setPeriodMode(period.getMode());
       snapshotDto.setPeriodParam(period.getModeParameter());
       snapshotDto.setPeriodDate(period.getSnapshotDate());
@@ -119,45 +115,6 @@ public class PersistAnalysisStep implements ComputationStep {
 
     private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
       dbClient.snapshotDao().insert(dbSession, snapshotDto);
-    }
-  }
-
-  private static final class SnapshotDtoHolder {
-    @CheckForNull
-    private SnapshotDto snapshotDto;
-
-    @CheckForNull
-    public SnapshotDto getSnapshotDto() {
-      return snapshotDto;
-    }
-
-    public void setSnapshotDto(@Nullable SnapshotDto snapshotDto) {
-      this.snapshotDto = snapshotDto;
-    }
-  }
-
-  /**
-   * Factory of SnapshotDtoHolder.
-   *
-   * No need to create an instance for components of type FILE and PROJECT_VIEW, since they are the leaves of their
-   * respective trees, no one will consume the value of the holder, so we save on creating useless objects.
-   */
-  private static class SnapshotDtoHolderFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<SnapshotDtoHolder> {
-    public static final SnapshotDtoHolderFactory INSTANCE = new SnapshotDtoHolderFactory();
-
-    @Override
-    public SnapshotDtoHolder createForAny(Component component) {
-      return new SnapshotDtoHolder();
-    }
-
-    @Override
-    public SnapshotDtoHolder createForFile(Component file) {
-      return null;
-    }
-
-    @Override
-    public SnapshotDtoHolder createForProjectView(Component projectView) {
-      return null;
     }
   }
 
