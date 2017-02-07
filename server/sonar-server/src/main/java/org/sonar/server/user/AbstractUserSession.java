@@ -57,11 +57,6 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasPermission(String globalPermission) {
-    return isRoot() || globalPermissions().contains(globalPermission);
-  }
-
-  @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
     return hasComponentUuidPermission(permission, component.projectUuid());
   }

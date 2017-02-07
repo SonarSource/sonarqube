@@ -74,12 +74,6 @@ public class CeUserSession implements UserSession {
   public UserSession checkLoggedIn() {
     throw notImplemented();
   }
-
-  @Override
-  public boolean hasPermission(String globalPermission) {
-    throw notImplemented();
-  }
-
   @Override
   public boolean hasOrganizationPermission(String organizationUuid, String permission) {
     throw notImplemented();

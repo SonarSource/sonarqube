@@ -59,17 +59,6 @@ public interface UserSession {
   UserSession checkLoggedIn();
 
   /**
-   * Does the user have the given permission ?
-  
-   * @deprecated in 6.3 because if doesn't support organizations
-   * @see org.sonar.core.permission.GlobalPermissions
-   * @see #isRoot()
-   * @see #hasOrganizationPermission(String, String)
-   */
-  @Deprecated
-  boolean hasPermission(String globalPermission);
-
-  /**
    * Returns {@code true} if the permission is granted on the organization, else {@code false}.
    * Root status is not verified, so the method may return {@code false} even for root users.
    *

@@ -98,11 +98,6 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean hasPermission(String globalPermission) {
-        return true;
-      }
-
-      @Override
       public boolean hasOrganizationPermission(String organizationUuid, String permission) {
         return true;
       }

@@ -47,7 +47,6 @@ public class DoPrivilegedTest {
 
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
-    assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
     assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
 
     // verify session in place after task is done
@@ -73,7 +72,6 @@ public class DoPrivilegedTest {
 
       // verify the session used inside Privileged task
       assertThat(catcher.userSession.isLoggedIn()).isFalse();
-      assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
       assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
     }
   }
