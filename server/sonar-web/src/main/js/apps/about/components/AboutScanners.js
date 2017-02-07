@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
 const scanners = [
@@ -49,16 +48,13 @@ export default class AboutScanners extends React.Component {
         <div className="boxed-group">
           <h2>{translate('about_page.scanners')}</h2>
           <div className="boxed-group-inner">
+            <p className="about-page-text">{translate('about_page.scanners.text')}</p>
             <div className="about-page-analyzers">
               {scanners.map(scanner => (
-                  <div key={scanner.key} className="about-page-analyzer-box">
-                    <div className="big-spacer-bottom">
-                      <img src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`} height={80}
-                           alt={translate('about_page.scanners', scanner.key)}/>
-                    </div>
-                    <p className="about-page-text">{translate('about_page.scanners', scanner.key, 'text')}</p>
-                    <ReadMore link={scanner.link}/>
-                  </div>
+                  <a key={scanner.key} className="about-page-analyzer-box" href={scanner.link}>
+                    <img src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`} height={60}
+                         alt={translate('about_page.scanners', scanner.key)}/>
+                  </a>
               ))}
             </div>
           </div>

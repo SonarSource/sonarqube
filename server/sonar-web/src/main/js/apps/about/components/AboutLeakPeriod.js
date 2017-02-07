@@ -27,9 +27,9 @@ export default class AboutLeakPeriod extends React.Component {
   render () {
     return (
         <div className="boxed-group">
-          <h2>{translate('about_page.leak_period')}</h2>
+          <h2>{translate('about_page.fix_the_leak')}</h2>
           <div className="boxed-group-inner">
-            <p className="about-page-text">{translate('about_page.leak_period.text')}</p>
+            <p className="about-page-text">{translate('about_page.fix_the_leak.text')}</p>
             <ReadMore link={link}/>
           </div>
         </div>

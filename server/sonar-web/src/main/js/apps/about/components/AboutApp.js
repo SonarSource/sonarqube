@@ -17,42 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import keyBy from 'lodash/keyBy';
+import { Link } from 'react-router';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypes from './EntryIssueTypes';
+import AboutLanguages from './AboutLanguages';
 import AboutCleanCode from './AboutCleanCode';
-import AboutIssues from './AboutIssues';
+import AboutQualityModel from './AboutQualityModel';
 import AboutQualityGates from './AboutQualityGates';
 import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
-import { translate } from '../../../helpers/l10n';
 import { searchProjects } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
-import { getSettingValue } from '../../../store/rootReducer';
 import * as settingsAPI from '../../../api/settings';
+import { getCurrentUser } from '../../../store/rootReducer';
 import '../styles.css';
+import { translate } from '../../../helpers/l10n';
+
+type State = {
+  loading: boolean,
+  projectsCount?: number,
+  issueTypes?: {
+    [key: string]: {
+      count: number
+    }
+  },
+  customText?: string
+};
 
 class AboutApp extends React.Component {
-  static propTypes = {
-    customLogoUrl: React.PropTypes.string,
-    customLogoWidth: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])
+  mounted: boolean;
+
+  props: {
+    currentUser: { isLoggedIn: boolean }
   };
 
-  state = {
+  state: State = {
     loading: true
   };
 
   componentDidMount () {
     this.mounted = true;
-    document.querySelector('html').classList.add('dashboard-page');
     this.loadData();
   }
 
   componentWillUnmount () {
-    document.querySelector('html').classList.remove('dashboard-page');
     this.mounted = false;
   }
 
@@ -94,47 +107,51 @@ class AboutApp extends React.Component {
 
     const { customText } = this.state;
 
-    const logoUrl = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg`;
-    const logoWidth = Number(this.props.customLogoWidth || 100);
-    const logoHeight = 30;
-    const logoTitle = this.props.customLogoUrl ? '' : translate('layout.sonar.slogan');
+    // $FlowFixMe
+    const bugs = this.state.issueTypes['BUG'].count;
+    // $FlowFixMe
+    const vulnerabilities = this.state.issueTypes['VULNERABILITY'].count;
+    // $FlowFixMe
+    const codeSmells = this.state.issueTypes['CODE_SMELL'].count;
 
     return (
         <div id="about-page" className="about-page">
-          <div className="about-page-entry">
-            <div className="about-page-container clearfix">
-              <div className="pull-left">
-                <div className="about-page-logo">
-                  <img src={logoUrl} width={2 * logoWidth} height={2 * logoHeight} alt={logoTitle}/>
-                </div>
+          <div className="about-page-container">
+            <div className="about-page-entry">
+              <div className="about-page-intro">
+                <h1 className="big-spacer-bottom">
+                  {translate('layout.sonar.slogan')}
+                </h1>
+                {!this.props.currentUser.isLoggedIn && (
+                    <Link to="/sessions/new" className="button button-active big-spacer-right">
+                      {translate('layout.login')}
+                    </Link>
+                )}
+                <a className="button" href="https://redirect.sonarsource.com/doc/home.html">
+                  {translate('about_page.read_documentation')}
+                </a>
               </div>
 
-              <div className="about-page-entry-column">
-                <EntryIssueTypes
-                    bugs={this.state.issueTypes['BUG'].count}
-                    vulnerabilities={this.state.issueTypes['VULNERABILITY'].count}
-                    codeSmells={this.state.issueTypes['CODE_SMELL'].count}/>
-              </div>
-
-              <div className="about-page-entry-column">
+              <div className="about-page-instance">
                 <AboutProjects count={this.state.projectsCount}/>
+                <EntryIssueTypes bugs={bugs} vulnerabilities={vulnerabilities} codeSmells={codeSmells}/>
               </div>
             </div>
-          </div>
-
-          <div className="about-page-container">
 
             {customText != null && customText.length > 0 && (
                 <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText }}/>
             )}
 
+            <AboutLanguages/>
+
+            <AboutQualityModel/>
+
             <div className="flex-columns">
-              <div className="flex-column flex-column-two-thirds about-page-group-boxes">
+              <div className="flex-column flex-column-half about-page-group-boxes">
                 <AboutCleanCode/>
-                <AboutLeakPeriod/>
               </div>
-              <div className="flex-column flex-column-third about-page-group-boxes">
-                <AboutIssues/>
+              <div className="flex-column flex-column-half about-page-group-boxes">
+                <AboutLeakPeriod/>
               </div>
             </div>
 
@@ -155,8 +172,7 @@ class AboutApp extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  customLogoUrl: (getSettingValue(state, 'sonar.lf.logoUrl') || {}).value,
-  customLogoWidth: (getSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
+  currentUser: getCurrentUser(state)
 });
 
 export default connect(mapStateToProps)(AboutApp);
