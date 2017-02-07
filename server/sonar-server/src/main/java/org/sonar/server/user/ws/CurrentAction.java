@@ -25,9 +25,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -39,10 +41,12 @@ import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -103,7 +107,7 @@ public class CurrentAction implements UsersWsAction {
 
     writeScmAccounts(json, optionalUser);
     writeGroups(json, groups);
-    writePermissions(json, userSession);
+    writePermissions(json);
   }
 
   private static void writeScmAccounts(JsonWriter json, Optional<UserDto> optionalUser) {
@@ -126,17 +130,20 @@ public class CurrentAction implements UsersWsAction {
     json.endArray();
   }
 
-  private static void writePermissions(JsonWriter json, UserSession session) {
+  private void writePermissions(JsonWriter json) {
     json.name("permissions").beginObject();
-    writeGlobalPermissions(json, session);
+    writeGlobalPermissions(json);
     json.endObject();
   }
 
-  private static void writeGlobalPermissions(JsonWriter json, UserSession session) {
+  private void writeGlobalPermissions(JsonWriter json) {
     json.name("global").beginArray();
-    for (String permission : session.globalPermissions()) {
-      json.value(permission);
-    }
+
+    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
+    GlobalPermissions.ALL.stream()
+      .filter(permission -> userSession.hasOrganizationPermission(defaultOrganizationUuid, permission))
+      .forEach(permission -> json.value(permission));
+
     json.endArray();
   }
 
