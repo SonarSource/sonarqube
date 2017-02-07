@@ -61,14 +61,6 @@ public class PermissionWsSupport {
     return groupWsSupport.findOrganizationByKey(dbSession, organizationKey);
   }
 
-  /**
-   * @throws org.sonar.server.exceptions.NotFoundException if a project does not exist
-   */
-  public ProjectId findProjectId(DbSession dbSession, ProjectWsRef ref) {
-    ComponentDto project = componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes);
-    return new ProjectId(project.getId(), project.uuid());
-  }
-
   public Optional<ProjectId> findProjectId(DbSession dbSession, Request request) {
     return findProject(dbSession, request)
       .map(ProjectId::new);

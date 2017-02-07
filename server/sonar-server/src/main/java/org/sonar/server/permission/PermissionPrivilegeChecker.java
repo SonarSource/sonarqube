@@ -24,6 +24,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class PermissionPrivilegeChecker {
   private PermissionPrivilegeChecker() {
@@ -43,24 +44,15 @@ public class PermissionPrivilegeChecker {
    */
   public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectId> projectId) {
     userSession.checkLoggedIn();
-    if (!projectId.isPresent() || !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid())) {
-      userSession.checkOrganizationPermission(organizationUuid, SYSTEM_ADMIN);
-    }
-  }
 
-  /**
-   * Checks that user is administrator of the specified project, or of system if project is not
-   * defined.
-   * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
-   * @deprecated does not support organizations. Replaced by {@link #checkProjectAdmin(UserSession, String, Optional)}
-   */
-  @Deprecated
-  public static void checkProjectAdmin(UserSession userSession, Optional<ProjectId> projectId) {
-    userSession.checkLoggedIn();
+    if (userSession.hasOrganizationPermission(organizationUuid, SYSTEM_ADMIN)) {
+      return;
+    }
+
     if (projectId.isPresent()) {
       userSession.checkComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid());
     } else {
-      userSession.checkIsRoot();
+      throw insufficientPrivilegesException();
     }
   }
 }
