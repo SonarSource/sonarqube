@@ -37,9 +37,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProjectActionTest {
 
-  ProjectDataLoader projectDataLoader = mock(ProjectDataLoader.class);
-
-  WsActionTester ws;
+  private ProjectDataLoader projectDataLoader = mock(ProjectDataLoader.class);
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
