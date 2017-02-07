@@ -37,9 +37,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
@@ -134,25 +131,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasPermission_permission() {
-    addGlobalPermissions("admin", "profileadmin");
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasPermission(QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(session.hasPermission(SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasPermission(QUALITY_GATE_ADMIN)).isFalse();
-  }
-
-  @Test
-  public void hasPermission_returns_true_when_flag_is_true_on_UserDto_no_matter_actual_global_permissions() {
-    ServerUserSession underTest = newUserSession(ROOT_USER_DTO);
-
-    assertThat(underTest.hasPermission(QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(underTest.hasPermission(SYSTEM_ADMIN)).isTrue();
-    assertThat(underTest.hasPermission("whatever!")).isTrue();
-  }
-
-  @Test
   public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
     addProjectPermissions(project, UserRole.USER);
     UserSession session = newUserSession(userDto);
@@ -205,19 +183,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void has_global_permission_for_anonymous() throws Exception {
-    addAnyonePermissions(db.getDefaultOrganization(), null, "profileadmin", "admin");
-    UserSession session = newAnonymousSession();
-
-    assertThat(session.getLogin()).isNull();
-    assertThat(session.isLoggedIn()).isFalse();
-
-    assertThat(session.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(session.hasPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasPermission(GlobalPermissions.QUALITY_GATE_ADMIN)).isFalse();
-  }
-
-  @Test
   public void checkOrganizationPermission_fails_with_ForbiddenException_when_user_has_no_permissions_on_organization() {
     expectInsufficientPrivilegesForbiddenException();
 
@@ -256,10 +221,6 @@ public class ServerUserSessionTest {
     return createForAnonymous(dbClient);
   }
 
-  private void addGlobalPermissions(String... permissions) {
-    addPermissions(null, permissions);
-  }
-
   private void addProjectPermissions(ComponentDto component, String... permissions) {
     addPermissions(component, permissions);
   }
@@ -270,16 +231,6 @@ public class ServerUserSessionTest {
         db.users().insertPermissionOnUser(userDto, permission);
       } else {
         db.users().insertProjectPermissionOnUser(userDto, permission, component);
-      }
-    }
-  }
-
-  private void addAnyonePermissions(OrganizationDto org, @Nullable ComponentDto component, String... permissions) {
-    for (String permission : permissions) {
-      if (component == null) {
-        db.users().insertPermissionOnAnyone(org, permission);
-      } else {
-        db.users().insertProjectPermissionOnAnyone(permission, component);
       }
     }
   }
