@@ -31,7 +31,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -203,14 +202,14 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void submit_a_report_on_existing_project_with_scan_permission_on_organization() {
-    userSession.setGlobalPermissions(SCAN_EXECUTION);
-
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+  public void user_with_scan_permission_on_organization_is_allowed_to_submit_a_report_on_existing_project() {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertProject(org);
+    userSession.addOrganizationPermission(org, SCAN_EXECUTION);
 
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(defaultOrganizationKey, project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+    underTest.submit(org.getKey(), project.getKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }
@@ -229,9 +228,8 @@ public class ReportSubmitterTest {
 
   @Test
   public void fail_with_forbidden_exception_when_no_scan_permission() {
-    userSession.setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
-
     thrown.expect(ForbiddenException.class);
+
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
   }
 

@@ -76,8 +76,20 @@ public class ReportSubmitter {
       Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, effectiveProjectKey);
       ensureOrganizationIsConsistent(opt, organizationDto);
       ComponentDto project = opt.or(() -> createProject(dbSession, organizationDto.getUuid(), projectKey, projectBranch, projectName));
-      userSession.checkComponentPermission(SCAN_EXECUTION, project);
+      checkScanPermission(project);
       return submitReport(dbSession, reportInput, project);
+    }
+  }
+
+  private void checkScanPermission(ComponentDto project) {
+    // this is a specific and inconsistent behavior. For legacy reasons, "technical users"
+    // defined on an organization should be able to analyze a project even if
+    // they don't have the direct permission on the project.
+    // That means that dropping the permission on the project does not have any effects
+    // if user has still the permission on the organization
+    if (!userSession.hasComponentPermission(SCAN_EXECUTION, project) &&
+      !userSession.hasOrganizationPermission(project.getOrganizationUuid(), SCAN_EXECUTION)) {
+      throw insufficientPrivilegesException();
     }
   }
 
