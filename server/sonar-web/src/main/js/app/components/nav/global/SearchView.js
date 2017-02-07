@@ -163,12 +163,16 @@ export default Marionette.LayoutView.extend({
   },
 
   fetchFavorite (): Promise<*> {
+    const customOrganizations = areThereCustomOrganizations();
     return getFavorites().then(r => {
       this.favorite = r.favorites.map(f => {
+        const showOrganization = customOrganizations && f.organization != null;
+        const organization = showOrganization ? getOrganization(f.organization) : null;
         return {
           url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
           name: f.name,
-          icon: 'favorite'
+          icon: 'favorite',
+          organization
         };
       });
       this.favorite = sortBy(this.favorite, 'name');
@@ -181,8 +185,7 @@ export default Marionette.LayoutView.extend({
     const history = recentHistory.map((historyItem, index) => {
       const url = window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
           window.dashboardParameters(true);
-      const showOrganization = customOrganizations && historyItem.organization != null &&
-          historyItem.icon.toUpperCase() === 'TRK';
+      const showOrganization = customOrganizations && historyItem.organization != null;
       // $FlowFixMe flow doesn't check the above condition on `historyItem.organization != null`
       const organization = showOrganization ? getOrganization(historyItem.organization) : null;
       return {
