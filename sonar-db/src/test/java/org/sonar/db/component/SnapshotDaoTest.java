@@ -47,14 +47,13 @@ public class SnapshotDaoTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
 
-  SnapshotDao underTest = dbClient.snapshotDao();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+
+  private SnapshotDao underTest = dbClient.snapshotDao();
 
   @Test
   public void test_selectByUuid() {
@@ -136,12 +135,12 @@ public class SnapshotDaoTest {
 
   @Test
   public void selectLastSnapshotsByRootComponentUuids_returns_snapshots_flagged_as_last() {
-    ComponentDto firstProject = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_1"));
+    ComponentDto firstProject = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_1"));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(false));
     SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(firstProject).setLast(true));
-    ComponentDto secondProject = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_2"));
+    ComponentDto secondProject = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "PROJECT_UUID_2"));
     SnapshotDto lastSnapshotOfSecondProject = dbClient.snapshotDao().insert(dbSession, newAnalysis(secondProject).setLast(true));
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()));
+    db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()));
 
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 

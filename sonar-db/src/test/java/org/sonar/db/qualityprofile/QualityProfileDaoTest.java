@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -43,17 +42,14 @@ import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfil
 
 public class QualityProfileDaoTest {
 
-  System2 system = mock(System2.class);
+  private System2 system = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system);
 
-  DbSession dbSession = dbTester.getSession();
-
-  QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(dbTester);
-  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
-
-  QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
+  private DbSession dbSession = dbTester.getSession();
+  private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(dbTester);
+  private QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
 
   @Before
   public void before() {
@@ -70,7 +66,7 @@ public class QualityProfileDaoTest {
 
     underTest.insert(dto);
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[]{"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
   }
 
   @Test
@@ -87,7 +83,7 @@ public class QualityProfileDaoTest {
     underTest.update(dbSession, dto);
     dbSession.commit();
 
-    dbTester.assertDbUnit(getClass(), "update-result.xml", new String[]{"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
+    dbTester.assertDbUnit(getClass(), "update-result.xml", new String[] {"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
   }
 
   @Test
@@ -300,9 +296,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -317,8 +313,7 @@ public class QualityProfileDaoTest {
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
         tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
-        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKey())
-      );
+        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKey()));
 
     assertThat(underTest.selectSelectedProjects(profile1.getKey(), "ect1", dbSession)).hasSize(1);
     assertThat(underTest.selectSelectedProjects("unknown", null, dbSession)).isEmpty();
@@ -326,9 +321,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -342,8 +337,7 @@ public class QualityProfileDaoTest {
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
-        tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null)
-      );
+        tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
     assertThat(underTest.selectDeselectedProjects(profile1.getKey(), "ect2", dbSession)).hasSize(1);
     assertThat(underTest.selectDeselectedProjects("unknown", null, dbSession)).hasSize(3);
@@ -351,9 +345,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = componentDbTester.insertProject((t) -> t.setName("Project1 name"));
-    ComponentDto project2 = componentDbTester.insertProject((t) -> t.setName("Project2 name"));
-    ComponentDto project3 = componentDbTester.insertProject((t) -> t.setName("Project3 name"));
+    ComponentDto project1 = dbTester.components().insertProject((t) -> t.setName("Project1 name"));
+    ComponentDto project2 = dbTester.components().insertProject((t) -> t.setName("Project2 name"));
+    ComponentDto project3 = dbTester.components().insertProject((t) -> t.setName("Project3 name"));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -368,8 +362,7 @@ public class QualityProfileDaoTest {
       .containsOnly(
         tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
-        tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null)
-      );
+        tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
     assertThat(underTest.selectProjectAssociations(profile1.getKey(), "ect2", dbSession)).hasSize(1);
     assertThat(underTest.selectProjectAssociations("unknown", null, dbSession)).hasSize(3);
@@ -377,7 +370,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void update_project_profile_association() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = dbTester.components().insertProject();
     QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
     QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
     QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");

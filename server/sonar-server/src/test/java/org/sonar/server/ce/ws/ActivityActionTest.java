@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -77,7 +76,6 @@ public class ActivityActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
   private ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   private WsActionTester ws = new WsActionTester(underTest);
@@ -237,9 +235,9 @@ public class ActivityActionTest {
     ComponentDto struts = newProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
     ComponentDto zookeeper = newProjectDto(organizationDto).setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
     ComponentDto eclipse = newProjectDto(organizationDto).setName("eclipse").setUuid("P3").setProjectUuid("P3");
-    componentDb.insertProjectAndSnapshot(struts);
-    componentDb.insertProjectAndSnapshot(zookeeper);
-    componentDb.insertProjectAndSnapshot(eclipse);
+    dbTester.components().insertProjectAndSnapshot(struts);
+    dbTester.components().insertProjectAndSnapshot(zookeeper);
+    dbTester.components().insertProjectAndSnapshot(eclipse);
     logInAsRoot();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
@@ -255,8 +253,8 @@ public class ActivityActionTest {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto apacheView = newView(organizationDto).setName("Apache View").setUuid("V1").setProjectUuid("V1");
     ComponentDto developer = newDeveloper(organizationDto, "Apache Developer").setUuid("D1").setProjectUuid("D1");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertViewAndSnapshot(apacheView);
+    dbTester.components().insertDeveloperAndSnapshot(developer);
+    dbTester.components().insertViewAndSnapshot(apacheView);
     logInAsRoot();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);

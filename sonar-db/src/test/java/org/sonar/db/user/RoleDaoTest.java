@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +49,8 @@ public class RoleDaoTest {
   public void setUp() throws Exception {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    ComponentDbTester componentDbTester = new ComponentDbTester(db);
-    project1 = componentDbTester.insertProject();
-    project2 = componentDbTester.insertProject();
+    project1 = db.components().insertProject();
+    project2 = db.components().insertProject();
   }
 
   @Test

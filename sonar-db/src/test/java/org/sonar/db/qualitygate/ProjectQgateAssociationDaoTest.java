@@ -27,19 +27,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ProjectQgateAssociationDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ProjectQgateAssociationDao underTest = db.getDbClient().projectQgateAssociationDao();
@@ -91,7 +88,7 @@ public class ProjectQgateAssociationDaoTest {
 
   @Test
   public void select_qgate_id_is_absent() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertProject();
 
     Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, project.getId());
 

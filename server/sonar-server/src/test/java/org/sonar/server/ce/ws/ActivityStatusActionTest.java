@@ -34,7 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
@@ -62,7 +61,6 @@ public class ActivityStatusActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private WsActionTester ws = new WsActionTester(new ActivityStatusAction(userSession, dbClient, new ComponentFinder(dbClient)));
@@ -88,8 +86,8 @@ public class ActivityStatusActionTest {
     String anotherProjectUuid = "another-project-uuid";
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, projectUuid);
     OrganizationDto organizationDto = db.organizations().insert();
-    componentDb.insertComponent(newProjectDto(organizationDto, projectUuid));
-    componentDb.insertComponent(newProjectDto(organizationDto, anotherProjectUuid));
+    db.components().insertComponent(newProjectDto(organizationDto, projectUuid));
+    db.components().insertComponent(newProjectDto(organizationDto, anotherProjectUuid));
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
@@ -121,7 +119,7 @@ public class ActivityStatusActionTest {
   @Test
   public void fail_if_component_uuid_and_key_are_provided() {
     ComponentDto project = newProjectDto(db.organizations().insert());
-    componentDb.insertComponent(project);
+    db.components().insertComponent(project);
     expectedException.expect(IllegalArgumentException.class);
 
     callByComponentUuidOrComponentKey(project.uuid(), project.key());
