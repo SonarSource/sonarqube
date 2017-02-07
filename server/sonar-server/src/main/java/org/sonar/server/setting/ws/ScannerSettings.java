@@ -35,7 +35,7 @@ import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.LICENSE;
-import static org.sonar.server.setting.ws.SettingsPermissionPredicates.LICENSE_HASH_SUFFIX;
+import static org.sonar.server.setting.ws.SettingsWsSupport.LICENSE_HASH_SUFFIX;
 
 /**
  * This class returns the list of settings required on scanner side (licenses, license hashes, server ids, etc.)

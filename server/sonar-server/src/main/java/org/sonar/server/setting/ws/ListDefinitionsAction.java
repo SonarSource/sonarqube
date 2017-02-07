@@ -50,15 +50,15 @@ public class ListDefinitionsAction implements SettingsWsAction {
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
-  private final SettingsPermissionPredicates settingsPermissionPredicates;
+  private final SettingsWsSupport settingsWsSupport;
 
   public ListDefinitionsAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsPermissionPredicates settingsPermissionPredicates) {
+    SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
-    this.settingsPermissionPredicates = settingsPermissionPredicates;
+    this.settingsWsSupport = settingsWsSupport;
   }
 
   @Override
@@ -93,7 +93,7 @@ public class ListDefinitionsAction implements SettingsWsAction {
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
       .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
-      .filter(settingsPermissionPredicates.isDefinitionVisible(component))
+      .filter(settingsWsSupport.isDefinitionVisible(component))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
   }

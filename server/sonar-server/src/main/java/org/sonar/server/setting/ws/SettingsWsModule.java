@@ -27,7 +27,7 @@ public class SettingsWsModule extends Module {
     add(
       SettingsWs.class,
       SetAction.class,
-      SettingsPermissionPredicates.class,
+      SettingsWsSupport.class,
       ListDefinitionsAction.class,
       ValuesAction.class,
       SettingsFinder.class,

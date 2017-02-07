@@ -45,6 +45,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -94,11 +96,12 @@ public class ValuesActionTest {
   private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
   private PluginRepository repository = mock(PluginRepository.class);
   private ScannerSettings scannerSettings = new ScannerSettings(definitions, repository);
-
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private ComponentDto project;
 
   private WsActionTester ws = new WsActionTester(
-    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, new SettingsPermissionPredicates(userSession), scannerSettings));
+    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, support, scannerSettings));
 
   @Before
   public void setUp() throws Exception {
@@ -112,7 +115,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_simple_value() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -129,7 +132,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_multi_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     // Property never defined, default value is returned
     definitions.addComponent(PropertyDefinition.builder("default")
       .multiValues(true)
@@ -155,7 +158,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_multi_value_with_coma() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("global").multiValues(true).build());
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("global").setValue("three,four%2Cfive"));
 
@@ -169,7 +172,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_property_set() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -189,7 +192,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_property_set_for_component() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -210,7 +213,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_default_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
@@ -224,7 +227,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_global_values() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").build());
     propertyDb.insertProperties(
       // The property is overriding default value
@@ -238,7 +241,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_project_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponent(
       PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(
@@ -254,7 +257,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_settings_defined_only_at_global_level_when_loading_project_settings() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global.default").defaultValue("default").build(),
@@ -271,7 +274,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_is_inherited_to_true_when_property_is_defined_only_at_global_level() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT).build());
     // The property is not defined on project
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("property").setValue("one"));
@@ -284,7 +287,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_values_even_if_no_property_definition() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDb.insertProperties(newGlobalPropertyDto().setKey("globalPropertyWithoutDefinition").setValue("value"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties("globalPropertyWithoutDefinition");
@@ -297,7 +300,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_empty_when_property_def_exists_but_no_value() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -309,7 +312,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_nothing_when_unknown_keys() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .defaultValue("default")
@@ -323,7 +326,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_module_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponent(PropertyDefinition.builder("property").defaultValue("default").onQualifiers(PROJECT, MODULE).build());
     propertyDb.insertProperties(
@@ -339,7 +342,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_inherited_values_on_module() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").onQualifiers(PROJECT, MODULE).build(),
@@ -362,7 +365,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_inherited_values_on_global_setting() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").build(),
       PropertyDefinition.builder("globalProperty").build()));
@@ -378,7 +381,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_value() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -396,7 +399,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -414,7 +417,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_field_values() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponent(PropertyDefinition
@@ -437,7 +440,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_no_parent_value() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
     definitions.addComponents(asList(
@@ -462,7 +465,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_parent_value_when_no_definition() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("global"),
@@ -475,7 +478,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_value_of_deprecated_key() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .deprecatedKey("deprecated")
@@ -527,7 +530,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -548,7 +551,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_global_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
-    userSession.setGlobalPermissions(SCAN_EXECUTION);
+    userSession.anonymous().addOrganizationPermission(db.getDefaultOrganization(), SCAN_EXECUTION);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -606,7 +609,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_system_admin() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -624,7 +627,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_project_admin() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
@@ -645,7 +648,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_secured_and_license_settings_even_if_not_defined_when_project_admin() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -655,7 +658,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_secured_and_license_settings_in_property_set_when_system_admin() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -673,7 +676,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_global_settings_from_definitions_when_no_component_and_no_keys() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -690,7 +693,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_project_settings_from_definitions_when_component_and_no_keys() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build(),
@@ -707,7 +710,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_additional_settings_specific_for_scanner_when_no_keys() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin();
     definitions.addComponent(PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build());
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("sonar.server_id").setValue("12345"),
@@ -724,7 +727,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_simple_value_with_non_ascii_characters() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -747,7 +750,7 @@ public class ValuesActionTest {
 
   @Test
   public void fail_when_deprecated_key_and_new_key_are_used() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("foo")
       .deprecatedKey("deprecated")
@@ -762,7 +765,7 @@ public class ValuesActionTest {
 
   @Test
   public void test_example_json_response() {
-    setAuthenticatedUser();
+    logIn();
     definitions.addComponent(PropertyDefinition
       .builder("sonar.test.jira")
       .defaultValue("abc")
@@ -827,20 +830,20 @@ public class ValuesActionTest {
     }
   }
 
-  private void setAuthenticatedUser() {
-    userSession.logIn("user");
+  private void logIn() {
+    userSession.logIn();
   }
 
-  private void setUserWithBrowsePermissionOnProject() {
-    userSession.logIn("user").addProjectUuidPermissions(USER, project.uuid());
+  private void logInAsProjectUser() {
+    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsAdmin() {
+    userSession.logIn().addOrganizationPermission(db.getDefaultOrganization(), SYSTEM_ADMIN);
   }
 
-  private void setUserAsProjectAdmin() {
-    userSession.logIn("project-admin")
+  private void logInAsProjectAdmin() {
+    userSession.logIn()
       .addProjectUuidPermissions(ADMIN, project.uuid())
       .addProjectUuidPermissions(USER, project.uuid());
   }

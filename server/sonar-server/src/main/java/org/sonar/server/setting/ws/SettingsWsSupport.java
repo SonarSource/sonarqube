@@ -23,23 +23,28 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
-public class SettingsPermissionPredicates {
+@ServerSide
+public class SettingsWsSupport {
 
   public static final String DOT_SECURED = ".secured";
   public static final String DOT_LICENSE = ".license";
   private static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
   static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
 
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
 
-  public SettingsPermissionPredicates(UserSession userSession) {
+  public SettingsWsSupport(DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userSession = userSession;
   }
 
@@ -67,7 +72,12 @@ public class SettingsPermissionPredicates {
     return key.endsWith(LICENSE_SUFFIX) || key.endsWith(LICENSE_HASH_SUFFIX) || (definition != null && definition.type() == LICENSE);
   }
 
-  private boolean hasPermission(String permission, Optional<ComponentDto> component) {
-    return userSession.hasPermission(permission) || (component.isPresent() && userSession.hasComponentPermission(permission, component.get()));
+  private boolean hasPermission(String projectOrOrgPermission, Optional<ComponentDto> component) {
+    if (userSession.hasOrganizationPermission(defaultOrganizationProvider.get().getUuid(), projectOrOrgPermission)) {
+      return true;
+    }
+    return component
+      .map(c -> userSession.hasComponentPermission(projectOrOrgPermission, c))
+      .orElse(false);
   }
 }

@@ -65,17 +65,17 @@ public class ValuesAction implements SettingsWsAction {
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsFinder settingsFinder;
-  private final SettingsPermissionPredicates settingsPermissionPredicates;
+  private final SettingsWsSupport settingsWsSupport;
   private final ScannerSettings scannerSettings;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
-    SettingsPermissionPredicates settingsPermissionPredicates, ScannerSettings scannerSettings) {
+                      SettingsWsSupport settingsWsSupport, ScannerSettings scannerSettings) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsFinder = settingsFinder;
-    this.settingsPermissionPredicates = settingsPermissionPredicates;
+    this.settingsWsSupport = settingsWsSupport;
     this.scannerSettings = scannerSettings;
   }
 
@@ -154,7 +154,7 @@ public class ValuesAction implements SettingsWsAction {
     settings.addAll(settingsFinder.loadGlobalSettings(dbSession, keys));
     component.ifPresent(componentDto -> settings.addAll(settingsFinder.loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
-      .filter(settingsPermissionPredicates.isSettingVisible(component))
+      .filter(settingsWsSupport.isSettingVisible(component))
       .collect(Collectors.toList());
   }
 
@@ -272,7 +272,7 @@ public class ValuesAction implements SettingsWsAction {
       propertySets.forEach(map -> {
         Map<String, String> set = new HashMap<>();
         map.entrySet().stream()
-          .filter(entry -> settingsPermissionPredicates.isVisible(entry.getKey(), null, requestedComponent))
+          .filter(entry -> settingsWsSupport.isVisible(entry.getKey(), null, requestedComponent))
           .forEach(entry -> set.put(entry.getKey(), entry.getValue()));
         filteredPropertySets.add(set);
       });

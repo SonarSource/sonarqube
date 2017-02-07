@@ -36,8 +36,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -81,15 +84,14 @@ public class ListDefinitionsActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = db.getDbClient();
-  ComponentDbTester componentDb = new ComponentDbTester(db);
-
-  ComponentDto project;
-
-  PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
-
-  WsActionTester ws = new WsActionTester(
-    new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions, new SettingsPermissionPredicates(userSession)));
+  private DbClient dbClient = db.getDbClient();
+  private ComponentDbTester componentDb = new ComponentDbTester(db);
+  private ComponentDto project;
+  private PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
+  private WsActionTester ws = new WsActionTester(
+    new ListDefinitionsAction(dbClient, new ComponentFinder(dbClient), userSession, propertyDefinitions, support));
 
   @Before
   public void setUp() throws Exception {
@@ -98,7 +100,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions() {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .name("Foo")
@@ -126,7 +128,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions_with_minimum_fields() {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .build());
@@ -149,7 +151,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_settings_definitions_with_deprecated_key() {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .name("Foo")
@@ -167,7 +169,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_default_category() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build(), "default");
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").category("").build(), "default");
 
@@ -180,7 +182,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_single_select_list_property() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.SINGLE_SELECT_LIST)
@@ -197,7 +199,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_property_set() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -228,7 +230,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_license_type_in_property_set() throws Exception {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .type(PropertyType.PROPERTY_SET)
@@ -243,7 +245,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_global_settings_definitions() {
-    setAuthenticatedUser();
+    logIn();
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     ListDefinitionsWsResponse result = executeRequest();
@@ -253,7 +255,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_project_settings_def_by_project_key() {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     propertyDefinitions.addComponent(PropertyDefinition
       .builder("foo")
       .onQualifiers(PROJECT)
@@ -266,7 +268,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_only_global_properties_when_no_component_parameter() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
@@ -280,7 +282,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_only_properties_available_for_component_qualifier() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
@@ -294,7 +296,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void does_not_return_hidden_properties() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").hidden().build());
 
     ListDefinitionsWsResponse result = executeRequest();
@@ -304,7 +306,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_license_type() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("plugin.license.secured").type(PropertyType.LICENSE).build(),
       PropertyDefinition.builder("commercial.plugin").type(PropertyType.LICENSE).build()));
@@ -330,7 +332,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_license_settings_when_authenticated_but_not_admin() throws Exception {
-    setUserWithBrowsePermissionOnProject();
+    logInAsProjectUser();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -344,7 +346,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
-    userSession.setGlobalPermissions(SCAN_EXECUTION);
+    userSession.anonymous().addOrganizationPermission(db.getDefaultOrganization(), SCAN_EXECUTION);
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -358,7 +360,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_system_admin() throws Exception {
-    setUserAsSystemAdmin();
+    logInAsAdmin(db.getDefaultOrganization());
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build(),
@@ -371,7 +373,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_and_license_settings_when_project_admin() throws Exception {
-    setUserAsProjectAdmin();
+    logInAsProjectAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("secret.secured").onQualifiers(PROJECT).build(),
@@ -404,7 +406,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void test_example_json_response() {
-    setUserAsSystemAdmin();
+    logInAsProjectAdmin();
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("sonar.string")
         .name("String")
@@ -470,20 +472,20 @@ public class ListDefinitionsActionTest {
     }
   }
 
-  private void setAuthenticatedUser() {
-    userSession.logIn("user");
+  private void logIn() {
+    userSession.logIn();
   }
 
-  private void setUserWithBrowsePermissionOnProject() {
-    userSession.logIn("user").addProjectUuidPermissions(USER, project.uuid());
+  private void logInAsProjectUser() {
+    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
   }
 
-  private void setUserAsSystemAdmin() {
-    userSession.logIn("admin").setGlobalPermissions(SYSTEM_ADMIN);
+  private void logInAsAdmin(OrganizationDto org) {
+    userSession.logIn().addOrganizationPermission(org, SYSTEM_ADMIN);
   }
 
-  private void setUserAsProjectAdmin() {
-    userSession.logIn("project-admin")
+  private void logInAsProjectAdmin() {
+    userSession.logIn()
       .addProjectUuidPermissions(ADMIN, project.uuid())
       .addProjectUuidPermissions(USER, project.uuid());
   }
