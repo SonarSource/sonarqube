@@ -25,18 +25,31 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
 public interface UserSession {
+
+  /**
+   * Login of the authenticated user. Returns {@code null}
+   * if {@link #isLoggedIn()} is {@code false}.
+   */
   @CheckForNull
   String getLogin();
 
+  /**
+   * NAme of the authenticated user. Returns {@code null}
+   * if {@link #isLoggedIn()} is {@code false}.
+   */
   @CheckForNull
   String getName();
 
+  /**
+   * Database ID of the authenticated user. Returns {@code null}
+   * if {@link #isLoggedIn()} is {@code false}.
+   */
   @CheckForNull
   Integer getUserId();
 
   /**
    * The groups that the logged-in user is member of. An empty
-   * collection is returned if user is anonymous.
+   * collection is returned if {@link #isLoggedIn()} is {@code false}.
    */
   Collection<GroupDto> getGroups();
 
@@ -45,10 +58,13 @@ public interface UserSession {
    */
   boolean isLoggedIn();
 
+  /**
+   * Whether the user has root privileges.
+   */
   boolean isRoot();
 
   /**
-   * Ensures that user is root in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
+   * Ensures that user is root otherwise throws {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkIsRoot();
 
@@ -58,47 +74,57 @@ public interface UserSession {
   UserSession checkLoggedIn();
 
   /**
-   * Returns {@code true} if the permission is granted on the organization, else {@code false}.
-   * Root status is not verified, so the method may return {@code false} even for root users.
+   * Returns {@code true} if the permission is granted on the organization, otherwise {@code false}.
    *
-   * @see org.sonar.core.permission.GlobalPermissions
+   * If the organization does not exist, then returns {@code false}.
+   *
+   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
+   * organization does not exist.
+   *
+   * @param organizationUuid non-null UUID of organization.
+   * @param permission global permission as defined by {@link org.sonar.core.permission.GlobalPermissions}
    */
   boolean hasOrganizationPermission(String organizationUuid, String permission);
 
   /**
-   * Ensures that the permission is granted to user for the specified organization,
+   * Ensures that {@link #hasOrganizationPermission(String,String)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkOrganizationPermission(String organizationUuid, String permission);
 
   /**
-   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   * If the component doesn't exist and the user doesn't have the permission, throws
-   * a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Returns {@code true} if the permission is granted to user on the component,
+   * otherwise {@code false}.
    *
-   * @see org.sonar.api.web.UserRole for list of project permissions
-   */
-  UserSession checkComponentPermission(String projectPermission, ComponentDto component);
-
-  /**
-   * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   * If the component doesn't exist and the user doesn't have the permission, throws
-   * a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkComponentUuidPermission(String permission, String componentUuid);
-
-  /**
-   * Whether the user has the permission on the component. Returns {@code false}
-   * if the component does not exist in database.
+   * If the component does not exist, then returns {@code false}.
+   *
+   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
+   * component does not exist.
+   *
+   * If the permission is not granted, then the organization permission is _not_ checked.
+   * There's _no_ automatic fallback on {@link #hasOrganizationPermission(String, String)}.
+   *
+   * @param component non-null component.
+   * @param permission project permission as defined by {@link org.sonar.core.permission.ProjectPermissions}
    */
   boolean hasComponentPermission(String permission, ComponentDto component);
 
   /**
-   * Does the user have the given project permission for a component uuid ?
-  
-   * First, check if the user has the global permission (even if the component doesn't exist)
-   * If not, check is the user has the permission on the project of the component
-   * If the component doesn't exist, return false
+   * Using {@link #hasComponentPermission(String, ComponentDto)} is recommended
+   * because it does not have to load project if the referenced component
+   * is not a project.
    */
   boolean hasComponentUuidPermission(String permission, String componentUuid);
+
+  /**
+   * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkComponentPermission(String projectPermission, ComponentDto component);
+
+  /**
+   * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkComponentUuidPermission(String permission, String componentUuid);
 }
