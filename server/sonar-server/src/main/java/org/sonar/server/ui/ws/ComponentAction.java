@@ -50,7 +50,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -61,6 +60,7 @@ import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
@@ -129,7 +129,7 @@ public class ComponentAction implements NavigationWsAction {
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
       if (!(userSession.hasComponentPermission(USER, component) || userSession.hasComponentPermission(ADMIN, component))) {
-        throw new ForbiddenException("Insufficient privileges");
+        throw insufficientPrivilegesException();
       }
       OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
