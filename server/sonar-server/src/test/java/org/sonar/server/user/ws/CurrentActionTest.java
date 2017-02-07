@@ -29,6 +29,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -42,19 +44,28 @@ public class CurrentActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  private DbClient dbClient = db.getDbClient();
 
+  private DbClient dbClient = db.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsActionTester ws;
 
   @Before
   public void before() {
-    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient));
+    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider));
   }
 
   @Test
-  public void json_example() throws Exception {
-    userSessionRule.logIn("obiwan.kenobi").setName("Obiwan Kenobi")
-      .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
+  public void json_example() {
+    userSessionRule.logIn("obiwan.kenobi").setName("Obiwan Kenobi");
+
+    // permissions on default organization
+    userSessionRule
+      .addOrganizationPermission(db.getDefaultOrganization(), GlobalPermissions.SCAN_EXECUTION)
+      .addOrganizationPermission(db.getDefaultOrganization(), GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    // permissions on other organizations are ignored
+    userSessionRule.addOrganizationPermission(db.organizations().insert(), GlobalPermissions.SYSTEM_ADMIN);
+
     UserDto obiwan = db.users().insertUser(
       newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")
         .setLocal(true)
@@ -78,7 +89,9 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void anonymous() throws Exception {
+  public void anonymous() {
+    userSessionRule.anonymous();
+
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("CurrentActionTest/anonymous.json"));

@@ -15,11 +15,8 @@
   ],
   "permissions": {
     "global": [
-      "admin",
       "profileadmin",
-      "gateadmin",
-      "scan",
-      "provisioning"
+      "scan"
     ]
   }
 }
