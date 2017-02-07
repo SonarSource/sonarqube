@@ -20,7 +20,6 @@
 package org.sonar.server.user;
 
 import java.util.Collection;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
@@ -96,11 +95,6 @@ public class ThreadLocalUserSession implements UserSession {
   public UserSession checkLoggedIn() {
     get().checkLoggedIn();
     return this;
-  }
-
-  @Override
-  public List<String> globalPermissions() {
-    return get().globalPermissions();
   }
 
   @Override

@@ -20,7 +20,6 @@
 package org.sonar.server.user;
 
 import java.util.Collection;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
@@ -71,12 +70,6 @@ public interface UserSession {
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkOrganizationPermission(String organizationUuid, String permission);
-
-  /**
-   * @deprecated in 6.3 because of organizations. No replacement yet.
-   */
-  @Deprecated
-  List<String> globalPermissions();
 
   /**
    * Ensures that permission is granted to user, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.

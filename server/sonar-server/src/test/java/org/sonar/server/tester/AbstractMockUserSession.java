@@ -20,8 +20,6 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.HashMultimap;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.sonar.db.component.ComponentDto;
@@ -32,7 +30,6 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
   private final Class<T> clazz;
-  private List<String> globalPermissions = Collections.emptyList();
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private HashMultimap<String, String> permissionsByOrganizationUuid = HashMultimap.create();
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
@@ -40,11 +37,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   protected AbstractMockUserSession(Class<T> clazz) {
     this.clazz = clazz;
-  }
-
-  public T setGlobalPermissions(String... globalPermissions) {
-    this.globalPermissions = Arrays.asList(globalPermissions);
-    return clazz.cast(this);
   }
 
   public T addProjectUuidPermissions(String projectPermission, String... projectUuids) {
@@ -60,11 +52,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     this.projectUuidByComponentUuid.put(componentUuid, projectUuid);
     addProjectUuidPermissions(projectPermission, projectUuid);
     return clazz.cast(this);
-  }
-
-  @Override
-  public List<String> globalPermissions() {
-    return globalPermissions;
   }
 
   @Override

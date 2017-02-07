@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
@@ -100,11 +99,6 @@ public final class DoPrivileged {
       @Override
       public boolean hasOrganizationPermission(String organizationUuid, String permission) {
         return true;
-      }
-
-      @Override
-      public List<String> globalPermissions() {
-        return Collections.emptyList();
       }
 
       @Override

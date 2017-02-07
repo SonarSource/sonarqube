@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +49,6 @@ public class ServerUserSession extends AbstractUserSession {
   private final UserDto userDto;
   private final DbClient dbClient;
   private final Supplier<List<GroupDto>> groups;
-  private List<String> globalPermissions = null;
   private SetMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private SetMultimap<String, String> permissionsByOrganizationUuid;
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
@@ -135,15 +133,6 @@ public class ServerUserSession extends AbstractUserSession {
       }
       return dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
     }
-  }
-
-  @Override
-  public List<String> globalPermissions() {
-    if (globalPermissions == null) {
-      List<String> permissionKeys = dbClient.authorizationDao().selectGlobalPermissions(getLogin());
-      globalPermissions = ImmutableList.copyOf(permissionKeys);
-    }
-    return globalPermissions;
   }
 
   @Override
