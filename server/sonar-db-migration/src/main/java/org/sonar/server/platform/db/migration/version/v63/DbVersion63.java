@@ -44,6 +44,8 @@ public class DbVersion63 implements DbVersion {
       .add(1509, "Populate columns ORGANIZATIONS.DEFAULT_PERM_TEMPLATE_*", PopulateDefaultPermTemplateColumnsOfOrganizations.class)
       .add(1510, "Add ORGANIZATIONS.GUARDED", AddColumnGuardedToOrganizations.class)
       .add(1511, "Populate ORGANIZATIONS.GUARDED", PopulateColumnGuardedOfOrganizations.class)
-      .add(1512, "Make ORGANIZATIONS.GUARDED not nullable", MakeColumnGuardedOfOrganizationsNotNullable.class);
+      .add(1512, "Make ORGANIZATIONS.GUARDED not nullable", MakeColumnGuardedOfOrganizationsNotNullable.class)
+      .add(1513, "Make default organization guarded", MakeDefaultOrganizationGuarded.class)
+    ;
   }
 }

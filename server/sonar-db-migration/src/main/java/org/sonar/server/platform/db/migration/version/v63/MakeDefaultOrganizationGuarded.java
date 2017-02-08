@@ -19,29 +19,25 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class MakeDefaultOrganizationGuarded extends DataChange {
+  private final DefaultOrganizationUuid defaultOrganizationUuid;
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
-
-  @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+  public MakeDefaultOrganizationGuarded(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+    super(db);
+    this.defaultOrganizationUuid = defaultOrganizationUuid;
   }
 
-  @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    String uuid = this.defaultOrganizationUuid.getAndCheck(context);
+    context.prepareUpsert("update organizations set guarded=? where uuid=?")
+      .setBoolean(1, true)
+      .setString(2, uuid)
+      .execute()
+      .commit();
   }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
-  }
-
 }
