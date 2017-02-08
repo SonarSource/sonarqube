@@ -33,7 +33,7 @@ class UserOrganizations extends React.Component {
   mounted: boolean;
 
   props: {
-    anyoneCanCreate: boolean,
+    anyoneCanCreate?: { value: string },
     currentUser: Object,
     children: Object,
     organizations: Array<Organization>,
@@ -61,9 +61,9 @@ class UserOrganizations extends React.Component {
   render () {
     const title = translate('my_account.organizations') + ' - ' + translate('my_account.page');
 
-    const canCreateOrganizations = !this.state.loading &&
-        this.props.anyoneCanCreate ||
-        isUserAdmin(this.props.currentUser);
+    const anyoneCanCreate = this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
+
+    const canCreateOrganizations = !this.state.loading && (anyoneCanCreate || isUserAdmin(this.props.currentUser));
 
     return (
         <div className="account-body account-container">
@@ -100,7 +100,7 @@ class UserOrganizations extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  anyoneCanCreate: getSettingValue(state, 'sonar.organizations.anyoneCanCreate') === 'true',
+  anyoneCanCreate: getSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
   currentUser: getCurrentUser(state),
   organizations: getMyOrganizations(state)
 });
