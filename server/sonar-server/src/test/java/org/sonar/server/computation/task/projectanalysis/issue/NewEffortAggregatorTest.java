@@ -51,11 +51,11 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
 
 public class NewEffortAggregatorTest {
 
-  private static final Period PERIOD = new Period(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
+  private static final Period PERIOD = new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
 
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
   private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();

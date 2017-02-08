@@ -70,7 +70,7 @@ public class SinceXDaysHistoryTest {
   }
 
   private static void initPeriod() {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
+    setServerProperty(orchestrator, "sonar.leak.period", "30");
   }
 
   @AfterClass

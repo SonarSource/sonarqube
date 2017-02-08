@@ -52,7 +52,7 @@ public class TechnicalDebtMeasureVariationTest {
 
   @Test
   public void new_technical_debt_measures_from_new_issues() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     provisionSampleProject();
@@ -75,7 +75,7 @@ public class TechnicalDebtMeasureVariationTest {
 
   @Test
   public void new_technical_debt_measures_from_technical_debt_update_since_previous_analysis() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
 
     // Execute twice analysis
     defineQualityProfile("one-issue-per-file");
@@ -95,7 +95,7 @@ public class TechnicalDebtMeasureVariationTest {
 
   @Test
   public void new_technical_debt_measures_from_technical_debt_update_since_30_days() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
+    setServerProperty(orchestrator, "sonar.leak.period", "30");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     provisionSampleProject();
@@ -123,7 +123,7 @@ public class TechnicalDebtMeasureVariationTest {
    */
   @Test
   public void new_technical_debt_measures_should_never_be_negative() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
 
     // Execute an analysis with a big effort to fix
     defineQualityProfile("one-issue-per-file");

@@ -33,15 +33,14 @@ import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitions {
 
-  /* Time machine periods */
-  public static final String TIMEMACHINE_PERIOD_PREFIX = "sonar.timemachine.period";
-  public static final String TIMEMACHINE_MODE_PREVIOUS_ANALYSIS = "previous_analysis";
-  public static final String TIMEMACHINE_MODE_DATE = "date";
-  public static final String TIMEMACHINE_MODE_VERSION = "version";
-  public static final String TIMEMACHINE_MODE_DAYS = "days";
-  public static final String TIMEMACHINE_MODE_PREVIOUS_VERSION = "previous_version";
+  public static final String LEAK_PERIOD = "sonar.leak.period";
+  public static final String LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS = "previous_analysis";
+  public static final String LEAK_PERIOD_MODE_DATE = "date";
+  public static final String LEAK_PERIOD_MODE_VERSION = "version";
+  public static final String LEAK_PERIOD_MODE_DAYS = "days";
+  public static final String LEAK_PERIOD_MODE_PREVIOUS_VERSION = "previous_version";
 
-  private static final String TIMEMACHINE_DEFAULT_PERIOD_1 = TIMEMACHINE_MODE_PREVIOUS_VERSION;
+  private static final String DEFAULT_LEAK_PERIOD = LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
@@ -207,16 +206,17 @@ public class CorePropertyDefinitions {
         .build(),
 
       // SCANNER
-      PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 1)
+      PropertyDefinition.builder(LEAK_PERIOD)
         .name("Leak Period")
-        .description("Period used to compare measures and track new issues. Values are : <ul><li>Number of days before " +
+        .deprecatedKey("sonar.timemachine.period1")
+        .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
           "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
           "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li>" +
           "<li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
           "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
           " the first one available inside the corresponding time range. </p>" +
           "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
-        .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_1)
+        .defaultValue(DEFAULT_LEAK_PERIOD)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW)

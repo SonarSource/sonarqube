@@ -65,7 +65,7 @@ public class NewDebtRatioMeasureTest {
 
   @Test
   public void new_debt_ratio_is_computed_from_new_debt_and_new_ncloc_count_per_file() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
     defineQualityProfile("one-issue-per-line");
@@ -89,7 +89,7 @@ public class NewDebtRatioMeasureTest {
 
   @Test
   public void compute_new_debt_ratio_using_number_days_in_leak_period() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
+    setServerProperty(orchestrator, "sonar.leak.period", "30");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
     defineQualityProfile("one-issue-per-line");

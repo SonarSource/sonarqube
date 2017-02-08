@@ -42,7 +42,7 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -132,12 +132,12 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, "KEY_VIEW").setUuid("UUID_VIEW").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    periodsHolder.setPeriod(new Period(TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_DATE, "2015-01-01", analysisDate, "u1"));
 
     underTest.execute();
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
-    assertThat(viewSnapshot.getPeriodMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(viewSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
     assertThat(viewSnapshot.getPeriodDate()).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getPeriodModeParameter()).isNotNull();
   }

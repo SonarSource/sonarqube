@@ -32,7 +32,7 @@ import org.sonar.server.computation.task.projectanalysis.period.Period;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
 public class NewEffortCalculatorTest {
 
@@ -44,7 +44,7 @@ public class NewEffortCalculatorTest {
   private static final Duration TEN_DAYS = Duration.create(10 * HOURS_IN_DAY * 60 * 60L);
   private static final long PERIOD_DATE = 150000000L;
   private static final String ANALYSIS_UUID = "u1";
-  private static final Period PERIOD = new Period(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, ANALYSIS_UUID);
+  private static final Period PERIOD = new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, ANALYSIS_UUID);
 
   DefaultIssue issue = new DefaultIssue();
   NewEffortCalculator underTest = new NewEffortCalculator();
