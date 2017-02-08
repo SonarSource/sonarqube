@@ -137,8 +137,7 @@ public class IssueCounter extends IssueVisitor {
   public void onIssue(Component component, DefaultIssue issue) {
     currentCounters.add(issue);
     for (Period period : periodsHolder.getPeriods()) {
-      // Add one second to not take into account issues created during current analysis
-      if (issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L) {
+      if (issue.creationDate().getTime() >= period.getSnapshotDate()) {
         currentCounters.addOnPeriod(issue, period.getIndex());
       }
     }
