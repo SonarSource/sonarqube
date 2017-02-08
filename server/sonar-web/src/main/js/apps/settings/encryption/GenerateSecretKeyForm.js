@@ -75,7 +75,7 @@ export default class GenerateSecretKeyForm extends React.Component {
                 <p className="spacer-bottom">
                   Secret key is required to be able to encrypt properties.
                   {' '}
-                  <a href="http://redirect.sonarsource.com/doc/settings-encryption.html">More information</a>
+                  <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">More information</a>
                 </p>
 
                 <form id="generate-secret-key-form" onSubmit={e => this.handleSubmit(e)}>

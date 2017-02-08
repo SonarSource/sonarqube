@@ -56,7 +56,7 @@ public class PluginWSCommonsTest {
       "  \"license\": \"GNU LGPL 3\"," +
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-      "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
       "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"" +
       "}");
   }
@@ -75,7 +75,7 @@ public class PluginWSCommonsTest {
       "  \"category\":\"cat_1\"" +
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-      "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
       "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
       "}");
   }
@@ -213,7 +213,7 @@ public class PluginWSCommonsTest {
       .setLicense("GNU LGPL 3")
       .setOrganizationName("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
-      .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
+      .setHomepageUrl("https://redirect.sonarsource.com/plugins/scmgit.html")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT");
   }
 

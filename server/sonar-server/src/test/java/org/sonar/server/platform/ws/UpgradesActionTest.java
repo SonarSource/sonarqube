@@ -123,7 +123,7 @@ public class UpgradesActionTest {
       .setName("Views")
       .setCategory("Governance")
       .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.")
-      .setHomepageUrl("http://redirect.sonarsource.com/plugins/views.html")
+      .setHomepageUrl("https://redirect.sonarsource.com/plugins/views.html")
       .setLicense("Commercial")
       .setOrganization("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")

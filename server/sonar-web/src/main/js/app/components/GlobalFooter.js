@@ -55,7 +55,7 @@ class GlobalFooter extends React.Component {
             {' - '}
             <a href="http://www.sonarqube.org/support">Get Support</a>
             {' - '}
-            <a href="http://redirect.sonarsource.com/doc/plugin-library.html">Plugins</a>
+            <a href="https://redirect.sonarsource.com/doc/plugin-library.html">Plugins</a>
             {' - '}
             <Link to="/web_api">Web API</Link>
             {' - '}

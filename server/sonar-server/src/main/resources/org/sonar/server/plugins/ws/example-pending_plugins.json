@@ -9,7 +9,7 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmcvs.html",
+      "homepageUrl": "https://redirect.sonarsource.com/plugins/scmcvs.html",
       "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCCVS",
       "implementationBuild": "f9735104bfa053abc50edad720c79d89a4f5cd72"
     }
@@ -24,7 +24,7 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/csharp.html",
+      "homepageUrl": "https://redirect.sonarsource.com/plugins/csharp.html",
       "issueTrackerUrl": "https://jira.sonarsource.com/browse/SONARCS",
       "implementationBuild": "54d1d010bc1816dc89bf31237ce361921eaf3242"
     }
@@ -39,7 +39,7 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html/sonar-scm-git-plugin",
+      "homepageUrl": "https://redirect.sonarsource.com/plugins/scmgit.html/sonar-scm-git-plugin",
       "issueTrackerUrl": "https://jira.sonarsource.com/browse/SONARSCGIT",
       "implementationBuild": "a713dd64daf8719ba4e7f551f9a1966c62690c17"
     }

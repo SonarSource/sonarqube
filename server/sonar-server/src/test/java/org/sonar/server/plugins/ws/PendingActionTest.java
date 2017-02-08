@@ -144,7 +144,7 @@ public class PendingActionTest {
         "      \"category\":\"cat_1\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
@@ -175,7 +175,7 @@ public class PendingActionTest {
         "      \"license\": \"GNU LGPL 3\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
@@ -314,7 +314,7 @@ public class PendingActionTest {
       .setLicense("GNU LGPL 3")
       .setOrganizationName("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
-      .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
+      .setHomepageUrl("https://redirect.sonarsource.com/plugins/scmgit.html")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT")
       .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   }

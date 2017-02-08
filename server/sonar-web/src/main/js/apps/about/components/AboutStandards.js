@@ -23,7 +23,7 @@ import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
-const link = 'http://redirect.sonarsource.com/doc/rules.html';
+const link = 'https://redirect.sonarsource.com/doc/rules.html';
 
 const owaspTags = 'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
 

@@ -73,7 +73,7 @@ export default class EncryptionForm extends React.Component {
             <div className="big-spacer-top spacer-bottom">
               Note that the secret key can be changed, but all the encrypted properties will have to be updated.
               {' '}
-              <a href="http://redirect.sonarsource.com/doc/settings-encryption.html">More information</a>
+              <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">More information</a>
             </div>
 
             <form id="encryption-new-key-form" onSubmit={e => this.handleGenerateNewKey(e)}>
