@@ -24,15 +24,15 @@ import NotificationsList from './NotificationsList';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 import {
-getProjectNotifications,
-getNotificationChannels,
-getNotificationPerProjectTypes
+  getProjectNotifications,
+  getNotificationChannels,
+  getNotificationPerProjectTypes
 } from '../../../store/rootReducer';
 import type {
-Notification,
-NotificationsState,
-ChannelsState,
-TypesState
+  Notification,
+  NotificationsState,
+  ChannelsState,
+  TypesState
 } from '../../../store/notifications/duck';
 import { addNotification, removeNotification } from './actions';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -41,7 +41,8 @@ class ProjectNotifications extends React.Component {
   props: {
     project: {
       key: string,
-      name: string
+      name: string,
+      organization: string
     },
     notifications: NotificationsState,
     channels: ChannelsState,
@@ -55,7 +56,8 @@ class ProjectNotifications extends React.Component {
       channel,
       type,
       project: this.props.project.key,
-      projectName: this.props.project.name
+      projectName: this.props.project.name,
+      organization: this.props.project.organization
     });
   }
 
