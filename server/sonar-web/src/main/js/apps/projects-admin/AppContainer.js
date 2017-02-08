@@ -29,10 +29,14 @@ class AppContainer extends React.Component {
         this.props.organization.canProvisionProjects :
         this.props.user.permissions.global.indexOf('provisioning') !== -1;
 
+    const topLevelQualifiers = this.props.organization && !this.props.organization.isDefault ?
+        ['TRK'] :
+        this.props.rootQualifiers;
+
     return (
         <Main
             hasProvisionPermission={hasProvisionPermission}
-            topLevelQualifiers={this.props.rootQualifiers}
+            topLevelQualifiers={topLevelQualifiers}
             organization={this.props.organization}/>
     );
   }
