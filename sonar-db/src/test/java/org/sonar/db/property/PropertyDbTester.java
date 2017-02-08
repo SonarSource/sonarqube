@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -30,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
@@ -85,5 +87,21 @@ public class PropertyDbTester {
       propertyDtos.add(newGlobalPropertyDto().setKey(settingBaseKey).setValue(idsValue));
     }
     insertProperties(propertyDtos);
+  }
+
+  public PropertyDbTester verifyInternal(String key, @Nullable String expectedValue) {
+    Optional<String> value = dbClient.internalPropertiesDao().selectByKey(dbSession, key);
+    if (expectedValue == null) {
+      assertThat(value).isEmpty();
+    } else {
+      assertThat(value).hasValue(expectedValue);
+    }
+    return this;
+  }
+
+  public PropertyDbTester insertInternal(String key, String value) {
+    dbClient.internalPropertiesDao().save(dbSession, key, value);
+    dbSession.commit();
+    return this;
   }
 }

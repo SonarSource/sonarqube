@@ -72,6 +72,7 @@ import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.template.PermissionTemplateDbTester;
+import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
@@ -111,6 +112,7 @@ public class DbTester extends ExternalResource {
   private final EventDbTester eventTester;
   private final OrganizationDbTester organizationTester;
   private final PermissionTemplateDbTester permissionTemplateTester;
+  private final PropertyDbTester propertyTester;
   private final QualityGateDbTester qualityGateDbTester;
   private final IssueDbTester issueDbTester;
   private final RuleDbTester ruleDbTester;
@@ -128,6 +130,7 @@ public class DbTester extends ExternalResource {
     this.eventTester = new EventDbTester(this);
     this.organizationTester = new OrganizationDbTester(this);
     this.permissionTemplateTester = new PermissionTemplateDbTester(this);
+    this.propertyTester = new PropertyDbTester(this);
     this.qualityGateDbTester = new QualityGateDbTester(this);
     this.issueDbTester = new IssueDbTester(this);
     this.ruleDbTester = new RuleDbTester(this);
@@ -221,6 +224,10 @@ public class DbTester extends ExternalResource {
 
   public PermissionTemplateDbTester permissionTemplates() {
     return permissionTemplateTester;
+  }
+
+  public PropertyDbTester properties() {
+    return propertyTester;
   }
 
   public QualityGateDbTester qualityGates() {
