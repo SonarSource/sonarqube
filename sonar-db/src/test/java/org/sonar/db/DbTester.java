@@ -177,6 +177,11 @@ public class DbTester extends ExternalResource {
     return this;
   }
 
+  public DbTester enableOrganizations() {
+    properties().insertInternal("organization.enabled", "true");
+    return this;
+  }
+
   @Override
   protected void before() throws Throwable {
     db.start();

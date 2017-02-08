@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.OrganizationValidationImpl;
@@ -68,7 +69,7 @@ public class UpdateActionTest {
     assertThat(action.key()).isEqualTo("update");
     assertThat(action.isPost()).isTrue();
     assertThat(action.description()).isEqualTo("Update an organization.<br/>" +
-      "Require 'Administer System' permission.");
+      "Require 'Administer System' permission. Organization feature must be enabled.");
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
@@ -98,16 +99,45 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_with_UnauthorizedException_when_user_is_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
+  public void request_fails_with_organization_feature_is_disabled() {
+    userSession.logIn();
 
-    wsTester.newRequest()
-      .execute();
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("");
+
+    wsTester.newRequest().execute();
   }
 
   @Test
-  public void request_fails_if_user_does_not_have_any_SYSTEM_ADMIN_permission() {
+  public void request_succeeds_if_user_is_root() {
+    enableOrganizationsAndLogInAsRoot();
+    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+
+    verifyResponseAndDb(executeKeyRequest(dto.getKey(), "ab"), dto, "ab", DATE_2);
+  }
+
+  @Test
+  public void request_succeeds_if_user_is_administrator_of_specified_organization() {
+    enableOrganizations();
+    OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
+    logInAsAdministrator(dto);
+
+    verifyResponseAndDb(executeKeyRequest(dto.getKey(), "ab"), dto, "ab", DATE_2);
+  }
+
+  @Test
+  public void request_fails_with_UnauthorizedException_when_user_is_not_logged_in() {
+    enableOrganizations();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    wsTester.newRequest().execute();
+  }
+
+  @Test
+  public void request_fails_if_user_is_not_root_and_is_not_organization_administrator() {
+    enableOrganizations();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
     userSession.logIn();
 
@@ -118,20 +148,20 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_fails_if_user_has_SYSTEM_ADMIN_permission_on_other_organization() {
-    OrganizationDto dto = dbTester.organizations().insert();
-    userSession.addOrganizationPermission(dbTester.getDefaultOrganization().getUuid(), SYSTEM_ADMIN);
-    userSession.logIn();
+  public void request_fails_if_user_is_administrator_of_another_organization() {
+    enableOrganizations();
+    OrganizationDto org = dbTester.organizations().insert();
+    logInAsAdministrator(dbTester.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeKeyRequest(dto.getKey(), "name");
+    executeKeyRequest(org.getKey(), "name");
   }
 
   @Test
   public void request_fails_if_key_is_missing() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'key' parameter is missing");
@@ -140,16 +170,16 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void request_with_only_key_param_does_not_fail_and_updates_only_updateAt_field() {
+  public void request_with_only_key_param_succeeds_and_updates_only_updateAt_field() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     verifyResponseAndDb(executeKeyRequest(dto.getKey(), null), dto, dto.getName(), DATE_2);
   }
 
   @Test
   public void request_fails_if_name_is_one_char_long() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name 'a' must be at least 2 chars long");
@@ -159,15 +189,15 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_name_is_two_chars_long() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     verifyResponseAndDb(executeKeyRequest(dto.getKey(), "ab"), dto, "ab", DATE_2);
   }
 
   @Test
   public void request_fails_if_name_is_65_chars_long() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name '" + STRING_65_CHARS_LONG + "' must be at most 64 chars long");
@@ -177,8 +207,8 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_name_is_64_char_long() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     String name = STRING_65_CHARS_LONG.substring(0, 64);
 
@@ -187,8 +217,8 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_description_url_and_avatar_are_not_specified() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, null);
     verifyResponseAndDb(response, dto, "bar", DATE_2);
@@ -196,8 +226,8 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_description_url_and_avatar_are_specified() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", "moo", "doo", "boo");
     verifyResponseAndDb(response, dto, "bar", "moo", "doo", "boo", DATE_2);
@@ -205,7 +235,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_description_is_257_chars_long() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -215,8 +245,8 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_description_is_256_chars_long() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
     String description = STRING_257_CHARS_LONG.substring(0, 256);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", description, null, null);
@@ -225,7 +255,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_url_is_257_chars_long() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -235,9 +265,9 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_url_is_256_chars_long() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
     String url = STRING_257_CHARS_LONG.substring(0, 256);
-    giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, url, null);
     verifyResponseAndDb(response, dto, "bar", dto.getDescription(), url, dto.getAvatarUrl(), DATE_2);
@@ -245,7 +275,7 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_if_avatar_is_257_chars_long() {
-    userSession.logIn();
+    enableOrganizationsAndLogInAsRoot();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
@@ -255,8 +285,8 @@ public class UpdateActionTest {
 
   @Test
   public void request_succeeds_if_avatar_is_256_chars_long() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
     String avatar = STRING_257_CHARS_LONG.substring(0, 256);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bar", null, null, avatar);
@@ -265,15 +295,11 @@ public class UpdateActionTest {
 
   @Test
   public void request_removes_optional_parameters_when_associated_parameter_are_empty() {
+    enableOrganizationsAndLogInAsRoot();
     OrganizationDto dto = mockForSuccessfulUpdate(DATE_1, DATE_2);
-    giveUserSystemAdminPermission(dto);
 
     Organizations.UpdateWsResponse response = executeKeyRequest(dto.getKey(), "bla", "", "", "");
     verifyResponseAndDb(response, dto, "bla", null, null, null, DATE_2);
-  }
-
-  private void giveUserSystemAdminPermission(OrganizationDto organizationDto) {
-    userSession.logIn().addOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
   }
 
   private OrganizationDto mockForSuccessfulUpdate(long createdAt, long nextNow) {
@@ -352,4 +378,20 @@ public class UpdateActionTest {
     assertThat(newDto.getUpdatedAt()).isEqualTo(updateAt);
   }
 
+  private void enableOrganizations() {
+    dbTester.enableOrganizations();
+  }
+
+  private void logInAsRoot() {
+    userSession.logIn().setRoot();
+  }
+
+  private void logInAsAdministrator(OrganizationDto organizationDto) {
+    userSession.logIn().addOrganizationPermission(organizationDto.getUuid(), SYSTEM_ADMIN);
+  }
+
+  private void enableOrganizationsAndLogInAsRoot() {
+    enableOrganizations();
+    logInAsRoot();
+  }
 }

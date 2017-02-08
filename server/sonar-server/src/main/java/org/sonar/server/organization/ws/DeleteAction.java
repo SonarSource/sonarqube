@@ -44,13 +44,15 @@ public class DeleteAction implements OrganizationsAction {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ComponentCleanerService componentCleanerService;
+  private final OrganizationsWsSupport support;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService) {
+    ComponentCleanerService componentCleanerService, OrganizationsWsSupport support) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.componentCleanerService = componentCleanerService;
+    this.support = support;
   }
 
   @Override
@@ -58,7 +60,7 @@ public class DeleteAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Delete an organization.<br/>" +
-        "Require 'Administer System' permission on the specified organization.")
+        "Require 'Administer System' permission on the specified organization. Organization feature must be enabled.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -73,10 +75,12 @@ public class DeleteAction implements OrganizationsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String key = request.mandatoryParam(PARAM_KEY);
-    preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
-
     try (DbSession dbSession = dbClient.openSession(false)) {
+      support.checkFeatureEnabled(dbSession);
+
+      String key = request.mandatoryParam(PARAM_KEY);
+      preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
+
       OrganizationDto organizationDto = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, key),
         "Organization with key '%s' not found",

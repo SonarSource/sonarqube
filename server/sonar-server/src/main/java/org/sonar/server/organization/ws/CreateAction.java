@@ -64,7 +64,7 @@ public class CreateAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Create an organization.<br />" +
-        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting).")
+        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization feature must be enabled.")
       .setResponseExample(getClass().getResource("example-create.json"))
       .setInternal(true)
       .setSince("6.2")
@@ -97,6 +97,7 @@ public class CreateAction implements OrganizationsAction {
     String avatar = wsSupport.getAndCheckAvatar(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      wsSupport.checkFeatureEnabled(dbSession);
       OrganizationDto organization = organizationCreation.create(
         dbSession,
         userSession.getUserId().longValue(),

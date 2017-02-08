@@ -59,7 +59,7 @@ public class UpdateAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Update an organization.<br/>" +
-        "Require 'Administer System' permission.")
+        "Require 'Administer System' permission. Organization feature must be enabled.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -76,15 +76,17 @@ public class UpdateAction implements OrganizationsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String key = request.mandatoryParam(PARAM_KEY);
-
-    UpdateOrganizationRequest updateRequest = new UpdateOrganizationRequest(
-      request.getParam(PARAM_NAME, (rqt, paramKey) -> wsSupport.getAndCheckName(rqt)),
-      request.getParam(PARAM_DESCRIPTION, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckDescription(rqt))),
-      request.getParam(PARAM_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckUrl(rqt))),
-      request.getParam(PARAM_AVATAR_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckAvatar(rqt))));
-
     try (DbSession dbSession = dbClient.openSession(false)) {
+      wsSupport.checkFeatureEnabled(dbSession);
+
+      String key = request.mandatoryParam(PARAM_KEY);
+
+      UpdateOrganizationRequest updateRequest = new UpdateOrganizationRequest(
+        request.getParam(PARAM_NAME, (rqt, paramKey) -> wsSupport.getAndCheckName(rqt)),
+        request.getParam(PARAM_DESCRIPTION, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckDescription(rqt))),
+        request.getParam(PARAM_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckUrl(rqt))),
+        request.getParam(PARAM_AVATAR_URL, (rqt, paramKey) -> emptyAsNull(wsSupport.getAndCheckAvatar(rqt))));
+
       OrganizationDto dto = getDto(dbSession, key);
 
       userSession.checkOrganizationPermission(dto.getUuid(), SYSTEM_ADMIN);

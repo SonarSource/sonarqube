@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.property.InternalProperties;
 import org.sonarqube.ws.Organizations;
@@ -122,5 +123,14 @@ public class OrganizationsWsSupport {
   boolean isFeatureEnabled(DbSession dbSession) {
     Optional<String> value = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.ORGANIZATION_ENABLED);
     return value.isPresent() && Boolean.parseBoolean(value.get());
+  }
+
+  /**
+   * Ensures that the organization feature is enabled, otherwise throws {@link BadRequestException}
+   */
+  void checkFeatureEnabled(DbSession dbSession) {
+    if (!isFeatureEnabled(dbSession)) {
+      throw new BadRequestException("Organizations feature is not enabled");
+    }
   }
 }
