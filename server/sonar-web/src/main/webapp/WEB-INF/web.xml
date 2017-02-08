@@ -133,6 +133,10 @@
     <mime-type>image/png</mime-type>
   </mime-mapping>
   <mime-mapping>
+    <extension>ico</extension>
+    <mime-type>image/x-icon</mime-type>
+  </mime-mapping>
+  <mime-mapping>
     <extension>txt</extension>
     <mime-type>text/plain</mime-type>
   </mime-mapping>
