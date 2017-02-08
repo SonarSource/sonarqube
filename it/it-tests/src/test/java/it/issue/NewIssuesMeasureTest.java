@@ -24,7 +24,6 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.WsMeasures;
@@ -33,8 +32,8 @@ import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
-import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -43,16 +42,9 @@ import static util.ItUtils.setServerProperty;
  */
 public class NewIssuesMeasureTest extends AbstractIssueTest {
 
-  @BeforeClass
-  public static void preparePeriodsAndQProfiles() {
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period2", "30");
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period3", "previous_analysis");
-  }
-
   @AfterClass
-  public static void resetPeriods() {
-    ItUtils.resetPeriods(ORCHESTRATOR);
+  public static void resetPeriod() {
+    ItUtils.resetPeriod(ORCHESTRATOR);
   }
 
   @Before
@@ -62,6 +54,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
 
     // Execute an analysis in the past with no issue to have a past snapshot
@@ -74,19 +67,18 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    Map<Integer, Double> newIssues = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations");
-    assertThat(newIssues.get(1)).isEqualTo(17);
-    assertThat(newIssues.get(2)).isEqualTo(17);
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(17);
 
     // second analysis, with exactly the same profile -> no new issues
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    assertThat(getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations").values()).containsOnly(0d, 0d, 0d);
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
   }
 
   @Test
   public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "30");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
@@ -97,9 +89,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // new issues measures should be to 0 on project on 2 periods as new issues has been created
-    Map<Integer, Double> measures = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "sample", "new_violations");
-    assertThat(measures.get(1)).isZero();
-    assertThat(measures.get(2)).isZero();
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample", "new_violations")).isZero();
   }
 
   /**
@@ -107,6 +97,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
    */
   @Test
   public void new_issues_measures_consistent_with_variations() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
@@ -121,19 +112,20 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
 
     Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(ORCHESTRATOR, "sample", "new_violations", "violations", "ncloc");
-    assertThat(measures.get("new_violations").getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getValue).containsOnly("17", "17", "17");
+    assertThat(measures.get("new_violations").getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getValue).containsOnly("17");
 
     Measure violations = measures.get("violations");
     assertThat(parseInt(violations.getValue())).isEqualTo(43);
-    assertThat(violations.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(17, 17, 17);
+    assertThat(violations.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(17);
 
     Measure ncloc = measures.get("ncloc");
     assertThat(parseInt(ncloc.getValue())).isEqualTo(40);
-    assertThat(ncloc.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(16, 16, 16);
+    assertThat(ncloc.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(16);
   }
 
   @Test
   public void new_issues_measures_should_be_correctly_calculated_when_adding_a_new_module() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
 
     // First analysis without module b
@@ -147,8 +139,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile2");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    Map<Integer, Double> periodMeasures = getPeriodMeasureValuesByIndex(ORCHESTRATOR, "com.sonarsource.it.samples:multi-modules-sample", "new_violations");
-    assertThat(periodMeasures.get(1)).isEqualTo(65);
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "com.sonarsource.it.samples:multi-modules-sample", "new_violations")).isEqualTo(65);
   }
 
 }

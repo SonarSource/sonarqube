@@ -36,8 +36,7 @@ import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
-import static util.ItUtils.getMeasureWithVariations;
+import static util.ItUtils.getMeasureWithVariation;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -50,7 +49,7 @@ public class SinceXDaysHistoryTest {
 
   @BeforeClass
   public static void analyseProjectWithHistory() {
-    initPeriods();
+    initPeriod();
 
     orchestrator.resetData();
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
@@ -70,36 +69,33 @@ public class SinceXDaysHistoryTest {
     analyzeProject();
   }
 
-  public static void initPeriods() {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+  private static void initPeriod() {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
   }
 
   @AfterClass
   public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+    ItUtils.resetPeriod(orchestrator);
   }
 
   @Test
   public void check_files_variation() throws Exception {
-    checkMeasure("files", 2, 3);
+    checkMeasure("files", 3);
   }
 
   @Test
   public void check_issues_variation() throws Exception {
-    checkMeasure("violations", 24, 45);
+    checkMeasure("violations", 45);
   }
 
   @Test
   public void check_new_issues_measures() throws Exception {
-    checkMeasure("new_violations", 24, 45);
+    checkMeasure("new_violations", 45);
   }
 
-  private void checkMeasure(String metric, int variation1, int variation2) {
-    WsMeasures.Measure measure = getMeasureWithVariations(orchestrator, PROJECT, metric);
-    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getIndex, periodValue -> parseInt(periodValue.getValue()))
-      .contains(tuple(1, variation1), tuple(2, variation2));
+  private void checkMeasure(String metric, int variation) {
+    WsMeasures.Measure measure = getMeasureWithVariation(orchestrator, PROJECT, metric);
+    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(variation);
   }
 
   private static void analyzeProject() {

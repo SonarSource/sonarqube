@@ -37,10 +37,10 @@ import org.sonar.wsclient.qualitygate.QualityGateCondition;
 import org.sonar.wsclient.qualitygate.UpdateCondition;
 import pageobjects.Navigation;
 import pageobjects.ProjectActivityPage;
-import util.ItUtils;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.resetPeriod;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
@@ -52,16 +52,14 @@ public class QualityGateUiTest {
   private static long DEFAULT_QUALITY_GATE;
 
   @BeforeClass
-  public static void initPeriods() throws Exception {
+  public static void initPeriod() throws Exception {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
   }
 
   @AfterClass
   public static void resetData() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+    resetPeriod(orchestrator);
     qgClient().setDefault(DEFAULT_QUALITY_GATE);
   }
 

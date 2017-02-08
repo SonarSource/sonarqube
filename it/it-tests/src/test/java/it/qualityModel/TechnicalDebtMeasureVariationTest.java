@@ -24,14 +24,12 @@ import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static util.ItUtils.getPeriodMeasureValuesByIndex;
+import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.setServerProperty;
 
 /**
@@ -42,16 +40,9 @@ public class TechnicalDebtMeasureVariationTest {
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
-  @BeforeClass
-  public static void initPeriods() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_analysis");
-  }
-
   @AfterClass
-  public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+  public static void resetPeriod() throws Exception {
+    ItUtils.resetPeriod(orchestrator);
   }
 
   @Before
@@ -61,7 +52,7 @@ public class TechnicalDebtMeasureVariationTest {
 
   @Test
   public void new_technical_debt_measures_from_new_issues() throws Exception {
-    // This test assumes that period 1 is "since previous analysis" and 2 is "over x days"
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     provisionSampleProject();
@@ -74,19 +65,17 @@ public class TechnicalDebtMeasureVariationTest {
     runSampleProjectAnalysis();
 
     // New technical debt only comes from new issues
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
-      .contains(entry(1, 17d), entry(2, 17d));
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(17d);
 
     // Third analysis, with exactly the same profile -> no new issues so no new technical debt
     runSampleProjectAnalysis();
     // No variation => measure is 0 (best value)
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
-      .contains(entry(1, 0d), entry(2, 0d));
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
   }
 
   @Test
   public void new_technical_debt_measures_from_technical_debt_update_since_previous_analysis() throws Exception {
-    // This test assumes that period 1 is "since previous analysis"
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
 
     // Execute twice analysis
     defineQualityProfile("one-issue-per-file");
@@ -97,18 +86,16 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
-      .get(1)).isEqualTo(90);
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(90);
 
     // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
-      .get(1)).isZero();
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
   }
 
   @Test
   public void new_technical_debt_measures_from_technical_debt_update_since_30_days() throws Exception {
-    // This test assumes that period 2 is "over x days"
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     provisionSampleProject();
@@ -123,14 +110,12 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Third analysis, existing issues on OneIssuePerFile will have their technical debt updated with the effort to fix
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
-      .get(2)).isEqualTo(90);
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(90);
 
     // Fourth analysis, with exactly the same profile -> no new issues so no new technical debt since previous analysis but still since 30
     // days
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")
-      .get(2)).isEqualTo(90);
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isEqualTo(90);
   }
 
   /**
@@ -138,7 +123,7 @@ public class TechnicalDebtMeasureVariationTest {
    */
   @Test
   public void new_technical_debt_measures_should_never_be_negative() throws Exception {
-    // This test assumes that period 1 is "since previous analysis" and 2 is "over x days"
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
 
     // Execute an analysis with a big effort to fix
     defineQualityProfile("one-issue-per-file");
@@ -148,8 +133,7 @@ public class TechnicalDebtMeasureVariationTest {
 
     // Execute a second analysis with a smaller effort to fix -> Added technical debt should be 0, not negative
     runSampleProjectAnalysis("sonar.oneIssuePerFile.effortToFix", "10");
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt"))
-      .contains(entry(1, 0d), entry(2, 0d));
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isZero();
   }
 
   private void setSampleProjectQualityProfile(String qualityProfileKey) {

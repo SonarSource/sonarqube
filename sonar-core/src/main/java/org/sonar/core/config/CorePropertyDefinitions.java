@@ -42,10 +42,6 @@ public class CorePropertyDefinitions {
   public static final String TIMEMACHINE_MODE_PREVIOUS_VERSION = "previous_version";
 
   private static final String TIMEMACHINE_DEFAULT_PERIOD_1 = TIMEMACHINE_MODE_PREVIOUS_VERSION;
-  private static final String TIMEMACHINE_DEFAULT_PERIOD_2 = TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-  private static final String TIMEMACHINE_DEFAULT_PERIOD_3 = "30";
-  private static final String TIMEMACHINE_DEFAULT_PERIOD_4 = "";
-  private static final String TIMEMACHINE_DEFAULT_PERIOD_5 = "";
 
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
@@ -224,45 +220,6 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW)
-        .build(),
-
-      PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 2)
-        .name("Period 2")
-        .description("See the property 'Leak Period'")
-        .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_2)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .build(),
-
-      PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 3)
-        .name("Period 3")
-        .description("See the property 'Leak Period'")
-        .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_3)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .build(),
-
-      PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 4)
-        .name("Period 4")
-        .description("Period used to compare measures and track new issues. This property is specific to the project. Values are : " +
-          "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
-          "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
-          "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
-          "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
-          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
-        .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_4)
-        .onlyOnQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .build(),
-
-      PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 5)
-        .name("Period 5")
-        .description("See the property 'Period 4'")
-        .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_5)
-        .onlyOnQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
         .build(),
 
       // CPD

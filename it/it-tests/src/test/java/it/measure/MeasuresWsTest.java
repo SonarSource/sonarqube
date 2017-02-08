@@ -51,15 +51,13 @@ public class MeasuresWsTest {
   WsClient wsClient;
 
   @BeforeClass
-  public static void initPeriods() throws Exception {
+  public static void initPeriod() throws Exception {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
   }
 
   @AfterClass
-  public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+  public static void resetPeriod() throws Exception {
+    ItUtils.resetPeriod(orchestrator);
   }
 
   @Before

@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.util.Date;
-import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,11 +34,10 @@ import pageobjects.Navigation;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.formatDate;
-import static util.ItUtils.getMeasure;
+import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
-import static util.ItUtils.getPeriodMeasureValuesByIndex;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.resetPeriods;
+import static util.ItUtils.resetPeriod;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
@@ -65,41 +63,7 @@ public class DifferentialPeriodsTest {
 
   @After
   public void reset() throws Exception {
-    resetPeriods(orchestrator);
-  }
-
-  /**
-   * SONAR-6787
-   */
-  @Test
-  public void ensure_differential_period_4_and_5_defined_at_project_level_is_taken_into_account() throws Exception {
-    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_analysis");
-    setServerProperty(orchestrator, PROJECT_KEY, "sonar.timemachine.period4", "30");
-    setServerProperty(orchestrator, PROJECT_KEY, "sonar.timemachine.period5", "previous_analysis");
-
-    // Execute an analysis 60 days ago to have a past snapshot without any issues
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -60)));
-
-    // Second analysis, 20 days ago, issues will be created
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -20)));
-
-    // New technical debt only comes from new issues
-    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt");
-    assertThat(periodsMeasure.get(4)).isEqualTo(17);
-    assertThat(periodsMeasure.get(5)).isEqualTo(17);
-
-    // Third analysis, today, with exactly the same profile -> no new issues so no new technical debt
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-
-    // No variation => measure is purged
-    assertThat(getMeasure(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt")).isNull();
+    resetPeriod(orchestrator);
   }
 
   /**
@@ -125,9 +89,8 @@ public class DifferentialPeriodsTest {
     // Third analysis -> There's no new issue from previous analysis
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    // Project should have 17 new issues for period 1
-    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, PROJECT_KEY, "violations");
-    assertThat(periodsMeasure.get(1)).isEqualTo(17);
+    // Project should have 17 new issues for leak period
+    assertThat(getLeakPeriodValue(orchestrator, PROJECT_KEY, "violations")).isEqualTo(17);
 
     // Check on ui that it's possible to define leak period on project
     Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings("sample")
@@ -156,8 +119,7 @@ public class DifferentialPeriodsTest {
       "sonar.modules", "module_a,module_b");
 
     // Variation on module b should exist
-    Map<Integer, Double> periodsMeasure = getPeriodMeasureValuesByIndex(orchestrator, MULTI_MODULE_PROJECT_KEY + ":module_b", "ncloc");
-    assertThat(periodsMeasure.get(1)).isEqualTo(24);
+    assertThat(getLeakPeriodValue(orchestrator, MULTI_MODULE_PROJECT_KEY + ":module_b", "ncloc")).isEqualTo(24);
   }
 
   @Test
@@ -197,8 +159,8 @@ public class DifferentialPeriodsTest {
       "sonar.scm.provider", "xoo", "sonar.scm.disabled", "false");
 
     // New lines measures is zero
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, projectKey, "new_lines").get(1)).isEqualTo(0);
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, projectKey, "new_lines_to_cover").get(1)).isEqualTo(0);
+    assertThat(getLeakPeriodValue(orchestrator, projectKey, "new_lines")).isEqualTo(0);
+    assertThat(getLeakPeriodValue(orchestrator, projectKey, "new_lines_to_cover")).isEqualTo(0);
   }
 
   private void assertNoMeasures(String projectKey, String... metrics) {

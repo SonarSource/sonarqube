@@ -45,7 +45,7 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.resetEmailSettings;
-import static util.ItUtils.resetPeriods;
+import static util.ItUtils.resetPeriod;
 import static util.ItUtils.setServerProperty;
 
 public class QualityGateNotificationTest {
@@ -67,8 +67,6 @@ public class QualityGateNotificationTest {
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
 
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
     resetEmailSettings(orchestrator);
 
     smtpServer = new Wiser(0);
@@ -79,7 +77,7 @@ public class QualityGateNotificationTest {
   public static void resetData() throws Exception {
     qgClient().setDefault(DEFAULT_QUALITY_GATE);
 
-    resetPeriods(orchestrator);
+    resetPeriod(orchestrator);
     resetEmailSettings(orchestrator);
 
     if (smtpServer != null) {

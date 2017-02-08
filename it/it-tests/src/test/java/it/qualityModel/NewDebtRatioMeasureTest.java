@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.Date;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,8 +34,8 @@ import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static util.ItUtils.formatDate;
-import static util.ItUtils.getPeriodMeasureValuesByIndex;
-import static util.ItUtils.resetPeriods;
+import static util.ItUtils.getLeakPeriodValue;
+import static util.ItUtils.resetPeriod;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
 
@@ -56,7 +55,7 @@ public class NewDebtRatioMeasureTest {
 
   @AfterClass
   public static void reset() throws Exception {
-    resetPeriods(orchestrator);
+    resetPeriod(orchestrator);
   }
 
   @Before
@@ -67,7 +66,6 @@ public class NewDebtRatioMeasureTest {
   @Test
   public void new_debt_ratio_is_computed_from_new_debt_and_new_ncloc_count_per_file() throws Exception {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
     defineQualityProfile("one-issue-per-line");
@@ -81,22 +79,44 @@ public class NewDebtRatioMeasureTest {
     // run analysis on the day after of second commit 'one-issue-per-line' profile*
     // => 3 new issues will be created
     runSampleProjectAnalysis("v2", "sonar.projectDate", formatDate(addDays(SECOND_COMMIT_DATE, 1)));
-    assertNewDebtRatio(4.44, 4.44);
+    assertNewDebtRatio(4.44);
 
     // run analysis on the day after of third commit 'one-issue-per-line' profile*
     // => 4 new issues will be created
     runSampleProjectAnalysis("v3", "sonar.projectDate", formatDate(addDays(THIRD_COMMIT_DATE, 1)));
-    assertNewDebtRatio(4.17, 4.28);
+    assertNewDebtRatio(4.17);
+  }
+
+  @Test
+  public void compute_new_debt_ratio_using_number_days_in_leak_period() throws Exception {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "30");
+
+    // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
+    defineQualityProfile("one-issue-per-line");
+    provisionSampleProject();
+    setSampleProjectQualityProfile("one-issue-per-line");
+    runSampleProjectAnalysis("v1", "sonar.projectDate", formatDate(addDays(FIRST_COMMIT_DATE, 1)));
+
+    // first analysis, no previous snapshot => periods not resolved => no value
+    assertNoNewDebtRatio();
+
+    // run analysis on the day after of second commit 'one-issue-per-line' profile*
+    // => 3 new issues will be created
+    runSampleProjectAnalysis("v2", "sonar.projectDate", formatDate(addDays(SECOND_COMMIT_DATE, 1)));
+    assertNewDebtRatio(4.44);
+
+    // run analysis on the day after of third commit 'one-issue-per-line' profile*
+    // => previous 3 issues plus 4 new issues will be taking into account
+    runSampleProjectAnalysis("v3", "sonar.projectDate", formatDate(addDays(THIRD_COMMIT_DATE, 1)));
+    assertNewDebtRatio(4.28);
   }
 
   private void assertNoNewDebtRatio() {
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY)).isEmpty();
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY)).isZero();
   }
 
-  private void assertNewDebtRatio(@Nullable Double valuePeriod1, @Nullable Double valuePeriod2) {
-    Map<Integer, Double> newTechnicalDebt = getPeriodMeasureValuesByIndex(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY);
-    assertThat(newTechnicalDebt.get(1)).isEqualTo(valuePeriod1, within(0.01));
-    assertThat(newTechnicalDebt.get(2)).isEqualTo(valuePeriod2, within(0.01));
+  private void assertNewDebtRatio(@Nullable Double valuePeriod) {
+    assertThat(getLeakPeriodValue(orchestrator, "sample:src/main/xoo/sample/Sample.xoo", NEW_DEBT_RATIO_METRIC_KEY)).isEqualTo(valuePeriod, within(0.01));
   }
 
   private void setSampleProjectQualityProfile(String qualityProfileKey) {

@@ -62,7 +62,7 @@ public class TimeMachineTest {
   @BeforeClass
   public static void initialize() {
     orchestrator.resetData();
-    initPeriods();
+    initPeriod();
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
@@ -72,15 +72,13 @@ public class TimeMachineTest {
     wsMeasures = newAdminWsClient(orchestrator).measures();
   }
 
-  public static void initPeriods() {
+  private static void initPeriod() {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
   }
 
   @AfterClass
-  public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+  public static void resetPeriod() throws Exception {
+    ItUtils.resetPeriod(orchestrator);
   }
 
   private static BuildResult analyzeProject(String path, String date) {

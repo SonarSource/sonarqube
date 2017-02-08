@@ -35,11 +35,10 @@ import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonarqube.ws.WsMeasures.Measure;
 import static org.sonarqube.ws.WsMeasures.PeriodValue;
-import static util.ItUtils.getMeasureWithVariations;
-import static util.ItUtils.getPeriodMeasureValuesByIndex;
+import static util.ItUtils.getLeakPeriodValue;
+import static util.ItUtils.getMeasureWithVariation;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
@@ -50,15 +49,13 @@ public class SincePreviousVersionHistoryTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @BeforeClass
-  public static void initPeriods() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
-    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+  public static void initPeriod() throws Exception {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_version");
   }
 
   @AfterClass
-  public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriods(orchestrator);
+  public static void resetPeriod() throws Exception {
+    ItUtils.resetPeriod(orchestrator);
   }
 
   private static void analyzeProject(String version) {
@@ -104,16 +101,12 @@ public class SincePreviousVersionHistoryTest {
     analyzeProject("1.0-SNAPSHOT");
     analyzeProject("1.0-SNAPSHOT");
 
-    Measure measure = getMeasureWithVariations(orchestrator, PROJECT, "files");
+    Measure measure = getMeasureWithVariation(orchestrator, PROJECT, "files");
 
     // There are 4 files
     assertThat(parseInt(measure.getValue())).isEqualTo(4);
-    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(PeriodValue::getIndex, PeriodValue::getValue)
-      .contains(
-        // nothing changed in the previous analysis
-        tuple(1, "0"),
-        // but 2 files were added since the first analysis which was version 0.9
-        tuple(3, "2"));
+    // 2 files were added since the first analysis which was version 0.9
+    assertThat(measure.getPeriods().getPeriodsValueList()).extracting(PeriodValue::getValue).contains("2");
   }
 
   /**
@@ -126,15 +119,15 @@ public class SincePreviousVersionHistoryTest {
     // Analyze project by excluding some files
     analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", toStringDate(DateUtils.addDays(now, -2)));
     // No difference measure after first analysis
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isNull();
+    assertThat(getLeakPeriodValue(orchestrator, PROJECT, "files")).isNull();
 
     analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(DateUtils.addDays(now, -1)));
     // No new version, first analysis is used -> 2 new files
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isEqualTo(2);
+    assertThat(getLeakPeriodValue(orchestrator, PROJECT, "files")).isEqualTo(2);
 
     analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(now));
     // Still no new version, first analysis is used -> 2 new files
-    assertThat(getPeriodMeasureValuesByIndex(orchestrator, PROJECT, "files").get(3)).isEqualTo(2);
+    assertThat(getLeakPeriodValue(orchestrator, PROJECT, "files")).isEqualTo(2);
   }
 
 }

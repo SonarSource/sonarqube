@@ -251,8 +251,8 @@ public class ItUtils {
       "email.smtp_password.secured", "email.from", "email.prefix");
   }
 
-  public static void resetPeriods(Orchestrator orchestrator) {
-    resetSettings(orchestrator, null, "sonar.timemachine.period1", "sonar.timemachine.period2", "sonar.timemachine.period3");
+  public static void resetPeriod(Orchestrator orchestrator) {
+    resetSettings(orchestrator, null, "sonar.timemachine.period1");
   }
 
   @CheckForNull
@@ -287,7 +287,7 @@ public class ItUtils {
   }
 
   @CheckForNull
-  public static Measure getMeasureWithVariations(Orchestrator orchestrator, String componentKey, String metricKey) {
+  public static Measure getMeasureWithVariation(Orchestrator orchestrator, String componentKey, String metricKey) {
     WsMeasures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentWsRequest()
       .setComponentKey(componentKey)
       .setMetricKeys(singletonList(metricKey))
@@ -307,11 +307,12 @@ public class ItUtils {
   }
 
   /**
-   * Return period values as string by period index (from 1 to 5)
+   * Return leak period value
    */
-  public static Map<Integer, Double> getPeriodMeasureValuesByIndex(Orchestrator orchestrator, String componentKey, String metricKey) {
-    return getMeasureWithVariations(orchestrator, componentKey, metricKey).getPeriods().getPeriodsValueList().stream()
-      .collect(Collectors.toMap(WsMeasures.PeriodValue::getIndex, measure -> parseDouble(measure.getValue())));
+  @CheckForNull
+  public static Double getLeakPeriodValue(Orchestrator orchestrator, String componentKey, String metricKey) {
+    List<WsMeasures.PeriodValue> periodsValueList = getMeasureWithVariation(orchestrator, componentKey, metricKey).getPeriods().getPeriodsValueList();
+    return periodsValueList.size() > 0 ? Double.parseDouble(periodsValueList.get(0).getValue()) : null;
   }
 
   @CheckForNull
