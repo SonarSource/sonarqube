@@ -107,11 +107,13 @@ public class SearchActionTest {
       .setName("Bar Company")
       .setDescription("The Bar company produces quality software too.")
       .setUrl("https://www.bar.com")
-      .setAvatarUrl("https://www.bar.com/logo.png"));
+      .setAvatarUrl("https://www.bar.com/logo.png")
+      .setGuarded(false));
     insertOrganization(new OrganizationDto()
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey("foo-company")
-      .setName("Foo Company"));
+      .setName("Foo Company")
+      .setGuarded(true));
 
     String response = executeJsonRequest(null, null);
 
@@ -199,14 +201,14 @@ public class SearchActionTest {
 
     // verify paging
     assertThat(executeRequest(1, 1, "key-1", "key-3", "key-5"))
-        .extracting(Organization::getKey)
-        .containsExactly("key-5");
+      .extracting(Organization::getKey)
+      .containsExactly("key-5");
     assertThat(executeRequest(1, 2, "key-1", "key-3", "key-5"))
-        .extracting(Organization::getKey)
-        .containsExactly("key-5", "key-1");
+      .extracting(Organization::getKey)
+      .containsExactly("key-5", "key-1");
     assertThat(executeRequest(2, 2, "key-1", "key-3", "key-5"))
-        .extracting(Organization::getKey)
-        .containsExactly("key-3");
+      .extracting(Organization::getKey)
+      .containsExactly("key-3");
   }
 
   @Test

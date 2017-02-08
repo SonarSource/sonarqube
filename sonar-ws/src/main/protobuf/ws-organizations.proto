@@ -45,4 +45,5 @@ message Organization {
   optional string description = 3;
   optional string url = 4;
   optional string avatar = 5;
+  optional bool guarded = 6;
 }

@@ -2,14 +2,16 @@
   "organizations": [
     {
       "key": "foo-company",
-      "name": "Foo Company"
+      "name": "Foo Company",
+      "guarded": true
     },
     {
       "key": "bar-company",
       "name": "Bar Company",
       "description": "The Bar company produces quality software too.",
       "url": "https://www.bar.com",
-      "avatar": "https://www.bar.com/logo.png"
+      "avatar": "https://www.bar.com/logo.png",
+      "guarded": false
     }
   ]
 }
