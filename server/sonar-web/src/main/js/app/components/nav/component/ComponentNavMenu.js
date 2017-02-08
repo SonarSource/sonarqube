@@ -278,6 +278,10 @@ export default class ComponentNavMenu extends React.Component {
   renderDeletionLink () {
     const { qualifier } = this.props.component;
 
+    if (!this.props.conf.showSettings) {
+      return null;
+    }
+
     if (qualifier !== 'TRK' && qualifier !== 'VW') {
       return null;
     }

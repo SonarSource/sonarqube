@@ -64,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -314,6 +315,17 @@ public class ComponentActionTest {
       .addOrganizationPermission(project.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
 
     executeAndVerify(project.key(), "return_configuration_for_quality_profile_admin.json");
+  }
+
+  @Test
+  public void return_configuration_for_quality_gate_admin() throws Exception {
+    init();
+    componentDbTester.insertComponent(project);
+    userSessionRule.logIn()
+      .addProjectUuidPermissions(UserRole.USER, project.uuid())
+      .addOrganizationPermission(project.getOrganizationUuid(), QUALITY_GATE_ADMIN);
+
+    executeAndVerify(project.key(), "return_configuration_for_quality_gate_admin.json");
   }
 
   @Test
