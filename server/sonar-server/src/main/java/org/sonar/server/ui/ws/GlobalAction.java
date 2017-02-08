@@ -35,6 +35,7 @@ import org.sonar.db.dialect.H2;
 import org.sonar.server.ui.PageRepository;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
+import static org.sonar.core.config.WebConstants.SONARQUBE_DOT_COM_ENABLED;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
@@ -49,6 +50,7 @@ public class GlobalAction implements NavigationWsAction {
     SONAR_LF_ENABLE_GRAVATAR,
     SONAR_LF_GRAVATAR_SERVER_URL,
     SONAR_UPDATECENTER_ACTIVATE,
+    SONARQUBE_DOT_COM_ENABLED,
     RATING_GRID);
 
   private final PageRepository pageRepository;

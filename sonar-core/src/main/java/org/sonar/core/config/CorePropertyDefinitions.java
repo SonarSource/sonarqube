@@ -192,7 +192,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
-      PropertyDefinition.builder("sonar.lf.aboutText")
+      PropertyDefinition.builder(WebConstants.SONAR_LF_ABOUT_TEXT)
         .name("About page text")
         .description("Optional text that is displayed on the About page. Supports html.")
         .category(CoreProperties.CATEGORY_GENERAL)
