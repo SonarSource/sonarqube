@@ -19,8 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -63,7 +63,7 @@ public class CurrentAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      Optional<UserDto> user = Optional.absent();
+      Optional<UserDto> user = Optional.empty();
       Collection<String> groups = emptyList();
       if (userSession.isLoggedIn()) {
         user = selectCurrentUser(dbSession);
@@ -76,7 +76,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private Optional<UserDto> selectCurrentUser(DbSession dbSession) {
-    return Optional.fromNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
+    return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
   }
 
   private Collection<String> selectGroups(DbSession dbSession) {
@@ -142,7 +142,7 @@ public class CurrentAction implements UsersWsAction {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     GlobalPermissions.ALL.stream()
       .filter(permission -> userSession.hasOrganizationPermission(defaultOrganizationUuid, permission))
-      .forEach(permission -> json.value(permission));
+      .forEach(json::value);
 
     json.endArray();
   }
