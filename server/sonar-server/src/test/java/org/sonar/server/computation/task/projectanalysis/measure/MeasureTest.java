@@ -252,11 +252,6 @@ public class MeasureTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void newMeasureBuilder_setVariations_throws_NPE_if_arg_is_null() {
-    newMeasureBuilder().setVariations(null);
-  }
-
-  @Test(expected = NullPointerException.class)
   public void newMeasureBuilder_setDescription_throws_NPE_if_arg_is_null() {
     newMeasureBuilder().setDescription(null);
   }
@@ -264,11 +259,6 @@ public class MeasureTest {
   @Test(expected = NullPointerException.class)
   public void updateMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
     Measure.updatedMeasureBuilder(newMeasureBuilder().createNoValue()).setQualityGateStatus(null);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void updateMeasureBuilder_setVariations_throws_NPE_if_arg_is_null() {
-    Measure.updatedMeasureBuilder(newMeasureBuilder().createNoValue()).setVariations(null);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -280,9 +270,7 @@ public class MeasureTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void updateMeasureBuilder_setVariations_throws_USO_if_measure_already_has_Variations() {
-    MeasureVariations variations = new MeasureVariations(1d);
-
-    Measure.updatedMeasureBuilder(newMeasureBuilder().setVariations(variations).createNoValue()).setVariations(variations);
+    Measure.updatedMeasureBuilder(newMeasureBuilder().setVariation(1d).createNoValue()).setVariation(2d);
   }
 
   @Test

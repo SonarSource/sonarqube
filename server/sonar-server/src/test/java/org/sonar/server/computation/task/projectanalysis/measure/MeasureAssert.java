@@ -249,16 +249,6 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     }
   }
 
-  public MeasureAssert hasNoVariations() {
-    isNotNull();
-
-    if (actual.hasVariations()) {
-      failWithMessage("Expected Measure to have a no Variations but it did");
-    }
-
-    return this;
-  }
-
   public MeasureAssert hasVariation(double expected) {
     isNotNull();
     hasVariation();

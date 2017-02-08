@@ -44,8 +44,8 @@ public class MeasureToMeasureDto {
     out.setMetricId(metric.getId());
     out.setComponentUuid(component.getUuid());
     out.setAnalysisUuid(analysisMetadataHolder.getUuid());
-    if (measure.hasVariations()) {
-      setVariation(out, measure.getVariations());
+    if (measure.hasVariation()) {
+      out.setVariation(measure.getVariation());
     }
     if (measure.hasQualityGateStatus()) {
       setAlert(out, measure.getQualityGateStatus());
@@ -58,10 +58,6 @@ public class MeasureToMeasureDto {
     out.setValue(valueAsDouble(measure));
     out.setData(data(measure));
     return out;
-  }
-
-  private static void setVariation(MeasureDto measureDto, MeasureVariations variations) {
-    measureDto.setVariation(variations.hasVariation1() ? variations.getVariation1() : null);
   }
 
   private static void setAlert(MeasureDto measureDto, QualityGateStatus qualityGateStatus) {

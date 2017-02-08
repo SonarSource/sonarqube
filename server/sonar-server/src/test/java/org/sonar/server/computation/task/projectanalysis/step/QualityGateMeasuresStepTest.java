@@ -42,7 +42,6 @@ import org.sonar.server.computation.task.projectanalysis.measure.qualitygatedeta
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.ConditionStatus;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.EvaluationResult;
@@ -63,7 +62,6 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.OK;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.WARN;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class QualityGateMeasuresStepTest {
   private static final MetricImpl INT_METRIC_1 = createIntMetric(1);
@@ -301,7 +299,7 @@ public class QualityGateMeasuresStepTest {
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder()
-      .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, "u1"), rawValue).build())
+      .setVariation(rawValue)
       .create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 

@@ -44,7 +44,7 @@ public class MeasureToMeasureDtoTest {
   private static final int SOME_COMPONENT_ID = 951;
   private static final String SOME_DATA = "some_data";
   private static final String SOME_STRING = "some_string";
-  private static final MeasureVariations SOME_VARIATIONS = new MeasureVariations(1d);
+  private static final double SOME_VARIATIONS = 1d;
   private static final MetricImpl SOME_BOOLEAN_METRIC = new MetricImpl(1, "1", "1", Metric.MetricType.BOOL);
   private static final MetricImpl SOME_INT_METRIC = new MetricImpl(2, "2", "2", Metric.MetricType.INT);
   private static final MetricImpl SOME_LONG_METRIC = new MetricImpl(3, "3", "3", Metric.MetricType.DISTRIB);
@@ -100,7 +100,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_returns_Dto_with_variation_if_Measure_has_MeasureVariations() {
-    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().setVariations(SOME_VARIATIONS).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT);
+    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().setVariation(SOME_VARIATIONS).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT);
 
     assertThat(measureDto.getVariation()).isEqualTo(1d);
   }

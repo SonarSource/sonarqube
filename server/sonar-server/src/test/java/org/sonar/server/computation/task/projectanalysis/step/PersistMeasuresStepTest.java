@@ -59,7 +59,6 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class PersistMeasuresStepTest extends BaseStepTest {
 
@@ -259,10 +258,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     measureRepository.addRawMeasure(ROOT_REF, DOUBLE_METRIC_KEY,
       newMeasureBuilder()
-        .setVariations(
-          newMeasureVariationsBuilder()
-            .setVariation(createPeriod(), 1.1d)
-            .build())
+        .setVariation(1.1d)
         .create(10d, 1));
 
     underTest.execute();

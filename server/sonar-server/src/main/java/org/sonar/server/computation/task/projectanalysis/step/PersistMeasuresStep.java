@@ -129,7 +129,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
     @Override
     public boolean apply(@Nonnull Measure input) {
-      return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariations() || input.getData() != null;
+      return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariation() || input.getData() != null;
     }
   }
 

@@ -65,15 +65,7 @@ public class BestValueOptimization implements Predicate<Measure> {
   }
 
   private static boolean hasNoVariation(Measure measure, Double bestValue) {
-    return !measure.hasVariations() || hasOnlyZeroVariations(measure.getVariations(), bestValue);
-  }
-
-  private static boolean hasOnlyZeroVariations(MeasureVariations variations, Double bestValue) {
-    return (!variations.hasVariation1() || isVariationEmptyOrBestValue(variations.getVariation1(), bestValue))
-      && (!variations.hasVariation2() || isVariationEmptyOrBestValue(variations.getVariation2(), bestValue))
-      && (!variations.hasVariation3() || isVariationEmptyOrBestValue(variations.getVariation3(), bestValue))
-      && (!variations.hasVariation4() || isVariationEmptyOrBestValue(variations.getVariation4(), bestValue))
-      && (!variations.hasVariation5() || isVariationEmptyOrBestValue(variations.getVariation5(), bestValue));
+    return !measure.hasVariation() || isVariationEmptyOrBestValue(measure.getVariation(), bestValue);
   }
 
   private static boolean isVariationEmptyOrBestValue(double variation, Double bestValue) {

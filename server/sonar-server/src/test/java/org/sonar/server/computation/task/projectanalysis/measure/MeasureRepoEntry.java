@@ -103,24 +103,8 @@ public final class MeasureRepoEntry {
   }
 
   private static boolean equalsByVariation(Measure measure, Measure measure1) {
-    if (measure.hasVariations() != measure1.hasVariations()) {
-      return false;
-    }
-    if (!measure.hasVariations()) {
-      return true;
-    }
-    MeasureVariations variations = measure.getVariations();
-    MeasureVariations variations1 = measure1.getVariations();
-    for (int i = 1; i <= 5; i++) {
-      if (variations.hasVariation(i) != variations1.hasVariation(i)) {
-        return false;
-      }
-      if (variations.hasVariation(i)
-          && Double.compare(scale(variations.getVariation(i)), scale(variations1.getVariation(i))) != 0) {
-        return false;
-      }
-    }
-    return true;
+    return measure.hasVariation() == measure1.hasVariation() && (!measure.hasVariation()
+      || Double.compare(scale(measure.getVariation()), scale(measure1.getVariation())) == 0);
   }
 
   private static final int DOUBLE_PRECISION = 1;

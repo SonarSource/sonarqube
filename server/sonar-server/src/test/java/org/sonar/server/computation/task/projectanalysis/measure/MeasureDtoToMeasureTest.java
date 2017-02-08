@@ -300,13 +300,13 @@ public class MeasureDtoToMeasureTest {
   @Test
   @UseDataProvider("all_types_MeasureDtos")
   public void toMeasure_creates_no_MeasureVariation_if_dto_has_none_whichever_the_ValueType(MeasureDto measureDto, Metric metric) {
-    assertThat(underTest.toMeasure(measureDto, metric).get().hasVariations()).isFalse();
+    assertThat(underTest.toMeasure(measureDto, metric).get().hasVariation()).isFalse();
   }
 
   @Test
   @UseDataProvider("all_types_MeasureDtos")
   public void toMeasure_creates_MeasureVariation_and_maps_the_right_one(MeasureDto builder, Metric metric) {
-    assertThat(underTest.toMeasure(builder.setVariation(1d), metric).get().getVariations().getVariation1()).isEqualTo(1);
+    assertThat(underTest.toMeasure(builder.setVariation(1d), metric).get().getVariation()).isEqualTo(1);
   }
 
   @Test
@@ -317,7 +317,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_STRING_METRIC);
 
-    assertThat(measure.get().getVariations().getVariation1()).isEqualTo(2);
+    assertThat(measure.get().getVariation()).isEqualTo(2);
   }
 
   @Test

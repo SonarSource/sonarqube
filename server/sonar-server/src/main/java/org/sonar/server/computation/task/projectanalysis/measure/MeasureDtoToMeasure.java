@@ -117,17 +117,13 @@ public class MeasureDtoToMeasure {
       }
     }
     if (hasAnyVariation(measureDto)) {
-      builder.setVariations(createVariations(measureDto));
+      builder.setVariation(measureDto.getVariation());
     }
     return builder;
   }
 
   private static boolean hasAnyVariation(MeasureDto measureDto) {
     return measureDto.getVariation() != null;
-  }
-
-  private static MeasureVariations createVariations(MeasureDto measureDto) {
-    return new MeasureVariations(measureDto.getVariation());
   }
 
 }

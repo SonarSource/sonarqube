@@ -27,7 +27,6 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.task.projectanalysis.component.Developer;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -81,24 +80,7 @@ public final class Measure {
   @CheckForNull
   private final QualityGateStatus qualityGateStatus;
   @CheckForNull
-  private final MeasureVariations variations;
-
-  /**
-   * @deprecated {{@link #Measure(ValueType, Developer, Double, String, Level, String, QualityGateStatus, Double)}} should be used instead
-   */
-  @Deprecated
-  private Measure(ValueType valueType, @Nullable Developer developer,
-    @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
-    @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
-    this.valueType = valueType;
-    this.developer = developer;
-    this.value = value;
-    this.data = data;
-    this.dataLevel = dataLevel;
-    this.description = description;
-    this.qualityGateStatus = qualityGateStatus;
-    this.variations = variations;
-  }
+  private final Double variation;
 
   private Measure(ValueType valueType, @Nullable Developer developer,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
@@ -110,7 +92,7 @@ public final class Measure {
     this.dataLevel = dataLevel;
     this.description = description;
     this.qualityGateStatus = qualityGateStatus;
-    this.variations = variation != null ? createLeakVariation(variation) : null;
+    this.variation = variation;
   }
 
   public static NewMeasureBuilder newMeasureBuilder() {
@@ -125,7 +107,7 @@ public final class Measure {
     private Developer developer;
     private String description;
     private QualityGateStatus qualityGateStatus;
-    private MeasureVariations variations;
+    private Double variation;
 
     /**
      * Sets the developer this measure is associated to.
@@ -151,22 +133,13 @@ public final class Measure {
       return this;
     }
 
-    /**
-     * @deprecated as only one period is now available. Use {@link #hasVariation()} instead
-     */
-    @Deprecated
-    public NewMeasureBuilder setVariations(MeasureVariations variations) {
-      this.variations = requireNonNull(variations, "Variations can not be set to null");
-      return this;
-    }
-
     public NewMeasureBuilder setVariation(double variation) {
-      this.variations = createLeakVariation(variation);
+      this.variation = variation;
       return this;
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.BOOLEAN, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variation);
     }
 
     public Measure create(boolean value) {
@@ -174,7 +147,7 @@ public final class Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, developer, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.INT, developer, (double) value, data, null, description, qualityGateStatus, variation);
     }
 
     public Measure create(int value) {
@@ -182,7 +155,7 @@ public final class Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, developer, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.LONG, developer, (double) value, data, null, description, qualityGateStatus, variation);
     }
 
     public Measure create(long value) {
@@ -192,7 +165,7 @@ public final class Measure {
     public Measure create(double value, int decimalScale, @Nullable String data) {
       checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
-      return new Measure(ValueType.DOUBLE, developer, scaledValue, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.DOUBLE, developer, scaledValue, data, null, description, qualityGateStatus, variation);
     }
 
     public Measure create(double value, int decimalScale) {
@@ -200,15 +173,15 @@ public final class Measure {
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, developer, null, requireNonNull(value), null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.STRING, developer, null, requireNonNull(value), null, description, qualityGateStatus, variation);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, developer, null, null, requireNonNull(level), description, qualityGateStatus, variations);
+      return new Measure(ValueType.LEVEL, developer, null, null, requireNonNull(level), description, qualityGateStatus, variation);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, developer, null, null, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.NO_VALUE, developer, null, null, null, description, qualityGateStatus, variation);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -220,7 +193,7 @@ public final class Measure {
   public static final class UpdateMeasureBuilder {
     private final Measure source;
     private QualityGateStatus qualityGateStatus;
-    private MeasureVariations variations;
+    private Double variation;
 
     public UpdateMeasureBuilder(Measure source) {
       this.source = requireNonNull(source, "Can not create a measure from null");
@@ -241,31 +214,15 @@ public final class Measure {
     }
 
     /**
-     * Sets the MeasureVariations of the updated Measure to create.
-     *
-     * @throws NullPointerException if the specified {@link MeasureVariations} is {@code null}
-     * @throws UnsupportedOperationException if the source measure already has a {@link MeasureVariations}
-     * @deprecated as only one period is now available. Use {@link #setVariation(double)} instead
-     */
-    @Deprecated
-    public UpdateMeasureBuilder setVariations(MeasureVariations variations) {
-      if (source.variations != null) {
-        throw new UnsupportedOperationException("Variations can not be changed if already set on source Measure");
-      }
-      this.variations = requireNonNull(variations, "Variations can not be set to null");
-      return this;
-    }
-
-    /**
      * Sets the variation of the updated Measure to create.
      *
-     * @throws UnsupportedOperationException if the source measure already has a {@link MeasureVariations}
+     * @throws UnsupportedOperationException if the source measure already has a variation
      */
     public UpdateMeasureBuilder setVariation(double variation) {
-      if (source.variations != null) {
+      if (source.variation != null) {
         throw new UnsupportedOperationException("Variation can not be changed if already set on source Measure");
       }
-      this.variations = createLeakVariation(variation);
+      this.variation = variation;
       return this;
     }
 
@@ -274,7 +231,7 @@ public final class Measure {
         source.value, source.data, source.dataLevel,
         source.description,
         source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
-        source.variations == null ? variations : source.variations);
+        source.variation == null ? variation : source.variation);
     }
   }
 
@@ -389,31 +346,10 @@ public final class Measure {
   }
 
   /**
-   * Any Measure, which ever is its value type, can have a Variations.
-   * @deprecated as only one period is now available. Use {@link #hasVariation()} instead
-   */
-  @Deprecated
-  public boolean hasVariations() {
-    return variations != null;
-  }
-
-  /**
    * Any Measure, which ever is its value type, can have a variation.
    */
   public boolean hasVariation() {
-    return hasVariations() && variations.hasVariation1();
-  }
-
-  /**
-   * The variations of this measure.
-   *
-   * @throws IllegalStateException if the measure has no MeasureVariations
-   * @deprecated as only one period is now available. Use {@link #getVariation()} instead
-   */
-  @Deprecated
-  public MeasureVariations getVariations() {
-    checkState(variations != null, "Measure does not have variations");
-    return variations;
+    return variation != null;
   }
 
   /**
@@ -422,8 +358,8 @@ public final class Measure {
    * @throws IllegalStateException if the measure has no variation
    */
   public double getVariation() {
-    checkState(variations != null, "Measure does not have variation");
-    return variations.getVariation1();
+    checkState(variation != null, "Measure does not have variation");
+    return variation;
   }
 
   /**
@@ -464,12 +400,9 @@ public final class Measure {
       .add("data", data)
       .add("dataLevel", dataLevel)
       .add("qualityGateStatus", qualityGateStatus)
-      .add("variations", variations)
+      .add("variations", variation)
       .add("description", description)
       .toString();
   }
 
-  private static MeasureVariations createLeakVariation(double variation) {
-    return MeasureVariations.newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 0l, null), variation).build();
-  }
 }
