@@ -105,6 +105,7 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.getEmail()).isEqualTo("john@email.com");
     assertThat(user.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.isRoot()).isFalse();
 
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(defaultGroup.getId());
   }
@@ -118,6 +119,7 @@ public class UserIdentityAuthenticatorTest {
 
     Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
     assertThat(user).isPresent();
+    assertThat(user.get().isRoot()).isFalse();
 
     assertThat(db.users().selectGroupIdsOfUser(user.get())).containsOnly(group1.getId(), group2.getId());
   }
@@ -140,6 +142,7 @@ public class UserIdentityAuthenticatorTest {
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
     assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(userDto.isRoot()).isFalse();
   }
 
   @Test
@@ -160,6 +163,7 @@ public class UserIdentityAuthenticatorTest {
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
     assertThat(userDto.getExternalIdentity()).isEqualTo("johndoo");
     assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(userDto.isRoot()).isFalse();
   }
 
   @Test
@@ -203,133 +207,6 @@ public class UserIdentityAuthenticatorTest {
     authenticate(user.getLogin());
 
     assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
-  }
-
-  @Test
-  public void authenticate_new_user_and_add_it_to_no_group_sets_root_flag_to_false() {
-    authenticate(USER_LOGIN);
-
-    db.rootFlag().verify(USER_LOGIN, false);
-  }
-
-  @Test
-  public void authenticate_new_user_and_add_it_to_admin_group_of_default_organization_sets_root_flag_to_true() {
-    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
-
-    authenticate(USER_LOGIN, adminGroup.getName());
-
-    db.rootFlag().verify(USER_LOGIN, true);
-  }
-
-  @Test
-  public void authenticate_new_user_and_add_it_to_admin_group_of_other_organization_does_not_set_root_flag_to_true() {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
-
-    authenticate(USER_LOGIN, adminGroup.getName());
-
-    db.rootFlag().verify(USER_LOGIN, false);
-  }
-
-  @Test
-  public void authenticate_existing_user_and_add_it_to_no_group_sets_root_flag_to_false() {
-    UserDto userDto = db.users().insertUser();
-
-    authenticate(userDto.getLogin());
-
-    db.rootFlag().verify(userDto, false);
-  }
-
-  @Test
-  public void authenticate_existing_user_and_add_it_to_admin_group_of_default_organization_sets_root_flag_to_true() {
-    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
-    UserDto userDto = db.users().insertUser();
-
-    authenticate(userDto.getLogin(), adminGroup.getName());
-
-    db.rootFlag().verify(userDto, true);
-  }
-
-  @Test
-  public void authenticate_existing_user_and_add_it_to_admin_group_of_other_organization_sets_root_flag_to_false() {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
-    UserDto userDto = db.users().insertUser();
-
-    authenticate(userDto.getLogin(), adminGroup.getName());
-
-    db.rootFlag().verify(userDto, false);
-  }
-
-  @Test
-  public void authenticate_existing_user_and_remove_it_from_admin_group_of_default_organization_sets_root_flag_to_false() {
-    GroupDto adminGroup = db.users().insertAdminGroup(db.getDefaultOrganization());
-    UserDto userDto = db.users().makeRoot(db.users().insertUser());
-    db.users().insertMembers(adminGroup, userDto);
-
-    authenticate(userDto.getLogin());
-
-    db.rootFlag().verify(userDto, false);
-  }
-
-  @Test
-  public void authenticate_existing_user_with_user_permission_admin_on_default_organization_with_no_group_does_not_set_root_flag_to_false() {
-    UserDto rootUser = db.users().insertRootByUserPermission();
-
-    authenticate(rootUser.getLogin());
-
-    db.rootFlag().verify(rootUser, true);
-  }
-
-  @Test
-  public void authenticate_existing_user_with_user_permission_admin_on_default_organization_with_non_admin_groups_does_not_set_root_flag_to_false() {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto defaultOrgGroup = db.users().insertGroup(db.getDefaultOrganization());
-    GroupDto otherOrgGroup = db.users().insertGroup(otherOrganization);
-    UserDto rootUser = db.users().insertRootByUserPermission();
-
-    authenticate(rootUser.getLogin(), defaultOrgGroup.getName(), otherOrgGroup.getName());
-
-    db.rootFlag().verify(rootUser, true);
-  }
-
-  @Test
-  public void authenticate_user_multiple_times_sets_root_flag_to_true_only_if_at_least_one_group_is_admin() {
-    GroupDto defaultAdminGroup = db.users().insertAdminGroup(db.getDefaultOrganization(), "admin_of_default");
-    GroupDto defaultSomeGroup = db.users().insertGroup(db.getDefaultOrganization(), "some_group_of_default");
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto otherAdminGroup = db.users().insertAdminGroup(otherOrganization, "admin_of_other");
-    GroupDto otherSomeGroup = db.users().insertGroup(otherOrganization, "some_group_of_other");
-
-    authenticate(USER_LOGIN, defaultAdminGroup.getName(), defaultSomeGroup.getName(), otherAdminGroup.getName(), otherSomeGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, defaultAdminGroup.getName(), defaultSomeGroup.getName(), otherAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, otherAdminGroup.getName(), defaultAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, otherAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, false);
-
-    authenticate(USER_LOGIN, otherAdminGroup.getName(), otherSomeGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, false);
-
-    authenticate(USER_LOGIN, otherAdminGroup.getName(), otherSomeGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, false);
-
-    authenticate(USER_LOGIN, otherAdminGroup.getName(), defaultAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, defaultSomeGroup.getName(), defaultAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, otherSomeGroup.getName(), defaultAdminGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, true);
-
-    authenticate(USER_LOGIN, otherSomeGroup.getName(), defaultSomeGroup.getName());
-    db.rootFlag().verify(USER_LOGIN, false);
   }
 
   @Test

@@ -74,8 +74,4 @@ public interface UserMapper {
 
   void deactivateUser(@Param("id") long userId, @Param("now") long now);
 
-  int updateRootUser(@Param("userId") long userId, @Param("defaultOrganizationUuid") String defaultOrganizationUuid, @Param("now") long now);
-
-  int updateNonRootUser(@Param("userId") long userId, @Param("defaultOrganizationUuid") String defaultOrganizationUuid, @Param("now") long now);
-
 }

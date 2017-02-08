@@ -25,7 +25,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
@@ -35,11 +34,9 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 public class UserPermissionChanger {
 
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserPermissionChanger(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UserPermissionChanger(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
@@ -59,7 +56,6 @@ public class UserPermissionChanger {
     }
     UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getNullableProjectId());
     dbClient.userPermissionDao().insert(dbSession, dto);
-    updateRootFlag(dbSession, change);
     return true;
   }
 
@@ -74,7 +70,6 @@ public class UserPermissionChanger {
     } else {
       dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
     }
-    updateRootFlag(dbSession, change);
     return true;
   }
 
@@ -97,12 +92,6 @@ public class UserPermissionChanger {
       if (remaining == 0) {
         throw new BadRequestException(String.format("Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN));
       }
-    }
-  }
-
-  private void updateRootFlag(DbSession dbSession, UserPermissionChange change) {
-    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
-      dbClient.userDao().updateRootFlagFromPermissions(dbSession, change.getUserId().getId(), defaultOrganizationProvider.get().getUuid());
     }
   }
 }

@@ -50,8 +50,7 @@ public class UserPermissionChangerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), defaultOrganizationProvider);
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient());
   private OrganizationDto org1;
   private OrganizationDto org2;
   private UserDto user1;

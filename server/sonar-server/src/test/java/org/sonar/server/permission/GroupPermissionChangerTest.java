@@ -32,7 +32,6 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +43,7 @@ public class GroupPermissionChangerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), TestDefaultOrganizationProvider.from(db));
+  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient());
   private OrganizationDto org;
   private GroupDto group;
   private ComponentDto project;

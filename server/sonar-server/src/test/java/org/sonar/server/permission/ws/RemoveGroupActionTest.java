@@ -25,7 +25,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -243,57 +242,6 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .execute();
-  }
-
-  @Test
-  public void sets_root_flag_to_false_on_all_users_in_group_when_removing_admin_permission_from_group_of_default_organization_without_org_param() throws Exception {
-    UserDto lastAdminUser = db.users().insertRootByUserPermission();
-    GroupDto adminGroup = db.users().insertAdminGroup();
-    UserDto user1 = db.users().insertRootByGroupPermission("user1", adminGroup);
-    UserDto user2 = db.users().insertRootByGroupPermission("user2", adminGroup);
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(adminGroup, SYSTEM_ADMIN);
-
-    db.rootFlag().verify(user1, false);
-    db.rootFlag().verify(user2, false);
-    db.rootFlag().verifyUnchanged(lastAdminUser);
-  }
-
-  @Test
-  public void sets_root_flag_to_false_on_all_users_in_group_when_removing_admin_permission_from_group_of_default_organization_with_org_param() throws Exception {
-    UserDto lastAdminUser = db.users().insertRootByUserPermission();
-    GroupDto adminGroup = db.users().insertAdminGroup();
-    UserDto user1 = db.users().insertRootByGroupPermission("user1", adminGroup);
-    UserDto user2 = db.users().insertRootByGroupPermission("user2", adminGroup);
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(adminGroup, db.getDefaultOrganization(), SYSTEM_ADMIN);
-
-    db.rootFlag().verify(user1, false);
-    db.rootFlag().verify(user2, false);
-    db.rootFlag().verifyUnchanged(lastAdminUser);
-  }
-
-  @Test
-  public void does_not_set_root_flag_to_false_on_all_users_in_group_when_removing_admin_permission_from_group_of_other_organization() throws Exception {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    UserDto lastAdmin = db.users().insertUser();
-    db.users().insertPermissionOnUser(otherOrganization, lastAdmin, SYSTEM_ADMIN);
-    GroupDto adminGroup = db.users().insertAdminGroup(otherOrganization);
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto inAdminGroupUser = db.users().insertUser();
-    UserDto notInGroupUser = db.users().insertUser();
-    db.users().insertMembers(adminGroup, rootByUserPermissionUser, rootByGroupPermissionUser, inAdminGroupUser);
-    loginAsAdmin(otherOrganization);
-
-    executeRequest(adminGroup, otherOrganization, SYSTEM_ADMIN);
-
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-    db.rootFlag().verify(inAdminGroupUser, false);
-    db.rootFlag().verifyUnchanged(notInGroupUser);
   }
 
   private void executeRequest(GroupDto groupDto, String permission) throws Exception {

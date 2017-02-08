@@ -262,77 +262,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(ISSUE_ADMIN);
   }
 
-  @Test
-  public void sets_root_flag_to_true_when_adding_user_admin_permission_without_org_parameter() throws Exception {
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(notRootUser, SYSTEM_ADMIN);
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN);
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified user permission
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN);
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-  }
-
-  @Test
-  public void sets_root_flag_to_true_when_adding_user_admin_permission_with_default_organization_uuid() throws Exception {
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(notRootUser, SYSTEM_ADMIN, db.getDefaultOrganization());
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN, db.getDefaultOrganization());
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser); // because already has specified user permission
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN, db.getDefaultOrganization());
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-  }
-
-  @Test
-  public void does_not_set_root_flag_when_adding_user_admin_permission_with_other_organization_uuid() throws Exception {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    loginAsAdmin(otherOrganization);
-
-    executeRequest(notRootUser, SYSTEM_ADMIN, otherOrganization);
-    db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verifyUnchanged(rootByUserPermissionUser);
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByUserPermissionUser, SYSTEM_ADMIN, otherOrganization);
-    db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verifyUnchanged(rootByGroupPermissionUser);
-
-    executeRequest(rootByGroupPermissionUser, SYSTEM_ADMIN, otherOrganization);
-    db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-  }
-
-  @Test
+@Test
   public void organization_parameter_must_not_be_set_on_project_permissions() {
     ComponentDto project = db.components().insertProject();
     loginAsAdmin(db.getDefaultOrganization());

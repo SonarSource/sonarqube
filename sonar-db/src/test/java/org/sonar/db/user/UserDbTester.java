@@ -80,45 +80,13 @@ public class UserDbTester {
     return insertRootByUserPermissionImpl(requireNonNull(login));
   }
 
-  public UserDto insertRootByUserPermission() {
-    return insertRootByUserPermissionImpl(null);
-  }
-
   private UserDto insertRootByUserPermissionImpl(@Nullable String login) {
     UserDto rootByUserPermissionUser = makeRoot(login == null ? insertUser() : insertUser(login));
     insertPermissionOnUser(db.getDefaultOrganization(), rootByUserPermissionUser, SYSTEM_ADMIN);
     return rootByUserPermissionUser;
   }
 
-  public UserDto insertRootByGroupPermission(String login) {
-    return insertRootByGroupPermissionImpl(requireNonNull(login), null);
-  }
 
-  /**
-   * @see #insertAdminGroup()
-   */
-  public UserDto insertRootByGroupPermission(String login, GroupDto adminGroupDto) {
-    return insertRootByGroupPermissionImpl(requireNonNull(login), adminGroupDto);
-  }
-
-
-  /**
-   * @see #insertAdminGroup()
-   */
-  public UserDto insertRootByGroupPermission(GroupDto adminGroupDto) {
-    return insertRootByGroupPermissionImpl(null, adminGroupDto);
-  }
-
-  public UserDto insertRootByGroupPermission() {
-    return insertRootByGroupPermissionImpl(null, null);
-  }
-
-  public UserDto insertRootByGroupPermissionImpl(@Nullable String login, @Nullable GroupDto groupDto) {
-    UserDto rootByGroupPermissionUser = db.users().makeRoot(login == null ? insertUser() : insertUser(login));
-    GroupDto adminGroup = createOrCheckAdminGroup(groupDto);
-    insertMember(adminGroup, rootByGroupPermissionUser);
-    return rootByGroupPermissionUser;
-  }
 
   public UserDto insertAdminByUserPermission(OrganizationDto org) {
     UserDto user = db.users().insertUser();

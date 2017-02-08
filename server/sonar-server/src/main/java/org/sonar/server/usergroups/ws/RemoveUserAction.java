@@ -27,7 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -44,13 +43,11 @@ public class RemoveUserAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -82,7 +79,6 @@ public class RemoveUserAction implements UserGroupsWsAction {
       ensureLastAdminIsNotRemoved(dbSession, group, user);
 
       dbClient.userGroupDao().delete(dbSession, group.getId(), user.getId());
-      dbClient.userDao().updateRootFlagFromPermissions(dbSession, user.getId(), defaultOrganizationProvider.get().getUuid());
       dbSession.commit();
 
       response.noContent();

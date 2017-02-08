@@ -194,17 +194,6 @@ public class UserDao implements Dao {
     return mapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
   }
 
-  /**
-   * Ensures the specified user has its root flag set or unset depending on whether the user has the 'admin' permission
-   * in the default organization or not.
-   */
-  public void updateRootFlagFromPermissions(DbSession dbSession, long userId, String defaultOrganizationUuid) {
-    long now = system2.now();
-    UserMapper mapper = mapper(dbSession);
-    mapper.updateRootUser(userId, defaultOrganizationUuid, now);
-    mapper.updateNonRootUser(userId, defaultOrganizationUuid, now);
-  }
-
   protected UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }

@@ -59,7 +59,8 @@ public interface UserSession {
   boolean isLoggedIn();
 
   /**
-   * Whether the user has root privileges.
+   * Whether the user has root privileges when organizations are enabled.
+   * Always returns {@code false} when organizations are disabled.
    */
   boolean isRoot();
 

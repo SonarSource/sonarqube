@@ -92,7 +92,6 @@ public class UserUpdater {
   public UserDto create(NewUser newUser) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto createdUser = create(dbSession, newUser);
-      dbClient.userDao().updateRootFlagFromPermissions(dbSession, createdUser.getId(), defaultOrganizationProvider.get().getUuid());
       dbSession.commit();
       return createdUser;
     }

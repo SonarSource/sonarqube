@@ -114,7 +114,6 @@ public class UserIdentityAuthenticator {
       .build());
     UserDto newUser = dbClient.userDao().selectOrFailByLogin(dbSession, userLogin);
     syncGroups(dbSession, user, newUser);
-    updateRootFlag(dbSession, newUser);
     return newUser;
   }
 
@@ -125,7 +124,6 @@ public class UserIdentityAuthenticator {
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
       .setPassword(null));
     syncGroups(dbSession, user, userDto);
-    updateRootFlag(dbSession, userDto);
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
@@ -163,11 +161,6 @@ public class UserIdentityAuthenticator {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
-  }
-
-  private void updateRootFlag(DbSession dbSession, UserDto userDto) {
-    dbClient.userDao().updateRootFlagFromPermissions(dbSession, userDto.getId(), defaultOrganizationProvider.get().getUuid());
-    dbSession.commit();
   }
 
   private enum GroupDtoToName implements Function<GroupDto, String> {

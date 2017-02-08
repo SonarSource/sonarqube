@@ -25,7 +25,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -310,62 +309,6 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ISSUE_ADMIN);
-  }
-
-
-  @Test
-  public void set_root_flag_to_true_on_all_users_in_group_when_admin_permission_to_group_of_default_organization_without_org_param() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    UserDto notInGroupUser = db.users().insertUser();
-    db.users().insertMembers(group, rootByUserPermissionUser, rootByGroupPermissionUser, notRootUser);
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(group, SYSTEM_ADMIN);
-
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(notInGroupUser);
-  }
-
-  @Test
-  public void set_root_flag_to_true_on_all_users_in_group_when_admin_permission_to_group_of_default_organization_with_org_param() throws Exception {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    UserDto notInGroupUser = db.users().insertUser();
-    db.users().insertMembers(group, rootByUserPermissionUser, rootByGroupPermissionUser, notRootUser);
-    loginAsAdmin(db.getDefaultOrganization());
-
-    executeRequest(group, db.getDefaultOrganization(), SYSTEM_ADMIN);
-
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-    db.rootFlag().verify(notRootUser, true);
-    db.rootFlag().verifyUnchanged(notInGroupUser);
-  }
-
-  @Test
-  public void does_not_set_root_flag_to_true_on_all_users_in_group_when_admin_permission_to_group_of_default_organization() throws Exception {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(otherOrganization);
-    UserDto rootByUserPermissionUser = db.users().insertRootByUserPermission();
-    UserDto rootByGroupPermissionUser = db.users().insertRootByGroupPermission();
-    UserDto notRootUser = db.users().insertUser();
-    UserDto notInGroupUser = db.users().insertUser();
-    db.users().insertMembers(group, rootByUserPermissionUser, rootByGroupPermissionUser, notRootUser);
-    loginAsAdmin(otherOrganization);
-
-    executeRequest(group, otherOrganization, SYSTEM_ADMIN);
-
-    db.rootFlag().verify(rootByUserPermissionUser, true);
-    db.rootFlag().verify(rootByGroupPermissionUser, true);
-    db.rootFlag().verify(notRootUser, false);
-    db.rootFlag().verifyUnchanged(notInGroupUser);
   }
 
   private void executeRequest(GroupDto groupDto, OrganizationDto organizationDto, String permission) throws Exception {
