@@ -28,10 +28,9 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureVariations;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -90,8 +89,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
-    .setPeriods(new Period(2, "some mode", null, 95l, "756l"), new Period(5, "some other mode", null, 756L, "956L"));
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
 
   @Test
   public void verify_aggregation_on_value() throws Exception {
@@ -152,24 +150,24 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variations() throws Exception {
+  public void verify_aggregation_on_variation() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
-    measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10, 20));
-    measureRepository.addRawMeasure(FILE_2_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8, 16));
-    measureRepository.addRawMeasure(FILE_3_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2, 4));
+    measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10));
+    measureRepository.addRawMeasure(FILE_2_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8));
+    measureRepository.addRawMeasure(FILE_3_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2));
 
     new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeVariationFormula()))
       .visit(BALANCED_COMPONENT_TREE);
 
-    assertAddedRawMeasure(ROOT_REF, 20, 40);
-    assertAddedRawMeasure(MODULE_1_REF, 18, 36);
-    assertAddedRawMeasure(DIRECTORY_1_REF, 18, 36);
-    assertAddedRawMeasure(FILE_1_REF, 10, 20);
-    assertAddedRawMeasure(FILE_2_REF, 8, 16);
-    assertAddedRawMeasure(MODULE_2_REF, 2, 4);
-    assertAddedRawMeasure(DIRECTORY_2_REF, 2, 4);
-    assertAddedRawMeasure(FILE_3_REF, 2, 4);
+    assertAddedRawMeasureVariation(ROOT_REF, 20);
+    assertAddedRawMeasureVariation(MODULE_1_REF, 18);
+    assertAddedRawMeasureVariation(DIRECTORY_1_REF, 18);
+    assertAddedRawMeasureVariation(FILE_1_REF, 10);
+    assertAddedRawMeasureVariation(FILE_2_REF, 8);
+    assertAddedRawMeasureVariation(MODULE_2_REF, 2);
+    assertAddedRawMeasureVariation(DIRECTORY_2_REF, 2);
+    assertAddedRawMeasureVariation(FILE_3_REF, 2);
   }
 
   @Test
@@ -219,17 +217,17 @@ public class ReportFormulaExecutorComponentVisitorTest {
       .buildFor(ImmutableList.of(formula));
   }
 
-  private static Measure createMeasureWithVariation(double variation2Value, double variation5Value) {
-    return newMeasureBuilder().setVariations(new MeasureVariations(null, variation2Value, null, null, variation5Value)).createNoValue();
+  private static Measure createMeasureWithVariation(double variation) {
+    return newMeasureBuilder().setVariation(variation).createNoValue();
   }
 
   private void assertAddedRawMeasure(int componentRef, int expectedValue) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(expectedValue)));
   }
 
-  private void assertAddedRawMeasure(int componentRef, int variation2Value, int variation5Value) {
+  private void assertAddedRawMeasureVariation(int componentRef, int variation) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
+      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation)));
   }
 
   private class FakeFormula implements Formula<FakeCounter> {
@@ -265,7 +263,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric())
         .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_COVERAGE_KEY));
@@ -301,7 +299,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getChildren()).isEmpty();
-      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
 
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
       if (measureOptional.isPresent()) {
@@ -320,15 +318,15 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public Optional<Measure> createMeasure(FakeVariationCounter counter, CreateMeasureContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_COVERAGE_KEY));
 
-      Optional<MeasureVariations> measureVariations = counter.values.toMeasureVariations();
-      if (measureVariations.isPresent()) {
+      IntValue measureVariations = counter.values;
+      if (measureVariations.isSet()) {
         return Optional.of(
           newMeasureBuilder()
-            .setVariations(measureVariations.get())
+            .setVariation(measureVariations.getValue())
             .createNoValue());
       }
       return Optional.absent();
@@ -341,28 +339,24 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   private class FakeVariationCounter implements Counter<FakeVariationCounter> {
-    private final IntVariationValue.Array values = IntVariationValue.newArray();
+    private final IntValue values = new IntValue();
 
     @Override
     public void aggregate(FakeVariationCounter counter) {
-      values.incrementAll(counter.values);
+      values.increment(counter.values);
     }
 
     @Override
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getChildren()).isEmpty();
-      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getPeriod()).isEqualTo(periodsHolder.getPeriod());
 
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
-      if (!measureOptional.isPresent()) {
+      if (!measureOptional.isPresent() || !context.hasPeriod()) {
         return;
       }
-      for (Period period : context.getPeriods()) {
-        this.values.increment(
-          period,
-          (int) measureOptional.get().getVariations().getVariation(period.getIndex()));
-      }
+      this.values.increment((int) measureOptional.get().getVariation());
     }
   }
 

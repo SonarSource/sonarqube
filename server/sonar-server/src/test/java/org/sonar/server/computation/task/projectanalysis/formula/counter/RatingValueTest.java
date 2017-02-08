@@ -29,60 +29,60 @@ import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rat
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
 
-public class RatingVariationValueTest {
+public class RatingValueTest {
 
   @Test
   public void newly_created_value_is_unset_and_has_value_0() {
-    verifyUnsetVariationValue(new RatingVariationValue());
+    verifyUnsetVariationValue(new RatingValue());
   }
 
   @Test
   public void increment_sets_value_and_increments_value() {
-    verifySetVariationValue(new RatingVariationValue().increment(B), B);
+    verifySetVariationValue(new RatingValue().increment(B), B);
   }
 
   @Test
   public void increment_has_no_effect_if_arg_is_null() {
-    verifyUnsetVariationValue(new RatingVariationValue().increment((RatingVariationValue) null));
+    verifyUnsetVariationValue(new RatingValue().increment((RatingValue) null));
   }
 
   @Test
   public void increment_has_no_effect_if_arg_is_unset() {
-    verifyUnsetVariationValue(new RatingVariationValue().increment(new RatingVariationValue()));
+    verifyUnsetVariationValue(new RatingValue().increment(new RatingValue()));
   }
 
   @Test
   public void increment_increments_by_the_value_of_the_arg() {
-    RatingVariationValue source = new RatingVariationValue().increment(B);
-    RatingVariationValue target = new RatingVariationValue().increment(source);
+    RatingValue source = new RatingValue().increment(B);
+    RatingValue target = new RatingValue().increment(source);
 
     verifySetVariationValue(target, B);
   }
 
   @Test
   public void multiple_calls_to_increment_increments_by_the_value_of_the_arg() {
-    RatingVariationValue target = new RatingVariationValue()
-      .increment(new RatingVariationValue().increment(B))
-      .increment(new RatingVariationValue().increment(D));
+    RatingValue target = new RatingValue()
+      .increment(new RatingValue().increment(B))
+      .increment(new RatingValue().increment(D));
 
     verifySetVariationValue(target, D);
   }
 
   @Test
   public void multiples_calls_to_increment_increments_the_value() {
-    RatingVariationValue variationValue = new RatingVariationValue()
+    RatingValue variationValue = new RatingValue()
       .increment(B)
       .increment(C);
 
     verifySetVariationValue(variationValue, C);
   }
 
-  private static void verifyUnsetVariationValue(RatingVariationValue variationValue) {
+  private static void verifyUnsetVariationValue(RatingValue variationValue) {
     assertThat(variationValue.isSet()).isFalse();
     assertThat(variationValue.getValue()).isEqualTo(A);
   }
 
-  private static void verifySetVariationValue(RatingVariationValue variationValue, Rating expected) {
+  private static void verifySetVariationValue(RatingValue variationValue, Rating expected) {
     assertThat(variationValue.isSet()).isTrue();
     assertThat(variationValue.getValue()).isEqualTo(expected);
   }

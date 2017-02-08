@@ -24,7 +24,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
@@ -155,8 +155,8 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
 
   public static final class Counter {
     private long devCosts = 0;
-    private RatingVariationValue reliabilityRating = new RatingVariationValue();
-    private RatingVariationValue securityRating = new RatingVariationValue();
+    private RatingValue reliabilityRating = new RatingValue();
+    private RatingValue securityRating = new RatingValue();
 
     private Counter() {
       // prevents instantiation

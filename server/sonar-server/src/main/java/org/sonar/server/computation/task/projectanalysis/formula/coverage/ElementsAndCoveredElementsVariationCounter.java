@@ -22,14 +22,14 @@ package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.formula.Counter;
 import org.sonar.server.computation.task.projectanalysis.formula.CounterInitializationContext;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.LongVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.LongValue;
 
 /**
  * A counter used to create measure variations which are based on a count of elements and coveredElements.
  */
 public abstract class ElementsAndCoveredElementsVariationCounter implements Counter<ElementsAndCoveredElementsVariationCounter> {
-  protected final LongVariationValue elements = new LongVariationValue();
-  protected final LongVariationValue coveredElements = new LongVariationValue();
+  protected final LongValue elements = new LongValue();
+  protected final LongValue coveredElements = new LongValue();
 
   @Override
   public void aggregate(ElementsAndCoveredElementsVariationCounter counter) {

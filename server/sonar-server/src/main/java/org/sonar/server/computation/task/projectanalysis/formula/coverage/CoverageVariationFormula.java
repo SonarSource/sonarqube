@@ -22,7 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 import com.google.common.base.Optional;
 import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.LongVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.LongValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 
 import static org.sonar.server.computation.task.projectanalysis.formula.coverage.CoverageUtils.calculateCoverage;
@@ -36,9 +36,9 @@ public abstract class CoverageVariationFormula<T extends ElementsAndCoveredEleme
 
   @Override
   public Optional<Measure> createMeasure(T counter, CreateMeasureContext context) {
-    LongVariationValue elements = counter.elements;
+    LongValue elements = counter.elements;
     if (elements.isSet() && elements.getValue() > 0d) {
-      LongVariationValue coveredElements = counter.coveredElements;
+      LongValue coveredElements = counter.coveredElements;
       double variation = calculateCoverage(coveredElements.getValue(), elements.getValue());
       return Optional.of(newMeasureBuilder().setVariation(variation).createNoValue());
     }

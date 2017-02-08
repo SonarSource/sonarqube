@@ -23,7 +23,7 @@ import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.DoubleValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 
 import static java.util.Objects.requireNonNull;
@@ -68,7 +68,7 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
   public static final class VariationSumCounter implements Counter<VariationSumCounter> {
     @CheckForNull
     private final Double defaultInputValue;
-    private final DoubleVariationValue doubleValue = new DoubleVariationValue();
+    private final DoubleValue doubleValue = new DoubleValue();
     private final String metricKey;
 
     private VariationSumCounter(String metricKey, @Nullable Double defaultInputValue) {

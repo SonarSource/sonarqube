@@ -40,7 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureCo
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.formula.VariationSumFormula;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.server.computation.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.task.projectanalysis.formula.coverage.LinesAndConditionsWithUncoveredVariationFormula;
 import org.sonar.server.computation.task.projectanalysis.formula.coverage.SingleWithUncoveredMetricKeys;
@@ -227,10 +227,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   public static final class NewCoverageCounter implements org.sonar.server.computation.task.projectanalysis.formula.Counter<NewCoverageCounter> {
-    private final IntVariationValue newLines = new IntVariationValue();
-    private final IntVariationValue newCoveredLines = new IntVariationValue();
-    private final IntVariationValue newConditions = new IntVariationValue();
-    private final IntVariationValue newCoveredConditions = new IntVariationValue();
+    private final IntValue newLines = new IntValue();
+    private final IntValue newCoveredLines = new IntValue();
+    private final IntValue newConditions = new IntValue();
+    private final IntValue newCoveredConditions = new IntValue();
     private final ScmInfoRepository scmInfoRepository;
     private final NewCoverageInputMetricKeys metricKeys;
 

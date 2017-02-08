@@ -27,7 +27,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
@@ -143,9 +143,9 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   static final class Counter {
-    private Map<String, RatingVariationValue> newRatingValueByMetric = ImmutableMap.of(
-      NEW_RELIABILITY_RATING_KEY, new RatingVariationValue(),
-      NEW_SECURITY_RATING_KEY, new RatingVariationValue());
+    private Map<String, RatingValue> newRatingValueByMetric = ImmutableMap.of(
+      NEW_RELIABILITY_RATING_KEY, new RatingValue(),
+      NEW_SECURITY_RATING_KEY, new RatingValue());
 
     private Counter() {
       // prevents instantiation

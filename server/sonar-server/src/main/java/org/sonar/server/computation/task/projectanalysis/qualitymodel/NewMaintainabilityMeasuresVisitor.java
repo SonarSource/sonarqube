@@ -29,7 +29,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.LongVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.LongValue;
 import org.sonar.server.computation.task.projectanalysis.issue.IntegrateIssuesVisitor;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
@@ -127,7 +127,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   private static double computeDensity(Counter counter) {
-    LongVariationValue newDebt = counter.getNewDebt();
+    LongValue newDebt = counter.getNewDebt();
     if (newDebt.isSet()) {
       long developmentCost = counter.getDevCost().getValue();
       if (developmentCost != 0L) {
@@ -217,27 +217,27 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   public static final class Counter {
-    private final LongVariationValue newDebt = new LongVariationValue();
-    private final LongVariationValue devCost = new LongVariationValue();
+    private final LongValue newDebt = new LongValue();
+    private final LongValue devCost = new LongValue();
 
     public void add(Counter counter) {
       this.newDebt.increment(counter.newDebt);
       this.devCost.increment(counter.devCost);
     }
 
-    LongVariationValue incrementNewDebt(long value) {
+    LongValue incrementNewDebt(long value) {
       return newDebt.increment(value);
     }
 
-    LongVariationValue incrementDevCost(long value) {
+    LongValue incrementDevCost(long value) {
       return devCost.increment(value);
     }
 
-    LongVariationValue getNewDebt() {
+    LongValue getNewDebt() {
       return this.newDebt;
     }
 
-    LongVariationValue getDevCost() {
+    LongValue getDevCost() {
       return this.devCost;
     }
   }

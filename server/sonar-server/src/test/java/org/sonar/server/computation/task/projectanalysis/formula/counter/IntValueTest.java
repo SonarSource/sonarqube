@@ -23,59 +23,59 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IntVariationValueTest {
+public class IntValueTest {
   @Test
   public void newly_created_IntVariationValue_is_unset_and_has_value_0() {
-    verifyUnsetVariationValue(new IntVariationValue());
+    verifyUnsetVariationValue(new IntValue());
   }
 
   @Test
   public void increment_int_sets_IntVariationValue_and_increments_value() {
-    verifySetVariationValue(new IntVariationValue().increment(10), 10);
+    verifySetVariationValue(new IntValue().increment(10), 10);
   }
 
   @Test
   public void increment_IntVariationValue_has_no_effect_if_arg_is_null() {
-    verifyUnsetVariationValue(new IntVariationValue().increment(null));
+    verifyUnsetVariationValue(new IntValue().increment(null));
   }
 
   @Test
   public void increment_IntVariationValue_has_no_effect_if_arg_is_unset() {
-    verifyUnsetVariationValue(new IntVariationValue().increment(new IntVariationValue()));
+    verifyUnsetVariationValue(new IntValue().increment(new IntValue()));
   }
 
   @Test
   public void increment_IntVariationValue_increments_by_the_value_of_the_arg() {
-    IntVariationValue source = new IntVariationValue().increment(10);
-    IntVariationValue target = new IntVariationValue().increment(source);
+    IntValue source = new IntValue().increment(10);
+    IntValue target = new IntValue().increment(source);
 
     verifySetVariationValue(target, 10);
   }
 
   @Test
   public void multiple_calls_to_increment_IntVariationValue_increments_by_the_value_of_the_arg() {
-    IntVariationValue target = new IntVariationValue()
-      .increment(new IntVariationValue().increment(35))
-      .increment(new IntVariationValue().increment(10));
+    IntValue target = new IntValue()
+      .increment(new IntValue().increment(35))
+      .increment(new IntValue().increment(10));
 
     verifySetVariationValue(target, 45);
   }
 
   @Test
   public void multiples_calls_to_increment_int_increment_the_value() {
-    IntVariationValue variationValue = new IntVariationValue()
+    IntValue variationValue = new IntValue()
       .increment(10)
       .increment(95);
 
     verifySetVariationValue(variationValue, 105);
   }
 
-  private static void verifyUnsetVariationValue(IntVariationValue variationValue) {
+  private static void verifyUnsetVariationValue(IntValue variationValue) {
     assertThat(variationValue.isSet()).isFalse();
     assertThat(variationValue.getValue()).isEqualTo(0);
   }
 
-  private static void verifySetVariationValue(IntVariationValue variationValue, int expected) {
+  private static void verifySetVariationValue(IntValue variationValue, int expected) {
     assertThat(variationValue.isSet()).isTrue();
     assertThat(variationValue.getValue()).isEqualTo(expected);
   }

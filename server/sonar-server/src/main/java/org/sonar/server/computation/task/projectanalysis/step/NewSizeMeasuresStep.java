@@ -39,7 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.formula.CounterInitiali
 import org.sonar.server.computation.task.projectanalysis.formula.CreateMeasureContext;
 import org.sonar.server.computation.task.projectanalysis.formula.Formula;
 import org.sonar.server.computation.task.projectanalysis.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.task.projectanalysis.formula.counter.IntVariationValue;
+import org.sonar.server.computation.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
@@ -92,9 +92,9 @@ public class NewSizeMeasuresStep implements ComputationStep {
   private static class NewSizeCounter implements Counter<NewSizeCounter> {
     private final DuplicationRepository duplicationRepository;
     private final ScmInfoRepository scmInfoRepository;
-    private final IntVariationValue newLines = new IntVariationValue();
-    private final IntVariationValue newDuplicatedLines = new IntVariationValue();
-    private final IntVariationValue newDuplicatedBlocks = new IntVariationValue();
+    private final IntValue newLines = new IntValue();
+    private final IntValue newDuplicatedLines = new IntValue();
+    private final IntValue newDuplicatedBlocks = new IntValue();
 
     private NewSizeCounter(DuplicationRepository duplicationRepository,
       ScmInfoRepository scmInfoRepository) {
@@ -224,15 +224,15 @@ public class NewSizeMeasuresStep implements ComputationStep {
       }
     }
 
-    private static Optional<Measure> createMeasure(IntVariationValue intValue) {
+    private static Optional<Measure> createMeasure(IntValue intValue) {
       return intValue.isSet()
         ? Optional.of(Measure.newMeasureBuilder().setVariation(intValue.getValue()).createNoValue())
         : Optional.absent();
     }
 
     private static Optional<Measure> createNewDuplicatedLinesDensityMeasure(NewSizeCounter counter) {
-      IntVariationValue newLines = counter.newLines;
-      IntVariationValue newDuplicatedLines = counter.newDuplicatedLines;
+      IntValue newLines = counter.newLines;
+      IntValue newDuplicatedLines = counter.newDuplicatedLines;
       if (newLines.isSet() && newDuplicatedLines.isSet()) {
         int newLinesVariations = newLines.getValue();
         int newDuplicatedLinesVariations = newDuplicatedLines.getValue();
