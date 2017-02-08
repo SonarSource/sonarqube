@@ -46,6 +46,7 @@ public class DbVersion63 implements DbVersion {
       .add(1511, "Populate ORGANIZATIONS.GUARDED", PopulateColumnGuardedOfOrganizations.class)
       .add(1512, "Make ORGANIZATIONS.GUARDED not nullable", MakeColumnGuardedOfOrganizationsNotNullable.class)
       .add(1513, "Make default organization guarded", MakeDefaultOrganizationGuarded.class)
+      .add(1514, "Delete some entries in PROPERTIES", DeleteUselessProperties.class)
     ;
   }
 }
