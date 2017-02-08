@@ -60,7 +60,7 @@ public class ProvisioningPermissionTest {
   private static final String USER_WITH_PROVISIONING = "user-with-provisioning";
   private static final String USER_WITHOUT_PROVISIONING = "user-without-provisioning";
 
-  static PermissionsService permissionsWsClient;
+  private static PermissionsService permissionsWsClient;
 
   @BeforeClass
   public static void init() {
@@ -95,7 +95,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void should_not_be_able_to_provision_project() {
+  public void organization_administrator_cannot_provision_project_if_he_doesnt_have_provisioning_permission() {
     runSelenese(orchestrator, "/authorisation/ProvisioningPermissionTest/should-not-be-able-to-provision-project.html");
   }
 
@@ -104,7 +104,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void should_be_able_to_provision_project() {
+  public void organization_administrator_can_provision_project_if_he_has_provisioning_permission() {
     runSelenese(orchestrator, "/authorisation/ProvisioningPermissionTest/should-be-able-to-provision-project.html");
   }
 
@@ -113,7 +113,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void should_be_allowed_on_ws_with_permission() {
+  public void user_can_provision_project_through_ws_if_he_has_provisioning_permission() {
     final String newKey = "new-project";
     final String newName = "New Project";
 
@@ -131,7 +131,7 @@ public class ProvisioningPermissionTest {
    * SONAR-4709
    */
   @Test
-  public void should_not_be_allowed_on_ws_without_permission() {
+  public void user_cannot_provision_project_through_ws_if_he_doesnt_have_provisioning_permission() {
     thrown.expect(HttpException.class);
     thrown.expectMessage("403");
 
