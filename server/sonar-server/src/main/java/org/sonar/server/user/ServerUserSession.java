@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
@@ -29,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -112,7 +112,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+  protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
     if (permissionsByOrganizationUuid == null) {
       permissionsByOrganizationUuid = HashMultimap.create();
     }
@@ -136,33 +136,27 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    if (isRoot()) {
-      return true;
-    }
-
+  protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
-    if (projectUuid == null) {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
-        if (!component.isPresent()) {
-          return false;
-        }
-        projectUuid = component.get().projectUuid();
+    if (projectUuid != null) {
+      return Optional.of(projectUuid);
+    }
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+      if (!component.isPresent()) {
+        return Optional.empty();
       }
-    }
-    boolean hasComponentPermission = hasProjectPermissionByUuid(permission, projectUuid);
-    if (hasComponentPermission) {
+      projectUuid = component.get().projectUuid();
       projectUuidByComponentUuid.put(componentUuid, projectUuid);
-      return true;
+      return Optional.of(projectUuid);
     }
-    return false;
   }
 
-  // To keep private
-  private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+  @Override
+  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
     if (!projectPermissionsCheckedByUuid.contains(permission)) {
       try (DbSession dbSession = dbClient.openSession(false)) {
+        // FIXME do not load all the authorized projects. It can be huge.
         Collection<String> projectUuids = dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, getUserId(), permission);
         addProjectPermission(permission, projectUuids);
       }

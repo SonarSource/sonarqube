@@ -21,8 +21,8 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 
 /**
@@ -97,17 +97,18 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean hasOrganizationPermission(String organizationUuid, String permission) {
+      protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
         return true;
       }
 
       @Override
-      public boolean hasComponentPermission(String permission, ComponentDto component) {
-        return true;
+      protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+        // always root so unused
+        throw new UnsupportedOperationException();
       }
 
       @Override
-      public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+      protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
         return true;
       }
     }

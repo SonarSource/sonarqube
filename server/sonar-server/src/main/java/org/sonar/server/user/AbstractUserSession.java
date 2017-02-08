@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Optional;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -29,16 +30,15 @@ public abstract class AbstractUserSession implements UserSession {
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
   @Override
-  public UserSession checkLoggedIn() {
+  public final UserSession checkLoggedIn() {
     if (!isLoggedIn()) {
       throw new UnauthorizedException(AUTHENTICATION_IS_REQUIRED_MESSAGE);
     }
     return this;
   }
 
-
   @Override
-  public UserSession checkIsRoot() {
+  public final UserSession checkIsRoot() {
     if (!isRoot()) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
@@ -46,10 +46,14 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkOrganizationPermission(String organizationUuid, String permission) {
-    if (isRoot()) {
-      return this;
-    }
+  public final boolean hasOrganizationPermission(String organizationUuid, String permission) {
+    return isRoot() || hasOrganizationPermissionImpl(organizationUuid, permission);
+  }
+
+  protected abstract boolean hasOrganizationPermissionImpl(String organizationUuid, String permission);
+
+  @Override
+  public final UserSession checkOrganizationPermission(String organizationUuid, String permission) {
     if (!hasOrganizationPermission(organizationUuid, permission)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
@@ -57,12 +61,27 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return hasComponentUuidPermission(permission, component.projectUuid());
+  public final boolean hasComponentPermission(String permission, ComponentDto component) {
+    return isRoot() || hasProjectUuidPermission(permission, component.projectUuid());
   }
 
   @Override
-  public UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
+  public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    if (isRoot()) {
+      return true;
+    }
+    Optional<String> projectUuid = componentUuidToProjectUuid(componentUuid);
+    return projectUuid
+      .map(s -> hasProjectUuidPermission(permission, s))
+      .orElse(false);
+  }
+
+  protected abstract Optional<String> componentUuidToProjectUuid(String componentUuid);
+
+  protected abstract boolean hasProjectUuidPermission(String permission, String projectUuid);
+
+  @Override
+  public final UserSession checkComponentPermission(String projectPermission, ComponentDto component) {
     if (!hasComponentPermission(projectPermission, component)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
@@ -70,7 +89,7 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
+  public final UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     if (!hasComponentUuidPermission(permission, componentUuid)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }

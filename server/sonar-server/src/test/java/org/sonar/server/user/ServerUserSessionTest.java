@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -37,6 +36,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
@@ -183,34 +184,53 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void checkOrganizationPermission_fails_with_ForbiddenException_when_user_has_no_permissions_on_organization() {
+  public void checkOrganizationPermission_throws_ForbiddenException_when_user_doesnt_have_the_specified_permission_on_organization() {
+    OrganizationDto org = db.organizations().insert();
+    db.users().insertUser(NON_ROOT_USER_DTO);
+
     expectInsufficientPrivilegesForbiddenException();
 
-    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission("org-uuid", "perm1");
+    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
+  }
+
+  @Test
+  public void checkOrganizationPermission_succeeds_when_user_has_the_specified_permission_on_organization() {
+    OrganizationDto org = db.organizations().insert();
+    db.users().insertUser(NON_ROOT_USER_DTO);
+    db.users().insertPermissionOnUser(org, NON_ROOT_USER_DTO, PROVISIONING);
+
+    newUserSession(NON_ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
+  }
+
+  @Test
+  public void checkOrganizationPermission_succeeds_when_user_is_root() {
+    OrganizationDto org = db.organizations().insert();
+
+    newUserSession(ROOT_USER_DTO).checkOrganizationPermission(org.getUuid(), PROVISIONING);
   }
 
   @Test
   public void hasOrganizationPermission_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject(org);
-    db.users().insertPermissionOnUser(org, userDto, GlobalPermissions.PROVISIONING);
+    db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
     db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
 
     UserSession session = newUserSession(userDto);
-    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN)).isFalse();
-    assertThat(session.hasOrganizationPermission("another-org", GlobalPermissions.PROVISIONING)).isFalse();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
+    assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
   }
 
   @Test
-  public void hasOrganizationPermission_for_anonymous_user() {
+  public void test_hasOrganizationPermission_for_anonymous_user() {
     OrganizationDto org = db.organizations().insert();
-    db.users().insertPermissionOnAnyone(org, GlobalPermissions.PROVISIONING);
+    db.users().insertPermissionOnAnyone(org, PROVISIONING);
 
     UserSession session = newAnonymousSession();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.PROVISIONING)).isTrue();
-    assertThat(session.hasOrganizationPermission(org.getUuid(), GlobalPermissions.SYSTEM_ADMIN)).isFalse();
-    assertThat(session.hasOrganizationPermission("another-org", GlobalPermissions.PROVISIONING)).isFalse();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), PROVISIONING)).isTrue();
+    assertThat(session.hasOrganizationPermission(org.getUuid(), SYSTEM_ADMIN)).isFalse();
+    assertThat(session.hasOrganizationPermission("another-org", PROVISIONING)).isFalse();
   }
 
   private ServerUserSession newUserSession(UserDto userDto) {

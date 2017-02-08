@@ -22,7 +22,7 @@ package org.sonar.server.tester;
 import com.google.common.collect.HashMultimap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.db.component.ComponentDto;
+import java.util.Optional;
 import org.sonar.server.user.AbstractUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -55,26 +55,18 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   }
 
   @Override
-  public boolean hasComponentPermission(String permission, ComponentDto component) {
-    return isRoot() || hasComponentUuidPermission(permission, component.projectUuid());
+  protected boolean hasOrganizationPermissionImpl(String organizationUuid, String permission) {
+    return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
   @Override
-  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
-    if (isRoot()) {
-      return true;
-    }
-    String projectUuid = projectUuidByComponentUuid.get(componentUuid);
-    return projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid);
+  protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
+    return Optional.ofNullable(projectUuidByComponentUuid.get(componentUuid));
   }
 
-  private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+  @Override
+  protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
     return projectPermissionsCheckedByUuid.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
-  }
-
-  @Override
-  public boolean hasOrganizationPermission(String organizationUuid, String permission) {
-    return isRoot() || permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
   public T addOrganizationPermission(String organizationUuid, String permission) {
