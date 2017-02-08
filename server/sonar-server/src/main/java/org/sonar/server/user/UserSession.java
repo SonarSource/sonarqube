@@ -34,7 +34,7 @@ public interface UserSession {
   String getLogin();
 
   /**
-   * NAme of the authenticated user. Returns {@code null}
+   * Name of the authenticated user. Returns {@code null}
    * if {@link #isLoggedIn()} is {@code false}.
    */
   @CheckForNull

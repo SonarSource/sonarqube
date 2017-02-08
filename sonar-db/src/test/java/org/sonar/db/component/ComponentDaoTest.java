@@ -541,8 +541,7 @@ public class ComponentDaoTest {
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto provisionedProject = db.components().insertComponent(newProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
-    ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {
-    });
+    ComponentDto provisionedView = db.components().insertView(organization);
     String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization)).getComponentUuid();
     String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
