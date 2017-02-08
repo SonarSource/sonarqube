@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.formula;
 
 import com.google.common.base.Optional;
-import java.util.List;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -39,13 +38,6 @@ public interface CounterInitializationContext {
    * Retrieve the measure for the current component for the specified metric key if it exists.
    */
   Optional<Measure> getMeasure(String metricKey);
-
-  /**
-   * Lists of Periods defined for the current project. They can be used to retrieve variations Measure.
-   * @deprecated replaced by {@link #getPeriod()}
-   */
-  @Deprecated
-  List<Period> getPeriods();
 
   /**
    * Return Period defined for the current project. It can be used to retrieve variation Measure.

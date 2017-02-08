@@ -206,11 +206,6 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
 
     @Override
-    public List<Period> getPeriods() {
-      return periodsHolder.getPeriods();
-    }
-
-    @Override
     public Period getPeriod() {
       return periodsHolder.getPeriod();
     }
@@ -259,11 +254,6 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     @Override
     public Metric getMetric() {
       return metric;
-    }
-
-    @Override
-    public List<Period> getPeriods() {
-      return periodsHolder.getPeriods();
     }
 
     @Override

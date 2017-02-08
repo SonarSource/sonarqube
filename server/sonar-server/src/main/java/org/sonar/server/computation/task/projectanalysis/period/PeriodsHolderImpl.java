@@ -19,50 +19,16 @@
  */
 package org.sonar.server.computation.task.projectanalysis.period;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.task.projectanalysis.period.Period.isValidPeriodIndex;
 
 public class PeriodsHolderImpl implements PeriodsHolder {
 
   @CheckForNull
-  private Period[] periods = null;
-
-  /**
-   * Initializes the periods in the holder.
-   *
-   * @throws NullPointerException if the specified Iterable is {@code null}
-   * @throws NullPointerException if the specified Iterable contains a {@code null}
-   * @throws IllegalArgumentException if the specified Iterable has more than 5 elements
-   * @throws IllegalStateException if the holder has already been initialized
-   * @throws IllegalStateException if two Periods have the same index
-   * @deprecated as only one period is now available. Use {@link #setPeriod(Period)} instead
-   */
-  @Deprecated
-  public void setPeriods(Iterable<Period> periods) {
-    requireNonNull(periods, "Periods cannot be null");
-    checkArgument(Iterables.size(periods) <= MAX_NUMBER_OF_PERIODS, String.format("There can not be more than %d periods", MAX_NUMBER_OF_PERIODS));
-    checkState(this.periods == null, "Periods have already been initialized");
-
-    Period[] newPeriods = new Period[MAX_NUMBER_OF_PERIODS];
-    for (Period period : from(periods).filter(CheckNotNull.INSTANCE)) {
-      int arrayIndex = period.getIndex() - 1;
-      checkArgument(newPeriods[arrayIndex] == null, "More than one period has the index " + period.getIndex());
-      newPeriods[arrayIndex] = period;
-    }
-    this.periods = newPeriods;
-  }
+  private Period period = null;
+  private boolean initialized = false;
 
   /**
    * Initializes the periods in the holder.
@@ -70,57 +36,25 @@ public class PeriodsHolderImpl implements PeriodsHolder {
    * @throws IllegalStateException if the holder has already been initialized
    */
   public void setPeriod(@Nullable Period period) {
-    checkState(this.periods == null, "Period have already been initialized");
-    Period[] newPeriods = new Period[1];
-    newPeriods[0] = period;
-    this.periods = newPeriods;
-  }
-
-  @Override
-  public List<Period> getPeriods() {
-    checkHolderIsInitialized();
-    return Arrays.stream(periods).filter(Objects::nonNull).collect(Collectors.toList());
-  }
-
-  @Override
-  public boolean hasPeriod(int i) {
-    checkHolderIsInitialized();
-    if (!isValidPeriodIndex(i)) {
-      throw new IndexOutOfBoundsException(String.format("Invalid Period index (%s), must be 0 < x < 6", i));
-    }
-    return periods[i - 1] != null;
-  }
-
-  @Override
-  public Period getPeriod(int i) {
-    checkState(hasPeriod(i), "Holder has no Period for index %s", i);
-    return this.periods[i - 1];
+    checkState(!initialized, "Period have already been initialized");
+    this.period = period;
+    this.initialized = true;
   }
 
   @Override
   public boolean hasPeriod() {
     checkHolderIsInitialized();
-    return periods[0] != null;
+    return period != null;
   }
 
   @Override
   public Period getPeriod() {
     checkHolderIsInitialized();
-    return this.periods[0];
+    return period;
   }
 
   private void checkHolderIsInitialized() {
-    checkState(this.periods != null, "Period have not been initialized yet");
-  }
-
-  private enum CheckNotNull implements Predicate<Period> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nullable Period input) {
-      requireNonNull(input, "No null Period can be added to the holder");
-      return true;
-    }
+    checkState(initialized, "Period have not been initialized yet");
   }
 
 }

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.period;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -47,35 +45,10 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
     this.delegate = new PeriodsHolderImpl();
   }
 
-  /**
-   * @deprecated as only one period is now available. Use {@link #setPeriod(Period)} instead
-   */
-  @Deprecated
-  public PeriodsHolderRule setPeriods(Period... periods) {
-    delegate = new PeriodsHolderImpl();
-    delegate.setPeriods(Arrays.asList(periods));
-    return this;
-  }
-
   public PeriodsHolderRule setPeriod(@Nullable Period period) {
     delegate = new PeriodsHolderImpl();
     delegate.setPeriod(period);
     return this;
-  }
-
-  @Override
-  public List<Period> getPeriods() {
-    return delegate.getPeriods();
-  }
-
-  @Override
-  public boolean hasPeriod(int i) {
-    return delegate.hasPeriod(i);
-  }
-
-  @Override
-  public Period getPeriod(int i) {
-    return delegate.getPeriod(i);
   }
 
   @Override

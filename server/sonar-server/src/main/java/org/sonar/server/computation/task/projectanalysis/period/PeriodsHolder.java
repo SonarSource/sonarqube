@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.period;
 
-import java.util.List;
-
 /**
  * Repository of period used to compute differential measures.
  * Here are the steps to retrieve the period :
@@ -29,39 +27,6 @@ import java.util.List;
  * - If a snapshot is found, the period is added to the repository
  */
 public interface PeriodsHolder {
-
-  @Deprecated
-  int MAX_NUMBER_OF_PERIODS = 5;
-
-  /**
-   * Return the list of differential periods, ordered by increasing index.
-   *
-   * @throws IllegalStateException if the periods haven't been initialized
-   * @deprecated replaced by {@link #getPeriod()}
-   */
-  @Deprecated
-  List<Period> getPeriods();
-
-  /**
-   * Finds out whether the holder contains a Period for the specified index.
-   *
-   * @throws IllegalStateException if the periods haven't been initialized
-   * @throws IndexOutOfBoundsException if i is either &lt; 1 or &gt; 5
-   * @deprecated replaced by {@link #hasPeriod()} 
-   */
-  @Deprecated
-  boolean hasPeriod(int i);
-
-  /**
-   * Retrieves the Period for the specified index from the Holder.
-   *
-   * @throws IllegalStateException if the periods haven't been initialized
-   * @throws IllegalStateException if there is no period for the specified index (see {@link #hasPeriod(int)})
-   * @throws IndexOutOfBoundsException if i is either &lt; 1 or &gt; 5
-   * @deprecated replaced by {@link #getPeriod()}
-   */
-  @Deprecated
-  Period getPeriod(int i);
 
   /**
    * Finds out whether the holder contains a Period

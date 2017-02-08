@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.formula;
 
-import java.util.List;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -37,13 +36,6 @@ public interface CreateMeasureContext {
    * The Metric for which the measure is to be created.
    */
   Metric getMetric();
-
-  /**
-   * The periods for which variations of the measure can be created.
-   * @deprecated as only one period is now available. Use {@link #getPeriod()} instead
-   */
-  @Deprecated
-  List<Period> getPeriods();
 
   /**
    * The period for which variation of the measure can be created.

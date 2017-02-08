@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.formula;
 
-import java.util.List;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -44,11 +43,6 @@ public class DumbCreateMeasureContext implements CreateMeasureContext {
   @Override
   public Metric getMetric() {
     return metric;
-  }
-
-  @Override
-  public List<Period> getPeriods() {
-    return periodsHolder.getPeriods();
   }
 
   @Override

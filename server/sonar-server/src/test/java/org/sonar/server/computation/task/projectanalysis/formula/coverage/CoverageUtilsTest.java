@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.formula.coverage;
 
 import com.google.common.base.Optional;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,11 +132,6 @@ public class CoverageUtilsTest {
     @Override
     public Optional<Measure> getMeasure(String metricKey) {
       return Optional.fromNullable(measures.get(metricKey));
-    }
-
-    @Override
-    public List<Period> getPeriods() {
-      throw new UnsupportedOperationException("getPeriods is not supported");
     }
 
     @Override
