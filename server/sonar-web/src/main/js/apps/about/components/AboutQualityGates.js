@@ -21,7 +21,7 @@ import React from 'react';
 import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
-const link = 'http://redirect.sonarsource.com/doc/quality-gates.html';
+const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
 
 export default class AboutQualityGates extends React.Component {
   render () {

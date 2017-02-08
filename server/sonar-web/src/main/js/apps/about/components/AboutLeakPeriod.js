@@ -21,7 +21,7 @@ import React from 'react';
 import ReadMore from './ReadMore';
 import { translate } from '../../../helpers/l10n';
 
-const link = 'http://redirect.sonarsource.com/doc/fix-the-leak.html';
+const link = 'https://redirect.sonarsource.com/doc/fix-the-leak.html';
 
 export default class AboutLeakPeriod extends React.Component {
   render () {

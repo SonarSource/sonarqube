@@ -23,22 +23,22 @@ import { translate } from '../../../helpers/l10n';
 const scanners = [
   {
     key: 'sonarqube',
-    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner.html'
+    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner.html'
   }, {
     key: 'msbuild',
-    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html'
+    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html'
   }, {
     key: 'maven',
-    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html'
+    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html'
   }, {
     key: 'gradle',
-    link: 'http://redirect.sonarsource.com/doc/gradle.html'
+    link: 'https://redirect.sonarsource.com/doc/gradle.html'
   }, {
     key: 'jenkins',
-    link: 'http://redirect.sonarsource.com/plugins/jenkins.html'
+    link: 'https://redirect.sonarsource.com/plugins/jenkins.html'
   }, {
     key: 'ant',
-    link: 'http://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
+    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
   }
 ];
 
