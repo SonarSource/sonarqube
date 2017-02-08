@@ -96,7 +96,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 60d));
     session.commit();
 
-    periodsHolder.setPeriod(newPeriod(1, period1ViewSnapshot));
+    periodsHolder.setPeriod(newPeriod(period1ViewSnapshot));
 
     treeRootHolder.setRoot(VIEW);
 
@@ -129,7 +129,7 @@ public class ViewsComputeMeasureVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), subviewDto.uuid(), period1Snapshot.getUuid(), 10d));
     session.commit();
 
-    periodsHolder.setPeriod(newPeriod(1, period1Snapshot));
+    periodsHolder.setPeriod(newPeriod(period1Snapshot));
 
     Component subview = ViewsComponent.builder(Component.Type.SUBVIEW, 2).setUuid(subviewDto.uuid()).build();
     Component view = ViewsComponent.builder(Component.Type.VIEW, 1).setUuid(VIEW_UUID).addChildren(subview).build();
@@ -155,7 +155,7 @@ public class ViewsComputeMeasureVariationsStepTest {
       newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_UUID, period1ViewSnapshot.getUuid(), 1d));
     session.commit();
 
-    periodsHolder.setPeriod(newPeriod(1, period1ViewSnapshot));
+    periodsHolder.setPeriod(newPeriod(period1ViewSnapshot));
 
     treeRootHolder.setRoot(VIEW);
 
@@ -182,8 +182,8 @@ public class ViewsComputeMeasureVariationsStepTest {
       .setValue(value);
   }
 
-  private static Period newPeriod(int index, SnapshotDto snapshotDto) {
-    return new Period(index, "mode", null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
+  private static Period newPeriod(SnapshotDto snapshotDto) {
+    return new Period("mode", null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   private void addRawMeasure(Component component, Metric metric, Measure measure) {

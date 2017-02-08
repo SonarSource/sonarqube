@@ -41,7 +41,6 @@ import org.sonar.server.computation.task.projectanalysis.component.ViewsComponen
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -389,10 +388,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setRootUuid(uuid);
     dbClient.componentDao().insert(dbTester.getSession(), componentDto);
     return componentDto;
-  }
-
-  private static Period createPeriod() {
-    return new Period(1, "mode" + 1, null, 1, "1");
   }
 
   private List<Map<String, Object>> selectSnapshots() {

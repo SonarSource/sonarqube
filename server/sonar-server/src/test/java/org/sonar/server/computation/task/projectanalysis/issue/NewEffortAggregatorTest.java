@@ -55,7 +55,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PRE
 
 public class NewEffortAggregatorTest {
 
-  private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
+  private static final Period PERIOD = new Period(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, "U1");
 
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
   private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();

@@ -133,7 +133,7 @@ public class EvaluationResultTextConverterTest {
       .thenReturn(metricMsg);
 
     Date date = new Date();
-    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
+    Period period = new Period(SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
     periodsHolder.setPeriod(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 
@@ -156,7 +156,7 @@ public class EvaluationResultTextConverterTest {
     when(i18n.message(Locale.ENGLISH, "variation", "variation")).thenReturn(variationMsg);
 
     Date date = new Date();
-    Period period = new Period(periodIndex, SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
+    Period period = new Period(SOME_MODE, null, date.getTime(), SOME_ANALYSIS_UUID);
     periodsHolder.setPeriod(period);
     when(periods.label(period.getMode(), period.getModeParameter(), date)).thenReturn(periodLabel);
 

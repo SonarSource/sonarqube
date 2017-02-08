@@ -78,6 +78,6 @@ public class PeriodsHolderImplTest {
   }
 
   private static Period createPeriod() {
-    return new Period(1, 1 + "mode", null, 1000L, "U1");
+    return new Period(1 + "mode", null, 1000L, "U1");
   }
 }
