@@ -50,3 +50,18 @@ it('should not set default', () => {
   const setDefault = renderActionsCell({ permissionTemplate }).find('.js-set-default');
   expect(setDefault.length).toBe(0);
 });
+
+it('should display all qualifiers for default organization', () => {
+  const organization = { isDefault: true };
+  const setDefault = renderActionsCell({ organization }).find('.js-set-default');
+  expect(setDefault.length).toBe(2);
+  expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');
+  expect(setDefault.at(1).prop('data-qualifier')).toBe('VW');
+});
+
+it('should display only projects for custom organization', () => {
+  const organization = { isDefault: false };
+  const setDefault = renderActionsCell({ organization }).find('.js-set-default');
+  expect(setDefault.length).toBe(1);
+  expect(setDefault.at(0).prop('data-qualifier')).toBe('TRK');
+});

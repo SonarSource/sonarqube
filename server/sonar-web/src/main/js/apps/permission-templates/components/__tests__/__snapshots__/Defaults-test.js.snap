@@ -1,0 +1,43 @@
+exports[`test should render one qualifier 1`] = `
+<div>
+  <span
+    className="badge spacer-right">
+    default
+     for 
+    qualifiers.DEV
+  </span>
+</div>
+`;
+
+exports[`test should render only projects for custom organization 1`] = `
+<div>
+  <span
+    className="badge spacer-right">
+    default
+     for 
+    qualifiers.TRK
+  </span>
+</div>
+`;
+
+exports[`test should render several qualifiers 1`] = `
+<div>
+  <span
+    className="badge spacer-right">
+    default
+     for 
+    qualifiers.TRK, qualifiers.VW
+  </span>
+</div>
+`;
+
+exports[`test should render several qualifiers for default organization 1`] = `
+<div>
+  <span
+    className="badge spacer-right">
+    default
+     for 
+    qualifiers.TRK, qualifiers.VW
+  </span>
+</div>
+`;

@@ -24,11 +24,16 @@ import { PermissionTemplateType } from '../propTypes';
 
 export default class Defaults extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired
   };
 
   render () {
-    const qualifiers = sortBy(this.props.permissionTemplate.defaultFor)
+    const qualifiersToDisplay = this.props.organization && !this.props.organization.isDefault ?
+        ['TRK'] :
+        this.props.permissionTemplate.defaultFor;
+
+    const qualifiers = sortBy(qualifiersToDisplay)
         .map(qualifier => translate('qualifiers', qualifier))
         .join(', ');
 

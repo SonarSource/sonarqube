@@ -75,9 +75,10 @@ export default class ActionsCell extends React.Component {
   }
 
   getAvailableQualifiers () {
-    return difference(
-        this.props.topQualifiers,
-        this.props.permissionTemplate.defaultFor);
+    const topQualifiers = this.props.organization && !this.props.organization.isDefault ?
+        ['TRK'] :
+        this.props.topQualifiers;
+    return difference(topQualifiers, this.props.permissionTemplate.defaultFor);
   }
 
   renderDropdownIcon (icon) {
