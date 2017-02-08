@@ -252,7 +252,7 @@ public class ItUtils {
   }
 
   public static void resetPeriod(Orchestrator orchestrator) {
-    resetSettings(orchestrator, null, "sonar.timemachine.period1");
+    resetSettings(orchestrator, null, "sonar.leak.period");
   }
 
   @CheckForNull

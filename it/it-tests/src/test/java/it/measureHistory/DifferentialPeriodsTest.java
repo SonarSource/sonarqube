@@ -74,8 +74,8 @@ public class DifferentialPeriodsTest {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
     // Set a global property and a project property to ensure project property is used
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
-    setServerProperty(orchestrator, PROJECT_KEY, "sonar.timemachine.period1", "30");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, PROJECT_KEY, "sonar.leak.period", "30");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
@@ -94,7 +94,7 @@ public class DifferentialPeriodsTest {
 
     // Check on ui that it's possible to define leak period on project
     Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings("sample")
-      .assertSettingDisplayed("sonar.timemachine.period1");
+      .assertSettingDisplayed("sonar.leak.period");
   }
 
   /**
@@ -103,7 +103,7 @@ public class DifferentialPeriodsTest {
   @Test
   public void ensure_differential_measures_are_computed_when_adding_new_component_after_period() throws Exception {
     orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
-    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.timemachine.period1", "30");
+    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "30");
 
     // Execute an analysis 60 days ago without module b
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "empty");
@@ -125,7 +125,7 @@ public class DifferentialPeriodsTest {
   @Test
   public void compute_no_new_lines_measures_when_changes_but_no_scm() throws Exception {
     orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
-    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "previous_analysis");
 
     // Execute an analysis 60 days ago without module b
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "empty");
@@ -148,7 +148,7 @@ public class DifferentialPeriodsTest {
   public void compute_zero_new_lines_measures_when_no_changes_and_scm_available() throws Exception {
     String projectKey = "sample-scm";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    setServerProperty(orchestrator, projectKey, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, projectKey, "sonar.leak.period", "previous_analysis");
 
     // Execute an analysis 60 days ago
     runProjectAnalysis(orchestrator, "scm/xoo-sample-with-scm", "sonar.projectDate", formatDate(addDays(new Date(), -60)),

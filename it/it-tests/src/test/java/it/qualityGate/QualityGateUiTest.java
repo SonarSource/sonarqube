@@ -53,7 +53,7 @@ public class QualityGateUiTest {
 
   @BeforeClass
   public static void initPeriod() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
   }
 

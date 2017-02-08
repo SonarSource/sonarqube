@@ -35,12 +35,12 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
@@ -72,7 +72,7 @@ public class PeriodResolver {
     }
     Period period = resolve(propertyValue);
     if (period == null && StringUtils.isNotBlank(propertyValue)) {
-      LOG.debug("Property " + TIMEMACHINE_PERIOD_PREFIX + 1 + " is not valid: " + propertyValue);
+      LOG.debug("Property " + LEAK_PERIOD + " is not valid: " + propertyValue);
     }
     return period;
   }
@@ -87,10 +87,10 @@ public class PeriodResolver {
     if (date != null) {
       return findByDate(date);
     }
-    if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
+    if (StringUtils.equals(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, property)) {
       return findByPreviousAnalysis();
     }
-    if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
+    if (StringUtils.equals(LEAK_PERIOD_MODE_PREVIOUS_VERSION, property)) {
       return findByPreviousVersion();
     }
     return findByVersion(property);
@@ -102,7 +102,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to date {} (analysis of {})", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(LEAK_PERIOD_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -114,7 +114,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(LEAK_PERIOD_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -124,7 +124,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to previous analysis ({})", formatDate(snapshot.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -139,7 +139,7 @@ public class PeriodResolver {
     }
     SnapshotDto snapshotDto = snapshotDtos.get(0);
     LOG.debug("Compare to previous version ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getUuid());
+    return new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
@@ -149,7 +149,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to first analysis ({})", formatDate(snapshotDto.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
+    return new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getUuid());
   }
 
   @CheckForNull
@@ -159,7 +159,7 @@ public class PeriodResolver {
       return null;
     }
     LOG.debug("Compare to version ({}) ({})", version, formatDate(snapshot.getCreatedAt()));
-    return new Period(TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getUuid());
+    return new Period(LEAK_PERIOD_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull
@@ -204,6 +204,6 @@ public class PeriodResolver {
   }
 
   private static String getPropertyValue(Settings settings) {
-    return settings.getString(TIMEMACHINE_PERIOD_PREFIX + 1);
+    return settings.getString(LEAK_PERIOD);
   }
 }

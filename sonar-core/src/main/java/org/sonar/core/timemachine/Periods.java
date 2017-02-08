@@ -30,12 +30,12 @@ import org.sonar.api.i18n.I18n;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
 public class Periods {
 
@@ -58,14 +58,14 @@ public class Periods {
 
   @CheckForNull
   public String label(int periodIndex) {
-    String periodProperty = settings.getString(TIMEMACHINE_PERIOD_PREFIX + periodIndex);
+    String periodProperty = settings.getString(LEAK_PERIOD + periodIndex);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return label(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
 
   @CheckForNull
   public String abbreviation(int periodIndex) {
-    String periodProperty = settings.getString(TIMEMACHINE_PERIOD_PREFIX + periodIndex);
+    String periodProperty = settings.getString(LEAK_PERIOD + periodIndex);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return abbreviation(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
@@ -88,15 +88,15 @@ public class Periods {
   @CheckForNull
   private String label(String mode, @Nullable String param, @Nullable String date, boolean shortLabel) {
     switch (mode) {
-      case TIMEMACHINE_MODE_DAYS:
+      case LEAK_PERIOD_MODE_DAYS:
         return labelForDays(param, date, shortLabel);
-      case TIMEMACHINE_MODE_VERSION:
+      case LEAK_PERIOD_MODE_VERSION:
         return labelForVersion(param, date, shortLabel);
-      case TIMEMACHINE_MODE_PREVIOUS_ANALYSIS:
+      case LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS:
         return labelForPreviousAnalysis(date, shortLabel);
-      case TIMEMACHINE_MODE_PREVIOUS_VERSION:
+      case LEAK_PERIOD_MODE_PREVIOUS_VERSION:
         return labelForPreviousVersion(param, date, shortLabel);
-      case TIMEMACHINE_MODE_DATE:
+      case LEAK_PERIOD_MODE_DATE:
         return label("since_x", shortLabel, date);
       default:
         throw new IllegalArgumentException("This mode is not supported : " + mode);
@@ -156,16 +156,16 @@ public class Periods {
       checkArgument(isNotBlank(periodProperty), "Period property should not be empty");
       Integer possibleDaysValue = findByDays(periodProperty);
       Date possibleDatesValue = findByDate(periodProperty);
-      if (TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(periodProperty) || TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
+      if (LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS.equals(periodProperty) || LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
         mode = periodProperty;
       } else if (possibleDaysValue != null) {
-        mode = TIMEMACHINE_MODE_DAYS;
+        mode = LEAK_PERIOD_MODE_DAYS;
         param = Integer.toString(possibleDaysValue);
       } else if (possibleDatesValue != null) {
-        mode = TIMEMACHINE_MODE_DATE;
+        mode = LEAK_PERIOD_MODE_DATE;
         date = possibleDatesValue;
       } else {
-        mode = TIMEMACHINE_MODE_VERSION;
+        mode = LEAK_PERIOD_MODE_VERSION;
         param = periodProperty;
       }
     }

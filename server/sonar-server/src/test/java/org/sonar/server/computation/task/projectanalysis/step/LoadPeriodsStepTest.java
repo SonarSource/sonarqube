@@ -46,11 +46,11 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
 @RunWith(DataProviderRunner.class)
 public class LoadPeriodsStepTest extends BaseStepTest {
@@ -116,13 +116,13 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String textDate = "2008-11-22";
-    settings.setProperty("sonar.timemachine.period1", textDate);
+    settings.setProperty("sonar.leak.period", textDate);
 
     underTest.execute();
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1003");
@@ -133,7 +133,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_when_settings_match_no_analysis(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "UNKNWOWN VERSION");
+    settings.setProperty("sonar.leak.period", "UNKNWOWN VERSION");
 
     underTest.execute();
 
@@ -145,7 +145,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_when_settings_is_empty(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "");
+    settings.setProperty("sonar.leak.period", "");
 
     underTest.execute();
 
@@ -157,7 +157,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void ignore_unprocessed_snapshots(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "unprocessed_snapshots.xml");
-    settings.setProperty("sonar.timemachine.period1", "100");
+    settings.setProperty("sonar.leak.period", "100");
 
     underTest.execute();
 
@@ -170,14 +170,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String textDate = "2008-11-22";
-    settings.setProperty("sonar.timemachine.period1", textDate);
+    settings.setProperty("sonar.leak.period", textDate);
 
     underTest.execute();
 
     // Return analysis from given date 2008-11-22
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1003");
@@ -192,14 +192,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String date = "2008-11-24";
-    settings.setProperty("sonar.timemachine.period1", date);
+    settings.setProperty("sonar.leak.period", date);
 
     underTest.execute();
 
     // Analysis form 2008-11-29
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(date);
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1004");
@@ -211,7 +211,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     // No analysis at and after this date
-    settings.setProperty("sonar.timemachine.period1", "2008-11-30");
+    settings.setProperty("sonar.leak.period", "2008-11-30");
 
     underTest.execute();
 
@@ -223,14 +223,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_days(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "10");
+    settings.setProperty("sonar.leak.period", "10");
 
     underTest.execute();
 
     // return analysis from 2008-11-20
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DAYS);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_DAYS);
     assertThat(period.getModeParameter()).isEqualTo("10");
     assertThat(period.getSnapshotDate()).isEqualTo(1227157200000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1002");
@@ -244,7 +244,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_by_days(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
-    settings.setProperty("sonar.timemachine.period1", "0");
+    settings.setProperty("sonar.leak.period", "0");
 
     underTest.execute();
 
@@ -256,14 +256,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_analysis(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_analysis");
+    settings.setProperty("sonar.leak.period", "previous_analysis");
 
     underTest.execute();
 
     // return analysis from 2008-11-29
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
     assertThat(period.getModeParameter()).isNotNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1004");
@@ -277,7 +277,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_by_previous_analysis(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_analysis");
+    settings.setProperty("sonar.leak.period", "previous_analysis");
 
     underTest.execute();
 
@@ -288,14 +288,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version() {
     setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
     // Analysis form 2008-11-12
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("1.0");
     assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1001");
@@ -308,7 +308,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_is_not_supported_for_views() {
     setupRoot(VIEW_ROOT);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
@@ -319,14 +319,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_previous_version_deleted() {
     setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "previous_version_deleted.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
     // Analysis form 2008-11-11
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1000");
@@ -337,7 +337,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_by_previous_version(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
@@ -348,13 +348,13 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_first_analysis_when_no_previous_version_found() {
     setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1000");
@@ -364,13 +364,13 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_previous_version_with_first_analysis_when_previous_snapshot_is_the_last_one() {
     setupRoot(PROJECT_ROOT);
     dbTester.prepareDbUnit(getClass(), "previous_version_is_last_one.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1000");
@@ -380,7 +380,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_by_previous_version_when_no_event_version_for_views() {
     setupRoot(VIEW_ROOT);
     dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
-    settings.setProperty("sonar.timemachine.period1", "previous_version");
+    settings.setProperty("sonar.leak.period", "previous_version");
 
     underTest.execute();
 
@@ -392,14 +392,14 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void feed_period_by_version(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.timemachine.period1", "0.9");
+    settings.setProperty("sonar.leak.period", "0.9");
 
     underTest.execute();
 
     // Analysis form 2008-11-11
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_VERSION);
+    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1000");
@@ -413,7 +413,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public void no_period_by_version(Component root) {
     setupRoot(root);
     dbTester.prepareDbUnit(getClass(), "empty.xml");
-    settings.setProperty("sonar.timemachine.period1", "0.8");
+    settings.setProperty("sonar.leak.period", "0.8");
 
     underTest.execute();
 

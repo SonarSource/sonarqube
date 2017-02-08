@@ -24,8 +24,8 @@ import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 
 import static org.mockito.Matchers.anyString;
@@ -35,12 +35,12 @@ import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
-import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
 public class PeriodsTest {
 
@@ -57,35 +57,35 @@ public class PeriodsTest {
 
   @Test
   public void return_over_x_days_label_when_no_date() {
-    periods.label(TIMEMACHINE_MODE_DAYS, NUMBER_OF_DAYS, (String) null);
+    periods.label(LEAK_PERIOD_MODE_DAYS, NUMBER_OF_DAYS, (String) null);
 
     verify(i18n).message(any(Locale.class), eq("over_x_days"), isNull(String.class), eq(NUMBER_OF_DAYS));
   }
 
   @Test
   public void return_over_x_days_abbreviation_when_no_date() {
-    periods.abbreviation(TIMEMACHINE_MODE_DAYS, NUMBER_OF_DAYS, null);
+    periods.abbreviation(LEAK_PERIOD_MODE_DAYS, NUMBER_OF_DAYS, null);
 
     verify(i18n).message(any(Locale.class), eq("over_x_days.short"), isNull(String.class), eq(NUMBER_OF_DAYS));
   }
 
   @Test
   public void return_over_x_days_detailed_label_when_date_is_set() {
-    periods.label(TIMEMACHINE_MODE_DAYS, NUMBER_OF_DAYS, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_DAYS, NUMBER_OF_DAYS, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("over_x_days_detailed"), isNull(String.class), eq(NUMBER_OF_DAYS), eq(STRING_DATE));
   }
 
   @Test
   public void return_over_x_days_detailed_abbreviation_when_date_is_set() {
-    periods.abbreviation(TIMEMACHINE_MODE_DAYS, NUMBER_OF_DAYS, DATE);
+    periods.abbreviation(LEAK_PERIOD_MODE_DAYS, NUMBER_OF_DAYS, DATE);
 
     verify(i18n).message(any(Locale.class), eq("over_x_days_detailed.short"), isNull(String.class), eq(NUMBER_OF_DAYS), anyString());
   }
 
   @Test
   public void return_over_x_days_label_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, NUMBER_OF_DAYS);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, NUMBER_OF_DAYS);
 
     periods.label(PERIOD_INDEX);
 
@@ -94,35 +94,35 @@ public class PeriodsTest {
 
   @Test
   public void return_since_version_label_when_no_date() {
-    periods.label(TIMEMACHINE_MODE_VERSION, VERSION, (String) null);
+    periods.label(LEAK_PERIOD_MODE_VERSION, VERSION, (String) null);
 
     verify(i18n).message(any(Locale.class), eq("since_version"), isNull(String.class), eq(VERSION));
   }
 
   @Test
   public void return_since_version_abbreviation_when_no_date() {
-    periods.abbreviation(TIMEMACHINE_MODE_VERSION, VERSION, null);
+    periods.abbreviation(LEAK_PERIOD_MODE_VERSION, VERSION, null);
 
     verify(i18n).message(any(Locale.class), eq("since_version.short"), isNull(String.class), eq(VERSION));
   }
 
   @Test
   public void return_since_version_detailed_label_when_date_is_set() {
-    periods.label(TIMEMACHINE_MODE_VERSION, VERSION, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_VERSION, VERSION, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_version_detailed"), isNull(String.class), eq(VERSION), eq(STRING_DATE));
   }
 
   @Test
   public void return_since_version_detailed_abbreviation_when_date_is_set() {
-    periods.abbreviation(TIMEMACHINE_MODE_VERSION, VERSION, DATE);
+    periods.abbreviation(LEAK_PERIOD_MODE_VERSION, VERSION, DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_version_detailed.short"), isNull(String.class), eq(VERSION), anyString());
   }
 
   @Test
   public void return_since_version_label_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, VERSION);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, VERSION);
 
     periods.label(PERIOD_INDEX);
 
@@ -131,35 +131,35 @@ public class PeriodsTest {
 
   @Test
   public void return_since_previous_analysis_label_when_no_date() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, (String) null);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, (String) null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
   }
 
   @Test
   public void return_since_previous_analysis_abbreviation_when_no_date() {
-    periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, null);
+    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis.short"), isNull(String.class));
   }
 
   @Test
   public void return_since_previous_analysis_detailed_label_when_date_is_set() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed"), isNull(String.class), eq(STRING_DATE));
   }
 
   @Test
   public void return_since_previous_analysis_detailed_abbreviation_when_date_is_set() {
-    periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, DATE);
+    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed.short"), isNull(String.class), anyString());
   }
 
   @Test
   public void return_since_previous_analysis_label_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
 
     periods.label(PERIOD_INDEX);
 
@@ -168,56 +168,56 @@ public class PeriodsTest {
 
   @Test
   public void return_since_previous_version_label_when_no_param() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, (String) null);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, (String) null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version"), isNull(String.class));
   }
 
   @Test
   public void return_since_previous_version_abbreviation_when_no_param() {
-    periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, null);
+    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version.short"), isNull(String.class));
   }
 
   @Test
   public void return_since_previous_version_detailed_label_when_param_is_set_and_no_date() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_VERSION, VERSION, (String) null);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_VERSION, VERSION, (String) null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(VERSION));
   }
 
   @Test
   public void return_since_previous_version_detailed_abbreviation_when_param_is_set_and_no_date() {
-    periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_VERSION, VERSION, null);
+    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_VERSION, VERSION, null);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed.short"), isNull(String.class), eq(VERSION));
   }
 
   @Test
   public void return_since_previous_version_detailed_label_when_param_and_date_are_set() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_VERSION, VERSION, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_VERSION, VERSION, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(VERSION), eq(STRING_DATE));
   }
 
   @Test
   public void return_since_previous_version_with_only_date_label_when_no_param_and_date_is_set() {
-    periods.label(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version_with_only_date"), isNull(String.class), eq(STRING_DATE));
   }
 
   @Test
   public void return_since_previous_version_detailed_abbreviation_when_param_and_date_are_set() {
-    periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_VERSION, VERSION, DATE);
+    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_VERSION, VERSION, DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed.short"), isNull(String.class), eq(VERSION), anyString());
   }
 
   @Test
   public void return_since_previous_version_label_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, LEAK_PERIOD_MODE_PREVIOUS_VERSION);
 
     periods.label(PERIOD_INDEX);
 
@@ -226,14 +226,14 @@ public class PeriodsTest {
 
   @Test
   public void return_since_x_label() {
-    periods.label(TIMEMACHINE_MODE_DATE, null, STRING_DATE);
+    periods.label(LEAK_PERIOD_MODE_DATE, null, STRING_DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_x"), isNull(String.class), eq(STRING_DATE));
   }
 
   @Test
   public void return_since_x_label_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, STRING_DATE);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, STRING_DATE);
 
     periods.label(PERIOD_INDEX);
 
@@ -242,7 +242,7 @@ public class PeriodsTest {
 
   @Test
   public void return_since_x_abbreviation() {
-    periods.abbreviation(TIMEMACHINE_MODE_DATE, null, DATE);
+    periods.abbreviation(LEAK_PERIOD_MODE_DATE, null, DATE);
 
     verify(i18n).message(any(Locale.class), eq("since_x.short"), isNull(String.class), anyString());
   }
@@ -257,7 +257,7 @@ public class PeriodsTest {
 
   @Test
   public void return_abbreviation_using_settings() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, NUMBER_OF_DAYS);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, NUMBER_OF_DAYS);
 
     periods.abbreviation(PERIOD_INDEX);
 
@@ -266,7 +266,7 @@ public class PeriodsTest {
 
   @Test
   public void throw_IAE_when_period_property_is_empty() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, "");
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, "");
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Period property should not be empty");
@@ -276,7 +276,7 @@ public class PeriodsTest {
 
   @Test
   public void throw_IAE_when_period_property_is_null() {
-    settings.setProperty(TIMEMACHINE_PERIOD_PREFIX + PERIOD_INDEX, (String) null);
+    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, (String) null);
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Period property should not be empty");

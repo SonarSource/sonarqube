@@ -54,7 +54,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
 
     // Execute an analysis in the past with no issue to have a past snapshot
@@ -78,7 +78,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "30");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "30");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
@@ -97,7 +97,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
    */
   @Test
   public void new_issues_measures_consistent_with_variations() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
@@ -125,7 +125,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures_should_be_correctly_calculated_when_adding_a_new_module() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
 
     // First analysis without module b

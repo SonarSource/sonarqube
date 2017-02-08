@@ -71,7 +71,7 @@ public class QualityGateOnRatingMeasuresTest {
   @After
   public void resetData() throws Exception {
     qgClient().destroy(qualityGateId);
-    resetSettings(orchestrator, null, "sonar.timemachine.period1");
+    resetSettings(orchestrator, null, "sonar.leak.period");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class QualityGateOnRatingMeasuresTest {
 
   @Test
   public void generate_error_qgate_on_rating_metric_on_leak_period() throws Exception {
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
     QUALITY_GATES.createCondition(CreateConditionRequest.builder()
       .setQualityGateId(qualityGateId.intValue())
       .setMetricKey("new_security_rating")

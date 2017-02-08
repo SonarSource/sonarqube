@@ -66,7 +66,7 @@ public class QualityGateNotificationTest {
   public static void init() throws Exception {
     DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
 
-    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
     resetEmailSettings(orchestrator);
 
     smtpServer = new Wiser(0);

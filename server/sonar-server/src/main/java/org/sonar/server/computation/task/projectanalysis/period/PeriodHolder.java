@@ -22,7 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.period;
 /**
  * Repository of period used to compute differential measures.
  * Here are the steps to retrieve the period :
- * - Read the period property ${@link org.sonar.core.config.CorePropertyDefinitions#TIMEMACHINE_PERIOD_PREFIX}
+ * - Read the period property ${@link org.sonar.core.config.CorePropertyDefinitions#LEAK_PERIOD}
  * - Try to find the matching snapshots from the property
  * - If a snapshot is found, the period is added to the repository
  */
