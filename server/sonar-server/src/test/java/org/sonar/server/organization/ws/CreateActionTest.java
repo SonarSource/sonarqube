@@ -89,7 +89,7 @@ public class CreateActionTest {
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
-  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation);
+  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings);
   private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation, organizationCreation);
   private WsActionTester wsTester = new WsActionTester(underTest);
 

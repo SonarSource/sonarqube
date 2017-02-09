@@ -31,6 +31,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
@@ -46,21 +47,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ChangePasswordActionTest {
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create();
-
   @Rule
   public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), new MapSettings(), db.getDbClient(),
-    new UserIndexer(System2.INSTANCE, db.getDbClient(), esTester.client()), System2.INSTANCE, TestDefaultOrganizationProvider.from(db));
+    new UserIndexer(System2.INSTANCE, db.getDbClient(), esTester.client()),
+    System2.INSTANCE,
+    TestDefaultOrganizationProvider.from(db),
+    mock(OrganizationCreation.class));
 
   private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
 

@@ -37,6 +37,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
@@ -76,9 +77,11 @@ public class CreateActionTest {
   private UserIndex index = new UserIndex(esTester.client());
   private UserIndexer userIndexer = new UserIndexer(system2, db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
+  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
 
-  private WsActionTester tester = new WsActionTester(
-    new CreateAction(new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db)), userSessionRule));
+  private WsActionTester tester = new WsActionTester(new CreateAction(
+    new UserUpdater(mock(NewUserNotifier.class), settings, db.getDbClient(), userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation),
+    userSessionRule));
 
   @Before
   public void setUp() {

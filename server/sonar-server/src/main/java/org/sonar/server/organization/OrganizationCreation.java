@@ -19,11 +19,13 @@
  */
 package org.sonar.server.organization;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,8 +35,8 @@ public interface OrganizationCreation {
   String PERM_TEMPLATE_DESCRIPTION_PATTERN = "Default permission template of organization %s";
 
   /**
-   * Create a new Organization with the specified properties and of which the specified user will assign Administer
-   * Organization permission.
+   * Create a new non guarded organization with the specified properties and of which the specified user will assign
+   * Administer Organization permission.
    * <p>
    * This method does several operations at once:
    * <ol>
@@ -61,8 +63,28 @@ public interface OrganizationCreation {
    */
   OrganizationDto create(DbSession dbSession, long createUserId, NewOrganization newOrganization) throws KeyConflictException;
 
+  /**
+   * Create a new guarded organization which details are based on the login of the specified User.
+   * <p>
+   * This method create the organization and its associated elements in exactly the same was as
+   * {@link #create(DbSession, long, NewOrganization)} with the organization's details computed from the
+   * user's login:
+   * <ul>
+   *   <li>key: generated from the user's login</li>
+   *   <li>name: the user's login</li>
+   *   <li>description, url and avatar: null</li>
+   * </ul>
+   * </p>
+   *
+   * @return the created organization or empty if feature is disabled
+   *
+   * @throws IllegalArgumentException if any field of {@code newOrganization} is invalid according to {@link OrganizationValidation}
+   * @throws IllegalStateException if an organization with the key generated from the login already exists
+   */
+  Optional<OrganizationDto> createForUser(DbSession dbSession, UserDto newUser);
+
   final class KeyConflictException extends Exception {
-    public KeyConflictException(String message) {
+    KeyConflictException(String message) {
       super(message);
     }
   }

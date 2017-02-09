@@ -33,6 +33,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
@@ -48,6 +49,8 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionTest {
+
+  private static final OrganizationCreation ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE = null;
 
   private final Settings settings = new MapSettings().setProperty("sonar.defaultGroup", "sonar-users");
 
@@ -73,7 +76,8 @@ public class UpdateActionTest {
 
     userIndexer = new UserIndexer(system2, dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider), userSessionRule,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE),
+      userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
   }
 

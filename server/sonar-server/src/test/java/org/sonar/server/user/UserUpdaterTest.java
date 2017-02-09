@@ -43,6 +43,7 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -86,7 +87,8 @@ public class UserUpdaterTest {
   private Settings settings = new MapSettings();
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(system2, dbClient, es.client());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, TestDefaultOrganizationProvider.from(db));
+  private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, settings, dbClient, userIndexer, system2, TestDefaultOrganizationProvider.from(db), organizationCreation);
 
   @Before
   public void setUp() {

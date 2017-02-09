@@ -44,6 +44,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
@@ -75,15 +76,17 @@ public class UserUpdater {
   private final UserIndexer userIndexer;
   private final System2 system2;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final OrganizationCreation organizationCreation;
 
   public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation) {
     this.newUserNotifier = newUserNotifier;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.organizationCreation = organizationCreation;
   }
 
   public UserDto create(NewUser newUser) {
@@ -358,6 +361,7 @@ public class UserUpdater {
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addDefaultGroup(dbSession, userDto);
+    organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();
     userIndexer.index();
     return res;

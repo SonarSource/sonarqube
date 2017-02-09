@@ -24,8 +24,10 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -51,6 +53,10 @@ public class OrganizationCreationImplTest {
   private static final long SOME_USER_ID = 1L;
   private static final String SOME_UUID = "org-uuid";
   private static final long SOME_DATE = 12893434L;
+  private static final String A_LOGIN = "a-login";
+  private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
+  public static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
     .setKey("a-key")
@@ -72,8 +78,9 @@ public class OrganizationCreationImplTest {
   private DbClient dbClient = dbTester.getDbClient();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
+  private MapSettings settings = new MapSettings();
 
-  private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation);
+  private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings);
 
   @Test
   public void create_throws_NPE_if_NewOrganization_arg_is_null() throws OrganizationCreation.KeyConflictException {
@@ -144,6 +151,7 @@ public class OrganizationCreationImplTest {
     assertThat(organization.getDescription()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getDescription());
     assertThat(organization.getUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getUrl());
     assertThat(organization.getAvatarUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getAvatar());
+     assertThat(organization.isGuarded()).isFalse();
     assertThat(organization.getCreatedAt()).isEqualTo(SOME_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(SOME_DATE);
   }
@@ -156,19 +164,7 @@ public class OrganizationCreationImplTest {
 
     underTest.create(dbSession, user.getId(), FULL_POPULATED_NEW_ORGANIZATION);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
-    Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
-    assertThat(groupDtoOptional).isNotEmpty();
-    GroupDto groupDto = groupDtoOptional.get();
-    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + FULL_POPULATED_NEW_ORGANIZATION.getName());
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
-      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
-    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
-      dbSession,
-      UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
-    assertThat(members)
-      .extracting(UserMembershipDto::getLogin)
-      .containsOnly(user.getLogin());
+    verifyGroupOwners(user, FULL_POPULATED_NEW_ORGANIZATION.getKey(), FULL_POPULATED_NEW_ORGANIZATION.getName());
   }
 
   @Test
@@ -186,6 +182,7 @@ public class OrganizationCreationImplTest {
     assertThat(organization.getDescription()).isNull();
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
+    assertThat(organization.isGuarded()).isFalse();
   }
 
   @Test
@@ -194,11 +191,120 @@ public class OrganizationCreationImplTest {
 
     underTest.create(dbSession, SOME_USER_ID, FULL_POPULATED_NEW_ORGANIZATION);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
+    verifyDefaultTemplate(FULL_POPULATED_NEW_ORGANIZATION.getKey(), FULL_POPULATED_NEW_ORGANIZATION.getName());
+  }
+
+  @Test
+  public void createForUser_has_no_effect_if_setting_for_feature_is_not_set() {
+    checkSizeOfTables();
+
+    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
+
+    checkSizeOfTables();
+  }
+
+  @Test
+  public void createForUser_has_no_effect_if_setting_for_feature_is_disabled() {
+    enableCreatePersonalOrg(false);
+
+    checkSizeOfTables();
+
+    underTest.createForUser(null /* argument is not even read */, null /* argument is not even read */);
+
+    checkSizeOfTables();
+  }
+
+  private void checkSizeOfTables() {
+    assertThat(dbTester.countRowsOfTable("organizations")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("groups")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("groups_users")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("permission_templates")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("perm_templates_users")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
+  }
+
+  @Test
+  public void createForUser_creates_guarded_organization_with_name_and_key_generated_from_login() {
+    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(organization.getUuid()).isEqualTo(SOME_UUID);
+    assertThat(organization.getKey()).isEqualTo(SLUG_OF_A_LOGIN);
+    assertThat(organization.getName()).isEqualTo(user.getLogin());
+    assertThat(organization.getDescription()).isNull();
+    assertThat(organization.getUrl()).isNull();
+    assertThat(organization.getAvatarUrl()).isNull();
+    assertThat(organization.isGuarded()).isTrue();
+    assertThat(organization.getCreatedAt()).isEqualTo(SOME_DATE);
+    assertThat(organization.getUpdatedAt()).isEqualTo(SOME_DATE);
+  }
+
+  @Test
+  public void createForUser_fails_with_ISE_if_organization_with_slug_of_login_already_exists() {
+    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    dbTester.organizations().insertForKey(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't create organization with key '" + SLUG_OF_A_LOGIN + "' for new user '" + A_LOGIN
+      + "' because an organization with this key already exists");
+
+    underTest.createForUser(dbSession, user);
+  }
+
+  @Test
+  public void createForUser_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    verifyGroupOwners(user, SLUG_OF_A_LOGIN, A_LOGIN);
+  }
+
+  private void verifyGroupOwners(UserDto user, String organizationKey, String organizationName) {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
+    Optional<GroupDto> groupDtoOptional = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners");
+    assertThat(groupDtoOptional).isNotEmpty();
+    GroupDto groupDto = groupDtoOptional.get();
+    assertThat(groupDto.getDescription()).isEqualTo("Owners of organization " + organizationName);
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+      .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
+    List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
+      dbSession,
+      UserMembershipQuery.builder().groupId(groupDto.getId()).membership(UserMembershipQuery.IN).build(), 0, Integer.MAX_VALUE);
+    assertThat(members)
+      .extracting(UserMembershipDto::getLogin)
+      .containsOnly(user.getLogin());
+  }
+
+  @Test
+  public void createForUser_creates_default_template_for_new_organization() throws OrganizationCreation.KeyConflictException {
+    UserDto user = dbTester.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    verifyDefaultTemplate(SLUG_OF_A_LOGIN, A_LOGIN);
+  }
+
+  private void verifyDefaultTemplate(String organizationKey, String organizationName) {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, organizationKey).get();
     GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
-    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + FULL_POPULATED_NEW_ORGANIZATION.getName());
+    assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + organizationName);
     DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organization.getUuid()).get();
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getViewUuid()).isNull();
@@ -207,6 +313,24 @@ public class OrganizationCreationImplTest {
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN),
         tuple(0L, UserRole.USER), tuple(0L, UserRole.CODEVIEWER));
+  }
+
+  @Test
+  public void createForUser_does_not_fail_if_login_is_too_long_for_an_organization_name() {
+    String login = STRING_64_CHARS + "b";
+    UserDto user = dbTester.users().insertUser(login);
+    when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
+    mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    enableCreatePersonalOrg(true);
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(organization.getName()).isEqualTo(STRING_64_CHARS);
+  }
+
+  private void enableCreatePersonalOrg(boolean flag) {
+    settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_CREATE_PERSONAL_ORG, flag);
   }
 
   private void mockForSuccessfulInsert(String orgUuid, long orgDate) {
