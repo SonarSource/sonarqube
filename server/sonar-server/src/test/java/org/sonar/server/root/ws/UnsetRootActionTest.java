@@ -87,7 +87,7 @@ public class UnsetRootActionTest {
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_root() {
-    userSessionRule.logIn();
+    userSessionRule.logIn().setNonRoot();
 
     expectInsufficientPrivilegesForbiddenException();
 
