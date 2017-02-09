@@ -24,5 +24,6 @@
     "POL"
   ],
   "version": "6.2",
-  "productionDatabase": true
+  "productionDatabase": true,
+  "organizationsEnabled": false
 }

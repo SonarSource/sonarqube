@@ -29,8 +29,10 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.Database;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
 
@@ -57,14 +59,17 @@ public class GlobalAction implements NavigationWsAction {
   private final Settings settings;
   private final ResourceTypes resourceTypes;
   private final Server server;
-  private final Database database;
+  private final DbClient dbClient;
+  private final OrganizationFlags organizationFlags;
 
-  public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server, Database database) {
+  public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server,
+    DbClient dbClient, OrganizationFlags organizationFlags) {
     this.pageRepository = pageRepository;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
     this.server = server;
-    this.database = database;
+    this.dbClient = dbClient;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -86,6 +91,7 @@ public class GlobalAction implements NavigationWsAction {
     writeQualifiers(json);
     writeVersion(json);
     writeDatabaseProduction(json);
+    writeOrganizationSupport(json);
     json.endObject().close();
   }
 
@@ -127,6 +133,12 @@ public class GlobalAction implements NavigationWsAction {
   }
 
   private void writeDatabaseProduction(JsonWriter json) {
-    json.prop("productionDatabase", !database.getDialect().getId().equals(H2.ID));
+    json.prop("productionDatabase", !dbClient.getDatabase().getDialect().getId().equals(H2.ID));
+  }
+
+  private void writeOrganizationSupport(JsonWriter json) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      json.prop("organizationsEnabled", organizationFlags.isEnabled(dbSession));
+    }
   }
 }

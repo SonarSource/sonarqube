@@ -30,15 +30,17 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.db.Database;
+import org.sonar.db.DbClient;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -51,9 +53,10 @@ public class GlobalActionTest {
   private Settings settings = new MapSettings();
 
   private Server server = mock(Server.class);
-  private Database database = mock(Database.class);
+  private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
 
   private WsActionTester ws;
+  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
   @Test
   public void empty_call() throws Exception {
@@ -143,9 +146,17 @@ public class GlobalActionTest {
   @Test
   public void return_if_production_database_or_not() throws Exception {
     init();
-    when(database.getDialect()).thenReturn(new MySql());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
 
     executeAndVerify("production_database.json");
+  }
+
+  @Test
+  public void organization_support_is_enabled() throws Exception {
+    init();
+    organizationFlags.setEnabled(true);
+
+    executeAndVerify("organization_support.json");
   }
 
   @Test
@@ -169,7 +180,7 @@ public class GlobalActionTest {
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     when(server.getVersion()).thenReturn("6.2");
-    when(database.getDialect()).thenReturn(new MySql());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
 
     String result = call();
     assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
@@ -180,7 +191,7 @@ public class GlobalActionTest {
   }
 
   private void init(org.sonar.api.web.page.Page[] pages, ResourceTypeTree[] resourceTypeTrees) {
-    when(database.getDialect()).thenReturn(new H2());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new H2());
     when(server.getVersion()).thenReturn("6.42");
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
@@ -190,7 +201,7 @@ public class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server, database));
+    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server, dbClient, organizationFlags));
   }
 
   private void executeAndVerify(String json) {
