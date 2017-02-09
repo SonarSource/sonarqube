@@ -47,14 +47,19 @@
   </issueManagement>
 
   <properties>
-    <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
-    <sonarJava.version>4.4.0.8066</sonarJava.version>
-    <sonarJavaScript.version>2.19.0.3866</sonarJavaScript.version>
-    <sonarCSharp.version>5.6.0.586</sonarCSharp.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/dotnet/sonar-csharp-plugin/ -->
+    <sonarCSharp.version>5.7.0.612</sonarCSharp.version>
     <sonarGit.version>1.2</sonarGit.version>
-    <sonarSvn.version>1.4.0.522</sonarSvn.version>
-    <sonarPhp.version>2.9.2.1744</sonarPhp.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
+    <sonarJava.version>4.5.0.8398</sonarJava.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
+    <sonarJavaScript.version>2.20.0.4207</sonarJavaScript.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/php/sonar-php-plugin/ -->
+    <sonarPhp.version>2.9.1.1705</sonarPhp.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
     <sonarPython.version>1.7.0.1195</sonarPython.version>
+    <sonarSvn.version>1.4.0.522</sonarSvn.version>
+    <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
     <h2.version>1.3.176</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.1.7</logback.version>
