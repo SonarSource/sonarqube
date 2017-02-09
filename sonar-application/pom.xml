@@ -139,6 +139,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.flex</groupId>
+      <artifactId>sonar-flex-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <!-- do not upgrade because of licensing change -->
       <groupId>tanukisoft</groupId>
       <artifactId>wrapper</artifactId>
@@ -230,8 +236,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>110000000</minsize>
-                  <maxsize>117000000</maxsize>
+                  <minsize>111000000</minsize>
+                  <maxsize>118000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>
