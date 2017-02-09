@@ -83,6 +83,13 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
+  public void scoring_perfect_match_dispite_case_changes() {
+    assertResultOrder("sonarqube",
+      "SonarQube",
+      "SonarQube SCM Git");
+  }
+
+  @Test
   public void do_not_match_wrong_file_extension() {
     ComponentDto file1 = indexFile("MyClass.java");
     ComponentDto file2 = indexFile("ClassExample.java");
