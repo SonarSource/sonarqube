@@ -1,0 +1,34 @@
+exports[`check note 10 days 1`] = `
+<span
+  className="note">
+  overview.last_analysis_x.3 years ago
+</span>
+`;
+
+exports[`check note date 1`] = `
+<span
+  className="note">
+  overview.last_analysis_x.3 years ago
+</span>
+`;
+
+exports[`check note previous_analysis 1`] = `
+<span
+  className="note">
+  overview.started_x.3 years ago
+</span>
+`;
+
+exports[`check note previous_version 1`] = `
+<span
+  className="note">
+  overview.started_x.3 years ago
+</span>
+`;
+
+exports[`check note version 1`] = `
+<span
+  className="note">
+  overview.started_x.3 years ago
+</span>
+`;
