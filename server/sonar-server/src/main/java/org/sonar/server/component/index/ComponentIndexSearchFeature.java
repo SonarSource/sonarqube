@@ -39,6 +39,13 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public enum ComponentIndexSearchFeature {
 
+  EXACT_IGNORE_CASE {
+    @Override
+    public QueryBuilder getQuery(String queryText) {
+      return matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), queryText)
+        .boost(2.5f);
+    }
+  },
   PREFIX {
     @Override
     public QueryBuilder getQuery(String queryText) {
@@ -69,7 +76,7 @@ public enum ComponentIndexSearchFeature {
     @Override
     public QueryBuilder getQuery(String queryText) {
       return matchQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), queryText)
-        .boost(5f);
+        .boost(50f);
     }
   };
 
