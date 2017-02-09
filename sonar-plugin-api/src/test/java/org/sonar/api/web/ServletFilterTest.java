@@ -224,7 +224,8 @@ public class ServletFilterTest {
       "/static/*",
       "/robots.txt",
       "/favicon.ico",
-      "/apple-touch-icon*");
+      "/apple-touch-icon*",
+      "/mstile*");
   }
 
   private static class FakeFilter extends ServletFilter {
