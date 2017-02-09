@@ -1,7 +1,7 @@
 {
   "upgrades": [
     {
-      "version": "5.1",
+      "version": "5.1 (build 5498)",
       "description": "New overall layout, merge Issues Drilldown [...]",
       "releaseDate": "2015-04-02",
       "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666",
@@ -17,7 +17,7 @@
             "organizationName": "SonarSource",
             "organizationUrl": "http://www.sonarsource.com",
             "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
-            "version": "2.8"
+            "version": "2.8 (build 5498)"
           }
         ],
         "incompatible": [

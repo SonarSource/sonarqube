@@ -38,6 +38,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -121,6 +122,26 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void functional_version_when_4_digits() throws Exception {
+    init();
+    when(server.getVersion()).thenReturn("6.3.1.1234");
+
+    String result = call();
+
+    assertThat(result).contains("6.3.1 (build 1234)");
+  }
+
+  @Test
+  public void functional_version_when_third_digit_is_0() throws Exception {
+    init();
+    when(server.getVersion()).thenReturn("6.3.0.1234");
+
+    String result = call();
+
+    assertThat(result).contains("6.3 (build 1234)");
+  }
+
+  @Test
   public void return_if_production_database_or_not() throws Exception {
     init();
     when(database.getDialect()).thenReturn(new MySql());
@@ -151,7 +172,7 @@ public class GlobalActionTest {
     when(server.getVersion()).thenReturn("6.2");
     when(database.getDialect()).thenReturn(new MySql());
 
-    String result = ws.newRequest().execute().getInput();
+    String result = call();
     assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
   }
 
@@ -161,6 +182,7 @@ public class GlobalActionTest {
 
   private void init(org.sonar.api.web.page.Page[] pages, ResourceTypeTree[] resourceTypeTrees) {
     when(database.getDialect()).thenReturn(new H2());
+    when(server.getVersion()).thenReturn("6.42");
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
     PageRepository pageRepository = new PageRepository(pluginRepository, new PageDefinition[] {context -> {
@@ -173,7 +195,11 @@ public class GlobalActionTest {
   }
 
   private void executeAndVerify(String json) {
-    assertJson(ws.newRequest().execute().getInput()).isSimilarTo(getClass().getResource(GlobalActionTest.class.getSimpleName() + "/" + json));
+    assertJson(call()).isSimilarTo(getClass().getResource(GlobalActionTest.class.getSimpleName() + "/" + json));
+  }
+
+  private String call() {
+    return ws.newRequest().execute().getInput();
   }
 
   private Page[] createPages() {

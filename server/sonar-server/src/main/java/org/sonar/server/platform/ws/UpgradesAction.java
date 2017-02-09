@@ -33,6 +33,8 @@ import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 /**
  * Implementation of the {@code upgrades} action for the System WebService.
  */
@@ -116,7 +118,9 @@ public class UpgradesAction implements SystemWsAction {
   }
 
   private static void writeMetadata(JsonWriter jsonWriter, Release release) {
-    jsonWriter.prop(PROPERTY_VERSION, release.getVersion().getName());
+    String technicalVersion = release.getVersion().getName();
+    String functionalVersion = release.getDisplayVersion();
+    jsonWriter.prop(PROPERTY_VERSION, isNotBlank(functionalVersion) ? functionalVersion : technicalVersion);
     jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
     jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());
     jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());

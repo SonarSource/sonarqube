@@ -48,6 +48,7 @@ public class UpgradesActionTest {
     "{" +
       "  \"upgrades\":" + "[]" +
       "}";
+  private static Release release;
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
@@ -108,6 +109,17 @@ public class UpgradesActionTest {
       .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
   }
 
+  @Test
+  public void technical_version_when_functional_is_blank() throws Exception {
+    SonarUpdate sonarUpdate = createSonar_51_update();
+    when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
+    release.setDisplayVersion("");
+
+    underTest.handle(request, response);
+
+    assertThat(response.outputAsString()).contains("5.42");
+  }
+
   private static SonarUpdate createSonar_51_update() {
     Plugin brandingPlugin = Plugin.factory("branding")
       .setCategory("Integration")
@@ -130,13 +142,13 @@ public class UpgradesActionTest {
       .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
 
-    SonarUpdate sonarUpdate = new SonarUpdate(
-      new Release(new Sonar(), Version.create("5.1"))
-        .setDate(DateUtils.parseDate("2015-04-02"))
-        .setDescription("New overall layout, merge Issues Drilldown [...]")
-        .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
-        .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666")
-    );
+    release = new Release(new Sonar(), Version.create("5.42"))
+      .setDisplayVersion("5.1 (build 5498)")
+      .setDate(DateUtils.parseDate("2015-04-02"))
+      .setDescription("New overall layout, merge Issues Drilldown [...]")
+      .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
+      .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666");
+    SonarUpdate sonarUpdate = new SonarUpdate(release);
 
     sonarUpdate.addIncompatiblePlugin(brandingPlugin);
     sonarUpdate.addPluginToUpgrade(new Release(viewsPlugin, Version.create("2.8")));

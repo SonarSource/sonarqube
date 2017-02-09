@@ -33,6 +33,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.ui.PageRepository;
+import org.sonar.server.ui.VersionFormatter;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.core.config.WebConstants.SONARQUBE_DOT_COM_ENABLED;
@@ -122,7 +123,8 @@ public class GlobalAction implements NavigationWsAction {
   }
 
   private void writeVersion(JsonWriter json) {
-    json.prop("version", server.getVersion());
+    String displayVersion = VersionFormatter.format(server.getVersion());
+    json.prop("version", displayVersion);
   }
 
   private void writeDatabaseProduction(JsonWriter json) {
