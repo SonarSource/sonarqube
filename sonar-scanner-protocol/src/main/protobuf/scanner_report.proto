@@ -56,6 +56,7 @@ message ActiveRule {
   string rule_key = 2;
   Severity severity = 3;
   map<string,string> params_by_key = 4;
+  int64 createdAt = 5;
 }
 
 message ComponentLink {

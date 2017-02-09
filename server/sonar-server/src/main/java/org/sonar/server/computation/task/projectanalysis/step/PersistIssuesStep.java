@@ -24,17 +24,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
-import org.sonar.db.DbClient;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 public class PersistIssuesStep implements ComputationStep {
@@ -64,22 +64,7 @@ public class PersistIssuesStep implements ComputationStep {
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
-        boolean saved = false;
-        if (issue.isNew()) {
-          Integer ruleId = ruleRepository.getByKey(issue.ruleKey()).getId();
-          IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now());
-          mapper.insert(dto);
-          saved = true;
-        } else if (issue.isChanged()) {
-          IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
-          int updateCount = mapper.updateIfBeforeSelectedDate(dto);
-          if (updateCount == 0) {
-            // End-user and scan changed the issue at the same time.
-            // See https://jira.sonarsource.com/browse/SONAR-4309
-            conflictResolver.resolve(issue, mapper);
-          }
-          saved = true;
-        }
+        boolean saved = persistIssueIfRequired(mapper, issue);
         if (saved) {
           insertChanges(changeMapper, issue);
         }
@@ -89,6 +74,34 @@ public class PersistIssuesStep implements ComputationStep {
     } finally {
       MyBatis.closeQuietly(session);
       issues.close();
+    }
+  }
+
+  private boolean persistIssueIfRequired(IssueMapper mapper, DefaultIssue issue) {
+    if (issue.isNew()) {
+      persistNewIssue(mapper, issue);
+      return true;
+    }
+    if (issue.isChanged()) {
+      persistChangedIssue(mapper, issue);
+      return true;
+    }
+    return false;
+  }
+
+  private void persistNewIssue(IssueMapper mapper, DefaultIssue issue) {
+    Integer ruleId = ruleRepository.getByKey(issue.ruleKey()).getId();
+    IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now());
+    mapper.insert(dto);
+  }
+
+  private void persistChangedIssue(IssueMapper mapper, DefaultIssue issue) {
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
+    int updateCount = mapper.updateIfBeforeSelectedDate(dto);
+    if (updateCount == 0) {
+      // End-user and scan changed the issue at the same time.
+      // See https://jira.sonarsource.com/browse/SONAR-4309
+      conflictResolver.resolve(issue, mapper);
     }
   }
 

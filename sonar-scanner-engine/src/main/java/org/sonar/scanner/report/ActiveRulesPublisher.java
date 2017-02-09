@@ -43,6 +43,7 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
         builder.setRuleRepository(input.ruleKey().repository());
         builder.setRuleKey(input.ruleKey().rule());
         builder.setSeverity(Constants.Severity.valueOf(input.severity()));
+        builder.setCreatedAt(input.createdAt());
         builder.getMutableParamsByKey().putAll(input.params());
         return builder.build();
       }).collect(toList()));

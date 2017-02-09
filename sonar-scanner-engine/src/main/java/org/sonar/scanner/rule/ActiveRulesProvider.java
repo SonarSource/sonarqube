@@ -82,6 +82,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
       NewActiveRule newActiveRule = builder.create(activeRule.getRuleKey());
       newActiveRule.setName(activeRule.getName());
       newActiveRule.setSeverity(activeRule.getSeverity());
+      newActiveRule.setCreatedAt(activeRule.getCreatedAt());
       newActiveRule.setLanguage(activeRule.getLanguage());
       newActiveRule.setInternalKey(activeRule.getInternalKey());
       newActiveRule.setTemplateRuleKey(activeRule.getTemplateRuleKey());

@@ -154,6 +154,7 @@ message Active {
   optional string qProfile = 1;
   optional string inherit = 2;
   optional string severity = 3;
+  optional string createdAt = 6;
   // Unused since 5.6, it has been removed because it was never used and costly to compute
   optional string unusedParent = 4;
   repeated Param params = 5;
