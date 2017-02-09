@@ -33,6 +33,7 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_KEY;
@@ -53,6 +54,7 @@ public class ComplexityMeasuresStep implements ComputationStep {
     createIntSumFormula(COMPLEXITY_KEY),
     createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
     createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
+    createIntSumFormula(COGNITIVE_COMPLEXITY_KEY),
     new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(CLASS_COMPLEXITY_DISTRIBUTION_KEY),

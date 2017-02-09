@@ -2,6 +2,7 @@ ncloc:13
 #Used by dashboard/widgets tests
 complexity:3
 complexity_in_classes:3
+cognitive_complexity:4
 classes:1
 comment_lines:3
 public_api:5

@@ -26,6 +26,7 @@ import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionSearchTest;
 import it.authorisation.ProvisioningPermissionTest;
 import it.authorisation.QualityProfileAdminPermissionTest;
+import it.complexity.ComplexityMeasuresTest;
 import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
 import it.measure.MeasuresWsTest;
@@ -98,7 +99,9 @@ import static util.ItUtils.xooPlugin;
   // source code
   EncodingTest.class,
   HighlightingTest.class,
-  ProjectCodeTest.class
+  ProjectCodeTest.class,
+  // complexity
+  ComplexityMeasuresTest.class
 })
 public class Category1Suite {
 

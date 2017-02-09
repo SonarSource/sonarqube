@@ -35,6 +35,8 @@ import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
+import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
@@ -101,7 +103,9 @@ public class ViewsComplexityMeasuresStepTest {
     .add(CLASS_COMPLEXITY)
     .add(CLASSES)
     .add(FUNCTION_COMPLEXITY)
-    .add(FUNCTIONS);
+    .add(FUNCTIONS)
+    .add(COGNITIVE_COMPLEXITY);
+
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -120,6 +124,11 @@ public class ViewsComplexityMeasuresStepTest {
   @Test
   public void aggregate_complexity_in_functions() throws Exception {
     verify_sum_aggregation(COMPLEXITY_IN_FUNCTIONS_KEY);
+  }
+
+  @Test
+  public void aggregate_cognitive_complexity_in_functions() throws Exception {
+    verify_sum_aggregation(COGNITIVE_COMPLEXITY_KEY);
   }
 
   private void verify_sum_aggregation(String metricKey) {

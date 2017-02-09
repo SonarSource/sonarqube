@@ -467,6 +467,16 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_COMPLEXITY)
       .create();
 
+  public static final String COGNITIVE_COMPLEXITY_KEY = "cognitive_complexity";
+  public static final Metric<Integer> COGNITIVE_COMPLEXITY = new Metric.Builder(COGNITIVE_COMPLEXITY_KEY, "Cognitive Complexity", Metric.ValueType.INT)
+    .setDescription("Cognitive complexity")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(false)
+    .setDomain(DOMAIN_COMPLEXITY)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // UNIT TESTS
