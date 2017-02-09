@@ -19,29 +19,24 @@
  */
 package org.sonar.server.platform.db.migration.version.v63;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropNonLeakPeriodColumnsFromSnapshots extends DdlChange {
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
-
-  @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+  public DropNonLeakPeriodColumnsFromSnapshots(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), "snapshots",
+      "period2_mode", "period2_param", "period2_date",
+      "period3_mode", "period3_param", "period3_date",
+      "period4_mode", "period4_param", "period4_date",
+      "period5_mode", "period5_param", "period5_date").build());
   }
 
 }

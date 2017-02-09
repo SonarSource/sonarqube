@@ -43,6 +43,7 @@ public class DbVersion63 implements DbVersion {
       .add(1508, "Add columns ORGANIZATIONS.DEFAULT_PERM_TEMPLATE_*", AddDefaultPermTemplateColumnsToOrganizations.class)
       .add(1509, "Populate columns ORGANIZATIONS.DEFAULT_PERM_TEMPLATE_*", PopulateDefaultPermTemplateColumnsOfOrganizations.class)
       .add(1514, "Delete some entries in PROPERTIES", DeleteUselessProperties.class)
+      .add(1515, "Drop columns SNAPSHOTS.PERIOD[2-5]_MODE, SNAPSHOTS.PERIOD[2-5]_PARAM, SNAPSHOTS.PERIOD[2-5]_DATE", DropNonLeakPeriodColumnsFromSnapshots.class)
     ;
   }
 }
