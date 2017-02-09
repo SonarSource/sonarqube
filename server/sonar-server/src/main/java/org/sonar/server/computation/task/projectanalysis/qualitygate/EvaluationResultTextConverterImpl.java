@@ -31,7 +31,7 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.ERROR;
@@ -48,13 +48,13 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
   private final I18n i18n;
   private final Durations durations;
   private final Periods periods;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
 
-  public EvaluationResultTextConverterImpl(I18n i18n, Durations durations, Periods periods, PeriodsHolder periodsHolder) {
+  public EvaluationResultTextConverterImpl(I18n i18n, Durations durations, Periods periods, PeriodHolder periodHolder) {
     this.i18n = i18n;
     this.durations = durations;
     this.periods = periods;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
   }
 
   @Override
@@ -84,7 +84,7 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
       .append(alertValue(condition, level));
 
     if (hasPeriod) {
-      Period period = periodsHolder.getPeriod();
+      Period period = periodHolder.getPeriod();
       stringBuilder.append(" ").append(periods.label(period.getMode(), period.getModeParameter(), DateUtils.longToDate(period.getSnapshotDate())));
     }
 

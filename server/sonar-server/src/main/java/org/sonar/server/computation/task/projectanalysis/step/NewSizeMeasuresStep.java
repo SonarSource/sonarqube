@@ -44,7 +44,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
@@ -61,15 +61,15 @@ import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 public class NewSizeMeasuresStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final NewDuplicationFormula duplicationFormula;
 
-  public NewSizeMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
-    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
+  public NewSizeMeasuresStep(TreeRootHolder treeRootHolder, PeriodHolder periodHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
+                             ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.duplicationFormula = new NewDuplicationFormula(scmInfoRepository, duplicationRepository);
@@ -84,7 +84,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
   public void execute() {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-        .withVariationSupport(periodsHolder)
+        .withVariationSupport(periodHolder)
         .buildFor(ImmutableList.of(duplicationFormula)))
           .visit(treeRootHolder.getRoot());
   }

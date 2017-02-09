@@ -30,7 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DepthTraversa
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 /**
@@ -42,15 +42,15 @@ public class PersistAnalysisStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
 
   public PersistAnalysisStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder,
-    AnalysisMetadataHolder analysisMetadataHolder, PeriodsHolder periodsHolder) {
+    AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
   }
 
   @Override
@@ -92,10 +92,10 @@ public class PersistAnalysisStep implements ComputationStep {
     }
 
     private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
-      if (!periodsHolder.hasPeriod()) {
+      if (!periodHolder.hasPeriod()) {
         return;
       }
-      Period period = periodsHolder.getPeriod();
+      Period period = periodHolder.getPeriod();
       snapshotDto.setPeriodMode(period.getMode());
       snapshotDto.setPeriodParam(period.getModeParameter());
       snapshotDto.setPeriodDate(period.getSnapshotDate());

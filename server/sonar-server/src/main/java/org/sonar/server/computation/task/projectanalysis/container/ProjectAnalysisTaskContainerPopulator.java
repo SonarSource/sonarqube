@@ -85,7 +85,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureComputer
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricModule;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateServiceImpl;
@@ -151,7 +151,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       CrossProjectDuplicationStatusHolderImpl.class,
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
-      PeriodsHolderImpl.class,
+      PeriodHolderImpl.class,
       QualityGateHolderImpl.class,
       QualityGateStatusHolderImpl.class,
       RatingSettings.class,

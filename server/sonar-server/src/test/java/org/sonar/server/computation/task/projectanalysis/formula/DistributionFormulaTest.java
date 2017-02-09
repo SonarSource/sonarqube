@@ -28,7 +28,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,9 +44,9 @@ public class DistributionFormulaTest {
 
   CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
-      ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
+      ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
-      ReportComponent.builder(Component.Type.FILE, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
+      ReportComponent.builder(Component.Type.FILE, 1).build(), mock(Metric.class), mock(PeriodHolder.class));
 
   @Test
   public void check_new_counter_class() {

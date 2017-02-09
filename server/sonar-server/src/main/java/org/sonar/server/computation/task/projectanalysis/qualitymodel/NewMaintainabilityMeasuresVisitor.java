@@ -36,7 +36,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
@@ -62,7 +62,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
   private final ScmInfoRepository scmInfoRepository;
   private final MeasureRepository measureRepository;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final RatingSettings ratingSettings;
   private final RatingGrid ratingGrid;
 
@@ -73,11 +73,11 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final Metric newMaintainabilityRatingMetric;
 
   public NewMaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository,
-    PeriodsHolder periodsHolder, RatingSettings ratingSettings) {
+                                           PeriodHolder periodHolder, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.ratingSettings = ratingSettings;
     this.ratingGrid = ratingSettings.getRatingGrid();
 
@@ -116,7 +116,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   private void computeAndSaveNewDebtRatioMeasure(Component component, Path<Counter> path) {
-    if (!periodsHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod()) {
       return;
     }
     double density = computeDensity(path.current());
@@ -153,7 +153,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
 
   private void initNewDebtRatioCounter(Component file, Path<Counter> path) {
     // first analysis, no period, no differential value to compute, save processing time and return now
-    if (!periodsHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod()) {
       return;
     }
 
@@ -178,7 +178,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       Changeset changeset = scmInfo.getChangesetForLine(nclocLineIndex);
-      Period period = periodsHolder.getPeriod();
+      Period period = periodHolder.getPeriod();
       if (isLineInPeriod(changeset.getDate(), period)) {
         devCostCounter.incrementDevCost(lineDevCost);
         hasDevCost = true;

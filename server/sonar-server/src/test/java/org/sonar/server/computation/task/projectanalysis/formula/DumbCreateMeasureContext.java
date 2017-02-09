@@ -22,17 +22,17 @@ package org.sonar.server.computation.task.projectanalysis.formula;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 public class DumbCreateMeasureContext implements CreateMeasureContext {
   private final Component component;
   private final Metric metric;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
 
-  public DumbCreateMeasureContext(Component component, Metric metric, PeriodsHolder periodsHolder) {
+  public DumbCreateMeasureContext(Component component, Metric metric, PeriodHolder periodHolder) {
     this.component = component;
     this.metric = metric;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
   }
 
   @Override
@@ -47,11 +47,11 @@ public class DumbCreateMeasureContext implements CreateMeasureContext {
 
   @Override
   public Period getPeriod() {
-    return periodsHolder.getPeriod();
+    return periodHolder.getPeriod();
   }
 
   @Override
   public boolean hasPeriod() {
-    return periodsHolder.hasPeriod();
+    return periodHolder.hasPeriod();
   }
 }

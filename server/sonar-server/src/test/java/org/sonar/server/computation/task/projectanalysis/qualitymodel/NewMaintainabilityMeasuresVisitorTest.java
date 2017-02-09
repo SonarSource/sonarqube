@@ -38,7 +38,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
@@ -89,7 +89,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 

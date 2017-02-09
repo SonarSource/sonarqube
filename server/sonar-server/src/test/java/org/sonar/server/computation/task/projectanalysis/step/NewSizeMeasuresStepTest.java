@@ -30,7 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.duplication.TextBlock;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
 
@@ -93,7 +93,7 @@ public class NewSizeMeasuresStepTest {
         .build());
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriod(
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(
     new Period("mode_p_1", null, parseDate("2009-12-25").getTime(), "u1"));
 
   @Rule

@@ -33,7 +33,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -70,16 +70,16 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
 
   private final MeasureRepository measureRepository;
   private final ComponentIssuesRepository componentIssuesRepository;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
 
   private final Map<String, Metric> metricsByKey;
 
   public NewReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ComponentIssuesRepository componentIssuesRepository,
-    PeriodsHolder periodsHolder) {
+    PeriodHolder periodHolder) {
     super(LEAVES, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
 
     // Output metrics
     this.metricsByKey = ImmutableMap.of(
@@ -108,7 +108,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
-    if (!periodsHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod()) {
       return;
     }
     initRatingsToA(path);
@@ -133,7 +133,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
-      .forEach(issue -> path.current().processIssue(issue, periodsHolder.getPeriod()));
+      .forEach(issue -> path.current().processIssue(issue, periodHolder.getPeriod()));
   }
 
   private static void addToParent(Path<Counter> path) {

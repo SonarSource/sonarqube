@@ -37,7 +37,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +57,7 @@ public class EvaluationResultTextConverterTest {
   private static final String SOME_ANALYSIS_UUID = "u1";
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private I18n i18n = mock(I18n.class);
   private Durations durations = mock(Durations.class);

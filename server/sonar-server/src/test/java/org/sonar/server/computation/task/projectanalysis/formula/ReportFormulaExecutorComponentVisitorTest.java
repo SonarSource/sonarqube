@@ -34,7 +34,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -89,7 +89,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("some mode", null, 95l, "756l"));
 
   @Test
   public void verify_aggregation_on_value() throws Exception {

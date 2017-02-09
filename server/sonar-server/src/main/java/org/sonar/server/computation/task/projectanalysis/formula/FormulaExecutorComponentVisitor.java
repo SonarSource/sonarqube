@@ -34,7 +34,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static java.util.Objects.requireNonNull;
 
@@ -60,14 +60,14 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   };
 
   @CheckForNull
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final List<Formula> formulas;
 
   private FormulaExecutorComponentVisitor(Builder builder, Iterable<Formula> formulas) {
     super(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
-    this.periodsHolder = builder.periodsHolder;
+    this.periodHolder = builder.periodHolder;
     this.measureRepository = builder.measureRepository;
     this.metricRepository = builder.metricRepository;
     this.formulas = ImmutableList.copyOf(formulas);
@@ -81,7 +81,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     private final MetricRepository metricRepository;
     private final MeasureRepository measureRepository;
     @CheckForNull
-    private PeriodsHolder periodsHolder;
+    private PeriodHolder periodHolder;
 
     private Builder(MetricRepository metricRepository, MeasureRepository measureRepository) {
       this.metricRepository = requireNonNull(metricRepository);
@@ -92,8 +92,8 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
       return new Builder(metricRepository, measureRepository);
     }
 
-    public Builder withVariationSupport(PeriodsHolder periodsHolder) {
-      this.periodsHolder = requireNonNull(periodsHolder);
+    public Builder withVariationSupport(PeriodHolder periodHolder) {
+      this.periodHolder = requireNonNull(periodHolder);
       return this;
     }
 
@@ -207,12 +207,12 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
 
     @Override
     public Period getPeriod() {
-      return periodsHolder.getPeriod();
+      return periodHolder.getPeriod();
     }
 
     @Override
     public boolean hasPeriod() {
-      return periodsHolder.hasPeriod();
+      return periodHolder.hasPeriod();
     }
   }
 
@@ -258,12 +258,12 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
 
     @Override
     public Period getPeriod() {
-      return periodsHolder.getPeriod();
+      return periodHolder.getPeriod();
     }
 
     @Override
     public boolean hasPeriod() {
-      return periodsHolder.hasPeriod();
+      return periodHolder.hasPeriod();
     }
   }
 }

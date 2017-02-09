@@ -39,7 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.component.DbIdsReposito
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private System2 system2 = mock(System2.class);
 

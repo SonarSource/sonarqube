@@ -31,7 +31,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -63,7 +63,7 @@ public class NewEffortAggregatorTest {
   private NewEffortCalculator calculator = mock(NewEffortCalculator.class);
 
   @org.junit.Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   @org.junit.Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()

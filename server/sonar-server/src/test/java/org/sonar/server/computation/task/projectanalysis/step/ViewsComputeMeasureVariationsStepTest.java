@@ -40,7 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderRule;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -61,7 +61,7 @@ public class ViewsComputeMeasureVariationsStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @Rule
-  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
+  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

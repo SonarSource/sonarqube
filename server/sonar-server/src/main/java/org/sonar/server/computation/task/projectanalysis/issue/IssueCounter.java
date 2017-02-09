@@ -35,7 +35,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
@@ -102,16 +102,16 @@ public class IssueCounter extends IssueVisitor {
     .put(RuleType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
     .build();
 
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
   private final Map<Integer, Counters> countersByComponentRef = new HashMap<>();
   private Counters currentCounters;
 
-  public IssueCounter(PeriodsHolder periodsHolder,
+  public IssueCounter(PeriodHolder periodHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
   }
@@ -133,10 +133,10 @@ public class IssueCounter extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     currentCounters.add(issue);
-    if (!periodsHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod()) {
       return;
     }
-    Period period = periodsHolder.getPeriod();
+    Period period = periodHolder.getPeriod();
     // Add one second to not take into account issues created during current analysis
     if (issue.creationDate().getTime() >= period.getSnapshotDate() + 1000L) {
       currentCounters.addOnPeriod(issue);
@@ -181,7 +181,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addMeasuresByPeriod(Component component) {
-    if (!periodsHolder.hasPeriod()) {
+    if (!periodHolder.hasPeriod()) {
       return;
     }
     Double unresolvedVariations = (double) currentCounters.counterForPeriod().unresolved;

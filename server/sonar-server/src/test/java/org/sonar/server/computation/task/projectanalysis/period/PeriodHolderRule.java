@@ -24,8 +24,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-public class PeriodsHolderRule implements TestRule, PeriodsHolder {
-  private PeriodsHolderImpl delegate = new PeriodsHolderImpl();
+public class PeriodHolderRule implements TestRule, PeriodHolder {
+  private PeriodHolderImpl delegate = new PeriodHolderImpl();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -42,11 +42,11 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
   }
 
   private void clear() {
-    this.delegate = new PeriodsHolderImpl();
+    this.delegate = new PeriodHolderImpl();
   }
 
-  public PeriodsHolderRule setPeriod(@Nullable Period period) {
-    delegate = new PeriodsHolderImpl();
+  public PeriodHolderRule setPeriod(@Nullable Period period) {
+    delegate = new PeriodHolderImpl();
     delegate.setPeriod(period);
     return this;
   }

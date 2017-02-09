@@ -35,7 +35,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
@@ -50,7 +50,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 public class NewEffortAggregator extends IssueVisitor {
 
   private final NewEffortCalculator calculator;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final DbClient dbClient;
   private final MeasureRepository measureRepository;
 
@@ -62,10 +62,10 @@ public class NewEffortAggregator extends IssueVisitor {
   private Map<Integer, NewEffortCounter> counterByComponentRef = new HashMap<>();
   private NewEffortCounter counter = null;
 
-  public NewEffortAggregator(NewEffortCalculator calculator, PeriodsHolder periodsHolder, DbClient dbClient,
-    MetricRepository metricRepository, MeasureRepository measureRepository) {
+  public NewEffortAggregator(NewEffortCalculator calculator, PeriodHolder periodHolder, DbClient dbClient,
+                             MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.calculator = calculator;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.dbClient = dbClient;
     this.measureRepository = measureRepository;
 
@@ -93,9 +93,9 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.resolution() == null && issue.effortInMinutes() != null && periodsHolder.hasPeriod()) {
+    if (issue.resolution() == null && issue.effortInMinutes() != null && periodHolder.hasPeriod()) {
       List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
-      counter.add(issue, periodsHolder.getPeriod(), changelog);
+      counter.add(issue, periodHolder.getPeriod(), changelog);
     }
   }
 

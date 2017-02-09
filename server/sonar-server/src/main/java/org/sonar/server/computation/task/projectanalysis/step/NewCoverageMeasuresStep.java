@@ -50,7 +50,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -69,7 +69,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     new NewLineCoverageFormula());
 
   private final TreeRootHolder treeRootHolder;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   @CheckForNull
@@ -78,10 +78,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   /**
    * Constructor used when processing a Report (ie. a {@link BatchReportReader} instance is available in the container)
    */
-  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder,
+  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodHolder periodHolder,
     MeasureRepository measureRepository, final MetricRepository metricRepository, ScmInfoRepository scmInfoRepository) {
     this.treeRootHolder = treeRootHolder;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
@@ -90,10 +90,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   /**
    * Constructor used when processing Views (ie. no {@link BatchReportReader} instance is available in the container)
    */
-  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder,
+  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodHolder periodHolder,
     MeasureRepository measureRepository, final MetricRepository metricRepository) {
     this.treeRootHolder = treeRootHolder;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.scmInfoRepository = null;
@@ -103,7 +103,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   public void execute() {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-        .withVariationSupport(periodsHolder)
+        .withVariationSupport(periodHolder)
         .buildFor(
           Iterables.concat(NewLinesAndConditionsCoverageFormula.from(scmInfoRepository), FORMULAS)))
             .visit(treeRootHolder.getRoot());

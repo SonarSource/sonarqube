@@ -32,7 +32,8 @@ import org.sonar.server.computation.task.projectanalysis.component.SettingsRepos
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
@@ -41,7 +42,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.reportMaxDepth;
 
 /**
- * Populates the {@link org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder}
+ * Populates the {@link PeriodHolder}
  * <p/>
  * Here is how these periods are computed :
  * - Read the 5 period properties ${@link org.sonar.core.config.CorePropertyDefinitions#TIMEMACHINE_PERIOD_PREFIX}
@@ -54,10 +55,10 @@ public class LoadPeriodsStep implements ComputationStep {
   private final SettingsRepository settingsRepository;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
-  private final PeriodsHolderImpl periodsHolder;
+  private final PeriodHolderImpl periodsHolder;
 
   public LoadPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    PeriodsHolderImpl periodsHolder) {
+    PeriodHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settingsRepository = settingsRepository;
     this.treeRootHolder = treeRootHolder;

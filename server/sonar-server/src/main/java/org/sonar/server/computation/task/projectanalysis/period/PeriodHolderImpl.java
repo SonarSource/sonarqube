@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class PeriodsHolderImpl implements PeriodsHolder {
+public class PeriodHolderImpl implements PeriodHolder {
 
   @CheckForNull
   private Period period = null;

@@ -26,7 +26,7 @@ package org.sonar.server.computation.task.projectanalysis.period;
  * - Try to find the matching snapshots from the property
  * - If a snapshot is found, the period is added to the repository
  */
-public interface PeriodsHolder {
+public interface PeriodHolder {
 
   /**
    * Finds out whether the holder contains a Period

@@ -25,12 +25,12 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PeriodsHolderImplTest {
+public class PeriodHolderImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private PeriodsHolderImpl underTest = new PeriodsHolderImpl();
+  private PeriodHolderImpl underTest = new PeriodHolderImpl();
 
   @Test
   public void get_period() {
@@ -45,7 +45,7 @@ public class PeriodsHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Period have not been initialized yet");
 
-    new PeriodsHolderImpl().getPeriod();
+    new PeriodHolderImpl().getPeriod();
   }
 
   @Test

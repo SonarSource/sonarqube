@@ -44,7 +44,7 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolder;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -65,15 +65,15 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final PeriodsHolder periodsHolder;
+  private final PeriodHolder periodHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
-  public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
+  public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodHolder periodHolder, MetricRepository metricRepository,
                                       MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
-    this.periodsHolder = periodsHolder;
+    this.periodHolder = periodHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
   }
@@ -112,8 +112,8 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
     private MeasuresWithVariationRepository computeMeasuresWithVariations(Component component) {
       MeasuresWithVariationRepository measuresWithVariationRepository = new MeasuresWithVariationRepository();
-      if (periodsHolder.hasPeriod()) {
-        Period period = periodsHolder.getPeriod();
+      if (periodHolder.hasPeriod()) {
+        Period period = periodHolder.getPeriod();
         List<PastMeasureDto> pastMeasures = dbClient.measureDao()
           .selectPastMeasures(session, component.getUuid(), period.getAnalysisUuid(), metricIds);
         setVariationMeasures(component, pastMeasures, measuresWithVariationRepository);

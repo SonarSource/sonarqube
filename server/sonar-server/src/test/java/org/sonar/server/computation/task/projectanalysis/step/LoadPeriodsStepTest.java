@@ -40,7 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.component.SettingsRepos
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
-import org.sonar.server.computation.task.projectanalysis.period.PeriodsHolderImpl;
+import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +69,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
+  private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
   private DbClient dbClient = dbTester.getDbClient();
   private Settings settings = new MapSettings();
   private SettingsRepository settingsRepository = mock(SettingsRepository.class);
