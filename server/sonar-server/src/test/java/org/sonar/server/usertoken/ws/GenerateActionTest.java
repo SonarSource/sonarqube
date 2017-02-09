@@ -79,7 +79,7 @@ public class GenerateActionTest {
 
   @Test
   public void json_example() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -101,7 +101,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_name_is_longer_than_100_characters() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Token name length (101) is longer than the maximum authorized (100)");
@@ -111,7 +111,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_login_does_not_exist() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -120,7 +120,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_name_is_blank() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'name' parameter must not be blank");
@@ -130,7 +130,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_token_with_same_login_and_name_exists() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     newRequest(GRACE_HOPPER, TOKEN_NAME);
     expectedException.expect(BadRequestException.class);
@@ -141,7 +141,7 @@ public class GenerateActionTest {
 
   @Test
   public void fail_if_token_hash_already_exists_in_db() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
     db.getDbClient().userTokenDao().insert(db.getSession(), newUserToken().setTokenHash("987654321"));
@@ -154,7 +154,7 @@ public class GenerateActionTest {
 
   @Test
   public void throw_ForbiddenException_if_non_administrator_creates_token_for_someone_else() {
-    userSession.logIn().setNonRoot();
+    userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
 
@@ -186,5 +186,9 @@ public class GenerateActionTest {
     } catch (IOException e) {
       throw propagate(e);
     }
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

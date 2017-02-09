@@ -139,6 +139,16 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
+  public UserSessionRule setSystemAdministrator() {
+    ensureMockUserSession().setSystemAdministrator(true);
+    return this;
+  }
+
+  public UserSessionRule setNonSystemAdministrator() {
+    ensureMockUserSession().setSystemAdministrator(false);
+    return this;
+  }
+
   @Override
   public Statement apply(Statement statement, Description description) {
     return this.statement(statement);

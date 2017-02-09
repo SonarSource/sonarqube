@@ -93,7 +93,7 @@ public class UserJsonWriter {
   }
 
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable Collection<String> fields) {
-    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.isRoot()) {
+    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.isSystemAdministrator()) {
       json.name(FIELD_GROUPS).beginArray();
       for (String groupName : groups) {
         json.value(groupName);

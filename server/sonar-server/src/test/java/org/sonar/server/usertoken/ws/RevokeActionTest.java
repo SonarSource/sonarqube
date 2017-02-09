@@ -65,7 +65,7 @@ public class RevokeActionTest {
 
   @Test
   public void delete_token_in_db() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-1"));
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-keep-2"));
@@ -91,7 +91,7 @@ public class RevokeActionTest {
 
   @Test
   public void does_not_fail_when_incorrect_login_or_name() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
 
     newRequest(ADA_LOVELACE, "another-token-name");
@@ -130,5 +130,9 @@ public class RevokeActionTest {
   private void insertUserToken(UserTokenDto userToken) {
     dbClient.userTokenDao().insert(dbSession, userToken);
     dbSession.commit();
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

@@ -57,13 +57,13 @@ public class SettingsAction implements NavigationWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean isRoot = userSession.isRoot();
+    boolean isSysAdmin = userSession.isSystemAdministrator();
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("showUpdateCenter", isRoot && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
+    json.prop("showUpdateCenter", isSysAdmin && settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE));
 
     json.name("extensions").beginArray();
-    if (isRoot) {
+    if (isSysAdmin) {
       for (Page page : pageRepository.getGlobalPages(true)) {
         json.beginObject()
           .prop("key", page.getKey())

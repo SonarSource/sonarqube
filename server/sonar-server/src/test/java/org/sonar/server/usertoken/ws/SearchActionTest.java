@@ -68,7 +68,7 @@ public class SearchActionTest {
 
   @Test
   public void search_json_example() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     dbClient.userTokenDao().insert(dbSession, newUserToken()
       .setCreatedAt(1448523067221L)
@@ -111,7 +111,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_login_does_not_exist() {
-    userSession.logIn().setRoot();
+    logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' not found");
@@ -153,5 +153,9 @@ public class SearchActionTest {
     }
 
     throw new IllegalStateException("unreachable");
+  }
+
+  private void logInAsSystemAdministrator() {
+    userSession.logIn().setSystemAdministrator();
   }
 }

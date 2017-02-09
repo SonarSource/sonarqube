@@ -33,6 +33,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ public class RestartTest {
   }
 
   @Test
-  public void restart_in_prod_mode_requires_root_and_restarts_WebServer_and_ES() throws Exception {
+  public void restart_in_prod_mode_requires_sysadmin_permission_and_restarts() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
       orchestrator = Orchestrator.builderEnv()
@@ -70,10 +71,10 @@ public class RestartTest {
 
       verifyFailWith403(() -> newWsClient(orchestrator).system().restart());
 
-      createNonRootUser("john", "doe");
+      createNonSystemAdministrator("john", "doe");
       verifyFailWith403(() -> ItUtils.newUserWsClient(orchestrator, "john", "doe").system().restart());
 
-      createRootUser("big", "boss");
+      createSystemAdministrator("big", "boss");
       ItUtils.newUserWsClient(orchestrator, "big", "boss").system().restart();
       WsResponse wsResponse = newAdminWsClient(orchestrator).wsConnector().call(new GetRequest("/api/system/status")).failIfNotSuccessful();
       assertThat(wsResponse.content()).contains("RESTARTING");
@@ -114,17 +115,17 @@ public class RestartTest {
     }
   }
 
-   private void createRootUser(String login, String password) {
+  private void createSystemAdministrator(String login, String password) {
     WsClient wsClient = newAdminWsClient(orchestrator);
-    createNonRootUser(wsClient, login, password);
-    wsClient.rootService().setRoot(login);
+    createNonSystemAdministrator(wsClient, login, password);
+    wsClient.permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission("admin"));
   }
 
-  private void createNonRootUser(String login, String password) {
-    createNonRootUser(newAdminWsClient(orchestrator), login, password);
+  private void createNonSystemAdministrator(String login, String password) {
+    createNonSystemAdministrator(newAdminWsClient(orchestrator), login, password);
   }
 
-  private static void createNonRootUser(WsClient wsClient, String login, String password) {
+  private static void createNonSystemAdministrator(WsClient wsClient, String login, String password) {
     wsClient.wsConnector().call(
       new PostRequest("api/users/create")
         .setParam("login", login)

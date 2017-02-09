@@ -146,7 +146,9 @@ public class IndexAction implements WsAction {
   }
 
   private boolean hasAdminPermission(Optional<ComponentDto> component) {
-    return component.isPresent() ? userSession.hasComponentPermission(ADMIN, component.get()) : userSession.isRoot();
+    return component
+      .map(c -> userSession.hasComponentPermission(ADMIN, c))
+      .orElse(userSession.isSystemAdministrator());
   }
 
   private List<PropertyDto> loadGlobalSettings(DbSession dbSession, Optional<String> key) {
