@@ -61,7 +61,7 @@
     <sonarFlex.version>2.3</sonarFlex.version>
     <sonarGit.version>1.2</sonarGit.version>
     <sonarSvn.version>1.4.0.522</sonarSvn.version>
-    <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.18.0.487</sonarUpdateCenter.version>
     <h2.version>1.3.176</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.1.7</logback.version>
@@ -227,7 +227,7 @@
         <plugin>
           <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>1.17</version>
+          <version>1.18.0.372</version>
         </plugin>
         <plugin>
           <groupId>org.owasp</groupId>
