@@ -59,6 +59,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -139,7 +140,9 @@ public class ComponentAction implements NavigationWsAction {
       writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
       writeQualityGate(json, session, component);
-      if (userSession.hasComponentPermission(ADMIN, component) || userSession.hasOrganizationPermission(org.getUuid(), QUALITY_PROFILE_ADMIN)) {
+      if (userSession.hasComponentPermission(ADMIN, component) ||
+        userSession.hasOrganizationPermission(org.getUuid(), QUALITY_PROFILE_ADMIN) ||
+        userSession.hasOrganizationPermission(org.getUuid(), QUALITY_GATE_ADMIN)) {
         writeConfiguration(json, component);
       }
       writeBreadCrumbs(json, session, component);
@@ -225,10 +228,12 @@ public class ComponentAction implements NavigationWsAction {
   private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     boolean showManualMeasures = isAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
+    boolean isQualityProfileAdmin = userSession.hasOrganizationPermission(component.getOrganizationUuid(), QUALITY_PROFILE_ADMIN);
+    boolean isQualityGateAdmin = userSession.hasOrganizationPermission(component.getOrganizationUuid(), QUALITY_GATE_ADMIN);
 
     json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
-    json.prop("showQualityProfiles", isProject);
-    json.prop("showQualityGates", isProject);
+    json.prop("showQualityProfiles", isProject && (isAdmin || isQualityProfileAdmin));
+    json.prop("showQualityGates", isProject && (isAdmin || isQualityGateAdmin));
     json.prop("showManualMeasures", showManualMeasures);
     json.prop("showLinks", isAdmin && isProject);
     json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));

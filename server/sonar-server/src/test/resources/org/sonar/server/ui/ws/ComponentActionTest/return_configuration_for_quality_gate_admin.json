@@ -1,8 +1,8 @@
 {
   "configuration": {
     "showSettings": false,
-    "showQualityProfiles": true,
-    "showQualityGates": false,
+    "showQualityProfiles": false,
+    "showQualityGates": true,
     "showManualMeasures": false,
     "showLinks": false,
     "showPermissions": false,
