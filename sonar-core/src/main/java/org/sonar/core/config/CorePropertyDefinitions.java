@@ -209,7 +209,7 @@ public class CorePropertyDefinitions {
       // SCANNER
       PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 1)
         .name("Leak Period")
-        .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
+        .description("Period used to compare measures and track new issues. Values are : <ul><li>Number of days before " +
           "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
           "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li>" +
           "<li>A version, for example '1.2' or 'BASELINE'</li></ul>" +

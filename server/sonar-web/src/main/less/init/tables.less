@@ -25,8 +25,37 @@ table {
   border-spacing: 0;
 }
 
+.table > thead > tr > th {
+  border-top: 0 none;
+  font-weight: bold;
+  vertical-align: bottom;
+  line-height: 16px;
+  padding: 4px 5px;
+  vertical-align: bottom;
+}
+
+.table > tbody > tr > td {
+  line-height: 16px;
+  padding: 4px 5px;
+  vertical-align: top;
+}
+
+.table > tfoot > tr > td {
+  font-size: 93%;
+  color: #777;
+  padding: 4px 5px;
+}
+
+.table > tfoot > tr > td a {
+  color: #777;
+}
+
 .odd {
   background-color: #fff;
+}
+
+.even {
+  background-color: #f5f5f5;
 }
 
 .odd.selected,
@@ -37,6 +66,10 @@ table {
 .odd.selected span:not(.rating) {
   background-color: #d9edf7;
   color: @baseFontColor;
+}
+
+table.data, table.spaced {
+  width: 100%;
 }
 
 table.data > thead:after {
@@ -141,56 +174,12 @@ table.data.no-outer-padding > tbody > tr {
   vertical-align: middle;
 }
 
-.data td.category {
-  padding-right: 15px;
-}
-
-.categoryDescription {
-  padding: 10px 5px;
-}
-
-.data td.category.withSubcategories {
-  background-image: url('../../images/bullet_arrow_down.gif');
-  background-position: right center;
-  background-repeat: no-repeat;
-}
-
-.data td.subcategory {
-  padding-left: 20px;
-}
-
 .hoverable:hover {
   background-color: #CAE3F2;
 }
 
 .hoverable:hover a {
   color: #111;
-}
-
-table.sortable .sortcol {
-  cursor: pointer;
-  padding-left: 15px;
-  background-repeat: no-repeat;
-  background-position: right center;
-}
-
-table.sortable .sortasc {
-  background-image: url('../../images/bullet_arrow_up.gif');
-  background-position: left center;
-}
-
-table.sortable .sortdesc {
-  background-image: url('../../images/bullet_arrow_down.gif');
-  background-position: left center;
-}
-
-table.sortable .righticon {
-  padding-right: 15px;
-  background-position: right center;
-}
-
-table.sortable .nosort {
-  cursor: default;
 }
 
 table.spaced th {
