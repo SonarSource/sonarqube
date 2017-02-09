@@ -74,28 +74,10 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     setServerProperty(ORCHESTRATOR, "email.smtp_host.secured", "localhost");
     setServerProperty(ORCHESTRATOR, "email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()));
 
-    // Create test user
-    userRule.createUser(USER_LOGIN, "Tester", USER_EMAIL, USER_LOGIN);
-
     // Send test email to the test user
     newAdminWsClient(ORCHESTRATOR).wsConnector().call(new PostRequest("api/emails/send")
       .setParam("to", USER_EMAIL)
       .setParam("message", "This is a test message from SonarQube"))
-      .failIfNotSuccessful();
-
-    // Add notifications to the test user
-    WsClient wsClient = newUserWsClient(ORCHESTRATOR, USER_LOGIN, USER_PASSWORD);
-    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
-      .setParam("type", "NewIssues")
-      .setParam("channel", "EmailNotificationChannel"))
-      .failIfNotSuccessful();
-    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
-      .setParam("type", "ChangesOnMyIssue")
-      .setParam("channel", "EmailNotificationChannel"))
-      .failIfNotSuccessful();
-    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
-      .setParam("type", "SQ-MyNewIssues")
-      .setParam("channel", "EmailNotificationChannel"))
       .failIfNotSuccessful();
 
     // We need to wait until all notifications will be delivered
@@ -123,6 +105,10 @@ public class IssueNotificationsTest extends AbstractIssueTest {
   @Before
   public void prepare() {
     ORCHESTRATOR.resetData();
+
+    // Create test user
+    userRule.createUser(USER_LOGIN, "Tester", USER_EMAIL, USER_LOGIN);
+
     smtpServer.getMessages().clear();
     issueClient = ORCHESTRATOR.getServer().adminWsClient().issueClient();
     issuesService = newAdminWsClient(ORCHESTRATOR).issues();
@@ -131,6 +117,22 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line-profile");
+
+    // Add notifications to the test user
+    WsClient wsClient = newUserWsClient(ORCHESTRATOR, USER_LOGIN, USER_PASSWORD);
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "NewIssues")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "ChangesOnMyIssue")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
+    wsClient.wsConnector().call(new PostRequest("api/notifications/add")
+      .setParam("type", "SQ-MyNewIssues")
+      .setParam("channel", "EmailNotificationChannel"))
+      .failIfNotSuccessful();
+
   }
 
   @Test

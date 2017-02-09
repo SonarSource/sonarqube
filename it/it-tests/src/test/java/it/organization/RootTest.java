@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.root;
+package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category3Suite;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -40,25 +38,38 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.newWsClient;
 
-public class RootIt {
+public class RootTest {
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
   @After
-  public void tearDown() throws Exception {
-    userRule.resetUsers();
+  public void tearDown() {
+    orchestrator.resetData();
   }
 
   @Test
-  public void by_default_admin_is_the_only_root() {
-    // must be root to call search WS
+  public void nobody_is_root_by_default() {
+    // anonymous
     verifyHttpError(() -> newWsClient(orchestrator).rootService().search(), 403);
+
+    // admin
+    verifyHttpError(() -> newAdminWsClient(orchestrator).rootService().search(), 403);
+  }
+
+  @Test
+  public void system_administrator_is_flagged_as_root_when_he_enables_organization_support() {
+    enableOrganizationSupport();
 
     assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
       .extracting(WsRoot.Root::getLogin)
       .containsOnly(UserRule.ADMIN_LOGIN);
+  }
+
+  @Test
+  public void a_root_can_flag_other_user_as_root() {
+    enableOrganizationSupport();
 
     userRule.createUser("bar", "foo");
     userRule.setRoot("bar");
@@ -70,28 +81,15 @@ public class RootIt {
 
   @Test
   public void last_root_can_not_be_unset_root() throws SQLException {
-    try (Connection connection = orchestrator.getDatabase().openConnection();
-      PreparedStatement preparedStatement = createSelectActiveRootUsers(connection);
-      ResultSet resultSet = preparedStatement.executeQuery()) {
-      assertThat(resultSet.next()).as("There should be active root user").isTrue();
-      assertThat(resultSet.getString(1)).isEqualTo(UserRule.ADMIN_LOGIN);
-      assertThat(resultSet.next()).as("There shouldn't be more than one active root user").isFalse();
-    }
+    enableOrganizationSupport();
 
     verifyHttpError(() -> newAdminWsClient(orchestrator).rootService().unsetRoot(UserRule.ADMIN_LOGIN), 400);
   }
 
-  private static void verifyHttpError(Runnable runnable, int expectedErrorCode) {
-    try {
-      runnable.run();
-      fail("Ws Call should have failed with http code " + expectedErrorCode);
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(expectedErrorCode);
-    }
-  }
-
   @Test
   public void root_can_be_set_and_unset_via_web_services() {
+    enableOrganizationSupport();
+
     userRule.createUser("root1", "bar");
     userRule.createUser("root2", "bar");
     WsClient root1WsClient = newUserWsClient(orchestrator, "root1", "bar");
@@ -113,10 +111,16 @@ public class RootIt {
     root2WsClient.rootService().unsetRoot("root2");
   }
 
-  private static PreparedStatement createSelectActiveRootUsers(Connection connection) throws SQLException {
-    PreparedStatement preparedStatement = connection.prepareStatement("select login from users where is_root = ? and active = ?");
-    preparedStatement.setBoolean(1, true);
-    preparedStatement.setBoolean(2, true);
-    return preparedStatement;
+  private void enableOrganizationSupport() {
+    orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
+  }
+
+  private static void verifyHttpError(Runnable runnable, int expectedErrorCode) {
+    try {
+      runnable.run();
+      fail("Ws Call should have failed with http code " + expectedErrorCode);
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(expectedErrorCode);
+    }
   }
 }

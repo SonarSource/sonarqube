@@ -22,9 +22,11 @@ package it.organization;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import it.Category3Suite;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -49,7 +51,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class OrganizationIt {
+public class OrganizationTest {
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
   private static final String NAME = "Foo Company";
   private static final String KEY = "foo-company";
@@ -73,6 +75,12 @@ public class OrganizationIt {
     orchestrator.resetData();
     userRule.resetUsers();
     ItUtils.resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
+    orchestrator.getServer().post("api/organizations/enable_support", Collections.emptyMap());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    orchestrator.resetData();
   }
 
   @Test

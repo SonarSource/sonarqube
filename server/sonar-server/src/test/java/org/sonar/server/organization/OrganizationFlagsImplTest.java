@@ -43,7 +43,7 @@ public class OrganizationFlagsImplTest {
   }
 
   @Test
-  public void enable_does_enable_feature_by_inserting_internal_property() {
+  public void enable_does_enable_support_by_inserting_internal_property() {
     underTest.enable(db.getSession());
 
     assertThat(underTest.isEnabled(db.getSession())).isTrue();

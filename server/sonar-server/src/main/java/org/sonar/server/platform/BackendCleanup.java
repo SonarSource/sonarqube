@@ -110,6 +110,9 @@ public class BackendCleanup {
 
       truncateAnalysisTables(connection);
       deleteManualRules(connection);
+      truncateInternalProperties(null, null, connection);
+      truncateUsers(null, null, connection);
+      truncateOrganizations(null, null, connection);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to reset data", e);
     }
@@ -180,6 +183,13 @@ public class BackendCleanup {
   private static void truncateUsers(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
     try (PreparedStatement preparedStatement = connection.prepareStatement("delete from users where login <> ?")) {
       preparedStatement.setString(1, "admin");
+      preparedStatement.execute();
+      // commit is useless on some databases
+      connection.commit();
+    }
+    // "admin" is not flagged as root by default
+    try (PreparedStatement preparedStatement = connection.prepareStatement("update users set is_root=?")) {
+      preparedStatement.setBoolean(1, false);
       preparedStatement.execute();
       // commit is useless on some databases
       connection.commit();
