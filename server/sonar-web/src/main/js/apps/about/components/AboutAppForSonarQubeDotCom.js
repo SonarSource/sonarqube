@@ -23,7 +23,6 @@ import { Link } from 'react-router';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypesForSonarQubeDotCom from './EntryIssueTypesForSonarQubeDotCom';
 import AboutRulesForSonarQubeDotCom from './AboutRulesForSonarQubeDotCom';
-import AboutLanguages from './AboutLanguages';
 import AboutCleanCode from './AboutCleanCode';
 import AboutQualityModelForSonarQubeDotCom from './AboutQualityModelForSonarQubeDotCom';
 import AboutQualityGates from './AboutQualityGates';
@@ -55,7 +54,7 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
                 <h1 className="big-spacer-bottom">
                   Continuous Code Quality<br/>as a Service
                 </h1>
-                <a className="button button-active" href="https://about.sonarqube.com/get-started/">
+                <a className="button button-active" href="https://about.sonarqube.com/get-started/" target="_blank">
                   Get Started
                 </a>
                 {!this.props.currentUser.isLoggedIn && (
@@ -81,8 +80,6 @@ export default class AboutAppForSonarQubeDotCom extends React.Component {
             {customText != null && customText.value && (
                 <div className="about-page-section" dangerouslySetInnerHTML={{ __html: customText.value }}/>
             )}
-
-            <AboutLanguages/>
 
             <AboutQualityModelForSonarQubeDotCom/>
 

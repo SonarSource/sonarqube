@@ -141,7 +141,7 @@ class AboutApp extends React.Component {
                       {translate('layout.login')}
                     </Link>
                 )}
-                <a className="button" href="https://redirect.sonarsource.com/doc/home.html">
+                <a className="button" href="https://redirect.sonarsource.com/doc/home.html" target="_blank">
                   {translate('about_page.read_documentation')}
                 </a>
               </div>

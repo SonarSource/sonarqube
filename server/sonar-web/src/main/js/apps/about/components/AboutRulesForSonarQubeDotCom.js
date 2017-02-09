@@ -28,7 +28,7 @@ export default class AboutRulesForSonarQubeDotCom extends React.Component {
         <div className="sqcom-about-rules">
           <div className="about-page-container">
             <Link to={getRulesUrl()} className="sqcom-about-rules-link">
-              +2000 rules
+              +3,000 rules
               <span className="spacer-left">
                 <svg width="15" height="36" viewBox="0 0 15 36">
                   <g transform="matrix(1,0,0,1,-267,-362)">
