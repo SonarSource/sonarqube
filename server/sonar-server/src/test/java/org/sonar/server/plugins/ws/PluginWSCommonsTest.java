@@ -123,13 +123,13 @@ public class PluginWSCommonsTest {
   @Test
   public void writeRelease() {
     jsonWriter.beginObject();
-    underTest.writeRelease(jsonWriter, newRelease());
+    underTest.writeRelease(jsonWriter, newRelease().setDisplayVersion("1.0 (build 42)"));
     jsonWriter.endObject();
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
       "  \"release\": {" +
-      "     \"version\": \"1.0\"," +
+      "     \"version\": \"1.0 (build 42)\"," +
       "     \"date\": \"2015-04-16\"," +
       "     \"description\": \"release description\"," +
       "     \"changeLogUrl\": \"http://change.org/plugin\"" +

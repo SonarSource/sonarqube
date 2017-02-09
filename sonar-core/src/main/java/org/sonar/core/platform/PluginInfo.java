@@ -107,6 +107,8 @@ public class PluginInfo implements Comparable<PluginInfo> {
   @CheckForNull
   private Version version;
 
+  private String displayVersion;
+
   @CheckForNull
   private Version minimalSqVersion;
 
@@ -173,6 +175,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
   @CheckForNull
   public Version getVersion() {
     return version;
+  }
+
+  @CheckForNull
+  public String getDisplayVersion() {
+    return displayVersion;
+  }
+
+  public PluginInfo setDisplayVersion(@Nullable String displayVersion) {
+    this.displayVersion = displayVersion;
+    return this;
   }
 
   @CheckForNull
@@ -407,6 +419,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     info.setLicense(manifest.getLicense());
     info.setOrganizationName(manifest.getOrganization());
     info.setOrganizationUrl(manifest.getOrganizationUrl());
+    info.setDisplayVersion(manifest.getDisplayVersion());
     String minSqVersion = manifest.getSonarVersion();
     if (minSqVersion != null) {
       info.setMinimalSqVersion(Version.create(minSqVersion));

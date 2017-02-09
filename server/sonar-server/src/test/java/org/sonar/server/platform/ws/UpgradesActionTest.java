@@ -57,6 +57,41 @@ public class UpgradesActionTest {
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
+  private static SonarUpdate createSonar_51_update() {
+    Plugin brandingPlugin = Plugin.factory("branding")
+      .setCategory("Integration")
+      .setName("Branding")
+      .setDescription("Allows to add your own logo to the SonarQube UI.")
+      .setHomepageUrl("http://docs.codehaus.org/display/SONAR/Branding+Plugin")
+      .setLicense("GNU LGPL 3")
+      .setOrganization("SonarSource")
+      .setOrganizationUrl("http://www.sonarsource.com")
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARPLUGINS/component/14663")
+      .setSourcesUrl("https://github.com/SonarCommunity/sonar-branding");
+    Plugin viewsPlugin = Plugin.factory("views")
+      .setName("Views")
+      .setCategory("Governance")
+      .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.")
+      .setHomepageUrl("https://redirect.sonarsource.com/plugins/views.html")
+      .setLicense("Commercial")
+      .setOrganization("SonarSource")
+      .setOrganizationUrl("http://www.sonarsource.com")
+      .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
+
+    release = new Release(new Sonar(), Version.create("5.1.0.5498"))
+      .setDate(DateUtils.parseDate("2015-04-02"))
+      .setDescription("New overall layout, merge Issues Drilldown [...]")
+      .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
+      .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666");
+    SonarUpdate sonarUpdate = new SonarUpdate(release);
+
+    sonarUpdate.addIncompatiblePlugin(brandingPlugin);
+    sonarUpdate.addPluginToUpgrade(new Release(viewsPlugin, Version.create("2.8.0.5498")).setDisplayVersion("2.8 (build 5498)"));
+
+    return sonarUpdate;
+  }
+
   @Before
   public void wireMocks() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
@@ -91,7 +126,7 @@ public class UpgradesActionTest {
 
   @Test
   public void empty_array_is_returned_when_update_center_is_unavailable() throws Exception {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
 
     underTest.handle(request, response);
 
@@ -107,52 +142,5 @@ public class UpgradesActionTest {
 
     assertJson(response.outputAsString()).withStrictArrayOrder()
       .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
-  }
-
-  @Test
-  public void technical_version_when_functional_is_blank() throws Exception {
-    SonarUpdate sonarUpdate = createSonar_51_update();
-    when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
-    release.setDisplayVersion("");
-
-    underTest.handle(request, response);
-
-    assertThat(response.outputAsString()).contains("5.42");
-  }
-
-  private static SonarUpdate createSonar_51_update() {
-    Plugin brandingPlugin = Plugin.factory("branding")
-      .setCategory("Integration")
-      .setName("Branding")
-      .setDescription("Allows to add your own logo to the SonarQube UI.")
-      .setHomepageUrl("http://docs.codehaus.org/display/SONAR/Branding+Plugin")
-      .setLicense("GNU LGPL 3")
-      .setOrganization("SonarSource")
-      .setOrganizationUrl("http://www.sonarsource.com")
-      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARPLUGINS/component/14663")
-      .setSourcesUrl("https://github.com/SonarCommunity/sonar-branding");
-    Plugin viewsPlugin = Plugin.factory("views")
-      .setName("Views")
-      .setCategory("Governance")
-      .setDescription("Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.")
-      .setHomepageUrl("https://redirect.sonarsource.com/plugins/views.html")
-      .setLicense("Commercial")
-      .setOrganization("SonarSource")
-      .setOrganizationUrl("http://www.sonarsource.com")
-      .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
-      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
-
-    release = new Release(new Sonar(), Version.create("5.42"))
-      .setDisplayVersion("5.1 (build 5498)")
-      .setDate(DateUtils.parseDate("2015-04-02"))
-      .setDescription("New overall layout, merge Issues Drilldown [...]")
-      .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
-      .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666");
-    SonarUpdate sonarUpdate = new SonarUpdate(release);
-
-    sonarUpdate.addIncompatiblePlugin(brandingPlugin);
-    sonarUpdate.addPluginToUpgrade(new Release(viewsPlugin, Version.create("2.8")));
-
-    return sonarUpdate;
   }
 }

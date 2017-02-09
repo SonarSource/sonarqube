@@ -46,6 +46,7 @@ import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
@@ -76,8 +77,7 @@ public class PluginWSCommons {
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
     .onResultOf(PluginToName.INSTANCE)
     .compound(
-      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKeyFunction.INSTANCE)
-    );
+      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKeyFunction.INSTANCE));
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
@@ -89,7 +89,8 @@ public class PluginWSCommons {
     json.prop(PROPERTY_DESCRIPTION, pluginInfo.getDescription());
     Version version = pluginInfo.getVersion();
     if (version != null) {
-      json.prop(PROPERTY_VERSION, version.getName());
+      String functionalVersion = isNotBlank(pluginInfo.getDisplayVersion()) ? pluginInfo.getDisplayVersion() : version.getName();
+      json.prop(PROPERTY_VERSION, functionalVersion);
     }
     json.prop(PROPERTY_CATEGORY, category);
     json.prop(PROPERTY_LICENSE, pluginInfo.getLicense());
@@ -138,7 +139,8 @@ public class PluginWSCommons {
   public void writeRelease(JsonWriter jsonWriter, Release release) {
     jsonWriter.name(OBJECT_RELEASE).beginObject();
 
-    jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
+    String version = isNotBlank(release.getDisplayVersion()) ? release.getDisplayVersion() : release.getVersion().toString();
+    jsonWriter.prop(PROPERTY_VERSION, version);
     jsonWriter.propDate(PROPERTY_DATE, release.getDate());
     jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
     jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());

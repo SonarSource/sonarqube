@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.PluginWSCommons;
+import org.sonar.server.ui.VersionFormatter;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
@@ -59,6 +60,14 @@ public class UpgradesAction implements SystemWsAction {
   public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
     this.updateCenterFactory = updateCenterFactory;
     this.pluginWSCommons = pluginWSCommons;
+  }
+
+  private static void writeMetadata(JsonWriter jsonWriter, Release release) {
+    jsonWriter.prop(PROPERTY_VERSION, VersionFormatter.format(release.getVersion().getName()));
+    jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
+    jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());
+    jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());
+    jsonWriter.prop(PROPERTY_DOWNLOAD_URL, release.getDownloadUrl());
   }
 
   @Override
@@ -117,16 +126,6 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endObject();
   }
 
-  private static void writeMetadata(JsonWriter jsonWriter, Release release) {
-    String technicalVersion = release.getVersion().getName();
-    String functionalVersion = release.getDisplayVersion();
-    jsonWriter.prop(PROPERTY_VERSION, isNotBlank(functionalVersion) ? functionalVersion : technicalVersion);
-    jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
-    jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());
-    jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());
-    jsonWriter.prop(PROPERTY_DOWNLOAD_URL, release.getDownloadUrl());
-  }
-
   private void writePlugins(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
     jsonWriter.name(OBJECT_PLUGINS).beginObject();
 
@@ -143,7 +142,8 @@ public class UpgradesAction implements SystemWsAction {
       jsonWriter.beginObject();
 
       pluginWSCommons.writePlugin(jsonWriter, (Plugin) release.getArtifact());
-      jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
+      String version = isNotBlank(release.getDisplayVersion()) ? release.getDisplayVersion() : release.getVersion().toString();
+      jsonWriter.prop(PROPERTY_VERSION, version);
 
       jsonWriter.endObject();
     }
