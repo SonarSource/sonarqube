@@ -17,31 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.db.migration.version.v63;
 
+import java.sql.SQLException;
 import org.junit.Test;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class DbVersion63Test {
-  private DbVersion63 underTest = new DbVersion63();
+public class DropNonLeakPeriodColumnsFromProjectMeasuresTest {
 
-  @Test
-  public void verify_support_components() {
-    assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
-  }
+  Database database = mock(Database.class);
 
-  @Test
-  public void migrationNumber_starts_at_1500() {
-    verifyMinimumMigrationNumber(underTest, 1500);
-  }
+  DropNonLeakPeriodColumnsFromProjectMeasures underTest = new DropNonLeakPeriodColumnsFromProjectMeasures(database);
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  public void verify_generated_sql_on_postgresql() throws SQLException {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    underTest.execute(context);
+
+    verify(context).execute("ALTER TABLE project_measures DROP COLUMN variation_value_2, DROP COLUMN variation_value_3, DROP COLUMN variation_value_4, DROP COLUMN variation_value_5");
   }
 
 }

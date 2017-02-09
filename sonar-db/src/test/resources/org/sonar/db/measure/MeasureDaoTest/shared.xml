@@ -28,10 +28,6 @@
                     text_value="0123456789012345678901234567890123456789"
                     measure_data="[null]"
                     variation_value_1="[null]"
-                    variation_value_2="[null]"
-                    variation_value_3="[null]"
-                    variation_value_4="[null]"
-                    variation_value_5="[null]"
                     alert_status="[null]"
                     alert_text="[null]"/>
   <project_measures id="21"
@@ -42,10 +38,6 @@
                     text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1"
                     measure_data="[null]"
                     variation_value_1="[null]"
-                    variation_value_2="[null]"
-                    variation_value_3="[null]"
-                    variation_value_4="[null]"
-                    variation_value_5="[null]"
                     alert_status="[null]"
                     alert_text="[null]"/>
   <project_measures id="22"
@@ -56,10 +48,6 @@
                     text_value="[null]"
                     measure_data="[null]"
                     variation_value_1="1"
-                    variation_value_2="2"
-                    variation_value_3="3"
-                    variation_value_4="4"
-                    variation_value_5="-5"
                     alert_status="OK"
                     alert_text="Green"/>
 

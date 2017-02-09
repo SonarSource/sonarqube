@@ -360,7 +360,7 @@ public class PurgeTest {
   }
 
   private void logMeasures(String title, String qualifier) {
-    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3 "
+    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1 "
       +
       "FROM project_measures pm, projects p, metrics m " +
       "WHERE pm.component_uuid=p.uuid and pm.metric_id=m.id and p.qualifier='"
