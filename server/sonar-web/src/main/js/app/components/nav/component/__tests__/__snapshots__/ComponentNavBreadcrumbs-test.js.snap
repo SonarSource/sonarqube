@@ -2,6 +2,11 @@ exports[`test should not render breadcrumbs with one element 1`] = `
 <h2
   className="navbar-context-title">
   <span>
+    <span
+      className="navbar-context-title-qualifier little-spacer-right">
+      <qualifier-icon
+        qualifier="TRK" />
+    </span>
     <Link
       className="link-base-color"
       onlyActiveOnIndex={false}

@@ -36,11 +36,18 @@ class ComponentNavBreadcrumbs extends React.Component {
       return null;
     }
 
+    const displayOrganization = organization != null && shouldOrganizationBeDisplayed;
+
     const lastItem = breadcrumbs[breadcrumbs.length - 1];
 
     const items = breadcrumbs.map((item, index) => {
       return (
           <span key={item.key}>
+            {!displayOrganization && index === 0 && (
+                <span className="navbar-context-title-qualifier little-spacer-right">
+                  <QualifierIcon qualifier={lastItem.qualifier}/>
+                </span>
+            )}
             <Link to={{ pathname: '/dashboard', query: { id: item.key } }} className="link-base-color">
               {index === breadcrumbs.length - 1 ? (
                   <strong>{item.name}</strong>
@@ -57,7 +64,7 @@ class ComponentNavBreadcrumbs extends React.Component {
 
     return (
         <h2 className="navbar-context-title">
-          {organization != null && shouldOrganizationBeDisplayed && (
+          {displayOrganization && (
               <span>
                 <span className="navbar-context-title-qualifier little-spacer-right">
                   <QualifierIcon qualifier={lastItem.qualifier}/>
