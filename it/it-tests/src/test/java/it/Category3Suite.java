@@ -35,6 +35,7 @@ import it.analysis.SettingsEncryptionTest;
 import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import it.organization.OrganizationIt;
+import it.plugins.VersionPluginTest;
 import it.root.RootIt;
 import it.webhook.WebhooksTest;
 import org.junit.ClassRule;
@@ -56,6 +57,7 @@ import static util.ItUtils.xooPlugin;
   IssueJsonReportTest.class,
   ScannerTest.class,
   IssuesModeTest.class,
+  VersionPluginTest.class,
   SettingsEncryptionTest.class,
   ReportDumpTest.class,
   SSLTest.class,

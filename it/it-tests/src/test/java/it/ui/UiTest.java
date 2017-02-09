@@ -56,7 +56,7 @@ public class UiTest {
 
   @Test
   public void footer_contains_version() {
-    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/system/status"));
+    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/navigation/global"));
     Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
 
     nav.getFooter().should(hasText((String) statusMap.get("version")));
