@@ -23,9 +23,9 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.organization.OrganizationValidation;
 import org.sonarqube.ws.Organizations;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
 
 /**
@@ -37,16 +37,16 @@ public class OrganizationsWsSupport {
   static final String PARAM_DESCRIPTION = "description";
   static final String PARAM_URL = "url";
   static final String PARAM_AVATAR_URL = "avatar";
-  static final int KEY_MIN_LENGTH = 2;
-  static final int KEY_MAX_LENGTH = 32;
-  static final int NAME_MIN_LENGTH = 2;
-  static final int NAME_MAX_LENGTH = 64;
-  static final int DESCRIPTION_MAX_LENGTH = 256;
-  static final int URL_MAX_LENGTH = 256;
+
+  private final OrganizationValidation organizationValidation;
+
+  public OrganizationsWsSupport(OrganizationValidation organizationValidation) {
+    this.organizationValidation = organizationValidation;
+  }
 
   String getAndCheckMandatoryName(Request request) {
     String name = request.mandatoryParam(PARAM_NAME);
-    checkName(name);
+    organizationValidation.checkName(name);
     return name;
   }
 
@@ -54,38 +54,24 @@ public class OrganizationsWsSupport {
   String getAndCheckName(Request request) {
     String name = request.param(PARAM_NAME);
     if (name != null) {
-      checkName(name);
+      organizationValidation.checkName(name);
     }
     return name;
   }
 
-  private static void checkName(String name) {
-    checkArgument(name.length() >= NAME_MIN_LENGTH, "Name '%s' must be at least %s chars long", name, NAME_MIN_LENGTH);
-    checkArgument(name.length() <= NAME_MAX_LENGTH, "Name '%s' must be at most %s chars long", name, NAME_MAX_LENGTH);
-  }
-
   @CheckForNull
   String getAndCheckAvatar(Request request) {
-    return getAndCheckParamMaxLength(request, PARAM_AVATAR_URL, URL_MAX_LENGTH);
+    return organizationValidation.checkAvatar(request.param(PARAM_AVATAR_URL));
   }
 
   @CheckForNull
   String getAndCheckUrl(Request request) {
-    return getAndCheckParamMaxLength(request, PARAM_URL, URL_MAX_LENGTH);
+    return organizationValidation.checkUrl(request.param(PARAM_URL));
   }
 
   @CheckForNull
   String getAndCheckDescription(Request request) {
-    return getAndCheckParamMaxLength(request, PARAM_DESCRIPTION, DESCRIPTION_MAX_LENGTH);
-  }
-
-  @CheckForNull
-  private static String getAndCheckParamMaxLength(Request request, String key, int maxLength) {
-    String value = request.param(key);
-    if (value != null) {
-      checkArgument(value.length() <= maxLength, "%s '%s' must be at most %s chars long", key, value, maxLength);
-    }
-    return value;
+    return organizationValidation.checkDescription(request.param(PARAM_DESCRIPTION));
   }
 
   void addOrganizationDetailsParams(WebService.NewAction action, boolean isNameRequired) {

@@ -32,7 +32,6 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
@@ -50,6 +49,10 @@ import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationCreationImpl;
+import org.sonar.server.organization.OrganizationValidation;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -85,7 +88,9 @@ public class CreateActionTest {
   private Settings settings = new MapSettings()
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, uuidFactory, new OrganizationsWsSupport(), new AlwaysIncreasingSystem2());
+  private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
+  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation);
+  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation, organizationCreation);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -380,7 +385,7 @@ public class CreateActionTest {
     makeUserRoot();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeRequest("foo", "bar", STRING_257_CHARS_LONG, null, null);
   }
@@ -400,7 +405,7 @@ public class CreateActionTest {
     makeUserRoot();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeRequest("foo", "bar", null, STRING_257_CHARS_LONG, null);
   }
@@ -420,7 +425,7 @@ public class CreateActionTest {
     makeUserRoot();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeRequest("foo", "bar", null, null, STRING_257_CHARS_LONG);
   }

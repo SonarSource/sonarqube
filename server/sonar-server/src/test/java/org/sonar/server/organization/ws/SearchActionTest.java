@@ -36,6 +36,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -67,7 +68,7 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SearchAction underTest = new SearchAction(dbTester.getDbClient(), new OrganizationsWsSupport());
+  private SearchAction underTest = new SearchAction(dbTester.getDbClient(), new OrganizationsWsSupport(new OrganizationValidationImpl()));
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test

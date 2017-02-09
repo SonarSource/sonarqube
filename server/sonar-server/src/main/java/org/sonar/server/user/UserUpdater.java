@@ -57,7 +57,7 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 @ServerSide
 public class UserUpdater {
 
-  public static final String SQ_AUTHORITY = "sonarqube";
+  private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
   private static final String PASSWORD_PARAM = "Password";

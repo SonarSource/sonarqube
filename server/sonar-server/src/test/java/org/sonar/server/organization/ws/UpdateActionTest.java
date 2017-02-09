@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -58,7 +59,7 @@ public class UpdateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(), dbTester.getDbClient());
+  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()), dbTester.getDbClient());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -207,7 +208,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeKeyRequest(SOME_KEY, "bar", STRING_257_CHARS_LONG, null, null);
   }
@@ -227,7 +228,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeKeyRequest(SOME_KEY, "bar", null, STRING_257_CHARS_LONG, null);
   }
@@ -247,7 +248,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
 
     executeKeyRequest(SOME_KEY, "bar", null, null, STRING_257_CHARS_LONG);
   }
