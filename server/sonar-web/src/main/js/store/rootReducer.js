@@ -121,7 +121,7 @@ export const getMyOrganizations = state => (
 );
 
 export const areThereCustomOrganizations = state => (
-    fromOrganizations.areThereCustomOrganizations(state.organizations)
+    getAppState(state).organizationsEnabled
 );
 
 export const getProjectActivity = state => (

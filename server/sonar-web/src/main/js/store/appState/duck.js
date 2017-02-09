@@ -22,6 +22,7 @@ type AppState = {
   adminPages?: Array<*>,
   authenticationError: boolean,
   authorizationError: boolean,
+  organizationsEnabled: boolean,
   qualifiers: ?Array<string>
 };
 
@@ -54,6 +55,7 @@ export const requireAuthorization = () => ({
 const defaultValue = {
   authenticationError: false,
   authorizationError: false,
+  organizationsEnabled: false,
   qualifiers: null
 };
 
