@@ -209,6 +209,7 @@ class Template extends React.Component {
               topQualifiers={this.props.topQualifiers}/>
 
           <TemplateDetails
+              organization={this.props.organization}
               template={this.props.template}/>
 
           <HoldersList

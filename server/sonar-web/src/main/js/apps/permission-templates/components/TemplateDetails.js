@@ -22,6 +22,7 @@ import Defaults from './Defaults';
 
 export default class TemplateDetails extends React.Component {
   static propTypes = {
+    organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired
   };
 
@@ -32,7 +33,9 @@ export default class TemplateDetails extends React.Component {
         <div className="big-spacer-bottom">
           {template.defaultFor.length > 0 && (
               <div className="spacer-top js-defaults">
-                <Defaults permissionTemplate={template}/>
+                <Defaults
+                    permissionTemplate={template}
+                    organization={this.props.organization}/>
               </div>
           )}
 
