@@ -49,7 +49,6 @@
   <properties>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/dotnet/sonar-csharp-plugin/ -->
     <sonarCSharp.version>5.7.0.612</sonarCSharp.version>
-    <sonarGit.version>1.2</sonarGit.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
     <sonarJava.version>4.5.0.8398</sonarJava.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
@@ -58,6 +57,9 @@
     <sonarPhp.version>2.9.1.1705</sonarPhp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
     <sonarPython.version>1.7.0.1195</sonarPython.version>
+    <!-- http://repo1.maven.org/maven2/org/sonarsource/flex/sonar-flex-plugin/ -->
+    <sonarFlex.version>2.3</sonarFlex.version>
+    <sonarGit.version>1.2</sonarGit.version>
     <sonarSvn.version>1.4.0.522</sonarSvn.version>
     <sonarUpdateCenter.version>1.17</sonarUpdateCenter.version>
     <h2.version>1.3.176</h2.version>
@@ -644,6 +646,26 @@
           <exclusion>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-lgpl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.flex</groupId>
+        <artifactId>sonar-flex-plugin</artifactId>
+        <version>${sonarFlex.version}</version>
+        <type>sonar-plugin</type>
+        <exclusions>
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
+          <exclusion>
+            <groupId>org.sonarsource.flex</groupId>
+            <artifactId>flex-squid</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonarsource.flex</groupId>
+            <artifactId>flex-checks</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
