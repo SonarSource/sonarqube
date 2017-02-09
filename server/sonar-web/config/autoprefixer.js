@@ -21,8 +21,8 @@ module.exports = {
   browsers: [
     'last 3 Chrome versions',
     'last 3 Firefox versions',
-    'Safari >= 8',
-    'Edge >= 12',
+    'last 3 Safari versions',
+    'last 3 Edge versions',
     'IE 11'
   ]
 };

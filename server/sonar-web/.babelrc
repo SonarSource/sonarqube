@@ -1,0 +1,46 @@
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "browsers": [
+          "last 3 Chrome versions",
+          "last 3 Firefox versions",
+          "last 3 Safari versions",
+          "last 3 Edge versions",
+          "IE 11"
+        ]
+      },
+      "useBuiltIns": true
+    }],
+    "react"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    ["transform-object-rest-spread", {
+      // use built-in `Object.assign`
+      "useBuiltIns": true
+    }]
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        "transform-react-constant-elements"
+      ]
+    },
+    "development": {
+      "plugins": [
+        "transform-react-jsx-source",
+        "transform-react-jsx-self"
+      ]
+    },
+    "test": {
+      "plugins": [
+        "transform-react-jsx-source",
+        "transform-react-jsx-self"
+      ]
+    }
+  },
+  "ignore": [
+    "**/libs/**"
+  ]
+}
