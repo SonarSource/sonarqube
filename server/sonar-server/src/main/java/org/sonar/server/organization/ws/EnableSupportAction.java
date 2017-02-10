@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
@@ -64,10 +63,11 @@ public class EnableSupportAction implements OrganizationsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       verifySystemAdministrator();
-      verifyFeatureIsDisabled(dbSession);
-      flagCurrentUserAsRoot(dbSession);
-      enableFeature(dbSession);
-      dbSession.commit();
+      if (isSupportDisabled(dbSession)) {
+        flagCurrentUserAsRoot(dbSession);
+        enableFeature(dbSession);
+        dbSession.commit();
+      }
     }
     response.noContent();
   }
@@ -76,10 +76,8 @@ public class EnableSupportAction implements OrganizationsAction {
     userSession.checkLoggedIn().checkOrganizationPermission(defaultOrganizationProvider.get().getUuid(), SYSTEM_ADMIN);
   }
 
-  private void verifyFeatureIsDisabled(DbSession dbSession) {
-    if (organizationFlags.isEnabled(dbSession)) {
-      throw new BadRequestException("Organizations are already enabled");
-    }
+  private boolean isSupportDisabled(DbSession dbSession) {
+    return !organizationFlags.isEnabled(dbSession);
   }
 
   private void flagCurrentUserAsRoot(DbSession dbSession) {
