@@ -140,12 +140,6 @@
     </choose>
   </select>
 
-  <select id="countRowsByRootComponentId" parameterType="long" resultType="int">
-    select count(1)
-    from group_roles
-    where resource_id=#{rootComponentId,jdbcType=BIGINT}
-  </select>
-
   <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into group_roles (
     organization_uuid,

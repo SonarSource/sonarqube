@@ -96,14 +96,6 @@ public class GroupPermissionDao implements Dao {
     return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupId, projectId);
   }
 
-  /**
-   * @return {@code true} if the project has at least one permission defined, whatever it is
-   * on a group or on "anyone", else returns {@code false}
-   */
-  public boolean hasRootComponentPermissions(DbSession dbSession, long rootComponentId) {
-    return mapper(dbSession).countRowsByRootComponentId(rootComponentId) > 0;
-  }
-
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
     ensureComponentPermissionConsistency(dbSession, dto);
     ensureGroupPermissionConsistency(dbSession, dto);

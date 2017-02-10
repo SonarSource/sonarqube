@@ -45,8 +45,6 @@ public interface GroupPermissionMapper {
   void delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid,
     @Nullable @Param("groupId") Long groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
 
-  int countRowsByRootComponentId(@Param("rootComponentId") long rootComponentId);
-
   List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
     @Nullable @Param("groupId") Long groupId);
 
