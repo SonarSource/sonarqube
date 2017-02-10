@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
@@ -242,6 +243,23 @@ public class ReportSubmitterTest {
 
     thrown.expect(ForbiddenException.class);
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+  }
+
+  /**
+   * SONAR-8757
+   */
+  @Test
+  public void project_branch_must_not_benefit_from_the_scan_permission_on_main_project() {
+    ComponentDto mainProject = db.components().insertProject();
+    userSession.addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, mainProject.uuid());
+
+    // user does not have the "scan" permission on the branch, so it can't scan it
+    String branchName = "branchFoo";
+    ComponentDto branchProject = db.components().insertProject(p -> p.setKey(mainProject.getKey() + ":" + branchName));
+
+
+    thrown.expect(ForbiddenException.class);
+    underTest.submit(defaultOrganizationKey, mainProject.key(), branchName, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
   }
 
   private void verifyReportIsPersisted(String taskUuid) {
