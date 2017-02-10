@@ -89,7 +89,7 @@ public class MemoryTest extends PerfTestCase {
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4480L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4847L);
 
     // Second execution with a property on server side
     orchestrator.getServer().getAdminWsClient().create(new PropertyCreateQuery("sonar.anotherBigProp", Strings.repeat("B", 1000), "big-module-tree"));
