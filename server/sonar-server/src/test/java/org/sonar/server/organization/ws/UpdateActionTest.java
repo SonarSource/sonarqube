@@ -59,7 +59,7 @@ public class UpdateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()), dbTester.getDbClient());
+  private UpdateAction underTest = new UpdateAction(userSession, new OrganizationsWsSupport(new OrganizationValidationImpl(), dbTester.getDbClient()), dbTester.getDbClient());
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test

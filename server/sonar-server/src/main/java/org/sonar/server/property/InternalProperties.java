@@ -32,6 +32,8 @@ public interface InternalProperties {
    */
   String DEFAULT_ORGANIZATION = "organization.default";
 
+  String ORGANIZATION_ENABLED = "organization.enabled";
+
   /**
    * Read the value of the specified property.
    *

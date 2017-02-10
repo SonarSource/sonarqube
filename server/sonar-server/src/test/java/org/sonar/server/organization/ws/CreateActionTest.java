@@ -90,7 +90,7 @@ public class CreateActionTest {
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
   private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings);
-  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation, organizationCreation);
+  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation, dbClient), organizationValidation, organizationCreation);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test

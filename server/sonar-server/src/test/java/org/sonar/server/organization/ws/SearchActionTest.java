@@ -68,7 +68,7 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SearchAction underTest = new SearchAction(dbTester.getDbClient(), new OrganizationsWsSupport(new OrganizationValidationImpl()));
+  private SearchAction underTest = new SearchAction(dbTester.getDbClient(), new OrganizationsWsSupport(new OrganizationValidationImpl(), dbTester.getDbClient()));
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
