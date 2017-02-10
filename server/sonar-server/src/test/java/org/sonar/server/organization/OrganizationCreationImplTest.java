@@ -151,7 +151,8 @@ public class OrganizationCreationImplTest {
     assertThat(organization.getDescription()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getDescription());
     assertThat(organization.getUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getUrl());
     assertThat(organization.getAvatarUrl()).isEqualTo(FULL_POPULATED_NEW_ORGANIZATION.getAvatar());
-     assertThat(organization.isGuarded()).isFalse();
+    assertThat(organization.isGuarded()).isFalse();
+    assertThat(organization.getUserId()).isNull();
     assertThat(organization.getCreatedAt()).isEqualTo(SOME_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(SOME_DATE);
   }
@@ -183,6 +184,7 @@ public class OrganizationCreationImplTest {
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
     assertThat(organization.isGuarded()).isFalse();
+    assertThat(organization.getUserId()).isNull();
   }
 
   @Test
@@ -224,7 +226,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void createForUser_creates_guarded_organization_with_name_and_key_generated_from_login() {
+  public void createForUser_creates_guarded_organization_with_name_and_key_generated_from_login_and_associated_to_user() {
     UserDto user = dbTester.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
@@ -240,6 +242,7 @@ public class OrganizationCreationImplTest {
     assertThat(organization.getUrl()).isNull();
     assertThat(organization.getAvatarUrl()).isNull();
     assertThat(organization.isGuarded()).isTrue();
+    assertThat(organization.getUserId()).isEqualTo(user.getId());
     assertThat(organization.getCreatedAt()).isEqualTo(SOME_DATE);
     assertThat(organization.getUpdatedAt()).isEqualTo(SOME_DATE);
   }

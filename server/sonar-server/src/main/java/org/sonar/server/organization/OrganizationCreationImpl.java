@@ -21,6 +21,7 @@ package org.sonar.server.organization;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -67,7 +68,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       throw new KeyConflictException(format("Organization key '%s' is already used", key));
     }
 
-    OrganizationDto organization = insertOrganization(dbSession, newOrganization, false);
+    OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
+    });
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
     addCurrentUserToGroup(dbSession, group, creatorUserId);
@@ -92,7 +94,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       newOrganization.getKey(),
       newUser.getLogin());
 
-    OrganizationDto organization = insertOrganization(dbSession, newOrganization, true);
+    OrganizationDto organization = insertOrganization(dbSession, newOrganization,
+      dto -> dto.setGuarded(true).setUserId(newUser.getId()));
     GroupDto group = insertOwnersGroup(dbSession, organization);
     insertDefaultTemplate(dbSession, organization, group);
     addCurrentUserToGroup(dbSession, group, newUser.getId());
@@ -122,15 +125,15 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     organizationValidation.checkAvatar(newOrganization.getAvatar());
   }
 
-  private OrganizationDto insertOrganization(DbSession dbSession, NewOrganization newOrganization, boolean guarded) {
+  private OrganizationDto insertOrganization(DbSession dbSession, NewOrganization newOrganization, Consumer<OrganizationDto> extendCreation) {
     OrganizationDto res = new OrganizationDto()
       .setUuid(uuidFactory.create())
       .setName(newOrganization.getName())
       .setKey(newOrganization.getKey())
       .setDescription(newOrganization.getDescription())
       .setUrl(newOrganization.getUrl())
-      .setAvatarUrl(newOrganization.getAvatar())
-      .setGuarded(guarded);
+      .setAvatarUrl(newOrganization.getAvatar());
+    extendCreation.accept(res);
     dbClient.organizationDao().insert(dbSession, res);
     return res;
   }
