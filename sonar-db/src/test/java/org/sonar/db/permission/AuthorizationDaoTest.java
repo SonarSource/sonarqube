@@ -45,8 +45,6 @@ public class AuthorizationDaoTest {
   private static final int USER = 100;
   private static final Long PROJECT_ID = 300L;
   private static final Long PROJECT_ID_WITHOUT_SNAPSHOT = 400L;
-  private static final String PROJECT = "pj-w-snapshot";
-  private static final String PROJECT_WIHOUT_SNAPSHOT = "pj-wo-snapshot";
   private static final long MISSING_ID = -1L;
   private static final String A_PERMISSION = "a-permission";
   private static final String DOES_NOT_EXIST = "does-not-exist";
@@ -55,7 +53,7 @@ public class AuthorizationDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = db.getSession();
-  private AuthorizationDao underTest = new AuthorizationDao(db.myBatis());
+  private AuthorizationDao underTest = new AuthorizationDao();
   private OrganizationDto org;
   private UserDto user;
   private GroupDto group1;
@@ -107,57 +105,6 @@ public class AuthorizationDaoTest {
     Set<String> permissions = underTest.selectOrganizationPermissionsOfAnonymous(dbSession, org.getUuid());
 
     assertThat(permissions).containsOnly("perm1");
-  }
-
-  /**
-   * Union of the permissions granted to:
-   * - the user
-   * - the groups which user is member
-   * - anyone
-   */
-  @Test
-  public void selectRootComponentPermissions_for_logged_in_user() {
-    db.users().insertMember(group1, user);
-    ComponentDto project1 = db.components().insertProject(org);
-    db.users().insertProjectPermissionOnAnyone("perm1", project1);
-    db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
-    db.users().insertProjectPermissionOnUser(user, "perm3", project1);
-
-    // ignored permissions
-    db.users().insertPermissionOnAnyone(org, "ignored");
-    db.users().insertPermissionOnGroup(group2, "ignored");
-    ComponentDto project2 = db.components().insertProject();
-
-    Set<String> permissions = underTest.selectRootComponentPermissions(dbSession, project1.getId(), user.getId());
-    assertThat(permissions).containsOnly("perm1", "perm2", "perm3");
-
-    // non granted project
-    permissions = underTest.selectRootComponentPermissions(dbSession, project2.getId(), user.getId());
-    assertThat(permissions).isEmpty();
-  }
-
-  /**
-   * Anonymous user only benefits from the permissions granted to
-   * "Anyone"
-   */
-  @Test
-  public void selectRootComponentPermissions_for_anonymous_user() {
-    ComponentDto project1 = db.components().insertProject(org);
-    db.users().insertProjectPermissionOnAnyone("perm1", project1);
-
-    // ignored permissions
-    db.users().insertPermissionOnAnyone(org, "ignored");
-    db.users().insertPermissionOnUser(org, user, "ignored");
-    db.users().insertPermissionOnGroup(group1, "ignored");
-    ComponentDto project2 = db.components().insertProject(org);
-    db.users().insertProjectPermissionOnGroup(group1, "ignored", project2);
-
-    Set<String> permissions = underTest.selectRootComponentPermissionsOfAnonymous(dbSession, project1.getId());
-    assertThat(permissions).containsOnly("perm1");
-
-    // non granted project
-    permissions = underTest.selectRootComponentPermissionsOfAnonymous(dbSession, project2.getId());
-    assertThat(permissions).isEmpty();
   }
 
   @Test
@@ -350,56 +297,12 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void should_return_root_project_keys_for_user() {
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_user.xml");
-
-    Collection<String> rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "user");
-
-    assertThat(rootProjectIds).containsOnly(PROJECT);
-
-    // user does not have the role "admin"
-    rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "admin");
-    assertThat(rootProjectIds).isEmpty();
-  }
-
-  @Test
-  public void should_return_root_project_keys_for_group() {
-    // but user is not in an authorized group
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_group.xml");
-
-    Collection<String> rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "user");
-
-    assertThat(rootProjectIds).containsOnly(PROJECT);
-
-    // user does not have the role "admin"
-    rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "admin");
-    assertThat(rootProjectIds).isEmpty();
-  }
-
-  @Test
-  public void should_return_root_project_keys_for_anonymous() {
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_anonymous.xml");
-
-    Collection<String> rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, null, "user");
-
-    assertThat(rootProjectIds).containsOnly(PROJECT);
-
-    // group does not have the role "admin"
-    rootProjectIds = underTest.selectAuthorizedRootProjectsKeys(dbSession, null, "admin");
-    assertThat(rootProjectIds).isEmpty();
-  }
-
-  @Test
   public void should_return_root_project_uuids_for_user() {
     db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_user.xml");
 
     Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
-
-    // user does not have the role "admin"
-    rootProjectUuids = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "admin");
-    assertThat(rootProjectUuids).isEmpty();
   }
 
   @Test
@@ -410,10 +313,6 @@ public class AuthorizationDaoTest {
     Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
-
-    // user does not have the role "admin"
-    rootProjectUuids = underTest.selectAuthorizedRootProjectsKeys(dbSession, USER, "admin");
-    assertThat(rootProjectUuids).isEmpty();
   }
 
   @Test
@@ -423,73 +322,6 @@ public class AuthorizationDaoTest {
     Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, null, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
-
-    // group does not have the role "admin"
-    rootProjectUuids = underTest.selectAuthorizedRootProjectsKeys(dbSession, null, "admin");
-    assertThat(rootProjectUuids).isEmpty();
-  }
-
-  @Test
-  public void should_return_user_global_permissions() {
-    db.prepareDbUnit(getClass(), "should_return_user_global_permissions.xml");
-
-    assertThat(underTest.selectGlobalPermissions("john")).containsOnly("user", "admin");
-    assertThat(underTest.selectGlobalPermissions("arthur")).containsOnly("user");
-    assertThat(underTest.selectGlobalPermissions("none")).isEmpty();
-  }
-
-  @Test
-  public void should_return_group_global_permissions() {
-    db.prepareDbUnit(getClass(), "should_return_group_global_permissions.xml");
-
-    assertThat(underTest.selectGlobalPermissions("john")).containsOnly("user", "admin");
-    assertThat(underTest.selectGlobalPermissions("arthur")).containsOnly("user");
-    assertThat(underTest.selectGlobalPermissions("none")).isEmpty();
-  }
-
-  @Test
-  public void should_return_global_permissions_for_anonymous() {
-    db.prepareDbUnit(getClass(), "should_return_global_permissions_for_anonymous.xml");
-
-    assertThat(underTest.selectGlobalPermissions(null)).containsOnly("user", "admin");
-  }
-
-  @Test
-  public void should_return_global_permissions_for_group_anyone() {
-    db.prepareDbUnit(getClass(), "should_return_global_permissions_for_group_anyone.xml");
-
-    assertThat(underTest.selectGlobalPermissions("anyone_user")).containsOnly("user", "profileadmin");
-  }
-
-  @Test
-  public void is_authorized_component_key_for_user() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_user.xml");
-
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, USER, "user")).isTrue();
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, USER, "user")).isFalse();
-
-    // user does not have the role "admin"
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
-  }
-
-  @Test
-  public void is_authorized_component_key_for_group() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_group.xml");
-
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, USER, "user")).isTrue();
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, USER, "user")).isFalse();
-
-    // user does not have the role "admin"
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
-  }
-
-  @Test
-  public void is_authorized_component_key_for_anonymous() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_anonymous.xml");
-
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, null, "user")).isTrue();
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, null, "user")).isFalse();
-    assertThat(underTest.isAuthorizedComponentKey(PROJECT, null, "admin")).isFalse();
   }
 
   @Test

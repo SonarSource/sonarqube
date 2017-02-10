@@ -19,16 +19,13 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
@@ -44,15 +41,9 @@ public class AuthorizationDao implements Dao {
 
   private static final String USER_ID_PARAM = "userId";
 
-  private final MyBatis mybatis;
-
-  public AuthorizationDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
   /**
-   * Loads all the permissions granted to logged-in user for the specified organization
-   */
+  * Loads all the permissions granted to logged-in user for the specified organization
+  */
   public Set<String> selectOrganizationPermissions(DbSession dbSession, String organizationUuid, long userId) {
     return mapper(dbSession).selectOrganizationPermissions(organizationUuid, userId);
   }
@@ -62,20 +53,6 @@ public class AuthorizationDao implements Dao {
    */
   public Set<String> selectOrganizationPermissionsOfAnonymous(DbSession dbSession, String organizationUuid) {
     return mapper(dbSession).selectOrganizationPermissionsOfAnonymous(organizationUuid);
-  }
-
-  /**
-   * Loads all the permissions granted to logged-in user for the specified root component (project)
-   */
-  public Set<String> selectRootComponentPermissions(DbSession dbSession, long rootComponentId, long userId) {
-    return mapper(dbSession).selectRootComponentPermissions(rootComponentId, userId);
-  }
-
-  /**
-   * Loads all the permissions granted to anonymous user for the specified root component (project)
-   */
-  public Set<String> selectRootComponentPermissionsOfAnonymous(DbSession dbSession, long rootComponentId) {
-    return mapper(dbSession).selectRootComponentPermissionsOfAnonymous(rootComponentId);
   }
 
   /**
@@ -140,16 +117,6 @@ public class AuthorizationDao implements Dao {
       });
   }
 
-  public Collection<String> selectAuthorizedRootProjectsKeys(DbSession dbSession, @Nullable Integer userId, String role) {
-    String sql;
-    Map<String, Object> params = new HashMap<>(2);
-    sql = "selectAuthorizedRootProjectsKeys";
-    params.put(USER_ID_PARAM, userId);
-    params.put("role", role);
-
-    return dbSession.selectList(sql, params);
-  }
-
   public Collection<String> selectAuthorizedRootProjectsUuids(DbSession dbSession, @Nullable Integer userId, String role) {
     String sql;
     Map<String, Object> params = new HashMap<>(2);
@@ -161,21 +128,6 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * @deprecated because it does not support organizations
-   */
-  @Deprecated
-  public List<String> selectGlobalPermissions(@Nullable String userLogin) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      Map<String, Object> params = new HashMap<>(1);
-      params.put("userLogin", userLogin);
-      return session.selectList("selectGlobalPermissions", params);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
    * Keep only authorized user that have the given permission on a given project.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by thie method.
    */
@@ -183,23 +135,6 @@ public class AuthorizationDao implements Dao {
     return executeLargeInputs(
       userIds,
       partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds));
-  }
-
-  public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return keepAuthorizedComponentKeys(session, componentKey, userId, role).size() == 1;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private static List<String> keepAuthorizedComponentKeys(DbSession dbSession, String componentKey, @Nullable Integer userId, String role) {
-    if (userId == null) {
-      return mapper(dbSession).keepAuthorizedComponentKeysForAnonymous(role, Sets.newHashSet(componentKey));
-    } else {
-      return mapper(dbSession).keepAuthorizedComponentKeysForUser(userId, role, Sets.newHashSet(componentKey));
-    }
   }
 
   private static AuthorizationMapper mapper(DbSession dbSession) {

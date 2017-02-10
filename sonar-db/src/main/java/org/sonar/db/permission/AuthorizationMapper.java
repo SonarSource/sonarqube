@@ -33,10 +33,6 @@ public interface AuthorizationMapper {
 
   Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
-  Set<String> selectRootComponentPermissions(@Param("rootComponentId") long rootComponentId, @Param("userId") long userId);
-
-  Set<String> selectRootComponentPermissionsOfAnonymous(@Param("rootComponentId") long rootComponentId);
-
   int countUsersWithGlobalPermissionExcludingGroup(@Param("organizationUuid") String organizationUuid,
     @Param("permission") String permission, @Param("excludedGroupId") long excludedGroupId);
 
@@ -55,11 +51,6 @@ public interface AuthorizationMapper {
   
   Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") long userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
-  List<String> keepAuthorizedComponentKeysForAnonymous(@Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
-
-  List<String> keepAuthorizedComponentKeysForUser(@Param("userId") Integer userId, @Param("role") String role, @Param("componentKeys") Collection<String> componentKeys);
-
   List<Long> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Long> userIds);
-
 
 }
