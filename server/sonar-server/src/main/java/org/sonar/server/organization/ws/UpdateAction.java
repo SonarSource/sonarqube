@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 
@@ -47,11 +48,14 @@ public class UpdateAction implements OrganizationsAction {
   private final UserSession userSession;
   private final OrganizationsWsSupport wsSupport;
   private final DbClient dbClient;
+  private final OrganizationFlags organizationFlags;
 
-  public UpdateAction(UserSession userSession, OrganizationsWsSupport wsSupport, DbClient dbClient) {
+  public UpdateAction(UserSession userSession, OrganizationsWsSupport wsSupport, DbClient dbClient,
+    OrganizationFlags organizationFlags) {
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.dbClient = dbClient;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -59,7 +63,7 @@ public class UpdateAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Update an organization.<br/>" +
-        "Require 'Administer System' permission. Organization feature must be enabled.")
+        "Require 'Administer System' permission. Organization support must be enabled.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -77,7 +81,7 @@ public class UpdateAction implements OrganizationsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      wsSupport.checkFeatureEnabled(dbSession);
+      organizationFlags.checkEnabled(dbSession);
 
       String key = request.mandatoryParam(PARAM_KEY);
 

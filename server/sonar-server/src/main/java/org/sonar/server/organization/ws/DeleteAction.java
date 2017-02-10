@@ -30,6 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,15 +45,15 @@ public class DeleteAction implements OrganizationsAction {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final ComponentCleanerService componentCleanerService;
-  private final OrganizationsWsSupport support;
+  private final OrganizationFlags organizationFlags;
 
   public DeleteAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    ComponentCleanerService componentCleanerService, OrganizationsWsSupport support) {
+    ComponentCleanerService componentCleanerService, OrganizationFlags organizationFlags) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.componentCleanerService = componentCleanerService;
-    this.support = support;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -60,7 +61,7 @@ public class DeleteAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Delete an organization.<br/>" +
-        "Require 'Administer System' permission on the specified organization. Organization feature must be enabled.")
+        "Require 'Administer System' permission on the specified organization. Organization support must be enabled.")
       .setInternal(true)
       .setSince("6.2")
       .setHandler(this);
@@ -76,7 +77,7 @@ public class DeleteAction implements OrganizationsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      support.checkFeatureEnabled(dbSession);
+      organizationFlags.checkEnabled(dbSession);
 
       String key = request.mandatoryParam(PARAM_KEY);
       preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());

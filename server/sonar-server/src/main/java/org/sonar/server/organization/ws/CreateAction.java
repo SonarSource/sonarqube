@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations.CreateWsResponse;
@@ -48,15 +49,17 @@ public class CreateAction implements OrganizationsAction {
   private final OrganizationsWsSupport wsSupport;
   private final OrganizationValidation organizationValidation;
   private final OrganizationCreation organizationCreation;
+  private final OrganizationFlags organizationFlags;
 
   public CreateAction(Settings settings, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
-    OrganizationValidation organizationValidation, OrganizationCreation organizationCreation) {
+    OrganizationValidation organizationValidation, OrganizationCreation organizationCreation, OrganizationFlags organizationFlags) {
     this.settings = settings;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.organizationValidation = organizationValidation;
     this.organizationCreation = organizationCreation;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -64,7 +67,7 @@ public class CreateAction implements OrganizationsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
       .setDescription("Create an organization.<br />" +
-        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization feature must be enabled.")
+        "Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.")
       .setResponseExample(getClass().getResource("example-create.json"))
       .setInternal(true)
       .setSince("6.2")
@@ -97,7 +100,7 @@ public class CreateAction implements OrganizationsAction {
     String avatar = wsSupport.getAndCheckAvatar(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      wsSupport.checkFeatureEnabled(dbSession);
+      organizationFlags.checkEnabled(dbSession);
       OrganizationDto organization = organizationCreation.create(
         dbSession,
         userSession.getUserId().longValue(),

@@ -19,16 +19,11 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.OrganizationValidation;
-import org.sonar.server.property.InternalProperties;
 import org.sonarqube.ws.Organizations;
 
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -44,11 +39,9 @@ public class OrganizationsWsSupport {
   static final String PARAM_AVATAR_URL = "avatar";
 
   private final OrganizationValidation organizationValidation;
-  private final DbClient dbClient;
 
-  public OrganizationsWsSupport(OrganizationValidation organizationValidation, DbClient dbClient) {
+  public OrganizationsWsSupport(OrganizationValidation organizationValidation) {
     this.organizationValidation = organizationValidation;
-    this.dbClient = dbClient;
   }
 
   String getAndCheckMandatoryName(Request request) {
@@ -118,19 +111,5 @@ public class OrganizationsWsSupport {
     setNullable(dto.getUrl(), builder::setUrl);
     setNullable(dto.getAvatarUrl(), builder::setAvatar);
     return builder.build();
-  }
-
-  boolean isFeatureEnabled(DbSession dbSession) {
-    Optional<String> value = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.ORGANIZATION_ENABLED);
-    return value.isPresent() && Boolean.parseBoolean(value.get());
-  }
-
-  /**
-   * Ensures that the organization feature is enabled, otherwise throws {@link BadRequestException}
-   */
-  void checkFeatureEnabled(DbSession dbSession) {
-    if (!isFeatureEnabled(dbSession)) {
-      throw new BadRequestException("Organizations feature is not enabled");
-    }
   }
 }

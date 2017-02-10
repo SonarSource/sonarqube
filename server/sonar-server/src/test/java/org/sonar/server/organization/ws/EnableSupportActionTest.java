@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationValidationImpl;
+import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -49,24 +51,24 @@ public class EnableSupportActionTest {
   public DbTester db = DbTester.create();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private OrganizationsWsSupport support = new OrganizationsWsSupport(new OrganizationValidationImpl(), db.getDbClient());
-  private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, support);
+  private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(db.getDbClient());
+  private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void enabling_support_saves_internal_property_and_flags_caller_as_root() {
     UserDto user = db.users().insertUser();
     UserDto otherUser = db.users().insertUser();
-    db.properties().verifyInternal("organization.enabled", null);
-    db.rootFlag().verify(user.getLogin(), false);
-    db.rootFlag().verify(otherUser.getLogin(), false);
+    verifyFeatureEnabled(false);
+    verifyRoot(user, false);
+    verifyRoot(otherUser, false);
     logInAsSystemAdministrator(user.getLogin());
 
     call();
 
-    db.properties().verifyInternal("organization.enabled", "true");
-    db.rootFlag().verify(user.getLogin(), true);
-    db.rootFlag().verify(otherUser.getLogin(), false);
+    verifyFeatureEnabled(true);
+    verifyRoot(user, true);
+    verifyRoot(otherUser, false);
   }
 
   @Test
@@ -117,5 +119,13 @@ public class EnableSupportActionTest {
   private void call() {
     TestResponse response = tester.newRequest().setMethod("POST").execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+  }
+
+  private void verifyFeatureEnabled(boolean enabled) {
+    assertThat(organizationFlags.isEnabled(db.getSession())).isEqualTo(enabled);
+  }
+
+  private void verifyRoot(UserDto user, boolean root) {
+    db.rootFlag().verify(user.getLogin(), root);
   }
 }
