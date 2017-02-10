@@ -86,7 +86,7 @@ public class FileSystemMediumTest {
     tester.stop();
     logs = new LogOutputRecorder();
   }
-  
+
   private ImmutableMap.Builder<String, String> createBuilder() {
     return ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
@@ -129,6 +129,45 @@ public class FileSystemMediumTest {
     assertThat(file.publish()).isTrue();
     assertThat(result.getReportComponent(dir.key())).isNotNull();
     assertThat(result.getReportComponent(file.key())).isNotNull();
+  }
+
+  @Test
+  public void logProjectKeyAndOrganizationKey() throws IOException {
+    builder = createBuilder();
+    builder.put("sonar.organization", "my org");
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
+    assertThat(logs.getAllAsString()).contains("Organization key: my org");
+  }
+  
+  @Test
+  public void dontLogInvalidOrganization() throws IOException {
+    builder = createBuilder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
+    assertThat(logs.getAllAsString()).doesNotContain("Organization key");
   }
 
   @Test

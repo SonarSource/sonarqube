@@ -20,6 +20,8 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -228,9 +230,16 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     DefaultAnalysisMode analysisMode = getComponentByType(DefaultAnalysisMode.class);
-    analysisMode.printMode();
-    LOG.debug("Start recursive analysis of project modules");
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
+
+    analysisMode.printMode();
+    LOG.info("Project key: {}", tree.root().key());
+    String organization = props.property("sonar.organization");
+    if (StringUtils.isNotEmpty(organization)) {
+      LOG.info("Organization key: {}", organization);
+    }
+
+    LOG.debug("Start recursive analysis of project modules");
     scanRecursively(tree, tree.root());
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
