@@ -1,0 +1,7 @@
+/**/package sample;
+/**/
+/**/public class ForeverAndModified {
+/**/	
+/**/	private String myMethod() {
+/**/	}
+/**/}

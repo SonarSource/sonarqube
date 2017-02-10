@@ -1,0 +1,7 @@
+package sample;
+
+public class IsBuggyThenChangesAndBecomesClean {
+	
+	private String myMethod() {
+	}
+}

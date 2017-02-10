@@ -1,0 +1,11 @@
+<profile>
+  <name>creation-date-quality-profile</name>
+  <language>xoo</language>
+  <rules>
+    <rule>
+      <repositoryKey>xoo</repositoryKey>
+      <key>OneIssuePerFile</key>
+      <priority>MAJOR</priority>
+    </rule>
+  </rules>
+</profile>
